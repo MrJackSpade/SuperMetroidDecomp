@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
-/// <summary>#1290: the Ceres steam vents' typed programs, each matched step by step to its native bank-$A6 list.</summary>
+/// <summary>#1290: the Ceres steam vents' typed animations, each matched step by step to its native bank-$A6 list.</summary>
 internal static class CeresSteamAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
@@ -21,8 +21,8 @@ internal static class CeresSteamAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Target),
-                    'A' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Alternate),
+                    'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Dormant),
+                    'A' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Puffing),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             }));

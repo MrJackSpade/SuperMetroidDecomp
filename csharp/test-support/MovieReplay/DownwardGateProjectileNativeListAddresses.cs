@@ -15,16 +15,16 @@ internal static class DownwardGateProjectileNativeListAddresses
     internal static readonly NativeProgramEntry<DownwardGateProjectileSegment>[] Entries =
     [
         new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Moving, 0xe53c),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep2, 0xe54a),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep3, 0xe550),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep4, 0xe556),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep5, 0xe55c),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovedOneBlock, 0xe54a),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovedTwoBlocks, 0xe550),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovedThreeBlocks, 0xe556),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Stopping, 0xe55c),
         new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Closed, 0xe55e),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep2, 0xe568),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep3, 0xe572),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep4, 0xe578),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep5, 0xe57e),
-        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep6, 0xe584),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Rising, 0xe568),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.RisenOneBlock, 0xe572),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.RisenTwoBlocks, 0xe578),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.RisenThreeBlocks, 0xe57e),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Vanishing, 0xe584),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:E53C-E585, which production must never read.</summary>

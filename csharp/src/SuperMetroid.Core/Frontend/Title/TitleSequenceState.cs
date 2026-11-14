@@ -506,25 +506,25 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             switch (cue)
             {
-                case TitleSequenceScriptStep.StartLowerPan:
+                case TitleCardCue.StartLowerPan:
                     Phase = TitleSequencePhase.LowerPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
                     return;
 
-                case TitleSequenceScriptStep.StartUpperPan:
+                case TitleCardCue.StartUpperPan:
                     Phase = TitleSequencePhase.UpperPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
                     return;
 
-                case TitleSequenceScriptStep.StartDownwardPan:
+                case TitleCardCue.StartDownwardPan:
                     Phase = TitleSequencePhase.DownwardPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
                     return;
 
-                case TitleSequenceScriptStep.StartFinalZoom:
+                case TitleCardCue.StartFinalZoom:
                     Phase = TitleSequencePhase.FinalZoom;
                     gradientEnabled = true;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
@@ -532,12 +532,12 @@ public sealed class TitleSequenceState : IFrontendScreen
                     ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
                     return;
 
-                case TitleSequenceScriptStep.Delete:
+                case TitleCardCue.RemoveCard:
                     ActiveSprite = null;
                     return;
 
                 default:
-                    throw new InvalidOperationException($"Undefined TitleSequenceScriptStep {cue}.");
+                    throw new InvalidOperationException($"Undefined TitleCardCue {cue}.");
             }
         }
     }

@@ -21,19 +21,19 @@ internal static class DownwardGateProjectileAnimations
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
             Show(EnemyProjectileFrameId.DownwardGateMoving, 1),
         ],
-        [P.MovingStep2] =
+        [P.MovedOneBlock] =
         [
             Show(EnemyProjectileFrameId.DownwardGateThirdMovingStep, 1),
         ],
-        [P.MovingStep3] =
+        [P.MovedTwoBlocks] =
         [
             Show(EnemyProjectileFrameId.DownwardGateFourthMovingStep, 1),
         ],
-        [P.MovingStep4] =
+        [P.MovedThreeBlocks] =
         [
             Show(EnemyProjectileFrameId.DownwardGateFifthMovingStep, 1),
         ],
-        [P.MovingStep5] =
+        [P.Stopping] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.ClearFrameBehavior)),
         ],
@@ -42,63 +42,63 @@ internal static class DownwardGateProjectileAnimations
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
             Show(EnemyProjectileFrameId.DownwardGateClosed, 1),
         ],
-        [P.ClosedStep2] =
+        [P.Rising] =
         [
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
             Show(EnemyProjectileFrameId.DownwardGateThirdClosedStep, 1),
         ],
-        [P.ClosedStep3] =
+        [P.RisenOneBlock] =
         [
             Show(EnemyProjectileFrameId.DownwardGateFourthClosedStep, 1),
         ],
-        [P.ClosedStep4] =
+        [P.RisenTwoBlocks] =
         [
             Show(EnemyProjectileFrameId.DownwardGateFifthClosedStep, 1),
         ],
-        [P.ClosedStep5] =
+        [P.RisenThreeBlocks] =
         [
             Show(EnemyProjectileFrameId.DownwardGateSixthClosedStep, 1),
         ],
-        [P.ClosedStep6] =
+        [P.Vanishing] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.Delete)),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>The animation each place of the gate's travel starts; the stopping gate shows itself closed as it stops.</summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt { get; } = new Dictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>
     {
         [P.Moving] = new([new(P.Moving, 0, 3, 1)], AnimationEnd.Holds),
-        [P.MovingStep2] = new([new(P.MovingStep2, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MovingStep3] = new([new(P.MovingStep3, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MovingStep4] = new([new(P.MovingStep4, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MovingStep5] = new([new(P.MovingStep5, 0, 1, 1), new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
+        [P.MovedOneBlock] = new([new(P.MovedOneBlock, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MovedTwoBlocks] = new([new(P.MovedTwoBlocks, 0, 1, 1)], AnimationEnd.Holds),
+        [P.MovedThreeBlocks] = new([new(P.MovedThreeBlocks, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Stopping] = new([new(P.Stopping, 0, 1, 1), new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
         [P.Closed] = new([new(P.Closed, 0, 2, 1)], AnimationEnd.Holds),
-        [P.ClosedStep2] = new([new(P.ClosedStep2, 0, 2, 1)], AnimationEnd.Holds),
-        [P.ClosedStep3] = new([new(P.ClosedStep3, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ClosedStep4] = new([new(P.ClosedStep4, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ClosedStep5] = new([new(P.ClosedStep5, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ClosedStep6] = new([new(P.ClosedStep6, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Rising] = new([new(P.Rising, 0, 2, 1)], AnimationEnd.Holds),
+        [P.RisenOneBlock] = new([new(P.RisenOneBlock, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RisenTwoBlocks] = new([new(P.RisenTwoBlocks, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RisenThreeBlocks] = new([new(P.RisenThreeBlocks, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Vanishing] = new([new(P.Vanishing, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DownwardGateProjectileSegment> StartingWith(DownwardGateProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The animation each sleeping animation resumes with when its owner wakes it, keyed by
-    /// the animation that slept.
+    /// The animation the gate plays at its next place once it has travelled a block, or once a closed gate is woken, keyed
+    /// by the animation it rests in.
     /// </summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment> Resumption { get; } = new Dictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment>
     {
-        [P.Moving] = P.MovingStep2,
-        [P.MovingStep2] = P.MovingStep3,
-        [P.MovingStep3] = P.MovingStep4,
-        [P.MovingStep4] = P.MovingStep5,
-        [P.Closed] = P.ClosedStep2,
-        [P.ClosedStep2] = P.ClosedStep3,
-        [P.ClosedStep3] = P.ClosedStep4,
-        [P.ClosedStep4] = P.ClosedStep5,
-        [P.ClosedStep5] = P.ClosedStep6,
+        [P.Moving] = P.MovedOneBlock,
+        [P.MovedOneBlock] = P.MovedTwoBlocks,
+        [P.MovedTwoBlocks] = P.MovedThreeBlocks,
+        [P.MovedThreeBlocks] = P.Stopping,
+        [P.Closed] = P.Rising,
+        [P.Rising] = P.RisenOneBlock,
+        [P.RisenOneBlock] = P.RisenTwoBlocks,
+        [P.RisenTwoBlocks] = P.RisenThreeBlocks,
+        [P.RisenThreeBlocks] = P.Vanishing,
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

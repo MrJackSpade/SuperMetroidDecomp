@@ -63,17 +63,21 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(48, SamusEaterObjectDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(2, SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
-        AssertEqual(null, MetroidsClearedEvents.ResolveEvent(8), "ninth metroids-cleared entry is a no-op");
-        AssertEqual((StoryEvent?)StoryEvent.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(9), "first quota observer");
-        AssertEqual((StoryEvent?)StoryEvent.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
+        // The import decodes a clearance watch's word into the event it marks (#1746).
+        AssertEqual<RoomObjectRoomArgument?>(MetroidRoomArgument.ObservesNothing,
+            RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 16), "ninth metroids-cleared entry observes nothing");
+        AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.FirstMetroidHallCleared),
+            RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 18), "first quota observer");
+        AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.SecondMetroidShaftCleared),
+            RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 24), "last quota observer");
 
         // Terrain blocks keep the collision kind and appearance of the former literal words.
         AssertEqual(RoomCollisionType.SolidBlock, MaridiaElevatubeObjectDefinitions.Collision, "elevatube block");
         AssertEqual(RoomBlockAppearance.Of(0x180), InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
             "elevatube block picture");
 
-        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, GateObjects.DownwardGateShotBlock(0).LeftCollision, "blue-left gate trigger collision");
-        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, GateObjects.DownwardGateShotBlock(7).RightCollision, "yellow-right gate trigger collision");
+        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, DownwardGateShotBlockDefinitions.BlueLeft.LeftCollision, "blue-left gate trigger collision");
+        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, DownwardGateShotBlockDefinitions.YellowRight.RightCollision, "yellow-right gate trigger collision");
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
         InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);

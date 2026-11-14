@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The colour and side of a downward gate's shot-block trigger.</summary>
-/// <param name="Trigger">The trigger's position in the gate's trigger table.</param>
-public sealed record GateTriggerArgument(int Trigger) : RoomObjectRoomArgument;
+/// <param name="ShotBlock">The trigger's shot-block setup, one of <see cref="DownwardGateShotBlockDefinitions"/>.</param>
+internal sealed record GateTriggerArgument(DownwardGateShotBlockDefinition ShotBlock) : RoomObjectRoomArgument;

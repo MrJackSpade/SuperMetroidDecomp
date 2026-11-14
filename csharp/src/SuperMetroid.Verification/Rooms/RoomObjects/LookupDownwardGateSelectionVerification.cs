@@ -31,13 +31,13 @@ internal static class LookupDownwardGateSelectionVerification
             ushort argument = (ushort)raw;
             if (raw is not (0 or 2 or 4 or 6 or 8 or 10 or 12 or 14))
             {
-                AssertThrows<InvalidDataException>(() => GateObjects.DownwardGateShotBlock(
-                    RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument) is GateTriggerArgument { Trigger: var trigger }
-                        ? trigger : throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")),
+                AssertThrows<InvalidDataException>(() => RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument),
                     "Downward gate rejects all unsupported arguments");
                 continue;
             }
-            DownwardGateShotBlockDefinition action = GateObjects.DownwardGateShotBlock(argument / 2);
+            // The import decodes the word into the trigger's colour and side (#1746).
+            DownwardGateShotBlockDefinition action = (RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)
+                as GateTriggerArgument ?? throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")).ShotBlock;
             ushort native = ReadSamusEaterObjectWord(rom, source + raw);
             if (field == 0)
             {

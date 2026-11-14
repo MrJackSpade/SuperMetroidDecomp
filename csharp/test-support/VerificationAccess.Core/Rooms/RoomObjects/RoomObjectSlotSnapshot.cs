@@ -26,5 +26,5 @@ internal readonly record struct RoomObjectSlotSnapshot(
     /// which draws the trigger's shot block once before it leaves the room.
     /// </summary>
     internal bool HoldsDownwardGateShotBlock => Behaviour is TerrainChangeObject { Change: var change }
-        && DownwardGateShotBlockDefinitions.Triggers.Any(trigger => trigger.Change == change);
+        && RoomObjectRoomArgumentWords.GateTriggersInTableOrder.Any(trigger => trigger.Change == change);
 }

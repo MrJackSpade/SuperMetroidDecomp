@@ -45,6 +45,8 @@ public static class GameOptionsPageDefinitions
     /// <summary>The primary page's language-label rows, whose palette shows the active language.</summary>
     public static class LanguageRegions
     {
+        /// <summary>The rows the cartridge recolours: the English label's two, then the Japanese label's two.</summary>
+        public const int RowCount = 4;
         /// <summary>The page byte the English label's first row starts at.</summary>
         public const int FirstByteOffset = 648;
         /// <summary>Bytes of each English label row.</summary>

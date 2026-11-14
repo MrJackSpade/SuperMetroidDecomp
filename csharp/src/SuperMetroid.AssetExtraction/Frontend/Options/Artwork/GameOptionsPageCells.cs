@@ -27,7 +27,7 @@ public static class GameOptionsPageCells
     /// <exception cref="ArgumentOutOfRangeException">The index is outside the four rows.</exception>
     public static GameOptionsLanguagePaletteRegion LanguagePaletteRegion(int index)
     {
-        if ((uint)index >= GameOptionsDefinitions.LanguagePaletteRegionCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= LanguageRegions.RowCount) throw new ArgumentOutOfRangeException(nameof(index));
         int language = index / 2;
         int row = index % 2;
         int rowBytes = GameOptionsPageDefinitions.MenuTilemapWidth * sizeof(ushort);

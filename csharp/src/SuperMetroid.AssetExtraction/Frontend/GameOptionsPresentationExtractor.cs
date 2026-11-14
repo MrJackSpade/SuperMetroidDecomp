@@ -53,7 +53,7 @@ public static class GameOptionsPresentationExtractor
             .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
-            Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount)
+            Enumerable.Range(0, GameOptionsPageDefinitions.LanguageRegions.RowCount)
                 .Select(GameOptionsPageCells.LanguagePaletteRegion)
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {

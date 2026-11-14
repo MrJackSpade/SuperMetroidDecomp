@@ -323,6 +323,19 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class DemoRecording { int Recorded; int Recording; DemoRecordingEnd? End; } class DemoRecordingEnd { } enum DemoInputRecordingId { None }");
         Expect("class P { int ForRecord() => 0; int NextRecord; bool MotherBrainDefeatRecordRequested; void RecordFullBrightness() { } }");
         Expect("class Recorder { int Recordable; int RecordingCount; int CountRecord; } class RecordedInput { }");
+        // The original's table positions and enemy record (#1765), in each kind of declaration the renamed speed-curve
+        // places and wing step used them in, and a menu index and an enemy record as members.
+        const string tablePosition = "names the original's table position or enemy record";
+        Expect("class P { int Run() { int tableIndex = 0; return tableIndex; } }", $"'tableIndex' {tablePosition} ('TableIndex')");
+        Expect("class P { static int Climb(int height, int tableIndexDelta) => height + tableIndexDelta; }",
+            $"'tableIndexDelta' {tablePosition} ('TableIndex')");
+        Expect("class P { void Step(int tableIndex) { } }", $"'tableIndex' {tablePosition} ('TableIndex')");
+        Expect("class P { int FacingTableIndexes; }", $"'FacingTableIndexes' {tablePosition} ('TableIndex')");
+        Expect("class P { int MenuIndex { get; set; } }", $"'MenuIndex' {tablePosition} ('MenuIndex')");
+        Expect("class P { int LiveEnemyRecordSlot; }", $"'LiveEnemyRecordSlot' {tablePosition} ('EnemyRecord')");
+        Expect("class P { void CopyToEnemyRecord() { } }", $"'CopyToEnemyRecord' {tablePosition} ('EnemyRecord')");
+        // The words alone or apart are the game's own: a menu, a table, an index, an enemy, a record.
+        Expect("class P { int MenuStep; int SpeedTable; int WingIndex; int EnemyIndex; int TableRow; int IndexTable; void RecordEnemy() { } int MenuCursorIndex; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

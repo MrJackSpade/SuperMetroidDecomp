@@ -22,8 +22,8 @@ internal sealed class CeresRidleyBehavior
     /// <summary>The Baby Metroid's container in Ceres Ridley's room, and the sprites and door drawn around the fight.</summary>
     internal CeresRidleyBabyScene BabyScene { get; }
 
-    /// <summary>Ceres Ridley's eye and body palette fades.</summary>
-    internal CeresRidleyFades Fades { get; }
+    /// <summary>Ridley's fade-in, which Norfair Ridley's behaviour runs through this instance too.</summary>
+    internal RidleyFadeIn FadeIn { get; }
 
     /// <summary>What Ceres Ridley's body does to Samus and what Samus's weapons do to Ceres Ridley.</summary>
     internal CeresRidleyHits Hits { get; }
@@ -45,7 +45,7 @@ internal sealed class CeresRidleyBehavior
         _roomStatus = dependencies.RoomStatus;
         Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, RidleyEncounter = _ridleyEncounter });
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.Presentation.Surfaces, _ridleyEncounter);
-        Fades = new CeresRidleyFades(dependencies.Audio);
+        FadeIn = new RidleyFadeIn(dependencies.Audio);
         Hits = new CeresRidleyHits(dependencies.Room, dependencies.Collision, _ridleyEncounter);
         Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, BossArtwork = _bossArtwork, UnauthoredBoostCadence = dependencies.UnauthoredBoostCadence });
     }
@@ -92,11 +92,11 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.FadeInEyes:
-                CeresRidleyFades.TickCeresRidleyEyeFade(state);
+                RidleyFadeIn.TickEyeFadeIn(state);
                 break;
 
             case RidleyPhase.FadeInBody:
-                Fades.TickCeresRidleyBodyFade(slot, state);
+                FadeIn.TickBodyFadeIn(slot, state);
                 break;
 
             case RidleyPhase.WaitBeforeRoar:

@@ -461,21 +461,21 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sums the quadratic table's coarse speeds until a jump height is reached.</summary>
-    internal static EnemyQuadraticSpeedIndex CalculateInitialBeetomYSpeedIndex(int targetHeight, int tableIndexDelta)
+    internal static EnemyQuadraticSpeedIndex CalculateInitialBeetomYSpeedIndex(int targetHeight, int curvePlaceStep)
     {
-        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
+        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
         int accumulatedHeight = 0;
         // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
         // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
         // speed of zero only (#1627).
         for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
-            tableIndex += EnemyQuadraticSpeedIndex.FromRows(tableIndexDelta);
+            curvePlace += EnemyQuadraticSpeedIndex.FromRows(curvePlaceStep);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
             accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
-                tableIndex.Row.CoarseToward(EnemySpeedSign.Positive));
+                curvePlace.Row.CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
-                return tableIndex;
+                return curvePlace;
         }
         throw new InvalidDataException("Beetom initial-speed calculation did not reach its authored target height.");
     }

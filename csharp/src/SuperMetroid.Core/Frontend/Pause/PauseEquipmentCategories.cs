@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <summary>Reserve, beam, suit/misc, and boot category definitions.</summary>
 internal static class PauseEquipmentCategories
 {
-    /// <summary>Weapons mask table index of Plasma; bottom of beam list.</summary>
+    /// <summary>Plasma's place in the pause screen's beam list, at its bottom.</summary>
     public const int PlasmaItem = 4;
     /// <summary>Moving right from the beams without Up held starts the suit and miscellaneous scan at its third item.</summary>
     public const int BeamRightSuitItem = 2;

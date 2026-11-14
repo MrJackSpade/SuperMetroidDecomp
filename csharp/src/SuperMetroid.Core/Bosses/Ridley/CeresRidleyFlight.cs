@@ -379,7 +379,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>The retrieval steering target relative to the falling Baby.</summary>
     private static Offset16<RoomPixels> CeresRidleyHandToBaby => new(10, 56);
 
-    /// <summary>Steers both 1/256-pixel velocity axes toward a target, promoting zero hardware quotients to one.</summary>
+    /// <summary>Steers both 1/256-pixel velocity axes toward a target, raising a step that divides to zero to one.</summary>
     internal static void AccelerateRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -410,7 +410,7 @@ internal sealed class CeresRidleyFlight
         int difference = CoordinateAxis.Difference(position, target);
         if (difference == 0)
             return velocity;
-        // Hardware quotient of the distance, at most 32768; a zero quotient is promoted to one.
+        // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
         int step = Math.Max(1, Math.Abs(difference) / divisor);
         var run = new SeekingVelocityRun(velocity, position, target);
 
@@ -529,10 +529,10 @@ internal sealed class CeresRidleyFlight
         }
         else
         {
-            // The wing animation reads the speed's quarter pixels within a cycle of sixteen as a table index and clamps
-            // that index to seven.
-            int tableIndex = Math.Min(7, largestAxisVelocity.WholeQuarterPixels % 16);
-            int delta = CeresRidleyWingDefinitions.AnimationTimerSteps[tableIndex];
+            // The wing animation reads the speed's quarter pixels within a cycle of sixteen as its step and caps
+            // that step at seven.
+            int wingStep = Math.Min(7, largestAxisVelocity.WholeQuarterPixels % 16);
+            int delta = CeresRidleyWingDefinitions.AnimationTimerSteps[wingStep];
             if (!state.Velocity.Y.IsNegative)
                 delta >>= 1;
             state.WingAnimationTimerDelta = delta;

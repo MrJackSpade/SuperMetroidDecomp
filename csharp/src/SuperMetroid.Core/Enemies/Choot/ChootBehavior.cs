@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Choot;
@@ -155,15 +155,15 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
-        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
+        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
         FixedCoordinate accumulatedDistance = default;
         for (int iteration = 0; iteration < 128; iteration++)
         {
-            tableIndex += ChootRowsPerUpdate;
-            accumulatedDistance = accumulatedDistance.MovedBy(tableIndex.Row.Positive);
+            curvePlace += ChootRowsPerUpdate;
+            accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Row.Positive);
             int wholeDistance = accumulatedDistance.Whole;
             if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
-                return tableIndex;
+                return curvePlace;
         }
 
         throw new InvalidDataException(

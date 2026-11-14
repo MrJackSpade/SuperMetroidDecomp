@@ -8,7 +8,7 @@ internal static class CeresRidleyAttackDefinitions
     /// (the attack choice reads the seed; it does not generate another number). Six entries start a
     /// fireball route, five a lunge and five a swoop.
     /// </summary>
-    private static ReadOnlySpan<RidleyPhase> AttackByRandomNibble =>
+    private static ReadOnlySpan<RidleyPhase> AttackByRandomChoice =>
     [
         RidleyPhase.CeresFireballMoveToPosition, RidleyPhase.CeresFireballMoveToPosition,
         RidleyPhase.CeresFireballMoveToPosition, RidleyPhase.CeresFireballMoveToPosition,
@@ -24,5 +24,5 @@ internal static class CeresRidleyAttackDefinitions
     private static readonly RandomSampleField AttackChoice = new(0, 4);
 
     /// <summary>The attack the table selects for a random number; only its <see cref="AttackChoice"/> indexes the table.</summary>
-    internal static RidleyPhase SelectAttack(int random) => AttackByRandomNibble[AttackChoice.Of(random)];
+    internal static RidleyPhase SelectAttack(int random) => AttackByRandomChoice[AttackChoice.Of(random)];
 }

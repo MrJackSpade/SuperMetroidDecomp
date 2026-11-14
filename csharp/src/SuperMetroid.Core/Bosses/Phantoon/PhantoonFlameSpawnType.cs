@@ -7,7 +7,7 @@ public enum PhantoonFlameSpawnType
     Casual,
     /// <summary>An enraged wave flame, indexed by direction.</summary>
     Enraged,
-    /// <summary>A rain flame, indexed by packed column and fall delay.</summary>
+    /// <summary>A rain flame, which names the column it falls in and its fall delay.</summary>
     Rain,
     /// <summary>A spiral flame, indexed by direction 0-7.</summary>
     Spiral,

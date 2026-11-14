@@ -9,6 +9,6 @@ public static class DraygonEyeEffects
     public const MiscDustAnimation DustVariant = MiscDustAnimation.LongDraygonBreathBubbles;
     /// <summary>Both eye handlers offset the particle 24 pixels toward the facing side.</summary>
     public const int HorizontalOffset = 24;
-    /// <summary>Both eye handlers place the particle 32 pixels above the eye record.</summary>
+    /// <summary>Both eye handlers place the particle 32 pixels above the eye.</summary>
     public const int VerticalOffset = -32;
 }

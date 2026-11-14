@@ -21,6 +21,6 @@ public enum DragonAction
     /// <summary>Moves the body and wing downward before restoring the hidden wait.</summary>
     Sinking,
 
-    /// <summary>No-op action used by the cosmetic wing's separate physical enemy record.</summary>
+    /// <summary>No-op action used by the cosmetic wing, an enemy of its own beside the body.</summary>
     WingNoOp,
 }

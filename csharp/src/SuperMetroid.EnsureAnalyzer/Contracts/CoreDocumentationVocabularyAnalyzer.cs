@@ -331,6 +331,20 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|(?<![\w.])(?:8\.8|16\.16)(?!\w|\.\w)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The original's table positions and enemy record in prose (#1765), outside hardware owners, spaced or hyphenated: a
+    /// menu index (menu index 13, menu indices zero through two), a table index, alone or naming its table (a facing-table or
+    /// speed-table index, ordinary table indices, two table indexes), and an enemy record (the live enemy record, four
+    /// enemy records). The original numbered its menus' steps, looked values up by their place in its tables and kept each
+    /// enemy in a fixed-size record; Core names the menu's step, an angle's whole step, a speed curve's place or the enemy
+    /// itself. A compatibility service may describe the enemy record its reproduced behaviour reads. English stays legal:
+    /// a table indexed by a value (the verb), the menu's index, an enemy's record, and a menu, table, index, enemy or record
+    /// alone.
+    /// </summary>
+    private static readonly Regex TablePositionProse = new(
+        @"\b(?:menu|table)[-\s]+ind(?:ex|exes|ices)\b|\benemy[-\s]+records?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
     private const string SignWord = @"(?<!\b(?:percent|plus|minus|equals?|dollar)[-\s]+)sign\b";
 
@@ -486,6 +500,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : MachineArithmeticProse.Match(text) is { Success: true } arithmetic ? arithmetic.Value
             : DataEncodingProse.Match(text) is { Success: true } encoding ? encoding.Value
             : MachineNumberProse.Match(text) is { Success: true } number ? number.Value
+            : TablePositionProse.Match(text) is { Success: true } tablePosition ? tablePosition.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

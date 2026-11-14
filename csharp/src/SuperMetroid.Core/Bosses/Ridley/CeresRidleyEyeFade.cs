@@ -6,18 +6,16 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyEyeFade
 {
     /// <summary>
-    /// Resolves one authored scheduler offset. The first sixteen frames select shades
-    /// fifteen down through zero; the remaining 48 frames hold shade zero before completion.
+    /// The eye fade at one of its steps. The first sixteen steps show shades
+    /// fifteen down through zero; the remaining 48 steps hold shade zero before the fade completes.
     /// </summary>
     /// <remarks>
-    /// #625 / #651 exact NTSC J/U v1.0 algorithm: offset 0..15 selects shade
-    /// 15-offset, offset 16..63 selects shade zero, and offset 64 is the
-    /// completion marker. All 65 entries match the pinned release.
-    /// The game reads overlapping pairs at each offset
-    /// and keeps the low one. Offset 65 would read past the schedule
-    /// into the eye's colours and is outside this schedule.
-    /// The eye-fade verification checks every shade and the terminal
-    /// transition through the real fade consumer with schedule reads forbidden.
+    /// #625 / #651, as the NTSC J/U v1.0 release fades the eyes: step 0..15 shows shade
+    /// 15-step, steps 16..63 show shade zero, and step 64 completes the
+    /// fade. All 65 steps match the pinned release.
+    /// No step follows the completing one, so a later step is refused.
+    /// The eye-fade verification checks every shade and the completing
+    /// step through the fade that consumes it.
     /// </remarks>
     public static CeresRidleyEyeFadeStep Get(int offset) => offset switch
     {

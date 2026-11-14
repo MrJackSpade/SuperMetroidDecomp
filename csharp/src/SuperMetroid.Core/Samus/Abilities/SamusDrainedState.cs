@@ -190,7 +190,7 @@ public sealed class SamusDrainedState
     /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
     /// (#1512). The Baby
     /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
-    /// value becomes the delay between advances of the ten-entry palette index.
+    /// value becomes the delay between steps through the glow's ten shades.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)

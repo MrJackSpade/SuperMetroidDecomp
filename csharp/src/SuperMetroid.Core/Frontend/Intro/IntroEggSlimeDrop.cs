@@ -13,7 +13,7 @@ internal sealed class IntroEggSlimeDrop
     /// changes.
     /// </summary>
     private readonly int trajectory;
-    /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
+    /// <summary>The frames the drop has fallen, 0 through 255: its step along the fall's gravity curve.</summary>
     private int framesFallen;
     /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
     private bool motionEnabled = true;

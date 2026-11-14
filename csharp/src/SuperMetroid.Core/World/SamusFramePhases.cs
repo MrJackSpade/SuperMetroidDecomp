@@ -664,7 +664,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // The shinespark replaces the normal movement handler. Windup, active
         // launch, and crash therefore own movement regardless of the pose's
-        // table index; ordinary special-movement-type physics does not exist to fall back to.
+        // movement type; ordinary special-movement-type physics does not exist to fall back to.
         else if (samus.Shinespark.OwnsMovementHandler)
         {
             // Samus's environment-selected vertical acceleration pair is used

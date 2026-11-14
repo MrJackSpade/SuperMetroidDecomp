@@ -125,6 +125,15 @@ A name that says `Underflow` names the CPU's arithmetic and is reported too (#17
 `CoreVocabularyAnalyzer.MachineArithmeticWords`): a subtraction borrowing past zero. Core says what the value did in the
 game (`speedPassedZero`).
 
+The original's table positions and enemy record are reported too (#1765, `CoreVocabularyAnalyzer.TablePositionPhrases`),
+matched like the hardware phrases: `MenuIndex`, the number the original gave a menu's step; `TableIndex`, a value's
+place in one of its lookup tables (a `tableIndex` local, a `tableIndexDelta` parameter); and `EnemyRecord`, the
+fixed-size record it kept each enemy in. Core names the menu's step, a speed curve's place (`curvePlace`,
+`curvePlaceStep`), an animation's step (`wingStep`) or the enemy itself. Each word alone stays the game's own. SME6454
+reads the same three in prose outside hardware owners, spaced or hyphenated (`menu index 13`, a `facing-table index`,
+`table indices`, the `enemy records`); a table indexed by a value, the menu's index and an enemy's record are English,
+and a compatibility service may describe the enemy record its reproduced behaviour reads.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

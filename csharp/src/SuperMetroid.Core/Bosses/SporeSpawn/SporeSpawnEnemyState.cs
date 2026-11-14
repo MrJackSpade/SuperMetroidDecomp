@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Spore Spawn's state beyond its common enemy record: the boss's swing angle, stalk anchor and
+/// Spore Spawn's state beyond what every enemy has: the boss's swing angle, stalk anchor and
 /// death velocity, each named rather than kept in generic enemy values, with their wrapping arithmetic.
 /// </summary>
 public sealed class SporeSpawnEnemyState

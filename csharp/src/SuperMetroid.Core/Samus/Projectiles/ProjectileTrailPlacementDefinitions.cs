@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Where projectile trails start: the family each trail selector gives a beam combination, the list each family gives a
-/// direction-table index, and each list's placements by animation frame.
+/// direction, and each list's placements by animation frame.
 /// </summary>
 internal static class ProjectileTrailPlacementDefinitions
 {

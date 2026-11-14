@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// helmet turn before loading.
 /// </summary>
 /// <remarks>
-/// This class deliberately models the game's menu index and brightness transitions instead
+/// This class deliberately models the game's menu steps and brightness transitions instead
 /// of replacing the screen with desktop widgets. Its pictures, starfield, text, palette,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are decoded from the redundant save
@@ -60,7 +60,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
     internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], SaveSlot.A, SaveSlot.A);
 
-    /// <summary>Performs menu indices zero through two, including every artwork load.</summary>
+    /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
         AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
@@ -242,7 +242,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         IReadOnlyList<SaveSlot> helmetSlots = mainPage ? SaveSlots.All : [];
         foreach (SaveSlot slot in helmetSlots)
         {
-            // Menu index 32 fades with the completed (or Start-shortened) helmet turn
+            // The menu fades out with the completed (or Start-shortened) helmet turn
             // still drawn. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
             int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is

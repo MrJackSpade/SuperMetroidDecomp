@@ -164,6 +164,18 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The original's table positions and enemy record (#1765), two-word names matched like <see cref="HardwarePhrases"/>:
+    /// the cartridge numbered a menu's steps (<c>MenuIndex</c>), looked values up by their place in its tables (a
+    /// <c>tableIndex</c> local, a <c>tableIndexDelta</c> parameter) and kept each enemy in a fixed-size record
+    /// (<c>EnemyRecord</c>). Core names the menu's step, a speed curve's place, an animation's step or the enemy itself.
+    /// Each word alone stays the game's own: a menu, a table, an index, an enemy, a record.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> TablePositionPhrases =
+    [
+        ["Menu", "Index"], ["Table", "Index"], ["Enemy", "Record"],
+    ];
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -463,6 +475,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the enemy record's interaction routine field ('{reactionAi}')";
         if (ContainedPhrase(identifier, RecordPhrases) is { } record)
             return $"names the cartridge's record ('{record}')";
+        if (ContainedPhrase(identifier, TablePositionPhrases) is { } tablePosition)
+            return $"names the original's table position or enemy record ('{tablePosition}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;

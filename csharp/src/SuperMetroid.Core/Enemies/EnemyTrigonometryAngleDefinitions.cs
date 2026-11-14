@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The game's enemy angles: 256 units per turn, wrapping at a full turn. Which half of the turn an angle
-/// lies in, and its half-wave table index, are <see cref="TrigonometryAngle"/> operations.
+/// lies in, and its position within that half, are <see cref="TrigonometryAngle"/> operations.
 /// </summary>
 internal static class EnemyTrigonometryAngleDefinitions
 {

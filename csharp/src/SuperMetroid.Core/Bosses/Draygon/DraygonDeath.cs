@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -150,7 +150,7 @@ internal sealed class DraygonDeath
     {
         _spriteObjects.EndAll();
 
-        // The two loops share one descending position-table index: three left-facing objects followed by three
+        // The two loops count down one shared place in the burial list: three left-facing objects followed by three
         // right-facing objects.
         for (int entry = 5; entry >= 3; entry--)
             SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonIntroEvir);

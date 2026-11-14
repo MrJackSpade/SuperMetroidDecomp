@@ -5,7 +5,7 @@ using SuperMetroid.Core.Escape;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Shared state behind Mother Brain's two retail enemy records, the body and the brain.
+/// Shared state behind Mother Brain's two enemies, the body and the brain.
 /// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
 /// separate while one owner serves the two.
 /// </summary>
@@ -128,9 +128,9 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
 
-    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
+    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its whole step places joints 0 through 2.</summary>
     public RotationAngle LowerNeckAngle { get; internal set; }
-    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its table index places joints 3 and 4.</summary>
+    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places joints 3 and 4.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
     /// <summary>Neck angular speed in 256ths of an angle unit, added or subtracted by both neck motion steps each enabled update; every producer writes a positive speed of at most 2304.</summary>
     public int NeckAngleDelta { get; internal set; }
@@ -274,7 +274,7 @@ public sealed class MotherBrainEnemyState
     }
 
     /// <summary>
-    /// The dynamically allocated physical Baby Metroid enemy record created by
+    /// The Baby Metroid enemy placed in the room by
     /// the final beam's Baby spawn. Keeping the slot and its extended cutscene state side by side makes
     /// the cross-enemy index observable without pretending the Baby is a draw-only
     /// effect owned by Mother Brain's body.

@@ -14,8 +14,8 @@ public sealed class WaverEnemyState
     internal WaverSegment InstalledAnimation { get; set; }
 
     /// <summary>
-    /// The vertical wave's phase; only its table index is read, so it wraps after a full turn. It advances two table
-    /// units per unobstructed update and a vertical collision reflects it by half a turn.
+    /// The vertical wave's phase; only its whole step is read, so it wraps after a full turn. It advances two whole
+    /// steps per unobstructed update and a vertical collision reflects it by half a turn.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 

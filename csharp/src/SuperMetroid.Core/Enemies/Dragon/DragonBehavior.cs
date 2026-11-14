@@ -66,8 +66,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.IsWing)
         {
-            // The wing begins on table index two (left-facing wings) and never runs body AI.
-            // Its intangibility property keeps the cosmetic record out of touch/shot collision passes.
+            // The wing begins on the left-facing wings animation and never runs body AI.
+            // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
             state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(

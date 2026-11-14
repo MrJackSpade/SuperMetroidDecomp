@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -28,7 +28,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     internal RidleyParts Parts { get; }
 
     /// <summary>
-    /// Ridley's state beyond the common enemy record while either encounter owns his body,
+    /// Ridley's state beyond what every enemy has while either encounter owns his body,
     /// kept in named fields rather than in dozens of generic enemy values.
     /// </summary>
     public RidleyEnemyState? Ridley { get; internal set; }

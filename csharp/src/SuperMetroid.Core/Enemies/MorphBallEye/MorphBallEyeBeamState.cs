@@ -28,7 +28,7 @@ public sealed class MorphBallEyeBeamState
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }
 
     /// <summary>Position in the sixteen-step yellow brightness cycle, 0 through 15: the colour shown next.</summary>
-    public int ColorIndex { get; internal set; }
+    public int ColourStep { get; internal set; }
 
     /// <summary>
     /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
@@ -61,7 +61,7 @@ public sealed class MorphBallEyeBeamState
         Body = null;
         AngularHalfWidth = RotationAngle.Zero;
         AngularHalfWidthGrowth = RotationAngle.Zero;
-        ColorIndex = 0;
+        ColourStep = 0;
         Color = RgbColor.Black;
     }
 

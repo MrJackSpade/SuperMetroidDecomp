@@ -50,8 +50,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>
-    /// Runs Norfair Ridley's per-frame behaviour and the area-two half of the shared reveal
-    /// phases. Composition is advanced after the selected phase, so a velocity change affects the same rendered
+    /// Runs Norfair Ridley's per-frame behaviour, including the reveal phases he shares with
+    /// Ceres Ridley. Composition is advanced after the selected phase, so a velocity change affects the same rendered
     /// frame.
     /// </summary>
     private void RunNorfairRidleyMain(
@@ -111,11 +111,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.FadeInEyes:
-                CeresRidleyFades.TickCeresRidleyEyeFade(state);
+                RidleyFadeIn.TickEyeFadeIn(state);
                 return;
 
             case RidleyPhase.FadeInBody:
-                _ceresRidleyBehavior.Fades.TickCeresRidleyBodyFade(slot, state);
+                _ceresRidleyBehavior.FadeIn.TickBodyFadeIn(slot, state);
                 return;
 
             case RidleyPhase.WaitBeforeRoar:

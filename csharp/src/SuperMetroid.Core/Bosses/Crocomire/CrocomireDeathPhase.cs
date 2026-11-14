@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's death phases, declared in the order the death sequence runs them: a phase that finishes hands over to
-/// the next declared phase (<see cref="CrocomireDeathPhases.Next"/>). That order is the only thing read from the
-/// values, which are otherwise arbitrary.
+/// Crocomire's death phases, declared in the order the death sequence runs them for reading; a phase that finishes
+/// hands over to the successor <see cref="CrocomireDeathPhases.Next"/> names. Nothing reads the values or their order.
 /// Keeping the phases separate from the executor makes the authored sequence readable
 /// without mixing identity declarations into the state-transition implementation.
 /// </summary>

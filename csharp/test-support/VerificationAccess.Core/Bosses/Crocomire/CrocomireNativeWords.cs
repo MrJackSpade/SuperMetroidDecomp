@@ -18,7 +18,7 @@ internal static class CrocomireNativeWords
 
     /// <summary>
     /// The byte offset into the death dispatcher's jump table, body variable A, naming each <see cref="CrocomireDeathPhase"/>.
-    /// The cartridge advances a phase by one table word, so the table runs in the phases' declared order.
+    /// The cartridge advances a phase by one table word, the successor <see cref="CrocomireDeathPhases.Next"/> names.
     /// </summary>
     internal static readonly NativeWordIdentities<CrocomireDeathPhase> DeathPhases = new(new Dictionary<CrocomireDeathPhase, ushort>
     {

@@ -130,7 +130,7 @@ internal static class CrocomireStateQuantitiesVerification
             enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.FirstHopSink.Next(), state.DeathPhase, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
@@ -155,7 +155,7 @@ internal static class CrocomireStateQuantitiesVerification
             enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.FirstHopRise.Next(), state.DeathPhase, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
@@ -260,7 +260,7 @@ internal static class CrocomireStateQuantitiesVerification
             behavior.Skeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
-        AssertEqual(CrocomireDeathPhase.DelaySkeletonFall.Next(), state.DeathPhase, "the drift ends with its delay");
+        AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena, state.DeathPhase, "the drift ends with its delay");
 
         // The arc into the arena, falling 224/256 pixel a frame, until the skeleton passes X 576.
         for (int frame = 1; frame <= 400; frame++)
@@ -273,7 +273,7 @@ internal static class CrocomireStateQuantitiesVerification
             if (unchecked((short)(position.X.Whole - 576)) >= 0)
                 break;
         }
-        AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena.Next(), state.DeathPhase, "the arc ends past X 576");
+        AssertEqual(CrocomireDeathPhase.WaitForSkeletonTerminalImage, state.DeathPhase, "the arc ends past X 576");
 
         // The collapse keeps accelerating the speed, clamped at six pixels, while the skeleton falls apart.
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.SkeletonFallsApart), AnimationPlace.StartOfAnimation);

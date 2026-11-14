@@ -39,6 +39,6 @@ internal abstract record MotherBrainBodyCue
     /// <summary>Fires the red hand beam.</summary>
     internal static MotherBrainBodyCue FireHandBeam { get; } = new Signal(MotherBrainBodyCueKind.FireHandBeam);
 
-    /// <summary>Advances the hand-beam attack phase.</summary>
+    /// <summary>Advances the hand-beam attack from firing to finishing.</summary>
     internal static MotherBrainBodyCue AdvanceHandBeamPhase { get; } = new Signal(MotherBrainBodyCueKind.AdvanceHandBeamPhase);
 }

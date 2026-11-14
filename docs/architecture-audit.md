@@ -274,9 +274,9 @@ programs derive from `RoomObjectCuelessProgramAnimation`. A method fulfilling a 
 **SME6428** reports, in `SuperMetroid.Core`, an enum whose every member is assigned one constant of the same other type,
 and a static class of integral constants whose names and values all appear in one enum (#1375). Each value is written
 once: in the enum, with any constant others read derived from it, or in the constant, with the enum gone. **SME6429**
-reports a switch over an enum whose every arm maps a member to the member after it; a sequence's order is its enum's
-order, stepped with `EnumOrder.Next` or `EnumOrder.NextWrapping`, and a partial map lists the members that have a
-successor in one arm. **SME6430** reports a member signature carrying a tuple with three or more named elements, or a
+reports a switch over an enum whose every arm maps a member to the member after it. Nothing steps a sequence through
+its enum's declared order (#1785): each phase names its successor, in a successor table beside the phases' definitions
+or as the transition written where the phase ends, and a ring is an explicit ordered list. **SME6430** reports a member signature carrying a tuple with three or more named elements, or a
 tuple shaped like a type Core declares; the value gets its declared type, held to the same spatial and encoding rules
 as any other. Palette-FX colour families read their frames from their programs (`PaletteFxColorFrames.Of`), the rainbow-beam
 sequence runs on Mother Brain's body functions, and timeline animations run on the one program-set engine.

@@ -123,7 +123,7 @@ public sealed class EscapeTimer
     {
         _startupFrames++;
         if (_startupFrames >= InitialDelayFrames)
-            AdvancePhase();
+            Phase = EscapeTimerPhase.CountingAtCentre;
 
         // The initial delay never counts down, even on the update that ends it.
         return false;
@@ -136,7 +136,7 @@ public sealed class EscapeTimer
         if (_startupFrames >= MovementDelayFrames)
         {
             _startupFrames = 0;
-            AdvancePhase();
+            Phase = EscapeTimerPhase.MovingIntoPlace;
         }
 
         return CountDown(frameCounter);
@@ -165,7 +165,7 @@ public sealed class EscapeTimer
         Position = new(CoordinateAxis.Wrap(nextX), CoordinateAxis.Wrap(nextY));
 
         if (axesInPosition == 2)
-            AdvancePhase();
+            Phase = EscapeTimerPhase.InPlace;
 
         return CountDown(frameCounter);
     }
@@ -176,18 +176,6 @@ public sealed class EscapeTimer
         RemainingCentiseconds = Math.Max(0, RemainingCentiseconds - EscapeTimerCadence.Centiseconds(frameCounter));
         return RemainingCentiseconds == 0;
     }
-
-    /// <summary>Selects the next step of the running sequence, keeping the timer active.</summary>
-    private void AdvancePhase() => Phase = Phase switch
-    {
-        EscapeTimerPhase.InitialDelay
-            or EscapeTimerPhase.CountingAtCentre
-            or EscapeTimerPhase.MovingIntoPlace => EnumOrder.Next(Phase),
-        EscapeTimerPhase.Inactive or
-            EscapeTimerPhase.Starting or
-            EscapeTimerPhase.InPlace => throw new InvalidOperationException($"The escape timer cannot advance from {Phase}."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerPhase)} {Phase}."),
-    };
 
     /// <summary>Selects a step of the sequence with the timer stopped.</summary>
     private void SelectPhase(EscapeTimerPhase phase)

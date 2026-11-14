@@ -148,31 +148,25 @@ internal static class EtecoonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
 
-    /// <summary>The segment a sleeping animation resumes into when its owner wakes it.</summary>
-    internal static EtecoonSegment AfterSleep(EtecoonSegment segment) => segment switch
+    /// <summary>The segment each sleeping animation resumes into when its owner wakes it; no other animation sleeps.</summary>
+    private static readonly Dictionary<P, P> ResumesAfterSleep = new()
     {
-        P.LookRightAtSamusAndRunLeft
-            or P.HoppingFacingLeft
-            or P.HitCeiling
-            or P.WallJumpLeftEligible
-            or P.LookLeftAtSamusAndRunRight
-            or P.HoppingFacingRight
-            or P.ContinueHoppingFacingRight
-            or P.WallJumpRightEligible => EnumOrder.Next(segment),
-        P.BeginRunningLeft or
-            P.RunningLeft or
-            P.WallJumpLeft or
-            P.WallJumpLeftLoop or
-            P.ContinueHoppingFacingLeft or
-            P.BeginRunningRight or
-            P.RunningRight or
-            P.WallJumpRight or
-            P.JumpingRight or
-            P.Initial or
-            P.Flexing or
-            P.FlexingLoop => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+        [P.LookRightAtSamusAndRunLeft] = P.BeginRunningLeft,
+        [P.HoppingFacingLeft] = P.ContinueHoppingFacingLeft,
+        [P.HitCeiling] = P.WallJumpLeftEligible,
+        [P.WallJumpLeftEligible] = P.LookLeftAtSamusAndRunRight,
+        [P.LookLeftAtSamusAndRunRight] = P.BeginRunningRight,
+        [P.HoppingFacingRight] = P.ContinueHoppingFacingRight,
+        [P.ContinueHoppingFacingRight] = P.WallJumpRightEligible,
+        [P.WallJumpRightEligible] = P.Initial,
     };
+
+    /// <summary>The segment a sleeping animation resumes into when its owner wakes it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The animation at <paramref name="segment"/> does not sleep.</exception>
+    internal static EtecoonSegment AfterSleep(EtecoonSegment segment) =>
+        ResumesAfterSleep.TryGetValue(segment, out P resumed)
+            ? resumed
+            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

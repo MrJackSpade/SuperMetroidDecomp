@@ -5,6 +5,6 @@ internal enum MotherBrainBodyCueKind
 {
     /// <summary>Fires the red hand beam at Samus.</summary>
     FireHandBeam,
-    /// <summary>Advances the hand-beam attack phase.</summary>
+    /// <summary>Advances the hand-beam attack from firing to finishing.</summary>
     AdvanceHandBeamPhase,
 }

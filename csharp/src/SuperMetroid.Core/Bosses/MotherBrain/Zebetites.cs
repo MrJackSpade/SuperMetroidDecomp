@@ -33,9 +33,9 @@ internal static class Zebetites
     }
 
     /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>
-    internal static RoomEnemyPopulationRecord SpawnPopulation(ZebetiteHalf half) =>
-        SpawnPopulations.TryGetValue(half, out RoomEnemyPopulationRecord record)
-            ? record
+    internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half) =>
+        SpawnPopulations.TryGetValue(half, out RoomEnemyPlacement placement)
+            ? placement
             : throw new InvalidOperationException($"Undefined {nameof(ZebetiteHalf)} {half}.");
 
     /// <summary>Returns the Y coordinate of a generation's primary or linked physical half.</summary>

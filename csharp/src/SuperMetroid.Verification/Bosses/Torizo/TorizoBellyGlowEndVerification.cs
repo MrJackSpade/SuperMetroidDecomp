@@ -43,13 +43,13 @@ internal static class TorizoBellyGlowEndVerification
     private static void VerifyTorizoRooms()
     {
         RoomEnemyPopulationDefinition[] torizoRooms = [.. RoomEnemyPopulationDefinitions.Definitions.Where(population =>
-            population.Records.ToArray().Any(record => record.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))];
+            population.Placements.ToArray().Any(record => record.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))];
         AssertTrue(torizoRooms.Select(population => population.Name).Order()
                 .SequenceEqual([nameof(RoomEnemyPopulationDefinitions.BombTorizo01), nameof(RoomEnemyPopulationDefinitions.GoldenTorizo)]),
             "only the Bomb Torizo's and the Golden Torizo's rooms hold a Torizo");
         foreach (RoomEnemyPopulationDefinition population in torizoRooms)
         {
-            RoomEnemyPopulationRecord[] records = population.Records.ToArray();
+            RoomEnemyPlacement[] records = population.Placements.ToArray();
             AssertEqual(1, records.Length, $"{population.Name} holds its Torizo alone");
             AssertTrue(records[0].DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
                 $"{population.Name} holds its Torizo in its first place");

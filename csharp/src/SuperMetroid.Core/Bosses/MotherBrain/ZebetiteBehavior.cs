@@ -229,7 +229,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot spawned = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Zebetite progression filled every enemy slot.");
 
-        RoomEnemyPopulationRecord population =
+        RoomEnemyPlacement population =
             Zebetites.SpawnPopulation(half);
         if (population.DefinitionId != EnemyDefinitionId.Zebetite)
         {

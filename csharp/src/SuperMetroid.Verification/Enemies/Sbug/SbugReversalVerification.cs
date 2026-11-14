@@ -27,7 +27,7 @@ internal static class SbugReversalVerification
     internal static void VerifySbugReversal()
     {
         SbugSpawnSettings[] placements = [.. RoomEnemyPopulationDefinitions.Definitions
-            .SelectMany(list => list.Records.ToArray())
+            .SelectMany(list => list.Placements.ToArray())
             .Where(placement => placement.DefinitionId is EnemyDefinitionId.Sbug)
             .Select(placement => (SbugSpawnSettings)placement.SpawnSettings)];
         if (placements.Length == 0)

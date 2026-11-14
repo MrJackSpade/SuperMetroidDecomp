@@ -8,36 +8,36 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class RoomObjectPopulation
 {
-    /// <summary>Owned placement records kept in the order the room-object allocator consumes them.</summary>
+    /// <summary>Owned placements kept in the order the room-object allocator consumes them.</summary>
     private readonly RoomObjectPlacement[] placements;
 
     /// <summary>The population's name, or a fixture's description.</summary>
     public string Name { get; }
-    /// <summary>Validated placement records in allocation order; scroll changes are owned copies.</summary>
+    /// <summary>Validated placements in allocation order; scroll changes are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
     /// <summary>Copies an ordered decoded population and validates scroll changes before any room-object slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
-    /// <param name="records">
+    /// <param name="placements">
     /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects
     /// it holds at once (<see cref="SuperMetroid.Core.Compatibility.RoomObjectPlaces"/>).
     /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">One is an empty placement, or a setup-specific payload is invalid.</exception>
-    public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> records)
+    public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
     {
-        Ensure.NotNull(records);
+        Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);
-        placements = records.Select(CopyPlacement).ToArray();
+        this.placements = placements.Select(CopyPlacement).ToArray();
     }
 
-    /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled scroll-change identities.</summary>
+    /// <summary>Builds a retail population from its compiled placements, binding scroll triggers to their compiled scroll-change identities.</summary>
     /// <param name="name">The population's name.</param>
-    /// <param name="records">Each record's room-object kind, block coordinates and room argument, in authored order.</param>
-    internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
-        new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
-            RoomObjectKinds.RequirePlaced(record.Kind), record.Block, record.Argument, Cannon: record.Cannon)
-            { CompiledScrollChange = record.ScrollChange }));
+    /// <param name="placements">Each placement's room-object kind, block coordinates and room argument, in authored order.</param>
+    internal static RoomObjectPopulation FromPlacements(string name, RoomObjectPlacementDefinition[] placements) =>
+        new(name, Ensure.NotNull(placements).Select(placement => new RoomObjectPlacement(
+            RoomObjectKinds.RequirePlaced(placement.Kind), placement.Block, placement.Argument, Cannon: placement.Cannon)
+            { CompiledScrollChange = placement.ScrollChange }));
 
     /// <summary>Copies one placement's scroll change and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)

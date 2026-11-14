@@ -32,7 +32,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// </summary>
     internal static void InitializeSlotFromDefinition(
         RoomEnemySlot slot,
-        RoomEnemyPopulationRecord population,
+        RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
         slot.Bind(population.DefinitionId, definition);
@@ -75,7 +75,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
 
     /// <summary>Exposes setting up a listed enemy from its population record to the enemy loader.</summary>
     void IEnemyLifecycle.InitializeSlotFromDefinition(
-        RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition) =>
+        RoomEnemySlot slot, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
         InitializeSlotFromDefinition(slot, population, definition);
 
     /// <summary>Lets the population loader run the slot's species initialization.</summary>
@@ -83,7 +83,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RunInitializationAi(slot, surroundings);
 
     /// <inheritdoc/>
-    RoomEnemySlot? IEnemyLifecycle.SpawnEnemy(RoomEnemyPopulationRecord population)
+    RoomEnemySlot? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population)
     {
         if (_slotTable.FindFreeSlot() is not { } slot)
             return null;

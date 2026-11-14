@@ -713,7 +713,7 @@ static InstalledSamusDeathPalettes DecodeSamusDeathFixtureArtwork(TestAddressSpa
         .Select(color => LittleEndianBytes.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1))).ToArray();
     ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
-    ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
+    ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount)
         .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
     return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
 }

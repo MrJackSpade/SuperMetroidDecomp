@@ -136,6 +136,22 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The cartridge's record (#1745), names matched like <see cref="HardwarePhrases"/>: the original kept a room's enemy
+    /// and object populations, the Baby Metroid's route, a corpse's touch rectangles and its timing and step tables as runs
+    /// of fixed-size records, and a Core name that says <c>Records</c> (<c>TouchHitboxRecords</c>, <c>FromRecords</c>, a
+    /// <c>records</c> local), <c>RecordCount</c> or <c>RecordIndex</c> names that structure instead of the placements, legs,
+    /// rectangles or steps it holds. A type whose last word is <c>Record</c> is named for the record it is
+    /// (<see cref="NamedForRecord"/>: <c>RoomEnemyPopulationRecord</c>, <c>BabyMetroidRouteRecord</c>). The English verb
+    /// keeps the word (<c>RecordKill</c>, a <c>Record</c> or <c>TryRecord</c> method), as do the game's demo recordings
+    /// (<c>DemoRecording</c>, <c>Recorded</c>): neither says <c>Records</c>, <c>RecordCount</c> or <c>RecordIndex</c>, and a
+    /// method's or member's singular <c>Record</c> is not read, since it is the verb as often as the noun.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> RecordPhrases =
+    [
+        ["Records"], ["Record", "Count"], ["Record", "Index"],
+    ];
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -220,6 +236,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             start.RegisterSymbolAction(symbolContext => AnalyzeSymbol(symbolContext, Check),
                 SymbolKind.NamedType, SymbolKind.Field, SymbolKind.Property, SymbolKind.Method, SymbolKind.Event);
             start.RegisterSymbolAction(symbolContext => AnalyzeFamilies(symbolContext, Report), SymbolKind.NamedType);
+            start.RegisterSymbolAction(symbolContext => AnalyzeRecordType(symbolContext, Report), SymbolKind.NamedType);
             start.RegisterSyntaxNodeAction(nodeContext => AnalyzeNode(nodeContext, Check),
                 SyntaxKind.VariableDeclarator, SyntaxKind.SingleVariableDesignation, SyntaxKind.ForEachStatement,
                 SyntaxKind.CatchDeclaration, SyntaxKind.LocalFunctionStatement, SyntaxKind.Parameter, SyntaxKind.TypeParameter,
@@ -290,6 +307,30 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                     report(context.ReportDiagnostic, member.Name, location, $"numbers its family in hexadecimal ('{Suffix(member)}')");
             }
         }
+    }
+
+    /// <summary>
+    /// Reports a declared type named for the cartridge record it stands for (#1745, <see cref="NamedForRecord"/>). A type is
+    /// a thing, never the verb.
+    /// </summary>
+    private static void AnalyzeRecordType(SymbolAnalysisContext context, Action<Action<Diagnostic>, string, Location, string> report)
+    {
+        var type = (INamedTypeSymbol)context.Symbol;
+        if (!type.IsImplicitlyDeclared && NamedForRecord(type.Name) &&
+            type.Locations.FirstOrDefault(location => location.IsInSource) is { } location)
+        {
+            report(context.ReportDiagnostic, type.Name, location, "names the cartridge's record ('Record')");
+        }
+    }
+
+    /// <summary>
+    /// Whether a type's name ends in the camel-case word <c>Record</c>, ignoring case (#1745, <see cref="RecordPhrases"/>):
+    /// <c>RoomEnemyPopulationRecord</c>, <c>DemoInputRecord</c>. <c>Recording</c> and <c>Recorder</c> are other words.
+    /// </summary>
+    internal static bool NamedForRecord(string typeName)
+    {
+        string[] words = Words(typeName).ToArray();
+        return words.Length > 0 && string.Equals(words[words.Length - 1], "Record", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Reports a declared local, parameter, type parameter, local function, range variable or namespace segment.</summary>
@@ -406,6 +447,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         if (ContainedPhrase(identifier, AiRoutinePhrases) is { } aiRoutine)
             return $"names the enemy record's AI routine field ('{aiRoutine}')";
+        if (ContainedPhrase(identifier, RecordPhrases) is { } record)
+            return $"names the cartridge's record ('{record}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;

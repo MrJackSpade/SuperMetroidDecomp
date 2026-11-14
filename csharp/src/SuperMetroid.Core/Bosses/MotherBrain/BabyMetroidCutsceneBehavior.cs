@@ -61,7 +61,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (_slotTable.FindFreeSlot() is not { } babySlot)
             return;
 
-        RoomEnemyPopulationRecord population =
+        RoomEnemyPlacement population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
         if (population.DefinitionId != EnemyDefinitionId.BabyMetroidCutscene)
         {

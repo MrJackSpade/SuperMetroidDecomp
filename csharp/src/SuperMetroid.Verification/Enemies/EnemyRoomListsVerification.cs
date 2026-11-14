@@ -38,7 +38,7 @@ internal static class EnemyRoomListsVerification
         {
             RoomEnemyPopulationDefinition compiled = RoomEnemyPopulationDefinitions.Get(pointer);
             int address = RoomEnemyRomLayout.PopulationBank | pointer;
-            ReadOnlySpan<RoomEnemyPopulationRecord> records = compiled.Records.Span;
+            ReadOnlySpan<RoomEnemyPlacement> records = compiled.Placements.Span;
             for (int index = 0; index < records.Length; index++, address += 16)
             {
                 ushort definitionWord = ReadVerificationWord(bus, address);
@@ -47,7 +47,7 @@ internal static class EnemyRoomListsVerification
                 EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(definitionWord);
                 // The native entry is compared as the typed spawn the codec decodes for the species: its position, its
                 // engine properties, and the settings its species reads from the remaining words.
-                RoomEnemyPopulationRecord native = RoomEnemyPopulationRecordCodec.Decode(nativeEnemy,
+                RoomEnemyPlacement native = RoomEnemyPopulationRecordCodec.Decode(nativeEnemy,
                     ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4),
                     ReadVerificationWord(bus, address + 6), ReadVerificationWord(bus, address + 8),
                     ReadVerificationWord(bus, address + 10), ReadVerificationWord(bus, address + 12),
@@ -61,7 +61,7 @@ internal static class EnemyRoomListsVerification
                 $"population $A1:{pointer:X4} death quota follows its terminator");
             populationRecords += records.Length;
         }
-        AssertEqual(RoomEnemyPopulationDefinitions.RecordCount, populationRecords,
+        AssertEqual(RoomEnemyPopulationDefinitions.PlacementCount, populationRecords,
             "every ordered retail enemy placement is compiled");
 
         int graphicsRecords = 0;

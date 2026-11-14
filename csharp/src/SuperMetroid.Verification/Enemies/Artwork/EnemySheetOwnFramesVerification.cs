@@ -317,8 +317,8 @@ internal static class EnemySheetOwnFramesVerification
     };
 
     /// <summary>Every room placement of <paramref name="definition"/>.</summary>
-    private static IEnumerable<RoomEnemyPopulationRecord> Placements(EnemyDefinitionId definition) =>
-        RoomEnemyPopulationDefinitions.Definitions.SelectMany(list => list.Records.ToArray()).Where(placement => placement.DefinitionId == definition);
+    private static IEnumerable<RoomEnemyPlacement> Placements(EnemyDefinitionId definition) =>
+        RoomEnemyPopulationDefinitions.Definitions.SelectMany(list => list.Placements.ToArray()).Where(placement => placement.DefinitionId == definition);
 
     /// <summary><paramref name="reached"/> with the frames <paramref name="pinned"/> a definition's own reactions set.</summary>
     private static HashSet<EnemyFrameId> With(HashSet<EnemyFrameId> reached, EnemyFrameId[] pinned) => [.. reached, .. pinned];

@@ -82,7 +82,7 @@ public static class SamusPaletteDefinitions
     public static class CrystalFlash
     {
         /// <summary>Number of Crystal Flash body records.</summary>
-        public const int BodyRecordCount = 10;
+        public const int BodyStepCount = 10;
         /// <summary>Number of bubble palettes.</summary>
         public const int BubblePaletteCount = 6;
     }

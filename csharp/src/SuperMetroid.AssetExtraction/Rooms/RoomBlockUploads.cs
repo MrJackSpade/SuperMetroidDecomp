@@ -109,7 +109,7 @@ internal static class RoomBlockUploads
                     uploads.Place(kind);
                 foreach (AnimatedCharacterPlacement frame in AnimatedFrames(inputs, state).Where(frame => frame.Set == BgCharacterSet.Tiles))
                     uploads.AddAnimated(frame);
-                if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
+                if (state.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
                 {
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
@@ -180,7 +180,7 @@ internal static class RoomBlockUploads
     /// <summary>What one state of a room shows over its tile characters after it loads, collectibles and animations aside: Kraid's backdrop.</summary>
     private static IEnumerable<AppearanceOption> Of(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
-        if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
+        if (state.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
             yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
@@ -286,7 +286,7 @@ internal static class RoomBlockUploads
 
     /// <summary>What writes tile words over <paramref name="state"/>'s BG1 or BG2.</summary>
     private static IEnumerable<TileWordWriter> WritersIn(RoomStateSettings state) =>
-        state.EnemyPopulation.Records.ToArray().SelectMany(record => EnemyWriters.TryGetValue(record.DefinitionId, out TileWordWriter[]? writers)
+        state.EnemyPopulation.Placements.ToArray().SelectMany(record => EnemyWriters.TryGetValue(record.DefinitionId, out TileWordWriter[]? writers)
             ? writers : []).Distinct();
 
     /// <summary>
@@ -376,7 +376,7 @@ internal static class RoomBlockUploads
         TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
         BgArtworkBindings content = Loaded(inputs, tileset);
         AnimatedCharacterPlacement[] animated = [.. AnimatedFrames(inputs, state).Where(frame => frame.Set == BgCharacterSet.Tiles),
-            .. state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
+            .. state.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire)
                 ? CrocomireMeltBandFrames(inputs) : []];
         return new BossRoomCharacters(tileset, content,
             [.. LoadUploads(inputs, tileset), HudCharacters(inputs)], [.. Of(inputs, state).Select(option => option.Upload)], animated);

@@ -33,7 +33,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
         var frames = new HashSet<EnemyProjectileFrameId>();
         int rooms = 0;
         bool precious = false;
-        foreach (RoomStateSettings state in RoomStateDefinitions.All.Where(state => state.EnemyPopulation.Records.IsEmpty))
+        foreach (RoomStateSettings state in RoomStateDefinitions.All.Where(state => state.EnemyPopulation.Placements.IsEmpty))
         {
             rooms++;
             foreach (CommonSpawnedObjects spawner in CommonSpawners.RunningIn([state], []))

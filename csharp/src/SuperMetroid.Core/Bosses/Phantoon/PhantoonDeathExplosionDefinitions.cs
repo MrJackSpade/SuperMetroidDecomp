@@ -13,7 +13,7 @@ public static class PhantoonDeathExplosionDefinitions
     public const int PassCount = 3;
 
     /// <summary>Signed X/Y offsets, misc-dust explosion animation, and delay until the next request.</summary>
-    internal static readonly PhantoonDeathExplosionDefinition[] Records =
+    internal static readonly PhantoonDeathExplosionDefinition[] Explosions =
     [
         new(new(0, 0), MiscDustAnimation.BigExplosion, 16),
         new(new(32, -32), MiscDustAnimation.BigExplosion, 16),

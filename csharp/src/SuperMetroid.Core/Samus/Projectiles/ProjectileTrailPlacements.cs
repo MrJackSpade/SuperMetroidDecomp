@@ -22,7 +22,7 @@ internal static class ProjectileTrailPlacements
     /// </summary>
     internal static ProjectileTrailPlacement? Start(ProjectileTrailPlacementList list, int frame)
     {
-        ProjectileTrailPlacement[] records = ProjectileTrailPlacementDefinitions.Records[list];
-        return frame >= 0 && frame < records.Length ? records[frame] : null;
+        ProjectileTrailPlacement[] placements = ProjectileTrailPlacementDefinitions.PlacementsByList[list];
+        return frame >= 0 && frame < placements.Length ? placements[frame] : null;
     }
 }

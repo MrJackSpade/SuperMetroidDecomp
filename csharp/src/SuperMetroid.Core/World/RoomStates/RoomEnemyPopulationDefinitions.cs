@@ -21,12 +21,12 @@ public static class RoomEnemyPopulationDefinitions
         ..MaridiaRoomEnemyPopulationDefinitions.Build(),
         ..TourianRoomEnemyPopulationDefinitions.Build(),
         ..CeresRoomEnemyPopulationDefinitions.Build(),
-    ], ListCount, RecordCount);
+    ], ListCount, PlacementCount);
 
     /// <summary>Number of distinct populations selected by the compiled retail room states, including empty lists.</summary>
     public const int ListCount = 301;
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
-    public const int RecordCount = 1658;
+    public const int PlacementCount = 1658;
 
     /// <summary>Each retail population by name.</summary>
     private static readonly Dictionary<string, RoomEnemyPopulationDefinition> ByName = Definitions.ToDictionary(list => list.Name);

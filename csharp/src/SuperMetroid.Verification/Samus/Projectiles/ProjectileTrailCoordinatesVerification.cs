@@ -34,7 +34,7 @@ internal static class ProjectileTrailCoordinatesVerification
         Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
             list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
         int records = 0;
-        foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.Records)
+        foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.PlacementsByList)
             for (int frame = 0; frame < placements.Length; frame++, records++)
                 AssertEqual(NativePlacement(bus, starts[list] + frame * RecordByteCount), placements[frame],
                     $"{list} placement {frame} matches the cartridge");
@@ -59,7 +59,7 @@ internal static class ProjectileTrailCoordinatesVerification
             .Order()];
         int overruns = 0;
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        foreach (int frame in frameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length))
+        foreach (int frame in frameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.PlacementsByList[list].Length))
         {
             AssertEqual(null, ProjectileTrailPlacements.Start(list, frame), $"{list} at frame {frame}, past its placements, places no trail");
             overruns++;
@@ -172,7 +172,7 @@ internal static class ProjectileTrailCoordinatesVerification
     /// trails selects both programs within the selector tables (#1500).
     /// </summary>
     private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int frame) =>
-        lists.TryGetValue(list, out ProjectileTrailPlacementList named) && frame < ProjectileTrailPlacementDefinitions.Records[named].Length;
+        lists.TryGetValue(list, out ProjectileTrailPlacementList named) && frame < ProjectileTrailPlacementDefinitions.PlacementsByList[named].Length;
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
     private static IEnumerable<ReflectableTrailTypesResult> ReflectableTrailTypes()

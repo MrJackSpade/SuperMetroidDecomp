@@ -566,7 +566,7 @@ internal sealed class CeresRidleyFlight
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a turning-floor wall.");
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
-        RoomEnemyPopulationRecord population = new(
+        RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresDoor,
             Position: position,
             Contact: EnemyContact.None,

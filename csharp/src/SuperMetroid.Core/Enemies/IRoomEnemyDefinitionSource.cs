@@ -12,5 +12,5 @@ public interface IRoomEnemyDefinitionSource
     RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId definitionId);
 
     /// <summary>The population record Mother Brain's cutscene spawns for falling tube <paramref name="piece"/>.</summary>
-    RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece);
+    RoomEnemyPlacement ReadFallingTubePopulation(MotherBrainTubePiece piece);
 }

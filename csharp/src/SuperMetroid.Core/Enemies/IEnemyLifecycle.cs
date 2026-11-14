@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyLifecycle
 {
     /// <summary>Installs a population record and definition into a free slot, as spawning an enemy does.</summary>
-    void InitializeSlotFromDefinition(RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition);
+    void InitializeSlotFromDefinition(RoomEnemySlot slot, RoomEnemyPlacement population, RoomEnemyDefinition definition);
 
     /// <summary>
     /// Runs the slot's initialization AI. A population load supplies its live room, Samus, controller and
@@ -20,7 +20,7 @@ internal interface IEnemyLifecycle
     /// initialization AI, starts its animation when it runs one and extends the live enemy range.
     /// Returns null without spawning when every slot is occupied.
     /// </summary>
-    RoomEnemySlot? SpawnEnemy(RoomEnemyPopulationRecord population);
+    RoomEnemySlot? SpawnEnemy(RoomEnemyPlacement population);
 
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class DeadTorizoTouchDefinitions
 {
     /// <summary>Dead Torizo's seven asymmetric touch rectangles.</summary>
-    private static readonly EnemyHitboxRectangle[] TouchHitboxRecords =
+    private static readonly EnemyHitboxRectangle[] TouchRectangles =
     [
         new(Left: -31, Top: 37, Right: -11, Bottom: 43),
         new(Left: 16, Top: 37, Right: 38, Bottom: 43),
@@ -16,5 +16,5 @@ internal static class DeadTorizoTouchDefinitions
     ];
 
     /// <summary>Dead Torizo's seven asymmetric corpse touch rectangles in order.</summary>
-    internal static ReadOnlySpan<EnemyHitboxRectangle> TouchHitboxes => TouchHitboxRecords;
+    internal static ReadOnlySpan<EnemyHitboxRectangle> TouchHitboxes => TouchRectangles;
 }

@@ -64,7 +64,7 @@ internal static class ZebetiteDefinitionsVerification
 
         foreach (bool linkedHalf in new[] { false, true })
         {
-            RoomEnemyPopulationRecord population =
+            RoomEnemyPlacement population =
                 Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);

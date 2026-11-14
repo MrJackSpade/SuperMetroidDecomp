@@ -87,7 +87,7 @@ internal static class EnemySheetVariantsVerification
         int placements = 0;
         foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
         {
-            foreach (RoomEnemyPopulationRecord record in population.Records.ToArray())
+            foreach (RoomEnemyPlacement record in population.Placements.ToArray())
             {
                 if (!sheetsOf.TryGetValue(record.DefinitionId, out string[]? sheets))
                     continue;
@@ -113,7 +113,7 @@ internal static class EnemySheetVariantsVerification
         var bySite = new Dictionary<ChozoStatueSite, string>();
         foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
         {
-            foreach (RoomEnemyPopulationRecord record in population.Records.ToArray().Where(record => record.DefinitionId == EnemyDefinitionId.Chozo))
+            foreach (RoomEnemyPlacement record in population.Placements.ToArray().Where(record => record.DefinitionId == EnemyDefinitionId.Chozo))
             {
                 ChozoStatueSite site = record.SpawnSettingsOf<ChozoStatueSpawnSettings>().Site;
                 string sheet = installed.For(population).Enemy(EnemyDefinitionId.Chozo).Sheet.Image.Name;

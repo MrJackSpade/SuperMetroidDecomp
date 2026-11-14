@@ -43,7 +43,7 @@ internal static class RoomFxSourceDefinitions
         [0x81ae] = RoomFxDefinitions.ElevToBlueBrinstarDefault,
         [0x81be] = RoomFxDefinitions.BombTorizoDefaultOrWhenAreaTorizoDead,
         [0x81c0] = RoomFxDefinitions.FlywayDefaultOrWhenAreaTorizoDead,
-        [0x81c2] = RoomFxDefinitions.SharedWithoutRecords,
+        [0x81c2] = RoomFxDefinitions.SharedWithoutEffects,
         [0x81c4] = RoomFxDefinitions.CrateriaSuper,
         [0x81d4] = RoomFxDefinitions.FinalMissileBombwayDefault,
         [0x81e4] = RoomFxDefinitions.FinalMissileDefault,

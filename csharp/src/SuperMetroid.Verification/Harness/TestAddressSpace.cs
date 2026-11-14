@@ -93,7 +93,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             : (EnemyDefinitionId)pointer;
 
     /// <summary>Decodes the bank-$A9 falling-tube population record of <paramref name="piece"/> from seeded words.</summary>
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece)
+    public RoomEnemyPlacement ReadFallingTubePopulation(MotherBrainTubePiece piece)
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => LittleEndianBytes.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
@@ -106,7 +106,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
-        var records = new List<RoomEnemyPopulationRecord>();
+        var records = new List<RoomEnemyPlacement>();
         for (int slot = 0; slot <= EnemySlotOrder.Capacity; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);

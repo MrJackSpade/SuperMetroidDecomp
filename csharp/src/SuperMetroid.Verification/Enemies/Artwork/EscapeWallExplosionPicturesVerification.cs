@@ -35,7 +35,7 @@ internal static class EscapeWallExplosionPicturesVerification
                 InstalledFixtures.EnemySheets, InstalledFixtures.EnemyFrameDisplays);
             var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), new SharedFadeStepCount());
             // The room load draws the state's population's artwork unless its population is empty.
-            if (!state.EnemyPopulation.Records.IsEmpty)
+            if (!state.EnemyPopulation.Placements.IsEmpty)
                 presentation.DrawPopulation(state.EnemyPopulation);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();

@@ -155,8 +155,8 @@ public static class RoomFxDefinitions
     public static RoomFxSelection FlywayDefaultOrWhenAreaTorizoDead { get; } = new(nameof(FlywayDefaultOrWhenAreaTorizoDead), [],
         null);
 
-    /// <summary>The SharedWithoutRecords room FX.</summary>
-    public static RoomFxSelection SharedWithoutRecords { get; } = new(nameof(SharedWithoutRecords), [],
+    /// <summary>The SharedWithoutEffects room FX.</summary>
+    public static RoomFxSelection SharedWithoutEffects { get; } = new(nameof(SharedWithoutEffects), [],
         null);
 
     /// <summary>The CrateriaSuper room FX.</summary>

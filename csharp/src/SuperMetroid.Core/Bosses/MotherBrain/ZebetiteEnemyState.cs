@@ -11,7 +11,7 @@ public sealed class ZebetiteEnemyState
     /// Creates the state for one Zebetite half from its spawn parameters: its pairing. It has no linked half until a
     /// pair links its halves.
     /// </summary>
-    internal ZebetiteEnemyState(RoomEnemyPopulationRecord population)
+    internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
         IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
     }

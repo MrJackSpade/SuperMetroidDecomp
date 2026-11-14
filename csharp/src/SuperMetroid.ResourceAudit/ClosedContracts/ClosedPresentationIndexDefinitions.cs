@@ -67,7 +67,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "palette") => new(0, SamusPaletteDefinitions.Death.PaletteCount),
         ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "color") => new(0, InstalledSamusDeathPalettes.ColorCount),
         ("InstalledSamusDeathPalettes", "WhiteoutColor", "index") => new(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount),
-        ("InstalledSamusDeathPalettes", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.RecordCount),
+        ("InstalledSamusDeathPalettes", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.StepCount),
         ("SamusFullBodyCycleColours", "Resolve", "colorIndex") => new(0, SamusFullBodyCycleColorFormat.ColorsPerPalette),
         ("SamusFullBodyCycleColours", "Apply" or "Resolve", "palette.Suit") => new(0, SamusFullBodyCycleColorFormat.SuitCount),
         ("SamusFullBodyCycleColours", "Apply" or "Resolve", "palette.Shade") => new(0, SamusFullBodyCycleColorFormat.ShadesPerSuit),

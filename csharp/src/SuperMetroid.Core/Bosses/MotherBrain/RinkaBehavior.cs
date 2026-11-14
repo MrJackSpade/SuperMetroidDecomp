@@ -327,7 +327,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (reservation.MovesTo is { } centre)
         {
-            RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
+            RoomEnemyPlacement rewrittenPopulation = slot.Spawn.Population with
             {
                 Position = centre,
             };

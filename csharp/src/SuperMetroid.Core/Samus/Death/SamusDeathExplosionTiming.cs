@@ -8,11 +8,11 @@ internal static class SamusDeathExplosionTiming
     /// <summary>Returns the updates one authored explosion step shows.</summary>
     public static int DurationForIndex(int index)
     {
-        if (index is < 0 or >= RecordCount)
+        if (index is < 0 or >= StepCount)
         {
             throw new InvalidDataException(
                 $"Samus death-explosion timing index {index} is outside the " +
-                $"{RecordCount}-record explosion sequence.");
+                $"{StepCount}-record explosion sequence.");
         }
 
         return Durations[index];

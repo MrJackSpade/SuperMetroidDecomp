@@ -77,7 +77,7 @@ public static class SamusDeathPaletteArtworkFiles
         var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
             whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
-        var selectors = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
+        var selectors = new ushort[SamusDeathExplosionTimingDefinitions.StepCount];
         for (int frame = 0; frame < selectors.Length; frame++)
             selectors[frame] = bus.ReadCartridgeByte(
                 SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + frame * 2 + 1);
@@ -86,7 +86,7 @@ public static class SamusDeathPaletteArtworkFiles
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(FormatVersion,
-            [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount).Select(steps.ExplosionStep)],
+            [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(steps.ExplosionStep)],
             [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(step => PaletteRgb5.From(steps.WhiteoutColour(step)))]),
             JsonOptions));
     }

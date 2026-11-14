@@ -34,7 +34,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>
     /// Flash palette selector (zero or one) while flashing, then the suit-explosion frame index from zero up to
-    /// <see cref="SamusDeathExplosionTimingDefinitions.RecordCount"/>, where the sequence completes.
+    /// <see cref="SamusDeathExplosionTimingDefinitions.StepCount"/>, where the sequence completes.
     /// </summary>
     public int AnimationIndex { get; private set; }
 
@@ -53,7 +53,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
     public int? ExplosionFrame =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < SamusDeathExplosionTimingDefinitions.RecordCount
+        Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < SamusDeathExplosionTimingDefinitions.StepCount
             ? AnimationIndex : null;
 
     /// <summary>The facing bit captured before pose metadata is replaced by the death-sequence pose.</summary>
@@ -238,7 +238,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             return true;
 
         AnimationIndex++;
-        if (AnimationIndex >= SamusDeathExplosionTimingDefinitions.RecordCount)
+        if (AnimationIndex >= SamusDeathExplosionTimingDefinitions.StepCount)
         {
             // The terminal call writes shade 21 across every non-Samus/non-
             // suitless palette and returns one without drawing a tenth explosion frame.

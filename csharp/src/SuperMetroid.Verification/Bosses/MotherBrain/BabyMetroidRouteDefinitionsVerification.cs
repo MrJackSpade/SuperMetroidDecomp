@@ -13,11 +13,11 @@ internal static class BabyMetroidRouteDefinitionsVerification
     internal static void VerifyBabyMetroidRouteDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int index = 0; index < BabyMetroidRouteDefinitions.RecordCount; index++)
+        for (int index = 0; index < BabyMetroidRouteDefinitions.LegCount; index++)
         {
             int address = BabyMetroidRouteDefinitionsConstants.SourceAddress +
                 index * BabyMetroidRouteDefinitionsConstants.RecordByteLength;
-            BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(index);
+            BabyMetroidRouteLeg record = BabyMetroidRoute.GetLeg(index);
 
             AssertEqual(ReadRomWord(rom, address), record.Target.X,
                 $"Baby route {index} target X");
@@ -38,15 +38,15 @@ internal static class BabyMetroidRouteDefinitionsVerification
                 AssertEqual(BabyMetroidRouteDefinitionsConstants.LatchOntoSamusFunction, following,
                     $"Baby route {index} is followed by the latch-onto-Samus function");
             else
-                AssertEqual(BabyMetroidRoute.GetRecord(index + 1).Target.X, following,
+                AssertEqual(BabyMetroidRoute.GetLeg(index + 1).Target.X, following,
                     $"Baby route {index} is followed by the next waypoint's X");
         }
 
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.GetRecord(-1),
+            () => BabyMetroidRoute.GetLeg(-1),
             "Baby route rejects a leg before the first");
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.GetRecord(BabyMetroidRouteDefinitions.RecordCount),
+            () => BabyMetroidRoute.GetLeg(BabyMetroidRouteDefinitions.LegCount),
             "Baby route rejects a leg past the final one");
         AssertThrows<InvalidDataException>(
             () => BabyMetroidRoute.GetWrongWayOffScreenXSpeed(0),

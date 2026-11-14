@@ -42,15 +42,15 @@ internal sealed class EnemyPopulationLoader
         RoomEnemyPopulationDefinition populationDefinition,
         EnemySpawnSurroundings surroundings)
     {
-        ReadOnlySpan<RoomEnemyPopulationRecord> records = populationDefinition.Records.Span;
-        for (int slotIndex = 0; slotIndex < records.Length; slotIndex++)
+        ReadOnlySpan<RoomEnemyPlacement> placements = populationDefinition.Placements.Span;
+        for (int slotIndex = 0; slotIndex < placements.Length; slotIndex++)
         {
-            RoomEnemyPopulationRecord population = records[slotIndex];
+            RoomEnemyPlacement population = placements[slotIndex];
             EnemyDefinitionId enemy = population.DefinitionId;
             if (slotIndex == EnemySlotOrder.Capacity)
             {
                 throw new InvalidDataException(
-                    $"Enemy population {populationDefinition.Name} has more records than a room holds enemies.");
+                    $"Enemy population {populationDefinition.Name} has more placements than a room holds enemies.");
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
@@ -71,9 +71,9 @@ internal sealed class EnemyPopulationLoader
 
         // An empty population leaves the enemy count at zero and keeps the previous room's
         // death quota. A nonempty one publishes both after every initialization has run.
-        if (records.IsEmpty)
+        if (placements.IsEmpty)
             return;
         DeathQuota = populationDefinition.DeathQuota;
-        _slotTable.EnemyCount = records.Length;
+        _slotTable.EnemyCount = placements.Length;
     }
 }

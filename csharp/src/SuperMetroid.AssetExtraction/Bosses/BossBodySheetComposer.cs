@@ -75,7 +75,7 @@ internal static class BossBodySheetComposer
         foreach (RoomDefinition room in RetailRooms.All)
         {
             RoomStateSettings? state = RoomStateLists.GetStates(room)
-                .FirstOrDefault(candidate => candidate.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));
+                .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy));
             if (state is not null)
             {
                 characters = RoomBlockUploads.ShownUnderBoss(inputs, state);

@@ -167,14 +167,14 @@ internal sealed class EndingRewardJump
     /// <summary>Creates a jump actor from its catalogued initial position, palette, and animations.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
-        EndingRewardActorDefinition record = EndingRewardActors.Get(definition);
+        EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
         EndingRewardActorInitializationDefinition initialization =
-            EndingRewardActors.GetInitialization(record.Initialization);
+            EndingRewardActors.GetInitialization(authored.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
-            record.Animation);
-        actor.InstallFrameBehavior(record.FrameBehavior);
+            authored.Animation);
+        actor.InstallFrameBehavior(authored.FrameBehavior);
         return actor;
     }
 }

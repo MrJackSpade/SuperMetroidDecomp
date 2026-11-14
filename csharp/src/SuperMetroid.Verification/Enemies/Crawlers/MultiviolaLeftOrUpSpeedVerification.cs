@@ -29,7 +29,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
     internal static void VerifyMultiviolaLeftOrUpSpeed()
     {
         MultiviolaSpawnSettings[] placements = [.. RoomEnemyPopulationDefinitions.Definitions
-            .SelectMany(list => list.Records.ToArray())
+            .SelectMany(list => list.Placements.ToArray())
             .Where(placement => placement.DefinitionId == EnemyDefinitionId.Multiviola)
             .Select(placement => (MultiviolaSpawnSettings)placement.SpawnSettings)];
         if (!placements.Any(placement => placement.Heading.RawValue % TrigonometryAngle.QuarterTurn.RawValue == 0))

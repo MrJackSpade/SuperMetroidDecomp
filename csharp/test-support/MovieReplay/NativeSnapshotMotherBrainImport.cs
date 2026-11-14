@@ -47,7 +47,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.NativeTubeCollapseSteps.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseStep collapse))
             state.TubeCollapseStep = collapse;
         state.TubeCollapseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
-        state.AscentDustPlace = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        state.BodySubPhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death

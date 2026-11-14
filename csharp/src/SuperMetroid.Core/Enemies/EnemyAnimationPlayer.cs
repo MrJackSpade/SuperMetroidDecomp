@@ -51,12 +51,12 @@ internal sealed class EnemyAnimationPlayer
         Position16<RoomPixels> camera,
         ControllerButton controllerInput)
     {
-        if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not { } advance)
+        if (slot.Entity is not IEnemyTypedAnimation { HasTypedAnimation: true } animation)
         {
             throw new InvalidDataException(
                 $"Enemy {slot.DefinitionId} animates but has no typed animation.");
         }
-        advance(slot, new EnemyAnimationCueContext
+        animation.AdvanceTypedAnimation(new EnemyAnimationCueContext
             { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
     }
 }

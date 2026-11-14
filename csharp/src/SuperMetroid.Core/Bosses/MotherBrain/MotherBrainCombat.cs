@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Movement;
@@ -33,47 +33,39 @@ internal sealed class MotherBrainCombat
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Installs the handlers used when Samus's bombs contact Mother Brain.</summary>
-    internal void AddMotherBrainBombReactions(EnemySharedReactions table)
-    {
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                                  c.SelectedShotAi == EnemyReaction.MotherBrainHeadShot,
-            c => ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb));
-    }
+    /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
+    internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
+        ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb);
 
-    /// <summary>Binds head and body shot responses for each combat phase.</summary>
-    internal void AddMotherBrainShotReactions(EnemySharedReactions table)
+    /// <summary>The body's shot response for each combat phase.</summary>
+    internal EnemyShotReaction BodyShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MotherBrainBodyShot)
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
+            // Every body rectangle's shot reaction is exactly the dud shot;
+            // only the dummy root's head-reaction list could select anything else.
+            if (c.HitboxShot != MotherBrainReactions.BodyShot)
             {
-                // Every body rectangle's shot reaction is exactly the dud shot;
-                // only the dummy root's head-reaction list could select anything else.
-                if (c.HitboxShotAi != EnemyReaction.MotherBrainBodyShot)
-                {
-                    throw new InvalidDataException(
-                        $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
-                        $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
-                }
-                // The common collision prelude still owns Super-Missile quake first.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
-                return true;
-            },
-        });
+                throw new InvalidDataException(
+                    $"Mother Brain's body selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"} from " +
+                    $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
+            }
+            // The common collision prelude still owns Super-Missile quake first.
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+            return true;
+        },
+    };
 
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MotherBrainHeadShot)
+    /// <summary>The head's shot response for each combat phase.</summary>
+    internal EnemyShotReaction HeadShotReaction => field ??= new()
+    {
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                ResolveMotherBrainHeadShot(c.Enemy, c.Projectile, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
-                return true;
-            },
-        });
-    }
+            ResolveMotherBrainHeadShot(c.Enemy, c.Projectile, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            return true;
+        },
+    };
 
     /// <summary>
     /// Runs the first-form branch of the head's shot AI. The glass encounter
@@ -271,32 +263,17 @@ internal sealed class MotherBrainCombat
         _collision.ApplyNormalBombDamage(head, bomb);
     }
 
-    /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
-    internal static void AddMotherBrainHeadTouch(EnemySharedReactions table)
+    /// <summary>Runs the head's touch reaction for the active body/head pair.</summary>
+    internal static void ReactToMotherBrainHeadTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.MotherBrainHeadTouch,
-            context =>
-            {
-                // The brain's touch is not ordinary touch damage. A spin-jumping Samus toggles
-                // the head's visible flash length between the game's 13/14-frame
-                // cadence; every other movement type returns without changing either actor.
-                RoomEnemySlot slot = context.Slot;
-                if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
-                    slot.FlashTimer = slot.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(slot.FlashTimer)
-                        ? 14
-                        : 13;
-            });
-    }
-
-    /// <summary>Adds the body's bomb reactions to the AI dispatch table.</summary>
-    /// <remarks>The body's reaction is the dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and
-    /// the body's reaction performs no health, phase, or multipart-state work of its own.</remarks>
-    internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
-    {
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
-                                  c.SelectedShotAi == EnemyReaction.MotherBrainBodyShot,
-            static _ => { });
+        // The brain's touch is not ordinary touch damage. A spin-jumping Samus toggles
+        // the head's visible flash length between the game's 13/14-frame
+        // cadence; every other movement type returns without changing either actor.
+        RoomEnemySlot slot = context.Slot;
+        if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
+            slot.FlashTimer = slot.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(slot.FlashTimer)
+                ? 14
+                : 13;
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
@@ -324,6 +301,5 @@ internal sealed class MotherBrainCombat
             }
         }
         return false;
-    
     }
 }

@@ -14,5 +14,5 @@ internal sealed class NorfairRioEntity(NorfairRioBehavior species, RoomEnemySlot
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairRioMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => NorfairRioBehavior.AdvanceNorfairRioTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairRioBehavior.AdvanceNorfairRioTypedAnimation(Slot, context);
 }

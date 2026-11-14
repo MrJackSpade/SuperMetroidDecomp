@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -362,19 +362,16 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
-    internal void AddWorkRobotBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction WorkRobotBombReaction => field ??= new()
     {
-        // Powered Work Robot returns until Phantoon is dead. The bomb pass has already marked the bomb, so reaction
+        // The powered Work Robot's own shot reaction returns until Phantoon is dead; the bomb selects it where the
+        // powered robot's definition leaves shots to it. The bomb pass has already marked the bomb, so reaction
         // rejection belongs here rather than in collision admission.
-        table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.DefinitionId) &&
-                                                       c.SelectedShotAi is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)
-        {
-            Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
-                           c.SelectedShotAi == EnemyReaction.WorkRobotShot &&
-                           !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss),
-            AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
-        });
-    }
+        Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
+                       c.SelectedShot is null &&
+                       !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss),
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+    };
 
     /// <summary>Connects robot lasers to collision-first movement in their projectile frame behaviour.</summary>
     internal static void AddWorkRobotProjectiles(EnemyProjectileHandlerTable table)
@@ -400,22 +397,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
-    internal void AddWorkRobotShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction WorkRobotShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.DefinitionId) &&
-                                                     EnemyCollision.ShotAi(enemy) is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)
-        {
-            AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
-        });
-    }
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+    };
 
     /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
-    internal static void AddWorkRobotTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => IsWorkRobotDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.WorkRobotTouch,
-            context => ResolveWorkRobotTouch(context.Slot, context.Samus));
-    }
+    internal static void ReactToWorkRobotTouch(EnemyTouchContext context) =>
+        ResolveWorkRobotTouch(context.Slot, context.Samus);
 
     /// <summary>
     /// Allocates one of the five Work Robot laser definitions. Horizontal left/right

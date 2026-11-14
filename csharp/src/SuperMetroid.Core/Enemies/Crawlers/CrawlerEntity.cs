@@ -49,5 +49,5 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => CrawlersBehavior.AdvanceCrawlerTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Slot, context);
 }

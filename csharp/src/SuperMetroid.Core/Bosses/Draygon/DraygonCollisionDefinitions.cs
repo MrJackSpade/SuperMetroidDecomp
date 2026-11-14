@@ -14,19 +14,19 @@ internal static class DraygonCollisionDefinitions
     /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
     internal static readonly EnemyCollisionHitbox[] FirstBodyHitboxes =
     [
-        new(-17, -16, 18, 30, EnemyReaction.Ignore, EnemyReaction.DraygonShot),
-        new(-59, -66, 3, -30, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
-        new(16, 1, 60, 53, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
-        new(-28, -37, 61, -10, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(-17, -16, 18, 30, EnemyReaction.Ignore, DraygonReactions.Shot),
+        new(-59, -66, 3, -30, DraygonReactions.Touch, EnemyReaction.DudShot),
+        new(16, 1, 60, 53, DraygonReactions.Touch, EnemyReaction.DudShot),
+        new(-28, -37, 61, -10, DraygonReactions.Touch, EnemyReaction.DudShot),
     ];
 
     /// <summary>Mirrored right-facing body rectangles with the same shootable-eye rule.</summary>
     internal static readonly EnemyCollisionHitbox[] SecondBodyHitboxes =
     [
-        new(-18, -7, 18, 30, EnemyReaction.Ignore, EnemyReaction.DraygonShot),
-        new(-10, -63, 62, -26, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
-        new(-55, 0, -21, 57, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
-        new(-62, -33, 15, -5, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(-18, -7, 18, 30, EnemyReaction.Ignore, DraygonReactions.Shot),
+        new(-10, -63, 62, -26, DraygonReactions.Touch, EnemyReaction.DudShot),
+        new(-55, 0, -21, 57, DraygonReactions.Touch, EnemyReaction.DudShot),
+        new(-62, -33, 15, -5, DraygonReactions.Touch, EnemyReaction.DudShot),
     ];
 
     /// <summary>The empty list of the background frames in which the body cannot be hit or touched.</summary>

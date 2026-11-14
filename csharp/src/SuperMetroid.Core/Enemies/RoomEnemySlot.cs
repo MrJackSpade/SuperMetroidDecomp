@@ -150,14 +150,14 @@ public sealed class RoomEnemySlot : ISolidEnemy
         internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
     /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
-    public int HurtAiTime
+    public int HurtDuration
     {
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
 
     /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
-    internal int HurtFlashFrames => HurtAiTime == 0 ? 4 : HurtAiTime;
+    internal int HurtFlashFrames => HurtDuration == 0 ? 4 : HurtDuration;
     /// <summary>
     /// Where the enemy draws relative to its position: zero for every population entry; Ceres's steam sets it to
     /// place its puffs on the rotating station.
@@ -186,7 +186,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
         FrameCounter = 0;
         ShakeTimer = 0;
         InvincibilityTimer = 0;
-        HurtAiTime = 0;
+        HurtDuration = 0;
         DrawOffset = Offset16<RoomPixels>.Zero;
     }
 }

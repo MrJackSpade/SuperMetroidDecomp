@@ -31,20 +31,20 @@ internal static class TorizoCollisionDefinitions
     /// </summary>
     private static readonly TorizoHitboxList[] AwakeningStepsRight =
     [
-        new([new(-15, -27, 13, 27, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-13, -27, 13, 27, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-14, -32, 13, 33, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-14, -35, 11, 39, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-6, -42, 13, 47, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-7, -41, 11, 47, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
-        new([new(-8, -41, 22, 47, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)]),
+        new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
+        new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
     ];
     /// <summary>Right-facing active body.</summary>
-    private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)]);
+    private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Right-facing standing body, extending farther down and right than the right-facing jump-back body.</summary>
-    private static readonly TorizoHitboxList StandingBodyRight = new([new(-9, -40, 16, 25, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)]);
+    private static readonly TorizoHitboxList StandingBodyRight = new([new(-9, -40, 16, 25, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Compact right-facing jump-back body, fitted separately from its left counterpart; the right-facing jump-back frames use it directly.</summary>
-    private static readonly TorizoHitboxList JumpBackBodyRight = new([new(-8, -37, 15, 14, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)]);
+    private static readonly TorizoHitboxList JumpBackBodyRight = new([new(-8, -37, 15, 14, TorizoReactions.Touch, TorizoReactions.Shot)]);
 
     /// <summary>
     /// The seven awakening bodies with the stand-up/sit-down shot reaction, indexed by awakening step: a 32-by-54 body,
@@ -53,20 +53,20 @@ internal static class TorizoCollisionDefinitions
     /// </summary>
     private static readonly TorizoHitboxList[] AwakeningSteps =
     [
-        new([new(-16, -27, 16, 27, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[0]),
-        new([new(-14, -27, 13, 27, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[1]),
-        new([new(-13, -34, 9, 33, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[2]),
-        new([new(-11, -38, 11, 39, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[3]),
-        new([new(-15, -44, 8, 47, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[4]),
-        new([new(-18, -43, 3, 24, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[5]),
-        new([new(-17, -42, 5, 15, EnemyReaction.BombTorizoTouch, EnemyReaction.TorizoStandUpSitDownShot)], AwakeningStepsRight[6]),
+        new([new(-16, -27, 16, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[0]),
+        new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[1]),
+        new([new(-13, -34, 9, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[2]),
+        new([new(-11, -38, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[3]),
+        new([new(-15, -44, 8, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[4]),
+        new([new(-18, -43, 3, 24, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[5]),
+        new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[6]),
     ];
     /// <summary>Left-facing active body, with the ordinary body shot reaction.</summary>
-    private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)], ActiveBodyRight);
+    private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoReactions.Touch, TorizoReactions.Shot)], ActiveBodyRight);
     /// <summary>Compact left-facing jump-back body with its lower edge at Y 9.</summary>
-    private static readonly TorizoHitboxList JumpBackBody = new([new(-18, -38, 7, 9, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)], JumpBackBodyRight);
+    private static readonly TorizoHitboxList JumpBackBody = new([new(-18, -38, 7, 9, TorizoReactions.Touch, TorizoReactions.Shot)], JumpBackBodyRight);
     /// <summary>Left-facing standing body, extending to Y 18.</summary>
-    private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)], StandingBodyRight);
+    private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, TorizoReactions.Touch, TorizoReactions.Shot)], StandingBodyRight);
 
     /// <summary>Single origin component used by the blank and shared turning frames.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), Empty)];

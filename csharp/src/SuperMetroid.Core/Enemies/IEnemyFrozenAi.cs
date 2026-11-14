@@ -3,9 +3,11 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>An enemy with frozen-state behavior.</summary>
 internal interface IEnemyFrozenAi : IEnemyEntity
 {
-    /// <summary>The frozen preemption (Rinka's termination), or null; when it returns true the turn ends.</summary>
-    EnemyFrozenPreemption? FindFrozenPreemption();
+    /// <summary>
+    /// Runs the frozen enemy's own tail before the common thaw (Rinka's termination); true when it ended the enemy's turn.
+    /// </summary>
+    bool PreemptFrozenTurn();
 
-    /// <summary>Every frozen handler the enemy runs, in order.</summary>
-    IReadOnlyList<Action<RoomEnemySlot>> FrozenHandlers();
+    /// <summary>Runs the enemy's frozen behaviour after the common thaw step.</summary>
+    void RunFrozen();
 }

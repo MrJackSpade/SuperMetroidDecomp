@@ -316,15 +316,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults.SporeSpawnCeiling = mutation;
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
-    internal void AddSporeSpawnBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction SporeSpawnBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                                                       c.SelectedShotAi == EnemyReaction.SporeSpawnShot)
-        {
-            RunsGenericDeath = false,
-            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
-        });
-    }
+        RunsGenericDeath = false,
+        AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Binds spore movement, emitter timing, impact properties, and drop steps.</summary>
     internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
@@ -398,59 +394,50 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
-    internal void AddSporeSpawnShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction SporeSpawnShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.SporeSpawnShot)
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            if (!c.UsesFrameHitboxes)
+                throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
+            if (c.HitboxShot == EnemyReaction.DudShot)
             {
-                if (!c.UsesFrameHitboxes)
-                    throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
-                if (c.HitboxShotAi == EnemyReaction.DudShot)
-                {
-                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
-                    return true;
-                }
-                if (c.HitboxShotAi != EnemyReaction.SporeSpawnShot)
-                {
-                    throw new InvalidDataException(
-                        $"Spore Spawn has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
-                }
-                if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
-                {
-                    // The extended collision walker has already selected the vulnerable
-                    // core. The core's shot reaction rejects this projectile family before common damage.
-                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                    return true;
-                }
-                return false;
-            },
-            ExemptFromGenericDeath = true,
-            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
-        });
-    }
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                return true;
+            }
+            if (c.HitboxShot != SporeSpawnReactions.Shot)
+            {
+                throw new InvalidDataException(
+                    $"Spore Spawn has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+            }
+            if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
+            {
+                // The extended collision walker has already selected the vulnerable
+                // core. The core's shot reaction rejects this projectile family before common damage.
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                return true;
+            }
+            return false;
+        },
+        ExemptFromGenericDeath = true,
+        AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
-    internal void AddSporeSpawnTouch(EnemySharedReactions table)
+    internal void ReactToSporeSpawnTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.SporeSpawnTouch,
-            context =>
-            {
-                if (!context.UsesFrameHitboxes)
-                    throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
-                if (context.HitboxTouchAi == EnemyReaction.Ignore)
-                    return;
-                if (context.HitboxTouchAi != EnemyReaction.SporeSpawnTouch)
-                {
-                    throw new InvalidDataException(
-                        $"Spore Spawn has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
-                }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-                ResolveSporeSpawnDeathAfterCommon(context.Slot);
-            });
+        if (!context.UsesFrameHitboxes)
+            throw new InvalidDataException("Spore Spawn requires its frames' hitboxes.");
+        if (context.HitboxTouch == EnemyReaction.Ignore)
+            return;
+        if (context.HitboxTouch != SporeSpawnReactions.Touch)
+        {
+            throw new InvalidDataException(
+                $"Spore Spawn has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+        }
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveSporeSpawnDeathAfterCommon(context.Slot);
     }
     /// <summary>
     /// Whether the vulnerable core accepts the projectile: a charged beam, or any family but an
@@ -798,6 +785,5 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
         return false;
-    
     }
 }

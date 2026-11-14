@@ -2,14 +2,11 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// A species' reaction to Samus's beams and missiles. The ordinary shot pass runs every stage at the position the
-/// game's shot reaction occupies in the collision sequence; a reaction sets only the stages it has.
+/// game's shot reaction occupies in the collision sequence; a reaction sets only the stages it has. The species' entity
+/// decides when it applies (<see cref="IEnemyShotReaction.ShotReaction"/>).
 /// </summary>
-/// <param name="matches">Whether an enemy uses this reaction (its definition and the definition's shot reaction).</param>
-internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)
+internal sealed class EnemyShotReaction
 {
-    /// <summary>Whether an enemy uses this reaction.</summary>
-    internal Func<RoomEnemySlot, bool> Matches { get; } = Ensure.NotNull(matches);
-
     /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (ordinary shot AI never sees them).</summary>
     internal bool AdmitsBombFamilies { get; init; }
 
@@ -19,10 +16,10 @@ internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)
     /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }
 
-    /// <summary>Runs after the Super Missile quake, before the shared literal no-op hitbox check.</summary>
+    /// <summary>Runs after the Super Missile quake, before the check for an ignoring hitbox or definition reaction.</summary>
     internal EnemyShotStage? AfterSuperMissileQuake { get; init; }
 
-    /// <summary>Runs after the shared literal no-op hitbox check, before the projectile impact.</summary>
+    /// <summary>Runs after the check for an ignoring hitbox or definition reaction, before the projectile impact.</summary>
     internal EnemyShotStage? BeforeImpact { get; init; }
 
     /// <summary>Whether every family takes only the collision prelude instead of an impact.</summary>

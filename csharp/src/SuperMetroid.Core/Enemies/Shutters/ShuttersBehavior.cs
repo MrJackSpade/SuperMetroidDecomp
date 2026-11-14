@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
@@ -349,27 +349,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
-    internal void AddShuttersBombReactions(EnemySharedReactions table)
-    {
+    internal void ReactToShootableShutterBomb(EnemyBombContext c) =>
         // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // reaction only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
-        table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-                                  c.SelectedShotAi == EnemyReaction.ShootableVerticalShutterShot,
-            c => ReactVerticalShutter(c.Enemy, _shutterCamera));
-    }
+        ReactVerticalShutter(c.Enemy, _shutterCamera);
 
     /// <summary>
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
     /// does.
     /// </summary>
-    internal void AddDestroyableShutterBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction DestroyableShutterBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
-                                                       c.SelectedShotAi == EnemyReaction.DestroyableVerticalShutterShot)
-        {
-            AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
-        });
-    }
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
+    };
 
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
     private static AnimationPlayback<ShutterSegment> PlayShutterAnimation(RoomEnemySlot slot, AnimationPlayback<ShutterSegment> playback)
@@ -418,51 +410,35 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    internal void AddShuttersPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction VerticalShutterPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.DefinitionId) &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.VerticalShutterPowerBomb)
-        {
-            ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
-        });
-    }
+        ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
+    };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    internal void AddShuttersShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction ShootableShutterShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShootableVerticalShutterShot)
+        // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision walker
+        // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision walker
-            // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                ReactVerticalShutter(c.Enemy, _shutterCamera);
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            ReactVerticalShutter(c.Enemy, _shutterCamera);
+            return true;
+        },
+    };
 
     /// <summary>Runs common shot damage for destroyable shutters.</summary>
-    internal void AddDestroyableShutterShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction DestroyableShutterShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DestroyableVerticalShutterShot)
-        {
-            AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
-        });
-    }
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
+    };
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
-    internal void AddShuttersTouch(EnemySharedReactions table)
-    {
+    internal void ReactToVerticalShutterTouch(EnemyTouchContext context) =>
         // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
         // whether this population mode may start moving.
-        table.AddTouch(slot => IsVerticalShutterDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.VerticalShutterTouch,
-            context => ReactVerticalShutter(context.Slot, _shutterCamera));
-    }
+        ReactVerticalShutter(context.Slot, _shutterCamera);
     /// <summary>Initializes a vertical shutter through either initializer and their shared tail.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {

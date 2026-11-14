@@ -14,5 +14,5 @@ internal sealed class DachoraEntity(DachoraBehavior species, RoomEnemySlot slot,
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDachoraMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => DachoraBehavior.AdvanceDachoraTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DachoraBehavior.AdvanceDachoraTypedAnimation(Slot, context);
 }

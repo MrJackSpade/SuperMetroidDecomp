@@ -521,21 +521,14 @@ internal sealed class KraidProjectiles
             RestartingFallSpeed.Accelerate(rock.Velocity.Y, KraidRockLaunchDefinitions.CeilingRockGravity));
     }
 
-    /// <summary>Binds nail touch reactions and their shared contact-damage path.</summary>
-    internal void AddKraidNailTouch(EnemySharedReactions table)
+    /// <summary>Runs a nail's touch: the shared contact damage, then the nail's death.</summary>
+    internal void ReactToKraidNailTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidNail &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidNailTouch ||
-                               slot.DefinitionId == EnemyDefinitionId.KraidNailBad &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidBadNailTouch,
-            context =>
-            {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                // A fingernail the touch left in its place dies in the explosion its remaining health names.
-                if (context.Slot.DefinitionId != EnemyDefinitionId.None)
-                    _deathsAndDrops.StartGenericEnemyDeath(context.Slot,
-                        KraidNailTouchDeathExplosion.AfterTouch(context.Slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        // A fingernail the touch left in its place dies in the explosion its remaining health names.
+        if (context.Slot.DefinitionId != EnemyDefinitionId.None)
+            _deathsAndDrops.StartGenericEnemyDeath(context.Slot,
+                KraidNailTouchDeathExplosion.AfterTouch(context.Slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }
 
     /// <summary>Adds the shared frame behaviour used by spit rocks.</summary>

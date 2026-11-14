@@ -57,12 +57,65 @@ internal sealed class RidleyEntity(
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        RidleyPart.Ridley or RidleyPart.Ceres => ridley.Animation.AdvanceRidleyBodyTypedAnimation,
-        RidleyPart.Explosion => (enemy, _) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(enemy),
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
-    };
+        switch (RidleyPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case RidleyPart.Ridley or RidleyPart.Ceres:
+                ridley.Animation.AdvanceRidleyBodyTypedAnimation(Slot, context);
+                break;
+            case RidleyPart.Explosion:
+                RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}.");
+        }
+    }
+
+    /// <summary>None: both Ridley bodies' definitions name the ordinary touch, and the breakup actor's ignores it.</summary>
+    public EnemyReaction? SpeciesTouch => null;
+
+    /// <summary>Both Ridley bodies' shot reaction, which their definitions leave to them; the breakup actor's ignores shots.</summary>
+    public EnemyReaction? SpeciesShot => IsBody ? RidleyReactions.Shot : null;
+
+    /// <summary>
+    /// Lower Norfair Ridley's hurt behaviour for the post-hit window, which owns hurt frames instead of falling back to
+    /// ordinary main AI: movement and phase work run only on even actor frames, while tail projectile armour and hurt
+    /// palettes stay live on every frame. Ceres Ridley and the breakup actor take the shared hurt their definitions name.
+    /// </summary>
+    /// <param name="frame">The enemy frame.</param>
+    public override bool RunHurt(RoomEnemyFrame frame)
+    {
+        if (Slot.DefinitionId != EnemyDefinitionId.Ridley)
+            return base.RunHurt(frame);
+        ridley.RunRidleyHurt(Slot, frame);
+        return true;
+    }
+
+    /// <summary>Lower Norfair Ridley's own shot reaction where his definition leaves shots to him, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction =>
+        Slot.DefinitionId == EnemyDefinitionId.Ridley && LeavesShotToSpecies ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
+
+    /// <summary>Runs Ceres Ridley's own reaction to a bomb that selects his shot reaction, before the ignoring check.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        if (Slot.DefinitionId != EnemyDefinitionId.RidleyCeres || context.SelectedShot != RidleyReactions.Shot)
+            return base.TryReactToBomb(context);
+        ceres.Hits.ReactToCeresRidleyBomb(context);
+        return true;
+    }
+
+    /// <summary>Lower Norfair Ridley's own stages around common bomb damage, for a bomb that selects his shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        Slot.DefinitionId == EnemyDefinitionId.Ridley && context.SelectedShot == RidleyReactions.Shot
+            ? RidleyInteractions.RidleyBombReaction
+            : base.CommonBombDamageReaction(context);
+
+    /// <summary>Both Ridley bodies' own Power Bomb reaction where their definitions leave the blast to them, or the shared one.</summary>
+    public override EnemyPowerBombReaction? PowerBombReaction =>
+        IsBody && LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
@@ -107,7 +160,7 @@ internal sealed class RidleyEntity(
         Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>Both Ridley bodies' shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        IsBody && reaction == EnemyReaction.RidleyShot;
+        IsBody && reaction == RidleyReactions.Shot;
 }

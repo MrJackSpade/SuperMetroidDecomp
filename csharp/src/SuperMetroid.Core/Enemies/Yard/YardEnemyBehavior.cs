@@ -639,34 +639,26 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
-    internal void AddYardShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction YardShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Yard &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.YardShot)
+        AdmitsBombFamilies = true,
+        // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
+        // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
+        // impact, exactly where the collision pass has already accepted the collision index.
+        BeforeVulnerability = (in EnemyShotContext c) =>
         {
-            AdmitsBombFamilies = true,
-            // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
-            // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
-            // impact, exactly where the collision pass has already accepted the collision index.
-            BeforeVulnerability = (in EnemyShotContext c) =>
-            {
-                if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-                    return false;
-                if (c.Samus is null)
-                    throw new InvalidOperationException("Yard beam launch requires the active Samus actor.");
-                ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
-                return true;
-            },
-        });
-    }
+            if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
+                return false;
+            if (c.Samus is null)
+                throw new InvalidOperationException("Yard beam launch requires the active Samus actor.");
+            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+            return true;
+        },
+    };
 
-    /// <summary>Registers Yard's touch reaction, including its facing-dependent shell response.</summary>
-    internal void AddYardTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Yard &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.YardTouch,
-            context => ResolveYardTouch(context.Slot, context.Slot.RequireSpeciesState<YardEnemyState>(), context.Samus, context.ControllerInput));
-    }
+    /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
+    internal void ReactToYardTouch(EnemyTouchContext context) =>
+        ResolveYardTouch(context.Slot, context.Slot.RequireSpeciesState<YardEnemyState>(), context.Samus, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

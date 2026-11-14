@@ -14,10 +14,17 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot s
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PlatformsBehavior.AdvancePlatformsTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Slot, context);
+
+    /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;
+
+    /// <summary>The Tripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot is null ? PlatformsBehavior.TripperBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Tripper's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        Slot.DefinitionId == EnemyDefinitionId.Tripper && reaction == EnemyReaction.TripperShot;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

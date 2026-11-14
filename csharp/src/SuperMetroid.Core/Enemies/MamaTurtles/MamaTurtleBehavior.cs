@@ -844,14 +844,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
-    internal void AddMamaTurtleBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                                                       c.SelectedShotAi == EnemyReaction.BabyTurtleShot)
-        {
-            AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
-        });
-    }
+        AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
+    };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
     internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -899,24 +895,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
-    internal void AddMamaTurtleShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BabyTurtleShot)
-        {
-            AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
-        });
-    }
+        AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
+    };
 
-    /// <summary>Routes Mama contact to shell/fall handling and baby contact to separation and wake behavior.</summary>
-    internal void AddMamaTurtleTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MamaTurtle &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.MamaTurtleTouch,
-            context => ResolveMamaTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus));
+    /// <summary>Routes Mama contact to shell and fall handling.</summary>
+    internal void ReactToMamaTurtleTouch(EnemyTouchContext context) =>
+        ResolveMamaTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus);
 
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.BabyTurtleTouch,
-            context => ResolveBabyTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level));
-    }
+    /// <summary>Routes baby contact to separation and wake behavior.</summary>
+    internal void ReactToBabyTurtleTouch(EnemyTouchContext context) =>
+        ResolveBabyTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level);
 }

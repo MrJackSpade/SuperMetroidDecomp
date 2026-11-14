@@ -15,7 +15,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(this, slot, common);
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -106,14 +106,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
-    internal void AddKagoBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction KagoBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Kago &&
-                                                       c.SelectedShotAi == EnemyReaction.KagoShot)
-        {
-            AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
-        });
-    }
+        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+    };
 
     /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
     internal void AddKagoProjectiles(EnemyProjectileHandlerTable table)
@@ -182,14 +178,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
-    internal void AddKagoShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction KagoShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Kago &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.KagoShot)
-        {
-            AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
-        });
-    }
+        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+    };
     /// <summary>Acceleration added to a bug's vertical velocity each unobstructed airborne frame, 224 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight KagoBugGravity = SignedEightEight.FromParts(0, 224);
     /// <summary>Horizontal jump speed, two pixels per update, negated for leftward launches.</summary>

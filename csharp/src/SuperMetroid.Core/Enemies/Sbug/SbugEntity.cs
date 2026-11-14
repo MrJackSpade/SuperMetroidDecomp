@@ -14,5 +14,5 @@ internal sealed class SbugEntity(SbugBehavior species, RoomEnemySlot slot, Enemy
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSbugMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SbugBehavior.AdvanceSbugTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Slot, context);
 }

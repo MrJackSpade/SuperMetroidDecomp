@@ -14,5 +14,5 @@ internal sealed class MorphBallEyeEntity(MorphBallEyeBehavior species, RoomEnemy
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMorphBallEyeMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeTypedAnimation(Slot, context);
 }

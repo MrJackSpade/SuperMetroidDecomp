@@ -26,14 +26,14 @@ internal static class EncounterLooksVerification
         AssertTrue(looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "the gunship shows the look it last named");
         AssertEqual(EncounterLook.Loaded(EncounterArtwork.BombTorizo), looks.Current(EncounterArtwork.BombTorizo), "another encounter keeps its own look");
 
-        // A Torizo's swap names its look; the swap shown last is the look shown.
-        EncounterLook crumble = new TorizoArtworkSwap(13).Look(EncounterArtwork.BombTorizo);
-        EncounterLook gut = new TorizoArtworkSwap(0).Look(EncounterArtwork.BombTorizo);
-        looks.Show(crumble);
+        // A Torizo's artwork look names its encounter look; the look shown last is the look shown.
+        EncounterLook eyes = TorizoArtworkLook.EyesLightingUp1.Of(EncounterArtwork.BombTorizo);
+        EncounterLook gut = TorizoArtworkLook.GutBlowingUp1.Of(EncounterArtwork.BombTorizo);
+        looks.Show(eyes);
         looks.Show(gut);
-        AssertTrue(looks.Shows(gut) && !looks.Shows(crumble), "a Torizo shows the look of the swap it made last");
-        AssertTrue(EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, crumble.Name) < EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, gut.Name),
-            "the import composes the gut's look over the crumbled statue's");
+        AssertTrue(looks.Shows(gut) && !looks.Shows(eyes), "a Torizo shows the look it named last");
+        AssertTrue(EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, eyes.Name) < EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, gut.Name),
+            "the import composes the gut's look over the lit eyes'");
 
         looks.Restart();
         AssertEqual(EncounterLook.Loaded(EncounterArtwork.Gunship), looks.Current(EncounterArtwork.Gunship), "a room load shows every encounter's room's load again");

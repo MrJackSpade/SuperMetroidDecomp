@@ -138,9 +138,9 @@ internal static class EncounterLookUploads
         ComposedEncounter.Gunship => [EncounterLook.LoadedName, GunshipTakeoffDefinitions.TakeoffLook.Name],
         ComposedEncounter.Crocomire => [EncounterLook.LoadedName, CrocomireSkeletonLookDefinitions.SkeletonLook.Name],
         ComposedEncounter.BombTorizo => [EncounterLook.LoadedName,
-            .. TorizoArtworkSwapDefinitions.BombSequence.Select(swap => swap.Look(EncounterArtwork.BombTorizo).Name)],
+            .. TorizoLookUploadDefinitions.BombSequence.Select(look => look.Of(EncounterArtwork.BombTorizo).Name)],
         ComposedEncounter.GoldenTorizo => [EncounterLook.LoadedName,
-            .. TorizoArtworkSwapDefinitions.GoldenSequence.Select(swap => swap.Look(EncounterArtwork.GoldenTorizo).Name)],
+            .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name)],
         ComposedEncounter.CeresEscape => [EncounterLook.LoadedName, CeresEscapeReadyingDefinitions.WarningLook.Name],
         ComposedEncounter.CeresDoor => [EncounterLook.LoadedName, CeresDoorLookDefinitions.OverlayLook.Name],
         ComposedEncounter.MotherBrain => [EncounterLook.LoadedName, .. MotherBrainLooks.Select(look => look.Name)],
@@ -185,8 +185,8 @@ internal static class EncounterLookUploads
                     Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
                         "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))],
-            ComposedEncounter.BombTorizo => [Torizo(TorizoArtworkSwapDefinitions.BombSequence[look - 1], installed)],
-            ComposedEncounter.GoldenTorizo => [Torizo(TorizoArtworkSwapDefinitions.GoldenSequence[look - 1], installed)],
+            ComposedEncounter.BombTorizo => [Torizo(TorizoLookUploadDefinitions.BombSequence[look - 1], installed)],
+            ComposedEncounter.GoldenTorizo => [Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed)],
             ComposedEncounter.CeresEscape => [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
@@ -197,13 +197,13 @@ internal static class EncounterLookUploads
         };
     }
 
-    /// <summary>Torizo artwork swap <paramref name="swap"/>, where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload Torizo(TorizoArtworkSwap swap, IInstalledArtworkContent installed)
+    /// <summary>What Torizo artwork look <paramref name="look"/> copies, where the cartridge copies it.</summary>
+    private static EncounterArtworkUpload Torizo(TorizoArtworkLook look, IInstalledArtworkContent installed)
     {
-        TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork swaps require installed artwork.");
-        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPageDefinitions.Entries[swap.Ordinal];
-        return new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Ordinal].FirstCharacter,
-            Whole(artwork.Characters(definition.Page, definition.PageByte, definition.ByteCount), definition.ByteCount, $"Torizo artwork swap {swap.Ordinal}"));
+        TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork looks require installed artwork.");
+        TorizoLookUpload upload = TorizoLookUploadDefinitions.Uploads[look];
+        return new EncounterArtworkUpload(upload.FirstCharacter,
+            Whole(artwork.Characters(upload.Page, upload.PageByte, upload.ByteCount), upload.ByteCount, $"Torizo artwork look {look}"));
     }
 
     /// <summary>Escape timer page <paramref name="page"/>, where the cartridge copies it.</summary>

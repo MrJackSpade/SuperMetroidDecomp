@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb and Golden Torizo's typed body animations (#641, #1600): each frame shows a <see cref="EnemyFrameId"/>,
-/// each cue is a <see cref="TorizoCue"/> with the values it acts on, and each artwork swap names its
-/// <see cref="TorizoArtworkSwap"/> entry. A cue that pauses for a fixed time is followed by a wait of that
+/// each cue is a <see cref="TorizoCue"/> with the values it acts on, and each artwork change names the
+/// <see cref="TorizoArtworkLook"/> it shows. A cue that pauses for a fixed time is followed by a wait of that
 /// length.
 /// </summary>
 internal static class TorizoAnimations

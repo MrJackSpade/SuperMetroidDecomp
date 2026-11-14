@@ -14,9 +14,9 @@ internal static class TorizoAnimationSteps
     internal static AnimationBeat<EnemyFrameId, TorizoCue> Cue(TorizoCue cue) =>
         new AnimationBeat<EnemyFrameId, TorizoCue>.Event(cue);
 
-    /// <summary>Shows artwork swap <paramref name="swap"/> under the body's poses.</summary>
-    internal static AnimationBeat<EnemyFrameId, TorizoCue> ShowArtwork(int swap) =>
-        Cue(new TorizoCue.ShowArtwork(new TorizoArtworkSwap(swap)));
+    /// <summary>Shows artwork look <paramref name="look"/> under the body's poses.</summary>
+    internal static AnimationBeat<EnemyFrameId, TorizoCue> ShowArtwork(TorizoArtworkLook look) =>
+        Cue(new TorizoCue.ShowArtwork(look));
 
     /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
     internal static AnimationBeat<EnemyFrameId, TorizoCue> Wait(int updates) =>

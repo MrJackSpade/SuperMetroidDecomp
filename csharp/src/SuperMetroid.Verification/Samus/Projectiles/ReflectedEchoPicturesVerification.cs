@@ -39,7 +39,7 @@ internal static class ReflectedEchoPicturesVerification
                 }
             }
         }
-        VerificationAssertions.AssertTrue(frames.Contains("Projectile.PlasmaWave.20"),
+        VerificationAssertions.AssertTrue(frames.Contains("Projectile.PlasmaWave.UpShort.Core"),
             "a reflected Shinespark echo shows the Plasma-Wave shot's pictures");
         foreach (SamusBeamCombination released in ProjectileSheetComposer.Combinations)
         {

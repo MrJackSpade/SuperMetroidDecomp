@@ -18,8 +18,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomObjectFrameImageFiles
 {
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
-    /// <remarks>Revision 3 names no cartridge (#1693): the installation receipt does.</remarks>
-    internal const int FormatVersion = 3;
+    /// <remarks>
+    /// Revision 3 names no cartridge (#1693): the installation receipt does. Revision 4 names the collectibles' frames by what
+    /// each shows, not by its place in its group (#1762).
+    /// </remarks>
+    internal const int FormatVersion = 4;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

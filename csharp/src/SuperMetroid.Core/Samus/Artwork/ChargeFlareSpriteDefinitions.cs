@@ -2,39 +2,33 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>The charge/Hyper flare and its directional sparks.</summary>
+/// <summary>The charge/Hyper flare and its directional sparks: each composition is named by the picture it shows (#1762).</summary>
 public static class ChargeFlareSpriteDefinitions
 {
-    /// <summary>How many compositions each flare family holds: four main flares, then the right slow, right fast, left slow and left fast spark groups.</summary>
-    internal static readonly ProjectileSpriteGroupSize[] Groups =
+    /// <summary>The main flare's pictures, in the order the flare shows them; both facings show the same.</summary>
+    internal static readonly ChargeFlarePicture[] MainPictures =
     [
-        new(ProjectileSpriteGroup.FlareMain, 4),
-        new(ProjectileSpriteGroup.FlareSlowSparksRight, 6),
-        new(ProjectileSpriteGroup.FlareFastSparksRight, 6),
-        new(ProjectileSpriteGroup.FlareSlowSparksLeft, 6),
-        new(ProjectileSpriteGroup.FlareFastSparksLeft, 6),
+        ChargeFlarePicture.MainFirst, ChargeFlarePicture.MainSecond, ChargeFlarePicture.MainThird, ChargeFlarePicture.MainFourth,
     ];
 
-    /// <summary>The twenty-eight distinct flare and spark compositions, in family order.</summary>
-    public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Groups.SelectMany(group => group.Members)];
+    /// <summary>A spark ring's pictures, in the order the ring shows them; each facing's rings show their own.</summary>
+    internal static readonly ChargeFlarePicture[] SparkPictures =
+    [
+        ChargeFlarePicture.SparksFirst, ChargeFlarePicture.SparksSecond, ChargeFlarePicture.SparksThird,
+        ChargeFlarePicture.SparksFourth, ChargeFlarePicture.SparksFifth, ChargeFlarePicture.SparksSixth,
+    ];
 
-    /// <summary>The place among the four main flare compositions of each main flare picture; both facings show the same.</summary>
-    internal static readonly IReadOnlyDictionary<ChargeFlarePicture, int> MainFlareCompositions = new Dictionary<ChargeFlarePicture, int>
-    {
-        [ChargeFlarePicture.MainFirst] = 0,
-        [ChargeFlarePicture.MainSecond] = 1,
-        [ChargeFlarePicture.MainThird] = 2,
-        [ChargeFlarePicture.MainFourth] = 3,
-    };
+    /// <summary>The spark rings' families: the right slow, right fast, left slow and left fast sparks.</summary>
+    internal static readonly ProjectileSpriteGroup[] SparkFamilies =
+    [
+        ProjectileSpriteGroup.FlareSlowSparksRight, ProjectileSpriteGroup.FlareFastSparksRight,
+        ProjectileSpriteGroup.FlareSlowSparksLeft, ProjectileSpriteGroup.FlareFastSparksLeft,
+    ];
 
-    /// <summary>The place among its facing's six compositions of each spark ring picture.</summary>
-    internal static readonly IReadOnlyDictionary<ChargeFlarePicture, int> SparkCompositions = new Dictionary<ChargeFlarePicture, int>
-    {
-        [ChargeFlarePicture.SparksFirst] = 0,
-        [ChargeFlarePicture.SparksSecond] = 1,
-        [ChargeFlarePicture.SparksThird] = 2,
-        [ChargeFlarePicture.SparksFourth] = 3,
-        [ChargeFlarePicture.SparksFifth] = 4,
-        [ChargeFlarePicture.SparksSixth] = 5,
-    };
+    /// <summary>The twenty-eight distinct flare and spark compositions: the main flare's, then each spark family's.</summary>
+    public static IReadOnlyList<ProjectileSpriteId> All { get; } =
+    [
+        .. MainPictures.Select(picture => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, picture.ToString())),
+        .. SparkFamilies.SelectMany(family => SparkPictures.Select(picture => new ProjectileSpriteId(family, picture.ToString()))),
+    ];
 }

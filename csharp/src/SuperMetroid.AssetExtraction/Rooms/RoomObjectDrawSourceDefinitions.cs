@@ -294,23 +294,34 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The five Grapple-block draws, six bytes apart.</summary>
     internal static readonly SnesAddress GrappleBlockFirst = new(Bank, 0xa4f9);
 
-    /// <summary>The empty-item draw.</summary>
-    internal static readonly SnesAddress CollectibleEmpty = new(Bank, 0xa2b5);
-
-    /// <summary>The Chozo orb frames, six bytes apart.</summary>
-    internal static readonly SnesAddress CollectibleOrbFirst = new(Bank, 0xa2c7);
-
-    /// <summary>The Chozo orb burst.</summary>
-    internal static readonly SnesAddress CollectibleOrbBurst = new(Bank, 0xa2d9);
-
-    /// <summary>The tank frames, six bytes apart.</summary>
-    internal static readonly SnesAddress CollectibleTankFirst = new(Bank, 0xa2df);
-
-    /// <summary>The dynamically assigned item frames, six bytes apart.</summary>
-    internal static readonly SnesAddress CollectibleDynamicFirst = new(Bank, 0xa30f);
-
-    /// <summary>The shot-block reveal frames, six bytes apart.</summary>
-    internal static readonly SnesAddress CollectibleShotRevealFirst = new(Bank, 0xa3dd);
+    /// <summary>The address of each <see cref="CollectibleDraw"/>: one six-byte one-block record per frame.</summary>
+    internal static IReadOnlyDictionary<CollectibleDraw, SnesAddress> Collectible { get; } = new Dictionary<CollectibleDraw, SnesAddress>
+    {
+        [CollectibleDraw.Empty] = new(Bank, 0xa2b5),
+        [CollectibleDraw.ChozoOrbDim] = new(Bank, 0xa2c7),
+        [CollectibleDraw.ChozoOrbGlowing] = new(Bank, 0xa2cd),
+        [CollectibleDraw.ChozoOrbBright] = new(Bank, 0xa2d3),
+        [CollectibleDraw.ChozoOrbBurst] = new(Bank, 0xa2d9),
+        [CollectibleDraw.EnergyTankBright] = new(Bank, 0xa2df),
+        [CollectibleDraw.EnergyTankDim] = new(Bank, 0xa2e5),
+        [CollectibleDraw.MissileTankDim] = new(Bank, 0xa2eb),
+        [CollectibleDraw.MissileTankBright] = new(Bank, 0xa2f1),
+        [CollectibleDraw.SuperMissileTankDim] = new(Bank, 0xa2f7),
+        [CollectibleDraw.SuperMissileTankBright] = new(Bank, 0xa2fd),
+        [CollectibleDraw.PowerBombTankBright] = new(Bank, 0xa303),
+        [CollectibleDraw.PowerBombTankDim] = new(Bank, 0xa309),
+        [CollectibleDraw.FirstBlockPairFirstFrame] = new(Bank, 0xa30f),
+        [CollectibleDraw.FirstBlockPairSecondFrame] = new(Bank, 0xa315),
+        [CollectibleDraw.SecondBlockPairFirstFrame] = new(Bank, 0xa31b),
+        [CollectibleDraw.SecondBlockPairSecondFrame] = new(Bank, 0xa321),
+        [CollectibleDraw.ThirdBlockPairFirstFrame] = new(Bank, 0xa327),
+        [CollectibleDraw.ThirdBlockPairSecondFrame] = new(Bank, 0xa32d),
+        [CollectibleDraw.FourthBlockPairFirstFrame] = new(Bank, 0xa333),
+        [CollectibleDraw.FourthBlockPairSecondFrame] = new(Bank, 0xa339),
+        [CollectibleDraw.ShotBlockIntact] = new(Bank, 0xa3dd),
+        [CollectibleDraw.ShotBlockCracking] = new(Bank, 0xa3e3),
+        [CollectibleDraw.ShotBlockDust] = new(Bank, 0xa3e9),
+    };
 
     /// <summary>The dynamic-item first-frame selector table.</summary>
     internal static readonly SnesAddress CollectibleDynamicFrame0Table = new(Bank, 0xe05f);

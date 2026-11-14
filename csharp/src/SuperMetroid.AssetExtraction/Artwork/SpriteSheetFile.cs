@@ -24,9 +24,11 @@ public static class SpriteSheetFile
     /// (#1712); 22 names the depth between a room's back and front parts BehindFrontParts and a block animation's frames by
     /// its block animation, not by the hardware's tiles (#1726); 23 names the four Maridia water blends' shades by the tint
     /// each shows instead of a letter (#1740); 24 names the cinematic sprites' frames by their poses, the Ceres floor's Baby
-    /// and wing frames by what they show and the Tourian statues' eye glows by their statues, not by numbers (#1747).
+    /// and wing frames by what they show and the Tourian statues' eye glows by their statues, not by numbers (#1747); 25 names the Torizos'
+    /// artwork looks for the stage of the eyes, gut, face or chest each shows, not by swap numbers (#1761); 26 names Samus's
+    /// projectile, charge-flare and hit-burst frames by the pose each composition shows, not by its place in its family (#1762).
     /// </summary>
-    public const int Version = 24;
+    public const int Version = 26;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

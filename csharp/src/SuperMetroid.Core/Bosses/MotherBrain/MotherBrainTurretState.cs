@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What one of the twelve wall turrets in Mother Brain's room keeps: which turret it is, where on the eight-direction
 /// ring it points, which way it turns, and its two waits.
 /// </summary>
-/// <param name="turret">Which of the twelve turrets this is, 0 through 11; it limits the directions the turret may face.</param>
+/// <param name="turret">The turret this is: its placement and the arc of directions it may face.</param>
 /// <param name="ringPosition">The ring position the turret starts facing.</param>
-internal sealed class MotherBrainTurretState(int turret, int ringPosition) : EnemyProjectileState
+internal sealed class MotherBrainTurretState(MotherBrainTurretDefinition turret, int ringPosition) : EnemyProjectileState
 {
-    /// <summary>Which of the twelve turrets this is, 0 through 11; it limits the directions the turret may face.</summary>
-    internal int Turret { get; } = turret;
+    /// <summary>The turret this is: its placement and the arc of directions it may face.</summary>
+    internal MotherBrainTurretDefinition Turret { get; } = turret;
 
     /// <summary>The ring position the turret faces, 0 through 7; its turns keep it inside its allowed sector.</summary>
     internal int RingPosition { get; set; } = ringPosition;

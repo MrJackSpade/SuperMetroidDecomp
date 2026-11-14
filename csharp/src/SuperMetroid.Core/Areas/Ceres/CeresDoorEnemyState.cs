@@ -25,6 +25,9 @@ internal sealed class CeresDoorEnemyState
     /// <summary>Calls left before the next destruction explosion, decremented each call and reloaded once it runs below zero.</summary>
     public int ExplosionIntervalLeft { get; internal set; }
 
-    /// <summary>The destruction explosion position the next burst uses, counting down through the authored positions and starting again from the last.</summary>
-    public int ExplosionPositionIndex { get; internal set; }
+    /// <summary>
+    /// The place in <see cref="CeresDoorRumbleGeometryDefinitions.ExplosionOffsets"/> of the last destruction burst; each
+    /// burst takes the place before it, and the last place after the first.
+    /// </summary>
+    public int LastExplosionPlace { get; internal set; }
 }

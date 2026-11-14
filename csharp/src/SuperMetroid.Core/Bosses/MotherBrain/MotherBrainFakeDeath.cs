@@ -47,14 +47,8 @@ internal sealed class MotherBrainFakeDeath
     /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(int tubeIndex) =>
-        tubeIndex switch
-        {
-            0 or 1 => new(new(16, 32), 248),
-            2 or 3 => new(new(8, 24), 240),
-            4 => new(new(16, 32), 246),
-            _ => throw new InvalidDataException($"Mother Brain falling tube index {tubeIndex} is outside its five pieces."),
-        };
+    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
+        MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
@@ -281,7 +275,7 @@ internal sealed class MotherBrainFakeDeath
     {
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
-        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece));
+        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {

@@ -49,6 +49,12 @@ internal enum TorizoCueKind
     SteppedRightWithLeftFoot,
     /// <summary>Spawns Bomb Torizo's Chozo orbs.</summary>
     SpawnBombTorizoChozoOrbs,
+    /// <summary>Spawns a Bomb Torizo sonic boom.</summary>
+    SpawnBombTorizoSonicBoom,
+    /// <summary>Spawns a Golden Torizo sonic boom.</summary>
+    SpawnGoldenTorizoSonicBoom,
+    /// <summary>Spawns Golden Torizo's eye beam.</summary>
+    SpawnEyeBeam,
     /// <summary>Queues the shot sound.</summary>
     PlayShotSound,
     /// <summary>Queues the footstep sound.</summary>

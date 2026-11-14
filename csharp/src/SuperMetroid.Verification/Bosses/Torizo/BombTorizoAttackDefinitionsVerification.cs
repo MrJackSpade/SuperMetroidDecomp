@@ -19,16 +19,11 @@ internal static class BombTorizoAttackDefinitionsVerification
         const int explosionXAddress = 0x86a859;
         const int explosionYAddress = 0x86a865;
 
-        for (int index = 0; index < 11; index++)
-        {
-            Offset16<RoomPixels> definition = BombTorizoAttacks.Swipe(index);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((swipeXAddress + index * 2))),
-                definition.X,
-                $"Bomb Torizo swipe {index} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((swipeYAddress + index * 2))),
-                definition.Y,
-                $"Bomb Torizo swipe {index} Y offset");
-        }
+        // Each swipe cue carries its hand placement, which the animation oracle compares with these tables
+        // (--torizo-animations); every native placement spawns where the cartridge put it, mirrored when facing right.
+        Offset16<RoomPixels>[] swipes = [.. Enumerable.Range(0, 11).Select(index => new Offset16<RoomPixels>(
+            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeXAddress + index * 2)),
+            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeYAddress + index * 2))))];
 
         // The cartridge's explosion rows: for each site an unused centred row, then the right- and left-facing rows.
         foreach (BombTorizoExplosionSite site in Enum.GetValues<BombTorizoExplosionSite>())
@@ -44,23 +39,15 @@ internal static class BombTorizoAttackDefinitionsVerification
                 $"Bomb Torizo explosion site {site} facing right {facingRight} Y offset");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.Swipe(11),
-            "Bomb Torizo swipe outside its placements");
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.Swipe(-1),
-            "Bomb Torizo negative swipe placement");
-
         var guarded = NewBombTorizoAttackReadGuard(rom);
 
         foreach (bool facingRight in new[] { false, true })
         for (int index = 0; index < 11; index++)
         {
-            Offset16<RoomPixels> expected =
-                BombTorizoAttacks.Swipe(index);
+            Offset16<RoomPixels> expected = swipes[index];
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
-            enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, index);
+            enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, expected);
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
             AssertTrue(projectile.IsActive,

@@ -135,9 +135,8 @@ internal static class LookupStream5Verification
         for (int index = 0; index < 4; index++)
             AssertEqual(new Offset16<RoomPixels>(unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
                 unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
-                CeresDoorRumble.Offset(index), "All eight native anchor words");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumble.Offset(-1), "Rumble lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumble.Offset(4), "Rumble upper bound");
+                CeresDoorRumbleGeometryDefinitions.ExplosionOffsets[index], "All eight native anchor words");
+        AssertEqual(4, CeresDoorRumbleGeometryDefinitions.ExplosionOffsets.Count, "The rumble bursts at four places");
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));

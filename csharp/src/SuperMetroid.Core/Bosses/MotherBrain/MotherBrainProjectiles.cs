@@ -494,9 +494,9 @@ internal sealed class MotherBrainProjectiles
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
                 "Mother Brain drool ran without its multipart encounter state.");
             RoomEnemySlot head = state.Head;
-            int parameter = drool.StateOf<MotherBrainDroolState>().MouthPoint;
+            Offset16<RoomPixels> mouth = drool.StateOf<MotherBrainDroolState>().MouthPoint;
 
-            drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
+            drool.Position = drool.Position.WithWhole(head.Position.Whole + mouth);
             drool.Velocity = EightEightVector<RoomPixels>.Zero;
         }
 

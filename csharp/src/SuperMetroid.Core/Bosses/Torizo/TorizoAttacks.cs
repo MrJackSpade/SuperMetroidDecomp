@@ -357,11 +357,9 @@ internal sealed class TorizoAttacks
     internal static TorizoProjectileSegment SelectLowHealthDroolAnimation(int random) =>
         TorizoRandomDefinitions.LowHealthDroolAnimations[TorizoRandomDefinitions.LowHealthDroolDelay.Of(random)];
 
-    /// <summary>Places a swipe explosion at the attack-table hand offset, mirroring it for right-facing Torizo.</summary>
-    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, int swipe)
+    /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
+    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, Offset16<RoomPixels> placement)
     {
-        Offset16<RoomPixels> placement = BombTorizoAttacks.Swipe(swipe);
-
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;

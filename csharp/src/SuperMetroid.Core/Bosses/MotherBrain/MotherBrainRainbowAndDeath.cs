@@ -132,7 +132,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
-        foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
+        foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {
             var subtitle = _projectiles.AllocateEnemyProjectile();
@@ -149,7 +149,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileSegment segment = MotherBrainDeathExplosions.Animation(request.ProjectileParameter);
+        MiscDustProjectileSegment segment = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
@@ -160,11 +160,9 @@ internal sealed class MotherBrainRainbowAndDeath
         _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
     }
 
-    /// <summary>Spawns a falling door fragment from the parameter identity.</summary>
-    internal void SpawnMotherBrainDoorFragment(int parameter)
+    /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
+    internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
-        MotherBrainDoorFragmentDefinition definition =
-            MotherBrainDoorFragments.ForParameter(parameter);
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment,

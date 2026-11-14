@@ -1,32 +1,26 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Compiled physical definitions for Mother Brain's eight escape-door fragments.</summary>
 internal static class MotherBrainDoorFragmentDefinitions
 {
-    /// <summary>Eight authored fragments are selected by the projectile's zero-based spawn parameter.</summary>
-    internal const int Count = 8;
-
-    /// <summary>Interleaved with the X velocity: the fragments' authored scatter speeds.</summary>
-    internal static ImmutableArray<SignedEightEight> YVelocities { get; } =
+    /// <summary>
+    /// The eight fragments the exploding escape door throws, in the order they spawn: each starts on the door's centre
+    /// line, eight pixels below the one before from 32 above the door, and flies right five pixels an update at its own
+    /// vertical scatter speed.
+    /// </summary>
+    internal static IReadOnlyList<MotherBrainDoorFragmentDefinition> Fragments { get; } =
     [
-        SignedEightEight.FromPixels(-2),
-        SignedEightEight.FromPixels(-1),
-        SignedEightEight.FromPixels(-1),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128),
-        SignedEightEight.FromPixels(-1),
-        SignedEightEight.FromPixels(2),
+        Fragment(-32, SignedEightEight.FromPixels(-2)),
+        Fragment(-24, SignedEightEight.FromPixels(-1)),
+        Fragment(-16, SignedEightEight.FromPixels(-1)),
+        Fragment(-8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
+        Fragment(0, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
+        Fragment(8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128)),
+        Fragment(16, SignedEightEight.FromPixels(-1)),
+        Fragment(24, SignedEightEight.FromPixels(2)),
     ];
 
-    /// <summary>Every fragment flies right, five pixels an update.</summary>
-    internal static SignedEightEight XVelocity { get; } = SignedEightEight.FromPixels(5);
-
-    /// <summary>The first fragment's Y offset, 32 pixels above the door.</summary>
-    internal const int FirstY = -32;
-
-    /// <summary>Each following fragment starts this many pixels lower.</summary>
-    internal const int YStep = 8;
+    /// <summary>A fragment starting <paramref name="y"/> pixels below the door that flies right at <paramref name="ySpeed"/>.</summary>
+    private static MotherBrainDoorFragmentDefinition Fragment(int y, SignedEightEight ySpeed) =>
+        new(new Offset16<RoomPixels>(0, y), new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(5), ySpeed));
 }

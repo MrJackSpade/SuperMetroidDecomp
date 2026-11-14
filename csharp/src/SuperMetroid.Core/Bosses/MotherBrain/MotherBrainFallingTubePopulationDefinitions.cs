@@ -13,22 +13,30 @@ internal static class MotherBrainFallingTubePopulationDefinitions
         MotherBrainTubePiece.BottomLeft, MotherBrainTubePiece.BottomRight, MotherBrainTubePiece.BottomMiddleLeft,
         MotherBrainTubePiece.BottomMiddleRight, MotherBrainTubePiece.Main);
 
-    /// <summary>Selected center X for the main tube; remains required.</summary>
-    internal const int CenterX = 128;
-    /// <summary>Chosen outside-piece horizontal distance from the center; remains required.</summary>
-    internal const int OuterOffset = 32;
-    /// <summary>Chosen inside-piece horizontal distance from the center; remains required.</summary>
-    internal const int InnerOffset = 24;
-    /// <summary>The five compositions share exclusive bottom Y215.
-    /// This chosen placement baseline remains required, independent of installed artwork edits.</summary>
-    internal const int BottomBaseline = 215;
-    /// <summary>Outer tube compositions reach y28+8=36 below their origin.
-    /// Geometry input remains required; not inferred from an editable presentation instance.</summary>
-    internal const int OuterBottom = 36;
-    /// <summary>Inner tube compositions reach y20+8=28 below their origin; required geometry.</summary>
-    internal const int InnerBottom = 28;
-    /// <summary>Main tube composition reaches y40+8=48 below its origin; required geometry.</summary>
-    internal const int MainBottom = 48;
+    /// <summary>
+    /// Where each piece is placed as it falls: the main tube at the room's centre, each outer piece 32 pixels and each inner
+    /// piece 24 pixels to its side of the centre, every piece's picture ending on the same row, 215.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<MotherBrainTubePiece, Position16<RoomPixels>> Positions =
+        new Dictionary<MotherBrainTubePiece, Position16<RoomPixels>>
+        {
+            [MotherBrainTubePiece.BottomLeft] = new(96, 179),
+            [MotherBrainTubePiece.BottomRight] = new(160, 179),
+            [MotherBrainTubePiece.BottomMiddleLeft] = new(104, 187),
+            [MotherBrainTubePiece.BottomMiddleRight] = new(152, 187),
+            [MotherBrainTubePiece.Main] = new(128, 167),
+        };
+
+    /// <summary>Each piece's collision radius and the floor row it lands on.</summary>
+    internal static readonly IReadOnlyDictionary<MotherBrainTubePiece, MotherBrainFallingTubeDefinition> Bodies =
+        new Dictionary<MotherBrainTubePiece, MotherBrainFallingTubeDefinition>
+        {
+            [MotherBrainTubePiece.BottomLeft] = new(new(16, 32), 248),
+            [MotherBrainTubePiece.BottomRight] = new(new(16, 32), 248),
+            [MotherBrainTubePiece.BottomMiddleLeft] = new(new(8, 24), 240),
+            [MotherBrainTubePiece.BottomMiddleRight] = new(new(8, 24), 240),
+            [MotherBrainTubePiece.Main] = new(new(16, 32), 246),
+        };
     /// <summary>Main-tube delay decremented before falling; remains required.</summary>
     internal const int MainFallDelay = 32;
 }

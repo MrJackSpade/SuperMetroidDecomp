@@ -137,11 +137,11 @@ internal static class MotherBrainRandomDefinitions
     /// values, every sample below 16384, the small explosion (zero), the next five smoke (one) and the top one, every sample
     /// from 57344, the big explosion (two).
     /// </summary>
-    internal static readonly WeightedRandomChoice<int> MixedDeathExplosionAnimation = new(
+    internal static readonly WeightedRandomChoice<MotherBrainDeathExplosionAnimation> MixedDeathExplosionAnimation = new(
         new RandomSampleField(13, 3),
-        new(2, 0),
-        new(5, 1),
-        new(1, 2));
+        new(2, MotherBrainDeathExplosionAnimation.SmallExplosion),
+        new(5, MotherBrainDeathExplosionAnimation.Smoke),
+        new(1, MotherBrainDeathExplosionAnimation.BigExplosion));
 
     /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample modulo 256.</summary>
     internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);

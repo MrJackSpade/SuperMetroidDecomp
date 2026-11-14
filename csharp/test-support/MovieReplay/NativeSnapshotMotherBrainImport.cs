@@ -97,7 +97,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
+        state.LastDroolMouthPoint = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));

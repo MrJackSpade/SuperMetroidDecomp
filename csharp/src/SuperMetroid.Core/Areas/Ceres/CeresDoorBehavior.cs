@@ -207,7 +207,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                     state.Action = CeresDoorAction.RotatingElevatorRumble;
                     state.RumbleCallsLeft = CeresDoorRumbleDuration;
                     state.ExplosionIntervalLeft = 0;
-                    state.ExplosionPositionIndex = 0;
+                    state.LastExplosionPlace = 0;
                 }
                 return;
 
@@ -269,11 +269,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        state.ExplosionPositionIndex = state.ExplosionPositionIndex == 0
-            ? CeresDoorRumbleGeometryDefinitions.Count - 1
-            : state.ExplosionPositionIndex - 1;
+        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
+        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
 
-        Position16<RoomPixels> explosion = slot.Position.Whole + CeresDoorRumble.Offset(state.ExplosionPositionIndex);
+        Position16<RoomPixels> explosion = slot.Position.Whole + offsets[state.LastExplosionPlace];
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(_room.Random.Generate())

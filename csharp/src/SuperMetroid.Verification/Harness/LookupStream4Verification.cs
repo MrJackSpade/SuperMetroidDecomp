@@ -1562,13 +1562,8 @@ internal static class LookupStream4Verification
 
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), SporeSpawnProjectiles.StalkYOffset(index), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectiles.SpawnerX(index), "stream4 original ceiling emitter spacing");
-        }
-        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.StalkYOffset(invalid), "stream4 stalk spawn domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.SpawnerX(invalid), "stream4 emitter spawn domain");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].X, "stream4 original ceiling emitter spacing");
         }
     }
 

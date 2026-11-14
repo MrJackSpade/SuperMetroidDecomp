@@ -192,11 +192,11 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// Attached-mouth offset selector used by the drool step. The game
-    /// increments before spawning and wraps at six, so a zero-initialized encounter emits
-    /// drool at mouth offset one first.
+    /// The place in <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/> of the mouth point the last drool hung from.
+    /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
+    /// from the second.
     /// </summary>
-    public int DroolProjectileParameter { get; internal set; }
+    public int LastDroolMouthPoint { get; internal set; }
 
     /// <summary>The walk credit this encounter owns and an attached sequence shares.</summary>
     internal MotherBrainWalkCounter Walk { get; } = new();

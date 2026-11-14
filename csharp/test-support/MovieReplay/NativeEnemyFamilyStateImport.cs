@@ -170,7 +170,7 @@ internal static class NativeEnemyFamilyStateImport
             ceresDoorRecord.HandsDrawingToRidley = words.B != 0;
             ceresDoorRecord.RumbleCallsLeft = words.D;
             ceresDoorRecord.ExplosionIntervalLeft = words.E;
-            ceresDoorRecord.ExplosionPositionIndex = words.F;
+            ceresDoorRecord.LastExplosionPlace = words.F;
         }
         if (slot.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {

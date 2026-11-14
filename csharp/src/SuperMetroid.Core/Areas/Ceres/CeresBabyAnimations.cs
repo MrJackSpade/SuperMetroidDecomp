@@ -55,17 +55,16 @@ internal static class CeresBabyAnimations
     private static AnimationBeat<F, CeresBabyCue>[] SquishCycle =>
         [Show(F.Horizontal, 10), Show(F.Round, 10), Show(F.Vertical, 10), Show(F.Round, 10)];
 
-    /// <summary>The expressive loop's twelve poses: the squish cycle three times, held two updates plus the distance from the fifth.</summary>
-    private static IEnumerable<CeresBabyPoseHold> ExpressivePoses =>
-        Enumerable.Range(0, 12).Select(index => new CeresBabyPoseHold(SquishPose(index), 2 + Math.Abs(index - 4)));
-
-    /// <summary>The squish cycle's pose at <paramref name="index"/>.</summary>
-    private static F SquishPose(int index) => (index % 4) switch
-    {
-        0 => F.Horizontal,
-        2 => F.Vertical,
-        _ => F.Round,
-    };
+    /// <summary>
+    /// The expressive loop's twelve beats: the squish cycle three times, quickening to its fastest on the second
+    /// horizontal squish and slowing again after it.
+    /// </summary>
+    private static CeresBabyPoseHold[] ExpressivePoses =>
+    [
+        new(F.Horizontal, 6), new(F.Round, 5), new(F.Vertical, 4), new(F.Round, 3),
+        new(F.Horizontal, 2), new(F.Round, 3), new(F.Vertical, 4), new(F.Round, 5),
+        new(F.Horizontal, 6), new(F.Round, 7), new(F.Vertical, 8), new(F.Round, 9),
+    ];
 
     /// <summary>The shade that accompanies <paramref name="pose"/> in the expressive loop.</summary>
     private static CeresBabyShade Shade(F pose) => pose switch

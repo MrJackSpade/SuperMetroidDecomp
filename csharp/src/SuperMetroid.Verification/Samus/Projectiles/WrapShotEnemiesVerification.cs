@@ -68,7 +68,7 @@ internal static class WrapShotEnemiesVerification
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
-                AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
+                AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, runtime.Room.LoadedRoom.Area), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(target).Terrain, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
@@ -78,7 +78,7 @@ internal static class WrapShotEnemiesVerification
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
             enemy.Position = enemy.Position.WithWhole(shots.Slots[0].Position.Whole);
-            AssertEqual(1, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
+            AssertEqual(1, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, runtime.Room.LoadedRoom.Area), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");
     }

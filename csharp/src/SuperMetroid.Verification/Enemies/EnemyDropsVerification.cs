@@ -41,12 +41,50 @@ internal static class EnemyDropsVerification
         Suite(nameof(VerifyDirectEnemyDropReachesSlotZero), () => VerifyDirectEnemyDropReachesSlotZero());
         Suite(nameof(VerifyGenericEnemyDeathDropConversion), () => VerifyGenericEnemyDeathDropConversion());
         Suite(nameof(VerifyContactDeathStopsEnemyDispatch), () => VerifyContactDeathStopsEnemyDispatch());
+        Suite(nameof(VerifyRespawningEnemyKeepsItsPlace), () => VerifyRespawningEnemyKeepsItsPlace());
 
         Console.WriteLine(
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");
     }
 
-    /// <summary>Confirms contact death replaces a respawning enemy with inert AI before the next frame.</summary>
+    /// <summary>
+    /// A respawning enemy's death keeps its place taken (#1851): a spawn passes over the place awaiting the respawn and takes
+    /// the next free one, while a killed enemy that does not respawn frees its place for the spawn; the respawn's rebuild
+    /// ends the wait.
+    /// </summary>
+    internal static void VerifyRespawningEnemyKeepsItsPlace()
+    {
+        RoomEnemyDefinition mellow = RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow];
+        foreach (bool respawns in new[] { true, false })
+        {
+            EnemyDropFixture fixture = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: [1]);
+            IReadOnlyList<RoomEnemySlot> places = fixture.System.SlotTable.Slots;
+            RoomEnemySlot killed = places[0];
+            killed.Bind(EnemyDefinitionId.Mellow, mellow);
+            killed.Presence = respawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
+
+            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, EnemyDeathExplosion.Small);
+
+            AssertEqual(EnemyDefinitionId.None, killed.DefinitionId, $"respawns {respawns}: the killed enemy leaves its place");
+            AssertEqual(respawns, killed.AwaitsRespawn, $"respawns {respawns}: the place awaits the enemy's respawn");
+            AssertTrue(killed.Entity is null, $"respawns {respawns}: no behaviour runs in the place");
+            AssertEqual(respawns ? places[1] : places[0], EnemySlotOrder.FirstFree(places),
+                $"respawns {respawns}: a spawn takes the first place that does not await a respawn");
+        }
+
+        EnemyDropFixture rebuilt = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: [1]);
+        RoomEnemySlot place = rebuilt.System.SlotTable.Slots[0];
+        place.Bind(EnemyDefinitionId.Mellow, mellow);
+        place.Presence = EnemyPresence.RespawnsIfKilled;
+        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.Small);
+        place.Bind(EnemyDefinitionId.Mellow, mellow);
+        AssertTrue(!place.AwaitsRespawn, "rebuilding the enemy in its place ends the wait");
+        AssertEqual(rebuilt.System.SlotTable.Slots[1], EnemySlotOrder.FirstFree(rebuilt.System.SlotTable.Slots),
+            "the rebuilt enemy holds its place");
+        Console.WriteLine("  Respawning enemy: its place stays taken until it is rebuilt; a non-respawning kill frees it.");
+    }
+
+    /// <summary>Confirms contact death leaves a respawning enemy's place awaiting its respawn, with no behaviour, before the next frame.</summary>
     internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
@@ -69,17 +107,14 @@ internal static class EnemyDropsVerification
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
-        AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
+        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+            "contact death leaves the respawning enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
-        AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        // The definition no longer names the placeholder's empty main AI (#1738); its entity owns it.
-        AssertEqual(RoomEnemyAuxiliaryDefinitionCatalog.Respawn, enemy.Definition,
-            "cached definition follows the replacement identity to the respawn placeholder's");
-        AssertTrue(enemy.Entity is SuperMetroid.Core.Enemies.Inert.InertEnemyEntity,
-            "the replacement identity binds the placeholder entity, whose main AI takes no action");
+        AssertEqual(1, enemy.FrameCounter, "the death update still counts the awaiting place's update");
+        AssertTrue(enemy.Entity is null, "the awaiting place holds no enemy, so no behaviour runs in it");
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
-        AssertEqual(0, fixture.System.ActiveEnemies.Count, "placeholder remains excluded next frame");
-        AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");
+        AssertEqual(0, fixture.System.ActiveEnemies.Count, "the awaiting place stays excluded next frame");
+        AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "the awaiting place cannot be killed twice");
     }
 
     /// <summary>Checks resource changes and sounds for the five enemy pickup kinds.</summary>
@@ -351,10 +386,8 @@ internal static class EnemyDropsVerification
         // A Fireflea touched with health nine left dies in the small explosion.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
             deathAnimation: FirefleaTouchDeathExplosion.AfterSurvivedTouch(9, EnemyDeathExplosionDefinitions.AuthoredOrder));
-        AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
-            "respawning death leaves native DAFF placeholder in physical enemy slot");
-        AssertEqual((byte)0xa3, enemy.NativeHeader.Bank,
-            "respawning death leaves native placeholder AI bank");
+        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+            "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
@@ -412,14 +445,9 @@ internal static class EnemyDropsVerification
         return new EnemyDropFixture(bus, system, level);
     }
 
-    /// <summary>Seeds respawn enemy data and compiled pickup list pointers into the synthetic bus.</summary>
+    /// <summary>Seeds an empty population and compiled pickup list pointers into the synthetic bus.</summary>
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
-        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        byte[] placeholder = new byte[64];
-        for (int i = 0; i < placeholder.Length; i++)
-            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn) + i);
-        bus.WriteBytes(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn), placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         SeedEmptyRoomEnemyPopulation(bus, 0x9000);
 
@@ -476,6 +504,7 @@ internal static class EnemyDropsVerification
     internal static int EnemyContactDeathCommand()
     {
         Suite(nameof(VerifyContactDeathStopsEnemyDispatch), () => VerifyContactDeathStopsEnemyDispatch());
+        Suite(nameof(VerifyRespawningEnemyKeepsItsPlace), () => VerifyRespawningEnemyKeepsItsPlace());
         return 0;
     }
 }

@@ -92,7 +92,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                 RoomEnemyProjectileKind.NoobTubeShard => NoobTubeProjectileDefinition.Shard,
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => NoobTubeProjectileDefinition.ReleasedAirBubble,
                 RoomEnemyProjectileKind.None or
-                    RoomEnemyProjectileKind.PrePhantoonRoom or
+                    RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                     RoomEnemyProjectileKind.YappingMawBody or
                     RoomEnemyProjectileKind.SkreeParticleDownRight or
                     RoomEnemyProjectileKind.SkreeParticleUpRight or

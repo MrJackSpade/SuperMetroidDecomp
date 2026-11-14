@@ -63,7 +63,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.DessgeegaLarge] = 0xda3f,
         [EnemyDefinitionId.Zoa] = 0xda7f,
         [EnemyDefinitionId.Viola] = 0xdabf,
-        [EnemyDefinitionId.Respawn] = 0xdaff,
         [EnemyDefinitionId.Skree] = 0xdb7f,
         [EnemyDefinitionId.Yard] = 0xdbbf,
         [EnemyDefinitionId.HZoomer] = 0xdc3f,

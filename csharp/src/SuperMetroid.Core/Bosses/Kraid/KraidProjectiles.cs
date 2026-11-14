@@ -545,7 +545,7 @@ internal sealed class KraidProjectiles
     {
         _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
         // A fingernail the touch left in its place dies in the explosion its remaining health names.
-        if (context.Slot.DefinitionId != EnemyDefinitionId.None)
+        if (!context.Slot.IsFree)
             _deathsAndDrops.StartGenericEnemyDeath(context.Slot,
                 KraidNailTouchDeathExplosion.AfterTouch(context.Slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }

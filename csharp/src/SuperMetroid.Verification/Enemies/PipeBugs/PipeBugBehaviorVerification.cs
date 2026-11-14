@@ -181,7 +181,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.DessgeegaLarge:
             case EnemyDefinitionId.Zoa:
             case EnemyDefinitionId.Viola:
-            case EnemyDefinitionId.Respawn:
             case EnemyDefinitionId.Skree:
             case EnemyDefinitionId.Yard:
             case EnemyDefinitionId.HZoomer:

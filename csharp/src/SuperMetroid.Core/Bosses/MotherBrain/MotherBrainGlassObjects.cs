@@ -65,7 +65,7 @@ internal sealed class MotherBrainGlassObjects
     /// on its block: a missile can overlap the brain before its terrain probe reaches the glass block, and the head shot
     /// counts that hit immediately in the enemy collision pass. A hit once the glass has left the room changes nothing.
     /// </summary>
-    public void IncrementMotherBrainGlassRoomArgument()
+    public void CountHeadShotOnGlass()
     {
         if (!MotherBrainGlassWasLoaded)
         {

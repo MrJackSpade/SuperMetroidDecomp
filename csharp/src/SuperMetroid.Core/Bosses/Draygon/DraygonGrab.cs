@@ -315,7 +315,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.FlashTimer = body.HurtDuration + 8;
+        body.FlashTimer = body.HurtFlashFrames + 8;
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

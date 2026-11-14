@@ -764,7 +764,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException($"Enemy slot {body.SlotIndex} is not a Ki-Hunter body.");
 
         RoomEnemySlot wings = _wingsOfBody.Of(body);
-        if (body.DefinitionId == EnemyDefinitionId.None && initializedBody)
+        if (body.IsFree && initializedBody)
             return wings;
 
         EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.DefinitionId] switch
@@ -782,7 +782,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // slot, so a slot that now holds a different enemy is refused rather than written as the wing.
         bool established = _bodyOfWings.IsPlaced(wings);
         if (wings.DefinitionId != expected &&
-            !(established && wings.DefinitionId == EnemyDefinitionId.None))
+            !(established && wings.IsFree))
         {
             throw new InvalidDataException(
                 $"Ki-Hunter body slot {body.SlotIndex} is followed by {wings.DefinitionId}, " +

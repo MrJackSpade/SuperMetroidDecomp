@@ -459,7 +459,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Spawn = survivingSpawnSnapshot;
         if (respawns)
         {
-            _deathsAndDrops.InstallRespawnPlaceholder(slot);
+            slot.AwaitRespawn();
         }
     }
 }

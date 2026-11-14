@@ -110,7 +110,7 @@ internal sealed class MotherBrainCombat
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return;
 
-        _room.Services.MotherBrain.IncrementGlassRoomArgument();
+        _room.Services.MotherBrain.CountHeadShotOnGlass();
         _audio.QueueEnemySound(EnemySound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
         // The flash step deliberately alternates odd/even flash parity when a second hit

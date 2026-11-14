@@ -47,7 +47,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         slot.AiStates = EnemyAiStates.None;
         slot.AnimationClock.Restart();
         slot.FrameCounter = 0;
-        slot.HurtDuration = definition.HurtFlashFrames;
+        slot.HurtFlashFrames = definition.HurtFlashFrames;
         slot.Shading = PictureShading.Standard;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
@@ -107,6 +107,9 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <summary>Runs a loaded slot's main AI through its species' main behaviour.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
+        // A place awaiting its enemy's respawn has no behaviour; the enemy pass still counts its update.
+        if (slot.AwaitsRespawn)
+            return;
         if (slot.Entity is not IEnemyMainAi entity)
             throw new InvalidDataException($"Enemy {slot.DefinitionId} has no main behaviour.");
         entity.RunMainAi(frame);

@@ -83,8 +83,8 @@ internal static class KraidReportedCollisionsVerification
                 interactive.Clear(); interactive.Add(nail);
                 AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0), "Nail callback is dispatched");
                 AssertEqual((ushort)(999 - damage), samus.Health, "Nail applies native touch damage");
-                AssertEqual(EnemyDefinitionId.Respawn, nail.DefinitionId,
-                    "Nail dies into the native respawn placeholder");
+                AssertTrue(nail.AwaitsRespawn && nail.DefinitionId == EnemyDefinitionId.None,
+                    "the nail dies and its place awaits its respawn");
             });
         }
         Check("Belly projectile leading edge", () =>

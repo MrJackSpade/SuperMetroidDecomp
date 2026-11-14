@@ -39,11 +39,9 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 [RoomBlockBehaviorCodec.Decode(behavior)],
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
-            var terrain = new EnemyTerrain();
+            var terrain = new EnemyTerrain(roomObjects.BreakableTerrain);
             RoomCollisionBlock block = level.GetCollisionBlock(Position16<RoomBlocks>.Zero);
-            bool collision;
-            using (new EnemyTerrain.EnemyTerrainScope(terrain, roomObjects.BreakableTerrain))
-                collision = terrain.ReactToEnemySpikeBlock(level, Position16<RoomBlocks>.Zero, block);
+            bool collision = terrain.ReactToEnemySpikeBlock(level, Position16<RoomBlocks>.Zero, block);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");

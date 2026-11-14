@@ -71,6 +71,46 @@ internal static class EnemyBombShotReactionVerification
         Console.WriteLine("  Bomb shot reaction: a hurt enemy cries unless frozen; an immune one leaves the bomb's dud flash and sound.");
     }
 
+    /// <summary>
+    /// An exploding bomb on the room's leftmost pixel column (<see cref="LeftEdgeBombMissesFrameHitboxes"/>): a Mellow that
+    /// collides by its frames' hitboxes, showing the empty frame whose one hitbox is the point at its origin, passes over a
+    /// bomb lying on that point on the leftmost column and is hurt by the same bomb one column to the right, while a Mellow
+    /// that collides by its radius is hurt by the bomb on the leftmost column.
+    /// </summary>
+    internal static void VerifyLeftEdgeBombMissesFrameHitboxes()
+    {
+        RoomEnemyDefinition mellow = RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow];
+        foreach ((string kind, bool frameHitboxes, int column, bool hit) in new[]
+        {
+            ("frame hitboxes, leftmost column", true, LeftEdgeBombMissesFrameHitboxes.PassedColumn, false),
+            ("frame hitboxes, next column", true, LeftEdgeBombMissesFrameHitboxes.PassedColumn + 1, true),
+            ("radius, leftmost column", false, LeftEdgeBombMissesFrameHitboxes.PassedColumn, true),
+        })
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(mellow, frozenTimer: 0);
+            var place = new Position16<RoomPixels>(column, Place.Y);
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(place);
+            slot.CollidesByFrameHitboxes = frameHitboxes;
+            if (frameHitboxes)
+                slot.Frame = EnemyFrameId.Empty;
+            var bombs = new SamusBombProjectileSystem();
+            SamusBombProjectileSlot bomb = bombs.Slots[0];
+            bomb.Type = SamusBombProjectileSystem.NormalBombType;
+            bomb.Damage = 30;
+            bomb.Radius = new(4, 4);
+            bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
+                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+
+            enemies.Audio.BeginFrame();
+            AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot),
+                $"{kind}: the bomb's hits");
+            AssertEqual(hit, bomb.IsSpent, $"{kind}: the hit marks the bomb");
+            AssertEqual(hit ? 1000 - 30 : 1000, slot.Health, $"{kind}: the Mellow's health after the bomb");
+        }
+        Console.WriteLine("  Left-edge bomb: frame-hitbox enemies pass over a bomb on the room's leftmost column; radius enemies meet it.");
+    }
+
     /// <summary>A loaded room with no population, a Mellow of <paramref name="definition"/> placed at <see cref="Place"/>.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) LoadedRoomWithMellow(RoomEnemyDefinition definition, int frozenTimer)
     {
@@ -97,6 +137,7 @@ internal static class EnemyBombShotReactionVerification
     internal static int EnemyBombShotReactionCommand()
     {
         Suite(nameof(VerifyBombHitCriesOrDuds), () => VerifyBombHitCriesOrDuds());
+        Suite(nameof(VerifyLeftEdgeBombMissesFrameHitboxes), () => VerifyLeftEdgeBombMissesFrameHitboxes());
         return 0;
     }
 }

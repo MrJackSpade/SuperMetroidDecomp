@@ -115,19 +115,11 @@ internal sealed class EnemyDeathsAndDrops
         enemy.Spawn = survivingSpawn;
         if (respawns)
         {
-            // The respawn placeholder keeps the enemy's place in the room's listing taken until the
-            // explosion's respawn cue rebuilds the enemy from its population entry.
-            InstallRespawnPlaceholder(enemy);
+            // The place stays taken until the explosion's respawn cue rebuilds the enemy from its
+            // population entry.
+            enemy.AwaitRespawn();
         }
         _roomStatus.RecordKill();
-    }
-
-    /// <summary>Keeps a killed respawning slot occupied by replacing its definition with the respawn placeholder.</summary>
-    internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
-    {
-        // The game reads the new definition on every dispatch.
-        // Our cached definition must follow it even during the death frame.
-        enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>

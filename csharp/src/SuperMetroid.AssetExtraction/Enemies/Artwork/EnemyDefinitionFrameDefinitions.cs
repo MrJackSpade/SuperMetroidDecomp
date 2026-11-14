@@ -1484,9 +1484,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.LargeSidehopperCeilingLandedSecond,
     ];
 
-    /// <summary>The frames <c>Enemies/Inert/InertEnemyFactory.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] InertEnemy = [];
-
     /// <summary>The frames <c>Enemies/Kago/KagoBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Kago =
     [
@@ -2534,7 +2531,6 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Sidehopper] = SidehopperFrames,
             [EnemyDefinitionId.SidehopperLarge] = SidehopperLargeFrames,
             [EnemyDefinitionId.SidehopperTourian] = SidehopperLargeFrames,
-            [EnemyDefinitionId.Respawn] = InertEnemy,
             [EnemyDefinitionId.Kago] = Kago,
             [EnemyDefinitionId.KihunterGreen] = KihunterGreenFrames,
             [EnemyDefinitionId.KihunterGreenWings] = KihunterGreenWingsFrames,

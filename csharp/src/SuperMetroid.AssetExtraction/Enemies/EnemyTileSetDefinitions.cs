@@ -156,7 +156,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.PirateGoldWalking] = 3072,
         [EnemyDefinitionId.PirateMagentaWalking] = 3072,
         [EnemyDefinitionId.PirateSilverWalking] = 3072,
-        [EnemyDefinitionId.Respawn] = 0,
         [EnemyDefinitionId.BabyMetroidCutscene] = 0,
         [EnemyDefinitionId.MotherBrainTubes] = 0,
         [EnemyDefinitionId.BombTorizoOrb] = 8192,

@@ -75,8 +75,8 @@ internal sealed class RoomEnemyRuntimeServices(
     private SamusState ControlledSamus => player.Samus ?? throw new InvalidOperationException(
         "Chozo control lock requires an active Samus actor.");
 
-    /// <summary>Advances the Mother Brain glass room-object argument after an enemy-driven phase event.</summary>
-    public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
+    /// <inheritdoc/>
+    public void CountHeadShotOnGlass() => roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
 
     /// <inheritdoc />
     public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>

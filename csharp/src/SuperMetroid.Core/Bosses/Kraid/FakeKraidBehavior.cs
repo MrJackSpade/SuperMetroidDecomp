@@ -443,7 +443,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         },
         AfterCommon = c =>
         {
-            if (!c.Froze && c.Enemy.DefinitionId != EnemyDefinitionId.None && c.HealthBefore != 0 && c.Enemy.Health == 0)
+            if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)
                 SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
         },
     };

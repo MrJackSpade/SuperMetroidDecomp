@@ -13,7 +13,7 @@ internal static class EnemyProjectileNativeWords
     internal static readonly NativeWordIdentities<RoomEnemyProjectileKind> Kinds = new(new Dictionary<RoomEnemyProjectileKind, ushort>
     {
         [RoomEnemyProjectileKind.None] = 0x0000,
-        [RoomEnemyProjectileKind.PrePhantoonRoom] = 0xa3b0,
+        [RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace] = 0xa3b0,
         [RoomEnemyProjectileKind.YappingMawBody] = 0xec95,
         [RoomEnemyProjectileKind.SkreeParticleDownRight] = 0x8bc2,
         [RoomEnemyProjectileKind.SkreeParticleUpRight] = 0x8bd0,

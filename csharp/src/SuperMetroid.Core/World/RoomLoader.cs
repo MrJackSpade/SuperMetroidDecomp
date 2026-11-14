@@ -1001,7 +1001,7 @@ internal sealed class RoomLoader
             KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            _bossArtwork);
+            _bossArtwork, roomObjects.BreakableTerrain);
         enemies.TakeOverFrom(_room.HandOver);
         enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;

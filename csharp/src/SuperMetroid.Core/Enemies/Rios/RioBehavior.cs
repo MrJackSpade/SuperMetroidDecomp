@@ -90,7 +90,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // The game's on-screen check returns zero for an on-screen origin. The
                 // branch consequently queues the cry only for the visible attack start.
-                if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
+                if (EnemyProcessingWindow.IsWithinProcessingWindow(slot, camera))
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 

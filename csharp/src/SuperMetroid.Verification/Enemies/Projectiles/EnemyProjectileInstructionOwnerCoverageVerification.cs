@@ -60,7 +60,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoom or RoomEnemyProjectileKind.CeresRidleyFireball or
+                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CeresRidleyFireball or
                 RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
                 RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
                 RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or

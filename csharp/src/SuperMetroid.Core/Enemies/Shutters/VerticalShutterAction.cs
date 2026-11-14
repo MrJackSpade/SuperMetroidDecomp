@@ -15,8 +15,8 @@ public enum VerticalShutterAction
     /// <summary>Selects primary upward/downward movement and queues the activation sound when on screen.</summary>
     Activate,
     /// <summary>
-    /// Stays still (#1814): a reaction-triggered shutter waits here for its first hit, and a shutter whose rest time is
-    /// 4080 stops here for good, though an eligible reaction can still activate it.
+    /// Stands still until a reaction starts it: a reaction-triggered shutter before its first reaction, or any shutter
+    /// that has stopped at an end for good.
     /// </summary>
     Still,
     /// <summary>Adds upward 1/65536-pixel velocity, carries a rider, and stops at the minimum Y boundary.</summary>

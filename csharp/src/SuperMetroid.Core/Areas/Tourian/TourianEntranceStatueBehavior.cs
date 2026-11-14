@@ -27,8 +27,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     private PictureShade? _eyeGlow;
 
     /// <summary>
-    /// The released sprite statues' blacked-out eyes, grey-out records and greys, in the order they were shown; a
-    /// grey-out's record replaces the one before it.
+    /// The released sprite statues' blacked-out eyes, grey-out frames and greys, in the order they were shown; a
+    /// grey-out's frame replaces the one before it.
     /// </summary>
     private readonly List<PictureShade> _statueLooks = [];
 
@@ -75,15 +75,15 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Shows record <paramref name="record"/> of a sprite statue's grey-out, <paramref name="colours"/> naming the Ridley or
-    /// Phantoon statue, over the scene's sprites (#1512): each record replaces the one its grey-out showed before.
+    /// Shows <paramref name="frame"/> of a sprite statue's grey-out, <paramref name="colours"/> naming the Ridley or
+    /// Phantoon statue, over the scene's sprites (#1512): each frame replaces the one its grey-out showed before.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="colours"/> names no sprite statue.</exception>
-    internal void ShowStatueGreyOut(ColourEffectColours colours, ColourEffectFrame record)
+    internal void ShowStatueGreyOut(ColourEffectColours colours, ColourEffectFrame frame)
     {
         if (colours is not (ColourEffectColours.RidleyStatue or ColourEffectColours.PhantoonStatue))
             throw new ArgumentOutOfRangeException(nameof(colours), colours, "Only the Ridley and Phantoon statues grey out as sprites.");
-        PictureShade shade = ColourEffectShades.Of(colours, record);
+        PictureShade shade = ColourEffectShades.Of(colours, frame);
         _statueLooks.RemoveAll(earlier => earlier.Effect == shade.Effect);
         _statueLooks.Add(shade);
         ShowScene();

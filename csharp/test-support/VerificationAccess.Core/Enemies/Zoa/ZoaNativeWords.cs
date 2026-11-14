@@ -21,19 +21,19 @@ internal static class ZoaNativeWords
     /// The selector word naming each animation, an index into the Zoa's four-entry animation table: its low bit selects
     /// rising and its next bit facing right.
     /// </summary>
-    private static readonly NativeWordIdentities<ZoaAnimationSelector> AnimationSelectors = new(new Dictionary<ZoaAnimationSelector, ushort>
+    private static readonly NativeWordIdentities<ZoaSegment> AnimationSelectors = new(new Dictionary<ZoaSegment, ushort>
     {
-        [ZoaAnimationSelector.ShootingFacingLeft] = 0,
-        [ZoaAnimationSelector.RisingFacingLeft] = 1,
-        [ZoaAnimationSelector.ShootingFacingRight] = 2,
-        [ZoaAnimationSelector.RisingFacingRight] = 3,
+        [ZoaSegment.FacingLeftShooting] = 0,
+        [ZoaSegment.FacingLeftRising] = 1,
+        [ZoaSegment.FacingRightShooting] = 2,
+        [ZoaSegment.FacingRightRising] = 3,
     });
 
     /// <summary>The selector word, an index into the four-entry animation table, for <paramref name="selector"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="selector"/> names no animation.</exception>
-    internal static int AnimationSelectorWord(ZoaAnimationSelector selector) => AnimationSelectors.Word(selector);
+    internal static int AnimationSelectorWord(ZoaSegment selector) => AnimationSelectors.Word(selector);
 
     /// <summary>The animation a stored selector word names.</summary>
     /// <exception cref="InvalidDataException">The word names no animation.</exception>
-    internal static ZoaAnimationSelector AnimationSelectorOf(int word) => AnimationSelectors.Decode(word, "Zoa animation selector word");
+    internal static ZoaSegment AnimationSelectorOf(int word) => AnimationSelectors.Decode(word, "Zoa animation selector word");
 }

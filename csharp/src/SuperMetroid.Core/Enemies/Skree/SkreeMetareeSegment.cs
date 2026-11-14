@@ -14,8 +14,6 @@ internal enum SkreeMetareeSegment
     MetareeDiving,
     /// <summary>The loop.</summary>
     MetareeDivingLoop,
-    /// <summary>The metaree stop animating animation. No authored spawn or branch enters it.</summary>
-    MetareeStopAnimating,
     /// <summary>The Skree idling animation.</summary>
     SkreeIdling,
     /// <summary>The Skree preparing attack animation.</summary>
@@ -24,6 +22,4 @@ internal enum SkreeMetareeSegment
     SkreeDiving,
     /// <summary>The loop.</summary>
     SkreeDivingLoop,
-    /// <summary>The Skree stop animating animation. No authored spawn or branch enters it.</summary>
-    SkreeStopAnimating,
 }

@@ -29,8 +29,8 @@ internal static class PuyoInstructionProgramDefinitionsVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Segments, loop, PuyoFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Segments, loop)), $"Puyo {loop} loop");
         }
-        foreach (PuyoSegment pose in new[] { PuyoSegment.RightFrame0LeftFrame4, PuyoSegment.RightFrame1LeftFrame3, PuyoSegment.Frame2,
-                     PuyoSegment.RightFrame3LeftFrame1, PuyoSegment.RightFrame4LeftFrame0 })
+        foreach (PuyoSegment pose in new[] { PuyoSegment.TiltedFarRight, PuyoSegment.TiltedRight, PuyoSegment.Upright,
+                     PuyoSegment.TiltedLeft, PuyoSegment.TiltedFarLeft })
         {
             Start(slot, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();

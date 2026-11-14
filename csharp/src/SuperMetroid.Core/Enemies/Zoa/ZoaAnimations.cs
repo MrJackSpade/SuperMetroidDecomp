@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Zoa.ZoaCueKind;
 using P = SuperMetroid.Core.Enemies.Zoa.ZoaSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -17,11 +16,11 @@ internal static class ZoaAnimations
     {
         [P.FacingLeftShooting] =
         [
-            Cue(new(K.SetSpeedStage1)),
+            Cue(new(ZoaSpeedDefinitions.SlowLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingLeftShootingFirst, 64),
-            Cue(new(K.SetSpeedStage2)),
+            Cue(new(ZoaSpeedDefinitions.MiddleLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingLeftShootingSecond, 8),
-            Cue(new(K.SetSpeedStage3)),
+            Cue(new(ZoaSpeedDefinitions.FastLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingLeftShootingThird, 48),
         ],
         [P.FacingLeftRising] =
@@ -32,11 +31,11 @@ internal static class ZoaAnimations
         ],
         [P.FacingRightShooting] =
         [
-            Cue(new(K.SetSpeedStage1)),
+            Cue(new(ZoaSpeedDefinitions.SlowLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingRightShootingFirst, 64),
-            Cue(new(K.SetSpeedStage2)),
+            Cue(new(ZoaSpeedDefinitions.MiddleLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingRightShootingSecond, 8),
-            Cue(new(K.SetSpeedStage3)),
+            Cue(new(ZoaSpeedDefinitions.FastLaunchSpeed)),
             Show(EnemyFrameId.ZoaFacingRightShootingThird, 48),
         ],
         [P.FacingRightRising] =

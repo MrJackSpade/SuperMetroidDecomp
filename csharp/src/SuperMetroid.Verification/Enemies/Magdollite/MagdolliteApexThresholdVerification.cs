@@ -63,7 +63,7 @@ internal static class MagdolliteApexThresholdVerification
                 enemies.MagdolliteBehavior.InitializeMagdollite(member, null);
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
-            head.UpwardVelocity = SignedSixteenSixteen.Zero - SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
+            head.Speed = SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
             RoomEnemySlot body = enemies.SlotTable.Slots[1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Action = MagdolliteAction.BodyRising;
@@ -95,7 +95,7 @@ internal static class MagdolliteApexThresholdVerification
                 initialize(member, null);
             }
             MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
-            (head ?? throw new InvalidOperationException("Verification requires head.")).UpwardVelocity = SignedSixteenSixteen.Zero;
+            (head ?? throw new InvalidOperationException("Verification requires head.")).Speed = SignedSixteenSixteen.Zero;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
             MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Action = MagdolliteAction.BodyRising;
@@ -105,7 +105,7 @@ internal static class MagdolliteApexThresholdVerification
 
             rise(body, state, null);
             string context = $"Magdollite body in slot {body.SlotIndex}";
-            AssertEqual(MagdolliteAction.NoOpAtApex, state.Action, $"{context} reaches its apex");
+            AssertEqual(MagdolliteAction.HoldingAtApex, state.Action, $"{context} reaches its apex");
             AssertEqual(grows ? 8 : 7, state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }

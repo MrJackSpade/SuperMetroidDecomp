@@ -36,14 +36,8 @@ public sealed class WreckedShipGhostEnemyState
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
-    /// <summary>
-    /// Samus's horizontal movement class, 0 moving left, 1 stationary or 2 moving right. With
-    /// <see cref="SpawnRow"/> it selects one of the nine spawn offsets.
-    /// </summary>
-    public int SpawnColumn { get; internal set; }
-
-    /// <summary>Samus's vertical movement class, 0 moving up, 1 stationary or 2 moving down.</summary>
-    public int SpawnRow { get; internal set; }
+    /// <summary>How Samus has been moving on each axis, which picks where around her the ghost appears.</summary>
+    public SamusMotion SamusMotion { get; internal set; }
 
     /// <summary>Samus's previous whole-pixel position.</summary>
     public Position16<RoomPixels> PreviousSamusPosition { get; internal set; }

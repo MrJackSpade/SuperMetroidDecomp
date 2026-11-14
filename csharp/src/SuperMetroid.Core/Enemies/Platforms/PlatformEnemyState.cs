@@ -17,11 +17,8 @@ public sealed class PlatformEnemyState
     /// </summary>
     public Position16<RoomPixels> RestingHeight { get; internal set; }
 
-    /// <summary>Signed 1/65536-room-pixel displacement per horizontal actor update while patrolling right: the spawn settings' speed.</summary>
-    public SignedSixteenSixteen RightSpeed { get; internal set; }
-
-    /// <summary>Signed 1/65536-room-pixel displacement per horizontal actor update while patrolling left: the spawn settings' speed, negated.</summary>
-    public SignedSixteenSixteen LeftSpeed { get; internal set; }
+    /// <summary>The patrol speed in pixels per update, the spawn settings' speed: added patrolling right and negated patrolling left.</summary>
+    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>
     /// Whole-mark place along the shared quadratically increasing enemy speeds, from the curve's start to

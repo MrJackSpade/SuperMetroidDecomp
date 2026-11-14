@@ -22,20 +22,4 @@ internal static class PipeBugDefinitions
         PipeBugAction.NorfairLowerNearStagger,
         PipeBugAction.NorfairLowerFarStagger,
     ];
-
-    /// <summary>
-    /// The normal and strong rising and shooting segments for each Brinstar animation. Every value names its actual
-    /// behavior and species.
-    /// </summary>
-    internal static readonly Dictionary<PipeBugAnimationKey, PipeBugSegment> BrinstarAnimations = new()
-    {
-        [new(false, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugSegment.ZebRisingLeft,
-        [new(false, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugSegment.ZebShootingLeft,
-        [new(false, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugSegment.ZebRisingRight,
-        [new(false, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugSegment.ZebShootingRight,
-        [new(true, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugSegment.ZebboRisingLeft,
-        [new(true, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugSegment.ZebboShootingLeft,
-        [new(true, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugSegment.ZebboRisingRight,
-        [new(true, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugSegment.ZebboShootingRight,
-    };
 }

@@ -30,7 +30,7 @@ internal static class FrozenMetroidShellVerification
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         // The shell is read by its own draws, apart from the electrical overlay.
-        var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyB;
+        var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
         // The shell segment's second beat, the native alternating empty shell frame.
         var shellBeats = RoomSpriteObjectAnimations.Segments.Beats(RoomSpriteObjectSegment.MetroidShell);
         // The shell plays its first beat out, which brings it onto the second with that beat's whole duration.

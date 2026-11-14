@@ -1,31 +1,26 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
-/// <summary>Chooses a Brinstar Pipe Bug's animation by its strength, facing and shooting.</summary>
+/// <summary>Chooses a Brinstar Pipe Bug's animation by its strength, facing and shooting (#1810).</summary>
 internal static class PipeBugAnimationChoices
 {
-    /// <summary>The rising or shooting animation of a normal or strong Pipe Bug with <paramref name="selector"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="selector"/> is not one of the four animations.</exception>
-    internal static PipeBugSegment BrinstarAnimation(bool strong, PipeBugAnimationSelector selector) =>
-        PipeBugDefinitions.BrinstarAnimations.TryGetValue(new PipeBugAnimationKey(strong, selector), out PipeBugSegment segment)
-            ? segment
-            : throw new InvalidDataException(
-                $"Pipe Bug animation selector {selector} is not one of its four animations.");
-
-    /// <summary>The rising animation facing <paramref name="facing"/>.</summary>
-    internal static PipeBugAnimationSelector Rising(HorizontalDirection facing) => facing switch
+    /// <summary>The rising animation of a normal Zeb or strong Zebbo facing <paramref name="facing"/>.</summary>
+    internal static PipeBugSegment Rising(bool strong, HorizontalDirection facing) => facing switch
     {
-        HorizontalDirection.Left => PipeBugAnimationSelector.RisingFacingLeft,
-        HorizontalDirection.Right => PipeBugAnimationSelector.RisingFacingRight,
+        HorizontalDirection.Left => strong ? PipeBugSegment.ZebboRisingLeft : PipeBugSegment.ZebRisingLeft,
+        HorizontalDirection.Right => strong ? PipeBugSegment.ZebboRisingRight : PipeBugSegment.ZebRisingRight,
         _ => throw new InvalidDataException($"Pipe Bug facing {facing} is not a horizontal direction."),
     };
 
-    /// <summary>The shooting animation with <paramref name="selector"/>'s facing.</summary>
-    internal static PipeBugAnimationSelector ShootingWithSameFacing(PipeBugAnimationSelector selector) => selector switch
+    /// <summary>The shooting animation of the bug and facing <paramref name="animation"/> shows.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="animation"/> is not a Zeb or Zebbo animation.</exception>
+    internal static PipeBugSegment ShootingWithSameFacing(PipeBugSegment animation) => animation switch
     {
-        PipeBugAnimationSelector.RisingFacingLeft or PipeBugAnimationSelector.ShootingFacingLeft =>
-            PipeBugAnimationSelector.ShootingFacingLeft,
-        PipeBugAnimationSelector.RisingFacingRight or PipeBugAnimationSelector.ShootingFacingRight =>
-            PipeBugAnimationSelector.ShootingFacingRight,
-        _ => throw new InvalidDataException($"Pipe Bug animation selector {selector} is not one of its four animations."),
+        PipeBugSegment.ZebRisingLeft or PipeBugSegment.ZebShootingLeft => PipeBugSegment.ZebShootingLeft,
+        PipeBugSegment.ZebRisingRight or PipeBugSegment.ZebShootingRight => PipeBugSegment.ZebShootingRight,
+        PipeBugSegment.ZebboRisingLeft or PipeBugSegment.ZebboShootingLeft => PipeBugSegment.ZebboShootingLeft,
+        PipeBugSegment.ZebboRisingRight or PipeBugSegment.ZebboShootingRight => PipeBugSegment.ZebboShootingRight,
+        PipeBugSegment.GametRisingLeft or PipeBugSegment.GametFlyingLeft or PipeBugSegment.GametRisingRight or
+            PipeBugSegment.GametFlyingRight or PipeBugSegment.GeegaFlyingLeft or PipeBugSegment.GeegaArcingLeft or
+            PipeBugSegment.GeegaFlyingRight or PipeBugSegment.GeegaArcingRight or _ => throw new InvalidDataException($"Pipe Bug animation {animation} is not a Zeb or Zebbo animation."),
     };
 }

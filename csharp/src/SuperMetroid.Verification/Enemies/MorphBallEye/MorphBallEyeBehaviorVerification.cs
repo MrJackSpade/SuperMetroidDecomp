@@ -120,6 +120,9 @@ internal static class MorphBallEyeBehaviorVerification
     private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1, ushort parameter2)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // A mount's beam follows the eye its room lists right after it (#1835).
+        RoomEnemySlot followed = enemies.SlotTable.Slots[1];
+        followed.Bind(EnemyDefinitionId.Eye, followed.Definition);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

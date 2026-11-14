@@ -37,8 +37,8 @@ internal static class RipperBehaviorVerification
         HashSet<ushort> observedFrames = [];
         Suite(nameof(VerifyGRipper), () => VerifyGRipper(RipperSegment.GRipperMovingRight, "GRipper right"));
         Suite(nameof(VerifyGRipperReversal), () => VerifyGRipperReversal());
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperSegment.Ripper2MovingRight, "Ripper II native-right label"));
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperSegment.Ripper2MovingLeft, "Ripper II native-left label"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperSegment.GRipperMovingLeft, "Ripper II flying left"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperSegment.GRipperMovingRight, "Ripper II flying right"));
         Suite(nameof(VerifyRipper), () => VerifyRipper(1, RipperSegment.RipperMovingRight, "Ripper right"));
         Suite(nameof(VerifyRipper), () => VerifyRipper(0, RipperSegment.RipperMovingLeft, "Ripper left"));
 

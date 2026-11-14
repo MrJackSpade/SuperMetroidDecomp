@@ -6,10 +6,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal enum ShaktoolSegment
 {
-    /// <summary>The saw hand attack primary piece animation. No authored spawn or branch enters it.</summary>
-    SawHandAttackPrimaryPiece,
-    /// <summary>The saw hand attack final piece animation. No authored spawn or branch enters it.</summary>
-    SawHandAttackFinalPiece,
     /// <summary>The saw hand head bob primary piece animation.</summary>
     SawHandHeadBobPrimaryPiece,
     /// <summary>The saw hand head bob final piece animation.</summary>
@@ -18,18 +14,12 @@ internal enum ShaktoolSegment
     SawHandPrimaryPiece,
     /// <summary>The saw hand final piece animation.</summary>
     SawHandFinalPiece,
-    /// <summary>The arm piece attack back animation. No authored spawn or branch enters it.</summary>
-    ArmPieceAttackBack,
-    /// <summary>The arm piece attack front animation. No authored spawn or branch enters it.</summary>
-    ArmPieceAttackFront,
     /// <summary>The arm piece head bob back animation.</summary>
     ArmPieceHeadBobBack,
     /// <summary>The arm piece head bob front animation.</summary>
     ArmPieceHeadBobFront,
     /// <summary>The arm piece normal animation.</summary>
     ArmPieceNormal,
-    /// <summary>The head attack animation. No authored spawn or branch enters it.</summary>
-    HeadAttack,
     /// <summary>The head head bob animation.</summary>
     HeadHeadBob,
     /// <summary>The head aiming left animation.</summary>

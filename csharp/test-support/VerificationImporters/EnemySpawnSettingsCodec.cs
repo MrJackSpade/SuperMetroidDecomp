@@ -228,7 +228,7 @@ internal static class EnemySpawnSettingsCodec
         SbugSpawnSettings s => Checked(EnemyDefinitionId.Sbug, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Speed, 0, 8) | Place(s.InitialAngle.ToTrigonometryAngle().RawValue, 8, 8), Parameter2: Place(s.ActivationRadius, 0, 8) | ((s.Behavior switch { SbugActivationBehavior.MoveForward => 0, SbugActivationBehavior.ZigZag => 1, SbugActivationBehavior.MoveTowardSamus => 2, SbugActivationBehavior.RandomUntilCollision => 3, SbugActivationBehavior.RandomAndReverseWhenFar => 4, SbugActivationBehavior.MoveForwardThenWait => 5, SbugActivationBehavior.MoveAwayFromSamus => 6, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8))),
         ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Motion & ShaktoolMotionFlags.ReversedOnce) != 0) ? 1 << 13 : 0) | (((s.Motion & ShaktoolMotionFlags.Straightening) != 0) ? 1 << 14 : 0) | (((s.Motion & ShaktoolMotionFlags.Clockwise) != 0) ? 1 << 15 : 0)), Parameter2: ShaktoolSegmentPosition(s.Segment) * 2)),
         GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { GrowingShutterGrowth.Down => 0, GrowingShutterGrowth.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait == GrowingShutterWait.Timer ? s.ActivationWait : s.ActivationDistance, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
-        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.FirstRestTime), 0, 8) | Place(ShutterRestUnits(s.SecondRestTime), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
+        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.RestAfterMovingUp), 0, 8) | Place(ShutterRestUnits(s.RestAfterMovingDown), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
         SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.LinearSpeedRow("Skultera speed", s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleDelta, 8, 8))),
         WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WalkingSpacePirateOptions.StartsFacingRight) != 0) ? 1 << 0 : 0) | (((s.Options & WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.PatrolReach, 0, 16))),
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateOptions.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateOptions.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
@@ -316,15 +316,28 @@ internal static class EnemySpawnSettingsCodec
             TravelDistance: Bits(words.Parameter1, 8, 8),
             ProximityDistance: trigger == ShutterTriggerMode.HorizontalProximity ? activation : 0,
             WaitTime: trigger == ShutterTriggerMode.Timer ? activation : 0,
-            FirstRestTime: Bits(words.ExtraProperties, 0, 8) * ShutterRestUpdatesPerUnit,
-            SecondRestTime: Bits(words.ExtraProperties, 8, 8) * ShutterRestUpdatesPerUnit);
+            RestAfterMovingUp: ShutterRestOf(Bits(words.ExtraProperties, 0, 8)),
+            RestAfterMovingDown: ShutterRestOf(Bits(words.ExtraProperties, 8, 8)));
     }
 
-    /// <summary>The rest units that rest a shutter <paramref name="restTime"/> updates.</summary>
-    /// <exception cref="ArgumentException">The rest is not a whole number of units.</exception>
-    private static int ShutterRestUnits(int restTime) => restTime % ShutterRestUpdatesPerUnit == 0
-        ? restTime / ShutterRestUpdatesPerUnit
-        : throw new ArgumentException($"A shutter rest of {restTime} updates is not a whole number of rest units.", nameof(restTime));
+    /// <summary>The rest units that stop a shutter at an end for good: the largest the setting holds.</summary>
+    private const int PermanentShutterRestUnits = 255;
+
+    /// <summary>The rest <paramref name="units"/> rest units select: the largest stops the shutter for good.</summary>
+    private static ShutterRest ShutterRestOf(int units) => units == PermanentShutterRestUnits
+        ? ShutterRest.Permanent
+        : ShutterRest.For(units * ShutterRestUpdatesPerUnit);
+
+    /// <summary>The rest units that select <paramref name="rest"/>.</summary>
+    /// <exception cref="ArgumentException">The timed rest is not a whole number of units below the permanent stop's.</exception>
+    private static int ShutterRestUnits(ShutterRest rest)
+    {
+        if (rest.IsPermanent)
+            return PermanentShutterRestUnits;
+        return rest.Updates % ShutterRestUpdatesPerUnit == 0 && rest.Updates / ShutterRestUpdatesPerUnit < PermanentShutterRestUnits
+            ? rest.Updates / ShutterRestUpdatesPerUnit
+            : throw new ArgumentException($"A shutter rest of {rest.Updates} updates is not a whole number of timed rest units.", nameof(rest));
+    }
 
     /// <summary>The Shaktool segment a placement names by its position in the chain; a position past the seven fails.</summary>
     /// <exception cref="InvalidDataException"><paramref name="position"/> is past the seven segments.</exception>

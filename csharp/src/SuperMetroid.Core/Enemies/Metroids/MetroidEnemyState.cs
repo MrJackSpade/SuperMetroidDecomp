@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 public sealed class MetroidEnemyState
 {
     /// <summary>Connects the Metroid's common slot to its two live outer-body sprite objects.</summary>
-    internal MetroidEnemyState(RoomSpriteObject outerBodyA,
-        RoomSpriteObject outerBodyB)
+    internal MetroidEnemyState(RoomSpriteObject electricity,
+        RoomSpriteObject shell)
     {
-        OuterBodyA = outerBodyA;
-        OuterBodyB = outerBodyB;
+        Electricity = electricity;
+        Shell = shell;
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -26,13 +26,13 @@ public sealed class MetroidEnemyState
     /// <summary>Four-frame escape timer and frozen-shake countdown.</summary>
     public int EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement phase 0..3, not an AI behaviour.</summary>
+    /// <summary>The step of the Metroid's movement it is in, one of four; not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }
 
     /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>
-    public RoomSpriteObject OuterBodyA { get; }
+    public RoomSpriteObject Electricity { get; }
     /// <summary>The shell sprite object the Metroid spawned; distinct from both the electricity layer and the central body.</summary>
-    public RoomSpriteObject OuterBodyB { get; }
+    public RoomSpriteObject Shell { get; }
 
     /// <summary>
     /// The Metroid's drain of Samus's energy, a fraction an update: it takes an energy whenever its suit's fraction is

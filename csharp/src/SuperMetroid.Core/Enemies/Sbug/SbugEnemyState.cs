@@ -13,7 +13,7 @@ public sealed class SbugEnemyState
     /// <summary>Creates the state for an Sbug's slot.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>The long lifetime used only by behavior four.</summary>
+    /// <summary>The long lifetime of a straight move, used only by moving forward then waiting.</summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current AI behaviour.</summary>

@@ -57,7 +57,7 @@ internal static class ShutterNativeArc
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbers.Number(scenario.Samus.Pose):X2} " +
-                    $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
+                    $"shutter={ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no action.")):X4} up={ShutterArcNativeWords.Rest(shutter.MovedUpRest):X4} down={ShutterArcNativeWords.Rest(shutter.MovedDownRest):X4} " +
                     $"rev={shutter.ReactionDirection} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
@@ -145,13 +145,13 @@ internal static class ShutterNativeArc
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no function.")));
+        Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no action.")));
         Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.UnsignedWholePixels);
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.UnsignedWholePixels);
         Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
-        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
+        Word(0x7812, ShutterArcNativeWords.Rest(shutter.MovedDownRest)); Word(0x7820, shutter.LowerEndpoint.Y);
         Word(0x8000, shutter.ReactionDirection == ShutterHeading.LeftOrUp ? 0 : 1);
-        Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, shutter.MovedUpRestTime);
+        Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, ShutterArcNativeWords.Rest(shutter.MovedUpRest));
         File.WriteAllBytes(path, ram);
 
         void Word(int address, int value) => BinaryPrimitives.WriteUInt16LittleEndian(ram.AsSpan(address, 2), unchecked((ushort)value));

@@ -19,7 +19,7 @@ internal static class NorfairRioAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Norfair Rio animations: {Entries.Length} segments ({beats} beats) and {NorfairRioAnimations.StartingAt.Count} animations match bank $A2.");

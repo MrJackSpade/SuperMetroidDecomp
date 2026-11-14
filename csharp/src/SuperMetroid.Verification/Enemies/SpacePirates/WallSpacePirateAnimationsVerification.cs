@@ -24,11 +24,14 @@ internal static class WallSpacePirateAnimationsVerification
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     'V' => unchecked((ushort)(cue switch { WallSpacePirateCue.ClimbLeftWall climbLeftWall => climbLeftWall.ClimbPixels, WallSpacePirateCue.ClimbRightWall climbRightWall => climbRightWall.ClimbPixels, _ => throw new InvalidOperationException($"{at}: {cue} carries no ClimbPixels.") })),
-                    'E' => SpacePiratesNativeWords.WallSpacePirateActions.Word(AssertIs<WallSpacePirateCue.SetAction>(cue, $"{at}: cue").Action),
+                    'E' => NamingWord(SpacePiratesNativeWords.WallSpacePirateActions.WordsByIdentity[AssertIs<WallSpacePirateCue.SetAction>(cue, $"{at}: cue").Action], operands[index]),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },
             cue => cue is WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
         Console.WriteLine($"  Wall Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WallSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
+
+    /// <summary><paramref name="word"/> when it is one of <paramref name="words"/>, otherwise the first of them, which the comparison then reports.</summary>
+    private static ushort NamingWord(ushort[] words, ushort word) => words.Contains(word) ? word : words[0];
 }

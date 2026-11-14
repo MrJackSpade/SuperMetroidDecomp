@@ -59,7 +59,7 @@ internal static class NinjaSpacePirateNativeListAddresses
         [0xf564] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.ThrowClaw>("VSY"),
         [0xf590] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.StartActive)),
         [0xf5d6] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.ResetSpeed)),
-        [0xf969] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.StartLeftDivekick)),
-        [0xfa3d] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.StartRightDivekick)),
+        [0xf969] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.StartDivekick)),
+        [0xfa3d] = NativeCueShape<NinjaSpacePirateCue>.Exactly(new NinjaSpacePirateCue.Signal(NinjaSpacePirateCueKind.StartDivekick)),
     };
 }

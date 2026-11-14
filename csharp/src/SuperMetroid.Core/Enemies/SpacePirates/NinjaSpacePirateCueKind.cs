@@ -7,8 +7,6 @@ internal enum NinjaSpacePirateCueKind
     ResetSpeed,
     /// <summary>Continues at the active stance facing Samus.</summary>
     StartActive,
-    /// <summary>Starts the leftward divekick jump.</summary>
-    StartLeftDivekick,
-    /// <summary>Starts the rightward divekick jump.</summary>
-    StartRightDivekick,
+    /// <summary>Starts the divekick's jump, either way.</summary>
+    StartDivekick,
 }

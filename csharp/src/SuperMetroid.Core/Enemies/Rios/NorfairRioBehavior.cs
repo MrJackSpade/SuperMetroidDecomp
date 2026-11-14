@@ -197,26 +197,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             case NorfairRioCueKind.SwoopStartFinished:
                 state.AnimationSignal = true;
                 break;
-            case NorfairRioCueKind.FlamesAt8:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, 8);
-                break;
-            case NorfairRioCueKind.FlamesAt12:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, 12);
-                break;
-            case NorfairRioCueKind.FlamesAtMinus12:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, -12);
-                break;
-            case NorfairRioCueKind.FlamesAt4:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, 4);
-                break;
-            case NorfairRioCueKind.FlamesAt0:
-                state.FollowerOffset = Offset16<RoomPixels>.Zero;
-                break;
-            case NorfairRioCueKind.FlamesAtMinus4:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, -4);
-                break;
-            case NorfairRioCueKind.FlamesAtMinus16:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, -16);
+            case NorfairRioCueKind.PlaceFlames:
+                state.FollowerOffset = new Offset16<RoomPixels>(0, cue.FlamesBelow);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NorfairRioCueKind)} {cue.Kind}.");

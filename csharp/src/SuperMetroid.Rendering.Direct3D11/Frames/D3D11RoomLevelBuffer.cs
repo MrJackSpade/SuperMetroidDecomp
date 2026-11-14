@@ -166,6 +166,24 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>The bit of a packed grid cell marking vertical mirroring.</summary>
     private const uint GridFlipVertically = 1u << 31;
 
+    /// <summary>
+    /// Each collectible picture's place among a plane table's entries past the table's blocks (#1764): every picture of every
+    /// collectible that shows its own, in <see cref="CollectiblePicture.All"/>'s order, whether a plane uses it or not.
+    /// </summary>
+    private static readonly Dictionary<CollectiblePicture, int> CollectibleEntries =
+        CollectiblePicture.All.Select((picture, index) => (picture, index)).ToDictionary(pair => pair.picture, pair => pair.index);
+
+    /// <summary>The entries of a plane's picture table: each block the table covers, then each collectible picture.</summary>
+    private static int TableEntries(RoomBlockPictureTable table) => table.Blocks + CollectiblePicture.All.Length;
+
+    /// <summary>The block or collectible picture entry <paramref name="entry"/> of <paramref name="table"/> holds.</summary>
+    private static RoomCellPicture EntryPicture(RoomBlockPictureTable table, int entry) =>
+        entry < table.Blocks ? RoomCellPicture.OfBlock(entry) : RoomCellPicture.Of(CollectiblePicture.All[entry - table.Blocks]);
+
+    /// <summary>The entry of <paramref name="table"/> holding the picture of <paramref name="shown"/>.</summary>
+    private static int EntryOf(RoomBlockPictureTable table, RoomCellPicture shown) =>
+        shown.ShowsCollectible ? table.Blocks + CollectibleEntries[shown.Collectible] : shown.Block;
+
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
     {
@@ -260,7 +278,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             pictureTables[slot] = words;
-            words += table.Blocks * PartWords;
+            words += TableEntries(table) * PartWords;
         }
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
@@ -336,13 +354,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 4] = unchecked((ushort)origin.Y);
             upload[record + 5] = (uint)pictureTables[slot];
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
-            for (int block = 0; block < table.Blocks; block++)
-                PackParts(upload, pictureTables[slot] + block * PartWords, table.Picture(block), PlaneColouring(slot), pictureWords);
-            // Each cell's picture definition, a block's or past the blocks a collectible's (#1538), with its horizontal and
-            // vertical mirroring in bits sixteen and seventeen, as Tiles.hlsl reads a block.
+            int entries = TableEntries(table);
+            for (int entry = 0; entry < entries; entry++)
+                PackParts(upload, pictureTables[slot] + entry * PartWords, table.Picture(EntryPicture(table, entry)), PlaneColouring(slot), pictureWords);
+            // Each cell's entry in its plane's table, a block's or past the blocks a collectible picture's (#1538, #1764), with
+            // its horizontal and vertical mirroring in bits sixteen and seventeen, as Tiles.hlsl reads a block.
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
             for (int block = 0; block < cells.Length; block++)
-                upload[blockOffsets[slot] + block] = (uint)cells[block].Definition
+                upload[blockOffsets[slot] + block] = (uint)EntryOf(table, cells[block].Picture)
                     | ((cells[block].Flips & BlockMirroring.Horizontal) != 0 ? 1u << 16 : 0)
                     | ((cells[block].Flips & BlockMirroring.Vertical) != 0 ? 1u << 17 : 0);
         }
@@ -408,8 +427,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 // A block copied from beyond the room has no picture: zero, which draws nothing.
                 if (blocks[block] is not { } shown)
                     continue;
-                LayeredPicture picture = reveal.Pictures.Picture(shown.Definition)
-                    ?? throw new InvalidOperationException($"The X-ray reveal's block definition {shown.Definition} has no picture.");
+                LayeredPicture picture = reveal.Pictures.Picture(shown.Picture)
+                    ?? throw new InvalidOperationException($"The X-ray reveal's {shown.Picture} has no picture.");
                 int record = revealOffset + 1 + block * PartWords;
                 PackParts(upload, record, picture, D3D11PictureColouring.Room, pictureWords);
                 upload[record] |= ShaderArrangement(shown.Arrangement) << ArrangementShift;
@@ -621,17 +640,17 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (tables[slot] is not { } table)
                 continue;
-            for (int block = 0; block < table.Blocks; block++)
+            for (int entry = 0; entry < TableEntries(table); entry++)
             {
-                foreach (SpriteSheetFrame part in table.Picture(block)?.Parts ?? [])
+                foreach (SpriteSheetFrame part in table.Picture(EntryPicture(table, entry))?.Parts ?? [])
                     yield return new(part, PlaneColouring(slot));
             }
         }
         if (frame.XrayReveal?.Pictures is { } reveal)
         {
-            for (int block = 0; block < reveal.Blocks; block++)
+            for (int entry = 0; entry < TableEntries(reveal); entry++)
             {
-                foreach (SpriteSheetFrame part in reveal.Picture(block)?.Parts ?? [])
+                foreach (SpriteSheetFrame part in reveal.Picture(EntryPicture(reveal, entry))?.Parts ?? [])
                     yield return new(part, D3D11PictureColouring.Room);
             }
         }

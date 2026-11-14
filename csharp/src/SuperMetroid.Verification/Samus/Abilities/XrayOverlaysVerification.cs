@@ -45,18 +45,18 @@ internal static class XrayOverlaysVerification
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
         var map = new RevealedBlock?[XrayRevealArea.BlockCount];
-        RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
+        RevealedBlock Defined(int block) => new(RoomCellPicture.OfBlock(block), RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertEqual(Defined(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(InWorldCollectibleKind.Bombs, 0))), map[0],
+        AssertEqual(new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, 0)), RevealedBlockArrangement.AsDefined), map[0],
             "descending item order leaves the lower item's reveal last, and Bombs is revealed as its own picture's first frame");
         system.SetCollectedItemBit(1);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
         XrayRevealOverlays.Apply(map, items, system, SpecialRoom, new(16, 16), visuals);
-        AssertEqual(new RevealedBlock(9, RevealedBlockArrangement.RowsSwapped), map[0],
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(9), RevealedBlockArrangement.RowsSwapped), map[0],
             "special-room override follows item writes, and its vertical flip swaps the block's rows without mirroring them");
         AssertEqual(Defined(3), map[1], "an overlay's horizontal flip is not drawn, as natively");
-        AssertEqual(new RevealedBlock(4, RevealedBlockArrangement.RowsSwapped), map[2],
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.RowsSwapped), map[2],
             "an overlay flipped both ways only swaps the block's rows");
         Array.Clear(map);
         items[0] = items[0] with { Location = null };

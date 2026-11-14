@@ -85,7 +85,7 @@ internal static class RoomBackgroundsFixtures
         RevealedBlockArrangement[] arrangements = Enum.GetValues<RevealedBlockArrangement>();
         var blocks = new RevealedBlock?[SuperMetroid.Core.Samus.Abilities.XrayRevealArea.BlockCount];
         for (int block = 0; block < blocks.Length; block++)
-            blocks[block] = new RevealedBlock(random.Next(Definitions), arrangements[random.Next(arrangements.Length)]);
+            blocks[block] = new RevealedBlock(RoomCellPicture.OfBlock(random.Next(Definitions)), arrangements[random.Next(arrangements.Length)]);
         return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(default, blocks, pictures);
     }
 
@@ -108,7 +108,7 @@ internal static class RoomBackgroundsFixtures
         var parts = new List<ShownBossBodyPart>();
         for (int top = 0; top < rows; top += partRows)
         {
-            LayeredPicture picture = blocks.Picture(random.Next(Definitions))
+            LayeredPicture picture = blocks.Picture(RoomCellPicture.OfBlock(random.Next(Definitions)))
                 ?? throw new InvalidOperationException("A seeded block has no picture.");
             Tile(parts, picture, CellCorner(top, 0, area), BodyColumns * BodyCellPixels, Math.Min(partRows, rows - top) * BodyCellPixels);
         }
@@ -221,7 +221,7 @@ internal static class RoomBackgroundsFixtures
         var pictures = System.Collections.Immutable.ImmutableArray.CreateBuilder<PlacedWrittenPicture>(count);
         for (int index = 0; index < count; index++)
         {
-            pictures.Add(new PlacedWrittenPicture(blocks.Picture(random.Next(Definitions))
+            pictures.Add(new PlacedWrittenPicture(blocks.Picture(RoomCellPicture.OfBlock(random.Next(Definitions)))
                 ?? throw new InvalidOperationException("A seeded block has no picture."),
                 new Position16<PlanePixels>(random.Next(64) * 8, random.Next(32) * 8)));
         }
@@ -277,7 +277,7 @@ internal static class RoomBackgroundsFixtures
         var image = new RoomBackgroundImage("seeded background", sheet, size, []);
         var cells = new LayeredPicture?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
-            cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
+            cells[cell] = random.Next(4) == 0 ? blocks.Picture(RoomCellPicture.OfBlock(random.Next(Definitions))) : null;
         return new RoomBackgroundImagePlane(image, cells, RoomBackgroundImagePlacement.Whole(image));
     }
 
@@ -304,7 +304,7 @@ internal static class RoomBackgroundsFixtures
             SpriteSheetFrame behind = sheet.Frame($"{random.Next(SeededPictureCount)}");
             shown[definition] = new LayeredPicture(behind, random.Next(2) == 0 ? sheet.Frame($"{random.Next(SeededPictureCount)}") : null);
         }
-        return new RoomBlockPictureTable(shown);
+        return new RoomBlockPictureTable(shown, new Dictionary<CollectiblePicture, LayeredPicture>());
     }
 
     /// <summary>

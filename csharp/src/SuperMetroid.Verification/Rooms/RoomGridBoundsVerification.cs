@@ -26,7 +26,7 @@ internal static class RoomGridBoundsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomLevelData(new Extent16<RoomBlocks>(0, 1),
             new RoomLevelPlanes([], [], []), RoomLevelData.NothingBeyondGrid()), "a room is at least one block wide");
 
-        AssertEqual(1, new RoomBlockCells(new Extent16<RoomBlocks>(1, 1), [new RoomBlockCell(0, BlockMirroring.None)]).Cells.Length,
+        AssertEqual(1, new RoomBlockCells(new Extent16<RoomBlocks>(1, 1), [new RoomBlockCell(RoomCellPicture.OfBlock(0), BlockMirroring.None)]).Cells.Length,
             "a room plane of one block");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomBlockCells(new Extent16<RoomBlocks>(0, 1), []),
             "a room plane is at least one block wide");

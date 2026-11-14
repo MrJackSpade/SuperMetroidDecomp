@@ -39,9 +39,9 @@ internal static class XrayTilemapVerification
         RevealedBlock Copied(int x, int y)
         {
             int block = y * RoomSide + x;
-            return new(block, arrangements[block % arrangements.Length]);
+            return new(RoomCellPicture.OfBlock(block), arrangements[block % arrangements.Length]);
         }
-        RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
+        RevealedBlock Defined(int block) => new(RoomCellPicture.OfBlock(block), RevealedBlockArrangement.AsDefined);
         // Each copy command shows its own four installed blocks, so a revealed cell names the command and the quarter
         // that wrote it (#1596).
         static int FirstShown(XrayRevealShape command) => RevealBlockBase + (int)command * 4;

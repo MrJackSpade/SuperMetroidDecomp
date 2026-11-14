@@ -302,7 +302,7 @@ internal static class RoomBlockInventoryVerification
     private static void AssertParts(RoomBlockPictureTable table, SpriteSheet sheet, int block, bool behind, bool inFront)
     {
         string name = $"{block}";
-        LayeredPicture picture = table.Picture(block) ?? throw new InvalidOperationException($"Verification failed: fixture block {block} has no picture.");
+        LayeredPicture picture = table.Picture(RoomCellPicture.OfBlock(block)) ?? throw new InvalidOperationException($"Verification failed: fixture block {block} has no picture.");
         AssertEqual(behind, picture.Behind is not null, $"block {block}'s picture has its part behind exactly when its back tiles ink a pixel");
         AssertEqual(inFront, picture.InFront is not null, $"block {block}'s picture has its part in front exactly when its front tiles ink a pixel");
         AssertEqual(behind, sheet.frames.ContainsKey(name), $"block {block}'s part behind is installed exactly when it shows something");

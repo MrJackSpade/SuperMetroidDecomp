@@ -58,7 +58,7 @@ internal static class RoomBackgroundsVerification
             RoomBlockAppearance shown = blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels];
             AssertTrue(layer.Blocks.TryCellAt(level, out RoomBlockCell cell, out Position16<PlanePixels> within),
                 $"level pixel {x},{y} is inside the room");
-            AssertEqual(new RoomBlockCell(shown.Block, shown.Mirroring), cell,
+            AssertEqual(new RoomBlockCell(RoomCellPicture.OfBlock(shown.Block), shown.Mirroring), cell,
                 $"level pixel {x},{y} shows the appearance's block and mirroring");
             AssertEqual(new Position16<PlanePixels>((ushort)(x % RoomLevelPlane.BlockPixels), (ushort)(y % RoomLevelPlane.BlockPixels)), within,
                 $"level pixel {x},{y} lies at its place within the block");
@@ -100,9 +100,9 @@ internal static class RoomBackgroundsVerification
         const int block = 2 * Side + 1;
         level.SetObjectTerrain(block, RoomTerrainBlock.Of(7, BlockMirroring.None, RoomCollisionType.SolidBlock));
         RoomLevelPlane after = level.ForegroundPlane;
-        AssertEqual(new RoomBlockCell(0x007, BlockMirroring.None), after.Cells.Cells[block],
+        AssertEqual(new RoomBlockCell(RoomCellPicture.OfBlock(0x007), BlockMirroring.None), after.Cells.Cells[block],
             "the next plane shows the PLM's block");
-        AssertEqual(new RoomBlockCell(0x000, BlockMirroring.None), before.Cells.Cells[block],
+        AssertEqual(new RoomBlockCell(RoomCellPicture.OfBlock(0x000), BlockMirroring.None), before.Cells.Cells[block],
             "the earlier plane keeps the block it published");
         Console.WriteLine("  Room backgrounds: a PLM block change reaches the next plane only.");
     }

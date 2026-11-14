@@ -244,7 +244,7 @@ internal sealed class AcceptedFrameBoundary
             ? RoomBlockPictureTable.NoneDrawn()
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
                 rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
-                reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
+                reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;

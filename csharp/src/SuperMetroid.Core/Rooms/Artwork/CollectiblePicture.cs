@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
@@ -12,6 +13,13 @@ public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, in
 {
     /// <summary>The animation frames each kind's picture has.</summary>
     public const int Frames = 2;
+
+    /// <summary>Every frame of every kind that shows its own picture, kind by kind in kind order, each kind's frames in order.</summary>
+    public static ImmutableArray<CollectiblePicture> All { get; } =
+    [
+        .. Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
+            .SelectMany(kind => Enumerable.Range(0, Frames).Select(frame => new CollectiblePicture(kind, frame))),
+    ];
 
     /// <summary>The collectible kind.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The kind's picture is a block the room loads, not its own.</exception>

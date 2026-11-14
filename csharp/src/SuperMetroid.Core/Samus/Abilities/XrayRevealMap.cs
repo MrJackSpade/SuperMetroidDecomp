@@ -89,11 +89,11 @@ public static class XrayRevealMap
             if (x >= foreground.Size.X * RoomLevelPlane.BlockPixels || y >= foreground.Size.Y * RoomLevelPlane.BlockPixels)
                 return null;
             RoomBlockCell cell = foreground.Cells[y / RoomLevelPlane.BlockPixels * foreground.Size.X + x / RoomLevelPlane.BlockPixels];
-            return new RevealedBlock(cell.Definition, Mirrored(cell.Flips));
+            return new RevealedBlock(cell.Picture, Mirrored(cell.Flips));
         }
         // A reveal block is placed as it is defined; its number is validated as a room block.
         void CopyBlock(int col, int row, int blockNumber) =>
-            Place(col, row, new RevealedBlock(RoomBlockAppearance.Of(blockNumber).Block, RevealedBlockArrangement.AsDefined));
+            Place(col, row, new RevealedBlock(RoomCellPicture.OfBlock(blockNumber), RevealedBlockArrangement.AsDefined));
         // Only blocks inside the revealed area are shown.
         void Place(int col, int row, RevealedBlock? block)
         {

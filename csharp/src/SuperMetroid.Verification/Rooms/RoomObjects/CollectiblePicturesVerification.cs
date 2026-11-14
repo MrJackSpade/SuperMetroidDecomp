@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
@@ -75,8 +76,8 @@ internal static class CollectiblePicturesVerification
             AssertEqual(RoomBlockAppearance.Of(FirstPairFirstFrameBlock + item % CollectibleBlockPairs.InTurn.Count * 2),
                 level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
                 $"{Kinds[item]} writes its block pair's first-frame block into the terrain");
-            AssertEqual(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(Kinds[item], 0)),
-                level.ForegroundPlane.Cells.Cells[blockIndex].Definition,
+            AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Kinds[item], 0)),
+                level.ForegroundPlane.Cells.Cells[blockIndex].Picture,
                 $"{Kinds[item]} shows its own picture's first frame");
         }
         Console.WriteLine($"Collectible pictures: {Kinds.Length} items each show their own picture over the block pairs they take in turn.");

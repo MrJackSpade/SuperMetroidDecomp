@@ -78,15 +78,12 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
     {
-        for (int index = 0; index < GameOptionsDefinitions.LanguagePaletteRegionCount; index++)
-            ApplyPalette(primaryPage, LanguageRegionCells(index), japanese == HighlightsWhenJapanese(index) ? SelectedPalette : UnselectedPalette);
+        foreach (GameOptionsLanguageRegionDocument region in languageRegions)
+            ApplyPalette(primaryPage, region.Cells, japanese == region.HighlightWhenJapanese ? SelectedPalette : UnselectedPalette);
     }
 
-    /// <summary>The primary-page cells of language region <paramref name="index"/>.</summary>
-    internal IReadOnlyCollection<int> LanguageRegionCells(int index) => languageRegions[index].Cells;
-
-    /// <summary>Whether language region <paramref name="index"/> takes the selected palette while the text is Japanese.</summary>
-    private bool HighlightsWhenJapanese(int index) => languageRegions[index].HighlightWhenJapanese;
+    /// <summary>The primary-page cells of both language labels, every row the cartridge recolours to show the language.</summary>
+    private int[] LanguageCells() => [.. languageRegions.SelectMany(region => region.Cells)];
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
     internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, int button)
@@ -129,8 +126,9 @@ public sealed class GameOptionsSourcePresentation
 
     /// <summary>
     /// Every picture of the options screen the menus' sheet holds (#1467): the backdrop page; each page less its dynamic
-    /// cells; each language row as the primary page shows it in either language; each action's label naming each
-    /// assignable button; and each toggle's two choices on each special page with either selected.
+    /// cells; both language labels as the primary page shows them with either language selected, composed whole (#1780);
+    /// each action's label naming each assignable button; and each toggle's two choices on each special page with either
+    /// selected.
     /// </summary>
     internal IEnumerable<ScreenPictureSubject> Subjects()
     {
@@ -142,8 +140,7 @@ public sealed class GameOptionsSourcePresentation
         {
             BackgroundTile[] primary = CreatePage(GameOptionsScreen.Primary);
             ApplyLanguage(primary, japanese);
-            for (int region = 0; region < GameOptionsDefinitions.LanguagePaletteRegionCount; region++)
-                yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(region, japanese), primary, width, LanguageRegionCells(region));
+            yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(japanese), primary, width, LanguageCells());
         }
         for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
         {
@@ -177,8 +174,7 @@ public sealed class GameOptionsSourcePresentation
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return GameOptionsNames.PageFrame(tilemap);
         foreach (bool japanese in new[] { false, true })
-            for (int region = 0; region < GameOptionsDefinitions.LanguagePaletteRegionCount; region++)
-                yield return GameOptionsNames.LanguageFrame(region, japanese);
+            yield return GameOptionsNames.LanguageFrame(japanese);
         for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
             for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
                 yield return GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button));
@@ -191,7 +187,7 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The cells of <paramref name="tilemap"/> its pictures over it show instead of the page's own picture.</summary>
     private IEnumerable<int> DynamicCells(GameOptionsScreen tilemap) => tilemap switch
     {
-        GameOptionsScreen.Primary => Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).SelectMany(LanguageRegionCells),
+        GameOptionsScreen.Primary => LanguageCells(),
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
             Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
         GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
@@ -245,7 +241,7 @@ public sealed class GameOptionsSourcePresentation
         if (document.ControllerLabelAnchors is null ||
             document.ControllerLabelAnchors.Length != GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new InvalidDataException("Options require seven controller-label anchors.");
-        if (document.LanguageRegions is null || document.LanguageRegions.Length != 4)
+        if (document.LanguageRegions is null || document.LanguageRegions.Length != GameOptionsPageDefinitions.LanguageRegions.RowCount)
             throw new InvalidDataException("Options require four primary-language highlight regions.");
         ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette));
         ValidatePalette(document.UnselectedPalette, nameof(document.UnselectedPalette));

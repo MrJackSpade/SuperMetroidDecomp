@@ -89,17 +89,16 @@ internal static class MenuScreenPublicationVerification
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: optionsSheets);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
-        // Options shows its backdrop's picture, then the primary page's picture with its four English language rows over it (#1467).
+        // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
         SpriteSheet menuPictures = optionsSheets.Get(SpriteSheetId.MenuPictures);
         LayeredScene optionsScene = options.CaptureRenderSnapshot();
         AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } backdrop] } &&
             ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
             "options shows its backdrop's picture under its page and sprites");
-        AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
-            ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
-            Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
-                ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
-            "options shows the primary page with its language rows highlighting English");
+        AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: [{ } primaryPage, { } languages] } &&
+            ReferenceEquals(primaryPage.Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
+            ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(japanese: false))),
+            "options shows the primary page with one picture of its language labels highlighting English (#1780)");
         AssertEqual(maps.Backdrops.FileSelect, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),
             "options' sprites show the colours the import pre-coloured them in");

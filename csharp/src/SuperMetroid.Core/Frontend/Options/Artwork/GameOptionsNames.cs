@@ -47,9 +47,11 @@ public static class GameOptionsNames
     /// <summary>The menus' picture of <paramref name="page"/>, less its labels, language highlights and toggle choices (#1467).</summary>
     public static string PageFrame(GameOptionsScreen page) => $"Options.Page.{PageName(page)}";
 
-    /// <summary>The menus' picture of the primary page's language row <paramref name="region"/> while the text is Japanese or English (#1467).</summary>
-    public static string LanguageFrame(int region, bool japanese) =>
-        $"Options.Language.{Ensure.BetweenInclusive(0, GameOptionsDefinitions.LanguagePaletteRegionCount - 1, region)}.{(japanese ? "Japanese" : "English")}";
+    /// <summary>
+    /// The menus' picture of the primary page's English and Japanese labels with the Japanese one or the English one
+    /// highlighted, which the import composes whole (#1467, #1780).
+    /// </summary>
+    public static string LanguageFrame(bool japanese) => $"Options.Language.{(japanese ? "Japanese" : "English")}";
 
     /// <summary>The menus' picture of controller action <paramref name="action"/>'s label naming <paramref name="button"/> (#1467).</summary>
     public static string ControllerLabelFrame(int action, ControllerButton button) =>

@@ -77,7 +77,7 @@ internal static class GameOptionsLanguagePalettesVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
         AreaMapPresentation installed = RetailPresentationFixture();
-        AssertEqual(4, GameOptionsDefinitions.LanguagePaletteRegionCount, "native language highlight has four regions");
+        AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(index),
                 $"unsupported language region {index}");

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
 /// What the options screen's page shows (#1467): the page last loaded, and the language, bindings and special settings its
-/// language rows, controller labels and toggle choices were drawn from when it was loaded. The menu loads the page again
+/// language highlight, controller labels and toggle choices were drawn from when it was loaded. The menu loads the page again
 /// whenever any of them changes, as the game rewrites the page's labels and highlights.
 /// </summary>
 /// <param name="Page">The page shown.</param>
@@ -20,8 +20,7 @@ internal sealed record ShownOptionsPage(GameOptionsScreen Page, bool JapaneseTex
     /// <summary>The menus' pictures the page shows, in drawing order: the page, then what is drawn over it.</summary>
     internal string[] Frames() => Page switch
     {
-        GameOptionsScreen.Primary => [GameOptionsNames.PageFrame(Page),
-            .. Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).Select(region => GameOptionsNames.LanguageFrame(region, JapaneseText))],
+        GameOptionsScreen.Primary => [GameOptionsNames.PageFrame(Page), GameOptionsNames.LanguageFrame(JapaneseText)],
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese => [GameOptionsNames.PageFrame(Page),
             .. GameOptionsLayout.ControllerActionRows.Select((action, row) => GameOptionsNames.ControllerLabelFrame(row,
                 GameOptionsNames.ControllerLabelButton(ControllerBindings.AssignableButtonIndex(Bindings[action]) ?? 0)))],

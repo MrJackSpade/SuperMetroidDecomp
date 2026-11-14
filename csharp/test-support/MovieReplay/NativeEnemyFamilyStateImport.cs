@@ -337,9 +337,9 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
             babyTurtleRecord.Action = words.A == 0 ? null : MamaTurtlesNativeWords.BabyTurtleActions.Decode(words.A, "recorded BabyTurtleAction");
-            // Every Baby Turtle's parent is the room's Mama Turtle, the first enemy her room lists.
-            if (SlotIndex(words.B, "Baby Turtle parent offset") != 0)
-                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name the first enemy, where Mama Turtle is placed.");
+            // Every Baby Turtle's parent is a Mama Turtle, who links her babies when she is placed.
+            if (enemies.SlotTable.Slots[SlotIndex(words.B, "Baby Turtle parent offset")].DefinitionId != EnemyDefinitionId.MamaTurtle)
+                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name a Mama Turtle.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
             babyTurtleRecord.Velocity = new(unchecked((short)words.E), babyTurtleRecord.Velocity.Y);
         }

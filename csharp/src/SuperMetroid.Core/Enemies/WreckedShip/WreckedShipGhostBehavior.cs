@@ -36,16 +36,6 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
-        // Every named retail ghost population lists this actor first in the room.
-        // Its tracking reads Samus's position through the enemy's place; a later place would read
-        // unrelated state. Enforce the authored layout rather than silently pretending that retail
-        // bug has generic rules.
-        if (!slot.IsListedFirst())
-        {
-            throw new InvalidDataException(
-                "Wrecked Ship ghost must be the room's first-listed enemy for its reads of Samus's position.");
-        }
-
         // The initializer sets the animating, intangibility and invisibility properties. Here those mean
         // animation processing, exclusion from Samus interaction, and invisibility.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);

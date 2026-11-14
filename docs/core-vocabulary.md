@@ -134,6 +134,17 @@ reads the same three in prose outside hardware owners, spaced or hyphenated (`me
 `table indices`, the `enemy records`); a table indexed by a value, the menu's index and an enemy's record are English,
 and a compatibility service may describe the enemy record its reproduced behaviour reads.
 
+SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
+label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by
+number (`game state eight`, `station 18`, `area six`, `area-zero`); a pose by the original's number, in hexadecimal or as
+a word (`pose A/B`, `pose two`, `A5 -> 02`); a sound queue named for its limit (`the max-fifteen sound queue`, `at most
+six queued`, `a six-entry admission limit`); and a sprite part's stored placement and colour data (`palette0800`,
+`X-10h`, `one part, at X=508`, `masks X to nine bits`). Core names the game state, the load station (the gunship, the
+Zebes arrival), the area (Crateria, Ceres), the pose (`FacingLeftNormalPose`), the request's `SoundRequestPriority` and
+the picture's place in pixels. A number that counts the noun after it (`a station two rooms away`, `the pose two frames
+later`), an area number past the game's eight areas, a family's own animation frames by decimal ordinal (`Pose 3 of the
+wave trail`) and a position by X or Y that no part is placed by stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

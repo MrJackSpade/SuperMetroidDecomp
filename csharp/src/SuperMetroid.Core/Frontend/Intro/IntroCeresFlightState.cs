@@ -166,7 +166,7 @@ internal sealed class IntroCeresFlightState
 
             case IntroCeresFlightPhase.StartGameAtCeres:
                 // The handoff runs as the update after the screen goes black; it hands control to
-                // the new-game setup state, whose owner also performs this phase's area-six checkpoint save.
+                // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
                 Phase = IntroCeresFlightPhase.Finished;
                 break;
 

@@ -1179,7 +1179,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // the winning pose is not installed until after animation below.
         // The front-view poses get one special input rule: a
         // nonzero elevator status returns immediately, before the transition table
-        // is even read. Pose zero's transitions otherwise overlap other poses'
+        // is even read. The power suit's front pose's transitions otherwise overlap other poses'
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);

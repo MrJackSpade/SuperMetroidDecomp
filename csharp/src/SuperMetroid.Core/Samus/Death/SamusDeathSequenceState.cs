@@ -148,7 +148,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
                     // The explosion step shows death shade zero, resets the reused counters, and immediately
-                    // draws explosion frame zero in this very same game-state-17 call.
+                    // draws explosion frame zero in this very same death-flashing call.
                     ShowDeathShades(samus, samusColours, deathShade: 0);
                     paletteChanged = true;
                     AnimationTimer =

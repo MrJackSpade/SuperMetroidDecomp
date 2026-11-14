@@ -41,7 +41,7 @@ internal static class AutomaticCheckpointSaver
     }
 
     /// <summary>
-    /// Saves Crateria station zero on the single frame where the gunship restores
+    /// Saves at the Landing Site gunship on the single frame where the gunship restores
     /// control after the arrival cutscene. Returns false on every other gameplay frame.
     /// </summary>
     public static bool TrySaveGunshipLanding(
@@ -58,8 +58,8 @@ internal static class AutomaticCheckpointSaver
             ?? throw new InvalidOperationException(
                 "Gunship landing completed without a live Samus actor.");
 
-        // The gunship sets the ship-landed marker before changing load station 18 to
-        // station zero and saving the game. The marker controls ship/save-point display
+        // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to
+        // the gunship and saving the game. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
         runtime.System.MarkSaveStationUsed(LoadStationDefinitions.Gunship);

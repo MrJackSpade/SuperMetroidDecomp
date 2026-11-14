@@ -158,8 +158,8 @@ internal sealed class RoomLoader
     private DoorOpeningSourceView? _pendingDoorOpeningSourceView;
 
     /// <summary>
-    /// Executes the data-loading portion of a new game's setup: area six, station
-    /// zero, the station-selected room, and its fresh-save state-selection branch.
+    /// Executes the data-loading portion of a new game's setup: Ceres, its elevator
+    /// checkpoint, the checkpoint-selected room, and its fresh-save state-selection branch.
     /// </summary>
     public InitialViewportResult InitializeStartingCeresRoom()
     {
@@ -295,7 +295,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Executes the game-data loading's special branch for arriving on Zebes after Ceres:
-    /// Crateria area zero, load-station eighteen, with the airborne Landing Site gunship.
+    /// Crateria, the Zebes arrival, with the airborne Landing Site gunship.
     /// </summary>
     public InitialViewportResult InitializePostCeresZebesRoom()
     {

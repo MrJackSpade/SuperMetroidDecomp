@@ -142,9 +142,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // Pause setup ends by clearing the effect overlay
-        // beneath the four HUD rows. Pause draws
-        // only the HUD's own layer (PauseScreen.ShownHudPictures), so every otherwise-empty map
-        // cell shows nothing rather than the pause artwork's first picture, the visible orange `1` glyph.
+        // beneath the HUD. Pause draws
+        // only the HUD's own pictures (PauseScreen.ShownHudPictures), so every otherwise-empty map
+        // square shows nothing.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
@@ -156,7 +156,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetupMapScrolling();
     }
 
-    /// <summary>Zero for the map and one for the equipment page.</summary>
+    /// <summary>Whether the map or the equipment page is shown.</summary>
     public PauseScreenMode ScreenMode { get; private set; }
 
     /// <summary>
@@ -541,8 +541,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
-        // The pause sprite animation draw selects the third timer/frame pair. Its animation
-        // holds entries of a delay, an unused value and a frame offset.
+        // The equipment selector's animation holds each of its frames for that frame's own duration.
         ItemSelectorAnimationTimer--;
         if (ItemSelectorAnimationTimer > 0)
             return;
@@ -890,7 +889,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // Retail exhausts ALL reserves even when only a small top-up was needed.
-        // Preserve that behavior and clear the whole packed selector.
+        // Preserve that behavior: the reserves empty and the selector returns to the reserve mode switch.
         samus.ReserveEnergy = 0;
         ReserveTransferSoundDelay = WrappingCountdown.Start(0);
         SelectedControl = PauseEquipmentControls.ReserveMode;

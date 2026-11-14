@@ -44,7 +44,7 @@ internal sealed class EndingCreditsRoll
     internal void SetupCredits()
     {
         ShootingStars = new EndingShootingStars();
-        // Func126 clears palette objects before installing credits/reward palettes.
+        // The credits' setup stops every colour effect before loading the credits' and rewards' colours.
         _stage.ResetColourEffects();
         _artwork.LoadCreditsAndPostCreditsAssets();
         _artwork.CurrentCredits = new CreditsObjectState();
@@ -67,7 +67,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()
     {
-        // Func135 replaces the producer panel with the copyright panel. The text alone is shown until Func137 ends.
+        // The copyright panel replaces the producer panel. The text alone is shown until the copyright's hold ends.
         _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
         _artwork.PostCreditsText.ReplaceResultWithCopyright();
         RewardCopyrightShown = true;

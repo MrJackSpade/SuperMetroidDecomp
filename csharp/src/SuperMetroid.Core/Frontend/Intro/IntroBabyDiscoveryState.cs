@@ -57,7 +57,7 @@ internal sealed class IntroBabyDiscoveryState
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
         Samus.SelectedHudItem = HudItem.Beam;
         SamusPoseMetadata.RefreshCollisionRadii(Samus);
-        // The flashback leaves Samus in pose two already, so her animation
+        // The flashback leaves Samus standing facing left already, so her animation
         // keeps running rather than restarting.
         SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
         Samus.CommitPoseHistory();
@@ -81,7 +81,7 @@ internal sealed class IntroBabyDiscoveryState
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
-    /// The Samus display flag for this scene. Scene setup sets it positive; the egg and dancing-baby
+    /// The Samus display flag for this scene. Scene setup has the objects draw first; the egg and dancing-baby
     /// frame behaviours later reorder or clear it.
     /// </summary>
     public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
@@ -164,7 +164,7 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation? eggEffectArt = null,
         IIntroCinematicSpritePresentation? actorArt = null)
     {
-        // An intro Samus display of +1 makes cinematic objects draw before Samus. The egg
+        // With objects drawn first, the cinematic objects draw before Samus. The egg
         // was spawned before the confused-baby object and retains its own animation and timer.
         egg.Draw(objects, installedArt: actorArt);
         confusedBaby.Draw(objects, installedArt: actorArt);

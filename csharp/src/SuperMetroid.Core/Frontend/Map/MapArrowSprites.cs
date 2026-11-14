@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapArrowSprites
 {
-    /// <summary>The arrows' base sprite variants resolve to menu shapes five/four/six/seven.</summary>
+    /// <summary>The arrow picture shown for <paramref name="direction"/>.</summary>
     public static MapSpriteId SpriteBase(MapScrollDirection direction) =>
         Ensure.Listed(MapArrowDefinitions.SpriteBases, direction);
 }

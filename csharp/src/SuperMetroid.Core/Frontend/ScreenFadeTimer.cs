@@ -12,8 +12,8 @@ internal sealed class ScreenFadeTimer
     internal int Counter { get; set; } = PauseFadeTiming.CounterReload;
 
     /// <summary>
-    /// Screen fade delay, the counter's reload value. Every return to main
-    /// eight leaves both zero, which a map-station pause then inherits.
+    /// Screen fade delay, the counter's reload value. Every return to main gameplay
+    /// leaves both zero, which a map-station pause then inherits.
     /// </summary>
     internal int Delay { get; set; }
 

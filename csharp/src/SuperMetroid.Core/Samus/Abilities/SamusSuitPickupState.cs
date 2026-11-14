@@ -121,7 +121,7 @@ public sealed class SamusSuitPickupState
 
         // The first pose tests the OTHER suit bit. Acquiring Varia while Gravity is already
         // equipped (or vice versa) therefore starts in the suited front pose; an ordinary
-        // first suit starts in power-suit pose zero until stage three performs the reveal.
+        // first suit starts in the power suit's front pose until stage three performs the reveal.
         bool otherSuitAlreadyEquipped = kind == SamusSuitPickupKind.Varia
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);

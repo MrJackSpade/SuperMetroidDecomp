@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Botwoon's enemy-library sound effects, queued with a six-entry admission limit.</summary>
+/// <summary>Botwoon's enemy-library sound effects, queued at normal priority.</summary>
 internal static class BotwoonSoundDefinitions
 {
     /// <summary>The spit sound, queued as the mouth opens.</summary>

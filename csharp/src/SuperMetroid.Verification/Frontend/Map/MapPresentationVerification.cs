@@ -510,7 +510,7 @@ internal static class MapPresentationVerification
             installedBeamSequence.Step(true, new(100, 95),
                 RotationAngle.QuarterTurn, RotationAngle.FromSteps(64));
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
-                nativeBeamSequence.ColorIndex == installedBeamSequence.ColorIndex &&
+                nativeBeamSequence.ColourStep == installedBeamSequence.ColourStep &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
                 $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
         }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// that animation and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed frame. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
-/// visible animation frames and would change when the AI observes pose zero again.
+/// visible animation frames and would change when the AI observes her standing pose again.
 /// </remarks>
 public sealed class MotherBrainBodyAnimationState
 {

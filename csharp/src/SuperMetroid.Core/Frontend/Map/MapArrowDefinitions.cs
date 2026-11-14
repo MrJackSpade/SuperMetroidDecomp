@@ -5,7 +5,7 @@ public static class MapArrowDefinitions
 {
     /// <summary>Four visual/control records, ordered left/right/up/down.</summary>
     public const int Count = 4;
-    /// <summary>The arrows' base sprite variants resolve to menu shapes five/four/six/seven.</summary>
+    /// <summary>Each scroll direction's arrow picture.</summary>
     internal static readonly IReadOnlyDictionary<MapScrollDirection, MapSpriteId> SpriteBases =
         new Dictionary<MapScrollDirection, MapSpriteId>
         {

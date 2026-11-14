@@ -11,7 +11,7 @@ public enum FileSelectPhase
     FadeOutToDataManagement,
     /// <summary>Brighten the newly built Copy, Clear or main page; covers both the submenu and the return-to-main fade-ins.</summary>
     FadeInFromDataManagement,
-    /// <summary>Choose a checksummed, occupied source slot for copying, or leave through Exit/B.</summary>
+    /// <summary>Choose an occupied source slot for copying, or leave through Exit/B.</summary>
     CopySelectSource,
     /// <summary>Choose any destination slot other than the source, including an occupied slot that will be overwritten.</summary>
     CopySelectDestination,
@@ -19,7 +19,7 @@ public enum FileSelectPhase
     CopyConfirm,
     /// <summary>Display the completed copy without a selection missile and wait for a newly pressed button before returning to main.</summary>
     CopyCompleted,
-    /// <summary>Choose a checksummed, occupied slot to clear, or leave through Exit/B.</summary>
+    /// <summary>Choose an occupied slot to clear, or leave through Exit/B.</summary>
     ClearSelectSlot,
     /// <summary>Accept Yes/No for the chosen slot; accepting Yes also clears the slot in this phase.</summary>
     ClearConfirm,

@@ -17,7 +17,7 @@ internal abstract record DraygonCue
     /// <summary>Displaces the body's background graphics while the tail whips.</summary>
     internal sealed record DisplaceBodyGraphics(Offset16<BackgroundPixels> Offset) : DraygonCue;
 
-    /// <summary>Queues a sound effect with a six-entry admission limit.</summary>
+    /// <summary>Queues a sound effect at normal priority.</summary>
     internal sealed record QueueSound(SoundEffectId Sound) : DraygonCue;
 
     /// <summary>Spawns a dying-Draygon sprite object at a random point of the body.</summary>

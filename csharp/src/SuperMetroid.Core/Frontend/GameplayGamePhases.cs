@@ -121,7 +121,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.SetDisplayBrightness(session.ceresDeparture.Brightness);
         if (ceresFadeFinished)
         {
-            // The blackout state saves the live area-six/station-zero slot only after
+            // The blackout state saves the live Ceres elevator checkpoint only after
             // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
@@ -206,8 +206,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
 
         // The pause check only runs from Samus's normal new-state handler. The station lock
         // replaces that handler with an inert one, so its entire insertion,
-        // message/data-load, and retraction sequence bypasses pause-check even though game
-        // state remains eight. The locked input mode installed with it stands for that handler
+        // message/data-load, and retraction sequence bypasses pause-check even though the game
+        // state remains MainGameplay. The locked input mode installed with it stands for that handler
         // replacement; the remaining clauses are the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
@@ -254,7 +254,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         else if (timeUp)
         {
             // The escape countdown wrote the time-up state inside Samus's handler, after her movement's
-            // door hits and before pause-check, which then sees a state other than eight.
+            // door hits and before pause-check, which then sees a state other than MainGameplay.
             BeginTimeUp();
         }
         else if (session.GameplayRuntime.EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)

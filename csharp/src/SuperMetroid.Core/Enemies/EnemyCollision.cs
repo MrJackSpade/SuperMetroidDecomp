@@ -771,7 +771,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Installs the common frozen handler. Norfair (area two) uses 300 frames; every other
+    /// Installs the common frozen handler. Norfair uses 300 frames; every other
     /// retail area uses 400. The ten-frame invincibility timer is shared by direct authored
     /// freezing and the lethal-Ice substitution path.
     /// </summary>

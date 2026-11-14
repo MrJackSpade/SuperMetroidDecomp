@@ -25,9 +25,9 @@ internal static class IntroEggParticleActors
     /// selected frame. <see cref="IntroDiscoverySprite"/> reads the frame, then follows
     /// the self-loop, so the bounded selector preserves every selected animation.
     ///
-    /// Issues #625 and #983: each of the six referenced visual frames holds one sprite part, matching the authored data:
-    /// X=508, Y=252, drawn in the egg's colours in front of the scene, with that
-    /// frame's own picture. The six pictures come in three pairs.
+    /// Issues #625 and #983: each of the six referenced visual frames holds one picture, matching the authored data:
+    /// that frame's own picture, four pixels left of and above the particle, drawn in the egg's colours in front of the
+    /// scene. The six pictures come in three pairs.
     /// The bounded selector reaches only these six records.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>

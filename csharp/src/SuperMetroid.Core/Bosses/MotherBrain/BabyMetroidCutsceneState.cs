@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The entrance uses no floating point, spline or physics engine. It holds a 1/256-pixel velocity, adds
 /// its fraction to the upper half of each enemy subpixel position only, and lets that addition's
 /// overflow enter the whole-pixel position. The curved entrance
-/// also reads the game's signed sine table. Keeping those details
+/// also scales by the game's signed sine (<see cref="Trigonometry.MultiplySignedSine"/>). Keeping those details
 /// here is important: replacing them with visually similar interpolation changes the exact
 /// frame on which the Baby's collision rectangle reaches Mother Brain's brain slot.
 /// </remarks>
@@ -872,14 +872,14 @@ public sealed class BabyMetroidCutsceneState
             CalculateVelocityComponent(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed), angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
-    /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
+    /// <summary>Multiplies speed by the angle's signed sine with the game's bit-8-to-23 result.</summary>
     /// <param name="speed">The speed, read unsigned.</param>
-    /// <param name="angle">The sine-table angle.</param>
+    /// <param name="angle">The angle in steps, 256ths of a turn.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         SignedEightEight speed,
         TrigonometryAngle angle)
     {
-        // The sine multiply takes unsigned speed by the absolute signed-table value,
+        // The sine multiply takes unsigned speed by the signed sine's size,
         // returns the product divided by 256, then reapplies the sign.
         return Trigonometry.MultiplySignedSine(speed, angle);
     }

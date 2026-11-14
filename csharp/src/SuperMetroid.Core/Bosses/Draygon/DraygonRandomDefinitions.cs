@@ -12,7 +12,7 @@ internal static class DraygonRandomDefinitions
     /// </summary>
     internal static readonly RandomChance GoopVolleySteps = RandomChance.Lowest(1, new RandomSampleField(0, 4));
 
-    /// <summary>A goop's angle within its quarter turn, 0 through 63 table angles: the sample modulo 64.</summary>
+    /// <summary>A goop's angle within its quarter turn, 0 through 63 steps (256ths of a turn): the sample modulo 64.</summary>
     internal static readonly RandomSampleField GoopAngleSpread = new(0, 6);
 
     /// <summary>Which of the four entries of the turret firing order a turret cadence fires: the sample modulo 4.</summary>

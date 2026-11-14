@@ -136,11 +136,11 @@ public sealed class DraygonEnemyState
 
     /// <summary>
     /// Draygon's position around the carry spiral, in 256ths of a turn: three quarters when a grab starts, advanced by
-    /// the whole table units of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
+    /// the whole steps of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
     /// </summary>
     public RotationAngle SpiralAngle { get; internal set; }
     /// <summary>
-    /// Angular step of the carry spiral per frame: eight table units when a grab starts, slowed by 1/256 unit each
+    /// Angular step of the carry spiral per frame: eight steps when a grab starts, slowed by 1/256 of a step each
     /// spiral frame before it is applied, so the orbit decelerates as the radius grows.
     /// </summary>
     public RotationAngle SpiralAngleDelta { get; internal set; }

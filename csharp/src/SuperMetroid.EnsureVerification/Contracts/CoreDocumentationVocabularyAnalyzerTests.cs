@@ -557,5 +557,20 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // The verb, a record of something, an enemy's record, a record alone and a hardware owner are English.
         Expect("class P { /// <summary>Records the desired animation; the death records the drop origin; the first record of the kills; the enemy's record; a record.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the arms read the facing in the body record, which the kill leaves an empty record.</summary>\n[CompatibilityService(\"evir\")] class Evir { }");
+        // The original's trigonometry tables outside hardware owners (#1853): an angle in table units, angles or steps, and
+        // a sine, cosine or trigonometry table, spaced or hyphenated, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>The spiral's step: eight table units, slowed each frame.</summary>\nint F => 0; }", "('table units')");
+        Expect("class P { /// <summary>A goop's angle within its quarter turn, 0 through 63 table angles.</summary>\nint F => 0; }", "('table angles')");
+        Expect("class P { // an eighth of a table step per frame\n }", "('table step')");
+        Expect("class P { // reads signed values from the shared sine table\n }", "('sine table')");
+        Expect("class P { /// <summary>Moves the body along a sine-table angle.</summary>\nint F => 0; }", "('sine-table')");
+        Expect("class P { // uses the negative cosine-table Y component\n }", "('cosine-table')");
+        Expect("class P { string Name => \"The trigonometry tables are not installed.\"; }", "('trigonometry tables')");
+        Expect("class P { // hardcoded clamps and trig-table scaling\n }", "('trig-table')");
+        // An encoding owner of the angle names its encoding, and a compatibility service may describe the table it reads.
+        Expect(EncodingOwner + "[EncodingOwner(\"sine-table byte angle\")] readonly struct A { /// <summary>The angle in table units.</summary>\nint Raw => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the product reads the shared sine table.</summary>\n[CompatibilityService(\"circle\")] class Circle { }");
+        // A sine, a cosine, a table and a unit alone, a turn's steps and a speed table are English.
+        Expect("class P { /// <summary>The sine and cosine of the angle in steps of a turn; the speed table's next entry; a unit; the table.</summary>\nint F => 0; }");
     }
 }

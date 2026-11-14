@@ -41,21 +41,20 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         if (hyperBeam)
         {
-            for (int item = 0; item < PauseEquipmentLabels.ItemCount(PauseEquipmentCategory.Beams); item++)
+            foreach (PauseUpgradeControl beam in PauseEquipmentControls.Beams)
             {
-                CompiledLabel destination = labels[PauseEquipmentLabels.Label(PauseEquipmentCategory.Beams, item)];
+                CompiledLabel destination = labels[beam.Label];
                 WriteBlank(tilemap.Slice(destination.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
             hyper.CopyTo(tilemap.Slice(hyper.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
         }
-        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
-        for (int item = 0; item < PauseEquipmentLabels.ItemCount(category); item++)
+        foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
+            if (control.Category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
-            SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
-            CompiledLabel label = labels[PauseEquipmentLabels.Label(category, item)];
+            PauseEquipmentBit mask = control.Upgrade;
+            CompiledLabel label = labels[control.Label];
             Span<BackgroundTile> destination = tilemap.Slice(label.PageCell, label.CellCount);
             if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);

@@ -66,16 +66,14 @@ internal static class PauseReserveRowToggleVerification
         EnterPauseEquipment(menu);
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "with a reserve tank the cursor starts in the reserve column");
         menu.Step(0, ControllerButton.Down);
-        AssertEqual(PauseEquipmentCategory.Beams, menu.SelectedCategory, "Down from the automatic reserve mode moves to the beams");
-        AssertEqual(0, menu.SelectedItem, "the cursor is on the top beam");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Charge, menu.SelectedControl, "Down from the automatic reserve mode moves to the top beam");
         var bombs = new SamusBombProjectileSystem();
         foreach (SamusBombProjectileSlot slot in bombs.Slots)
             slot.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
 
         menu.Step(0, ControllerButton.Up | ControllerButton.A, null, 0, bombs);
 
-        AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "Up from the top beam moves into the reserve column");
-        AssertEqual(0, menu.SelectedItem, "the move keeps the first row");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, menu.SelectedControl, "Up from the top beam moves into the reserve column's first row");
         AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.Repaint(2), 0x4321), bombs.Slots[^1].BombSpreadVerticalVelocity,
             "the toggle repaints the last spread bomb's whole speed and keeps its fraction");
         for (int index = 0; index < bombs.Slots.Count - 1; index++)

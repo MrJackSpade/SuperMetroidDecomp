@@ -29,15 +29,17 @@ public static class PauseSelectorExtractor
         if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorVariant) != PauseMenuSourceDefinitions.PauseSelectorCategoryVariable)
             throw new InvalidDataException("Unexpected native selector category binding.");
         var bases = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorBases));
-        foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
-            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases.AddWithinBank((int)category * 2)) != PauseMenuSourceDefinitions.SelectorSpritemaps[category])
+        var columns = PauseMenuSourceDefinitions.SelectorColumns;
+        for (int table = 0; table < columns.Length; table++)
+            if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases.AddWithinBank(table * 2)) != PauseMenuSourceDefinitions.SelectorSpritemaps[columns[table][0].Category])
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
         var anchors = new Dictionary<string, Position16<SpritePixels>>();
-        foreach (var anchor in PauseSelectorAnchors.Anchors())
+        for (int table = 0; table < columns.Length; table++)
         {
-            var position = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPositionPointers.AddWithinBank((int)anchor.Category * 2)));
-            anchors.Add(PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item), new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4)) - 1)),
-                unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(anchor.Item * 4 + 2)) - 1))));
+            var position = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPositionPointers.AddWithinBank(table * 2)));
+            for (int item = 0; item < columns[table].Length; item++)
+                anchors.Add(columns[table][item].Anchor, new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(item * 4)) - 1)),
+                    unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position.AddWithinBank(item * 4 + 2)) - 1))));
         }
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         // Suits and boots share the Equipment frames, so only the first three categories own a group.

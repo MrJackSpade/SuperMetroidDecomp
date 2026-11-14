@@ -23,13 +23,11 @@ internal static class PauseReserveManualVerification
             CollectedBeams = SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
-        AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
-        AssertEqual(PauseReserveEnergyDefinitions.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, pause.SelectedControl, "equipment entry selects the owned reserve mode control without Up");
         pause.Step(0, ControllerButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "A changes AUTO to MANUAL");
         pause.Step(0, ControllerButton.Down);
-        AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "manual Down stays in tanks");
-        AssertEqual(1, pause.SelectedItem, "manual Down selects transfer");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveTransfer, pause.SelectedControl, "manual Down stays in tanks and selects transfer");
         pause.Step(0, ControllerButton.A);
         AssertEqual(21, samus.Health, "first manual transfer occurs on A call");
         AssertEqual(9, samus.ReserveEnergy, "first manual transfer consumes one reserve");
@@ -49,7 +47,7 @@ internal static class PauseReserveManualVerification
             AssertEqual(PauseMenuLayoutConstants.ReserveSupplyDigitZeroTile + 7 - i,
                 pause.ReadReserveSupplyDigit(RetailPresentationFixture(), 2).Raw, "visible supply digit updates on transfer frame");
         }
-        AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, pause.SelectedControl, "exhaustion returns to the mode control");
         pause.Step(0, ControllerButton.A);
         AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode, "A restores AUTO");
         Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp());
@@ -88,7 +86,7 @@ internal static class PauseReserveManualVerification
                 }
             }
             AssertEqual(0, samus.ReserveEnergy, "retail consumes all reserves on exhaustion or max health");
-            AssertEqual(0, pause.SelectedItem, "completed refill returns to mode");
+            AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, pause.SelectedControl, "completed refill returns to mode");
         }
     }
 

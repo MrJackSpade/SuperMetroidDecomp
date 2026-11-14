@@ -22,8 +22,8 @@ internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> La
     /// </summary>
     internal static ShownEquipmentPage Of(PauseInventory inventory, ShownReserveDisplay? reserve, ShownReserveArrow arrow)
     {
-        ImmutableArray<ShownEquipmentLabel> labels = [.. PauseEquipmentLabels.Labels().Select(key =>
-            new ShownEquipmentLabel(key.Label, inventory.StateOf(PauseEquipmentRules.Mask(key.Category, key.Item))))];
+        ImmutableArray<ShownEquipmentLabel> labels = [.. PauseEquipmentControls.Upgrades.Select(control =>
+            new ShownEquipmentLabel(control.Label, inventory.StateOf(control.Upgrade)))];
         return new(labels, inventory.HyperBeam, PauseEquipmentRules.WireframeKind(inventory.EquippedItems), reserve, arrow);
     }
 }

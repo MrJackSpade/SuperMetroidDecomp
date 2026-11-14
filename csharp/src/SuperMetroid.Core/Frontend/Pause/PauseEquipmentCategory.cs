@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Equipment-screen categories: the group of the equipment screen the selector is in.</summary>
+/// <summary>Equipment-screen columns: the group of the equipment screen a control stands in.</summary>
 public enum PauseEquipmentCategory
 {
     /// <summary>Reserve-tank controls, the first group.</summary>
-    Reserves = 0,
+    Reserves,
     /// <summary>Weapons category, the second group.</summary>
-    Beams = 1,
+    Beams,
     /// <summary>Suit category, the third group.</summary>
-    Suits = 2,
+    Suits,
     /// <summary>Boots category, the fourth group.</summary>
-    Boots = 3,
+    Boots,
 }

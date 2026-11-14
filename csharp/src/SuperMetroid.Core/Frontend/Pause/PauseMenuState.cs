@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -83,10 +84,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private int transitionFadeCounter;
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
     internal int TransitionBrightness { get; private set; } = 15;
-    /// <summary>Equipment or reserve category selected by the cursor.</summary>
-    internal PauseEquipmentCategory SelectedCategory { get; private set; }
-    /// <summary>Selected item index within the current equipment category.</summary>
-    internal int SelectedItem { get; private set; }
+    /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
+    internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>Current map scroll in map pixels.</summary>
     private Position16<MapPixels> mapScrollPosition;
     /// <summary>The map screen's scroll position.</summary>
@@ -371,25 +370,18 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // including empty tanks. The first beam is only the no-reserve fallback.
         if (samus.MaxReserveEnergy != 0)
         {
-            SelectedCategory = PauseEquipmentCategory.Reserves;
-            SelectedItem = PauseReserveEnergyDefinitions.ModeItem;
+            SelectedControl = PauseEquipmentControls.ReserveMode;
             return;
         }
-        foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
+        foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
-            for (int item = 0; item < category.ItemCount; item++)
-            {
-                if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
-                    continue;
-                SelectedCategory = categoryIndex;
-                SelectedItem = item;
-                return;
-            }
+            if (!control.Upgrade.IsSetIn(samus.CollectedBeams, samus.CollectedItems))
+                continue;
+            SelectedControl = control;
+            return;
         }
 
-        SelectedCategory = PauseEquipmentCategory.Reserves;
-        SelectedItem = 0;
+        SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 
     /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
@@ -569,7 +561,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         var selector = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
-        selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
+        selector.Draw(screen.Objects, PauseSheet, SelectedControl, ItemSelectorAnimationFrame);
     }
 
     /// <summary>
@@ -585,14 +577,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
 
-    /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
-    private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
-        PauseEquipmentRules.Mask(category.Category, item);
-
     /// <summary>Handles reserve input or moves and toggles equipment in the game's update order.</summary>
     private void HandleEquipmentInput(ControllerButton pressed, SamusBombProjectileSystem? bombs)
     {
-        PauseEquipmentCategory handlingCategory = SelectedCategory;
+        PauseEquipmentCategory handlingCategory = SelectedControl.Category;
         if (handlingCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
@@ -609,11 +597,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // play reads only the last spread bomb's vertical speed (#1505); it changes no equipment or label. The other
         // rows take their tables from scratch left by unrelated code, which only full memory emulation could reproduce,
         // so they stay rejected under the emulation scope limit (#1500).
-        if (SelectedCategory == PauseEquipmentCategory.Reserves)
+        if (SelectedControl is not PauseUpgradeControl target)
         {
-            bool modeRow = (uint)SelectedItem < (uint)PauseReserveEnergyDefinitions.Items.Length &&
-                SelectedReserveItem == PauseReserveItem.Mode;
-            if (!modeRow)
+            if (SelectedControl != PauseEquipmentControls.ReserveMode)
                 throw new NotSupportedException(
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
                     "reproducing it needs full memory emulation, which is outside the port's scope.");
@@ -631,8 +617,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // exclusion. Do not add a category guard that corrects this: the retail game has none. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
-        var target = PauseEquipmentCategories.Get(SelectedCategory);
-        PauseEquipmentBit mask = ReadCategoryMask(target, SelectedItem);
+        PauseEquipmentBit mask = target.Upgrade;
         // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
@@ -650,26 +635,50 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
-    private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
+    /// <summary>The direction the cursor searches a column in: down the list, or up it.</summary>
+    private enum ColumnSearch
     {
-        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeamEnabled)
+        /// <summary>Towards the bottom of the column.</summary>
+        Down,
+        /// <summary>Towards the top of the column.</summary>
+        Up,
+    }
+
+    /// <summary>
+    /// Searches <paramref name="column"/> from <paramref name="first"/> (inclusive) in <paramref name="direction"/> and moves
+    /// the selector to the first collected upgrade it reaches.
+    /// </summary>
+    private bool TrySelectEquipment(ImmutableArray<PauseUpgradeControl> column, PauseUpgradeControl first, ColumnSearch direction) =>
+        TrySelectEquipmentFrom(column, column.IndexOf(first), direction);
+
+    /// <summary>
+    /// Searches <paramref name="column"/>, which holds the selected control, from that control's neighbour in
+    /// <paramref name="direction"/> and moves the selector to the first collected upgrade it reaches.
+    /// </summary>
+    private bool TrySelectNeighbour(ImmutableArray<PauseUpgradeControl> column, ColumnSearch direction)
+    {
+        int selected = column.IndexOf((PauseUpgradeControl)SelectedControl);
+        return TrySelectEquipmentFrom(column, direction == ColumnSearch.Down ? selected + 1 : selected - 1, direction);
+    }
+
+    /// <summary>Walks <paramref name="column"/> from the control at <paramref name="start"/> to its end in <paramref name="direction"/>.</summary>
+    private bool TrySelectEquipmentFrom(ImmutableArray<PauseUpgradeControl> column, int start, ColumnSearch direction)
+    {
+        if (column == PauseEquipmentControls.Beams && samus.HyperBeamEnabled)
             return false;
-        var category = PauseEquipmentCategories.Get(categoryIndex);
-        for (int item = start; item >= 0 && item < category.ItemCount; item += step)
+        int step = direction == ColumnSearch.Down ? 1 : -1;
+        for (int place = start; place >= 0 && place < column.Length; place += step)
         {
-            if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
+            if (!column[place].Upgrade.IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
-                // The suit scan checks for its last item only AFTER an unsuccessful probe.
-                // Thus directly entering the final suit item can succeed, but scanning
-                // forward from an earlier missing item must not discover it.
-                if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&
-                    item + step >= category.ItemCount - 1)
+                // The suit search down the column checks for its last control only AFTER an unsuccessful probe.
+                // Thus directly entering the final suit control can succeed, but searching down from an earlier
+                // missing upgrade must not discover it.
+                if (column == PauseEquipmentControls.Suits && direction == ColumnSearch.Down && place + step >= column.Length - 1)
                     return false;
                 continue;
             }
-            SelectedCategory = categoryIndex;
-            SelectedItem = item;
+            SelectedControl = column[place];
             audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
             return true;
         }
@@ -680,8 +689,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
-        SelectedCategory = PauseEquipmentCategory.Reserves;
-        SelectedItem = 0;
+        SelectedControl = PauseEquipmentControls.ReserveMode;
         audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
         return true;
     }
@@ -691,64 +699,73 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         bool left = (pressed & ControllerButton.Left) != ControllerButton.None, right = (pressed & ControllerButton.Right) != ControllerButton.None;
         bool up = (pressed & ControllerButton.Up) != ControllerButton.None, down = (pressed & ControllerButton.Down) != ControllerButton.None;
-        PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
-        switch (SelectedCategory)
+        ImmutableArray<PauseUpgradeControl> beams = PauseEquipmentControls.Beams, suits = PauseEquipmentControls.Suits,
+            boots = PauseEquipmentControls.Boots;
+        switch (SelectedControl.Category)
         {
             case PauseEquipmentCategory.Beams:
                 if (right)
                 {
-                    if (!TrySelectEquipment(suits, up ? 0 : PauseEquipmentCategories.BeamRightSuitItem, 1) && !up)
-                        TrySelectEquipment(boots, 0, 1);
+                    if (!TrySelectEquipment(suits, up ? suits[0] : PauseEquipmentControls.BeamsRightSuitEntry, ColumnSearch.Down) && !up)
+                        TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
                 }
-                else if (down) TrySelectEquipment(beams, SelectedItem + 1, 1);
-                else if (up && !TrySelectEquipment(beams, SelectedItem - 1, -1)) TrySelectReserves();
+                else if (down) TrySelectNeighbour(beams, ColumnSearch.Down);
+                else if (up && !TrySelectNeighbour(beams, ColumnSearch.Up)) TrySelectReserves();
                 break;
             case PauseEquipmentCategory.Suits:
                 if (left)
                 {
-                    if (down || !TrySelectReserves()) TrySelectEquipment(beams, 0, 1);
+                    if (down || !TrySelectReserves()) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
                 }
-                else if (up) TrySelectEquipment(suits, SelectedItem - 1, -1);
-                else if (down && !TrySelectEquipment(suits, SelectedItem + 1, 1)) TrySelectEquipment(boots, 0, 1);
+                else if (up) TrySelectNeighbour(suits, ColumnSearch.Up);
+                else if (down && !TrySelectNeighbour(suits, ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
                 break;
             case PauseEquipmentCategory.Boots:
                 if (left)
                 {
-                    if (up || !TrySelectEquipment(beams, PauseEquipmentCategories.PlasmaItem, -1)) TrySelectReserves();
+                    if (up || !TrySelectEquipment(beams, beams[^1], ColumnSearch.Up)) TrySelectReserves();
                 }
-                else if (down) TrySelectEquipment(boots, SelectedItem + 1, 1);
-                else if (up && !TrySelectEquipment(boots, SelectedItem - 1, -1))
-                    TrySelectEquipment(suits, PauseEquipmentCategories.Get(suits).ItemCount - 1, -1);
+                else if (down) TrySelectNeighbour(boots, ColumnSearch.Down);
+                else if (up && !TrySelectNeighbour(boots, ColumnSearch.Up))
+                    TrySelectEquipment(suits, suits[^1], ColumnSearch.Up);
                 break;
             case PauseEquipmentCategory.Reserves:
                 if (right)
                 {
-                    if (down || !TrySelectEquipment(suits, 0, 1)) TrySelectEquipment(boots, 0, 1);
+                    if (down || !TrySelectEquipment(suits, suits[0], ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
                 }
                 else if (up)
                 {
-                    if (SelectedReserveItem != PauseReserveItem.Mode)
+                    if (SelectedControl != PauseEquipmentControls.ReserveMode)
                     {
-                        SelectedItem--;
+                        SelectedControl = ReserveNeighbour(ColumnSearch.Up);
                         audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 else if (down)
                 {
-                    if (SelectedReserveItem == PauseReserveItem.Transfer ||
+                    if (SelectedControl == PauseEquipmentControls.ReserveTransfer ||
                         samus.ReserveTankMode == ReserveTankMode.Auto)
-                        TrySelectEquipment(beams, 0, 1);
+                        TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
                     else
                     {
-                        SelectedItem++;
-                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, 0, 1);
+                        SelectedControl = ReserveNeighbour(ColumnSearch.Down);
+                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
                         else audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedCategory}.");
+                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedControl.Category}.");
         }
+    }
+
+    /// <summary>The selected reserve control's neighbour in <paramref name="direction"/>.</summary>
+    private PauseReserveControl ReserveNeighbour(ColumnSearch direction)
+    {
+        ImmutableArray<PauseReserveControl> reserves = PauseEquipmentControls.Reserves;
+        int selected = reserves.IndexOf((PauseReserveControl)SelectedControl);
+        return reserves[direction == ColumnSearch.Down ? selected + 1 : selected - 1];
     }
 
     /// <summary>Shows the HUD gameplay last displayed, not one still being written.</summary>
@@ -792,11 +809,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         get
         {
-            if (SelectedCategory != PauseEquipmentCategory.Reserves)
-                return ReserveArrowState.Hidden;
-            PauseReserveItem item = SelectedReserveItem;
-            return item == PauseReserveItem.Mode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
-                : item == PauseReserveItem.Transfer ? ReserveArrowState.Solid
+            return SelectedControl == PauseEquipmentControls.ReserveMode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
+                : SelectedControl == PauseEquipmentControls.ReserveTransfer ? ReserveArrowState.Solid
                 : ReserveArrowState.Hidden;
         }
     }
@@ -837,27 +851,19 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve-transfer handler.</summary>
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
-    /// <summary>The selected item while the reserve-tank category is selected.</summary>
-    private PauseReserveItem SelectedReserveItem => (uint)SelectedItem < (uint)PauseReserveEnergyDefinitions.Items.Length
-        ? PauseReserveEnergyDefinitions.Items[SelectedItem]
-        : throw new InvalidDataException($"Unsupported reserve subdispatcher {SelectedItem}.");
-
     /// <summary>Runs the tank subdispatcher before its D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
     {
-        switch (SelectedReserveItem)
+        if (SelectedControl == PauseEquipmentControls.ReserveMode)
         {
-            case PauseReserveItem.Mode:
-                if ((pressed & ControllerButton.A) == ControllerButton.None || samus.MaxReserveEnergy == 0) return;
-                audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
-                samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
-                    ? ReserveTankMode.Manual : ReserveTankMode.Auto;
-                return;
-            case PauseReserveItem.Transfer:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {SelectedItem}.");
+            if ((pressed & ControllerButton.A) == ControllerButton.None || samus.MaxReserveEnergy == 0) return;
+            audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+            samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
+                ? ReserveTankMode.Manual : ReserveTankMode.Auto;
+            return;
         }
+
+        // The manual transfer.
 
         if (ReserveTransferSoundDelay.IsZero)
         {
@@ -887,7 +893,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Preserve that behavior and clear the whole packed selector.
         samus.ReserveEnergy = 0;
         ReserveTransferSoundDelay = WrappingCountdown.Start(0);
-        SelectedCategory = PauseEquipmentCategory.Reserves;
-        SelectedItem = PauseReserveEnergyDefinitions.ModeItem;
+        SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -53,9 +54,9 @@ public static class PauseSelectorLayoutFile
             animation is null || animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
         var named = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal);
-        foreach (var definition in PauseSelectorAnchors.Anchors())
+        foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {
-            string name = PauseSelectorAnchors.Anchor(definition.Category, definition.Item);
+            string name = control.Anchor;
             if (!anchors.TryGetValue(name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
             named.Add(name, point);

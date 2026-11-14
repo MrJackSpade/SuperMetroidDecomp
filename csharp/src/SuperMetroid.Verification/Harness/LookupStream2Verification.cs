@@ -498,16 +498,16 @@ internal static class LookupStream2Verification
         }
         // Each label laid out for its only collected item, equipped or not, among blank strips and untouched tiles around them.
         var sentinel = new BackgroundTile(0x155, 5, highPriority: false, PictureFlip.Horizontal);
-        foreach (var identity in PauseEquipmentLabels.Labels())
+        foreach (PauseUpgradeControl identity in PauseEquipmentControls.Upgrades)
         {
             PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
             BackgroundTile[] labelTiles = PauseTileGrid.Compile(label.Cells, "Stock label");
-            PauseEquipmentBit bit = PauseEquipmentRules.Mask(identity.Category, identity.Item);
+            PauseEquipmentBit bit = identity.Upgrade;
             foreach (bool disabled in new[] { false, true })
             {
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
                 BackgroundTile[] expected = actual.ToArray();
-                foreach (var other in PauseEquipmentLabels.Labels())
+                foreach (PauseUpgradeControl other in PauseEquipmentControls.Upgrades)
                 {
                     PauseEquipmentLabel blank = document.Labels[PauseEquipmentLabelKeys.Name(other.Label)];
                     expected.AsSpan(blank.Row * 32 + blank.Column, blank.Cells.Length).Clear();
@@ -546,7 +546,7 @@ internal static class LookupStream2Verification
             BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
             BackgroundTile[] expected = actual.ToArray();
             BackgroundTile[] blankTiles = PauseTileGrid.Compile(document.Blank, "Reference blank");
-            foreach (var identity in PauseEquipmentLabels.Labels())
+            foreach (PauseUpgradeControl identity in PauseEquipmentControls.Upgrades)
             {
                 PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
                 int destination = label.Row * 32 + label.Column;

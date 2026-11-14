@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -34,37 +35,20 @@ internal static class PauseEquipmentRulesVerification
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
-    /// <summary>Compares five beam upgrade masks with bank-$82 and checks invalid selectors.</summary>
-    internal static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
-    /// <summary>Compares six suit and miscellaneous upgrade masks with bank-$82.</summary>
-    internal static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
-    /// <summary>Compares three boot upgrade masks with bank-$82.</summary>
-    internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
+    /// <summary>Compares the five beam controls' upgrades with bank-$82.</summary>
+    internal static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentControls.Beams);
+    /// <summary>Compares the six suit and miscellaneous controls' upgrades with bank-$82.</summary>
+    internal static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentControls.Suits);
+    /// <summary>Compares the three boot controls' upgrades with bank-$82.</summary>
+    internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentControls.Boots);
 
-    /// <summary>Matches a category's native mask table and verifies category-first bounds rejection.</summary>
-    private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
+    /// <summary>Matches each control of a column, in cursor order, with its entry of the column's native mask table.</summary>
+    private static void VerifyPauseMaskCases(ISnesAddressSpace rom, ImmutableArray<PauseUpgradeControl> column)
     {
-        for (int item = 0; item < count; item++)
+        for (int item = 0; item < column.Length; item++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + item * 2);
-            AssertEqual(expected, PauseEquipmentRules.Mask(category, item).ToNativeWord(), "original native upgrade flag case");
-        }
-        foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
-        foreach (PauseEquipmentCategory invalid in new[] { PauseEquipmentCategory.Reserves, (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
-        {
-            CheckRejected(invalid, 0, "category");
-            CheckRejected(invalid, -1, "category");
-        }
-        // Check that an invalid mask lookup reports the offending selector parameter.
-        static void CheckRejected(PauseEquipmentCategory category, int item, string parameter)
-        {
-            try { _ = PauseEquipmentRules.Mask(category, item); }
-            catch (ArgumentOutOfRangeException error)
-            {
-                AssertEqual(parameter, error.ParamName, "mask domain preserves category-first rejection");
-                return;
-            }
-            throw new InvalidOperationException("Unsupported pause mask selector was accepted.");
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(PauseMaskTableAddress(column[0].Category) + item * 2);
+            AssertEqual(expected, column[item].Upgrade.ToNativeWord(), "original native upgrade flag case");
         }
     }
 
@@ -103,17 +87,15 @@ internal static class PauseEquipmentRulesVerification
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
         Suite(nameof(VerifyPauseBootMasks), () => VerifyPauseBootMasks(bus));
         var guard = NewPauseRulesReadGuard(bus);
-        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
+        foreach (ImmutableArray<PauseUpgradeControl> column in PauseEquipmentControls.UpgradeColumns)
         {
-            var definition = PauseEquipmentCategories.Get(category);
-            PauseEquipmentBit[] masks = Enumerable.Range(0, definition.ItemCount)
-                .Select(item => PauseEquipmentRules.Mask(category, item)).ToArray();
+            PauseEquipmentBit[] masks = [.. column.Select(control => control.Upgrade)];
             for (int item = 0; item < masks.Length; item++)
             {
                 var samus = Inventory(masks[item]);
                 var pause = Create(samus);
                 EnterPauseEquipment(pause);
-                AssertEqual(new CursorBeforeRestore(category, item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
+                AssertEqual<PauseEquipmentControl>(column[item], pause.SelectedControl, "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, ControllerButton.A);
                 AssertEqual(default(PauseEquipmentBit), new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit off");
                 pause.Step(0, 0); pause.Step(0, ControllerButton.A);
@@ -127,17 +109,17 @@ internal static class PauseEquipmentRulesVerification
                     if ((subset & (1 << item)) != 0) owned = new(owned.Beam | masks[item].Beam, owned.Item | masks[item].Item);
                 var pause = Create(Inventory(owned));
                 int expected = Array.FindIndex(masks, mask => mask.IsSetIn(owned.Beam, owned.Item));
-                AssertEqual(expected < 0 ? new CursorBeforeRestore(PauseEquipmentCategory.Reserves, 0) : new CursorBeforeRestore(category, expected), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "all category subsets retain first-owned selection");
+                AssertEqual<PauseEquipmentControl>(expected < 0 ? PauseEquipmentControls.ReserveMode : column[expected], pause.SelectedControl, "all category subsets retain first-owned selection");
             }
         }
         // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
         // frame that unpauses still toggles the item. The 13% movie unequips the Speed Booster
         // with Start+A this way.
-        PauseEquipmentBit speedBooster = PauseEquipmentRules.Mask(PauseEquipmentCategory.Boots, 2);
+        PauseEquipmentBit speedBooster = PauseEquipmentControls.SpeedBooster.Upgrade;
         var unpausing = Inventory(speedBooster);
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
-        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 2), new CursorBeforeRestore(startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.SpeedBooster, startAndA.SelectedControl, "the Speed Booster is selected");
         AssertTrue(startAndA.Step(ControllerButton.Start, ControllerButton.A), "Start unpauses");
         AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -164,7 +146,7 @@ internal static class PauseEquipmentRulesVerification
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, ControllerButton.Up); pause.Step(0, ControllerButton.Down);
-            AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, 1), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
+            AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveTransfer, pause.SelectedControl, "manual transfer fixture reaches reserve dispatcher");
             int health = scenario.Health, reserve = scenario.Reserve;
             for (int tick = 0; tick < scenario.Reserve && reserve != 0; tick++)
             {
@@ -188,8 +170,8 @@ internal static class PauseEquipmentRulesVerification
         new CartridgeReadGuard(source)
             .Forbid(address => (uint)(address - EquipmentSetTable) < 8 ||
                 (uint)(address - ReserveTransferAmount) < 2 ||
-                Enum.GetValues<PauseEquipmentCategory>().Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
-                    (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2),
+                PauseEquipmentControls.UpgradeColumns.Any(column =>
+                    (uint)(address - PauseMaskTableAddress(column[0].Category)) < column.Length * 2),
                 address => $"Pause read compiled inventory/transfer rule at {address:X6}.");
 
     /// <summary>

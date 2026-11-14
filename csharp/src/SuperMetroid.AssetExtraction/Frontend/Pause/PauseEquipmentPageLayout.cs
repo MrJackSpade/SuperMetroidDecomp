@@ -29,10 +29,10 @@ internal static class PauseEquipmentPageLayout
         // LoadEquipmentScreen writes each whole label from the inventory its state describes.
         SamusBeamFlags collectedBeams = SamusBeamFlags.None, equippedBeams = SamusBeamFlags.None;
         SamusEquipmentFlags collectedItems = SamusEquipmentFlags.None, equippedItems = SamusEquipmentFlags.None;
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
+        foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            PauseEquipmentBit bit = PauseEquipmentRules.Mask(key.Category, key.Item);
-            PauseEquipmentLabelState state = page.Label(key.Label).State;
+            PauseEquipmentBit bit = control.Upgrade;
+            PauseEquipmentLabelState state = page.Label(control.Label).State;
             if (state == PauseEquipmentLabelState.Blank)
                 continue;
             collectedBeams |= bit.Beam;
@@ -66,7 +66,7 @@ internal static class PauseEquipmentPageLayout
     /// no reserve display and the arrow as the template colours it.
     /// </summary>
     internal static ShownEquipmentPage Reference { get; } = new(
-        [.. PauseEquipmentLabels.Labels().Select(key => new ShownEquipmentLabel(key.Label, PauseEquipmentLabelState.Blank))],
+        [.. PauseEquipmentControls.Upgrades.Select(control => new ShownEquipmentLabel(control.Label, PauseEquipmentLabelState.Blank))],
         HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.NoReserves);
 
     /// <summary>
@@ -89,16 +89,16 @@ internal static class PauseEquipmentPageLayout
         HashSet<int> afterReserve = [.. parts.Arrow];
         HashSet<int> afterWireframe = [.. afterReserve, .. parts.Reserve];
         HashSet<int> afterLabels = [.. afterWireframe, .. parts.Wireframe];
-        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabels.Labels().SelectMany(key => maps.Pause.EquipmentLabels.PageCells(key.Label))];
+        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentControls.Upgrades.SelectMany(control => maps.Pause.EquipmentLabels.PageCells(control.Label))];
         yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, maps.Pause.EquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
         PauseEquipmentLabelState[] states = Enum.GetValues<PauseEquipmentLabelState>();
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
+        foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            int[] cells = [.. maps.Pause.EquipmentLabels.PageCells(key.Label)];
+            int[] cells = [.. maps.Pause.EquipmentLabels.PageCells(control.Label)];
             foreach (PauseEquipmentLabelState state in states)
             {
-                BackgroundTile[] page = LayOut(maps, Reference with { Labels = Reference.Labels.Replace(Reference.Label(key.Label), new ShownEquipmentLabel(key.Label, state)) });
-                yield return Part(PauseEquipmentPictures.LabelFrame(key.Label, state), page, cells, afterLabels);
+                BackgroundTile[] page = LayOut(maps, Reference with { Labels = Reference.Labels.Replace(Reference.Label(control.Label), new ShownEquipmentLabel(control.Label, state)) });
+                yield return Part(PauseEquipmentPictures.LabelFrame(control.Label, state), page, cells, afterLabels);
             }
         }
         yield return Part(PauseEquipmentPictures.HyperBeamsFrame, LayOut(maps, Reference with { HyperBeam = true }), parts.HyperColumn, afterHyper);
@@ -149,9 +149,9 @@ internal static class PauseEquipmentPageLayout
     internal static IEnumerable<string> SubjectNames()
     {
         yield return PauseEquipmentPictures.BaseFrame;
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
+        foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         foreach (PauseEquipmentLabelState state in Enum.GetValues<PauseEquipmentLabelState>())
-            yield return PauseEquipmentPictures.LabelFrame(key.Label, state);
+            yield return PauseEquipmentPictures.LabelFrame(control.Label, state);
         yield return PauseEquipmentPictures.HyperBeamsFrame;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
             yield return PauseEquipmentPictures.WireframeFrame(kind);
@@ -190,7 +190,7 @@ internal static class PauseEquipmentPageLayout
             PauseReserveUiPresentation ui = maps.Pause.ReserveUi;
             int[] wireframe = [.. Enumerable.Range(0, PauseWireframeDefinitions.Rows).SelectMany(row => Enumerable.Range(
                 PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns, PauseWireframeDefinitions.Columns))];
-            int[] beams = [.. PauseEquipmentLabels.Labels().Where(key => PauseEquipmentLabels.IsOrdinaryBeam(key.Label)).SelectMany(key => labels.PageCells(key.Label))];
+            int[] beams = [.. PauseEquipmentControls.Upgrades.Where(control => PauseEquipmentLabels.IsOrdinaryBeam(control.Label)).SelectMany(control => labels.PageCells(control.Label))];
             int[] hyper = [.. labels.PageCells(PauseEquipmentLabelId.Hyper)];
             if (hyper.Except(beams).Any())
                 throw new InvalidDataException("Hyper's label must lie within the beam labels it replaces.");
@@ -198,7 +198,7 @@ internal static class PauseEquipmentPageLayout
             int[] tank = [.. ui.LabelCells(PauseReserveLabel.ReserveTank)];
             int[] digits = [.. Enumerable.Range(0, PauseReserveUiDefinitions.SupplyDigitPlaces).Select(ui.DigitCell)];
             int[] arrow = [.. ui.ArrowPageCells()];
-            int[][] parts = [.. PauseEquipmentLabels.Labels().Select(key => labels.PageCells(key.Label).ToArray()), wireframe, mode, tank, digits, arrow];
+            int[][] parts = [.. PauseEquipmentControls.Upgrades.Select(control => labels.PageCells(control.Label).ToArray()), wireframe, mode, tank, digits, arrow];
             var owned = new HashSet<int>();
             foreach (int cell in parts.SelectMany(part => part))
             {

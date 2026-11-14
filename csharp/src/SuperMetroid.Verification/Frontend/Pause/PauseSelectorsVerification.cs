@@ -28,11 +28,11 @@ internal static class PauseSelectorsVerification
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, InstalledFixtures.ImportOf(catalog).PauseSelectors, group);
-        foreach (var anchor in PauseSelectorAnchors.Anchors())
+        foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {
-            PauseMenuState continuing = Create(catalog, anchor.Category, anchor.Item);
-            PauseMenuState pause = Create(catalog, anchor.Category, anchor.Item);
-            AssertEqual(new CursorBeforeRestore(anchor.Category, anchor.Item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
+            PauseMenuState continuing = Create(catalog, control);
+            PauseMenuState pause = Create(catalog, control);
+            AssertEqual(control, pause.SelectedControl, "real menu fixture reaches the reported semantic selector");
             // The two menus are built and stepped alike, so only the restored menu's ticks, from its round trip on, are
             // compared with the menu that was never restored (#1680). Each compared tick compares the complete render
             // inputs; the pixels are compared once per displayed selector frame (#1532).
@@ -60,19 +60,19 @@ internal static class PauseSelectorsVerification
             }
         }
         Console.WriteLine("Pause selectors: sixteen anchors, 672 native OAM cases and the selectors' restored animation pass.");
-        static PauseMenuState Create(AreaMapPresentation content, PauseEquipmentCategory category, int item)
+        static PauseMenuState Create(AreaMapPresentation content, PauseEquipmentControl control)
         {
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
+            if (control is not PauseUpgradeControl upgrade) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
             else
             {
-                PauseEquipmentBit bit = PauseEquipmentRules.Mask(category, item);
+                PauseEquipmentBit bit = upgrade.Upgrade;
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
-            if (category == 0 && item == 1) pause.Step(0, ControllerButton.Down);
+            if (control == PauseEquipmentControls.ReserveTransfer) pause.Step(0, ControllerButton.Down);
             return pause;
         }
     }

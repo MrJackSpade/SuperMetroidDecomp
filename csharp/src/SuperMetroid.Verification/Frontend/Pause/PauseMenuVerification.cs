@@ -143,11 +143,9 @@ internal static class PauseMenuVerification
         EnterPauseEquipment(pause);
         AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause R transition reaches equipment page");
         // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
-        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, PauseReserveEnergyDefinitions.ModeItem),
-            new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, pause.SelectedControl, "pause entry selects the reserve mode control");
         pause.Step(0, ControllerButton.Right);
-        AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
-        AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.MorphBall, pause.SelectedControl, "pause Right selects the first collected suit and miscellaneous control, Morph Ball");
         pause.Render();
         AssertEqual(new Position16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
@@ -171,7 +169,7 @@ internal static class PauseMenuVerification
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
         pause.Step(0, ControllerButton.Down);
-        AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Bombs, pause.SelectedControl, "pause Down selects collected Bombs");
         pause.Render();
         AssertEqual(new Position16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the equipment selector at the Bombs' origin");

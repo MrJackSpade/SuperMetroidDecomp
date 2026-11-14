@@ -11,6 +11,9 @@ namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Checks the Morph Ball eye's initial animations and how its eyelid and tracking animations run.</summary>
 internal static class MorphBallEyeBehaviorVerification
@@ -116,6 +119,25 @@ internal static class MorphBallEyeBehaviorVerification
         Console.WriteLine("  Morph Ball eye beam: six widening updates reach full width and a full fade removes the beam.");
     }
 
+    /// <summary>
+    /// #1835: the Morph Ball room, where the elevator from Crateria arrives, lists its beam mount right before the eye its
+    /// beam follows, so the room's load places the mount before that eye. Loading the room's population through the
+    /// production loader links the beam to the eye listed right after the mount once both are placed.
+    /// </summary>
+    internal static void VerifyMorphBallEyeBeamFollowsEyeListedAfterMount()
+    {
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1));
+        enemies.Load(new RoomEnemyLoadRequest(BrinstarRoomStateDefinitions.MorphBallDefault.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
+        RoomEnemySlot mount = enemies.SlotTable.Slots.Single(slot => slot.DefinitionId == EnemyDefinitionId.Eye
+            && slot.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount);
+        RoomEnemySlot eye = enemies.SlotTable.Slots[mount.SlotIndex + 1];
+        AssertEqual(EnemyDefinitionId.Eye, eye.DefinitionId, "the room lists an eye right after its beam mount");
+        AssertEqual(MorphBallEyePart.Eye, eye.SpawnSettings<MorphBallEyeSpawnSettings>().Part, "the place after the mount holds the eye body");
+        AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.BeamFollowedEye), "the room's beam follows the eye listed right after its mount");
+        Console.WriteLine("  Morph Ball eye beam: the Morph Ball room's beam follows the eye listed after its mount.");
+    }
+
     /// <summary>An eye body or mount after its real initializer.</summary>
     private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1, ushort parameter2)
     {
@@ -139,6 +161,7 @@ internal static class MorphBallEyeBehaviorVerification
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMorphBallEyeBehavior), () => VerifyMorphBallEyeBehavior());
         Suite(nameof(VerifyMorphBallEyeBeamWideningAndFade), () => VerifyMorphBallEyeBeamWideningAndFade());
+        Suite(nameof(VerifyMorphBallEyeBeamFollowsEyeListedAfterMount), () => VerifyMorphBallEyeBeamFollowsEyeListedAfterMount());
         Suite(nameof(MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations), () => MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations(rom));
         return 0;
     }

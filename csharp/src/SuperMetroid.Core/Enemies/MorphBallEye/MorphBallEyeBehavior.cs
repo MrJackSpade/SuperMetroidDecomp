@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -6,19 +7,26 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>The room's enemy places, where a beam mount finds the eye listed right after it.</summary>
+    /// <summary>The room's enemy places, where a beam mount finds the place listed right after it.</summary>
     private readonly EnemySlotTable _places;
 
     /// <summary>
-    /// The eye the room's beam follows, whichever eye opens: the one listed right after the beam's mount, linked when the
-    /// mount is placed (#1835); null before any mount is placed.
+    /// The place each beam mount's room lists right after it, recorded when the mount is placed (#1835). The room places
+    /// the mount first, so that place is still empty then; the eye its beam follows is placed there next.
     /// </summary>
-    private RoomEnemySlot? _beamFollowedEye;
+    private readonly EnemyPartLinks<RoomEnemySlot> _followedPlaces = new();
+
+    /// <summary>
+    /// The eye the room's beam follows, whichever eye opens: the one listed right after the beam's mount, linked once both
+    /// are placed, as that eye is placed after its mount (#1835). Null from a mount's placing until its eye is placed.
+    /// </summary>
+    internal RoomEnemySlot? BeamFollowedEye { get; private set; }
 
     /// <summary>Builds the species owner on the room's enemy audio queue and enemy places.</summary>
     internal MorphBallEyeBehavior(EnemyAudioQueue audio, EnemySlotTable places)
@@ -65,6 +73,11 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightClosed
                 : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
+
+            // The eye placed where a beam mount listed right before it found its followed place is the eye that
+            // mount's beam follows.
+            if (_places.ListedBeforeOrNone(slot, 1) is { } before && IsPlacedBeamMount(before) && _followedPlaces.Of(before) == slot)
+                BeamFollowedEye = slot;
             return;
         }
 
@@ -77,15 +90,17 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // shows in this one.
         MorphBallEyeBeam.Reset();
 
-        // The beam the mount casts follows the eye its room lists right after the mount.
-        RoomEnemySlot followed = _places.ListedAfter(slot, 1);
-        if (followed.DefinitionId != EnemyDefinitionId.Eye)
-        {
-            throw new InvalidDataException(
-                $"Morph-ball eye beam mount {slot.SlotIndex} is followed by enemy {followed.DefinitionId}, not the eye its beam follows.");
-        }
-        _beamFollowedEye = followed;
+        // The beam the mount casts follows the eye its room lists right after the mount, which the room places next:
+        // the mount records that place now, and the eye links the beam to itself when it is placed there.
+        _followedPlaces.Place(slot, _places.ListedAfter(slot, 1));
+        BeamFollowedEye = null;
     }
+
+    /// <summary>Whether <paramref name="place"/> holds a beam mount placed in this room, which recorded its followed place.</summary>
+    private bool IsPlacedBeamMount(RoomEnemySlot place) =>
+        place.DefinitionId == EnemyDefinitionId.Eye
+        && place.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount
+        && _followedPlaces.IsPlaced(place);
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
@@ -203,8 +218,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RequestMorphBallEyeBeam()
     {
-        RoomEnemySlot followed = _beamFollowedEye
-            ?? throw new InvalidOperationException("A morph-ball eye opened in a room whose beam mount was not placed.");
+        RoomEnemySlot followed = BeamFollowedEye ?? throw new InvalidDataException(
+            "A morph-ball eye opened in a room where no eye is placed right after a beam mount for the beam to follow.");
         MorphBallEyeBeam.Reset();
         MorphBallEyeBeam.Body = followed;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;

@@ -40,89 +40,35 @@ internal static class EnemyInstructionOwnerCoverageVerification
         Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
+        // Each definition's header is read from the cartridge here, on the suite's own thread.
+        RoomEnemyDefinition[] headers = [.. definitions.Select(definitionPointer =>
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(rom, definitionPointer))];
+        // The shared installed fixtures every record's enemy system and Samus are built from load here too, as timed shared
+        // fixture loads, so the workers below only read them.
+        _ = InstalledFixtures.EnemyOverreads;
+        _ = InstalledFixtures.BossAndIntroOverreads;
+        _ = InstalledFixtures.EnemyFrameDisplays;
+        _ = InstalledFixtures.FramesBeyondAnimation;
 
+        // Each definition's records run on one worker, the definitions across the machine's cores (#1757): every record
+        // builds its own enemy system, services, artwork binding and Samus, and reads only the immutable header, records
+        // and installed fixtures, so the definitions are independent. A definition writes only its own outcome, which is
+        // gathered in definition order once every definition has run.
+        var outcomes = new DefinitionOutcome[definitions.Length];
+        ParallelSweep.For(0, definitions.Length, index =>
+            outcomes[index] = AuditDefinition(definitions[index], headers[index], populations));
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
         var unresolved = new List<string>();
-
-        foreach (EnemyDefinitionId definitionPointer in definitions)
+        for (int index = 0; index < definitions.Length; index++)
         {
-            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(
-                rom, definitionPointer);
-            IReadOnlyList<RoomEnemyPlacement> records =
-                populations.TryGetValue(definitionPointer, out List<RoomEnemyPlacement>? found)
-                    ? found
-                    : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
-
-            bool definitionTranslated = false;
-            bool definitionNeedsOwner = false;
-            bool definitionHasOwner = false;
-            foreach (RoomEnemyPlacement population in records)
-            {
-                var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-                enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-                enemies.VerificationServices().NextRandom = () => 0;
-                enemies.VerificationServices().ReadRandom = () => 0;
-
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.Bind(definitionPointer, slot.Definition);
-                slot.Bind(slot.DefinitionId, definition);
-                slot.Radius = new(definition.Radius.X, definition.Radius.Y);
-                slot.Health = definition.Health;
-                slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-                slot.SetSpawnSettings(population.SpawnSettings);
-                slot.Contact = population.Contact;
-                slot.Processing = population.Processing;
-                slot.Presence = population.Presence;
-                slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-                slot.AnimationClock.ShowsNewFrame = false;
-
-                slot.AnimationClock.StepOnNextUpdate();
-
-                bool translatedRecord = true;
-                try
-                {
-                    EnemyLifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
-                }
-                catch (Exception exception)
-                    when (IsUntranslatedEnemyInitializer(
-                        exception, definitionPointer))
-                {
-                    translatedRecord = false;
-                }
-                catch (Exception)
-                {
-                    // A matched initializer may require its native sibling slot, room
-                    // geometry, or encounter state. Matching the dispatcher still proves
-                    // this is translated code; the population's instruction ownership is
-                    // independent of completing that encounter-specific initialization.
-                }
-
-                if (!translatedRecord)
-                    continue;
-
-                definitionTranslated = true;
-                // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
-                // removed by the scheduler before any AI or instruction frame.
-                bool processesInstructions =
-                    slot.Processing.HasAny(EnemyProcessing.Animates) &&
-                    !slot.Presence.HasAny(EnemyPresence.Deleted);
-                if (!processesInstructions)
-                    continue;
-
-                // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
-                definitionNeedsOwner = true;
-                if (slot.Entity is IEnemyTypedAnimation { HasTypedAnimation: true })
-                    definitionHasOwner = true;
-                else
-                    unresolved.Add($"{definitionPointer} has no typed animation");
-            }
-
-            if (definitionTranslated)
-                translated.Add(definitionPointer);
-            if (definitionNeedsOwner && definitionHasOwner)
-                owned.Add(definitionPointer);
+            DefinitionOutcome outcome = outcomes[index];
+            if (outcome.Translated)
+                translated.Add(definitions[index]);
+            if (outcome.Owned)
+                owned.Add(definitions[index]);
+            unresolved.AddRange(outcome.Unresolved);
         }
 
         AssertEqual(149, definitions.Length,
@@ -157,6 +103,89 @@ internal static class EnemyInstructionOwnerCoverageVerification
             $"{translated.Count} translated initializers, {owned.Count} compiled " +
             $"instruction-processing owners, and {unresolvedDefinitions.Count} " +
             "explicitly inventoried pending families.");
+    }
+
+    /// <summary>What auditing one definition's records found.</summary>
+    /// <param name="Translated">Whether a record's initialization ran translated code.</param>
+    /// <param name="Owned">Whether a record processes instructions and one that does runs a typed animation.</param>
+    /// <param name="Unresolved">Each instruction-processing record with no typed animation, in record order.</param>
+    private sealed record DefinitionOutcome(bool Translated, bool Owned, IReadOnlyList<string> Unresolved);
+
+    /// <summary>Initializes <paramref name="definitionPointer"/> from each population record placing it, each in an enemy system of its own.</summary>
+    private static DefinitionOutcome AuditDefinition(EnemyDefinitionId definitionPointer, RoomEnemyDefinition definition,
+        Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>> populations)
+    {
+        var unresolved = new List<string>();
+        IReadOnlyList<RoomEnemyPlacement> records =
+            populations.TryGetValue(definitionPointer, out List<RoomEnemyPlacement>? found)
+                ? found
+                : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
+
+        bool definitionTranslated = false;
+        bool definitionNeedsOwner = false;
+        bool definitionHasOwner = false;
+        foreach (RoomEnemyPlacement population in records)
+        {
+            var enemies =new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
+            enemies.VerificationServices().NextRandom = () => 0;
+            enemies.VerificationServices().ReadRandom = () => 0;
+
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(definitionPointer, slot.Definition);
+            slot.Bind(slot.DefinitionId, definition);
+            slot.Radius = new(definition.Radius.X, definition.Radius.Y);
+            slot.Health = definition.Health;
+            slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
+            slot.SetSpawnSettings(population.SpawnSettings);
+            slot.Contact = population.Contact;
+            slot.Processing = population.Processing;
+            slot.Presence = population.Presence;
+            slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
+            slot.AnimationClock.ShowsNewFrame = false;
+
+            slot.AnimationClock.StepOnNextUpdate();
+
+            bool translatedRecord = true;
+            try
+            {
+                EnemyLifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
+            }
+            catch (Exception exception)
+                when (IsUntranslatedEnemyInitializer(
+                    exception, definitionPointer))
+            {
+                translatedRecord = false;
+            }
+            catch (Exception)
+            {
+                // A matched initializer may require its native sibling slot, room
+                // geometry, or encounter state. Matching the dispatcher still proves
+                // this is translated code; the population's instruction ownership is
+                // independent of completing that encounter-specific initialization.
+            }
+
+            if (!translatedRecord)
+                continue;
+
+            definitionTranslated = true;
+            // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
+            // removed by the scheduler before any AI or instruction frame.
+            bool processesInstructions =
+                slot.Processing.HasAny(EnemyProcessing.Animates) &&
+                !slot.Presence.HasAny(EnemyPresence.Deleted);
+            if (!processesInstructions)
+                continue;
+
+            // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
+            definitionNeedsOwner = true;
+            if (slot.Entity is IEnemyTypedAnimation { HasTypedAnimation: true })
+                definitionHasOwner = true;
+            else
+                unresolved.Add($"{definitionPointer} has no typed animation");
+        }
+
+        return new DefinitionOutcome(definitionTranslated, definitionNeedsOwner && definitionHasOwner, unresolved);
     }
 
     /// <summary>Recognizes the dispatcher's specific failure for a definition without translated initialization AI.</summary>

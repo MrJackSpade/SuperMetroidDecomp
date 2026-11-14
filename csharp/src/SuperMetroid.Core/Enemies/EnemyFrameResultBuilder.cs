@@ -20,10 +20,10 @@ internal sealed class EnemyFrameResultBuilder
     internal GunshipFrameEvent Gunship { get; set; }
 
     /// <summary>
-    /// The colour effect an enemy's placement or AI started for the room's colour effects to run, or none: the gunship's
-    /// top hull starts its lights' glow as it is placed (#1733).
+    /// The glow an enemy's placement started for the room's colour effects to run, or none: the gunship's top hull starts
+    /// its lights' glow as it is placed (#1733), and the glow keeps the gunship it shows on (#1783).
     /// </summary>
-    internal ColourEffectId? ColourEffect { get; set; }
+    internal EnemyGlowStart? Glow { get; set; }
 
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()
@@ -31,6 +31,6 @@ internal sealed class EnemyFrameResultBuilder
         Elevator = ElevatorFrameEvent.None;
         ElevatorClearedProjectileData = false;
         Gunship = GunshipFrameEvent.None;
-        ColourEffect = null;
+        Glow = null;
     }
 }

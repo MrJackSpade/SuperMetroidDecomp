@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Fx.ColourEffects;
 
@@ -11,12 +10,10 @@ namespace SuperMetroid.Core.World;
 /// <param name="bombTorizo">The Bomb and Golden Torizo, whose bellies glow.</param>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
 /// <param name="slots">The room's enemy places, whose destroyable shutters show the escape's shutter flash.</param>
-/// <param name="gunship">The gunship, whose lights glow (#1733).</param>
 internal sealed class EnemyColourEffectShows(
     BombTorizoBehavior bombTorizo,
     TourianEntranceStatueBehavior statue,
-    EnemySlotTable slots,
-    GunshipBehavior gunship) : IEnemyColourEffectShows
+    EnemySlotTable slots) : IEnemyColourEffectShows
 {
     /// <inheritdoc/>
     /// <remarks>
@@ -40,8 +37,8 @@ internal sealed class EnemyColourEffectShows(
                 ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, record);
                 return;
             case ColourEffectColours.GunshipGlow:
-                gunship.ShowGlow(record);
-                return;
+                // The gunship's glow keeps the gunship whose placement started it and shows on it (#1783).
+                throw new InvalidOperationException("The gunship's glow shows on the gunship that started it, never through the room's enemies.");
             case ColourEffectColours.TitleLogo:
             case ColourEffectColours.NintendoCopyright:
             case ColourEffectColours.BabyMetroidTubeLight:

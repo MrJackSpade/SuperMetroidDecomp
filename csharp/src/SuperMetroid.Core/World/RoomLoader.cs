@@ -1045,7 +1045,7 @@ internal sealed class RoomLoader
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomColourEffects, enemies);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
-        _enemyRoomEffects.StartEnemyColourEffect(enemies.LastEnemyFrame.ColourEffect, roomColourEffects);
+        _enemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, roomColourEffects);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);

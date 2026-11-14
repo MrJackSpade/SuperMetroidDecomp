@@ -632,6 +632,9 @@ internal sealed class SuperMetroidRuntime
             // The enemies' groups show over their owners' own colours as the frames that wrote them (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.EnemyShown)
                 Room.LoadedScope.Enemies.ColourEffectShows.Show(colours, frame);
+            // An enemy's own glow shows on the enemy that started it, for as long as the room's colour effects run it (#1783).
+            foreach ((IGlowingEnemy enemy, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.GlowsShown)
+                enemy.ShowGlow(frame);
         }
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.ColourEffects.HandlerEnabled)

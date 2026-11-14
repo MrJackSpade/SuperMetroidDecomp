@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
 [RoomLifetime]
-internal sealed class GunshipBehavior : IEnemyEntityFactory
+internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyFrameResultBuilder _frameResults;
@@ -132,16 +132,18 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
         part.BobTimer = 1;
         part.BobPhase = 0;
-        // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects.
-        _frameResults.ColourEffect = GunshipLightDefinitions.Glow;
+        // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects. The
+        // glow keeps this gunship (#1783): it runs until the room's colour effects are cleared and shows on these pieces.
+        _frameResults.Glow = new EnemyGlowStart(GunshipLightDefinitions.Glow, this);
     }
 
     /// <summary>
     /// Shows record <paramref name="record"/> of the lights' glow (#1733) on all three pieces, which draw their lights in the
-    /// colour the glow recolours; each record replaces the one before it.
+    /// colour the glow recolours; each record replaces the one before it. The glow reaches the gunship that started it
+    /// (#1783), whose top hull its start placed.
     /// </summary>
     /// <exception cref="InvalidOperationException">The room's top hull has not been placed.</exception>
-    internal void ShowGlow(ColourEffectFrame record)
+    public void ShowGlow(ColourEffectFrame record)
     {
         GunshipPieces ship = _ship ?? throw new InvalidOperationException("The gunship's glow shows in a room whose gunship is not placed.");
         PictureShading glow = PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.GunshipGlow, record));

@@ -15,10 +15,12 @@ internal sealed class RoomColourEffect
     /// <param name="effect">What the effect shows.</param>
     /// <param name="animation">The animation it plays.</param>
     /// <param name="litTorizo">The Torizo whose belly the effect lights, or null for an effect that lights none.</param>
-    internal RoomColourEffect(ColourEffectId effect, ColourEffectAnimation animation, ILitTorizo? litTorizo)
+    /// <param name="glowingEnemy">The enemy whose placement started the effect and which shows its frames, or null.</param>
+    internal RoomColourEffect(ColourEffectId effect, ColourEffectAnimation animation, ILitTorizo? litTorizo, IGlowingEnemy? glowingEnemy)
     {
         Effect = effect;
         LitTorizo = litTorizo;
+        GlowingEnemy = glowingEnemy;
         Animation = ColourEffectAnimations.Of(animation);
         Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
@@ -32,6 +34,12 @@ internal sealed class RoomColourEffect
     /// watches; none for every other effect.
     /// </summary>
     internal ILitTorizo? LitTorizo { get; }
+
+    /// <summary>
+    /// The enemy whose placement started the effect (#1733), which shows each of its frames in enemy colours on its own draws
+    /// for as long as the effect runs (#1783); none for an effect no enemy started.
+    /// </summary>
+    internal IGlowingEnemy? GlowingEnemy { get; }
 
     /// <summary>The colours the effect shows its frames in; none until its animation names them.</summary>
     internal ColourEffectColours? Colours { get; set; }

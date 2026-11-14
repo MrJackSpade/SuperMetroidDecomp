@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Ripper;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -111,6 +112,10 @@ internal static class CrystalFlashCleanupVerification
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
                     contactEnemy.RequireSpeciesState<RipperEnemyState>().Playback.Animation.Phases[0].Segment).First();
+                // The gunship's glow belongs to the room's colour effects, which only the room's load clears (#1783): it
+                // outlives the population it was started by and keeps showing on the gunship that started it.
+                AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow),
+                    "the Landing Site's gunship glow keeps running after its population is replaced");
             }
             int beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.
@@ -157,7 +162,12 @@ internal static class CrystalFlashCleanupVerification
             return;
         }
         AssertTrue(started >= 0 && finished > started && bubble && drained, "runtime completes the activated Crystal Flash and bubble");
-        if (capacity == 11) AssertTrue(contactVerified, "runtime exercised real enemy contact during Crystal Flash");
+        if (capacity == 11)
+        {
+            AssertTrue(contactVerified, "runtime exercised real enemy contact during Crystal Flash");
+            AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow),
+                "the gunship's glow runs through the whole route after the population is replaced (#1783)");
+        }
         AssertEqual(1499, samus.Health, "runtime restores energy");
         AssertEqual(0, samus.Missiles, "runtime consumes ten missiles");
         AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");

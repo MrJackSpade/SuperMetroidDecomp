@@ -83,10 +83,6 @@ internal static class RoomEnemyListing
     internal static bool IsFilled(this EnemySlotTable enemies, RoomEnemySlot place) =>
         Ensure.NotNull(place).SlotIndex < Ensure.NotNull(enemies).EnemyCount;
 
-    /// <summary>The first place the population lists, which a room's lead enemy such as its statue or ship takes.</summary>
-    /// <param name="enemies">The room's enemy places.</param>
-    internal static RoomEnemySlot ListedFirst(this EnemySlotTable enemies) => Ensure.NotNull(enemies).Slots[0];
-
     /// <summary>
     /// Whether <paramref name="part"/> is the first place the population lists, which an enemy whose original reads
     /// assume that place requires.

@@ -254,7 +254,7 @@ public enum EnemyDefinitionId
     /// <remarks>Mother Brain's falling tube actor.</remarks>
     MotherBrainTubes,
     /// <summary>The Corpse Torizo enemy definition.</summary>
-    /// <remarks>The Tourian Torizo corpse, which must own enemy slot zero.</remarks>
+    /// <remarks>The Tourian Torizo corpse.</remarks>
     CorpseTorizo,
     /// <summary>The Corpse Sidehopper enemy definition.</summary>
     /// <remarks>The dead-sidehopper family: an initially alive victim or an already dead Tourian corpse.</remarks>

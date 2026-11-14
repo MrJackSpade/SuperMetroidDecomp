@@ -391,7 +391,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, NativeSnapshotMemory.HorizontalSpeedTable);
             VerificationAssertions.AssertEqual(memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier], samus.HorizontalSpeed.DecelerationMultiplier,
                 $"update {frame}: Samus horizontal deceleration multiplier");
-            Check("Samus echo sound latch", samus.HorizontalSpeed.EchoSoundFlag, NativeSnapshotMemory.SpeedEchoSoundLatch);
+            Check("Samus echo sound latch", samus.HorizontalSpeed.EchoSoundPlaying ? (ushort)1 : (ushort)0, NativeSnapshotMemory.SpeedEchoSoundLatch);
             Check("Samus slope adjustment", samus.Kinematics.PositionAdjustedBySlope ? (ushort)1 : (ushort)0,
                 NativeSnapshotMemory.SamusSlopeAdjusted);
             for (int direction = 0; direction < 4; direction++)

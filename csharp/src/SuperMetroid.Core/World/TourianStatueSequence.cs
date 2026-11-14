@@ -91,8 +91,10 @@ public sealed class TourianStatueSequence
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches slot traversal and busy-bit ownership.</summary>
     internal readonly List<StatueBlockAnimation> objects = [];
-    /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
-    private int delay = -2;
+    /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
+    private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
+    /// <summary>Calls left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
+    private int _holdCalls;
     /// <summary>
     /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
     /// exposed as a negative background vertical offset.
@@ -113,13 +115,14 @@ public sealed class TourianStatueSequence
 
     /// <summary>
     /// Restarts the room's statue sequence when the statues newly stand open while Samus is in the room: the statues
-    /// return to their starting delay and descent, then begin as a room load would.
+    /// return to awaiting their releases with no descent, then begin as a room load would.
     /// </summary>
     /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
         objects.Clear();
-        delay = -2;
+        _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
+        _holdCalls = 0;
         Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
@@ -264,21 +267,27 @@ public sealed class TourianStatueSequence
         _enemies.TourianStatue.WaterSurface = new(0, CoordinateAxis.Wrap(_roomFxOverlay.Surface
             ?? throw new InvalidOperationException("The Tourian statues' room effect names no water surface.")));
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
-        if (delay == -2)
+        if (_descentPhase == TourianStatueDescentPhase.AwaitingReleases)
         {
             if (!_system.HasEvent(StoryEvent.PhantoonStatueGrey) || !_system.HasEvent(StoryEvent.RidleyStatueGrey)
                 || !_system.HasEvent(StoryEvent.DraygonStatueGrey) || !_system.HasEvent(StoryEvent.KraidStatueGrey)) return;
             _enemies.TourianStatue.Animation.AllReleased = true;
             if (_enemies.TourianStatue.Animation.ReleaseInProgress) return;
-            delay = TourianStatueSequenceDefinitions.DescentDelay;
+            _descentPhase = TourianStatueDescentPhase.Holding;
+            _holdCalls = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
         _enemies.Earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
         _roomFxOverlay.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.EarthquakeSoundDelay);
-        if (delay >= 0)
+        if (_descentPhase == TourianStatueDescentPhase.Holding)
         {
-            if (--delay < 0) _enemies.TourianStatue.SpawnDescentDust();
+            // The hold runs one call past its authored length: the call that finds it spent raises the dust.
+            if (--_holdCalls < 0)
+            {
+                _enemies.TourianStatue.SpawnDescentDust();
+                _descentPhase = TourianStatueDescentPhase.Lowering;
+            }
             return;
         }
         if (_freeze.TimeIsFrozen) return;

@@ -672,13 +672,13 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
-                // The room-lights step increments the shared counter, passes its previous value to the
-                // palette step, and treats its seventh step as the end.
-                int paletteIndex = RoomLightsTransitionCounter;
+                // Each call shows the next of the room lights' seven recovery steps; the call after the last ends
+                // the cutscene.
+                int lightsStep = RoomLightsTransitionCounter;
                 RoomLightsTransitionCounter++;
-                if (paletteIndex < 7)
+                if (lightsStep < 7)
                 {
-                    recoveryLightsFrame = paletteIndex;
+                    recoveryLightsFrame = lightsStep;
                     break;
                 }
 

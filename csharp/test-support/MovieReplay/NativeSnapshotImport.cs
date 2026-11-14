@@ -179,7 +179,7 @@ internal static class NativeSnapshotImport
                     : null);
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
-        samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);
+        samus.HorizontalSpeed.EchoSoundPlaying = W(NativeSnapshotMemory.SpeedEchoSoundLatch) != 0;
         samus.HorizontalSpeed.TotalSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed));
         runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
         runtime.Projectiles.Charge.PreviousCharge = SamusSnapshotWords.DecodeBeamCharge(W(NativeSnapshotMemory.PreviousCharge));

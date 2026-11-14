@@ -66,15 +66,10 @@ public sealed class SamusHorizontalSpeedState
     public int SpecialPaletteTimer { get; set; }
 
     /// <summary>
-    /// The echo sound's flag: set before the echo sound's start request,
-    /// consumed after boost ends, or cleared silently by quicksand: one while set, zero while clear, and the setter rejects
-    /// any other value.
+    /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
+    /// echo's end sound after the boost ends, or cleared silently by quicksand.
     /// </summary>
-    public int EchoSoundFlag
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, 1, value);
-    }
+    public bool EchoSoundPlaying { get; set; }
 
     /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
     public SamusContactDamageIndex ContactDamageIndex { get; set; }
@@ -297,7 +292,7 @@ public sealed class SamusHorizontalSpeedState
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
             if (SpeedBoostCounter.IsAtFullStage)
             {
-                EchoSoundFlag = 1;
+                EchoSoundPlaying = true;
                 // What the echo's queue request reports, not the stage just stored, picks
                 // both the restart countdown and the first frame's cadence. Do not clamp
                 // it: a full queue picks the unauthored cadence.

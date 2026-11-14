@@ -20,9 +20,6 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusState
 {
-    /// <summary>The <see cref="SamusHudSelection"/> owner of this SamusState.</summary>
-    internal SamusHudSelection HudSelection { get; }
-
     /// <summary>The installed input and movement modes and the control setups that replace them.</summary>
     internal SamusControl Control { get; } = new();
 
@@ -528,7 +525,6 @@ public sealed class SamusState
         Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel);
         CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
-        HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation();
         LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);

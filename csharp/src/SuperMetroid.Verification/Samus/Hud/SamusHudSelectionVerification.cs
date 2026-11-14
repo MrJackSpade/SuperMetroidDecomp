@@ -13,7 +13,7 @@ internal static class SamusHudSelectionVerification
     internal static bool SelectionChanged(SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput)
     {
         HudItem before = samus.SelectedHudItem;
-        samus.HudSelection.HandleHudSelection(samus, controllerInput, controllerNewInput);
+        SamusHudSelection.HandleHudSelection(samus, controllerInput, controllerNewInput);
         return samus.SelectedHudItem != before;
     }
 
@@ -26,12 +26,18 @@ internal static class SamusHudSelectionVerification
         const ControllerButton select = ControllerButton.Select;
         const ControllerButton cancel = ControllerButton.Y;
 
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        {
+            Pose = SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose,
+        };
+        // The selection's stability is the arm cannon's, which its update counts after the frame's selection.
+        samus.ArmCannon.Artwork = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
         AssertTrue(!SelectionChanged(samus, select, select),
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "unavailable six-entry cycle retains Nothing");
-        AssertEqual(1, samus.HudSelection.HudItemChangedThisFrame,
+        samus.ArmCannon.Update(samus);
+        AssertEqual(1, samus.ArmCannon.StableSelectionUpdates,
             "unchanged first selector frame advances stabilization counter");
 
         samus.Missiles = 5;
@@ -39,11 +45,13 @@ internal static class SamusHudSelectionVerification
             "Select chooses available Missiles");
         AssertEqual(HudItem.Missile, samus.SelectedHudItem,
             "Missiles occupy cartridge HUD index one");
-        AssertEqual(1, samus.HudSelection.HudItemChangedThisFrame,
+        samus.ArmCannon.Update(samus);
+        AssertEqual(1, samus.ArmCannon.StableSelectionUpdates,
             "selection change resets native cover-animation counter");
         AssertTrue(!SelectionChanged(samus, 0, 0),
             "stable HUD selection reports no change");
-        AssertEqual(2, samus.HudSelection.HudItemChangedThisFrame,
+        samus.ArmCannon.Update(samus);
+        AssertEqual(2, samus.ArmCannon.StableSelectionUpdates,
             "stable selection saturates cover-animation counter at two");
 
         samus.SuperMissiles = 5;
@@ -90,10 +98,10 @@ internal static class SamusHudSelectionVerification
         // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing
         // selected changes no index but still clears the charge.
         HudItem beforeIdleCancel = samus.SelectedHudItem;
-        HudSelectionOutcome idleCancel = samus.HudSelection.HandleHudSelection(samus, cancel, cancel);
+        HudSelectionOutcome idleCancel = SamusHudSelection.HandleHudSelection(samus, cancel, cancel);
         AssertTrue(samus.SelectedHudItem == beforeIdleCancel && idleCancel.ItemHandlerAccepted,
             "item-cancel with nothing selected runs the Nothing handler");
-        AssertTrue(!samus.HudSelection.HandleHudSelection(samus, cancel, 0).ItemHandlerAccepted,
+        AssertTrue(!SamusHudSelection.HandleHudSelection(samus, cancel, 0).ItemHandlerAccepted,
             "held item-cancel without a new edge runs no handler");
 
         Console.WriteLine(

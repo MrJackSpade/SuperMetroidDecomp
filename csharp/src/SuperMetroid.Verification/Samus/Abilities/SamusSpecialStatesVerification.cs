@@ -779,9 +779,9 @@ internal static void VerifySamusDeathSequence()
         step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
-    AssertEqual(0, samus.DeathSequence.AnimationIndex,
+    AssertEqual(0, samus.DeathSequence.ExplosionStep,
         "explosion begins at index zero");
-    AssertEqual(20, samus.DeathSequence.AnimationTimer,
+    AssertEqual(20, samus.DeathSequence.ExplosionTimer,
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
@@ -800,9 +800,9 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && !step.DrawExplosion,
         "terminal death call completes without drawing");
-    AssertEqual(9, samus.DeathSequence.AnimationIndex,
+    AssertEqual(9, samus.DeathSequence.ExplosionStep,
         "death terminal index nine");
-    AssertEqual(0x0015, samus.DeathSequence.AnimationCounter,
+    AssertEqual(0x0015, samus.DeathSequence.WhiteoutShade,
         "death terminal whiteout shade index");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");

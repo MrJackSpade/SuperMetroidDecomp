@@ -29,17 +29,30 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Sixteen calls precede the alternating yellow flash.</summary>
     public int PreFlashingTimer { get; private set; }
 
-    /// <summary>Reused by flash and suit-explosion palette timing.</summary>
-    public int AnimationTimer { get; private set; }
+    /// <summary>Calls left before the flash changes its death shade.</summary>
+    public int FlashShadeTimer { get; private set; }
+
+    /// <summary>The death shade the flash shows, zero or one.</summary>
+    public int FlashShade { get; private set; }
+
+    /// <summary>Flashing calls made, up to <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>, when the suit explodes.</summary>
+    public int FlashCalls { get; private set; }
+
+    /// <summary>Calls left on the shown suit-explosion step.</summary>
+    public int ExplosionTimer { get; private set; }
 
     /// <summary>
-    /// Flash palette selector (zero or one) while flashing, then the suit-explosion frame index from zero up to
-    /// <see cref="SamusDeathExplosionTimingDefinitions.StepCount"/>, where the sequence completes.
+    /// The suit-explosion step, from zero up to <see cref="SamusDeathExplosionTimingDefinitions.StepCount"/>, where the
+    /// sequence completes.
     /// </summary>
-    public int AnimationIndex { get; private set; }
+    public int ExplosionStep { get; private set; }
 
-    /// <summary>Flashing-call count up to the 60-call flash, then the whiteout shade index, which saturates at 20 and ends at 21.</summary>
-    public int AnimationCounter { get; private set; }
+    /// <summary>
+    /// The whiteout shade the explosion shows next, which stops at
+    /// <see cref="SamusDeathSequenceDefinitions.BrightestExplosionWhiteoutShade"/>; the last call shows
+    /// <see cref="SamusDeathSequenceDefinitions.FinalWhiteoutShade"/>.
+    /// </summary>
+    public int WhiteoutShade { get; private set; }
 
     /// <summary>
     /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
@@ -53,8 +66,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
     public int? ExplosionFrame =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < SamusDeathExplosionTimingDefinitions.StepCount
-            ? AnimationIndex : null;
+        Phase == SamusDeathSequencePhase.SuitExplosion && ExplosionStep < SamusDeathExplosionTimingDefinitions.StepCount
+            ? ExplosionStep : null;
 
     /// <summary>The facing bit captured before pose metadata is replaced by the death-sequence pose.</summary>
     public bool FacingLeft { get; private set; }
@@ -98,9 +111,12 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
 
         PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
-        AnimationTimer = 3;
-        AnimationIndex = 0;
-        AnimationCounter = 0;
+        FlashShadeTimer = SamusDeathSequenceDefinitions.FirstFlashShadeCalls;
+        FlashShade = 0;
+        FlashCalls = 0;
+        ExplosionTimer = 0;
+        ExplosionStep = 0;
+        WhiteoutShade = 0;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
         if (sourceMovementType == SamusMovementType.SpinJumping)
@@ -144,17 +160,17 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 break;
 
             case SamusDeathSequencePhase.Flashing:
-                AnimationCounter++;
-                if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
+                FlashCalls++;
+                if (FlashCalls >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
-                    // The explosion step shows death shade zero, resets the reused counters, and immediately
-                    // draws explosion frame zero in this very same death-flashing call.
+                    // The flash's last call shows death shade zero, starts the explosion at its first step and whiteout
+                    // shade, and immediately draws explosion frame zero in this same call.
                     ShowDeathShades(samus, samusColours, deathShade: 0);
                     paletteChanged = true;
-                    AnimationTimer =
+                    ExplosionTimer =
                         SamusDeathExplosionTiming.DurationForIndex(index: 0);
-                    AnimationIndex = 0;
-                    AnimationCounter = 0;
+                    ExplosionStep = 0;
+                    WhiteoutShade = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
                     drawExplosion = StepSuitExplosion(
                         samus,
@@ -165,20 +181,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 }
                 else
                 {
-                    AnimationTimer--;
-                    if (AnimationTimer <= 0)
+                    FlashShadeTimer--;
+                    if (FlashShadeTimer <= 0)
                     {
-                        if (AnimationIndex == 0)
+                        if (FlashShade == 0)
                         {
-                            AnimationIndex = 1;
-                            AnimationTimer = 1;
+                            FlashShade = 1;
+                            FlashShadeTimer = SamusDeathSequenceDefinitions.SecondFlashShadeCalls;
                         }
                         else
                         {
-                            AnimationIndex = 0;
-                            AnimationTimer = 3;
+                            FlashShade = 0;
+                            FlashShadeTimer = SamusDeathSequenceDefinitions.FirstFlashShadeCalls;
                         }
-                        ShowDeathShades(samus, samusColours, AnimationIndex);
+                        ShowDeathShades(samus, samusColours, FlashShade);
                         paletteChanged = true;
                     }
                     drawPose = true;
@@ -233,25 +249,25 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         ref bool whiteoutChanged,
         SamusDeathSteps? artwork)
     {
-        AnimationTimer--;
-        if (AnimationTimer > 0)
+        ExplosionTimer--;
+        if (ExplosionTimer > 0)
             return true;
 
-        AnimationIndex++;
-        if (AnimationIndex >= SamusDeathExplosionTimingDefinitions.StepCount)
+        ExplosionStep++;
+        if (ExplosionStep >= SamusDeathExplosionTimingDefinitions.StepCount)
         {
-            // The terminal call writes shade 21 across every non-Samus/non-
-            // suitless palette and returns one without drawing a tenth explosion frame.
-            AnimationCounter = 21;
+            // The last call shows the full-white whiteout over everything but Samus's body and draws no
+            // explosion frame after the last.
+            WhiteoutShade = SamusDeathSequenceDefinitions.FinalWhiteoutShade;
             whiteoutChanged = ApplyWhiteout(samusColours, artwork);
             Phase = SamusDeathSequencePhase.Complete;
             return false;
         }
 
-        AnimationTimer =
-            SamusDeathExplosionTiming.DurationForIndex(AnimationIndex);
+        ExplosionTimer =
+            SamusDeathExplosionTiming.DurationForIndex(ExplosionStep);
         int deathShade = (artwork ?? throw new InvalidOperationException(
-            "Samus death requires installed palette artwork.")).ExplosionStep(AnimationIndex);
+            "Samus death requires installed palette artwork.")).ExplosionStep(ExplosionStep);
         ShowDeathShades(samus, samusColours, deathShade);
         paletteChanged = true;
         return true;
@@ -260,20 +276,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps? artwork)
     {
-        // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
-        // frame remains over the room as it was even though the suit-explosion game state has begun.
-        if (AnimationIndex == 0)
+        // The first explosion step shows no whiteout, so the first explosion frame stays over the room as it was
+        // even though the suit explosion has begun.
+        if (ExplosionStep == 0)
             return false;
 
         // Everything but Samus's body whitens: the room, the HUD, every other sprite, and her beams and grapple flare,
         // which show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never
         // whiten; the sprites that shared their sets with her no longer keep her colours through the whiteout.
         Whiteout = (artwork ?? throw new InvalidOperationException(
-            "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(AnimationCounter);
-        samusColours.ShowBeams(SamusShades.DeathWhiteout(AnimationCounter));
+            "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(WhiteoutShade);
+        samusColours.ShowBeams(SamusShades.DeathWhiteout(WhiteoutShade));
 
-        if (AnimationCounter < 20)
-            AnimationCounter++;
+        if (WhiteoutShade < SamusDeathSequenceDefinitions.BrightestExplosionWhiteoutShade)
+            WhiteoutShade++;
         return true;
     }
 

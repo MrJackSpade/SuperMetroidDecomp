@@ -10,10 +10,10 @@ internal sealed class ShitroidEntity(ShitroidBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunShitroidInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunShitroidInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunShitroidMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunShitroidMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceShitroidAnimation(enemy);

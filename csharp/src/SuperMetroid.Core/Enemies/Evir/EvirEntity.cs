@@ -8,20 +8,36 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => EvirPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize(EnemySpawnSurroundings surroundings)
     {
-        EvirPart.Evir => species.RunEvirInitializationAi,
-        EvirPart.Projectile => (projectile, _) => species.InitializeEvirProjectile(projectile),
-        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}."),
-    };
+        switch (EvirPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case EvirPart.Evir:
+                species.RunEvirInitializationAi(Slot, surroundings);
+                break;
+            case EvirPart.Projectile:
+                species.InitializeEvirProjectile(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => EvirPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        EvirPart.Evir => species.RunEvirMainAi,
-        EvirPart.Projectile => species.RunEvirProjectileMainAi,
-        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}."),
-    };
+        switch (EvirPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case EvirPart.Evir:
+                species.RunEvirMainAi(Slot, frame);
+                break;
+            case EvirPart.Projectile:
+                species.RunEvirProjectileMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceEvirTypedAnimation;

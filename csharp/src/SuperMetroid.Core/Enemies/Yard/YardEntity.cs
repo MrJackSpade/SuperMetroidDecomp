@@ -8,10 +8,10 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemySlot slot, 
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => YardEnemyBehavior.InitializeYard;
+    public void Initialize() => YardEnemyBehavior.InitializeYard(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunYardMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceYardTypedAnimation;

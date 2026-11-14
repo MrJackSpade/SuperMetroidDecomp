@@ -10,15 +10,23 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.Movement.RunBombTorizoInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.Movement.RunBombTorizoInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => BombTorizoPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        BombTorizoPart.BombTorizo => species.RunBombTorizoMainAi,
-        BombTorizoPart.GoldenTorizo => species.RunGoldenTorizoMainAi,
-        _ => throw new InvalidOperationException($"BombTorizo entity bound to {Slot.DefinitionId}."),
-    };
+        switch (BombTorizoPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case BombTorizoPart.BombTorizo:
+                species.RunBombTorizoMainAi(Slot, frame);
+                break;
+            case BombTorizoPart.GoldenTorizo:
+                species.RunGoldenTorizoMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"BombTorizo entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBombTorizoTypedAnimation;

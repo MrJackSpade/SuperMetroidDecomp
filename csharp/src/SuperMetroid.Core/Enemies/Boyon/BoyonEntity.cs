@@ -12,15 +12,12 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => BoyonBehavior.InitializeBoyon;
+    public void Initialize() => BoyonBehavior.InitializeBoyon(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RunMain;
+    public void RunMainAi(IEnemyAiFrame frame) =>
+        BoyonBehavior.RunBoyonMain(Slot, Slot.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBoyonAnimation;
-
-    /// <summary>Runs a Boyon's per-frame behaviour.</summary>
-    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(slot, slot.RequireSpeciesState<BoyonEnemyState>(), frame.Samus);
 }

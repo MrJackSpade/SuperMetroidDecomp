@@ -8,10 +8,10 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunBlueBrinstarFaceBlockInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunBlueBrinstarFaceBlockInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunBlueBrinstarFaceBlockMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBlueBrinstarFaceBlockMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation;

@@ -8,10 +8,10 @@ internal sealed class NorfairLavaJumpingEnemyEntity(NorfairLavaJumpingEnemyBehav
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeNorfairLavaJumpingEnemy;
+    public void Initialize() => species.InitializeNorfairLavaJumpingEnemy(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunNorfairLavaJumpingEnemyMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumpingEnemyMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => NorfairLavaJumpingEnemyBehavior.AdvanceNorfairLavaJumpingEnemyTypedAnimation;

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// What the enemy system shares across species: the shared reaction lists and the empty AI of an enemy whose definition names no behaviour.
-/// Entities compose it for every participation they do not own, keeping the shared lists' first-match precedence.
+/// What the enemy system shares across species: the shared reaction lists. Entities compose it for every participation
+/// they do not own, keeping the shared lists' first-match precedence.
 /// </summary>
 /// <param name="reactions">The enemy system's shared reactions, resolved at use because the system builds them on first access.</param>
 internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reactions)
@@ -10,20 +10,8 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
     /// <summary>The shared reaction lists.</summary>
     private EnemySharedReactions Reactions => reactions();
 
-    /// <summary>The empty initialization when <paramref name="slot"/>'s definition names no initialization behaviour; otherwise null.</summary>
-    internal static EnemyInitializationAiHandler? FindInitialization(RoomEnemySlot slot) =>
-        slot.Definition.InitializationAi == EnemyAiRoutine.Inert
-            ? EnemyNoOpAi.Initialization
-            : null;
-
-    /// <summary>The empty main AI when <paramref name="slot"/>'s definition names no main behaviour; otherwise null.</summary>
-    internal static EnemyMainAiHandler? FindMain(RoomEnemySlot slot) =>
-        slot.Definition.MainAi == EnemyAiRoutine.Inert
-            ? EnemyNoOpAi.Main
-            : null;
-
     /// <summary>The first hurt handler matching <paramref name="slot"/>, or null.</summary>
-    internal EnemyHurtAiHandler? FindHurt(RoomEnemySlot slot) => Reactions.FindHurt(slot);
+    internal EnemyHurtHandler? FindHurt(RoomEnemySlot slot) => Reactions.FindHurt(slot);
 
     /// <summary>The first frozen preemption matching <paramref name="slot"/>, or null.</summary>
     internal EnemyFrozenPreemption? FindFrozenPreemption(RoomEnemySlot slot) => Reactions.FindFrozenPreemption(slot);

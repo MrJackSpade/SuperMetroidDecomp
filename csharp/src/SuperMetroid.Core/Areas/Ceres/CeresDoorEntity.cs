@@ -10,10 +10,10 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior species, RoomEnemySlot s
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IDrawnByCeresRidleyScene
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeCeresDoor;
+    public void Initialize() => species.InitializeCeresDoor(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => (enemy, _) => species.RunCeresDoorMain(enemy);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunCeresDoorMain(Slot);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceCeresDoorTypedAnimation;

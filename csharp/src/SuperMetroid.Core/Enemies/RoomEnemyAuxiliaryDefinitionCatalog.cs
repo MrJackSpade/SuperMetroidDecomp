@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -9,21 +8,130 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
-    /// <summary>The respawn placeholder's, cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions.</summary>
-    /// <remarks>
-    /// The respawn placeholder is selected when a killed actor vacates its slot. The Baby Metroid and falling tubes are
-    /// Mother Brain's cutscene actors. The two Chozo-orb definitions are Bomb Torizo's and Golden Torizo's drops. The
-    /// Spore Spawn stalk definition's drop chances pass for every spore impact.
-    /// </remarks>
+    /// <summary>The respawn placeholder, selected when a killed actor vacates its slot.</summary>
+    internal static readonly RoomEnemyDefinition Respawn = new(
+        Health: 0,
+        Damage: 0,
+        Radius: new(8, 8),
+        HurtFlashFrames: 4,
+        HurtSoundEffect: EnemySound.RidleyRoar,
+        Boss: null,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.Ignore,
+        Shot: EnemyReaction.Ignore,
+        TouchHitboxScan: EnemyHitboxScan.Withheld,
+        ShotHitboxScan: EnemyHitboxScan.Withheld,
+        DropChances: null,
+        Vulnerability: null);
+
+    /// <summary>The Baby Metroid of Mother Brain's cutscene.</summary>
+    internal static readonly RoomEnemyDefinition BabyMetroidCutscene = new(
+        Health: 3200,
+        Damage: 40,
+        Radius: new(36, 36),
+        HurtFlashFrames: 4,
+        HurtSoundEffect: null,
+        Boss: null,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.SpeciesOwn,
+        Shot: EnemyReaction.Ignore,
+        TouchHitboxScan: EnemyHitboxScan.Scanned,
+        ShotHitboxScan: EnemyHitboxScan.Withheld,
+        DropChances: new EnemyDropChances(0, 0, 0, 255, 0, 0),
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+
+    /// <summary>The falling tubes of Mother Brain's cutscene.</summary>
+    internal static readonly RoomEnemyDefinition MotherBrainTubes = new(
+        Health: 1000,
+        Damage: 0,
+        Radius: new(0, 0),
+        HurtFlashFrames: 4,
+        HurtSoundEffect: null,
+        Boss: null,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.Ignore,
+        Shot: EnemyReaction.Ignore,
+        TouchHitboxScan: EnemyHitboxScan.Withheld,
+        ShotHitboxScan: EnemyHitboxScan.Withheld,
+        DropChances: null,
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+
+    /// <summary>The Chozo orb Bomb Torizo drops.</summary>
+    internal static readonly RoomEnemyDefinition BombTorizoOrb = new(
+        Health: 800,
+        Damage: 8,
+        Radius: new(18, 48),
+        HurtFlashFrames: 8,
+        HurtSoundEffect: EnemySound.ShotTorizo,
+        Boss: AreaBoss.Torizo,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.SpeciesOwn,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.BombTorizoTouch,
+        Shot: EnemyReaction.BombTorizoShot,
+        TouchHitboxScan: EnemyHitboxScan.Scanned,
+        ShotHitboxScan: EnemyHitboxScan.Scanned,
+        DropChances: new EnemyDropChances(116, 20, 65, 54, 0, 0),
+        Vulnerability: EnemyVulnerabilityDefinitions.BombTorizo);
+
+    /// <summary>The Chozo orb Golden Torizo drops.</summary>
+    internal static readonly RoomEnemyDefinition GoldenTorizoOrb = new(
+        Health: 13500,
+        Damage: 160,
+        Radius: new(18, 48),
+        HurtFlashFrames: 8,
+        HurtSoundEffect: EnemySound.ShotTorizo,
+        Boss: AreaBoss.Torizo,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.SpeciesOwn,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.BombTorizoTouch,
+        Shot: EnemyReaction.GoldenTorizoShot,
+        TouchHitboxScan: EnemyHitboxScan.Scanned,
+        ShotHitboxScan: EnemyHitboxScan.Scanned,
+        DropChances: new EnemyDropChances(30, 30, 50, 60, 85, 0),
+        Vulnerability: EnemyVulnerabilityDefinitions.GoldenTorizo);
+
+    /// <summary>Spore Spawn's stalk, whose drop chances pass for every spore impact.</summary>
+    internal static readonly RoomEnemyDefinition SporeSpawnStalk = new(
+        Health: 960,
+        Damage: 12,
+        Radius: new(19, 19),
+        HurtFlashFrames: 8,
+        HurtSoundEffect: null,
+        Boss: AreaBoss.SporeSpawn,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.SporeSpawnTouch,
+        Shot: EnemyReaction.SporeSpawnShot,
+        TouchHitboxScan: EnemyHitboxScan.Scanned,
+        ShotHitboxScan: EnemyHitboxScan.Scanned,
+        DropChances: new EnemyDropChances(10, 20, 200, 25, 0, 0),
+        Vulnerability: EnemyVulnerabilityDefinitions.SporeSpawn);
+
+    /// <summary>The respawn placeholder's, cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
-        [EnemyDefinitionId.Respawn] = new(0, 0, new(8, 8), 4, EnemySound.RidleyRoar, null, EnemyAiRoutine.Inert, EnemyAiRoutine.Inert, GrappleAiRoutine.Cancel, EnemyAiRoutine.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Withheld, EnemyHitboxScan.Withheld, null, null),
-        [EnemyDefinitionId.BabyMetroidCutscene] = new(3200, 40, new(36, 36), 4, null, null, EnemyAiRoutine.SpeciesRoutine, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.SpeciesOwn, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Withheld, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.Standard),
-        [EnemyDefinitionId.MotherBrainTubes] = new(1000, 0, new(0, 0), 4, null, null, EnemyAiRoutine.SpeciesRoutine, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Withheld, EnemyHitboxScan.Withheld, null, EnemyVulnerabilityDefinitions.Standard),
-        [EnemyDefinitionId.BombTorizoOrb] = new(800, 8, new(18, 48), 8, EnemySound.ShotTorizo, AreaBoss.Torizo, EnemyAiRoutine.SpeciesRoutine, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.SpeciesRoutine, EnemyDeathExplosion.Small, null, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(116, 20, 65, 54, 0, 0), EnemyVulnerabilityDefinitions.BombTorizo),
-        [EnemyDefinitionId.GoldenTorizoOrb] = new(13500, 160, new(18, 48), 8, EnemySound.ShotTorizo, AreaBoss.Torizo, EnemyAiRoutine.SpeciesRoutine, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.SpeciesRoutine, EnemyDeathExplosion.Small, null, EnemyReaction.BombTorizoTouch, EnemyReaction.GoldenTorizoShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(30, 30, 50, 60, 85, 0), EnemyVulnerabilityDefinitions.GoldenTorizo),
-        [EnemyDefinitionId.SporeSpawnStalk] = new(960, 12, new(19, 19), 8, null, AreaBoss.SporeSpawn, EnemyAiRoutine.SpeciesRoutine, EnemyAiRoutine.SpeciesRoutine, GrappleAiRoutine.Cancel, EnemyAiRoutine.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.SporeSpawnTouch, EnemyReaction.SporeSpawnShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(10, 20, 200, 25, 0, 0), EnemyVulnerabilityDefinitions.SporeSpawn),
+        [EnemyDefinitionId.Respawn] = Respawn,
+        [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
+        [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubes,
+        [EnemyDefinitionId.BombTorizoOrb] = BombTorizoOrb,
+        [EnemyDefinitionId.GoldenTorizoOrb] = GoldenTorizoOrb,
+        [EnemyDefinitionId.SporeSpawnStalk] = SporeSpawnStalk,
     };
 
     /// <summary>Looks up one dynamic actor's definition.</summary>

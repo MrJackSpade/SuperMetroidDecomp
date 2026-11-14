@@ -8,20 +8,36 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        ChozoStatuePart.NoobTubeCrack => _ => ChozoStatueBehavior.InitializeN00bTubeCracks(),
-        ChozoStatuePart.Chozo => species.InitializeChozoStatue,
-        _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId}."),
-    };
+        switch (ChozoStatuePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case ChozoStatuePart.NoobTubeCrack:
+                ChozoStatueBehavior.InitializeN00bTubeCracks();
+                break;
+            case ChozoStatuePart.Chozo:
+                species.InitializeChozoStatue(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        ChozoStatuePart.Chozo => species.RunChozoStatueMainAi,
-        ChozoStatuePart.NoobTubeCrack => EnemyCommonParticipation.FindMain(Slot),
-        _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId}."),
-    };
+        switch (ChozoStatuePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case ChozoStatuePart.Chozo:
+                species.RunChozoStatueMainAi(Slot, frame);
+                break;
+            // The glass tube's cracks take no action of their own.
+            case ChozoStatuePart.NoobTubeCrack:
+                break;
+            default:
+                throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch

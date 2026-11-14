@@ -17,21 +17,39 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        DraygonPart.Body => species.Parts.InitializeDraygonBody,
-        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.Parts.InitializeDraygonPart,
-        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}."),
-    };
+        switch (DraygonPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case DraygonPart.Body:
+                species.Parts.InitializeDraygonBody(Slot);
+                break;
+            case DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms:
+                species.Parts.InitializeDraygonPart(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => DraygonPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        DraygonPart.Body => species.RunDraygonBodyMainAi,
-        DraygonPart.Eye => species.RunDraygonEyeMainAi,
-        DraygonPart.Tail or DraygonPart.Arms => species.RunDraygonTailMainAi,
-        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}."),
-    };
+        switch (DraygonPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case DraygonPart.Body:
+                species.RunDraygonBodyMainAi(Slot, frame);
+                break;
+            case DraygonPart.Eye:
+                species.RunDraygonEyeMainAi(Slot, frame);
+                break;
+            case DraygonPart.Tail or DraygonPart.Arms:
+                species.RunDraygonTailMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceDraygonTypedAnimation;

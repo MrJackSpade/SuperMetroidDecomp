@@ -8,10 +8,10 @@ internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunMagdolliteInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunMagdolliteInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunMagdolliteMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMagdolliteMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceMagdolliteTypedAnimation;

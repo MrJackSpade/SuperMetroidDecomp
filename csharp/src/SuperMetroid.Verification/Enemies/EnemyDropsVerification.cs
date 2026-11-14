@@ -72,8 +72,11 @@ internal static class EnemyDropsVerification
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        AssertEqual(EnemyAiRoutine.Inert, enemy.Definition.MainAi,
-            "cached header follows replacement identity into native no-op AI");
+        // The definition no longer names the placeholder's empty main AI (#1738); its entity owns it.
+        AssertEqual(RoomEnemyAuxiliaryDefinitionCatalog.Respawn, enemy.Definition,
+            "cached definition follows the replacement identity to the respawn placeholder's");
+        AssertTrue(enemy.Entity is SuperMetroid.Core.Enemies.Inert.InertEnemyEntity,
+            "the replacement identity binds the placeholder entity, whose main AI takes no action");
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
         AssertEqual(0, fixture.System.ActiveEnemies.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");

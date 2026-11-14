@@ -8,15 +8,23 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KiHunterPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed => species.InitializeKiHunter,
-        KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterYellowWings or KiHunterPart.KihunterRedWings => species.InitializeKiHunterWings,
-        _ => throw new InvalidOperationException($"KiHunter entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KiHunterPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed:
+                species.InitializeKiHunter(Slot);
+                break;
+            case KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterYellowWings or KiHunterPart.KihunterRedWings:
+                species.InitializeKiHunterWings(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"KiHunter entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunKiHunterMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceKiHunterTypedAnimation;

@@ -8,10 +8,10 @@ internal sealed class SbugEntity(SbugBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => SbugBehavior.InitializeSbug;
+    public void Initialize() => SbugBehavior.InitializeSbug(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunSbugMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSbugMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SbugBehavior.AdvanceSbugTypedAnimation;

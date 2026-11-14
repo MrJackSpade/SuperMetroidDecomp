@@ -8,10 +8,10 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunBeetomInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunBeetomInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunBeetomMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BeetomBehavior.AdvanceBeetomTypedAnimation;

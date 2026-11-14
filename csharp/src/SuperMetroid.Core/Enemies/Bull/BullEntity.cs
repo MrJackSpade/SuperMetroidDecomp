@@ -11,10 +11,11 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeBull;
+    public void Initialize() => species.InitializeBull(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RunMain;
+    public void RunMainAi(IEnemyAiFrame frame) =>
+        BullBehavior.RunBullMain(Slot, Slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BullBehavior.AdvanceBullAnimation;
@@ -29,10 +30,6 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     /// <summary>Bull's bomb recoil, ahead of the shared common bomb reactions, which follow it in the shared list.</summary>
     public override EnemyBombReaction? FindBombCommon(EnemyBombContext context) =>
         species.BombReaction.Matches(context) ? species.BombReaction : base.FindBombCommon(context);
-
-    /// <summary>Runs a Bull's per-frame behaviour.</summary>
-    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(slot, slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <summary>The Bull's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

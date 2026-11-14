@@ -8,10 +8,10 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunElevatorInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunElevatorInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunElevatorMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ElevatorBehavior.AdvanceElevatorTypedAnimation;

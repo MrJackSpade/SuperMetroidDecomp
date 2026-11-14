@@ -8,10 +8,10 @@ internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeHibashi;
+    public void Initialize() => species.InitializeHibashi(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunHibashiMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHibashiMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceHibashiTypedAnimation;

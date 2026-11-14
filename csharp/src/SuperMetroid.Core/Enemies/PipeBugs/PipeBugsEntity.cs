@@ -8,16 +8,26 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => PipeBugsPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        PipeBugsPart.Zeb or PipeBugsPart.Zebbo => PipeBugsBehavior.InitializeBrinstarPipeBug,
-        PipeBugsPart.Gamet => species.InitializeNorfairPipeBug,
-        PipeBugsPart.Geega => PipeBugsBehavior.InitializeYellowPipeBug,
-        _ => throw new InvalidOperationException($"PipeBugs entity bound to {Slot.DefinitionId}."),
-    };
+        switch (PipeBugsPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case PipeBugsPart.Zeb or PipeBugsPart.Zebbo:
+                PipeBugsBehavior.InitializeBrinstarPipeBug(Slot);
+                break;
+            case PipeBugsPart.Gamet:
+                species.InitializeNorfairPipeBug(Slot);
+                break;
+            case PipeBugsPart.Geega:
+                PipeBugsBehavior.InitializeYellowPipeBug(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"PipeBugs entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunPipeBugsMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPipeBugsMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PipeBugsBehavior.AdvancePipeBugsTypedAnimation;

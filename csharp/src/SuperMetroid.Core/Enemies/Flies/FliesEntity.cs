@@ -8,10 +8,10 @@ internal sealed class FliesEntity(FliesBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => FliesBehavior.InitializeFly;
+    public void Initialize() => FliesBehavior.InitializeFly(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunFliesMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunFliesMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => FliesBehavior.AdvanceFliesTypedAnimation;

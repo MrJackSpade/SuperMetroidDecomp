@@ -15,11 +15,11 @@ internal sealed class EnemySharedReactions
     private readonly List<EnemyFrozenRule> _frozen = [];
 
     /// <summary>Adds a hurt AI; the first registered hurt AI whose match accepts the enemy runs.</summary>
-    internal void AddHurt(Func<RoomEnemySlot, bool> matches, EnemyHurtAiHandler handler) =>
+    internal void AddHurt(Func<RoomEnemySlot, bool> matches, EnemyHurtHandler handler) =>
         _hurt.Add(new EnemyHurtRule(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>The hurt AI of <paramref name="slot"/>, or null when it has none.</summary>
-    internal EnemyHurtAiHandler? FindHurt(RoomEnemySlot slot)
+    internal EnemyHurtHandler? FindHurt(RoomEnemySlot slot)
     {
         foreach (var (matches, handler) in _hurt)
         {

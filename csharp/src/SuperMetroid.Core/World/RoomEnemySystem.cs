@@ -1406,7 +1406,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyBehavior.AddRidleyHurtAi(table);
         PhantoonBehavior.AddPhantoonHurtAi(table);
         DraygonBehavior.AddDraygonHurtAi(table);
-        table.AddHurt(slot => slot.Definition.HurtAi == EnemyAiRoutine.Inert, (_, _) => { });
+        table.AddHurt(slot => slot.Definition.HurtResponse == EnemyHurtResponse.Inert, (_, _) => { });
     }
 
     /// <summary>Maps frozen-state AI used while ice suspends normal behavior.</summary>

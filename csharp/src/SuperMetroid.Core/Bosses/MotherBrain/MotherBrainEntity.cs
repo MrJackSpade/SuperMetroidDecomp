@@ -17,22 +17,42 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        MotherBrainPart.Body => species.Body.InitializeMotherBrainBody,
-        MotherBrainPart.Head => species.Head.InitializeMotherBrainHead,
-        MotherBrainPart.Tubes => MotherBrainFakeDeath.InitializeMotherBrainFallingTube,
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
-    };
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MotherBrainPart.Body:
+                species.Body.InitializeMotherBrainBody(Slot);
+                break;
+            case MotherBrainPart.Head:
+                species.Head.InitializeMotherBrainHead(Slot);
+                break;
+            case MotherBrainPart.Tubes:
+                MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        MotherBrainPart.Body => species.RunMotherBrainBodyMainAi,
-        MotherBrainPart.Head => species.RunMotherBrainHeadMainAi,
-        MotherBrainPart.Tubes => (enemy, _) => species.FakeDeath.RunMotherBrainFallingTubeMain(enemy),
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
-    };
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MotherBrainPart.Body:
+                species.RunMotherBrainBodyMainAi(Slot, frame);
+                break;
+            case MotherBrainPart.Head:
+                species.RunMotherBrainHeadMainAi(Slot, frame);
+                break;
+            case MotherBrainPart.Tubes:
+                species.FakeDeath.RunMotherBrainFallingTubeMain(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch

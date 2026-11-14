@@ -8,20 +8,36 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => ShuttersPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        ShuttersPart.ShutterGrowing => ShuttersBehavior.InitializeGrowingShutter,
-        ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.InitializeVerticalShutter,
-        _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
-    };
+        switch (ShuttersPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case ShuttersPart.ShutterGrowing:
+                ShuttersBehavior.InitializeGrowingShutter(Slot);
+                break;
+            case ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer:
+                ShuttersBehavior.InitializeVerticalShutter(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => ShuttersPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        ShuttersPart.ShutterGrowing => species.RunShutterGrowingMainAi,
-        ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => species.RunShutterShootableMainAi,
-        _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
-    };
+        switch (ShuttersPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case ShuttersPart.ShutterGrowing:
+                species.RunShutterGrowingMainAi(Slot, frame);
+                break;
+            case ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer:
+                species.RunShutterShootableMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ShuttersPartDefinitions.Parts[Slot.DefinitionId] switch

@@ -8,10 +8,10 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => SkulteraBehavior.InitializeSkultera;
+    public void Initialize() => SkulteraBehavior.InitializeSkultera(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunSkulteraMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SkulteraBehavior.AdvanceSkulteraTypedAnimation;

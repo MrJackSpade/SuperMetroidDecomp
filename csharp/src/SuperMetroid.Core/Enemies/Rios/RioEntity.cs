@@ -8,10 +8,10 @@ internal sealed class RioEntity(RioBehavior species, RoomEnemySlot slot, EnemyCo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => RioBehavior.InitializeRio;
+    public void Initialize() => RioBehavior.InitializeRio(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunRioMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RioBehavior.AdvanceRioTypedAnimation;

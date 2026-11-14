@@ -8,10 +8,10 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => SkreeBehavior.InitializeSkree;
+    public void Initialize() => SkreeBehavior.InitializeSkree(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunSkreeMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SkreeBehavior.AdvanceSkreeTypedAnimation;

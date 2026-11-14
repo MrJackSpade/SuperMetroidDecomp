@@ -17,21 +17,36 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        CrocomirePart.Crocomire => species.Fight.InitializeCrocomire,
-        CrocomirePart.Tongue => species.Fight.InitializeCrocomireTongue,
-        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
-    };
+        switch (CrocomirePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case CrocomirePart.Crocomire:
+                species.Fight.InitializeCrocomire(Slot);
+                break;
+            case CrocomirePart.Tongue:
+                species.Fight.InitializeCrocomireTongue(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        CrocomirePart.Crocomire => species.RunCrocomireMainAi,
-        // The tongue's main AI is an empty step; the tongue follows the body through its animation and extended map.
-        CrocomirePart.Tongue => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
-    };
+        switch (CrocomirePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case CrocomirePart.Crocomire:
+                species.RunCrocomireMainAi(Slot, frame);
+                break;
+            // The tongue's main AI is an empty step; the tongue follows the body through its animation and extended map.
+            case CrocomirePart.Tongue:
+                break;
+            default:
+                throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch

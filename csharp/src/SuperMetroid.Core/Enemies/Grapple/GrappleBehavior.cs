@@ -48,18 +48,18 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // The collision stores exactly one, rather than combining it with an old
             // hurt/frozen handler. The next enemy pass therefore dispatches grapple AI.
             enemy.AiStates = EnemyAiStates.Grappled;
-            GrappleEnemyReaction reaction = enemy.Definition.GrappleAi switch
+            GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse switch
             {
-                GrappleAiRoutine.NoInteraction => GrappleEnemyReaction.None,
-                GrappleAiRoutine.Attach => GrappleEnemyReaction.Attach,
-                GrappleAiRoutine.Kill => GrappleEnemyReaction.Kill,
-                GrappleAiRoutine.Cancel => GrappleEnemyReaction.Cancel,
-                GrappleAiRoutine.AttachWithoutInvincibility =>
+                EnemyGrappleResponse.NoInteraction => GrappleEnemyReaction.None,
+                EnemyGrappleResponse.Attach => GrappleEnemyReaction.Attach,
+                EnemyGrappleResponse.Kill => GrappleEnemyReaction.Kill,
+                EnemyGrappleResponse.Cancel => GrappleEnemyReaction.Cancel,
+                EnemyGrappleResponse.AttachWithoutInvincibility =>
                     GrappleEnemyReaction.AttachWithoutInvincibility,
-                GrappleAiRoutine.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
-                GrappleAiRoutine.HurtSamus => GrappleEnemyReaction.HurtSamus,
-                GrappleAiRoutine.None or GrappleAiRoutine.ElevatorMainAi or _ => throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} grapple AI {enemy.Definition.GrappleAi} " +
+                EnemyGrappleResponse.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
+                EnemyGrappleResponse.HurtSamus => GrappleEnemyReaction.HurtSamus,
+                EnemyGrappleResponse.None or EnemyGrappleResponse.SpeciesOwn or _ => throw new InvalidDataException(
+                    $"Enemy {enemy.DefinitionId} grapple response {enemy.Definition.GrappleResponse} " +
                     "is not one of the translated common reactions."),
             };
             return new GrappleEnemyCollision(
@@ -80,16 +80,16 @@ internal sealed class GrappleBehavior : IGrappleTargets
         if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             return false;
 
-        switch (enemy.Definition.GrappleAi)
+        switch (enemy.Definition.GrappleResponse)
         {
-            case GrappleAiRoutine.NoInteraction:
+            case EnemyGrappleResponse.NoInteraction:
                 enemy.AiStates = EnemyAiStates.None;
                 enemy.InvincibilityTimer = 0;
                 enemy.FrozenTimer = 0;
                 enemy.ShakeTimer = 0;
                 return true;
 
-            case GrappleAiRoutine.Attach:
+            case EnemyGrappleResponse.Attach:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -101,7 +101,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 }
                 return true;
 
-            case GrappleAiRoutine.Kill:
+            case EnemyGrappleResponse.Kill:
                 // Grapple kills always select explosion variant zero. The shared death
                 // death preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
@@ -109,12 +109,12 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case GrappleAiRoutine.Cancel:
-            case GrappleAiRoutine.HurtSamus:
+            case EnemyGrappleResponse.Cancel:
+            case EnemyGrappleResponse.HurtSamus:
                 enemy.AiStates = EnemyAiStates.Frozen;
                 return true;
 
-            case GrappleAiRoutine.AttachWithoutInvincibility:
+            case EnemyGrappleResponse.AttachWithoutInvincibility:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -128,16 +128,16 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case GrappleAiRoutine.AttachAndParalyze:
+            case EnemyGrappleResponse.AttachAndParalyze:
                 enemy.FlashTimer = enemy.HurtFlashFrames;
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case GrappleAiRoutine.None:
-            case GrappleAiRoutine.ElevatorMainAi:
+            case EnemyGrappleResponse.None:
+            case EnemyGrappleResponse.SpeciesOwn:
             default:
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleAi}.");
+                    $"Enemy {enemy.DefinitionId} has no response to grapple response {enemy.Definition.GrappleResponse}.");
         }
     }
 

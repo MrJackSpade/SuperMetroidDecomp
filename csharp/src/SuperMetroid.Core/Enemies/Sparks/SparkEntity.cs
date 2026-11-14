@@ -8,10 +8,10 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => SparkBehavior.InitializeSpark;
+    public void Initialize() => SparkBehavior.InitializeSpark(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunSparkMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SparkBehavior.AdvanceSparkTypedAnimation;

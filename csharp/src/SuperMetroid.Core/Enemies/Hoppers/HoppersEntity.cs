@@ -8,10 +8,10 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeHopper;
+    public void Initialize() => species.InitializeHopper(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunHoppersMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceHoppersTypedAnimation;

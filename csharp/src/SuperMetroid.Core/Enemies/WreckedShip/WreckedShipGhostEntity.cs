@@ -7,10 +7,10 @@ internal sealed class WreckedShipGhostEntity(RoomEnemySlot slot, EnemyCommonPart
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => WreckedShipGhostBehavior.InitializeWreckedShipGhost;
+    public void Initialize() => WreckedShipGhostBehavior.InitializeWreckedShipGhost(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation;

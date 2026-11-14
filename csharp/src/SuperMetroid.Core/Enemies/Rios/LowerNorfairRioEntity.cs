@@ -8,10 +8,10 @@ internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, Roo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeLowerNorfairRio;
+    public void Initialize() => species.InitializeLowerNorfairRio(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunLowerNorfairRioMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunLowerNorfairRioMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => LowerNorfairRioBehavior.AdvanceLowerNorfairRioTypedAnimation;

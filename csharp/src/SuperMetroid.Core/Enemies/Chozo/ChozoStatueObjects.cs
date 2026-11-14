@@ -104,11 +104,11 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
                 WriteChozoBlock(level, block, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
                 return true;
             case ChozoStatueRoomObject.PlugCrumbleAtHand:
-                // The plug's setup never chooses the block it leaves: each of its two spawns leaves its own.
-                level.SetTerrain(block, ChozoStatueRoomDefinitions.HandCrumbleSetupBlock);
+                // The plug's setup never chooses the picture it leaves: each of its two spawns leaves its own.
+                level.SetTerrain(block, CrumblePlugAir(CrumblePlugLeftBlock.Spawn.AtFixedBlock));
                 return true;
             case ChozoStatueRoomObject.PlugCrumbleUnderFootstep:
-                level.SetTerrain(block, ChozoStatueRoomDefinitions.FootstepCrumbleSetupBlock);
+                level.SetTerrain(block, CrumblePlugAir(CrumblePlugLeftBlock.Spawn.AtFoundBlock));
                 return true;
             case ChozoStatueRoomObject.LowerNorfairHand:
             case ChozoStatueRoomObject.SlopeAccessOpening:
@@ -117,6 +117,22 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             default:
                 throw new ArgumentOutOfRangeException(nameof(request), request.RoomObject, "Not a Chozo statue's room object.");
         }
+    }
+
+    /// <summary>
+    /// The air block a crumbling plug's setup leaves after <paramref name="spawn"/>, showing the picture that spawn left
+    /// (<see cref="CrumblePlugLeftBlock"/>).
+    /// </summary>
+    private static RoomTerrainBlock CrumblePlugAir(CrumblePlugLeftBlock.Spawn spawn)
+    {
+        CrumblePlugLeftBlock.Picture left = CrumblePlugLeftBlock.LeftBy(spawn);
+        BlockMirroring mirroring = left.Mirrored switch
+        {
+            CrumblePlugLeftBlock.Mirroring.None => BlockMirroring.None,
+            CrumblePlugLeftBlock.Mirroring.BothWays => BlockMirroring.Both,
+            _ => throw new InvalidOperationException($"Undefined {nameof(CrumblePlugLeftBlock.Mirroring)} {left.Mirrored}."),
+        };
+        return RoomTerrainBlock.Of(left.Number, mirroring, RoomCollisionType.Air);
     }
 
     /// <summary>Changes a hand or plug block's collision kind and behaviour while preserving its appearance.</summary>

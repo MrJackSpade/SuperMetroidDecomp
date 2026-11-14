@@ -26,31 +26,6 @@ internal static class ChozoStatueRoomDefinitions
     /// <summary>The special-solid behaviour of the Lower Norfair hand's block in Norfair's behaviour table.</summary>
     public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand);
 
-    /// <summary>
-    /// The block the crumbling plug writes when the hand's trigger spawns it: its setup never chooses one, so it writes
-    /// what the room loader's last draw left behind, block 416 mirrored both ways, as air.
-    /// </summary>
-    /// <remarks>
-    /// Gameplay terrain, not a picture (#1580): nothing pictures it, and when room objects run, the plug draws its first
-    /// breakup image over it in the room-object pass later in the same update. Until then it is read as terrain: its
-    /// air by Samus's and her shots' collision, and its block number and mirroring by a Wave shot's scan past the room's
-    /// ceiling (<see cref="Compatibility.StraddledTerrain{TTerrain}"/>), whose straddled terrain takes its collision kind from them
-    /// and keeps the block it read as the block to restore.
-    /// </remarks>
-    public static readonly RoomTerrainBlock HandCrumbleSetupBlock =
-        RoomTerrainBlock.Of(416, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air);
-
-    /// <summary>The block the crumbling plug writes when the walking statue's footstep spawns it: block zero, unmirrored, as air.</summary>
-    /// <remarks>
-    /// Gameplay terrain, not a picture (#1580): its setup never chooses a block, so nothing pictures it. The statue's
-    /// spawn is applied right after the enemy pass, and when room objects run the plug draws its first breakup image over
-    /// it in the room-object pass later in the same update. Until then it is read as terrain: its air by Samus's and her
-    /// shots' collision, and its block number and mirroring by a Wave shot's scan past the room's ceiling
-    /// (<see cref="Compatibility.StraddledTerrain{TTerrain}"/>).
-    /// </remarks>
-    public static readonly RoomTerrainBlock FootstepCrumbleSetupBlock =
-        RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
-
     /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
     public const int LowerNorfairTriggerX = 4;
 

@@ -31,13 +31,13 @@ public sealed class KiHunterBodyState
     }
 
     /// <summary>
-    /// The animation-change angle, in whole table units of the swoop angle: 240 for a leftward swoop or 144 for a
+    /// The animation-change angle, in whole steps (256ths of a turn) of the swoop angle: 240 for a leftward swoop or 144 for a
     /// rightward one. Passing it installs the swoop animation.
     /// </summary>
     public int AnimationChangeAngle { get; internal set; }
 
     /// <summary>
-    /// The swoop angle, in whole table units: 128 or 255 when a swoop begins, stepped by the whole angular velocity, and
+    /// The swoop angle, in whole steps (256ths of a turn): 128 or 255 when a swoop begins, stepped by the whole angular velocity, and
     /// ending the swoop at 256 or below 128, so it stays from zero to 257.
     /// </summary>
     public int SwoopAngle { get; internal set; }
@@ -46,12 +46,12 @@ public sealed class KiHunterBodyState
     public int MaximumAngularVelocity { get; internal set; }
 
     /// <summary>
-    /// The angular velocity in table units per update: zero when a swoop begins, accelerated each update with the
+    /// The angular velocity in steps of a turn per update: zero when a swoop begins, accelerated each update with the
     /// fraction carrying into the whole part, and capped on its whole part. Its whole part steps the swoop angle.
     /// </summary>
     public SignedSixteenSixteen AngularVelocity { get; internal set; }
 
-    /// <summary>The angular acceleration: plus one eighth of a table unit per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
+    /// <summary>The angular acceleration: plus one eighth of a step of a turn per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
     public SignedSixteenSixteen AngularAcceleration { get; internal set; }
 
     /// <summary>The upper patrol boundary, sixteen pixels above the spawn Y. Only the Y axis is stored and meaningful.</summary>

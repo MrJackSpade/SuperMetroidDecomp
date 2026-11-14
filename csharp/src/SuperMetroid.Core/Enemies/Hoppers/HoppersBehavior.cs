@@ -208,7 +208,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperHopDirection direction)
     {
         // “Backward” is the leftward branch selected when Samus is left of the actor. The
-        // initial setup always writes +3, so only this branch negates the whole-pixel word.
+        // initial setup always gives three pixels rightward, so only this branch reverses the speed.
         if (direction == HopperHopDirection.Backward)
             state.XVelocity = -state.XVelocity;
 
@@ -333,7 +333,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperPhase phase) =>
         HopperAnimationChoices.Animation(state.Kind, surface, phase);
 
-    /// <summary>The surface the population's first parameter placed this hopper on.</summary>
+    /// <summary>The surface its spawn settings placed this hopper on.</summary>
     private static HopperSurface SurfaceOf(HopperEnemyState state) =>
         state.UpsideDown ? HopperSurface.Ceiling : HopperSurface.Floor;
 

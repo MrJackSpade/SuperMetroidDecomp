@@ -528,7 +528,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginDetachedKiHunterWingCollisionArc(wings, state);
             return;
         }
-        DecrementKiHunterDetachedSpeedIndex(state);
+        SlowDetachedKiHunterWing(state);
     }
 
     /// <summary>Advances the detached wings' collision-bearing arc.</summary>
@@ -553,7 +553,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
-            DecrementKiHunterDetachedSpeedIndex(state);
+            SlowDetachedKiHunterWing(state);
             return;
         }
 
@@ -564,7 +564,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginDetachedKiHunterWingOrbit(wings, state);
             return;
         }
-        DecrementKiHunterDetachedSpeedIndex(state);
+        SlowDetachedKiHunterWing(state);
     }
 
     /// <summary>
@@ -685,8 +685,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         return place.Speed.CoarseToward(sign);
     }
 
-    /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
-    private static void DecrementKiHunterDetachedSpeedIndex(KiHunterWingState state)
+    /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
+    private static void SlowDetachedKiHunterWing(KiHunterWingState state)
     {
         QuadraticSpeedCurvePlace next = state.DetachedSpeedCurvePlace - DetachedSpeedStep;
         state.DetachedSpeedCurvePlace = next.IsNegative ? SlowestDetachedCurvePlace : next;

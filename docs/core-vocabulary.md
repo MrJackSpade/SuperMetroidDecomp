@@ -125,6 +125,12 @@ A name that says `Underflow` names the CPU's arithmetic and is reported too (#17
 `CoreVocabularyAnalyzer.MachineArithmeticWords`): a subtraction borrowing past zero. Core says what the value did in the
 game (`speedPassedZero`).
 
+A name that says `Ntsc` or `Pal` names the video standard and is reported too (#1848,
+`CoreVocabularyAnalyzer.VideoStandardWords`), matched as a whole word case-sensitively in the casings `Ntsc`, `NTSC`,
+`ntsc`, `Pal` and `PAL` (`IsPal`, `MetareeNtscSpeed`, `PALTiming`, an `ntsc` local). Core names the release whose value
+differs (the Japanese and North American release, the European release), as SME6454 asks of prose. A lower-case `pal`
+(English, or a palette's abbreviation) is not read, and whole-word matching keeps `Palette`, `Pale`, `Palm` and `Opal`.
+
 The original's table positions and enemy record are reported too (#1765, `CoreVocabularyAnalyzer.TablePositionPhrases`),
 matched like the hardware phrases: `MenuIndex`, the number the original gave a menu's step; `TableIndex`, a value's
 place in one of its lookup tables (a `tableIndex` local, a `tableIndexDelta` parameter); and `EnemyRecord`, the

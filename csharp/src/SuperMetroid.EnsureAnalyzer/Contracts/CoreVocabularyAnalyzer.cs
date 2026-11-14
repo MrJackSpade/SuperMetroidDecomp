@@ -30,7 +30,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// hardware's tile (#1726, <see cref="TileWords"/>) unless it is one of the game's own tiles: the area map's, a room layer
 /// named as the destination engine names it, Ceres station's falling ceiling tiles (<see cref="GameTilePhrases"/>), or a
 /// value whose type is named for the map (<see cref="NamedForMap"/>); and a name that says <c>Underflow</c> names the CPU's
-/// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). See <c>docs/core-vocabulary.md</c>.
+/// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). A name that says <c>Ntsc</c> or <c>Pal</c>, read
+/// case-sensitively, names the video standard (#1848, <see cref="VideoStandardWords"/>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -205,6 +206,16 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<string> MachineArithmeticWords = ["Underflow"];
 
     /// <summary>
+    /// The video standards (#1848), matched as whole camel-case words in exactly the casings listed, with no ending: a name
+    /// that says <c>Ntsc</c> or <c>Pal</c> (<c>IsPal</c>, <c>NtscFrameRate</c>, <c>PALTiming</c>, an <c>ntsc</c> local)
+    /// names the television standard a console was sold for instead of the release whose value differs. Core names the
+    /// release: the Japanese and North American release, the European release. Matching is case-sensitive so that a
+    /// lower-case <c>pal</c>, which begins a camel-cased name as English or a palette's abbreviation as often as the
+    /// standard, is not read, and whole words keep <c>Palette</c>, <c>Pale</c> and <c>Palm</c> the game's own.
+    /// </summary>
+    internal static readonly ImmutableArray<string> VideoStandardWords = ["Ntsc", "NTSC", "ntsc", "Pal", "PAL"];
+
+    /// <summary>
     /// The game's areas, as the camel-case words that name them (#1720): an area's name followed by a number is the
     /// cartridge's graphics-set number for one of its tilesets (<see cref="TilesetNumber"/>).
     /// </summary>
@@ -229,9 +240,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             "never call a behaviour the callback the original dispatched it through, the routine table it jumped through, " +
             "the function field its record held or the handler or setup code routine it ran, " +
             "and never name the hardware's tile where they mean a block, a picture, a block animation or a cell, or the CPU's " +
-            "arithmetic; hardware behaviour the game needs lives in " +
+            "arithmetic or the video standard where it means a release; hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, #1726, " +
-            "docs/core-vocabulary.md).");
+            "#1848, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -454,6 +465,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     {
         if (HardwareWord(identifier) is { } word)
             return $"names the hardware ('{word}')";
+        if (Words(identifier).FirstOrDefault(VideoStandardWords.Contains) is { } standard)
+            return $"names the video standard ('{standard}')";
         if (HardwareTile(identifier) is { } tile && !typedForMap())
             return $"names the hardware's tile ('{tile}')";
         if (ContainedWord(identifier, MachineArithmeticWords) is { } arithmetic)

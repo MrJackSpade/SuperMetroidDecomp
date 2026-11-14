@@ -133,6 +133,22 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void HandleUnderflow() { } }", $"'HandleUnderflow' {arithmetic} ('Underflow')");
         // Saying what the value did in the game, and words that only share its letters, are the game's own.
         Expect("class P { bool PassedZero; int Flow; int Under; int Underfloor; }");
+        // The video standard (#1848), in each casing the rule reads and each kind of declaration a renamed release value
+        // could use it in: an enum and its member, a property, a method, a parameter, a local, an acronym and the file.
+        const string standard = "names the video standard";
+        Expect("enum Ntsc { Timing }", $"'Ntsc' {standard} ('Ntsc')");
+        Expect("enum Release { Pal }", $"'Pal' {standard} ('Pal')");
+        Expect("class P { bool IsPal { get; } }", $"'IsPal' {standard} ('Pal')");
+        Expect("class P { int MetareeNtscSpeed() => 0; }", $"'MetareeNtscSpeed' {standard} ('Ntsc')");
+        Expect("class P { void Run(bool ntscRelease) { } }", $"'ntscRelease' {standard} ('Ntsc')");
+        Expect("class P { void Run() { int ntsc = 0; _ = ntsc; } }", $"'ntsc' {standard} ('ntsc')");
+        Expect("class P { int PALTiming; }", $"'PALTiming' {standard} ('PAL')");
+        Expect("class P { int KzanSpeedNTSC; }", $"'KzanSpeedNTSC' {standard} ('NTSC')");
+        ExpectFile("enum PalSpeeds { Slow }", "PalSpeeds.cs", $"'PalSpeeds' {standard} ('Pal')", $"'PalSpeeds' {standard} ('Pal')");
+        // Matching is case-sensitive and by whole word: a palette, pale, a palm, a pal or a palette's abbreviation in
+        // lower case, and the release a value differs for are the game's own.
+        Expect("class P { int Palette; int Palettes; int PaleBlue; int Palm; int Pals; int Paling; int pal; int palIndex; int Ntscs; }");
+        Expect("class P { int EuropeanRelease; int NorthAmericanRelease; int Principal; int Opal; int Appalling; }");
         // The enemy record's AI function field, in each kind of declaration a renamed behaviour state used it in (#1701).
         Expect("public enum KraidAiFunction { None }", "'KraidAiFunction' names the hardware ('AiFunction')");
         Expect("public enum BeetomEnemyFunction { DecideAction = 1 }", "'BeetomEnemyFunction' names the hardware ('EnemyFunction')");

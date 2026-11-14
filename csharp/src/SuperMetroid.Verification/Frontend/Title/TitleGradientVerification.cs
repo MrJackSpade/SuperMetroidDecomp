@@ -354,15 +354,15 @@ internal static class TitleGradientVerification
         var cartridgeReads = new HashSet<int>();
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
-            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant << 4)));
+            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth)));
 
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientFile.Read(
             new MemoryStream(extracted, writable: false));
         // The gradient the game loads from the installed file, every stop's line, colour and blend, is the import's
-        // decoding of the cartridge at every zoom (#1709).
+        // decoding of the cartridge at every zoom the title shows, from no zoom to the floor's own size (#1709, #1781).
         TitleGradientPresentation installed = InstalledFixtures.Maps.TitleGradient;
-        for (ushort zoom = 0; zoom < 256; zoom++)
+        for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
             ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
             if (!presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(decoded))

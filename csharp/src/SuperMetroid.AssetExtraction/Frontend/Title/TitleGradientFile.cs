@@ -14,7 +14,7 @@ public static class TitleGradientFile
     public const string FileName = "title-gradient.json";
 
     /// <summary>
-    /// Revision 4 of the sixteen-variant schema (#1468): the variants in zoom-bucket order, each by its stops, each the line
+    /// Revision 4 of the sixteen-variant schema (#1468): the variants in order of their zoom ranges, each by its stops, each the line
     /// its band begins on, its RGB5 colour and the name of its blend (#1709). Revision 3 stored the blend as the layers it
     /// blends with and whether it subtracts, and keyed each variant by its bucket; revision 2 stored every screen line;
     /// revision 1 also stored the blend as a control byte.

@@ -64,7 +64,7 @@ internal static class TitleSequenceRomDataVerification
         AssertSequenceEqual(naturalOrder, observed, "natural title phase order");
         AssertEqual(FloorZoom.OwnSize, state.FloorZoom,
             "natural title reaches the floor's own size");
-        AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenNtscFrames,
+        AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,
             state.TitleScreenFramesRemaining,
             "natural title arms NTSC demo countdown");
 
@@ -98,7 +98,7 @@ internal static class TitleSequenceRomDataVerification
             "title skip rebuilds objects before fading back in");
         AssertEqual(TitleSequenceDefinitions.Timing.MaximumBrightness, skipped.Brightness,
             "title skip returns at full brightness");
-        for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenNtscFrames; idle++)
+        for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames; idle++)
             skipped.Step(0);
         skipped.Step(ControllerButton.Start);
         StepUntil(() => skipped.DemoRequested, _ => skipped.Step(0), 40,

@@ -134,7 +134,7 @@ public static class TitleSequenceDefinitions
         /// <summary>Updates the copyright holds before the idle timeout starts.</summary>
         public const int CopyrightHoldFrames = 32;
         /// <summary>The idle title screen's timeout in updates; expiring selects the demo before a confirmation that update.</summary>
-        public const int TitleScreenNtscFrames = 900;
+        public const int TitleScreenIdleTimeoutFrames = 900;
         /// <summary>Updates between brightness decrements when leaving the idle title screen.</summary>
         public const int TitleFadeCadenceFrames = 2;
         /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>

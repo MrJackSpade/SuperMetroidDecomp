@@ -52,8 +52,8 @@ internal static class RetailSaveCaptureTests
             bool press = runtime.MessageBox.Phase == GameplayMessageBoxPhase.AwaitingInput && !pressedLastFrame;
             runtime.StepFrame(press ? ControllerButton.A : 0);
             pressedLastFrame = press;
-            confirmation |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveConfirmation;
-            completion |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveCompleted;
+            confirmation |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageId.SaveConfirmation;
+            completion |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageId.SaveCompleted;
             if (!electricity && runtime.Enemies.Projectiles.EnemyProjectiles.Any(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.SaveStationElectricity))
             {
                 if (runtime.Enemies.Projectiles.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))

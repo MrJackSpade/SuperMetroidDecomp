@@ -706,7 +706,7 @@ internal sealed class SuperMetroidRuntime
                 throw new InvalidDataException(
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
-            MessageBox.Begin(GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
+            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, Controller1.Current);
         }
     }
 

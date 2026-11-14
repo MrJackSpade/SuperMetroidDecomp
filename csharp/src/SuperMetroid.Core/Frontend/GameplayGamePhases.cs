@@ -235,7 +235,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // misses that final suspended frame.
         bool messageBoxOwnedFrame = session.GameplayRuntime.MessageBox.IsActive;
         bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
-            session.GameplayRuntime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
+            session.GameplayRuntime.MessageBox.MessageId == GameplayMessageId.MapDataAccessCompleted;
         // The station lock installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
         // game's Samus-handler call site has already passed pause-check.

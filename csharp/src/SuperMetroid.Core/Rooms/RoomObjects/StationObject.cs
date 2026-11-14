@@ -208,7 +208,7 @@ internal sealed class StationObject(
             SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
             stations.Publish(new StationActivationEvent(
                 StationKind.Save,
-                GameplayMessageIds.SaveCompleted,
+                GameplayMessageId.SaveCompleted,
                 Area,
                 SavedStation(place),
                 place.Block));
@@ -237,10 +237,10 @@ internal sealed class StationObject(
     {
         GameplayMessageId message = Kind switch
         {
-            StationKind.Map => GameplayMessageIds.MapDataAccessCompleted,
-            StationKind.Energy => GameplayMessageIds.EnergyRechargeCompleted,
-            StationKind.Missile => GameplayMessageIds.MissileRechargeCompleted,
-            StationKind.Save => GameplayMessageIds.SaveConfirmation,
+            StationKind.Map => GameplayMessageId.MapDataAccessCompleted,
+            StationKind.Energy => GameplayMessageId.EnergyRechargeCompleted,
+            StationKind.Missile => GameplayMessageId.MissileRechargeCompleted,
+            StationKind.Save => GameplayMessageId.SaveConfirmation,
             _ => throw new InvalidDataException($"Unknown station kind {Kind}."),
         };
 

@@ -364,8 +364,8 @@ internal sealed class CrocomireCombat
     /// <summary>Projects a projectile angle into signed 1/256-pixel X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
-        // A negative sine scales exactly as a positive one does. The
-        // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
+        // A negative sine scales exactly as a positive one does. The bearing is used as a heading without
+        // conversion, so X is its sine and Y its negative cosine.
         TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
         return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
             Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,

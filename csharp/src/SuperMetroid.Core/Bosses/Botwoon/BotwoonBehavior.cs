@@ -612,7 +612,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
             state.HeadPlayback.Animation, ref place, ref uncounted, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
-        // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
+        // A hold keeps the last frame shown: the head waits on it until a new animation is installed.
         if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)
             return;
         if (advance is not AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Frame shown)

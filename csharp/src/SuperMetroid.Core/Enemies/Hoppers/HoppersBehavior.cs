@@ -86,10 +86,10 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // selects nothing here; the two hop sizes' starting speeds are still calculated independently.
         state.SmallHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
             jumpHeight: 4096,
-            tableIndexDelta: 3);
+            curvePlaceStep: 3);
         state.BigHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
             jumpHeight: 12288,
-            tableIndexDelta: 4);
+            curvePlaceStep: 4);
     }
 
     /// <summary>Runs the Hopper's main AI and every indirect target.</summary>
@@ -303,23 +303,23 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sums the quadratic table's coarse speeds until the authored jump height is reached.</summary>
     internal static EnemyQuadraticSpeedIndex CalculateInitialHopperYSpeedCurvePlace(
         int jumpHeight,
-        int tableIndexDelta)
+        int curvePlaceStep)
     {
-        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
+        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
         int accumulatedHeight = 0;
         // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
         // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
         // speed of zero only (#1627).
         for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
-            tableIndex += EnemyQuadraticSpeedIndex.FromRows(tableIndexDelta);
+            curvePlace += EnemyQuadraticSpeedIndex.FromRows(curvePlaceStep);
 
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
             // initial jump row.
-            int heightIncrement = tableIndex.Row.CoarseToward(EnemySpeedSign.Positive);
+            int heightIncrement = curvePlace.Row.CoarseToward(EnemySpeedSign.Positive);
             accumulatedHeight = CoordinateAxis.Wrap(accumulatedHeight + heightIncrement);
             if (CoordinateAxis.Difference(accumulatedHeight, jumpHeight) >= 0)
-                return tableIndex;
+                return curvePlace;
         }
 
         throw new InvalidDataException(

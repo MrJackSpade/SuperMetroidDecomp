@@ -81,7 +81,7 @@ public sealed class SaveSlotStore
         slots[slot] = SaveSlotRetention.Retain(snapshot, slot, mapPresentation);
     }
 
-    /// <summary>File-copy menu index 13: the destination receives the source's save.</summary>
+    /// <summary>Copies a save as the file-select menu's data copy does: the destination receives the source's save.</summary>
     public void CopySlot(int sourceSlot, int destinationSlot)
     {
         RequireSlot(sourceSlot);
@@ -93,7 +93,7 @@ public sealed class SaveSlotStore
         slots[destinationSlot] = Detached(source, destinationSlot);
     }
 
-    /// <summary>File-clear menu index 25: the slot becomes empty.</summary>
+    /// <summary>Clears a save as the file-select menu's data clear does: the slot becomes empty.</summary>
     public void ClearSlot(int slot)
     {
         RequireSlot(slot);

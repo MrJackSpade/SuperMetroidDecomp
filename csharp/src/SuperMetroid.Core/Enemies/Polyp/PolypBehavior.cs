@@ -205,7 +205,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The rock integrates two adjacent quadratic samples per frame, first
-        // index velocity+1 and then velocity. This is why the table index changes by two
+        // the row after its speed's and then its speed's own. This is why the speed row changes by two
         // while the visual arc still advances at gameplay-frame rate.
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + EnemyQuadraticSpeedIndex.OneRow, sign: EnemySpeedSign.Negative);
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Negative);
@@ -231,11 +231,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
-        EnemyQuadraticSpeedIndex tableIndex,
+        EnemyQuadraticSpeedIndex speedIndex,
         EnemySpeedSign sign)
     {
         // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
-        SignedSixteenSixteen speed = tableIndex.Row.Toward(sign);
+        SignedSixteenSixteen speed = speedIndex.Row.Toward(sign);
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 

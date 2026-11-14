@@ -233,7 +233,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         MorphBallEyeBeam.AngularHalfWidth = RotationAngle.Zero;
         MorphBallEyeBeam.AngularHalfWidthGrowth = RotationAngle.Zero;
-        MorphBallEyeBeam.ColorIndex = 0;
+        MorphBallEyeBeam.ColourStep = 0;
         state.IsActivated = true;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
@@ -264,9 +264,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int colorIndex = MorphBallEyeBeam.ColorIndex;
-        MorphBallEyeBeam.Color = MorphBallEyeGeometry.BeamColor(colorIndex);
-        MorphBallEyeBeam.ColorIndex = (colorIndex + 1) % MorphBallEyeBeamDefinitions.ColorCycleLength;
+        int colourStep = MorphBallEyeBeam.ColourStep;
+        MorphBallEyeBeam.Color = MorphBallEyeGeometry.BeamColor(colourStep);
+        MorphBallEyeBeam.ColourStep = (colourStep + 1) % MorphBallEyeBeamDefinitions.ColorCycleLength;
     }
 
     /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>

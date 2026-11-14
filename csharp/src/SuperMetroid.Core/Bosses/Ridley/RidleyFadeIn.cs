@@ -1,24 +1,32 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ceres Ridley's eye and body palette fades.</summary>
+/// <summary>
+/// Ridley's fade-in, which both Ridleys share: Ceres Ridley as he appears in the space station and Norfair Ridley as he
+/// appears in his lair. His eyes fade in from the dark first, then his body one shade at a time; the final body shade
+/// ends his ignoring Samus's touch, starts the wait before his opening roar and starts the Ridley and Draygon battle
+/// music. Ceres Ridley's behaviour owns the one instance, and Norfair Ridley's behaviour runs the same fade through it.
+/// </summary>
 [RoomLifetime]
-internal sealed class CeresRidleyFades
+internal sealed class RidleyFadeIn
 {
     /// <summary>Receives the battle music the finished body fade starts.</summary>
     private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyFades(EnemyAudioQueue audio)
+    internal RidleyFadeIn(EnemyAudioQueue audio)
     {
         _audio = audio;
     }
 
-    /// <summary>Advances the eye-fade schedule one step on each AI call before enabling the body fade.</summary>
-    internal static void TickCeresRidleyEyeFade(RidleyEnemyState state)
+    /// <summary>
+    /// Advances either Ridley's eye fade one step on each AI call, showing the step's eye shade, and starts his body fade
+    /// once the eyes have finished.
+    /// </summary>
+    internal static void TickEyeFadeIn(RidleyEnemyState state)
     {
         // The game's increment-and-test advances once per AI call for every reachable
         // counter value, resetting that timer to zero immediately afterward.
@@ -40,8 +48,11 @@ internal sealed class CeresRidleyFades
         state.FadeStep++;
     }
 
-    /// <summary>Reveals the body one shade per step, clears intangible collision and queues the battle track at the final shade.</summary>
-    internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
+    /// <summary>
+    /// Reveals either Ridley's body one shade every second update; after the final shade he stops ignoring Samus, waits
+    /// before his opening roar, and the battle music starts.
+    /// </summary>
+    internal void TickBodyFadeIn(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (++state.PhaseTimer < 2)
             return;
@@ -52,12 +63,12 @@ internal sealed class CeresRidleyFades
         if (shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
             state.Colours.ShowBodyFade(shade);
         else throw new InvalidOperationException(
-            $"Ceres Ridley body-fade shade {shade} is outside the installed shades.");
+            $"Ridley body-fade shade {shade} is outside the installed shades.");
         state.FadeStep++;
         if (state.FadeStep < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
             return;
 
-        // The final eye-fade step makes Ridley intangible after the final shade, waits
+        // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits
         // five updates, then begins the opening-roar animation.
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;

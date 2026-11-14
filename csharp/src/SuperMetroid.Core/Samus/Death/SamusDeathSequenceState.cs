@@ -147,9 +147,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 AnimationCounter++;
                 if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
-                    // The explosion step loads palette pair zero, resets the reused counters, and immediately
+                    // The explosion step shows death shade zero, resets the reused counters, and immediately
                     // draws explosion frame zero in this very same game-state-17 call.
-                    WritePalettePair(samus, samusColours, paletteIndex: 0);
+                    ShowDeathShades(samus, samusColours, deathShade: 0);
                     paletteChanged = true;
                     AnimationTimer =
                         SamusDeathExplosionTiming.DurationForIndex(index: 0);
@@ -178,7 +178,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                             AnimationIndex = 0;
                             AnimationTimer = 3;
                         }
-                        WritePalettePair(samus, samusColours, AnimationIndex);
+                        ShowDeathShades(samus, samusColours, AnimationIndex);
                         paletteChanged = true;
                     }
                     drawPose = true;
@@ -225,7 +225,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             ScreenPosition, SpriteMirror.None));
     }
 
-    /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>
+    /// <summary>Advances the explosion timer, death shade and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
         SamusColours samusColours,
@@ -250,9 +250,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
         AnimationTimer =
             SamusDeathExplosionTiming.DurationForIndex(AnimationIndex);
-        int paletteIndex = (artwork ?? throw new InvalidOperationException(
+        int deathShade = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionStep(AnimationIndex);
-        WritePalettePair(samus, samusColours, paletteIndex);
+        ShowDeathShades(samus, samusColours, deathShade);
         paletteChanged = true;
         return true;
     }
@@ -289,9 +289,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>Shows the suited and suitless death shades the shown suit and the animation step select (#1512).</summary>
-    private static void WritePalettePair(SamusState samus, SamusColours samusColours, int paletteIndex)
+    private static void ShowDeathShades(SamusState samus, SamusColours samusColours, int deathShade)
     {
-        samusColours.ShowSuit(SamusShades.DeathSuit(samus.EquippedItems.ShownSuit(), paletteIndex));
-        samusColours.ShowSuitless(SamusShades.DeathSuitless(paletteIndex));
+        samusColours.ShowSuit(SamusShades.DeathSuit(samus.EquippedItems.ShownSuit(), deathShade));
+        samusColours.ShowSuitless(SamusShades.DeathSuitless(deathShade));
     }
 }

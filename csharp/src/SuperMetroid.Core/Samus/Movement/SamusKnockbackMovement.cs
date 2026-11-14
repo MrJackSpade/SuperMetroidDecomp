@@ -230,7 +230,7 @@ level, targetPose, frameCounter, roomObjects))
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        // The special handler does not replace the pose's speed-table index.
+        // The knockback keeps the speeds the pose's movement type selects.
         // Morphed bodies retain their own movement type throughout hurt movement.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);

@@ -83,8 +83,8 @@ internal static class CeresRidleyColorsVerification
             document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
-        Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
-        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
+        Action<RidleyEnemyState> eyeTick = RidleyFadeIn.TickEyeFadeIn;
+        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
         Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)

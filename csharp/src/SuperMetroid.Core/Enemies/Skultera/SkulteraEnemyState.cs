@@ -18,7 +18,7 @@ public sealed class SkulteraEnemyState
     /// <summary>Signed 1/65536-room-pixel displacement per swimming update to the left, from the negative half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>The vertical oscillation's phase; only its table index is meaningful, and it wraps after a full turn.</summary>
+    /// <summary>The vertical oscillation's phase; only its whole step is meaningful, and it wraps after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>Vertical oscillation radius in pixels, its authored wave height (0 through 255).</summary>

@@ -905,7 +905,7 @@ public sealed class SamusBombProjectileSystem
         // the blue door setup regardless of whether the collision came from the shot or bomb
         // step. Normal bombs use the bomb projectile family and are accepted; the Power
         // Bomb family is rejected inside the shared setup. Treating these
-        // private door behaviours as ordinary table indices both crashed on a blue door and lost
+        // private door behaviours as ordinary shot-block reactions both crashed on a blue door and lost
         // the game behavior that allows a bomb placed beside a blue door to open it.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))

@@ -75,7 +75,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Speed magnitude in 256ths of a pixel an update used by the curved entrance, 0 through 3584.</summary>
     public int Speed { get; private set; }
 
-    /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
+    /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
     public RotationAngle Angle { get; private set; }
 
     /// <summary>Phase timer: each phase counts it down and moves on once it runs past zero.</summary>
@@ -545,7 +545,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.InitiateFinalCharge:
-                // Divisor-table index 10 maps to 16 - 10 == 6. This helper family adds
+                // The game's inertia choice 10 gives a divisor of 16 - 10 == 6. This helper family adds
                 // 1024 only when an off-screen actor is moving the wrong horizontal way.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(290, 128),

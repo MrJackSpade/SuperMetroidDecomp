@@ -39,7 +39,7 @@ public sealed class RidleyEnemyState
     public PictureShading CommonDrawShading => Colours.SpriteShading(BodyFlashing);
     /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>
     public bool MovementAnimationEnabled { get; internal set; }
-    /// <summary>Gets the facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>
+    /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>
     public RidleyFacing FacingDirection { get; internal set; }
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
     public bool IdleTailWhipEnabled { get; internal set; }
@@ -110,7 +110,7 @@ public sealed class RidleyEnemyState
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
     /// <summary>Independent swoop phase countdown used by the swoop phases.</summary>
     public int SwoopPhaseTimer { get; internal set; }
-    /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
+    /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
     /// Gets the 1/256-pixel swoop speed magnitude (zero through 1280, in 1/256 pixels per update), converged 32 at a time toward

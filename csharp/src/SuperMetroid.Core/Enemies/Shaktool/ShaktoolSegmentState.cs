@@ -8,7 +8,7 @@ public sealed class ShaktoolSegmentState
     internal AnimationPlayback<ShaktoolSegment> Playback { get; set; }
     /// <summary>The chain's target heading, also advanced during straightening and used by attack movement cues.</summary>
     public RotationAngle TargetAngle { get; internal set; }
-    /// <summary>The angle around the immediately preceding segment; its table index selects the orbit displacement.</summary>
+    /// <summary>The angle around the immediately preceding segment; its whole step selects the orbit displacement.</summary>
     public RotationAngle OrbitAngle { get; internal set; }
     /// <summary>
     /// The turn the segment orbits by each update, up to four whole steps: an authored curling rate, a sixty-fourth of

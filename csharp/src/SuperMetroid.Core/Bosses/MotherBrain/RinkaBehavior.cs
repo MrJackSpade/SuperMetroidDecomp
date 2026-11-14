@@ -453,8 +453,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Clear();
 
-        // Clearing the enemy record leaves its spawn data in place, which the respawn cue rebuilds
-        // the Rinka from; a special Rinka that does not respawn keeps it as every cleared record does.
+        // Clearing the enemy leaves its spawn data in place, which the respawn cue rebuilds
+        // the Rinka from; a special Rinka that does not respawn keeps it as every cleared enemy does.
         slot.Spawn = survivingSpawnSnapshot;
         if (respawns)
         {

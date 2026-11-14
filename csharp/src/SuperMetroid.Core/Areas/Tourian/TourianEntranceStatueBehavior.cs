@@ -140,7 +140,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.AnimationClock.Restart();
         statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueSegment>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
 
-        // Only the first of the three enemy records creates the fixed screen actors. The
+        // Only the first of the three statue enemies creates the fixed screen actors. The
         // allocator searches from the last slot down, so this exact call order gives the
         // decoration, Ridley, and Phantoon their authored draw ordering.
         if (part == TourianEntranceStatueSegment.BaseDecoration)

@@ -180,7 +180,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ApplyBabyMetroidFrameEffects(step);
     }
 
-    /// <summary>Copies cutscene position, contact, processing, presence, shading and health state into the live enemy record.</summary>
+    /// <summary>Copies cutscene position, contact, processing, presence, shading and health state into the live enemy.</summary>
     private static void CopyBabyMetroidActorToPhysicalSlot(
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby,

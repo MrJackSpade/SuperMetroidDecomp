@@ -29,6 +29,6 @@ internal static class FirefleaFxDefinitions
     /// <summary>The darkness step, five deaths, from which the room stops flashing.</summary>
     internal const int SteadyDarknessStep = 5;
 
-    /// <summary>Fixed flashing-table index used at maximum darkness.</summary>
+    /// <summary>The fixed flash step used at maximum darkness.</summary>
     internal const int SteadyFlashIndex = 6;
 }

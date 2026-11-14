@@ -28,7 +28,7 @@ public sealed class FirefleaEnemyState
     public int Radius { get; internal set; }
 
     /// <summary>
-    /// The circle angle, wrapping around the turn. Main AI uses its table index as the circle's trigonometry angle.
+    /// The circle angle, wrapping around the turn. Main AI uses its whole step as the circle's trigonometry angle.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 

@@ -72,7 +72,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {
-            // The game soft-resets from menu index 33. Re-entering state
+            // The game soft-resets when the menu returns to the title. Re-entering state
             // zero makes all frontend-owned state disposable and deterministic.
             session.GameState = SuperMetroidGameState.Reset;
         }
@@ -199,7 +199,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
         else if (gameOver.ContinueRequested)
         {
-            // Menu index six publishes its state after the fully black
+            // The game-over menu's continue publishes its state after the fully black
             // frame. Keep that game-state boundary separate from save reload.
             session.Close<GameOverMenuState>();
             session.GameState = SuperMetroidGameState.FileSelectMap;

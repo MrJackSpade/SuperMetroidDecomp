@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Shared Kraid encounter state, plus the room-level effects whose
-/// owners sit outside an individual enemy record. No combat simplification
-/// is represented here: thresholds and functions are copied from retail arithmetic.
+/// owners sit outside any one enemy. No combat simplification
+/// is represented here: thresholds and formulas are copied from retail arithmetic.
 /// </summary>
 public sealed class KraidEnemyState
 {
@@ -68,7 +68,7 @@ public sealed class KraidEnemyState
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary>Returns the game's threshold for the selected eighth of the initializer's captured health.</summary>
-    /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
+    /// <param name="index">The choice of eighths, zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
     public int HealthEighthThreshold(int index) => KraidHealthThresholds.Eighth(InitialHealth, index);
     /// <summary>

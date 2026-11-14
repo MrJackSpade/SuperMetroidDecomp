@@ -88,7 +88,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>
     /// Signed pixel offset written by the tail-whip step and added to the body's
-    /// layer scroll, displacing the body graphics without moving the enemy records.
+    /// layer scroll, displacing the body graphics without moving the enemies themselves.
     /// </summary>
     public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
 

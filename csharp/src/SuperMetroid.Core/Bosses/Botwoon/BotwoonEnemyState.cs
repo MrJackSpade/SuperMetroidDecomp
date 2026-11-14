@@ -6,8 +6,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's state beyond the head's enemy record, including its thirteen body segments, which are not ordinary enemies
-/// and so are named here rather than given enemy records.
+/// Botwoon's state beyond what his head shares with every enemy, including its thirteen body segments, which are not
+/// ordinary enemies and so are kept here rather than spawned as enemies.
 /// </summary>
 public sealed class BotwoonEnemyState
 {

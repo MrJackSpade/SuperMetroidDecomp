@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -176,7 +176,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Draygon body has no behaviour for phase {state.Phase}.");
         }
 
-        // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate
+        // These are four separate enemies, but Draygon's main behaviour makes the body coordinate
         // authoritative after its phase runs. Copying here preserves that ordering for
         // the eye AI and each part's later animation step in the same enemy frame.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);

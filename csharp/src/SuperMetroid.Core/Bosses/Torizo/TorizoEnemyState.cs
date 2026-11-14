@@ -5,7 +5,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Torizo's state beyond its ordinary enemy record, kept in named fields rather than in
+/// Torizo's state beyond what every enemy has, kept in named fields rather than in
 /// shared boss values, so no common enemy field takes on a second meaning.
 /// </summary>
 public sealed class TorizoEnemyState : ILitTorizo

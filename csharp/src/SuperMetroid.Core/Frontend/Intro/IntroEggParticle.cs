@@ -12,7 +12,7 @@ internal sealed class IntroEggParticle
     /// <summary>The fragment, 0 through 5: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly int fragment;
 
-    /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
+    /// <summary>The frames the fragment has fallen, 0 through 255: its step along the fall's gravity curve.</summary>
     private int framesFallen;
 
     /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>

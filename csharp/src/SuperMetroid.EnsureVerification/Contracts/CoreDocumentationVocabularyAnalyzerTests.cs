@@ -388,5 +388,21 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect(CompatibilityService + "/// <summary>Evidence: the game filled the level before decompressing the room.</summary>\n[CompatibilityService(\"terrain\")] class Terrain { }");
         Expect("class P { /// <summary>An uncompressed stereo WAV; the colour and its index; an unsigned value; the set's complement.</summary>\nint F => 0; }");
         Expect("class P { // gravity adds 8.25 pixels, the 18.8 seconds pass, in version 0.8.8 and release 2.16.16\n }");
+        // The original's table positions and enemy record outside hardware owners (#1765): a menu index, a table index and
+        // an enemy record, spaced or hyphenated, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>File-copy menu index 13: the destination receives the source's save.</summary>\nint F => 0; }",
+            "('menu index')");
+        Expect("class P { // Performs menu indices zero through two\n }", "('menu indices')");
+        Expect("class P { /// <summary>Gets the facing-table index: zero for left.</summary>\nint F => 0; }", "('table index')");
+        Expect("class P { // treating them as ordinary table indices lost the door\n }", "('table indices')");
+        Expect("class P { /// <summary>The departure angles at two table indexes.</summary>\nint F => 0; }", "('table indexes')");
+        Expect("class P { /// <summary>Copies the health into the live enemy record.</summary>\nint F => 0; }", "('enemy record')");
+        Expect("class P { // These are four separate enemy records\n }", "('enemy records')");
+        Expect("class P { string Name => \"The enemy-record copy failed.\"; }", "('enemy-record')");
+        // A compatibility service may describe the enemy record its behaviour reads; a table indexed by a value, the menu's
+        // index, an enemy's record, and a menu, table, index, enemy or record alone are English.
+        Expect(CompatibilityService + "/// <summary>Evidence: the launch reads the sibling's enemy record.</summary>\n[CompatibilityService(\"sibling\")] class Sibling { }");
+        Expect("class P { /// <summary>The drop-chance table indexed by the definition; the menu's index; an enemy's record of kills.</summary>\nint F => 0; }");
+        Expect("class P { // the table and its index; the menu, the enemy and the record\n }");
     }
 }

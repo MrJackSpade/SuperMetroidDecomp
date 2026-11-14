@@ -16,7 +16,7 @@ public static class ShinesparkEchoDefinitions
         [SamusPoseId.ShinesparkDiagonalLeftPose] = Departure(32, 160),
     };
 
-    /// <summary>The departure angles at two table indexes.</summary>
+    /// <summary>The departure angles at two steps of the turn.</summary>
     internal static ShinesparkDepartureAngles Departure(int first, int second) =>
         new ShinesparkDepartureAngles(RotationAngle.FromSteps(first), RotationAngle.FromSteps(second));
 }

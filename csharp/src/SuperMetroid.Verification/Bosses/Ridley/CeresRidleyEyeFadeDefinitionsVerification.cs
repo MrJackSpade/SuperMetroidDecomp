@@ -44,7 +44,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         CeresRidleyColorCatalog colours = RetailImportPresentationFixture().CeresRidleyColors;
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
-        Action<RidleyEnemyState> tick = CeresRidleyFades.TickCeresRidleyEyeFade;
+        Action<RidleyEnemyState> tick = RidleyFadeIn.TickEyeFadeIn;
 
         var state = new RidleyEnemyState
         {

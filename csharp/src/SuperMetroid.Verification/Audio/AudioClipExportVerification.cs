@@ -58,7 +58,7 @@ internal static class AudioClipExportVerification
             if (music)
             {
                 VerifyMusic(catalog, clips.Clips, GreenBrinstarPhaseExactTrack);
-                MusicClipEntry exported = clips.Clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(GreenBrinstarPhaseExactTrack));
+                MusicClipEntry exported = clips.Clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, GreenBrinstarPhaseExactTrack));
                 AssertEqual(GreenBrinstarPhaseExactFrames, exported.Clip.Frames, "the loop check renders the exported clip's length");
                 AssertEqual(GreenBrinstarPhaseExactLoopStart, exported.LoopStart, "the loop check starts at the exported loop");
                 VerifyLoaderRejections(scratch.FullName, clips);
@@ -86,7 +86,7 @@ internal static class AudioClipExportVerification
     /// </summary>
     private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track)
     {
-        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(track));
+        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, track));
         _ = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
         long frames = entry.Clip.Frames;
@@ -115,7 +115,7 @@ internal static class AudioClipExportVerification
         RenderIndependently(
             catalog,
             MusicDataSet.GreenBrinstar,
-            AudioRequest.ForTrack(MusicTrackNumbers.Decode(track)),
+            AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, track)),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
             frames);

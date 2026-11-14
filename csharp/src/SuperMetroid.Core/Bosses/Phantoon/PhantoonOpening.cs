@@ -73,7 +73,7 @@ internal sealed class PhantoonOpening
         state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.MouthState.WaveAmplitudeShrinking = false;
         state.EyeState.FadeComplete = false;
-        _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+        _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
         state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
     }

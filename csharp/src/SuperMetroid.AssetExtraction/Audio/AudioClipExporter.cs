@@ -144,10 +144,12 @@ internal static class AudioClipExporter
             if (sample - start < clipFrames)
                 segments.Add(new SongTempo(sample - start, DriverTempoBeats.LengthAt(tempo)));
         }
+        MusicDataSet dataSet = AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
+            ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export.");
         return new MusicClipEntry(
-            AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
-                ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export."),
-            MusicTrackNumbers.Decode(key.Track),
+            dataSet,
+            // The data set and its track number decode into the song (#1748).
+            MusicTrackNumbers.Decode(dataSet, key.Track),
             Write(root, MusicDirectory, files, pcm),
             track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
             segments);
@@ -166,7 +168,7 @@ internal static class AudioClipExporter
         SoundEffectKey key,
         List<SoundEffectRenderShare> shares)
     {
-        int libraryIndex = SoundEffectLibraries.ToQueueIndex(key.Library);
+        int libraryIndex = SoundLibraryNumbers.DriverIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
@@ -238,10 +240,9 @@ internal static class AudioClipExporter
             (SpcDriverDefinitions.SoundEffects.LowHealthMode, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Enter,
             _ => throw new InvalidDataException($"Configuration {configuration} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
         };
-        if (fromLow.VoicesToSetup != fromHigh.VoicesToSetup)
-            throw new InvalidDataException($"Configuration {configuration} allocates voices by state.");
+        // The voices the configuration sets up stay the driver's: the render plays them, and the clips carry the result
+        // (#1749).
         return new SoundEffectClipPolicy(
-            fromLow.VoicesToSetup,
             priority,
             mode,
             IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),

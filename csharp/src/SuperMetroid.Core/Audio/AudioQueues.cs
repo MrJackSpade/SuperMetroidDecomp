@@ -142,10 +142,9 @@ public sealed class AudioQueues
         // every door. Treating that as a request to stop replaced the live escape track at
         // the first transition.
         // The door compares the requested data set and track, not the track alone.
-        // A changed data set restarts the track even when both rooms ask for the same part of
-        // their sets. The Ceres interstitial ends on the Zebes-explosion set's first song;
-        // Landing Site requests the empty-Crateria set's first song and therefore must queue
-        // it again after the load instead of leaving only the gunship-engine sound.
+        // A changed data set restarts the room's song even when that song already plays: the
+        // load stops the music, so the song must be queued again after it instead of leaving
+        // only the gunship-engine sound at the Landing Site.
         if (RoomTrackQueues(music.Track, changesMusicData))
             ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
@@ -178,13 +177,15 @@ public sealed class AudioQueues
 
     /// <summary>
     /// Whether a room's track choice is queued: never for an inherited track, always for a
-    /// silenced room, and for a played track when the data set changes or it is not playing.
+    /// silenced room, and for a played song or area theme when the data set changes or it is not playing.
     /// </summary>
     private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
     {
         RoomMusicTrack.Inherit => false,
         RoomMusicTrack.Silence => true,
         RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
+        // With no data set loaded no area theme can play, so the choice is queued.
+        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || DataSet is not MusicDataSet loaded || AreaThemeDefinitions.Themes[loaded] != PlayingTrack,
         _ => throw new InvalidDataException($"Unknown room music track {track}."),
     };
 
@@ -306,7 +307,13 @@ public sealed class AudioQueues
                 return;
             }
 
-            PlayingTrack = (pending.Request as MusicRequest.PlayTrack)?.Track;
+            PlayingTrack = pending.Request switch
+            {
+                MusicRequest.PlayTrack play => play.Track,
+                MusicRequest.PlayAreaTheme => AreaThemeOf(DataSet),
+                MusicRequest.StopMusic => null,
+                _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
+            };
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
             _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
@@ -315,6 +322,12 @@ public sealed class AudioQueues
         if (Music.TryPeek(out QueuedMusic? next))
             PendingMusic = new PendingMusicDispatch(next.Request, next.Delay.Updates);
     }
+
+    /// <summary>The area theme of <paramref name="dataSet"/>, the data set loaded as an area-theme request plays.</summary>
+    /// <exception cref="InvalidOperationException">No data set is loaded, so no area theme can play.</exception>
+    private static MusicTrack AreaThemeOf(MusicDataSet? dataSet) => dataSet is MusicDataSet loaded
+        ? AreaThemeDefinitions.Themes[loaded]
+        : throw new InvalidOperationException("An area theme was requested with no music data set loaded.");
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
     private void HandleSoundEffects(

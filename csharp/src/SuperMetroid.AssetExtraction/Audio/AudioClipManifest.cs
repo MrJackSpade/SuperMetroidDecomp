@@ -26,7 +26,9 @@ public sealed record AudioClipManifest(
     /// (#1693) names each sound by its identity alone, where version 2 held its library's request number, and records no
     /// source catalog identity, clip digest or missing instrument sources. Version 4 (#1725) times the music's beat in
     /// clip frames: the power-on beat and each tempo segment hold how long the beat lasts, where version 3 held the sound
-    /// driver's tempo values, and each sound-effect layer lists its note starts as <c>noteStarts</c>.
+    /// driver's tempo values, and each sound-effect layer lists its note starts as <c>noteStarts</c>. Version 5 (#1749) records no voice count in a
+    /// sound's policy. Version 6 (#1748) names each song for what it is, where version 5 named its part in its data set,
+    /// and names the boss data sets for their content.
     /// </summary>
-    public const int CurrentFormatVersion = 4;
+    public const int CurrentFormatVersion = 6;
 }

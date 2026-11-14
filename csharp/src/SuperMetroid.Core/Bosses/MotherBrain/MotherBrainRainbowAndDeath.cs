@@ -113,7 +113,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
         }
         if (step.MusicStopQueued) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
-        if (step.EscapeMusicQueued) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
+        if (step.EscapeMusicQueued) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.RidleyAndDraygonBattles), MusicQueueDelay.Shortest);
         if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
         if (step.EscapeTypewriterSetupRequested)
         {

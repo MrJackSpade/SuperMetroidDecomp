@@ -117,7 +117,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.RoomObjects.BombTorizoHandRemains)
                     return;
 
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
                 TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
                 return;
@@ -302,7 +302,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
                 _frameResults.TorizoBellyGlow = new(ColourEffectId.BombTorizoBelly, state);
                 return null;
@@ -459,7 +459,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
-                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
                 torizo.Radius = new(18, 48);
                 _frameResults.TorizoBellyGlow = new(ColourEffectId.GoldenTorizoBelly, state);
                 return null;

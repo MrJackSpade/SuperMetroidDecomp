@@ -11,7 +11,7 @@ public static class CeresRoomStateDefinitions
 
     /// <summary>The Ceres Elev room's state 0.</summary>
     public static RoomStateSettings CeresElevDefault { get; } =
-        new(nameof(CeresElevDefault), RoomLevelDefinitions.CeresElev, RoomGraphicsSet.BlueCeresElevator, new RoomMusic(MusicDataSet.Ceres, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupBehavior.SpawnCeresHaze);
+        new(nameof(CeresElevDefault), RoomLevelDefinitions.CeresElev, RoomGraphicsSet.BlueCeresElevator, new RoomMusic(MusicDataSet.Ceres, RoomMusicTrack.Plays(MusicTrack.CeresStation)), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupBehavior.SpawnCeresHaze);
 
 
     /// <summary>The Ceres Elev room's state 1.</summary>
@@ -61,7 +61,7 @@ public static class CeresRoomStateDefinitions
 
     /// <summary>The Ceres Ridley room's state 0.</summary>
     public static RoomStateSettings CeresRidleyDefault { get; } =
-        new(nameof(CeresRidleyDefault), RoomLevelDefinitions.CeresRidley, RoomGraphicsSet.BlueCeresRidley, new RoomMusic(MusicDataSet.BossFight1, RoomMusicTrack.Silenced), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyDefault, RoomEnemyPopulationDefinitions.CeresRidleyDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.HandleCeresRidleyGetawayCutscene, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidley, null, RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze);
+        new(nameof(CeresRidleyDefault), RoomLevelDefinitions.CeresRidley, RoomGraphicsSet.BlueCeresRidley, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Silenced), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyDefault, RoomEnemyPopulationDefinitions.CeresRidleyDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.HandleCeresRidleyGetawayCutscene, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidley, null, RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze);
 
 
     /// <summary>The Ceres Ridley room's state 1.</summary>

@@ -80,9 +80,9 @@ internal sealed class BombTorizoHandObjects
             slot.Block));
 
     /// <summary>
-    /// Queues the loaded set's second song with the shared eight-frame delay, now.
+    /// Queues the Torizo's awakening with the shared eight-frame delay, now.
     /// </summary>
     internal void QueueMusic() =>
-        _sounds.ScheduleMusic(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
+        _sounds.ScheduleMusic(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening), MusicQueueDelay.Shortest));
 
 }

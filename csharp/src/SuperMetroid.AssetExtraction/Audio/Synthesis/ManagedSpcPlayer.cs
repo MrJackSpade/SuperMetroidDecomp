@@ -229,7 +229,7 @@ public sealed class ManagedSpcPlayer
         if (tick.ChecksRequests)
         {
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[SoundEffectLibraries.FromQueueIndex(library)]);
+                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[SoundLibraryNumbers.FromDriverIndex(library)]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }

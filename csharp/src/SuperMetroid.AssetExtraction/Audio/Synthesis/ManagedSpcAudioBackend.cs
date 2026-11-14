@@ -15,6 +15,12 @@ public sealed class ManagedSpcAudioBackend
     private readonly ExtractedAudioAssetCatalog assets;
     /// <summary>Reusable driver schedule rebuilt from each update's tick events.</summary>
     private readonly SoundClockStep<SoundEffectLibrary, byte>[] schedule = new SoundClockStep<SoundEffectLibrary, byte>[SoundClockTiming.MaximumStepsPerUpdate];
+    /// <summary>
+    /// The data set the last bank load installed, or null while only the shared songs are loaded: the driver plays a song by
+    /// its number in the loaded set (#1748). A continued player starts with none known, so it selects only shared songs
+    /// until a bank loads.
+    /// </summary>
+    private MusicDataSet? loadedDataSet;
 
     /// <summary>Creates the backend over a catalog, continuing an existing player or creating a new one.</summary>
     /// <param name="assets">Upload, instrument, music, sound-program, and sample definitions installed by bank loads.</param>
@@ -51,10 +57,11 @@ public sealed class ManagedSpcAudioBackend
                 case AudioEvent.ChangeMusicDataSet change:
                     RequireBeforeTicks(ticks, audioEvent);
                     LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
+                    loadedDataSet = change.DataSet;
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(track) : 0)));
+                    Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(loadedDataSet, track) : 0)));
                     break;
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)

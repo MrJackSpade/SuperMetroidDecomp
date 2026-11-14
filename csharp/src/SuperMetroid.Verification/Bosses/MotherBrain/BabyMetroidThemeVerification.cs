@@ -31,7 +31,7 @@ internal static class BabyMetroidThemeVerification
             MusicRequest[] expected = frame switch
             {
                 0 => [MusicRequest.Stop],
-                72 => [MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria), MusicRequest.SelectTrack(MusicTrack.FirstSetSong)],
+                72 => [MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria), MusicRequest.SelectTrack(MusicTrack.SamusTheme)],
                 _ => [],
             };
             AssertEqual(expected.Length, enemies.Audio.MusicRequests.Count, $"Native cutscene music request count at frame {frame}");

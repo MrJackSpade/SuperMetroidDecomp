@@ -39,7 +39,7 @@ internal static class AudioClipBackendVerification
     {
         InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
-        VerifyEquivalence(clips.Clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack)), MusicUpdates, "Green Brinstar room track");
+        VerifyEquivalence(clips.Clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack)), MusicUpdates, "Green Brinstar room track");
         VerifyEquivalence(clips.Clips, extracted, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
         VerifyMusicCommands(clips.Clips, BeatUpdates(clips.Manifest));
         VerifySoundCommands(clips);
@@ -92,12 +92,12 @@ internal static class AudioClipBackendVerification
     {
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
-        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack))]);
+        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack))]);
         script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long start = script.State.SongStart;
-        AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(RoomTrack)), script.State.Song, "the room song's clip starts");
+        AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack)), script.State.Song, "the room song's clip starts");
 
-        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack))]);
+        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack))]);
         script.Advance(60);
         AssertEqual(start, script.State.SongStart, "requesting the playing song does not restart it");
 
@@ -105,15 +105,15 @@ internal static class AudioClipBackendVerification
         script.AdvanceUntil(() => script.State.Song is null, beatUpdates);
         AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "stop leaves no song playing");
 
-        MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(EndingTrack));
+        MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, EndingTrack));
         AssertTrue(ending.LoopStart is null, "track 2 ends");
-        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(EndingTrack))]);
+        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, EndingTrack))]);
         script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long firstStart = script.State.SongStart;
         script.AdvanceUntil(() => script.State.Song is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
         AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "an ended song leaves no song playing");
         AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the song ended after its whole clip");
-        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(EndingTrack))]);
+        script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, EndingTrack))]);
         script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         AssertTrue(script.State.SongStart > firstStart, "the same song restarts after it ended");
     }
@@ -130,7 +130,7 @@ internal static class AudioClipBackendVerification
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips.Clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
-        ClipLibraryState library2 = script.State.Libraries[1];
+        ClipLibraryState library2 = script.State.Libraries[SoundEffectLibrary.Enemies];
 
         script.Advance([new AudioRequest.RequestSound(high.Sound)]);
         script.AdvanceUntil(() => library2.Sound is not null, SoundStartUpdates);
@@ -143,7 +143,7 @@ internal static class AudioClipBackendVerification
         AssertTrue(library2.Active && library2.HighPriority, "the high-priority sound still holds library 2");
         script.AdvanceUntil(() => library2.Sound?.Sound == EnemySound.Silence, SoundStartUpdates);
 
-        ClipLibraryState library3 = script.State.Libraries[2];
+        ClipLibraryState library3 = script.State.Libraries[SoundEffectLibrary.Room];
         script.Advance([new AudioRequest.RequestSound(RoomSound.LowHealthBeep)]);
         script.AdvanceUntil(() => library3.Sound?.Sound == RoomSound.LowHealthBeep, SoundStartUpdates);
         AssertTrue(library3.InLowHealthMode, "the low-health beep enters low-health mode");
@@ -172,13 +172,13 @@ internal static class AudioClipBackendVerification
         /// <summary>Reusable PCM output.</summary>
         private readonly short[] pcm = new short[AudioSession.PcmSamplesPerFrame];
         /// <summary>Absolute frame of each library's most recent start event.</summary>
-        private readonly long[] lastStarts = new long[3];
+        private readonly Dictionary<SoundEffectLibrary, long> lastStarts = [];
 
         /// <summary>The backend's playback state.</summary>
         internal ClipPlaybackState State => backend.State;
 
         /// <summary>The absolute frame of the library's most recent start event.</summary>
-        internal long LastStart(SoundEffectLibrary library) => lastStarts[SoundEffectLibraries.ToQueueIndex(library)];
+        internal long LastStart(SoundEffectLibrary library) => lastStarts[library];
 
         /// <summary>Advances one update with <paramref name="commands"/>.</summary>
         internal void Advance(IReadOnlyList<AudioRequest> commands)
@@ -188,7 +188,7 @@ internal static class AudioClipBackendVerification
             foreach (AudioEvent audioEvent in events)
             {
                 if (audioEvent is AudioEvent.StartSoundEffect started)
-                    lastStarts[SoundEffectLibraries.ToQueueIndex(started.SoundEffect.Library)] = frameStart + started.SampleOffset;
+                    lastStarts[started.SoundEffect.Library] = frameStart + started.SampleOffset;
             }
             backend.Render(new AudioFrameEvents(events), pcm);
         }

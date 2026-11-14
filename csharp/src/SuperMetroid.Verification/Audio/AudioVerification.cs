@@ -38,7 +38,7 @@ internal static class AudioVerification
         // #1410: the requests are asserted by kind and identity instead of by their cartridge queue words.
         AssertEqual<MusicRequest>(new MusicRequest.ChangeDataSet(MusicDataSet.MotherBrain), MusicRequest.LoadDataSet(MusicDataSet.MotherBrain),
             "a data set change names its data set");
-        AssertEqual<MusicRequest>(new MusicRequest.PlayTrack(MusicTrack.FirstSetSong), MusicRequest.SelectTrack(MusicTrack.FirstSetSong),
+        AssertEqual<MusicRequest>(new MusicRequest.PlayTrack(MusicTrack.TitleOpening), MusicRequest.SelectTrack(MusicTrack.TitleOpening),
             "a track request names its track");
         AssertTrue(MusicRequest.Stop is MusicRequest.StopMusic, "the stop request");
         AssertEqual(MusicRequest.Stop, MusicRequest.SelectTrackOrStop(null), "no track stops the music");
@@ -48,8 +48,21 @@ internal static class AudioVerification
             "music delay preserves longer countdown");
         // #1553: a track is a name, so the stop has no track number; the import codec rejects a number no song has.
         AssertThrows<InvalidDataException>(
-            () => MusicTrackNumbers.Decode(0),
+            () => MusicTrackNumbers.Decode(MusicDataSet.TitleSequence, 0),
             "a track number no song has fails at import");
+        // #1748: a song is named for what it is, and the import decodes the data set and its track number into it; the same
+        // number names another song in another set. A room that keeps the loaded set plays the set's first own song, which
+        // the game's catalog names as each set's area theme.
+        AssertEqual(MusicTrack.TitleScreen, MusicTrackNumbers.Decode(MusicDataSet.TitleSequence, 6), "the title set's second own song");
+        AssertEqual(MusicTrack.WestMaridia, MusicTrackNumbers.Decode(MusicDataSet.Maridia, 6), "Maridia's second own song");
+        AssertEqual(7, MusicTrackNumbers.Number(MusicDataSet.BabyMetroidEncounter, MusicTrack.SilentSong), "a song two sets hold has each set's number");
+        AssertEqual(6, MusicTrackNumbers.Number(MusicDataSet.Tourian, MusicTrack.SilentSong), "a song two sets hold has each set's number");
+        AssertThrows<InvalidDataException>(
+            () => MusicTrackNumbers.Decode(null, MusicTrackNumbers.AreaThemeTrack),
+            "with only the shared songs loaded, a set's own track number names no song");
+        foreach (MusicDataSet dataSet in Enum.GetValues<MusicDataSet>())
+            AssertEqual(MusicTrackNumbers.Decode(dataSet, MusicTrackNumbers.AreaThemeTrack), AreaThemeDefinitions.Themes[dataSet],
+                $"{dataSet}'s area theme is its first own song");
         AssertThrows<InvalidDataException>(
             () => MusicQueueDelay.FromEffectiveUpdates(7),
             "invalid effective music delay fails loudly");
@@ -80,7 +93,7 @@ internal static class AudioVerification
 
         var audio = AudioQueues.Standalone();
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.TitleOpening));
 
         IReadOnlyList<AudioRequest> reset =
             audio.AdvanceFrame(default);
@@ -111,7 +124,7 @@ internal static class AudioVerification
         {
             foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
-                if (command == AudioRequest.ForTrack(MusicTrack.FirstSetSong))
+                if (command == AudioRequest.ForTrack(MusicTrack.TitleOpening))
                     trackCall = call;
             }
         }
@@ -120,7 +133,7 @@ internal static class AudioVerification
         // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
         // request to prove queue clearing, then observe track two, the 360-frame fanfare
         // hold/silence, and restoration of the room track that was live at acquisition.
-        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
+        audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.TitleScreen));
         audio.QueuePermanentItemFanfare();
         var permanentItemPortWrites = new List<int>();
         for (int frame = 0; frame < 384; frame++)
@@ -128,7 +141,7 @@ internal static class AudioVerification
             foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
                 if (command is AudioRequest.PlayMusicTrack play)
-                    permanentItemPortWrites.Add(MusicTrackNumbers.Number(play.Track));
+                    permanentItemPortWrites.Add(MusicTrackNumbers.Number(audio.DataSet, play.Track));
                 else if (command is AudioRequest.StopMusic)
                     permanentItemPortWrites.Add(0);
             }
@@ -142,17 +155,17 @@ internal static class AudioVerification
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
         var inheritedRoomMusic = AudioQueues.Standalone();
         inheritedRoomMusic.AdvanceFrame(default);
-        inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
+        inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
         // The first handler call copies the newly queued entry into the active timer;
         // the following eight calls count down the native delay and emit the port write.
         for (int frame = 0; frame < 9; frame++)
             inheritedRoomMusic.AdvanceFrame(default);
-        AssertEqual(MusicTrack.ThirdSetSong, inheritedRoomMusic.PlayingTrack,
+        AssertEqual(MusicTrack.Escape, inheritedRoomMusic.PlayingTrack,
             "escape track is live before zero-music room transition");
         inheritedRoomMusic.QueueRoomMusic(RoomMusic.Inherited);
         AssertTrue(!inheritedRoomMusic.HasQueuedMusic,
             "inherited room music preserves the Ceres escape track");
-        AssertEqual(MusicTrack.ThirdSetSong, inheritedRoomMusic.PlayingTrack,
+        AssertEqual(MusicTrack.Escape, inheritedRoomMusic.PlayingTrack,
             "an inherited room track does not silence escape music");
 
         // RoomState_CeresRidley_0 ($8F:E0C7) contains music ($24,$80). $82:E0D5 queues a nonzero track byte verbatim and
@@ -160,17 +173,22 @@ internal static class AudioVerification
         // room-state import decodes the byte once into the room's track choice; every byte that names a choice is
         // decoded and queued here, and every other byte (above $80, or a track number no song has, #1553), which no
         // retail room state holds, fails at import.
-        int[] songNumbers = [.. Enum.GetValues<MusicTrack>().Select(MusicTrackNumbers.Number)];
+        // #1748: a room that keeps the loaded set names a shared song or the loaded set's area theme; the room below enters
+        // with Green Brinstar's set loaded, so each choice plays what that set's track number names.
+        int[] keptSetNumbers = [.. MusicTrackNumbers.SharedTrackNumbers, MusicTrackNumbers.AreaThemeTrack];
         for (int roomTrack = 0; roomTrack <= byte.MaxValue; roomTrack++)
         {
-            if (roomTrack is not (0 or 0x80) && !songNumbers.Contains(roomTrack))
+            if (roomTrack is not (0 or 0x80) && !keptSetNumbers.Contains(roomTrack))
             {
                 AssertThrows<InvalidDataException>(() => RoomMusicCodec.Decode(0, (byte)roomTrack),
                     $"room track ${roomTrack:X2} is not one retail room states hold");
                 continue;
             }
             var roomMusic = AudioQueues.Standalone();
-            roomMusic.AdvanceFrame(default);
+            roomMusic.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
+            for (int frame = 0; frame < 9; frame++)
+                roomMusic.AdvanceFrame(default);
+            AssertEqual<MusicDataSet?>(MusicDataSet.GreenBrinstar, roomMusic.DataSet, "the room's kept data set is loaded");
             roomMusic.QueueRoomMusic(RoomMusicCodec.Decode(0, (byte)roomTrack));
             var portWrites = new List<AudioRequest>();
             for (int frame = 0; frame < 9; frame++)
@@ -179,19 +197,19 @@ internal static class AudioVerification
             if (roomTrack == 0)
                 AssertEqual(0, portWrites.Count, "room byte zero inherits rather than queues stop");
             else
-                AssertSequenceEqual(new[] { AudioRequest.ForTrack(roomTrack == 0x80 ? null : MusicTrackNumbers.Decode(roomTrack)) }, portWrites,
+                AssertSequenceEqual(new[] { AudioRequest.ForTrack(roomTrack == 0x80 ? null : MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, roomTrack)) }, portWrites,
                     $"native room track ${roomTrack:X2} dispatches its low seven bits");
         }
 
-        // The Zebes approach interstitial and Landing Site both call their song "track
-        // five", but use different SPC data banks. `$82:E0E6-$E104` compares the packed
-        // bank/track pair, so the latter track must be resent after bank six uploads.
+        // A changed data set restarts the room's song even when that song already plays.
+        // `$82:E0E6-$E104` compares the packed bank/track pair, so the Landing Site's song
+        // must be resent after bank six uploads.
         var postCeresLandingMusic = AudioQueues.Standalone();
         postCeresLandingMusic.AdvanceFrame(default);
-        postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+        postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(MusicTrack.CrateriaArrival));
         for (int frame = 0; frame < 9; frame++)
             postCeresLandingMusic.AdvanceFrame(default);
-        postCeresLandingMusic.QueueRoomMusic(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)));
+        postCeresLandingMusic.QueueRoomMusic(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.CrateriaArrival)));
         var postCeresMusicCommands = new List<AudioRequest>();
         for (int frame = 0; frame < 40; frame++)
             postCeresMusicCommands.AddRange(postCeresLandingMusic.AdvanceFrame(default));
@@ -201,8 +219,8 @@ internal static class AudioVerification
             "Landing Site changes the post-Ceres SPC data bank");
         AssertTrue(
             postCeresMusicCommands.Any(command =>
-                command == AudioRequest.ForTrack(MusicTrack.FirstSetSong)),
-            "Landing Site restarts same-numbered track after SPC data-bank change");
+                command == AudioRequest.ForTrack(MusicTrack.CrateriaArrival)),
+            "Landing Site restarts its playing song after SPC data-bank change");
 
         var sfx = AudioQueues.Standalone();
         sfx.AdvanceFrame(default); // consume reset upload/port writes

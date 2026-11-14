@@ -102,9 +102,8 @@ public sealed class ClipAudioBackend
     {
         ReleaseMusic(now);
         State.SwitchClipSet(clipSet);
-        for (int index = 0; index < State.Libraries.Length; index++)
+        foreach (ClipLibraryState library in State.Libraries.Values)
         {
-            ClipLibraryState library = State.Libraries[index];
             if (library.Sound is not SoundEffectClipEntry sound)
                 continue;
             ReleaseSound(library, now);
@@ -125,7 +124,7 @@ public sealed class ClipAudioBackend
         if (checksRequests)
         {
             // A sound ends at the check after its logical end; a request at that check itself still meets it.
-            foreach (ClipLibraryState library in State.Libraries)
+            foreach (ClipLibraryState library in State.Libraries.Values)
                 library.EndIfFinished(now);
         }
 
@@ -166,8 +165,7 @@ public sealed class ClipAudioBackend
     /// <summary>Applies a sound start at its request check: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>
     private void StartSoundEffect(SoundEffectId soundEffect, long now)
     {
-        int index = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        ClipLibraryState library = State.Libraries[index];
+        ClipLibraryState library = State.Libraries[soundEffect.Library];
         SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect);
         if (library.Rejects(policy))
             return;
@@ -207,7 +205,7 @@ public sealed class ClipAudioBackend
             int right = 0;
             if (State.Song is MusicClipEntry song)
                 Add(song.Clip, song.LoopStart, now - State.SongStart, 1, 1, ref left, ref right);
-            foreach (ClipLibraryState library in State.Libraries)
+            foreach (ClipLibraryState library in State.Libraries.Values)
             {
                 if (library.Sound is not SoundEffectClipEntry sound)
                     continue;

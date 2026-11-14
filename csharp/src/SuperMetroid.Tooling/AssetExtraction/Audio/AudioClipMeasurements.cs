@@ -44,7 +44,7 @@ internal static class AudioClipMeasurements
         observer.Attach(renderer);
         MusicTrackAnalysis.QueueBanks(renderer, track.Bank);
         renderer.AdvanceSequencerFrame();
-        renderer.PlayTrack(MusicTrackNumbers.Decode(track.Track));
+        renderer.PlayTrack(MusicTrackNumbers.Decode(track.Bank, track.Track));
         while (observer.Period is null)
             renderer.AdvanceSequencerFrame();
         return observer.Period.Value;

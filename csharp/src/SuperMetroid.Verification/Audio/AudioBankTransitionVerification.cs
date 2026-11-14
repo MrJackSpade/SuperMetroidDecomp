@@ -51,16 +51,17 @@ internal static class AudioBankTransitionVerification
             new FullRunSuitesVerification.RegisteredSuite($"{nameof(VerifyAudioBankTransition)}{bank.Name}", () => VerifyAudioBankTransition(bank))),
     ];
 
-    /// <summary>Checks that <paramref name="bank"/>'s first song can hand over to the captivity track with audible output.</summary>
+    /// <summary>Checks that <paramref name="bank"/>'s area theme can hand over to the captivity track with audible output.</summary>
     private static void VerifyAudioBankTransition(AudioUploadAssetDefinition bank)
     {
         var renderer = AudioSessionAccess.CreateSynthesizing(InstalledFixtures.Audio);
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
-        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
-        renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
+        MusicDataSet dataSet = bank.DataSet ?? throw new InvalidOperationException($"{bank.Name} holds no music data set.");
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(dataSet)]);
+        renderer.RenderFrame([AudioRequest.ForTrack(AreaThemeDefinitions.Themes[dataSet])]);
         for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.LastMetroidInCaptivity)]);
-        renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
+        renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.LastMetroidInCaptivity)]);
         bool audible = false;
         for (int frame = 0; frame < 600; frame++)
             audible |= renderer.RenderFrame([]).Any(sample => sample != 0);

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Zoa;
 
 namespace SuperMetroid.Verification.Enemies.Zoa;
 
-/// <summary>The kind and operands of one zoa native list addresses instruction.</summary>
-/// <param name="Kind">The kind.</param>
+/// <summary>The cue one Zoa native list instruction becomes, and its operand roles.</summary>
+/// <param name="Cue">The cue, with the launch speed it selects.</param>
 /// <param name="Operands">The operands.</param>
-internal readonly record struct ZoaNativeListAddressesInstruction(ZoaCueKind Kind, string Operands);
+internal readonly record struct ZoaNativeListAddressesInstruction(ZoaCue Cue, string Operands);

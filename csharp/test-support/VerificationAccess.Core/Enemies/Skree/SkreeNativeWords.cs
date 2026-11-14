@@ -26,6 +26,5 @@ internal static class SkreeNativeWords
         [SkreeMetareeAnimationPhase.Idling] = 0,
         [SkreeMetareeAnimationPhase.PreparingAttack] = 1,
         [SkreeMetareeAnimationPhase.Diving] = 2,
-        [SkreeMetareeAnimationPhase.StopAnimating] = 3,
     });
 }

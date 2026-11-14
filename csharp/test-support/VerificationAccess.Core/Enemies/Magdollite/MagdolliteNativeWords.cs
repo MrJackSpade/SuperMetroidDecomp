@@ -17,7 +17,7 @@ internal static class MagdolliteNativeWords
         [MagdolliteAction.HeadWaitingForReturnAnimation] = 0xb1b8,
         [MagdolliteAction.BodyDormant] = 0xb1dd,
         [MagdolliteAction.BodyRising] = 0xb204,
-        [MagdolliteAction.NoOpAtApex] = 0xb291,
+        [MagdolliteAction.HoldingAtApex] = 0xb291,
         [MagdolliteAction.BodyFalling] = 0xb295,
         [MagdolliteAction.OverlayWaitingForAttack] = 0xb30d,
         [MagdolliteAction.OverlayWaitingForThrowAnimation] = 0xb31f,

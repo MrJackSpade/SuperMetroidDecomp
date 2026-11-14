@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HitboxTouch">The named reaction of the overlapping hitbox (the definition's on the radius path), if named.</param>
 /// <param name="ContactDamageIndex">Samus's contact-damage index sampled at the pass entry.</param>
+/// <param name="Camera">The camera's position as the touch pass runs.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyTouchContext(
     RoomEnemySlot Slot,
@@ -22,4 +23,5 @@ internal readonly record struct EnemyTouchContext(
     RoomLevelData? Level,
     bool UsesFrameHitboxes,
     EnemyReaction? HitboxTouch,
-    SamusContactDamageIndex ContactDamageIndex);
+    SamusContactDamageIndex ContactDamageIndex,
+    Position16<RoomPixels> Camera);

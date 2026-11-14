@@ -3,17 +3,20 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>Seven immutable Puyo hop definitions, independent of animation artwork.</summary>
 public static class PuyoHopDefinitions
 {
-    /// <summary>Each hop's height, horizontal speed, vertical-curve step and airborne behaviour.</summary>
+    /// <summary>Each hop's height, horizontal speed, speed-curve step and airborne behaviour.</summary>
     internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {
-        [PuyoHopType.NormalSmall] = new(16, 256, 512, PuyoAirborneMovement.NormalShortHop),
-        [PuyoHopType.NormalBig] = new(32, 256, 512, PuyoAirborneMovement.NormalBigHop),
-        [PuyoHopType.NormalHigh] = new(32, 512, 768, PuyoAirborneMovement.NormalLongHop),
-        [PuyoHopType.Giant] = new(128, 320, 512, PuyoAirborneMovement.GiantHop),
-        [PuyoHopType.Dropping] = new(0, 0, 256, PuyoAirborneMovement.Dropping),
-        [PuyoHopType.DroppedSmall] = new(16, 256, 448, PuyoAirborneMovement.Dropped),
-        [PuyoHopType.DroppedBig] = new(21, 256, 448, PuyoAirborneMovement.Dropped),
+        [PuyoHopType.NormalSmall] = new(16, 256, QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalShortHop),
+        [PuyoHopType.NormalBig] = new(32, 256, QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalBigHop),
+        [PuyoHopType.NormalHigh] = new(32, 512, QuadraticSpeedCurvePlace.FromMarks(3), PuyoAirborneMovement.NormalLongHop),
+        [PuyoHopType.Giant] = new(128, 320, QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.GiantHop),
+        [PuyoHopType.Dropping] = new(0, 0, QuadraticSpeedCurvePlace.FromMarks(0), PuyoAirborneMovement.Dropping),
+        [PuyoHopType.DroppedSmall] = new(16, 256, QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(448), PuyoAirborneMovement.Dropped),
+        [PuyoHopType.DroppedBig] = new(21, 256, QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(448), PuyoAirborneMovement.Dropped),
     };
+
+    /// <summary>The speed a dropping Puyo falls at, one pixel per frame, until it lands.</summary>
+    internal static SignedSixteenSixteen DropSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>
     /// The random field a Puyo's hop roll starts from: the sample modulo 8. The roll adds the enemy's frame counter and

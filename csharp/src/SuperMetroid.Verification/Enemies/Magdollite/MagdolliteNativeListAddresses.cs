@@ -56,7 +56,7 @@ internal static class MagdolliteNativeListAddresses
         [0xaeca] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.ShiftRightUp4, ""),
         [0xaee4] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.ShiftLeftUp4, ""),
         [0xaefe] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.ShiftRightUp8, ""),
-        [0xaf18] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.ShiftLeftUp4Again, ""),
+        [0xaf18] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.ShiftLeftUp4, ""),
         [0xaf44] = new MagdolliteNativeListAddressesInstruction(MagdolliteCueKind.StartCooldown, ""),
     };
 }

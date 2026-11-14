@@ -24,8 +24,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     {
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
-            MaridiaLargeSnailAnimation animation = MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(animationIndex, "Oum animation index");
-            MaridiaLargeSnailSegment program = MaridiaLargeSnailAnimationChoices.Animation(animation);
+            MaridiaLargeSnailSegment animation = MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(animationIndex, "Oum animation index");
+            MaridiaLargeSnailSegment program = animation;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(MaridiaLargeSnailNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
@@ -33,9 +33,9 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             var state = new MaridiaLargeSnailEnemyState()
             {
                 RequestedAnimation = animation,
-                InstalledAnimation = animation == MaridiaLargeSnailAnimation.FacingRightIdle
-                    ? MaridiaLargeSnailAnimation.FacingLeftIdle
-                    : MaridiaLargeSnailAnimation.FacingRightIdle,
+                InstalledAnimation = animation == MaridiaLargeSnailSegment.FacingRightIdle
+                    ? MaridiaLargeSnailSegment.FacingLeftIdle
+                    : MaridiaLargeSnailSegment.FacingRightIdle,
             };
             slot.AnimationClock.HoldFor(0x1234);
             slot.AnimationClock.Repeats = WrappingCountdown.Start(0x5678);
@@ -63,13 +63,13 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 AssertEqual(Index(roll ^ 4), MaridiaLargeSnailAnimationChoices.Reversed(Index(roll)), $"Oum reversed roll from index {roll}");
             transitions += 6;
         }
-        foreach (MaridiaLargeSnailAnimation notIdle in new[] { Index(2), Index(4), Index(6) })
+        foreach (MaridiaLargeSnailSegment notIdle in new[] { Index(2), Index(4), Index(6) })
             AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.RollingFrom(notIdle), $"Oum starts rolling only from idle, not {notIdle}");
-        foreach (MaridiaLargeSnailAnimation notAttack in new[] { Index(0), Index(2), Index(6) })
+        foreach (MaridiaLargeSnailSegment notAttack in new[] { Index(0), Index(2), Index(6) })
             AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.RollingAfter(notAttack), $"Oum resumes rolling only after an attack, not {notAttack}");
-        foreach (MaridiaLargeSnailAnimation notRoll in new[] { Index(0), Index(5) })
+        foreach (MaridiaLargeSnailSegment notRoll in new[] { Index(0), Index(5) })
             AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.Reversed(notRoll), $"Only a rolling Oum reverses, not {notRoll}");
-        static MaridiaLargeSnailAnimation Index(int index) => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index");
+        static MaridiaLargeSnailSegment Index(int index) => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index");
 
         foreach (MaridiaLargeSnailSegment attack in new[] { MaridiaLargeSnailSegment.FacingLeftAttacking, MaridiaLargeSnailSegment.FacingRightAttacking })
         {

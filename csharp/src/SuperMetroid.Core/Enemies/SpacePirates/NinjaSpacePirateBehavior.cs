@@ -121,7 +121,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
-        state.Action = NinjaSpacePirateAction.NoOperation;
+        state.Action = NinjaSpacePirateAction.FollowingAnimation;
         state.SpawnPosition = slot.Position.Whole;
     }
 
@@ -135,7 +135,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         switch (state.Action)
         {
-            case NinjaSpacePirateAction.NoOperation:
+            case NinjaSpacePirateAction.FollowingAnimation:
                 return;
             case NinjaSpacePirateAction.Initial:
                 RunNinjaPirateInitial(slot, state, RequireSamus(), samusProjectiles);
@@ -393,7 +393,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsZero)
             return;
 
-        state.Action = NinjaSpacePirateAction.NoOperation;
+        state.Action = NinjaSpacePirateAction.FollowingAnimation;
         slot.Position = slot.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
         StartNinjaPirateAnimation(
             slot,
@@ -497,7 +497,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.LandFacingRight
                 : NinjaSpacePirateSegment.LandFacingLeft);
-        state.Action = NinjaSpacePirateAction.NoOperation;
+        state.Action = NinjaSpacePirateAction.FollowingAnimation;
     }
 
     /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
@@ -605,10 +605,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;
                 return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick }:
-                InitializeNinjaPirateDive(state);
-                return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
             default:

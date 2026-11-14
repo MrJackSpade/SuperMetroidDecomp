@@ -36,7 +36,7 @@ internal static class MagdolliteAnimations
             Cue(new(K.SpawnLava)),
             Show(EnemyFrameId.MagdolliteLeftThrowThird, 5),
             Cue(new(K.SpawnLava)),
-            Cue(new(K.ShiftLeftUp4Again)),
+            Cue(new(K.ShiftLeftUp4)),
             Show(EnemyFrameId.MagdolliteLeftThrowFourth, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],

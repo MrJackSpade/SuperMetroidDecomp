@@ -1,7 +1,6 @@
-
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>Cartridge values of <see cref="ZoaAnimationDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of Zoa's animation table that only verification reads.</summary>
 internal static class ZoaAnimationDefinitionsConstants
 {
     /// <summary>
@@ -9,11 +8,4 @@ internal static class ZoaAnimationDefinitionsConstants
     /// <c>$A3:B40D-$A3:B414</c>, indexed by the selector word <see cref="ZoaNativeWords.AnimationSelectorWord"/> gives.
     /// </summary>
     public const int ReferenceAddress = 0xa3b40d;
-
-    /// <summary>Provides the native Zoa animation reference address for movement presentation checks.</summary>
-    extension(ZoaAnimationDefinitions)
-    {
-        /// <inheritdoc cref="ZoaAnimationDefinitionsConstants.ReferenceAddress"/>
-        internal static int ReferenceAddress => ZoaAnimationDefinitionsConstants.ReferenceAddress;
-    }
 }

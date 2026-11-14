@@ -25,27 +25,13 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
     private const int WreckedShipGhostStableDirectionDuration = 16;
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
-    private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
-    /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
-    private static readonly SignedSixteenSixteen WreckedShipGhostVerticalAcceleration = SignedSixteenSixteen.FromParts(0, 6144);
-    /// <summary>The movement class, horizontal or vertical, of Samus holding still on that axis: the middle of three.</summary>
-    private const int WreckedShipGhostStationaryClass = 1;
-    /// <summary>The three movement classes on each axis: moving toward smaller coordinates, still, or toward larger ones.</summary>
-    private const int WreckedShipGhostMovementClassCount = 3;
+    private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromWholePixels(1);
+    /// <summary>The bobbing ghost's vertical acceleration, three thirty-seconds of a pixel per update.</summary>
+    private static readonly SignedSixteenSixteen WreckedShipGhostVerticalAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(24);
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
-        // Every named retail ghost population lists this actor first in the room.
-        // Its tracking reads Samus's position through the enemy's place; a later place would read
-        // unrelated state. Enforce the authored layout rather than silently pretending that retail
-        // bug has generic rules.
-        if (!slot.IsListedFirst())
-        {
-            throw new InvalidDataException(
-                "Wrecked Ship ghost must be the room's first-listed enemy for its reads of Samus's position.");
-        }
-
         // The initializer sets the animating, intangibility and invisibility properties. Here those mean
         // animation processing, exclusion from Samus interaction, and invisibility.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
@@ -149,8 +135,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             {
                 // Remaining inside the tiny box for 64 frames means "stationary" on both
                 // axes and therefore selects the central spawn offset.
-                state.SpawnColumn = WreckedShipGhostStationaryClass;
-                state.SpawnRow = WreckedShipGhostStationaryClass;
+                state.SamusMotion = new(SamusAxisMotion.Still, SamusAxisMotion.Still);
                 SpawnWreckedShipGhost(slot, state, samusPosition);
                 return;
             }
@@ -159,30 +144,20 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         {
             state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
             Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
-            int horizontalClass = motion.X switch
-            {
-                < 0 => 0,
-                0 => WreckedShipGhostStationaryClass,
-                _ => 2,
-            };
+            SamusAxisMotion horizontal = AxisMotion(motion.X);
 
-            if (horizontalClass != state.SpawnColumn)
+            if (horizontal != state.SamusMotion.Horizontal)
             {
-                state.SpawnColumn = horizontalClass;
+                state.SamusMotion = state.SamusMotion with { Horizontal = horizontal };
                 state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
             }
             else
             {
-                int verticalClass = motion.Y switch
-                {
-                    < 0 => 0,
-                    0 => WreckedShipGhostStationaryClass,
-                    _ => 2,
-                };
+                SamusAxisMotion vertical = AxisMotion(motion.Y);
 
-                if (verticalClass != state.SpawnRow)
+                if (vertical != state.SamusMotion.Vertical)
                 {
-                    state.SpawnRow = verticalClass;
+                    state.SamusMotion = state.SamusMotion with { Vertical = vertical };
                     state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
                 }
                 else
@@ -203,22 +178,21 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.SamusUpperBound = samusPosition + WreckedShipGhostStillMargin;
     }
 
+    /// <summary>How Samus moved along one axis by <paramref name="movedBy"/> pixels.</summary>
+    private static SamusAxisMotion AxisMotion(int movedBy) => movedBy switch
+    {
+        < 0 => SamusAxisMotion.TowardSmaller,
+        0 => SamusAxisMotion.Still,
+        _ => SamusAxisMotion.TowardLarger,
+    };
+
     /// <summary>Installs the direction-selected relative position and begins brightening.</summary>
     internal static void SpawnWreckedShipGhost(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
         Position16<RoomPixels> samusPosition)
     {
-        if ((uint)state.SpawnColumn >= WreckedShipGhostMovementClassCount ||
-            (uint)state.SpawnRow >= WreckedShipGhostMovementClassCount)
-        {
-            throw new InvalidDataException(
-                $"Wrecked Ship ghost movement classes {state.SpawnColumn}/{state.SpawnRow} " +
-                "do not select a retail spawn offset.");
-        }
-
-        slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(
-            state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn));
+        slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(state.SamusMotion));
         state.Action = WreckedShipGhostAction.BrighteningAndFlickering;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
@@ -264,8 +238,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
         state.NextFlickerStep = 0;
         state.VerticalVelocity = WreckedShipGhostInitialVerticalVelocity;
-        state.SpawnColumn = WreckedShipGhostStationaryClass;
-        state.SpawnRow = WreckedShipGhostStationaryClass;
+        state.SamusMotion = new(SamusAxisMotion.Still, SamusAxisMotion.Still);
         state.PreviousSamusPosition = samus.Position.Whole;
         state.SamusLowerBound = samus.Position.Whole;
         state.SamusUpperBound = samus.Position.Whole;

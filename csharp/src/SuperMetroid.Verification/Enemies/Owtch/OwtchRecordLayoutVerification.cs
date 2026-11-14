@@ -21,11 +21,10 @@ internal static class OwtchRecordLayoutVerification
         slot.SetSpeciesState(state);
         NativeEnemyFamilyStateImport.Import(enemies, slot, new NativeEnemyRecordWords(
             A: 0x1234, B: 0x0002, C: 0xedcc, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010));
-        AssertEqual(SignedSixteenSixteen.FromParts(2, 0x1234), state.RightVelocity, "variables 0/1 are the right fraction and whole");
-        AssertEqual(SignedSixteenSixteen.FromParts(-3, 0xedcc), state.LeftVelocity, "variables 2/3 are the left fraction and whole");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0x1234), state.Speed, "variables 0/1 are the speed's fraction and whole, variables 2/3 its negation");
         AssertEqual(OwtchBehaviorState.Underground, state.Behavior, "variable 4 is the state");
         AssertEqual(16, state.BurialDepth, "variable 5 is the sink depth");
-        Console.WriteLine("Owtch record layout: right and left velocities, state and sink import from variables 0-5.");
+        Console.WriteLine("Owtch record layout: speed, state and sink import from variables 0-5.");
     }
 
     /// <summary>Runs the focused Owtch record-layout check.</summary>

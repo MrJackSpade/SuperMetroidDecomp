@@ -110,7 +110,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
     private void InitiatePuyoHop(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
-        // Normal follow-up hops are promoted from type zero to type one when Samus is
+        // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
@@ -131,7 +131,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = direction;
         state.InvertDirection = false;
 
-        // Types three and above ignore this sample but still advance the seed, an observable
+        // The giant hop, the drop and the dropped bounces ignore this sample but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
         int sample = _room.Random.Generate();
         if (IsNormalHop(state.HopType))
@@ -154,20 +154,19 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
-        // The game exchanges the height's two halves; every authored height is below 256 pixels, so that
-        // makes the height the whole part of a 1/256-pixel distance.
-        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
+        // The search sums distances in 256ths of a pixel, so the jump height is compared in the same units.
+        int jumpHeight = UnsignedEightEight.FromParts(whole: hop.JumpHeight, fraction: 0);
 
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
             timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
-            QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
+            QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
 
             // Summing each mark's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
             // find the initial curve mark.
             distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
-                speedRow.CoarseToward(EnemySpeedSign.Positive));
-            if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
+                curveSpeed.CoarseToward(EnemySpeedSign.Positive));
+            if (!WrappingCounter.IsBehind(jumpHeight, distanceAccumulator))
                 continue;
 
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator);
@@ -253,8 +252,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
-        // A normal landing returns giant hops to type zero. A wall/ceiling collision takes
-        // the branch around these two writes, leaving type four's dropping recovery.
+        // A normal landing returns a giant hop to the small hop. A wall or ceiling collision takes
+        // the branch around these two writes, leaving the drop's recovery.
         if (!state.InvertDirection)
         {
             state.HopType = PuyoHopType.NormalSmall;
@@ -268,9 +267,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the constant-speed collision fall.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        int packed = Hop(state).YIndexDelta;
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(packed);
-        if (!_terrain.MoveEnemyVertically(level, slot, displacement))
+        if (!_terrain.MoveEnemyVertically(level, slot, PuyoHopDefinitions.DropSpeed))
             return;
 
         // The bounce picks one of the two dropped bounce heights from the same advanced hop roll.
@@ -295,8 +292,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
-        SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
+        QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
+        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {
@@ -322,7 +319,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
         SetPuyoAirborneAnimation(slot, state);
 
-        state.StepAirbornePlace(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Hop(state).YIndexDelta));
+        state.StepAirbornePlace(Hop(state).CurveStep);
 
         // X speed is authored as 1/256 pixels, but the Japanese and North American release moves it by the whole pixels only
         // and zeroes the subspeed; only the European release uses the fraction. The giant
@@ -358,36 +355,36 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 segment = state.YSpeedCurvePlace >=
                         state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame0LeftFrame4
+                    ? PuyoSegment.TiltedFarRight
                     : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.RightFrame1LeftFrame3
-                        : PuyoSegment.Frame2;
+                        ? PuyoSegment.TiltedRight
+                        : PuyoSegment.Upright;
             }
             else
             {
                 segment = state.YSpeedCurvePlace >=
                         state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame4LeftFrame0
+                    ? PuyoSegment.TiltedFarLeft
                     : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.RightFrame3LeftFrame1
-                        : PuyoSegment.Frame2;
+                        ? PuyoSegment.TiltedLeft
+                        : PuyoSegment.Upright;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
             segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Frame2
+                ? PuyoSegment.Upright
                 : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame3LeftFrame1
-                    : PuyoSegment.RightFrame4LeftFrame0;
+                    ? PuyoSegment.TiltedLeft
+                    : PuyoSegment.TiltedFarLeft;
         }
         else
         {
             segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Frame2
+                ? PuyoSegment.Upright
                 : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame1LeftFrame3
-                    : PuyoSegment.RightFrame0LeftFrame4;
+                    ? PuyoSegment.TiltedRight
+                    : PuyoSegment.TiltedFarRight;
         }
 
         SetPuyoAnimation(slot, state, segment);

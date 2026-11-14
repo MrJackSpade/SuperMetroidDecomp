@@ -224,7 +224,7 @@ internal static class LookupStream1Verification
             {
                 0xc163 => PowampSegment.BodyFast,
                 0xc173 => PowampSegment.BodySlow,
-                0xc183 => PowampSegment.BalloonInflate0,
+                0xc183 => PowampSegment.BalloonInflatingFromDeflated,
                 _ => PowampSegment.BalloonStartSinking,
             }), AnimationPlace.StartOfAnimation);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
@@ -284,7 +284,7 @@ internal static class LookupStream1Verification
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.AnimationClock.StepOnNextUpdate();
-            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             });

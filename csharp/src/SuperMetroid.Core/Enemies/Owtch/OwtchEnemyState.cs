@@ -8,37 +8,37 @@ public sealed class OwtchEnemyState
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }
 
     /// <summary>
-    /// The signed 1/65536-pixel rightward patrol speed in pixels per update, taken from the shared linear-speed table.
+    /// The patrol speed in pixels per update, the spawn settings' speed: added walking right and negated walking left.
     /// </summary>
-    public SignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>
-    /// The signed 1/65536-pixel leftward patrol speed in pixels per update, the negative half of the same linear speed row.
-    /// </summary>
-    public SignedSixteenSixteen LeftVelocity { get; internal set; }
-
-    /// <summary>The patrol state, which also indexes the state table.</summary>
+    /// <summary>The patrol state: walking either way, sinking, underground or rising.</summary>
     public OwtchBehaviorState Behavior { get; internal set; }
 
     /// <summary>
     /// How many pixels the Owtch has sunk below its walking height, zero through sixteen while it sinks; set directly
-    /// by initialization and the sinking steps. Rising counts it down through <see cref="RiseOnePixel"/>, which can
-    /// wrap it.
+    /// by initialization and the sinking steps. Rising counts it down through <see cref="RiseOnePixel"/>.
     /// </summary>
     public int BurialDepth
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, OwtchMaximumBurialDepth, value);
     }
 
+    /// <summary>The deepest an Owtch sinks before it goes underground.</summary>
+    internal const int OwtchMaximumBurialDepth = 16;
+
     /// <summary>
-    /// Counts one rising pixel off the burial depth and reports whether it reached zero. An
-    /// Owtch that starts rising unburied wraps to 65535, as the game's decrement does, and keeps rising that many
-    /// more updates.
+    /// Counts one rising pixel off the burial depth and reports whether it reached zero. An Owtch rises only out of a
+    /// burial, from the underground wait or its buried spawn, so it never rises unburied: no placement starts it rising
+    /// (#1846).
     /// </summary>
+    /// <exception cref="InvalidOperationException">The Owtch is not buried.</exception>
     internal bool RiseOnePixel()
     {
-        BurialDepth = WrappingCounter.DecrementCount(BurialDepth);
+        if (BurialDepth == 0)
+            throw new InvalidOperationException("An unburied Owtch cannot rise.");
+        BurialDepth--;
         return BurialDepth == 0;
     }
 

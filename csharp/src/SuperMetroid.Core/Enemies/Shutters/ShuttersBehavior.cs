@@ -26,14 +26,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Lays record <paramref name="record"/> of the escape's red shutter flash over every destroyable shutter among
+    /// Shows <paramref name="frame"/> of the escape's red shutter flash on every destroyable shutter among
     /// <paramref name="slots"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
-    /// each record replaces the one before it.
+    /// each frame of the flash replaces the one before it.
     /// </summary>
-    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, ColourEffectFrame record)
+    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, ColourEffectFrame frame)
     {
         Ensure.NotNull(slots);
-        PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, record);
+        PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
         foreach (RoomEnemySlot slot in slots)
         {
             if (slot.DefinitionId != EnemyDefinitionId.ShutterDestroyable)
@@ -288,18 +288,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(ShutterHeading)} {heading}."),
     };
 
-    /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
-    private const int PermanentStopRestTime = 4080;
-
     /// <summary>The enemy-library sound queued when an on-screen shutter begins moving.</summary>
     private static readonly SoundEffectId ShutterActivationSound =
         EnemySoundEffectDefinitions.ShutterActivationSound;
-
-    /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
-    private Position16<RoomPixels> _shutterCamera;
-
-    /// <summary>Captures the current camera, which decides whether an activating shutter is heard.</summary>
-    internal void BeginShutterFrame(Position16<RoomPixels> camera) => _shutterCamera = camera;
 
     /// <summary>Includes shootable, destroyable, and Kamer definitions in the shared vertical AI.</summary>
     internal static bool IsVerticalShutterDefinition(EnemyDefinitionId definition) => definition is
@@ -352,7 +343,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ReactToShootableShutterBomb(EnemyBombContext c) =>
         // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // reaction only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
-        ReactVerticalShutter(c.Enemy, _shutterCamera);
+        ReactVerticalShutter(c.Enemy, c.Camera);
 
     /// <summary>
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
@@ -360,7 +351,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal EnemyBombReaction DestroyableShutterBombReaction => field ??= new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant, c.Camera),
     };
 
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
@@ -412,7 +403,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
     internal EnemyPowerBombReaction VerticalShutterPowerBombReaction => field ??= new()
     {
-        ReplacesCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
+        ReplacesCommon = c => ReactVerticalShutter(c.Enemy, c.Camera),
     };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
@@ -423,7 +414,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-            ReactVerticalShutter(c.Enemy, _shutterCamera);
+            ReactVerticalShutter(c.Enemy, c.Camera);
             return true;
         },
     };
@@ -431,14 +422,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common shot damage for destroyable shutters.</summary>
     internal EnemyShotReaction DestroyableShutterShotReaction => field ??= new()
     {
-        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
+        AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant, c.Camera),
     };
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
     internal void ReactToVerticalShutterTouch(EnemyTouchContext context) =>
         // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
         // whether this population mode may start moving.
-        ReactVerticalShutter(context.Slot, _shutterCamera);
+        ReactVerticalShutter(context.Slot, context.Camera);
     /// <summary>Initializes a vertical shutter through either initializer and their shared tail.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {
@@ -459,8 +450,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DownVelocity = speeds.Positive;
         state.UpVelocity = speeds.Negative;
 
-        state.MovedUpRestTime = settings.FirstRestTime;
-        state.MovedDownRestTime = settings.SecondRestTime;
+        state.MovedUpRest = settings.RestAfterMovingUp;
+        state.MovedDownRest = settings.RestAfterMovingDown;
 
         state.TriggerMode = settings.TriggerMode;
         state.TravelDistance = settings.TravelDistance;
@@ -626,18 +617,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>
     private static void StopVerticalShutter(VerticalShutterEnemyState state, bool atTop)
     {
-        int restTime = atTop ? state.MovedUpRestTime : state.MovedDownRestTime;
-        if (restTime == PermanentStopRestTime)
+        ShutterRest rest = atTop ? state.MovedUpRest : state.MovedDownRest;
+        if (rest.IsPermanent)
         {
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.ActionTimer = WrappingCountdown.Start(restTime);
+        state.ActionTimer = WrappingCountdown.Start(rest.Updates);
         state.Action = atTop ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
     /// <summary>
-    /// Counts down an endpoint rest before reversing, or before waiting for renewed proximity when trigger mode one would
+    /// Counts down an endpoint rest before reversing, or before waiting for renewed proximity when a proximity shutter would
     /// reverse into the population's primary direction.
     /// </summary>
     private void RunVerticalShutterStopped(
@@ -672,8 +663,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// it off, as a shutter at rest whose killed place lies at the room's top-left corner
     /// (<see cref="DestroyedShutterReaction"/>).
     /// </summary>
-    private void ReactDestroyableShutterAfterCommon(RoomEnemySlot slot, EnemyOccupantStates struck) =>
-        ReactVerticalShutter(slot, struck.Require<VerticalShutterEnemyState>(), _shutterCamera, healthAfterHit: slot.Health);
+    private void ReactDestroyableShutterAfterCommon(RoomEnemySlot slot, EnemyOccupantStates struck, Position16<RoomPixels> camera) =>
+        ReactVerticalShutter(slot, struck.Require<VerticalShutterEnemyState>(), camera, healthAfterHit: slot.Health);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="slot"/>, whose state is
@@ -716,11 +707,5 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartVerticalShutterAnimation(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        BeginShutterFrame(frame.Camera);
     }
 }

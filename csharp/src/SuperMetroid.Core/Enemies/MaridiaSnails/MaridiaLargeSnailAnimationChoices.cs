@@ -1,16 +1,10 @@
-using A = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailAnimation;
+using A = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailSegment;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>Chooses Oum's animation by its facing and action (#1624), and the segment each animation plays.</summary>
+/// <summary>Chooses Oum's animation by its facing and action (#1624, #1810).</summary>
 internal static class MaridiaLargeSnailAnimationChoices
 {
-    /// <summary>The segment of <paramref name="animation"/>.</summary>
-    internal static MaridiaLargeSnailSegment Animation(A animation) =>
-        MaridiaLargeSnailAnimationDefinitions.Animations.TryGetValue(animation, out MaridiaLargeSnailSegment segment)
-            ? segment
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, $"Undefined {nameof(MaridiaLargeSnailAnimation)}.");
-
     /// <summary>The idle animation facing left or right.</summary>
     internal static A Idle(bool facingLeft) => facingLeft ? A.FacingLeftIdle : A.FacingRightIdle;
 
@@ -30,14 +24,12 @@ internal static class MaridiaLargeSnailAnimationChoices
 
     /// <summary>The forward roll a finished attack resumes, with <paramref name="attack"/>'s facing.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="attack"/> is not an attack.</exception>
-    internal static A RollingAfter(A attack) => attack switch
-    {
-        A.FacingRightAttacking => A.FacingRightRollingForwards,
-        A.FacingLeftAttacking => A.FacingLeftRollingForwards,
-        A.FacingRightIdle or A.FacingLeftIdle or A.FacingRightRollingForwards or A.FacingLeftRollingForwards or
-            A.FacingRightRollingBackwards or A.FacingLeftRollingBackwards or _ =>
-            throw new InvalidOperationException($"Oum resumes rolling only after an attack, not {attack}."),
-    };
+    internal static A RollingAfter(A attack) => attack is A.FacingLeftAttacking or A.FacingRightAttacking
+        ? RollingForwards(facingLeft: attack == A.FacingLeftAttacking)
+        : throw new InvalidOperationException($"Oum resumes rolling only after an attack, not {attack}.");
+
+    /// <summary>The forward roll facing left or right.</summary>
+    private static A RollingForwards(bool facingLeft) => facingLeft ? A.FacingLeftRollingForwards : A.FacingRightRollingForwards;
 
     /// <summary>
     /// The roll in the other direction with <paramref name="roll"/>'s facing, as a roll that meets a wall reverses: a

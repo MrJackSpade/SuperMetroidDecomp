@@ -24,18 +24,18 @@ internal static class MaridiaSnailsNativeWords
     });
 
     /// <summary>
-    /// The index naming each <see cref="MaridiaLargeSnailAnimation"/> in the snail's eight-entry animation table: its low
+    /// The index naming each <see cref="MaridiaLargeSnailSegment"/> in the snail's eight-entry animation table: its low
     /// bit faces left, its next bit rolls and its third attacks, or, with the roll bit, rolls backwards.
     /// </summary>
-    internal static readonly NativeWordIdentities<MaridiaLargeSnailAnimation> MaridiaLargeSnailAnimations = new(new Dictionary<MaridiaLargeSnailAnimation, ushort>
+    internal static readonly NativeWordIdentities<MaridiaLargeSnailSegment> MaridiaLargeSnailAnimations = new(new Dictionary<MaridiaLargeSnailSegment, ushort>
     {
-        [MaridiaLargeSnailAnimation.FacingRightIdle] = 0,
-        [MaridiaLargeSnailAnimation.FacingLeftIdle] = 1,
-        [MaridiaLargeSnailAnimation.FacingRightRollingForwards] = 2,
-        [MaridiaLargeSnailAnimation.FacingLeftRollingForwards] = 3,
-        [MaridiaLargeSnailAnimation.FacingRightAttacking] = 4,
-        [MaridiaLargeSnailAnimation.FacingLeftAttacking] = 5,
-        [MaridiaLargeSnailAnimation.FacingRightRollingBackwards] = 6,
-        [MaridiaLargeSnailAnimation.FacingLeftRollingBackwards] = 7,
+        [MaridiaLargeSnailSegment.FacingRightIdle] = 0,
+        [MaridiaLargeSnailSegment.FacingLeftIdle] = 1,
+        [MaridiaLargeSnailSegment.FacingRightRollingForwards] = 2,
+        [MaridiaLargeSnailSegment.FacingLeftRollingForwards] = 3,
+        [MaridiaLargeSnailSegment.FacingRightAttacking] = 4,
+        [MaridiaLargeSnailSegment.FacingLeftAttacking] = 5,
+        [MaridiaLargeSnailSegment.FacingRightRollingBackwards] = 6,
+        [MaridiaLargeSnailSegment.FacingLeftRollingBackwards] = 7,
     });
 }

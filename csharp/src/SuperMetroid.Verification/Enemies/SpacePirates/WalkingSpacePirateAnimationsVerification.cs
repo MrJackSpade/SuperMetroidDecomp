@@ -24,10 +24,13 @@ internal static class WalkingSpacePirateAnimationsVerification
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
                         'V' => unchecked((ushort)(cue switch { WalkingSpacePirateCue.FireLaserLeft fireLaserLeft => fireLaserLeft.LaserHeight, WalkingSpacePirateCue.FireLaserRight fireLaserRight => fireLaserRight.LaserHeight, _ => throw new InvalidOperationException($"{at}: {cue} carries no LaserHeight.") })),
-                        'E' => SpacePiratesNativeWords.WalkingSpacePirateActions.Word(AssertIs<WalkingSpacePirateCue.SetAction>(cue, $"{at}: cue").Action),
+                        'E' => NamingWord(SpacePiratesNativeWords.WalkingSpacePirateActions.WordsByIdentity[AssertIs<WalkingSpacePirateCue.SetAction>(cue, $"{at}: cue").Action], operands[index]),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }));
         Console.WriteLine($"  Walking Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WalkingSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
+
+    /// <summary><paramref name="word"/> when it is one of <paramref name="words"/>, otherwise the first of them, which the comparison then reports.</summary>
+    private static ushort NamingWord(ushort[] words, ushort word) => words.Contains(word) ? word : words[0];
 }

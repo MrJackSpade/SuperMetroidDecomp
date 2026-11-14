@@ -577,7 +577,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A hidden shell awaiting its animation, a falling shell, and an already kicked shell
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
-        // restores the population's idle speed, optionally turns, then resumes behavior zero.
+        // restores the population's idle speed, optionally turns, then resumes normal crawling.
         if (state.Movement == YardMovement.AwaitingAnimationCue ||
             state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
         {

@@ -45,7 +45,7 @@ internal static class LowerNorfairRioAnimations
             Cue(new(K.HideFlames)),
             Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopNinth, 1),
         ],
-        [P.AscendingPart1] =
+        [P.AscentOpening] =
         [
             Cue(new(K.HideFlames)),
             Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopNinth, 3),
@@ -53,11 +53,11 @@ internal static class LowerNorfairRioAnimations
             Show(EnemyFrameId.LowerNorfairRioAscendingPartOneThird, 3),
             Cue(new(K.AnimationFinished)),
         ],
-        [P.AscendingPart2] =
+        [P.Ascending] =
         [
             Cue(new(K.ShowFlames)),
         ],
-        [P.AscendingPart2Loop] =
+        [P.AscendingLoop] =
         [
             Show(EnemyFrameId.LowerNorfairRioAscendingPartTwoLoopFirst, 2),
             Show(EnemyFrameId.LowerNorfairRioAscendingPartTwoLoopSecond, 2),
@@ -92,9 +92,9 @@ internal static class LowerNorfairRioAnimations
         [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.PrepareToSwoop] = new([new(P.PrepareToSwoop, 0, 11, 1)], AnimationEnd.Holds),
         [P.Descending] = new([new(P.Descending, 0, 2, 1)], AnimationEnd.Holds),
-        [P.AscendingPart1] = new([new(P.AscendingPart1, 0, 5, 1)], AnimationEnd.Holds),
-        [P.AscendingPart2] = new([new(P.AscendingPart2, 0, 1, 1), new(P.AscendingPart2Loop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.AscendingPart2Loop] = new([new(P.AscendingPart2Loop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AscentOpening] = new([new(P.AscentOpening, 0, 5, 1)], AnimationEnd.Holds),
+        [P.Ascending] = new([new(P.Ascending, 0, 1, 1), new(P.AscendingLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AscendingLoop] = new([new(P.AscendingLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Cooldown] = new([new(P.Cooldown, 0, 11, 1)], AnimationEnd.Holds),
         [P.Flames] = new([new(P.Flames, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };

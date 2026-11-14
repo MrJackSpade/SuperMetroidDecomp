@@ -13,8 +13,8 @@ public sealed class MamaTurtleEnemyState
     /// <summary>Signed 1/65536-pixel velocity per AI update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Wake counter; each Baby touch or shot decrements it, and the Mama wakes once it reaches zero.</summary>
-    public int AsleepFlag { get; internal set; }
+    /// <summary>Whether Mama is asleep in her shell; the first touch or shot on one of her babies wakes her.</summary>
+    public bool Asleep { get; internal set; }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
     public int ActionTimer { get; internal set; }

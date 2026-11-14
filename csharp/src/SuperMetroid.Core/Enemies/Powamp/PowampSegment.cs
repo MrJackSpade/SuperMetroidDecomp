@@ -10,10 +10,10 @@ internal enum PowampSegment
     BodyFast,
     /// <summary>The body slow animation.</summary>
     BodySlow,
-    /// <summary>The balloon inflate 0 animation.</summary>
-    BalloonInflate0,
-    /// <summary>The balloon inflate 1 animation.</summary>
-    BalloonInflate1,
+    /// <summary>The balloon inflating from deflated, running on into its inflating from halfway.</summary>
+    BalloonInflatingFromDeflated,
+    /// <summary>The balloon inflating from halfway to full, where it holds.</summary>
+    BalloonInflatingFromHalfway,
     /// <summary>The balloon start sinking animation.</summary>
     BalloonStartSinking,
     /// <summary>The balloon deflated animation.</summary>

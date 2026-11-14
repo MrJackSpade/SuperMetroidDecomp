@@ -2,12 +2,12 @@ using SuperMetroid.Core.Enemies.Sparks;
 namespace SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the Spark's owned countdown: the cartridge's <c>DEC; BEQ</c> expiry and its wrap from zero.</summary>
+/// <summary>Checks the Spark's owned countdown: it expires on the update whose step would reach zero.</summary>
 internal static class SparkTimerVerification
 {
     /// <summary>
-    /// A countdown at one expires on its next update and keeps its value for the reset that follows; a countdown at
-    /// zero wraps to $FFFF instead of expiring.
+    /// A countdown at one expires on its next update and keeps its value for the reset that follows; a counting Spark
+    /// never waits nothing, so a countdown at zero is refused (#1846).
     /// </summary>
     internal static void VerifySparkTimer()
     {
@@ -16,9 +16,8 @@ internal static class SparkTimerVerification
         AssertEqual(1, state.ActionTimer, "the expiring update leaves the countdown for its reset");
 
         state.ActionTimer = 0;
-        AssertTrue(!SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero does not expire");
-        AssertEqual(-1, state.ActionTimer, "a countdown at zero steps below zero");
-        Console.WriteLine("Spark timer: the expiry and the zero wrap match.");
+        AssertThrows<InvalidOperationException>(() => SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero is refused");
+        Console.WriteLine("Spark timer: the expiry matches and a run-out countdown is refused.");
     }
 
     /// <summary>Runs the focused Spark timer check.</summary>

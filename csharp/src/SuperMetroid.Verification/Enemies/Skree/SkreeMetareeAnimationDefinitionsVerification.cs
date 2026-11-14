@@ -17,7 +17,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     /// <summary>Compares both compiled phase tables with ROM and exercises all install and attack transitions with table reads forbidden.</summary>
     internal static void VerifySkreeMetareeAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
-        for (int index = 0; index < 4; index++)
+        // The tables' fourth entry is the stop animation the AI never selects, which the port does not keep (#1838).
+        for (int index = 0; index < 3; index++)
         {
             SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(index, "Skree/Metaree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
@@ -33,10 +34,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs());
 
         AssertThrows<InvalidDataException>(
-            () => SkreeNativeWords.AnimationPhases.Decode(4, "Skree/Metaree animation phase"),
+            () => SkreeNativeWords.AnimationPhases.Decode(3, "Skree/Metaree animation phase"),
             "Skree/Metaree animation phase past table");
         Console.WriteLine(
-            "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
+            "Skree/Metaree animation definitions: six native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
     }
 
     /// <summary>Installs every requested phase from a different prior phase and checks each slot's pointer and timer reset.</summary>

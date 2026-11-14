@@ -57,8 +57,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isKamer;
-        // Main AI dispatches the complete value through a two-entry table, so a value outside it is corrupt room
-        // data and is rejected here rather than normalized to rightward movement.
+        // The platform moves left or right; any other movement is corrupt room data and is rejected rather than
+        // normalized to rightward movement.
         PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
@@ -66,8 +66,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             isKamer, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
-        state.RightSpeed = settings.Speed;
-        state.LeftSpeed = SignedSixteenSixteen.Zero - settings.Speed;
+        state.Speed = settings.Speed;
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
@@ -104,7 +103,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Main AI resets acceleration after running the first frame in a newly
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
-        // can use quadratic entry one now, then begins from entry zero on its next frame.
+        // can use the curve's second mark now, then begins from the curve's start on its next frame.
         if (state.YMovement != state.PreviousYMovement)
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.PreviousYMovement = state.YMovement;
@@ -149,9 +148,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             PlatformHorizontalMovement.Left => true,
             PlatformHorizontalMovement.Right => false,
             _ => throw new InvalidDataException(
-                $"Platform X movement {state.XMovement} exceeds its two-entry table."),
+                $"Platform X movement {state.XMovement} is neither left nor right."),
         };
-        SignedSixteenSixteen displacement = movingLeft ? state.LeftSpeed : state.RightSpeed;
+        SignedSixteenSixteen displacement = movingLeft ? -state.Speed : state.Speed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -187,7 +186,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Platform Y movement {state.YMovement} exceeds its two-entry table.");
+                    $"Platform Y movement {state.YMovement} is neither rising nor falling.");
         }
     }
 
@@ -353,7 +352,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
     /// <remarks>Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
-    /// frame with a direction-specific two-piece frozen map.</remarks>
+    /// frame with its direction's frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {
         AfterCommon = c =>

@@ -74,10 +74,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>The left patrol step: the right step mirrored one 65536th of a pixel further left.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement = SignedSixteenSixteen.FromParts(-1, 51199);
     /// <summary>The right patrol step, seven thirty-seconds of a pixel.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromParts(0, 14336);
+    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(56);
+    /// <summary>The left patrol step: the right step mirrored, and one 65536th of a pixel further left.</summary>
+    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement =
+        -WalkingPirateRightStepDisplacement - SignedSixteenSixteen.FromParts(0, 1);
     /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
     /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>
@@ -119,7 +120,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Action = WalkingSpacePirateAction.NoOperation;
+        state.Action = WalkingSpacePirateAction.FollowingAnimation;
 
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
@@ -138,8 +139,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (state.Action)
         {
-            case WalkingSpacePirateAction.NoOperation:
-            case WalkingSpacePirateAction.AnimationOwnedNoOperation:
+            case WalkingSpacePirateAction.FollowingAnimation:
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:
@@ -421,7 +421,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : SpacePirateProjectileSegment.LaserLeft));
 
         // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
-        // muzzle maps are stationary until the animation installs the flight and runs it at once.
+        // muzzle frames are stationary until the animation installs the flight and runs it at once.
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
@@ -617,7 +617,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)
     {
-        // Space Pirate extended maps currently use the shared Pirate touch
+        // Every Space Pirate frame's hitboxes use the shared Pirate touch
         // reaction in every retail hitbox. Keep the reaction check explicit: silently
         // treating a later family-specific attack box as ordinary body contact would
         // recreate the exact radius-flattening bug this path is intended to remove.

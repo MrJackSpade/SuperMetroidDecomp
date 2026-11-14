@@ -280,7 +280,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardMovement.CrawlingUpsideRightMovingDown or
             YardMovement.CrawlingUpsideLeftMovingUp;
         YardTurnDefinition turn = YardTurns.ForMovement(
-            state.Movement ?? throw new InvalidOperationException("A turning Yard has no movement function."),
+            state.Movement ?? throw new InvalidOperationException("A turning Yard has no movement."),
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.

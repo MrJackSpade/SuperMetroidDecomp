@@ -21,7 +21,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { void Run() { // copies the tiles to VRAM\n } }", "('VRAM')");
         Expect("class P { /* the NMI handler */ }", "('NMI')");
         Expect("class P { string Name => \"OAM capacity\"; }", "('OAM')");
-        Expect("class P { string Name => $\"{1} native words\"; }", "('native')");
+        Expect("class P { string Name => $\"{1} native words\"; }", "('native words')");
         Expect("class P { /// <summary>Reads the cartridge's banks.</summary>\nvoid Read() { } }", "('cartridge')");
         Expect("class P { // matches the 65C816 routine in the disassembly\n }", "('65C816')");
         // The processor's direct page, spaced or hyphenated, and the debugger in any word form (#1501).
@@ -105,6 +105,17 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Handle controller-binding rows and commands.</summary>\nint F => 0; }");
         Expect("class P { // the player who commands Samus; the options commands\n }");
         Expect("class P { /// <summary>Checked by the HUD selector one layer above this; a function of the speed.</summary>\nint F => 0; }");
+        // The original's dispatch named as a function without a number (#1624), in documentation, line comments and
+        // string literals.
+        Expect("class P { string Name => \"A Ceres door has no main function.\"; }", "('function')");
+        Expect("class P { string Name => $\"Kraid body function {1} has ended.\"; }", "('function')");
+        Expect("class P { /// <summary>Sets the eye's function when the fight starts.</summary>\nint F => 0; }", "('function')");
+        Expect("class P { // the body functions the rainbow sequence runs\n }", "('functions')");
+        Expect("class P { /* the record names the swinging function */ }", "('function')");
+        // A mathematical function, C#'s own and writing one are English.
+        Expect("class P { /// <summary>A function of each colour; a pure function of the velocity; thresholds and functions are copied from retail arithmetic.</summary>\nint F => 0; }");
+        Expect("class P { // inventing a function for them would only re-encode the ordering; sine without platform math functions\n }");
+        Expect("class P { /// <summary>Runs a local function, a lambda function and a function delegate; defining a function is the code's.</summary>\nint F => 0; }");
         // Storage and machine vocabulary #1558 left out (#1611).
         Expect("class P { /// <summary>Kept in variable E.</summary>\nint F => 0; }", "('variable E')");
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");
@@ -307,5 +318,26 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "/// <summary>Reproduces the NMI frame counter at $05B5.</summary>\n[CompatibilityService(\"frame counter\")] class Clock { }");
         Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; }\n" +
             "[EncodingOwner(\"pose numbers\")] static class Numbers { /// <summary>The native pose number.</summary>\nstatic int N => 0; }");
+        // The machine's provenance is read in every type, hardware owners included: native words and bit patterns, the
+        // cartridge's routines and hexadecimal fixed-point values (#1743).
+        const string EncodingOwner =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; }\n";
+        const string CompatibilityService =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CompatibilityServiceAttribute(string behaviour) : System.Attribute { public string Behaviour { get; } = behaviour; }\n";
+        Expect(EncodingOwner + "[EncodingOwner(\"fixed point\")] readonly struct F { /// <summary>Gets the signed native word of the value.</summary>\nint Raw => 0; }",
+            "('native word')");
+        Expect(EncodingOwner + "[EncodingOwner(\"fixed point\")] readonly struct F { /// <summary>The whole pixels as their unsigned native bit pattern.</summary>\nint W => 0; }",
+            "('native bit pattern')");
+        Expect(CompatibilityService + "/// <summary>Replaces one half, as cartridge routines that store one half do.</summary>\n[CompatibilityService(\"halves\")] class Halves { }",
+            "('cartridge routines')");
+        Expect(CompatibilityService + "[CompatibilityService(\"dash\")] class Dash { // the dash adds exactly 0.1000 per frame\n }", "('0.1000')");
+        Expect("class P { /// <summary>The boost holds the extra speed at 7.0000.</summary>\nint F => 0; }", "('7.0000')");
+        Expect("class P { // the cap reads $1.8C00\n }", "('$1.8C00')");
+        Expect("class P { string Name => \"Extra speed passed 2.0000.\"; }", "('2.0000')");
+        // A decimal without a trailing zero, a format's name, a version, a native thing that is no word and a routine that is
+        // not the cartridge's are English.
+        Expect("class P { /// <summary>Gravity adds 0.125, the speed decays by 0.0625 and sinks 0.1875 pixels.</summary>\nint F => 0; }");
+        Expect("class P { // a signed 16.16 displacement beside an 8.8 speed, in version 0.9.0\n }");
+        Expect(EncodingOwner + "[EncodingOwner(\"words\")] static class W { /// <summary>The native pose number; the game's clamping routine; a word.</summary>\nstatic int N => 0; }");
     }
 }

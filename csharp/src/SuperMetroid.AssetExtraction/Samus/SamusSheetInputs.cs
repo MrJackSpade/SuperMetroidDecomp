@@ -28,7 +28,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, ImportIntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusArmCannonCoverCharacters ArmCannonCover, SamusShadeSources ShadeSources,
-    LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation)
+    FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation)
 {
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
@@ -46,7 +46,6 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         SamusMapColourTables tables = maps.SamusColours;
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
-        SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(ImportDataDirectory.Of(overreads));
         var sources = new SamusShadeSources(
             palettes.Starting,
             [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
@@ -55,11 +54,9 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             tables.Charge,
             tables.HyperBeam,
             tables.FullBodyCycles,
-            overruns.SpeedBooster,
             tables.Hurt,
             tables.Visor,
             projectiles.BeamPalettes,
-            overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.HyperBeamFxColors,
             SamusDeathPaletteArtworkFiles.LoadForImport(samusBodyImportData),
@@ -99,7 +96,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
 
     /// <summary><paramref name="colours"/>, sprite colours, with <paramref name="combination"/>'s beam colours in her beams' place.</summary>
     internal RgbColor[] WithBeams(RgbColor[] colours, SamusBeamCombination combination) =>
-        WithRun(colours, SamusSheetInks.Beams, SamusBeamColours.Of(combination, ShadeSources.BeamPalettes, ShadeSources.Chainsaw));
+        WithRun(colours, SamusSheetInks.Beams, SamusBeamColours.Of(combination, ShadeSources.BeamPalettes));
 
     /// <summary>The sprite colours as a room load leaves them: the starting colours with the common and enemy-projectile groups.</summary>
     internal RgbColor[] RoomLoadSpriteColours() => RoomLoadPalettes.SpriteColours(Palettes);

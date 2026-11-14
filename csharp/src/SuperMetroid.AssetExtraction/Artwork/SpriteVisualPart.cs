@@ -38,7 +38,7 @@ public sealed record SpriteVisualPart
         try
         {
             return SpritePart.Create(Offset16<ScreenPixels>.Of(OffsetX, OffsetY), Size == 16, TileRow * tileColumns + TileColumn, Palette ?? 0, Priority,
-                (FlipX ? TileFlip.Horizontal : TileFlip.None) | (FlipY ? TileFlip.Vertical : TileFlip.None));
+                (FlipX ? PictureFlip.Horizontal : PictureFlip.None) | (FlipY ? PictureFlip.Vertical : PictureFlip.None));
         }
         catch (ArgumentOutOfRangeException error)
         {

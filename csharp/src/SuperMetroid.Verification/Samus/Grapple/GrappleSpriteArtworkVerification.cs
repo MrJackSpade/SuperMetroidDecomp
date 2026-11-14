@@ -36,8 +36,8 @@ internal static class GrappleSpriteArtworkVerification
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
         foreach (SpriteMirror mirror in GrappleSheetComposer.RopeMirrors)
         {
-            TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-                ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
+            PictureFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
+                ((mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
             SpritePart appearance = catalog.Segment(segment);
             AssertEqual(SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
                 frames[GrappleSheets.RopeFrame(orientation, segment, mirror)].Parts.Single(),

@@ -375,6 +375,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidScrollPairVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
@@ -390,7 +391,7 @@ using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerificatio
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterVisualsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RevealAndWallVisualsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedPaletteOverrunVerification;
+using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterInheritedStepVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeDamageBoostVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusLandingDrawVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorTransitionAutosaveVerification;
@@ -443,6 +444,7 @@ using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactV
 using static SuperMetroid.Verification.Frontend.Ending.EndingShootingStarFieldVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapAnimationLimitsVerification;
 using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerification;
+using static SuperMetroid.Verification.Runtime.Attract.AttractDemoRoomSetupVerification;
 using static SuperMetroid.Verification.Enemies.EnemyMathBoundsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonTrailRingVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingWavySamusWaveVerification;
@@ -603,8 +605,6 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Enemies.Cacatac.CacatacAttackChanceVerification.VerifyCacatacAttackChance),
         new(nameof(SuperMetroid.Verification.Enemies.Owtch.OwtchSinkChanceVerification.VerifyOwtchSinkChance),
             SuperMetroid.Verification.Enemies.Owtch.OwtchSinkChanceVerification.VerifyOwtchSinkChance),
-        new(nameof(SuperMetroid.Verification.Enemies.Stoke.StokeAttackChanceVerification.VerifyStokeAttackChance),
-            SuperMetroid.Verification.Enemies.Stoke.StokeAttackChanceVerification.VerifyStokeAttackChance),
         new(nameof(SuperMetroid.Verification.Enemies.Puyo.PuyoHopChoicesVerification.VerifyPuyoHopChoices),
             SuperMetroid.Verification.Enemies.Puyo.PuyoHopChoicesVerification.VerifyPuyoHopChoices),
         new(nameof(SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleCounterPhasesVerification.VerifyMamaTurtleCounterPhases),
@@ -648,6 +648,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
             SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
+        // The level import refuses a block whose behaviour gives its kind no reaction (#1742).
+        new(nameof(SuperMetroid.Verification.Rooms.LevelData.LevelBlockReactionImportVerification.VerifyLevelImportRefusesBlocksWithoutReaction),
+            SuperMetroid.Verification.Rooms.LevelData.LevelBlockReactionImportVerification.VerifyLevelImportRefusesBlocksWithoutReaction),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
         // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
@@ -914,7 +917,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseMapArrows), () => VerifyPauseMapArrows()),
         new(nameof(VerifyPauseMapAreaLabels), () => VerifyPauseMapAreaLabels()),
         new(nameof(VerifyPauseMapPosition), () => VerifyPauseMapPosition()),
-        new(nameof(VerifySpeedPaletteOverrun), () => VerifySpeedPaletteOverrun()),
+        new(nameof(VerifySpeedBoosterInheritedStep), () => VerifySpeedBoosterInheritedStep()),
         new(nameof(VerifyInvalidBeamSelection), () => VerifyInvalidBeamSelection()),
         new(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics()),
         new(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking()),
@@ -1071,6 +1074,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration()),
         new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
+        new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),
@@ -1249,6 +1253,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEndingShootingStarField), () => VerifyEndingShootingStarField()),
         new(nameof(VerifyMapAnimationLimits), () => VerifyMapAnimationLimits()),
         new(nameof(VerifyAttractDemoLoadWaits), () => VerifyAttractDemoLoadWaits()),
+        new(nameof(VerifyChargeBeamClosedScreen), () => VerifyChargeBeamClosedScreen()),
         new(nameof(VerifyEnemyMathBounds), () => VerifyEnemyMathBounds()),
         new(nameof(VerifyBotwoonTrailRing), () => VerifyBotwoonTrailRing()),
         new(nameof(VerifyEndingWavySamusWave), () => VerifyEndingWavySamusWave()),

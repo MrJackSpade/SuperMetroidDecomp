@@ -69,12 +69,11 @@ internal static class BeamPaletteArtworkVerification
 
     /// <summary>
     /// Crystal Flash's finish reloads the equipped beams' palette through the loader equipping a beam uses (#1506): the
-    /// Chainsaw combination takes the colours read past the palette table, where the finish once refused it, and a retail
+    /// Chainsaw combination, where the finish once refused it, shows Plasma and Wave's palette (#1736), and a retail
     /// combination its installed palette.
     /// </summary>
     private static void VerifyCrystalFlashFinishBeamPalette(InstalledBeamPalettes palettes)
     {
-        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusShadeSources.Chainsaw;
         SamusBeamFlags chainsawBeams = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Wave;
         AssertEqual(ChainsawBeamGraphicsDefinitions.Selection, SamusBeamCombinations.Of(chainsawBeams), "Spazer, Plasma and Wave select the Chainsaw beam");
         foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.Plasma | SamusBeamFlags.Wave, chainsawBeams })
@@ -88,7 +87,7 @@ internal static class BeamPaletteArtworkVerification
             var expected = new SamusColours();
             SamusProjectileSystem.LoadBeamPalette(expected, beams);
             AssertEqual(expected.Beams, finishedColours.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
-            var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes, Chainsaw = chainsaw };
+            var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
             AssertTrue(finishedColours.ShownBeams(sources).SequenceEqual(expected.ShownBeams(sources)),
                 $"{beams}: Crystal Flash's finish shows the colours equipping the beams shows");
             AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");

@@ -18,13 +18,13 @@ internal static class LookupAnimatedHeadersVerification
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxAnimatedTileLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
+            RoomFxBlockAnimationLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
-        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
+        foreach (BlockAnimation header in Enum.GetValues<BlockAnimation>())
         {
             ushort pointer = FxNativeWords.AnimatedTileObjects.Word(header);
-            bool resolved = RoomFxAnimatedTiles.TryResolve(header, out var definition);
+            bool resolved = RoomFxBlockAnimations.TryResolve(header, out var definition);
             AssertEqual(original.Contains(pointer), resolved, "Simple animation full identity domain");
             if (resolved)
                 AssertEqual(pointer, FxNativeWords.AnimatedTileObjects.Word((definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject), "Selected native object identity");
@@ -33,7 +33,7 @@ internal static class LookupAnimatedHeadersVerification
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
             AssertThrows<InvalidOperationException>(
-                () => RoomFxAnimatedTiles.TryResolve((AnimatedTileObject)undefined, out _),
+                () => RoomFxBlockAnimations.TryResolve((BlockAnimation)undefined, out _),
                 "Undefined animated-tile object is rejected at the typed boundary");
     }
 
@@ -49,13 +49,13 @@ internal static class LookupAnimatedHeadersVerification
 
     /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
     private static void VerifySimpleAnimationHeaderField(CartridgeImportAddressSpace rom, int offset,
-        Func<RoomFxAnimatedTileLoop, int> field)
+        Func<RoomFxBlockAnimationLoop, int> field)
     {
-        var enumerated = RoomFxAnimatedTileLoops.All.ToDictionary(x => x.AnimatedObject);
+        var enumerated = RoomFxBlockAnimationLoops.All.ToDictionary(x => x.AnimatedObject);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);
-            AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object"), out var definition),
+            AssertTrue(RoomFxBlockAnimations.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object"), out var definition),
                 "Original object resolves");
             AssertEqual(expected, field((definition ?? throw new InvalidOperationException("Verification requires definition."))), "Native selected header field");
             AssertEqual(expected, field(enumerated[FxNativeWords.AnimatedTileObjects.Decode(pointer, "animated-tile object")]), "Native enumeration header view");

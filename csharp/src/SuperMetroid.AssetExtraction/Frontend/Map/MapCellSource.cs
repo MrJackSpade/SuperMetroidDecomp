@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 /// <param name="Character">The map character the cell is drawn from.</param>
 /// <param name="Mirroring">How the map word mirrors the character.</param>
-internal readonly record struct MapCellSource(int Character, TileFlip Mirroring);
+internal readonly record struct MapCellSource(int Character, PictureFlip Mirroring);

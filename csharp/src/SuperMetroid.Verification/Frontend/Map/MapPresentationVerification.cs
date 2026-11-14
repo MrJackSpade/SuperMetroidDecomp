@@ -128,8 +128,8 @@ internal static class MapPresentationVerification
                 AreaMapPresentationFile.Write(json, stock);
                 json.Position = 0;
                 var restored = AreaMapPresentationFile.Read(json, stock);
-                for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-                for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+                for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+                for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
                 {
                     AssertEqual(stock.Cell(new(checked((ushort)x), checked((ushort)y))), restored.Cell(new(checked((ushort)x), checked((ushort)y))), "stock map JSON retains each cell");
                     AssertEqual(stock.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), restored.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "stock discovery rules survive import");
@@ -272,8 +272,8 @@ internal static class MapPresentationVerification
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
         AreaMapPresentation reopened = fixture.Reopened;
         foreach (AreaId area in Enum.GetValues<AreaId>())
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             var actual = original.Get(area);
             AssertEqual(rules[area].Cell(new(checked((ushort)x), checked((ushort)y))), actual.Cell(new(checked((ushort)x), checked((ushort)y))), "ROM-free catalog retains stock cells");

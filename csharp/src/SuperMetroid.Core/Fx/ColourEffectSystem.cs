@@ -110,7 +110,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
     internal static ColourEffectSystem ForRecord(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
-        RoomFxRecordDefinition? suppliedDefinition)
+        RoomEffectDefinition? suppliedDefinition)
     {
         var system = new ColourEffectSystem(session);
         if ((suppliedDefinition ?? fx?.Select(door)) is { } record)

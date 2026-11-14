@@ -1,0 +1,35 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Fx;
+
+/// <summary>Exports bank-$87 room-FX, Wrecked Ship treadmill, and Tourian statue characters.</summary>
+public static class RoomFxBlockAnimationAtlasExtractor
+{
+    /// <summary>Concatenates the defined room-FX, treadmill, statue, spore, and spike character segments into their stable atlas order.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the native bank-$87 two-bit planar artwork spans.</param>
+    /// <returns>New indexed PNG bytes containing one horizontal character row with pixel indices 0..3 and a diagnostic palette, not runtime colors.</returns>
+    /// <remarks>The shared statue strip is stored once; overlapping transfer windows and all animation timing remain compiled.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The imported segments do not total the required planar byte count.</exception>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        Ensure.NotNull(bus);
+        using var planar = new MemoryStream();
+        foreach (RoomFxAtlasSegment segment in RoomFxBlockAnimationAtlasFile.Segments)
+            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                RoomFxBlockAnimationSources.Of(segment), segment.ByteCount));
+        if (planar.Length != RoomFxBlockAnimationAtlasFormat.TotalByteCount)
+            throw new InvalidDataException(
+                $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxBlockAnimationAtlasFormat.TotalByteCount}.");
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar.ToArray(),
+            RoomFxBlockAnimationAtlasFile.BitsPerPixel,
+            RoomFxBlockAnimationAtlasFormat.TileCount, out Extent16<ImagePixels> size);
+        using var output = new MemoryStream();
+        IndexedPng.Write(output, size, pixels,
+            SnesGraphics.DiagnosticPalette(RoomFxBlockAnimationAtlasFile.ColorCount));
+        return output.ToArray();
+    }
+}

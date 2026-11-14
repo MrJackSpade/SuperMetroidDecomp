@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -39,9 +40,6 @@ public static class SamusShades
     public static PictureShade FullBodyCycle(SamusFullBodyCyclePalette palette) =>
         new($"{palette.Family}{palette.Suit}", palette.Shade);
 
-    /// <summary>The suit as Gravity's Speed Booster shows it on a step past its cycle.</summary>
-    internal static PictureShade SpeedBoosterOverrun(SpeedBoosterPaletteOverrun overrun) => new($"SpeedBooster{overrun}", 0);
-
     /// <summary>The suit under the hurt flash's bright colours or its cinematic grey restoration.</summary>
     public static PictureShade Hurt(SamusHurtColorVariant variant) => new($"Hurt{variant}", 0);
 
@@ -57,8 +55,15 @@ public static class SamusShades
     /// <summary>The grapple flare's colour once the grapple's firing colours are loaded.</summary>
     public static PictureShade GrappleFiringFlare { get; } = new("GrappleFlare", 0);
 
-    /// <summary>The beams' colours for one beam combination.</summary>
-    public static PictureShade Beam(SamusBeamCombination combination) => new($"Beam{combination}", 0);
+    /// <summary>
+    /// The beams' colours for one beam combination: the palette it selects in the beam palette table. The Chainsaw beam,
+    /// which the table does not list, shows the colours of the listed combination it shares its palette with (#1736).
+    /// </summary>
+    public static PictureShade Beam(SamusBeamCombination combination) => new($"Beam{ShownPalette(combination)}", 0);
+
+    /// <summary>The beam combination whose palette <paramref name="combination"/> shows.</summary>
+    internal static SamusBeamCombination ShownPalette(SamusBeamCombination combination) =>
+        combination == ChainsawBeamGraphicsDefinitions.Selection ? ChainsawBeamGraphicsDefinitions.ShownPalette : combination;
 
     /// <summary>The Crystal Flash's body colours at one step of its pulse.</summary>
     public static PictureShade CrystalFlashBody(int step) => new("CrystalFlashBody", step);

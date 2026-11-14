@@ -23,7 +23,7 @@ internal static class RoomFxRomDataRecordTooling
         public const int LiquidOptionsOffset = 12;
         /// <summary>Byte offset of the palette-FX selection bitset.</summary>
         public const int PaletteFxBitsetOffset = 13;
-        /// <summary>Byte offset of the animated-tile selection bitset.</summary>
+        /// <summary>Byte offset of the block-animation selection bitset.</summary>
         public const int AnimatedTileBitsetOffset = 14;
         /// <summary>Byte offset of the layer palette blend selector at the record's tail.</summary>
         public const int PaletteBlendOffset = 15;

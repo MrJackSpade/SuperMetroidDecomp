@@ -98,8 +98,8 @@ public static class EscapeTypewriterExtractor
     private static Position16<PlanePixels> StartOf(int cell)
     {
         int screen = cell / TilemapScreenGeometry.CellCount, within = cell % TilemapScreenGeometry.CellCount;
-        return new((screen * TilemapScreenGeometry.WidthInTiles + within % TilemapScreenGeometry.WidthInTiles) * ScreenGeometry.BackgroundTileSizePixels,
-            within / TilemapScreenGeometry.WidthInTiles * ScreenGeometry.BackgroundTileSizePixels);
+        return new((screen * TilemapScreenGeometry.WidthInTiles + within % TilemapScreenGeometry.WidthInTiles) * ScreenGeometry.BackgroundCellSizePixels,
+            within / TilemapScreenGeometry.WidthInTiles * ScreenGeometry.BackgroundCellSizePixels);
     }
 
     /// <summary>

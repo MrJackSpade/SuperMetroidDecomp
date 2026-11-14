@@ -211,7 +211,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Action = ShitroidAction.HoverNearSamus;
                     state.ReactsToSamus = true;
-                    SetShitroidScrollPair(RoomScrollState.Blue);
+                    SetShitroidScrollPair(RoomScrollState.OpenAlignedToTop);
                     QueueShitroidWallObjects(ShitroidWallMutation.Clear);
                 }
                 return;
@@ -360,24 +360,29 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Puts the camera at X 512 directly, then rescrolls the room's four screens as the wall entrance does: the second
-        // and fourth take the red boundary, the first and third keep the scroll they have. This is not ordinary camera
+        // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
         _frameResults.CameraXOverride = 512;
-        SetShitroidScrollPair(RoomScrollState.RedBoundary);
+        SetShitroidScrollPair(RoomScrollState.Closed);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Action = ShitroidAction.BeginEntranceDelay;
         state.CryEnabled = true;
     }
 
-    /// <summary>Gives the room's second and fourth screens <paramref name="highState"/>, rewriting the first and third with the scroll they already have.</summary>
+    /// <summary>
+    /// Gives the second and fourth screens of the Big Boy room's row of four <paramref name="highState"/>, rewriting the
+    /// first and third with the scroll they already have.
+    /// </summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
-        RoomScrollState scroll0 = _room.Services.RoomScroll.Read(0);
-        RoomScrollState scroll2 = _room.Services.RoomScroll.Read(2);
-        _room.Services.RoomScroll.Write(0, scroll0);
-        _room.Services.RoomScroll.Write(1, highState);
-        _room.Services.RoomScroll.Write(2, scroll2);
-        _room.Services.RoomScroll.Write(3, highState);
+        var first = new Position16<RoomScreens>(0, 0);
+        var third = new Position16<RoomScreens>(2, 0);
+        RoomScrollState firstState = _room.Services.RoomScroll.Read(first);
+        RoomScrollState thirdState = _room.Services.RoomScroll.Read(third);
+        _room.Services.RoomScroll.Write(first, firstState);
+        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), highState);
+        _room.Services.RoomScroll.Write(third, thirdState);
+        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(3, 0), highState);
     }
 
     /// <summary>Requests the two room-column wall objects at the authored Tourian positions.</summary>

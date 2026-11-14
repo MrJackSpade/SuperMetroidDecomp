@@ -48,19 +48,19 @@ internal static class RoomFxWidenedInputsVerification
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
         var liquid = new RoomFxOverlayState(new RoomFxSession());
-        liquid.SetLiquidMotion(baseYPosition: deepest, targetYPosition: deepest);
+        liquid.SetLiquidMotion(liquidLevel: deepest, targetLevel: deepest);
         AssertEqual(deepest, (int)(liquid.BaseY ?? throw new InvalidOperationException("Verification failed: the named surface was dropped.")).Whole,
             "a named surface keeps the deepest line a signed reading finds within the room");
         AssertEqual<int?>(deepest, liquid.TargetSurface, "a named target keeps the deepest line a signed reading finds within the room");
-        liquid.SetLiquidMotion(baseYPosition: 0, targetYPosition: 0);
+        liquid.SetLiquidMotion(liquidLevel: 0, targetLevel: 0);
         AssertEqual(0, (int)(liquid.BaseY ?? throw new InvalidOperationException("Verification failed: the named surface was dropped.")).Whole,
             "a named surface keeps the room's top line");
-        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(baseYPosition: deepest + 1),
+        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(liquidLevel: deepest + 1),
             "a named surface past the lines a signed reading finds within the room");
-        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetYPosition: deepest + 1),
+        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetLevel: deepest + 1),
             "a named target past the lines a signed reading finds within the room");
-        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(baseYPosition: -1), "a named surface above the room's top");
-        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetYPosition: -1), "a named target above the room's top");
+        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(liquidLevel: -1), "a named surface above the room's top");
+        AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetLevel: -1), "a named target above the room's top");
 
         static ColourEffectInputs Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };

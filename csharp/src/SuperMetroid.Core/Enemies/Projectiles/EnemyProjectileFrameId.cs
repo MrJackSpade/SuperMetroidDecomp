@@ -1557,10 +1557,6 @@ public enum EnemyProjectileFrameId
     CacatacSpikeDownRight,
     /// <summary><c>cacatac_spike_right_facing_down</c>, an installed animation frame.</summary>
     CacatacSpikeRightFacingDown,
-    /// <summary><c>stoke_initial_first</c>, an installed animation frame.</summary>
-    StokeInitialFirst,
-    /// <summary><c>stoke_initial_second</c>, an installed animation frame.</summary>
-    StokeInitialSecond,
     /// <summary><c>spore_spawn_spawner_closed</c>, an installed animation frame.</summary>
     SporeSpawnSpawnerClosed,
     /// <summary><c>spore_spawn_spawner_release_first</c>, an installed animation frame.</summary>

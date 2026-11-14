@@ -86,7 +86,7 @@ internal static class EncounterLookUploads
 
     /// <summary>The encounters the members of graphics set <paramref name="set"/> play, in encounter order.</summary>
     internal static IReadOnlyList<ComposedEncounter> Of(RoomEnemyGraphicsSetMembers set) =>
-        [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).Where(ByEncounter.ContainsKey)
+        [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).OfType<EnemyDefinitionId>().Where(ByEncounter.ContainsKey)
             .Select(enemy => ByEncounter[enemy]).Distinct().Order()];
 
     /// <summary>

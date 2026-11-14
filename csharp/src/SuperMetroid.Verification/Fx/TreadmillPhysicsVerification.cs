@@ -45,7 +45,7 @@ internal static class TreadmillPhysicsVerification
             body.Radius = body.Radius.WithY(8);
             body.YSpeed = new UnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Spatial.SignedSixteenSixteen.FromParts(7, 0x1234));
-            samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
+            samus.HorizontalSpeed.SelectSpeedsFor(SamusLiquidMedium.Water);
             bool gated = conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.RightwardsBehavior ||
                 conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
             bool admitted = !gated || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));

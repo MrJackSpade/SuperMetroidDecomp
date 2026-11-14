@@ -8,20 +8,36 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => GunshipPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        GunshipPart.ShipTop => species.InitializeGunshipTop,
-        GunshipPart.ShipBottomEntrance => species.InitializeGunshipBottom,
-        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}."),
-    };
+        switch (GunshipPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case GunshipPart.ShipTop:
+                species.InitializeGunshipTop(Slot);
+                break;
+            case GunshipPart.ShipBottomEntrance:
+                species.InitializeGunshipBottom(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => GunshipPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        GunshipPart.ShipTop => species.RunGunshipMainAi,
-        GunshipPart.ShipBottomEntrance => EnemyCommonParticipation.FindMain(Slot),
-        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}."),
-    };
+        switch (GunshipPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case GunshipPart.ShipTop:
+                species.RunGunshipMainAi(Slot, frame);
+                break;
+            // The ship's bottom and entrance take no action of their own; the top moves the ship.
+            case GunshipPart.ShipBottomEntrance:
+                break;
+            default:
+                throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceGunshipAnimation(enemy);

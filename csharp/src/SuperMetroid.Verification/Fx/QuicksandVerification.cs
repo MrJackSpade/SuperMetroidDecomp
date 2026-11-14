@@ -288,11 +288,12 @@ internal static class QuicksandVerification
 
     /// <summary>
     /// Follows the native area tables: for every retail area and each of its first sixteen area reactions, the named
-    /// reaction's header and setup are the ones the cartridge's table selects; every other area, a common reaction and
-    /// every later area reaction are rejected, the area first.
+    /// reaction's header and setup are the ones the cartridge's table selects; a common reaction gives no area reaction
+    /// (the no-op), every later area reaction is no special-air reaction at all and is rejected, and every other area is
+    /// rejected first.
     /// </summary>
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
-        Func<AreaId, SpecialAirReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        Func<AreaId, SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : struct, Enum
     {
@@ -300,8 +301,15 @@ internal static class QuicksandVerification
         for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
             var area = (AreaId)rawArea;
-            SpecialAirReaction reaction = RoomBlockBehaviorCodec.Decode(value).SpecialAir;
-            if (rawArea >= 7 || (value & 0x80) == 0 || (value & 0x7f) >= 16)
+            SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(value).SpecialAir;
+            AssertEqual((value & 0x80) != 0 && (value & 0x7f) >= 16, reaction is null,
+                $"special-air BTS ${value:X2} has a reaction exactly within the tables");
+            if (rawArea < 7 && (value & 0x80) == 0)
+            {
+                AssertEqual(nothing, resolve(area, reaction), $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
+                continue;
+            }
+            if (rawArea >= 7 || (value & 0x7f) >= 16)
             {
                 try
                 {
@@ -321,7 +329,6 @@ internal static class QuicksandVerification
             ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
             ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
             ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
-            AssertTrue(SpecialAirReactions.IsAreaTableReaction(reaction), "special-air BTS sign selects its area's reaction");
             TReaction actual = resolve(area, reaction);
             AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
             // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has

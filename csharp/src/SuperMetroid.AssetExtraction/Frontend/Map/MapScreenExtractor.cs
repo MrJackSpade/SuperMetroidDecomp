@@ -60,7 +60,7 @@ public static class MapScreenExtractor
                 var word = new MapTileWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(index * 2)));
                 cells[index] = new() { TileColumn = word.CharacterIndex % columns, TileRow = word.CharacterIndex / columns,
                     Palette = word.PaletteIndex, Priority = word.HasPriority,
-                    FlipX = (word.Mirroring & TileFlip.Horizontal) != TileFlip.None, FlipY = (word.Mirroring & TileFlip.Vertical) != TileFlip.None };
+                    FlipX = (word.Mirroring & PictureFlip.Horizontal) != PictureFlip.None, FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None };
             }
             pages.Add(page.Name, cells);
         }

@@ -3,10 +3,11 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>Reads what the spike dispatchers do with a spike's reaction (#1722).</summary>
 public static class SpikeReactions
 {
-    /// <summary>
-    /// Whether <paramref name="reaction"/> is one the room's area gives spikes, which Samus's swing and the grapple beam
-    /// pass by.
-    /// </summary>
-    public static bool IsArea(SpikeReaction reaction) =>
-        reaction is SpikeReaction.AreaHarmless or SpikeReaction.AreaEnemyBreakable or SpikeReaction.AreaPastEnemyTable;
+    /// <summary>What the grapple beam makes of a spike reaction.</summary>
+    extension(SpikeReaction reaction)
+    {
+        /// <summary>Whether the grapple beam passes through a spike block with the reaction rather than stopping on it.</summary>
+        public bool LetsGrappleBeamThrough =>
+            reaction is SpikeReaction.HarmlessLetsGrappleThrough or SpikeReaction.EnemyBreakableLetsGrappleThrough;
+    }
 }

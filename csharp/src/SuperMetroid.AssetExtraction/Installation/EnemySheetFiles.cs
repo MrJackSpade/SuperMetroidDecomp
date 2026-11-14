@@ -30,9 +30,10 @@ public static class EnemySheetFiles
     /// bomb shows at an enemy it hurts on every set's shared spawned-object sheet (#1713); 34 no longer records the palette row a
     /// spawned-object variant's pictures were coloured in, which only the composition reads (#1728); 35 installs the hit burst on
     /// no enemy sheet, as it is Samus's weapon effect, which her projectile sheets hold (#1713); 36 adds the gunship glow's
-    /// record shades to the gunship's top hull and entrance sheets (#1733).
+    /// record shades to the gunship's top hull and entrance sheets (#1733); 37 installs no Stoke and lists no spawned objects
+    /// for an enemy no room places, the Reflec, the second dead Sidehopper and the Tourian statue ghost (#1686).
     /// </summary>
-    public const int ManifestVersion = 36;
+    public const int ManifestVersion = 37;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

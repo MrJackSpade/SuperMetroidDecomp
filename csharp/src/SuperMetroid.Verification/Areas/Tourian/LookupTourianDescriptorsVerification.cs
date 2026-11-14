@@ -34,7 +34,7 @@ internal static class LookupTourianDescriptorsVerification
             TourianStatueAnimatedTilePrograms.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(TourianStatueAnimatedTilePrograms.ObjectOf(x.Statue)))),
             "Original statue descriptor enumeration order");
         var original = OriginalTourianObjects.ToHashSet();
-        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
+        foreach (BlockAnimation header in Enum.GetValues<BlockAnimation>())
         {
             ushort pointer = FxNativeWords.AnimatedTileObjects.Word(header);
             bool found = TourianStatueNativeWords.TryResolveStatue(header, out var definition);
@@ -44,7 +44,7 @@ internal static class LookupTourianDescriptorsVerification
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
             AssertThrows<InvalidOperationException>(
-                () => TourianStatueNativeWords.TryResolveStatue((AnimatedTileObject)undefined, out _),
+                () => TourianStatueNativeWords.TryResolveStatue((BlockAnimation)undefined, out _),
                 "Undefined statue object is rejected at the typed boundary");
     }
 
@@ -52,7 +52,7 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueTransferSizes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
-            AssertEqual(HeaderWord(rom, header, 1), RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(Resolve(header).Statue),
+            AssertEqual(HeaderWord(rom, header, 1), RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(Resolve(header).Statue),
                 "Original statue transfer size");
     }
 

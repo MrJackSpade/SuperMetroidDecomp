@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
 
@@ -17,7 +18,6 @@ internal static class EnemyHeaderWords
     {
         [EnemyDefinitionId.None] = 0x0000,
         [EnemyDefinitionId.Boyon] = 0xcebf,
-        [EnemyDefinitionId.Stoke] = 0xceff,
         [EnemyDefinitionId.MamaTurtle] = 0xcf3f,
         [EnemyDefinitionId.BabyTurtle] = 0xcf7f,
         [EnemyDefinitionId.Puyo] = 0xcfbf,
@@ -66,7 +66,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.Respawn] = 0xdaff,
         [EnemyDefinitionId.Skree] = 0xdb7f,
         [EnemyDefinitionId.Yard] = 0xdbbf,
-        [EnemyDefinitionId.Reflec] = 0xdbff,
         [EnemyDefinitionId.HZoomer] = 0xdc3f,
         [EnemyDefinitionId.Zeela] = 0xdc7f,
         [EnemyDefinitionId.Sova] = 0xdcbf,
@@ -137,7 +136,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.MotherBrainTubes] = 0xecff,
         [EnemyDefinitionId.CorpseTorizo] = 0xed3f,
         [EnemyDefinitionId.CorpseSidehopper] = 0xed7f,
-        [EnemyDefinitionId.CorpseSidehopper2] = 0xedbf,
         [EnemyDefinitionId.CorpseZoomer] = 0xedff,
         [EnemyDefinitionId.CorpseRipper] = 0xee3f,
         [EnemyDefinitionId.CorpseSkree] = 0xee7f,
@@ -147,7 +145,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.GoldenTorizo] = 0xef7f,
         [EnemyDefinitionId.GoldenTorizoOrb] = 0xefbf,
         [EnemyDefinitionId.TourianStatue] = 0xefff,
-        [EnemyDefinitionId.TourianStatueGhost] = 0xf03f,
         [EnemyDefinitionId.Shaktool] = 0xf07f,
         [EnemyDefinitionId.NoobTubeCrack] = 0xf0bf,
         [EnemyDefinitionId.Chozo] = 0xf0ff,
@@ -170,5 +167,16 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.PirateGoldWalking] = 0xf713,
         [EnemyDefinitionId.PirateMagentaWalking] = 0xf753,
         [EnemyDefinitionId.PirateSilverWalking] = 0xf793,
+    });
+
+    /// <summary>
+    /// The bank-$A0 pointer of each header whose artwork a graphics set loads for no enemy of the game
+    /// (<see cref="UnplacedEnemyArtwork"/>, #1686).
+    /// </summary>
+    internal static readonly NativeWordIdentities<UnplacedEnemyArtwork> UnplacedArtworkHeaders = new(new Dictionary<UnplacedEnemyArtwork, ushort>
+    {
+        [UnplacedEnemyArtwork.Stoke] = 0xceff,
+        [UnplacedEnemyArtwork.DeadSidehopperLivingTiles] = 0xedbf,
+        [UnplacedEnemyArtwork.TourianStatueGhosts] = 0xf03f,
     });
 }

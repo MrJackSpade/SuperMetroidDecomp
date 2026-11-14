@@ -52,27 +52,27 @@ internal static class SamusSpeedLimitVerification
 
         // The dash's extra speed with a fraction of half a pixel or more is not held at the Speed Booster's seven pixels:
         // it keeps accelerating.
-        var boosted = new SamusHorizontalSpeedState { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x8000) };
+        var boosted = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x8000) };
         boosted.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: true);
         AssertEqual(new UnsignedSixteenSixteen(7, 0x8000) + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration, boosted.ExtraRunSpeed,
             "an extra speed above seven pixels with half a pixel's fraction is not held at the cap");
-        var held = new SamusHorizontalSpeedState { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x7fff) };
+        var held = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x7fff) };
         held.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: true);
         AssertEqual(new UnsignedSixteenSixteen(7, 0), held.ExtraRunSpeed, "an extra speed above seven pixels under half a pixel's fraction is held at the cap");
 
         // A base speed accelerated exactly onto its maximum keeps it; one past it in the fraction is replaced by it.
-        var entry = new SpeedTableEntry(SignedSixteenSixteen.FromParts(0, 0x3000), SignedSixteenSixteen.FromParts(2, 0xc000), SignedSixteenSixteen.FromParts(0, 0x8000));
-        var exact = new SamusHorizontalSpeedState { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9000) };
+        var entry = new SamusHorizontalSpeeds(SignedSixteenSixteen.FromParts(0, 0x3000), SignedSixteenSixteen.FromParts(2, 0xc000), SignedSixteenSixteen.FromParts(0, 0x8000));
+        var exact = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9000) };
         exact.CalculateBaseSpeed(entry);
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc000), exact.BaseSpeed, "a speed accelerated onto its maximum keeps it");
-        var past = new SamusHorizontalSpeedState { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9001) };
+        var past = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9001) };
         past.CalculateBaseSpeed(entry);
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc000), past.BaseSpeed, "a speed accelerated past its maximum is replaced by it");
-        var underFraction = new SamusHorizontalSpeedState { BaseSpeed = new UnsignedSixteenSixteen(2, 0x4001) };
+        var underFraction = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x4001) };
         underFraction.CalculateBaseSpeed(entry with { MaximumSpeed = SignedSixteenSixteen.FromParts(2, 0x4000) });
         AssertEqual(new UnsignedSixteenSixteen(2, 0x4000), underFraction.BaseSpeed,
             "a speed whose fraction lies less than half a pixel above its maximum's is replaced by it");
-        var halfRangeFraction = new SamusHorizontalSpeedState { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9001) };
+        var halfRangeFraction = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9001) };
         halfRangeFraction.CalculateBaseSpeed(entry with { MaximumSpeed = SignedSixteenSixteen.FromParts(2, 0x4000) });
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc001), halfRangeFraction.BaseSpeed,
             "a speed whose fraction lies more than half a pixel above its maximum's reads as under it and keeps accelerating");

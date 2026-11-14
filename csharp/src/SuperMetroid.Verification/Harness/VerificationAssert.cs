@@ -5,7 +5,6 @@ using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Cacatac;
-using SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Elevator;
@@ -1434,7 +1433,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior());
-        Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior());
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
         Suite(nameof(VerifyMetroidsClearedStateObject), () => VerifyMetroidsClearedStateObject(new TestAddressSpace()));
@@ -2727,7 +2725,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
         Suite(nameof(VerifyCompiledRoomObjectHeaderLoad), () => VerifyCompiledRoomObjectHeaderLoad(rom));
         Suite(nameof(VerifyObjectPopulationInputBoundary), () => VerifyObjectPopulationInputBoundary());
-        Console.WriteLine("Retail populations: all 284 identities, 941 ordered placements and native terminators, sequential setup and historical state schemas pass.");
+        Console.WriteLine("Retail populations: all 283 identities, 941 ordered placements and native terminators, sequential setup and historical state schemas pass.");
         return 0;
     }
 
@@ -3596,7 +3594,8 @@ internal static class VerificationAssert
             "Kraid camera oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidInitialScrollMapping), () => VerifyKraidInitialScrollMapping(cameraOracle));
         Suite(nameof(VerifyKraidGrownScrollMapping), () => VerifyKraidGrownScrollMapping(cameraOracle));
-        Console.WriteLine("Kraid camera: both four-screen mappings match native instruction operands; bounds pass.");
+        Suite(nameof(VerifyKraidRiseScrolls), () => VerifyKraidRiseScrolls());
+        Console.WriteLine("Kraid camera: both four-screen mappings match native instruction operands, each screen named at its cell in the room.");
         return 0;
     }
 

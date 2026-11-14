@@ -11,8 +11,11 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 /// </summary>
 internal static class BlockParameterCarryOverVerification
 {
-    /// <summary>Every reading a behaviour can be written as, by name, with the reading it takes of a behaviour.</summary>
-    private static readonly (string Name, Func<RoomBlockBehavior, object> Read, Func<object, RoomBlockBehavior> Write)[] Readings =
+    /// <summary>
+    /// Every reading a behaviour can be written as, by name, with the reading it takes of a behaviour; a reacting kind with
+    /// no reaction for the behaviour reads null, which is never written (#1742).
+    /// </summary>
+    private static readonly (string Name, Func<RoomBlockBehavior, object?> Read, Func<object, RoomBlockBehavior> Write)[] Readings =
     [
         (nameof(RoomBlockBehavior.Shootable), behavior => behavior.Shootable, reading => RoomBlockBehavior.Reacting((ShootableReaction)reading)),
         (nameof(RoomBlockBehavior.Bombable), behavior => behavior.Bombable, reading => RoomBlockBehavior.Reacting((BombableReaction)reading)),
@@ -40,16 +43,17 @@ internal static class BlockParameterCarryOverVerification
         AssertEqual(decoded[0], default, "a block's default behaviour is the empty one");
 
         int pairs = 0;
-        foreach ((string writtenName, Func<RoomBlockBehavior, object> written, Func<object, RoomBlockBehavior> write) in Readings)
+        foreach ((string writtenName, Func<RoomBlockBehavior, object?> written, Func<object, RoomBlockBehavior> write) in Readings)
         {
-            // The game writes each reading as the first byte holding it.
+            // The game writes each reading as the first byte holding it; no reaction is never written.
             var firsts = new Dictionary<object, int>();
             for (int value = 0; value < decoded.Length; value++)
-                firsts.TryAdd(written(decoded[value]), value);
+                if (written(decoded[value]) is { } reading)
+                    firsts.TryAdd(reading, value);
             foreach ((object reading, int first) in firsts)
             {
                 RoomBlockBehavior carried = write(reading);
-                foreach ((string readName, Func<RoomBlockBehavior, object> read, _) in Readings)
+                foreach ((string readName, Func<RoomBlockBehavior, object?> read, _) in Readings)
                 {
                     AssertEqual(read(decoded[first]), read(carried),
                         $"{writtenName} {reading} written, read as {readName}: the byte ${first:X2}'s reading");
@@ -62,7 +66,7 @@ internal static class BlockParameterCarryOverVerification
         // Every reaction a family names is held by some behaviour, so the installation can name each one.
         foreach (BlockReactionFamily family in Enum.GetValues<BlockReactionFamily>())
         foreach (Enum reaction in BlockReactionFamilies.Reactions(family))
-            AssertTrue(decoded.Any(behavior => behavior.ReactionIn(family).Equals(reaction)),
+            AssertTrue(decoded.Any(behavior => reaction.Equals(behavior.ReactionIn(family))),
                 $"{family} reaction {reaction} is held by a byte");
 
         Console.WriteLine($"Block-parameter carry-over: {decoded.Length} kept behaviours; {pairs} written-reading and read-reading pairs match the codec.");

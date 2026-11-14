@@ -181,7 +181,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException(
-                "Mother Brain entered a rainbow function without its live sequence owner.");
+                "Mother Brain entered a rainbow phase without its live sequence owner.");
 
         // The body animation and articulated-head AI ran through the physical room records on
         // previous frames. Import that state before dispatch so walk completion and neck
@@ -246,7 +246,7 @@ internal sealed class MotherBrainRainbowAndDeath
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
-        state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
+        state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body phase yet.");
         state.PhaseTimer = sequence.State.PhaseTimer;
         state.NeckAngleDelta = sequence.State.NeckAngleDelta;
         state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;

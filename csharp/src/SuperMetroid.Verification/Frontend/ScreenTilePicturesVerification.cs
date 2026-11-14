@@ -49,8 +49,8 @@ internal static class ScreenTilePicturesVerification
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, AreaIds.Zebes.Count).ToArray();
         foreach (AreaId shownArea in AreaIds.Zebes)
         {
-            SpriteSheetFrame foreground = sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
-            SpriteSheetFrame background = sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
+            SpriteSheetFrame foreground = sheets.Get(ScreenPictureSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
+            SpriteSheetFrame background = sheets.Get(ScreenPictureSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(shownArea);
             foreach (AreaMapBackgroundGlow math in new[] { AreaMapBackgroundGlow.WholeScreen, AreaMapBackgroundGlow.ForegroundOnly })
             {
@@ -67,7 +67,7 @@ internal static class ScreenTilePicturesVerification
             SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
             ImmutableArray<ShownMapCell> shownCells = room.AreaMap.Cells;
             AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
-                && grid.Cells.Length == AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles && grid.Cells.Length == shownCells.Length
+                && grid.Cells.Length == AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles && grid.Cells.Length == shownCells.Length
                 && grid.Cells.Select((cell, index) => roomPictures.ShowsNothing(AreaMapPictures.FrameName(shownCells[index]))
                     ? cell is null
                     : cell is { } shown && ReferenceEquals(shown.Picture, roomPictures.Frame(AreaMapPictures.FrameName(shownCells[index])))).All(matches => matches),
@@ -299,7 +299,7 @@ internal static class ScreenTilePicturesVerification
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
         byte[] vram = pause.ShownVram(maps);
-        var pageSize = new Extent16<CharacterCells>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles);
+        var pageSize = new Extent16<CharacterCells>(AreaMapSize.WidthInMapTiles, AreaMapSize.HeightInMapTiles);
         BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles(maps), pageSize);
         BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles(maps), PauseFramePageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);

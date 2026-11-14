@@ -476,14 +476,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        // The arena lock loads two scroll cells, masks the second, then stores both. This
-        // preserves scroll zero and clears scroll one, locking the arena to screen zero.
+        // The arena lock keeps the first screen of the room's row of four and closes the second,
+        // locking the arena to the first screen.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
         // The arena lock is the stationary lock: its alpha handler places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
-        _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
+        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;
         state.PhaseTimer = 32;

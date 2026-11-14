@@ -116,7 +116,7 @@ internal sealed class DraygonParts
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
         DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action
-            ?? throw new InvalidDataException("Draygon's eye has no function.");
+            ?? throw new InvalidDataException("Draygon's eye has no action.");
         switch (action)
         {
             case DraygonEyeAction.Inert:
@@ -128,7 +128,7 @@ internal sealed class DraygonParts
                 TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Right);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined Draygon eye function {action}.");
+                throw new InvalidOperationException($"Undefined Draygon eye action {action}.");
         }
     }
 

@@ -14,8 +14,8 @@ static const uint BlendsForeground = 1, BlendsBackground = 2, BlendsActors = 16,
 static const uint BlendHalves = 64, BlendSubtracts = 128;
 // The gameplay scene's layers from back to front (GameplaySceneLayer.Order): the place each holds decides which is
 // frontmost at a pixel.
-static const int RankActorsBehindRoom = 0, RankBackgroundBackTiles = 1, RankForegroundBackTiles = 2;
-static const int RankActorsBehindFrontTiles = 3, RankBackgroundFrontTiles = 4, RankForegroundFrontTiles = 5;
+static const int RankActorsBehindRoom = 0, RankBackgroundBackParts = 1, RankForegroundBackParts = 2;
+static const int RankActorsBehindFrontParts = 3, RankBackgroundFrontParts = 4, RankForegroundFrontParts = 5;
 static const int RankActorsInFront = 6;
 // The colour a shown picture's pixel draws, or nothing where no picture or a transparent pixel lies.
 uint XraySample(bool shown, uint picture, uint2 within)
@@ -106,7 +106,7 @@ void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
 int ActorRank(uint depth)
 {
     return depth == DepthBehindRoom ? RankActorsBehindRoom
-        : depth == DepthBehindFrontTiles ? RankActorsBehindFrontTiles : RankActorsInFront;
+        : depth == DepthBehindFrontParts ? RankActorsBehindFrontParts : RankActorsInFront;
 }
 
 uint XrayGameplay(uint2 screen)
@@ -129,13 +129,13 @@ uint XrayGameplay(uint2 screen)
     if ((TransparentZero == 0 || inside) && (shownLayers & ShowsBackground) != 0)
     {
         uint2 background = XrayBackground(RoomSource, backgroundScreen + backgroundScroll);
-        XrayInsert(background, background.y != 0 ? RankBackgroundFrontTiles : RankBackgroundBackTiles, BlendsBackground,
+        XrayInsert(background, background.y != 0 ? RankBackgroundFrontParts : RankBackgroundBackParts, BlendsBackground,
             winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (shownLayers & ShowsForeground) != 0)
     {
         uint2 foreground = XrayBackground(SourceForeground, screen + uint2(HorizontalScroll, VerticalScroll));
-        XrayInsert(foreground, foreground.y != 0 ? RankForegroundFrontTiles : RankForegroundBackTiles, BlendsForeground,
+        XrayInsert(foreground, foreground.y != 0 ? RankForegroundFrontParts : RankForegroundBackParts, BlendsForeground,
             winner, rank, source);
     }
     if ((shownLayers & ShowsActors) != 0)

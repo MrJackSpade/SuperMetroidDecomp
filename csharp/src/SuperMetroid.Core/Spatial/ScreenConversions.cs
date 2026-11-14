@@ -6,7 +6,7 @@ public static class ScreenConversions
 {
     /// <summary>
     /// The screen-relative position of <paramref name="room"/> when the camera's top-left corner is
-    /// <paramref name="camera"/>: each axis is the native wrapped sixteen-bit difference read as
+    /// <paramref name="camera"/>: each axis is the difference wrapped around the room's 65536-pixel coordinates and read as
     /// signed, so positions left of or above the viewport are negative.
     /// </summary>
     public static Offset16<ScreenPixels> RelativeToCamera(this Position16<RoomPixels> room, Position16<RoomPixels> camera)

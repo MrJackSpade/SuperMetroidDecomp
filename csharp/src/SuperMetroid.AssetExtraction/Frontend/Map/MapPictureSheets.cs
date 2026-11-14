@@ -29,8 +29,8 @@ internal static class MapPictureSheets
         foreach (AreaId area in AreaIds.All)
         {
             IAreaMapView map = maps.Game.Get(area);
-            for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-            for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+            for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+            for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
             {
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
                 if (cells.Add(cell))

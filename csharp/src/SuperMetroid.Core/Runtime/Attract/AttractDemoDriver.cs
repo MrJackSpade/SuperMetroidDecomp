@@ -38,7 +38,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
     /// <summary>What a demo Samus's animation frame past her pose's animation reads.</summary>
-    private readonly LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> _animationContinuation;
+    private readonly FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> _animationContinuation;
 
     /// <summary>The session's beam charge, which a demo Samus reads and clears like any other.</summary>
     private readonly SuperMetroid.Core.Samus.Projectiles.BeamChargeState _beamCharge;
@@ -181,7 +181,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             case AttractDemoRoomSetup.NoOp:
                 break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.LoadedCamera.Scrolls.SetCell(AttractDemoDefinitions.ChargeBeamRedScrollScreen, RoomScrollState.RedBoundary);
+                _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical

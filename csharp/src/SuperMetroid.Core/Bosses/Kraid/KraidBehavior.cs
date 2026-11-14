@@ -104,7 +104,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
             CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
         KraidPhase phase = state.BodyState.Phase;
-        if (KraidPhaseGroups.Rise.Contains(phase))
+        if (KraidPhaseGroups.Rising.Contains(phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);
             return;

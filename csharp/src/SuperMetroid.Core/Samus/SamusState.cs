@@ -122,7 +122,7 @@ public sealed class SamusState
     /// Exact fixed-point horizontal speeds used by ordinary grounded
     /// right-running movement.
     /// </summary>
-    public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
+    public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
     /// <summary>
     /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
@@ -470,7 +470,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
+    internal FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
 
     /// <summary>
     /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
@@ -522,13 +522,14 @@ public sealed class SamusState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
-    internal SamusState(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
+    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
         SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge)
     {
         BeamCharge = Ensure.NotNull(beamCharge);
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
+        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility.WaterSpeedsInAir);
         ProjectileInheritance = compatibility.LaunchInheritance;
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;

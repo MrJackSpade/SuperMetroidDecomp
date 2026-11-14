@@ -8,10 +8,10 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MetareeBehavior.InitializeMetaree;
+    public void Initialize() => MetareeBehavior.InitializeMetaree(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunMetareeMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MetareeBehavior.AdvanceMetareeTypedAnimation;

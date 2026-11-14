@@ -21,7 +21,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
     public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
     /// <inheritdoc/>
-    public virtual EnemyHurtAiHandler? FindHurt() => Common.FindHurt(Slot);
+    public virtual EnemyHurtHandler? FindHurt() => Common.FindHurt(Slot);
 
     /// <inheritdoc/>
     public virtual EnemyFrozenPreemption? FindFrozenPreemption() => Common.FindFrozenPreemption(Slot);

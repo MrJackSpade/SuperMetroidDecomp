@@ -664,9 +664,9 @@ internal static class RoomObjectPopulationVerification
             "missing Speed Booster deletes the resident controller");
         AssertTrue(unequippedFx.TargetSurface is null,
             "missing Speed Booster removes the FX target");
-        AssertEqual(0, unequippedFx.YVelocity.RawValue,
+        AssertEqual(0, unequippedFx.LiquidLevelSpeed.RawValue,
             "missing Speed Booster clears packed FX velocity");
-        AssertEqual(0, unequippedFx.Timer.RawValue,
+        AssertEqual(0, unequippedFx.LiquidMoveDelay.RawValue,
             "missing Speed Booster clears FX timer");
         AssertTrue(earthquakeStopped,
             "missing Speed Booster stops the room's earthquake");
@@ -705,14 +705,14 @@ internal static class RoomObjectPopulationVerification
         active.Step(activeLevel);
         active.Step(activeLevel);
         AssertEqual(SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue,
-            activeFx.YVelocity.RawValue,
+            activeFx.LiquidLevelSpeed.RawValue,
             "collected Speed Booster starts the regional lavaquake velocity");
         active.Step(activeLevel);
-        AssertEqual(0, activeFx.Timer.RawValue,
+        AssertEqual(0, activeFx.LiquidMoveDelay.RawValue,
             "Samus right of $0AE0 leaves FX motion sleeping");
         activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapeDefinitions.StartFxMotionSamusX);
         active.Step(activeLevel);
-        AssertEqual(1, activeFx.Timer.RawValue,
+        AssertEqual(1, activeFx.LiquidMoveDelay.RawValue,
             "Samus reaching $0AE0 starts FX motion");
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
@@ -723,7 +723,7 @@ internal static class RoomObjectPopulationVerification
         active.Step(activeLevel);
         AssertEqual(0x01bf, activeFx.NamedBaseY.Whole,
             "first lava stage clamps maximum FX Y");
-        AssertEqual(0xff50, activeFx.YVelocity.RawValue,
+        AssertEqual(0xff50, activeFx.LiquidLevelSpeed.RawValue,
             "first lava stage installs ROM velocity");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
         active.Step(activeLevel);
@@ -791,7 +791,7 @@ internal static class RoomObjectPopulationVerification
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-                new(offRoomX, offRoomY), null, Array.Empty<RoomScrollWrite>()),
+                new(offRoomX, offRoomY), null, Array.Empty<ScreenScrollChange>()),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -1037,7 +1037,7 @@ internal static class RoomObjectPopulationVerification
     /// The hardcoded room-setup spawn and actual PLM handler must install the
     /// compiled $B8D6 callback before the power-bomb and path-clear branches.
     /// </summary>
-    private static void VerifyShaktoolRoomObject()
+    internal static void VerifyShaktoolRoomObject()
     {
         var bus = new TestAddressSpace();
         CartridgeImportAddressSpace? rom = File.Exists("Super Metroid.smc")
@@ -1065,8 +1065,11 @@ internal static class RoomObjectPopulationVerification
         SeedRoomObjectPopulation(bus, emptyPopulation, [0x00, 0x00]);
         RoomLevelData level = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32],
             new RoomBlockBehavior[32 * 32]);
+        // The Shaktool room's own size, one row of four screens, with every kept cell open, so each write the controller
+        // makes is seen and the kept cell after the room's shows it writes nothing past them.
         RoomScrollGrid scrolls = RoomScrollGrid.LoadNativeTable(
-            new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(2, 2));
+            Enumerable.Repeat(RoomScrollState.Open.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray(),
+            RoomDefinitions.Shaktool.Size);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
@@ -1074,10 +1077,13 @@ internal static class RoomObjectPopulationVerification
             "empty fixture reserves no PLM before Shaktool setup spawn");
         AssertTrue(roomObjects.Shaktool.TrySpawnShaktoolRoomController(scrolls),
             "Shaktool room setup spawns its resident controller");
-        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(0),
-            "Shaktool setup opens the first scroll cell");
-        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(3),
-            "Shaktool setup keeps later scroll cells red");
+        // The native setup writes the room's first four cells, row by row: those are the room's four screens.
+        AssertEqual(4, scrolls.Screens.Count(), "the Shaktool room is one row of four screens");
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(0),
+            "Shaktool setup opens the first screen with the camera aligned to its top");
+        for (int cell = 1; cell < 4; cell++)
+            AssertEqual(RoomScrollState.Closed, scrolls.ReadState(cell), $"Shaktool setup closes screen {cell}");
+        AssertEqual(RoomScrollState.Open, scrolls.ReadState(4), "Shaktool setup writes nothing past the room's screens");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
@@ -1085,9 +1091,10 @@ internal static class RoomObjectPopulationVerification
             "after its first update the controller watches the room, as the native list's installed wait does");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
-        for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-            AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
-                $"Shaktool power bomb opens scroll cell {cell}");
+        for (int cell = 0; cell < 4; cell++)
+            AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(cell),
+                $"Shaktool power bomb opens screen {cell}");
+        AssertEqual(RoomScrollState.Open, scrolls.ReadState(4), "Shaktool power bomb writes nothing past the room's screens");
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 

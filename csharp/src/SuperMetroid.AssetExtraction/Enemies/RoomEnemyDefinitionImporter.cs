@@ -31,11 +31,16 @@ public static class RoomEnemyDefinitionImporter
     /// <summary>The long address of the planar tile data a header names: where the import reads the enemy's tile set.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
     /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
-    internal static int TileDataSource(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    internal static int TileDataSource(ISnesAddressSpace bus, EnemyDefinitionId pointer) =>
+        TileDataSourceAt(bus, EnemyDefinitionIds.HeaderPointer(pointer));
+
+    /// <summary>The long address of the planar tile data the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="headerPointer">The header's bank-$A0 pointer.</param>
+    internal static int TileDataSourceAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
-        return RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
-            HeaderAddress(EnemyDefinitionIds.HeaderPointer(pointer), TileDataOffset));
+        return RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus), HeaderAddress(headerPointer, TileDataOffset));
     }
 
     /// <summary>Header offset of the 24-bit tile data source.</summary>
@@ -44,12 +49,17 @@ public static class RoomEnemyDefinitionImporter
     /// <summary>The long address of the sixteen-color palette a header names in its enemy's bank.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
     /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
-    internal static int PaletteAddress(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    internal static int PaletteAddress(ISnesAddressSpace bus, EnemyDefinitionId pointer) =>
+        PaletteAddressAt(bus, EnemyDefinitionIds.HeaderPointer(pointer));
+
+    /// <summary>The long address of the sixteen-color palette the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="headerPointer">The header's bank-$A0 pointer.</param>
+    internal static int PaletteAddressAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        int header = EnemyDefinitionIds.HeaderPointer(pointer);
-        return (int)new SnesAddress(ReadByte(cartridge, header, BankOffset), ReadWord(cartridge, header, PaletteOffset));
+        return (int)new SnesAddress(ReadByte(cartridge, headerPointer, BankOffset), ReadWord(cartridge, headerPointer, PaletteOffset));
     }
 
     /// <summary>Header offset of the bank byte that qualifies the header's code and palette words.</summary>

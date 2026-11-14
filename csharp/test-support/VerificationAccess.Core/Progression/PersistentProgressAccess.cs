@@ -35,9 +35,9 @@ internal static class PersistentProgressAccess
         {
             foreach (AreaId area in AreaIds.All)
             {
-                for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+                for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
                 {
-                    for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+                    for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
                         self.SetExplored(area, new Position16<MapTiles>(checked((ushort)x), checked((ushort)y)), explored: true);
                 }
             }

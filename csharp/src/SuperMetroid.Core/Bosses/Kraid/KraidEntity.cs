@@ -10,29 +10,63 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        KraidPart.Kraid => species.Rise.InitializeKraidBody,
-        KraidPart.Arm => species.Limbs.InitializeKraidArm,
-        KraidPart.LintTop => species.Projectiles.RunKraidLintTopInitializationAi,
-        KraidPart.LintMiddle => species.Projectiles.RunKraidLintMiddleInitializationAi,
-        KraidPart.LintBottom => species.Projectiles.RunKraidLintBottomInitializationAi,
-        KraidPart.Foot => species.Limbs.InitializeKraidFoot,
-        KraidPart.Nail => species.Projectiles.RunKraidNailInitializationAi,
-        KraidPart.NailBad => species.Projectiles.RunKraidNailBadInitializationAi,
-        _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KraidPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KraidPart.Kraid:
+                species.Rise.InitializeKraidBody(Slot);
+                break;
+            case KraidPart.Arm:
+                species.Limbs.InitializeKraidArm(Slot);
+                break;
+            case KraidPart.LintTop:
+                species.Projectiles.RunKraidLintTopInitializationAi(Slot);
+                break;
+            case KraidPart.LintMiddle:
+                species.Projectiles.RunKraidLintMiddleInitializationAi(Slot);
+                break;
+            case KraidPart.LintBottom:
+                species.Projectiles.RunKraidLintBottomInitializationAi(Slot);
+                break;
+            case KraidPart.Foot:
+                species.Limbs.InitializeKraidFoot(Slot);
+                break;
+            case KraidPart.Nail:
+                species.Projectiles.RunKraidNailInitializationAi(Slot);
+                break;
+            case KraidPart.NailBad:
+                species.Projectiles.RunKraidNailBadInitializationAi(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Kraid entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        KraidPart.Kraid => species.RunKraidMainAi,
-        KraidPart.Arm => species.RunKraidArmMainAi,
-        KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom => species.RunKraidLintTopMainAi,
-        KraidPart.Foot => species.RunKraidFootMainAi,
-        KraidPart.Nail or KraidPart.NailBad => species.RunKraidNailMainAi,
-        _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KraidPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KraidPart.Kraid:
+                species.RunKraidMainAi(Slot, frame);
+                break;
+            case KraidPart.Arm:
+                species.RunKraidArmMainAi(Slot, frame);
+                break;
+            case KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom:
+                species.RunKraidLintTopMainAi(Slot, frame);
+                break;
+            case KraidPart.Foot:
+                species.RunKraidFootMainAi(Slot, frame);
+                break;
+            case KraidPart.Nail or KraidPart.NailBad:
+                species.RunKraidNailMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Kraid entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch

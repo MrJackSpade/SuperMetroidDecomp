@@ -8,10 +8,10 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail;
+    public void Initialize() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunMaridiaLargeSnailMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMaridiaLargeSnailMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceMaridiaLargeSnailTypedAnimation;

@@ -23,7 +23,7 @@ internal static class SpeedBoosterWordRangeVerification
             new VerifySpeedBoosterWordRangeCase(new SamusSpeedBoostCounter(4, 0), new SamusSpeedBoostCounter(3, 255)),
         })
         {
-            var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = before };
+            var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { HasRunningMomentum = true, SpeedBoostCounter = before };
             int frame = 7;
             bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
                 animationFrameBuffer: 0, ref frame, out _, requestEchoSound: () => null);
@@ -32,20 +32,20 @@ internal static class SpeedBoosterWordRangeVerification
         }
 
         // Stage zero with no cadence has no stage to borrow from.
-        var empty = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
+        var empty = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
         int emptyFrame = 7;
         AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running,
             ControllerButton.B, animationFrameBuffer: 0, ref emptyFrame, out _, requestEchoSound: () => null), "a stage-zero counter with no cadence cannot borrow");
 
         // A cadence of one reaching zero advances the stage and reloads the cadence.
-        var advancing = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
+        var advancing = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         int advancingFrame = 7;
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
             animationFrameBuffer: 0, ref advancingFrame, out _, requestEchoSound: () => null), "cadence one expires and advances the stage");
         AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 
-        var range = new SamusHorizontalSpeedState();
+        var range = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage + 1, 0),
             "no stage lies past full boost");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(0, byte.MaxValue + 1),
@@ -60,7 +60,7 @@ internal static class SpeedBoosterWordRangeVerification
             "the multiplier stays below a whole deceleration");
 
         // A full boost captures into the first slot, then the second, and the step past it returns the cursor to the first.
-        var boosted = new SamusHorizontalSpeedState
+        var boosted = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
         {
             SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage,
         };

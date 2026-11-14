@@ -231,9 +231,6 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Flies a Work Robot laser with room collision.</summary>
     WorkRobotLaserFlight,
 
-    /// <summary>Flies a Stoke fireball.</summary>
-    StokeFireballFlight,
-
     /// <summary>Flies a Cacatac spike.</summary>
     CacatacSpikeFlight,
 

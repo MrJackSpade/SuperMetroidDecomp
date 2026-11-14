@@ -9,7 +9,7 @@ internal sealed record RoomFxLoadSource
     /// <summary>The room's effect selection, or null for a load without one.</summary>
     public required RoomFxSelection? Fx { get; init; }
 
-    /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
+    /// <summary>The door the room is entered through, or null for a load that matches only default effects.</summary>
     public required DoorDefinition? Door { get; init; }
 
     /// <summary>
@@ -23,5 +23,5 @@ internal sealed record RoomFxLoadSource
     public required RoomDefinition? Room { get; init; }
 
     /// <summary>Supplied definition.</summary>
-    public required RoomFxRecordDefinition? SuppliedDefinition { get; init; }
+    public required RoomEffectDefinition? SuppliedDefinition { get; init; }
 }

@@ -18,7 +18,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
+            AssertTrue(RoomFxBlockAnimations.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation resolves for artwork");
             var expected = new Dictionary<ushort, int>();
             for (int cursor = original.First; cursor < original.End; cursor += 4)
@@ -26,7 +26,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 expected.Add((ushort)cursor, 0x870000 | ReadVerificationWord(rom, 0x870000 | (cursor + 2)));
                 total++;
             }
-            RoomFxAnimatedTileLoop loop = definition ?? throw new InvalidOperationException("Verification requires definition.");
+            RoomFxBlockAnimationLoop loop = definition ?? throw new InvalidOperationException("Verification requires definition.");
             // The artwork source of a cursor is a pure function of the immutable loop, so the whole cursor domain is
             // swept across the cores. Each cursor is classified through the lookup's own frame test; the lookup rejects
             // exactly the cursors that test refuses, which the odd cursor after the first frame confirms once per loop
@@ -51,7 +51,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
         // The import's frame-to-picture fold rejects an object the atlas holds no pictures of.
-        var unknown = new RoomFxAnimatedTileLoop(0, 1, 10);
+        var unknown = new RoomFxBlockAnimationLoop(0, 1, 10);
         AssertThrows<InvalidDataException>(() => AnimatedTileImageSources.Of(unknown.Image(0)),
             "Unknown object cannot acquire an artwork mapping");
     }

@@ -75,10 +75,64 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void LoadPauseMapTilemap() { } }", "'LoadPauseMapTilemap' names the hardware ('Tilemap')");
         Expect("class P { static int ScrollingSkyTilemapsLandingSite { get; } }", "'ScrollingSkyTilemapsLandingSite' names the hardware ('Tilemap')");
         Expect("class P { string Name(int tilemap) => \"\"; }", "'tilemap' names the hardware ('Tilemap')");
-        // A sprite, a map sprite, a scan, a screen line, a tile and a room layer named as the destination engine names it
-        // (two words: TileMap) are the game's own.
+        // A sprite, a map sprite, a scan, a screen line and a room layer named as the destination engine names it (two
+        // words: TileMap) are the game's own.
         Expect("class P { int Sprite; int MapSpriteId; int SpriteSheets; int ScanLeftToRight; int Scanned; int Scanner; int FirstLine; int HudLines; }");
-        Expect("class P { int Tile; int Tiles; int Metatile; int MapTiles; int TileMap; int TileMapLayer; }");
+        // The hardware's tile, in each kind of declaration a renamed Core identifier used it in (#1726): a block animation's
+        // enum, a picture's mirroring, an actor's depth among the room's parts, a cell's size, a record and its file, a
+        // method, a parameter, a local, and the block named as four tiles.
+        const string tile = "names the hardware's tile";
+        Expect("enum AnimatedTileObject { None }", $"'AnimatedTileObject' {tile} ('Tile')");
+        Expect("enum TileFlip { None }", $"'TileFlip' {tile} ('Tile')");
+        Expect("enum ActorDepth { BehindRoom, BehindFrontTiles }", $"'BehindFrontTiles' {tile} ('Tile')");
+        Expect("class P { const int BackgroundTileSizePixels = 8; }", $"'BackgroundTileSizePixels' {tile} ('Tile')");
+        Expect("record struct XrayRoomOverlayTiles(int Overlay);", $"'XrayRoomOverlayTiles' {tile} ('Tile')");
+        Expect("class P { void StepTiles() { } }", $"'StepTiles' {tile} ('Tile')");
+        Expect("class P { void Run(int[] tiles) { } }", $"'tiles' {tile} ('Tile')");
+        Expect("class P { void Run() { int tile = 0; _ = tile; } }", $"'tile' {tile} ('Tile')");
+        Expect("class P { int[] Tiles = []; }", $"'Tiles' {tile} ('Tile')");
+        Expect("class P { int TankMetatile() => 0; }", $"'TankMetatile' {tile} ('Metatile')");
+        Expect("class P { void Run() { int metatiles = 0; _ = metatiles; } }", $"'metatiles' {tile} ('Metatile')");
+        ExpectFile("enum AnimatedTileObject { None }", "AnimatedTileObject.cs",
+            $"'AnimatedTileObject' {tile} ('Tile')", $"'AnimatedTileObject' {tile} ('Tile')");
+        // Each tile word is judged by its own neighbours: a game phrase earlier in the name does not keep a later tile.
+        Expect("class P { int FallingTileFrameTiles; }", $"'FallingTileFrameTiles' {tile} ('Tile')");
+        // A method's name is its own even when it returns a value typed for the map.
+        Expect("class MapCell { } class P { MapCell Tile() => new(); }", $"'Tile' {tile} ('Tile')");
+        // The game's own tiles keep the word: the area map's (Map before it), a room layer named as the destination engine
+        // names it (Map after it), Ceres station's falling ceiling tiles and the room named for them (Falling before it,
+        // Fall after it), and words that only share its letters (a tileset, a projectile).
+        Expect("class P { int MapTiles; void IsMapTileExplored() { } void MarkExploredMapTile() { } const int PixelsPerMapTile = 8; const int WidthInMapTiles = 64; }");
+        Expect("class P { int TileMap; int TileMapLayer; int TileMaps; }");
+        Expect("enum Room { FallingTile, FallingTileDefault } enum Sound { CeresTileFall } class P { int CeresFallingTileGravity; int TilesFalling; }");
+        Expect("class P { int Tileset; int RoomTilesets; int Projectile; int Projectiles; int Reptile; }");
+        Expect("class MapTiles { } class P { MapTiles TileGrid() => new(); }", $"'TileGrid' {tile} ('Tile')");
+        // A value whose type is named for the map is one of the area map's tiles: a field, a positional record's member, a
+        // parameter, a local and a loop variable of a map type, an array of one or a generic type over one.
+        Expect("""
+            record MapCoordinate(int X);
+            struct Position<T> { }
+            class MapTiles { }
+            record ExploredArea(MapCoordinate[] Tiles);
+            class P
+            {
+                MapCoordinate[] tiles = [];
+                int Run(Position<MapTiles> tile, ExploredArea area)
+                {
+                    foreach (MapCoordinate explored in area.Tiles) { }
+                    MapCoordinate[] areaTiles = tiles;
+                    foreach (MapCoordinate mapTile in areaTiles) { }
+                    return 0;
+                }
+            }
+            """);
+        // The CPU's arithmetic (#1726): a value that underflowed, in each kind of declaration a renamed identifier used it in.
+        const string arithmetic = "names the CPU's arithmetic";
+        Expect("class P { void Run() { bool speedUnderflowed = false; _ = speedUnderflowed; } }", $"'speedUnderflowed' {arithmetic} ('Underflow')");
+        Expect("class P { bool Underflows { get; } }", $"'Underflows' {arithmetic} ('Underflow')");
+        Expect("class P { void HandleUnderflow() { } }", $"'HandleUnderflow' {arithmetic} ('Underflow')");
+        // Saying what the value did in the game, and words that only share its letters, are the game's own.
+        Expect("class P { bool PassedZero; int Flow; int Under; int Underfloor; }");
         // The enemy record's AI function field, in each kind of declaration a renamed behaviour state used it in (#1701).
         Expect("public enum KraidAiFunction { None }", "'KraidAiFunction' names the hardware ('AiFunction')");
         Expect("public enum BeetomEnemyFunction { DecideAction = 1 }", "'BeetomEnemyFunction' names the hardware ('EnemyFunction')");
@@ -210,6 +264,25 @@ internal static class CoreVocabularyAnalyzerTests
         // handler, a setup, a code, Samus's input and movement modes, a door's setup.
         Expect("class P { int Alpha; int Beta; int Handler; int Setup; int Code; int AlphaBetaHandling; int HandlerAlpha; int CodeSetup; }");
         Expect("class P { int SamusInputMode; int SamusMovementMode; int DoorSetup; int SetupCoder; int SetupBehavior; int GrappleBeamHandler; }");
+        // The enemy record's AI routine fields under the synonyms of AiFunction, in each kind of declaration a renamed
+        // definition field, response or lifecycle handler used them in (#1738): the definition's routine enums, a plural,
+        // a positional field, a parameter, a local, the handler delegates (a delegate keeps no allowance) and their files.
+        const string aiRoutine = "names the enemy record's AI routine field";
+        Expect("public enum EnemyAiRoutine { SpeciesRoutine, Inert }", $"'EnemyAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("public enum GrappleAiRoutine { Cancel }", $"'GrappleAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("class P { int[] AiRoutines = []; }", $"'AiRoutines' {aiRoutine} ('AiRoutine')");
+        Expect("record Definition(int HurtAiRoutine);", $"'HurtAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("class P { void Run(int aiHandler) { } }", $"'aiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { void Run() { int mainAiHandler = 0; _ = mainAiHandler; } }", $"'mainAiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { int AIHandler; }", $"'AIHandler' {aiRoutine} ('AiHandler')");
+        Expect("delegate void EnemyMainAiHandler(int slot);", $"'EnemyMainAiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { System.Action? HurtAiHandler { get; set; } }", $"'HurtAiHandler' {aiRoutine} ('AiHandler')");
+        ExpectFile("delegate void EnemyInitializationAiHandler(int slot);", "EnemyInitializationAiHandler.cs",
+            $"'EnemyInitializationAiHandler' {aiRoutine} ('AiHandler')", $"'EnemyInitializationAiHandler' {aiRoutine} ('AiHandler')");
+        // The words alone, apart, in another order or sharing only their letters are the game's own: an AI state, a
+        // routine, a handler, the responses and lifecycle phases that replaced the fields.
+        Expect("class P { int AiState; int Routine; int Handler; int RoutineAi; int HandlerAi; int AiRoutinely; int AidHandler; }");
+        Expect("class P { int GrappleResponse; int HurtResponse; int EnemyHurtHandler; void RunMainAi() { } void Initialize() { } }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

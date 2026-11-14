@@ -65,7 +65,7 @@ internal static class FullBodyPalettePointerListsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 6; phase++)
             {
-                var speed = new SamusHorizontalSpeedState { CyclePaletteStep = phase };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { CyclePaletteStep = phase };
                 var actual = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack copies a palette without reading either pointer table");
@@ -78,7 +78,7 @@ internal static class FullBodyPalettePointerListsVerification
 
             for (int phase = 0; phase < 4; phase++)
             {
-                var speed = new SamusHorizontalSpeedState
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
                     SpecialPaletteTimer = 1,
@@ -131,58 +131,7 @@ internal static class FullBodyPalettePointerListsVerification
         AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
             "active shinespark does not catalogue an unaligned phase offset");
 
-        var adjacentBoost = new SamusHorizontalSpeedState
-        {
-            SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-            SpecialPaletteTimer = 1,
-            CyclePaletteStep = 4,
-        };
-        var adjacentBoostColors = new SamusColours();
-        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(adjacentBoostColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }),
-            "non-catalog Speed Booster phase retains native adjacent-data read");
-        AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
-            "Speed Booster step four reads the adjacent Varia list");
-
-        Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xda50, 6,
-            SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalettePointer,
-            "Screw Attack"));
-        Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xdaaf, 4,
-            SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer,
-            "active Speed Booster"));
-        AssertThrows<InvalidDataException>(() =>
-            SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalettePointer(4, 12),
-            "a Screw Attack read beyond the compiled three-suit window fails explicitly");
-        AssertThrows<InvalidDataException>(() =>
-            SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(4, 12),
-            "a Speed Booster phase beyond both proven Screw Attack overruns fails explicitly");
-
         Console.WriteLine("Full-body palettes: all four suit-indexed list families match ROM and live CGRAM without pointer-table reads.");
-
-        void VerifyCompiledWindow(int firstList, int phases,
-            Func<ushort, ushort, ushort> readCompiled, string family)
-        {
-            int totalBytes = 3 * phases * sizeof(ushort);
-            for (ushort suitOffset = 0; suitOffset <= 4; suitOffset += 2)
-            {
-                int listStart = firstList + suitOffset / 2 * phases * sizeof(ushort);
-                for (int phaseOffset = 0; listStart + phaseOffset + 1 < firstList + totalBytes;
-                     phaseOffset++)
-                {
-                    ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                        SamusPaletteDefinitionsBanksConstants.Movement | (listStart + phaseOffset));
-                    if ((phaseOffset & 1) == 0)
-                    {
-                        AssertEqual(native, readCompiled(suitOffset, (ushort)phaseOffset),
-                            $"{family} suit offset {suitOffset}, byte offset {phaseOffset}");
-                        continue;
-                    }
-                    AssertTrue(!SamusPaletteNative.IsCyclePalette(native),
-                        $"{family} suit offset {suitOffset}, odd byte offset {phaseOffset} reads no cycle palette natively");
-                    AssertThrows<InvalidDataException>(() => readCompiled(suitOffset, (ushort)phaseOffset),
-                        $"{family} suit offset {suitOffset}, odd byte offset {phaseOffset} selects no cycle palette");
-                }
-            }
-        }
     }
 
     /// <summary>Compares the sixteen Samus OBJ palette colors with one native palette source.</summary>

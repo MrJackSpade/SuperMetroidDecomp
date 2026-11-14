@@ -161,7 +161,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomDrop(slot, state);
                 return;
             case BeetomAction.StartBeingFlung:
-                state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+                state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
@@ -258,7 +258,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction,
         BeetomHopLength length)
     {
-        state.YSpeedTableIndex = initialYSpeedIndex;
+        state.YSpeedCurvePlace = initialYSpeedIndex;
         state.Action = new BeetomHop(direction, length) switch
         {
             (HorizontalDirection.Left, BeetomHopLength.Short) => BeetomAction.ShortHopLeft,
@@ -280,7 +280,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
         bool left = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
+        state.YSpeedCurvePlace = state.InitialLungeYSpeedIndex;
         state.FacingRight = !left;
         state.Action = state.FacingRight ? BeetomAction.LungeRight : BeetomAction.LungeLeft;
         state.Falling = false;
@@ -380,7 +380,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.Falling)
         {
-            if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Negative))
+            if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Negative))
             {
                 state.Action = BeetomAction.StartDropping;
                 return;
@@ -390,7 +390,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Positive))
         {
             state.Action = BeetomAction.DecideAction;
             return;
@@ -446,7 +446,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
     private void RunFlungBeetom(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
-        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Positive))
             state.Action = BeetomAction.DecideAction;
         else
             state.StepFallingSpeed(1);

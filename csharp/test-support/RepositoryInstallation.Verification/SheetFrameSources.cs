@@ -188,8 +188,8 @@ internal static class SheetFrameSources
     /// <summary>The character draw <paramref name="draw"/> shows as <paramref name="source"/>, over <paramref name="characters"/> when given.</summary>
     private static CharacterSpriteDraw Build(ImageSpriteDraw draw, FrameSource source, SpriteArtwork? characters)
     {
-        TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-            ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
+        PictureFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
+            ((draw.Mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
         // A frontend draw's drawn shade stands for the row its colours are the cartridge's of, which the cartridge ORs into
         // every part's own palette, as it ORs a draw's palette bits (#1512).
         if (source.PartsKeepOwnRows && DrawnShadeRows.RowOf(draw.Shading) is { } shaded)

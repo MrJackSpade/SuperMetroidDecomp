@@ -65,7 +65,7 @@ public static class MapPresentationFiles
         WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile, MapSpriteFormat.PngFile,
         EscapeTimerTileAtlasFormat.FileName, IntroFontCharacters.FileName, EndingFontAtlasFormat.FileName,
         TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile,
-        RoomFxAnimatedTileAtlasFile.FileName,
+        RoomFxBlockAnimationAtlasFile.FileName,
     ];
 
     /// <summary>
@@ -137,7 +137,7 @@ public static class MapPresentationFiles
                 Page(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s))),
             Pages<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
             Page(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s)),
-            Page(RoomFxAnimatedTileAtlasFile.FileName, "room-FX presentation", s => RoomFxAnimatedTileAtlasPng.Read(s)),
+            Page(RoomFxBlockAnimationAtlasFile.FileName, "room-FX presentation", s => RoomFxBlockAnimationAtlasPng.Read(s)),
             Pages<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
                 "world-map PNG artwork", s => WorldMapCharacters.Read(s[0], s[1])),
             Page(IntroFontCharacters.FileName, "intro font", s => IntroFontCharacters.Read(s)),
@@ -236,7 +236,7 @@ public static class MapPresentationFiles
             }
             // Hash framed contents in fixed area order, the station cells with the map they reveal.
             AppendFramed(mapBytes);
-            byte[] stationPlane = new byte[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
+            byte[] stationPlane = new byte[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
             foreach (int cell in stationCells[area]) stationPlane[cell] = 1;
             AppendFramed(stationPlane);
         }
@@ -404,7 +404,7 @@ public static class MapPresentationFiles
             foreach (AreaId area in AreaIds.All)
             {
                 if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
-                    cells.Any(cell => (uint)cell >= AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles) ||
+                    cells.Any(cell => (uint)cell >= AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles) ||
                     cells.Distinct().Count() != cells.Length)
                     throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");
                 stationCells.Add(area, cells.ToHashSet());

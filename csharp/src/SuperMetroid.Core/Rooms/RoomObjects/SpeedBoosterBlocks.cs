@@ -17,7 +17,11 @@ internal static class SpeedBoosterBlocks
         AreaId area,
         [MaybeNullWhen(false)] out BlockReactionChange crumble)
     {
-        SpecialBlockReaction reaction = behavior.Special;
+        if (behavior.Special is not { } reaction)
+        {
+            crumble = null;
+            return false;
+        }
         if (CommonBlocks.TryGetValue(reaction, out crumble))
             return true;
         if (area == AreaId.Brinstar && BrinstarBlocks.TryGetValue(reaction, out crumble))

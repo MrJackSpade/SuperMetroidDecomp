@@ -84,7 +84,6 @@ internal static class EnemyProjectileNativeWords
         [RoomEnemyProjectileKind.PirateClaw] = 0xa189,
         [RoomEnemyProjectileKind.PolypRock] = 0xbd5a,
         [RoomEnemyProjectileKind.CacatacSpike] = 0xdafe,
-        [RoomEnemyProjectileKind.StokeProjectile] = 0xdbf2,
         [RoomEnemyProjectileKind.NamiheFireball] = 0xdfbc,
         [RoomEnemyProjectileKind.FuneFireball] = 0xdfca,
         [RoomEnemyProjectileKind.LavaThrownByMagdollite] = 0xe0e0,

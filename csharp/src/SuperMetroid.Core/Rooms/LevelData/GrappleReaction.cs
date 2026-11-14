@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// What a grapple block does with its behaviour (#1722): whether the grapple beam holds onto it, breaks it or is rejected.
 /// Its values are arbitrary; a behaviour written for another collision kind is read as one of these through
-/// <see cref="RoomBlockBehavior"/>.
+/// <see cref="RoomBlockBehavior"/>, or as none when grapple blocks have no reaction for it.
 /// </summary>
 public enum GrappleReaction
 {
@@ -19,9 +19,6 @@ public enum GrappleReaction
     /// <summary>A grapple block the beam holds onto without changing it, which the X-ray scope does not reveal.</summary>
     UnrevealedAnchor,
 
-    /// <summary>A reaction past the end of the grapple table: the beam reaching it rejects it.</summary>
-    PastTable,
-
-    /// <summary>One of the reactions the room's area gives grapple blocks: the beam passes through it.</summary>
+    /// <summary>The beam passes through the block.</summary>
     Rejected,
 }

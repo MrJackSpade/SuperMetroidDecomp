@@ -21,7 +21,7 @@ internal static class SamusAnimationDelays
     /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="continuation">What a frame past an animation's end reads.</param>
-    internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, int frame, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
+    internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, int frame, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         TryStepFor(pose, frame, continuation) ?? throw new InvalidDataException(
             $"Samus animation frame {frame} is not a step of pose {pose}'s program nor of a program laid out after it.");
 
@@ -33,7 +33,7 @@ internal static class SamusAnimationDelays
     /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="continuation">What a frame past an animation's end reads.</param>
-    internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, int frame, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation)
+    internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, int frame, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation)
     {
         Ensure.NotNull(continuation);
         SamusPoseId read = pose;

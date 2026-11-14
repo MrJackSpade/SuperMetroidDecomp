@@ -464,7 +464,7 @@ internal sealed class RoomLoader
 
 
     /// <summary>Rebases Samus and publishes the scroll's first moving step during the destination's loading.</summary>
-    internal void PlaceSamusForDoorTileLoading()
+    internal void PlaceSamusForDestinationLoading()
     {
         DoorDefinition door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
@@ -799,7 +799,7 @@ internal sealed class RoomLoader
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
-        var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
+        var wreckedShipTreadmill = new WreckedShipTreadmillBlockAnimationsState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
         var maridiaElevatube = new MaridiaElevatubeRoomMainState(
             active: room.State.MainBehavior == RoomMainBehavior.MaridiaElevatube,
@@ -858,7 +858,7 @@ internal sealed class RoomLoader
         // The room-main behaviour runs even in Crateria's rock room, whose background stays its own background.
         // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
         // setup starts, not to the room's main behaviour.
-        RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
+        RoomEffectDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainBehavior), skyHasBands)
@@ -871,7 +871,7 @@ internal sealed class RoomLoader
 
         // Loading the FX definition selects the door-specific record, applies its palette
         // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
-        // effect and animtile state before colour effects and enemies begin running.
+        // effect and block animation state before colour effects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
@@ -884,9 +884,9 @@ internal sealed class RoomLoader
         scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
             _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door);
-        scope.SpikeTiles = new RoomSpikeAnimatedTilesState(room.State.Fx, door);
-        scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door);
+        scope.SandBlockAnimations = new RoomSandBlockAnimationsState(room.State.Fx, door);
+        scope.SpikeBlockAnimations = new RoomSpikeBlockAnimationsState(room.State.Fx, door);
+        scope.TreadmillBlockAnimations = new RoomTreadmillBlockAnimationsState(room.State.Fx, door);
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 

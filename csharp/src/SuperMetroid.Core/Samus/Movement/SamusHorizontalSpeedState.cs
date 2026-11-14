@@ -16,6 +16,14 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
 {
+    /// <summary>The water speeds Draygon's hold and special movement take in air, which have no speeds of their own there.</summary>
+    private readonly WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> _waterSpeedsInAir;
+
+    /// <summary>Creates Samus's horizontal speeds, at rest and moving by air's speeds.</summary>
+    /// <param name="waterSpeedsInAir">Her compatibility service for the movements that take water's speeds in air.</param>
+    public SamusHorizontalSpeedState(WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> waterSpeedsInAir) =>
+        _waterSpeedsInAir = Ensure.NotNull(waterSpeedsInAir);
+
     /// <summary>Samus's base horizontal speed, whole and fraction.</summary>
     public UnsignedSixteenSixteen BaseSpeed { get; set; }
 
@@ -128,7 +136,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Optional deceleration multiplier in 256ths, 0 through <see cref="MultipliedDeceleration.LargestMultiplier"/>, the
-    /// multipliers the multiplied-deceleration rule scales by (#1627). Zero selects the table's plain deceleration; nonzero
+    /// multipliers the multiplied-deceleration rule scales by (#1627). Zero selects the movement's plain deceleration; nonzero
     /// scales it by <see cref="MultipliedDeceleration"/>.
     /// </summary>
     public int DecelerationMultiplier
@@ -138,31 +146,32 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// The table the current inside-block/environment reaction selected. Normal air, water, and
-    /// lava/acid select three complete tables before movement type is added.
+    /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement handler last chose it:
+    /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
-    public SamusLiquidMedium ActiveSpeedTable { get; internal set; } = SamusLiquidMedium.Air;
-
-    /// <summary>
-    /// Reproduces the ordinary-air assignment made by the block reaction before movement.
-    /// </summary>
-    public void SelectNormalAirSpeedTable() => ActiveSpeedTable = SamusLiquidMedium.Air;
-
-    /// <summary>
-    /// Selects the horizontal speed table for the environment.
-    /// The selected table's records are indexed later by movement type.
-    /// </summary>
-    public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
+    /// <exception cref="ArgumentOutOfRangeException">The value set is not a medium.</exception>
+    public SamusLiquidMedium SpeedMedium
     {
-        _ = SamusHorizontalMotion.FirstRow(liquidMedium);
-        ActiveSpeedTable = liquidMedium;
-    }
+        get;
+        internal set => field = Enum.IsDefined(value)
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Samus moves by the speeds of air, water or lava and acid.");
+    } = SamusLiquidMedium.Air;
+
+    /// <summary>
+    /// Has Samus move by air's speeds, as the inside-block reaction does before movement in ordinary air.
+    /// </summary>
+    public void SelectAirSpeeds() => SpeedMedium = SamusLiquidMedium.Air;
+
+    /// <summary>Has Samus move by the speeds of <paramref name="liquidMedium"/>, the medium her movement handler found her in.</summary>
+    /// <param name="liquidMedium">Air, water, or lava and acid.</param>
+    public void SelectSpeedsFor(SamusLiquidMedium liquidMedium) => SpeedMedium = liquidMedium;
 
     /// <summary>
     /// Runs the dry-air portion of the extra run speed.
-    /// Both routes accelerate by hexadecimal <c>0.1000</c>. Ordinary Dash caps at
-    /// <c>2.0000</c>; equipped Speed Booster caps at <c>7.0000</c> and initializes its
-    /// counter through the boost stage table. Their shared momentum flag survives release and jumps.
+    /// Both routes accelerate by a sixteenth of a pixel an update. Ordinary Dash is held at two pixels an update;
+    /// equipped Speed Booster is held at seven and starts its boost counter at its first stage. Their shared momentum
+    /// flag survives release and jumps.
     /// </summary>
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
@@ -397,12 +406,11 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = 4;
 
-        SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-            suit, CyclePaletteStep);
-        SamusSpeedBoosterPalette.Apply(colours, source);
+        SamusSpeedBoosterPalette.Apply(colours, SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
+            suit, CyclePaletteStep));
 
-        // The clamp is AFTER the copy. Screw Attack can leave step four or five in
-        // this shared step; retain that one bounded overrun before pinning the last step.
+        // The clamp is AFTER the copy. A step of four or five inherited from Screw Attack's
+        // share of this step is held on the suit's own last Speed Booster shade, then pinned to the last step.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
             ? SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
             : CyclePaletteStep + 1;
@@ -671,25 +679,15 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Resolves the row of the entry the horizontal speed-table selection picks
-    /// among the three adjacent tables, assuming the already-modeled inside-block
-    /// reaction chose the table.
+    /// The speeds <paramref name="movementType"/> moves Samus by in her <see cref="SpeedMedium"/>: the medium's own, except
+    /// the movements that take water's speeds in air (<see cref="WaterSpeedsInAir{TMovement, TSpeeds}"/>). Each speed keeps
+    /// its whole pixels and its fraction exactly as authored instead of becoming a floating-point value.
     /// </summary>
-    public int ResolveEntryRow(SamusMovementType movementType) =>
-        SamusHorizontalMotion.Row(ActiveSpeedTable, movementType);
-
-    /// <summary>
-    /// Resolves authored speed entries. Each speed keeps its whole pixels and its fraction exactly as
-    /// authored instead of becoming a floating-point value.
-    /// </summary>
-    public SpeedTableEntry ReadEntry(SamusMovementType movementType) => ReadEntryAtRow(ResolveEntryRow(movementType));
-
-    /// <summary>Resolves an authored speed record by row; a row past the tables reads beyond the authored records.</summary>
-    internal static SpeedTableEntry ReadEntryAtRow(int row) =>
-        SamusHorizontalMotion.TryResolveRow(row, out SpeedTableEntry compiled)
-            ? compiled
-            : throw new InvalidDataException(
-                $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
+    /// <param name="movementType">Samus's movement.</param>
+    public SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
+        SpeedMedium == SamusLiquidMedium.Air && _waterSpeedsInAir.TryRead(movementType, out SamusHorizontalSpeeds waterSpeeds)
+            ? waterSpeeds
+            : Ensure.Listed(Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium, SpeedMedium), movementType);
 
     /// <summary>
     /// Calculates the horizontal base speed and returns its unsigned
@@ -697,19 +695,17 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public UnsignedSixteenSixteen CalculateBaseSpeed(SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(movementType);
+        SamusHorizontalSpeeds entry = Speeds(movementType);
         return CalculateBaseSpeed(entry);
     }
 
     /// <summary>
-    /// Executes the speed calculation against a standalone record. Bomb jumps use their own standalone record
-    /// instead of the movement-type-indexed normal table.
+    /// Applies <paramref name="entry"/>'s acceleration or deceleration to the whole and fraction separately and updates
+    /// base speed. A diagonal bomb jump and a grapple release pass their own speeds
+    /// (<see cref="SamusHorizontalSpeedDefinitions.DiagonalBombJump"/>, <see cref="SamusHorizontalSpeedDefinitions.GrappleRelease"/>)
+    /// instead of their movement's.
     /// </summary>
-    public UnsignedSixteenSixteen CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
-        CalculateBaseSpeed(SamusHorizontalMotion.Standalone(record));
-
-    /// <summary>Applies the table's acceleration or deceleration to the whole and fraction separately and updates base speed.</summary>
-    internal UnsignedSixteenSixteen CalculateBaseSpeed(SpeedTableEntry entry)
+    internal UnsignedSixteenSixteen CalculateBaseSpeed(SamusHorizontalSpeeds entry)
     {
 
         if (AccelerationMode != SamusAccelerationMode.Accelerating)
@@ -743,14 +739,14 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Calculates the horizontal base speed with deceleration disallowed.
     /// Despite the name, the turning acceleration mode still selects the
-    /// turning/deceleration branch; modes zero and two both accelerate toward the table
+    /// turning/deceleration branch; modes zero and two both accelerate toward the movement's
     /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.
     /// </summary>
     public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
         SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(movementType);
+        SamusHorizontalSpeeds entry = Speeds(movementType);
 
         if (AccelerationMode == SamusAccelerationMode.Turning)
         {

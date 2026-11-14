@@ -181,7 +181,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = slot.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
-    AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
+    AssertEqual(EnemyGrappleResponse.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
     AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
         "definition power-bomb reaction offset $28 names a reacting routine");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
@@ -1393,7 +1393,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteTestWord(bus, address + 34, 0); // The small death explosion.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
-    WriteTestWord(bus, address + 26, GrappleAiRoutineWords.Routines.Word(GrappleAiRoutine.Cancel)); // Grapple AI must be a real routine.
+    WriteTestWord(bus, address + 26, EnemyGrappleResponseWords.Responses.Word(EnemyGrappleResponse.Cancel)); // The grapple response must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
     WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.
@@ -1468,9 +1468,9 @@ static void SeedCeresRidleyRoomEntryCartridge(
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {
         int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
-        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record].DefinitionId));
+        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record]));
         WriteTestWord(bus, recordAddress + 2, RoomEnemyGraphicsSetMember.NativePlacement(ceresRidleyRows[record],
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(ceresRidleyRecords[record].DefinitionId)));
+            ceresRidleyRecords[record].FixedBlock ?? 0));
     }
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
     for (int color = 0; color < 16; color++)

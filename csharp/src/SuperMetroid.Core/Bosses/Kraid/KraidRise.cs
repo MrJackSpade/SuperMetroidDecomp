@@ -105,10 +105,11 @@ internal sealed class KraidRise
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>
     private void ApplyKraidScrolls(KraidScrollLayout layout)
     {
-        for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
-            _room.Services.RoomScroll.Write(index, layout == KraidScrollLayout.Grown
-                ? KraidCamera.GrownScroll(index)
-                : KraidCamera.InitialScroll(index));
+        ScreenScrollChange[] changes = layout == KraidScrollLayout.Grown
+            ? KraidCameraDefinitions.GrownScrolls
+            : KraidCameraDefinitions.InitialScrolls;
+        foreach (ScreenScrollChange change in changes)
+            _room.Services.RoomScroll.Write(change.Screen, change.State);
     }
 
     /// <summary>
@@ -252,7 +253,7 @@ internal sealed class KraidRise
             case KraidPhase.RaiseBody:
             case KraidPhase.None:
             default:
-                throw new InvalidOperationException($"Kraid body function {state.BodyState.Phase} is not a growth function.");
+                throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a growth phase.");
         }
     }
 

@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// rooms left there.
 /// </summary>
 /// <remarks>
-/// Cells are screen-sized (256x256 pixels), not 16x16 room blocks. Red cells form a camera boundary; blue and green ones
-/// are traversable but align the camera vertically differently. Scroll triggers, doors, enemies and scripted events
-/// change cells during play.
+/// Cells are screen-sized (256x256 pixels), not 16x16 room blocks. Closed cells form a camera boundary; open ones are
+/// traversable, and those open with the camera aligned to the screen's top align the camera vertically differently. Scroll
+/// triggers, doors, enemies and scripted events change cells during play.
 /// </remarks>
 public sealed class RoomScrollGrid
 {
@@ -38,11 +38,11 @@ public sealed class RoomScrollGrid
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
-    /// <paramref name="storedExploredMaps"/>: a run with nothing explored as red, one whose only explored cell is its last
-    /// as blue, and any other as green.
+    /// <paramref name="storedExploredMaps"/>: a run with nothing explored as closed, one whose only explored cell is its last
+    /// as open with the camera aligned to the screen's top, and any other as open.
     /// </summary>
     public static ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeepCellsAcrossRooms(StoredExploredMaps<AreaId> storedExploredMaps) =>
-        new(KeptCellCount, RoomScrollState.RedBoundary, storedExploredMaps, RoomScrollState.Blue, RoomScrollState.Green);
+        new(KeptCellCount, RoomScrollState.Closed, storedExploredMaps, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open);
 
     /// <summary>Loads the scroll data <paramref name="scroll"/> selects into <paramref name="cells"/>, as the room loader does.</summary>
     /// <exception cref="ArgumentException">An explicit table does not hold one state for every kept cell.</exception>
@@ -63,7 +63,7 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>
-    /// Builds the implicit layout a room state selects when it names no explicit table: every row green except the last,
+    /// Builds the implicit layout a room state selects when it names no explicit table: every row open except the last,
     /// which is <paramref name="lastRowState"/>.
     /// </summary>
     /// <remarks>
@@ -78,8 +78,30 @@ public sealed class RoomScrollGrid
         Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.LogicalCellCount; index++)
-            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Green);
+            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Open);
         return grid;
+    }
+
+    /// <summary>The room's screens, row by row and each row from left to right, as the room's cells are kept.</summary>
+    public IEnumerable<Position16<RoomScreens>> Screens
+    {
+        get
+        {
+            for (int row = 0; row < Size.Y; row++)
+            {
+                for (int column = 0; column < Size.X; column++)
+                    yield return new Position16<RoomScreens>(column, row);
+            }
+        }
+    }
+
+    /// <summary>The scroll state of the room's <paramref name="screen"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The screen lies outside the room.</exception>
+    public RoomScrollState ReadScreen(Position16<RoomScreens> screen)
+    {
+        if (!Size.Contains(screen))
+            throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen lies outside the room.");
+        return _cells.Read(Size.RowMajorIndex(screen));
     }
 
     /// <summary>The state of kept cell <paramref name="index"/>, the room's own or one past it.</summary>
@@ -99,8 +121,8 @@ public sealed class RoomScrollGrid
     public RoomScrollState ReadCameraState(int index) => _cells.ReadForCamera(index);
 
     /// <summary>
-    /// Sets kept cell <paramref name="index"/>. Scroll triggers, doors and enemies name cells by their place in the kept
-    /// cells rather than by screen, so a write may reach a cell past the room's own.
+    /// Sets kept cell <paramref name="index"/>, the room's own or one past it, by its place among the kept cells. Gameplay
+    /// names screens instead (<see cref="SetScreen"/>, <see cref="SetLogicalState"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The index lies outside the kept cells, or the state is not a scroll state.</exception>
     public void SetCell(int index, RoomScrollState state)
@@ -109,7 +131,23 @@ public sealed class RoomScrollGrid
         _cells.Write(index, state);
     }
 
-    /// <summary>Updates one of the room's screens as a scroll trigger would.</summary>
+    /// <summary>
+    /// Sets the screen at <paramref name="screen"/>, in one of the room's columns and in one of its rows or a row past them,
+    /// as a door setup or a scroll trigger does: a row past the room's own names the kept cells after them, row by row at
+    /// the room's width.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The column lies outside the room, the screen outside the kept cells, or the state is not a scroll state.
+    /// </exception>
+    public void SetScreen(Position16<RoomScreens> screen, RoomScrollState state)
+    {
+        if (screen.X >= Size.X)
+            throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
+        SetCell(screen.Y * Size.X + screen.X, state);
+    }
+
+    /// <summary>Updates one of the room's screens, as enemies, room objects and the title demonstrations do.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The screen lies outside the room, or the state is not a scroll state.</exception>
     public void SetLogicalState(Position16<RoomScreens> screen, RoomScrollState state)
     {
         if (screen.X >= Size.X || screen.Y >= Size.Y)
@@ -126,7 +164,7 @@ public sealed class RoomScrollGrid
             throw new ArgumentOutOfRangeException(
                 parameterName,
                 state,
-                "Known room scroll states are red boundary, blue, and green.");
+                "Known room scroll states are closed, open, and open with the camera aligned to the screen's top.");
         }
     }
 }

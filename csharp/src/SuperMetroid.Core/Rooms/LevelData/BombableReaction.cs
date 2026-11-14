@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// What a bombable block or bombable air does with its behaviour (#1722): the bomb block a bomb, a Power Bomb or Samus's
 /// breaking contact sets off. Its values are arbitrary; a behaviour written for another collision kind is read as one of
-/// these through <see cref="RoomBlockBehavior"/>.
+/// these through <see cref="RoomBlockBehavior"/>, or as none when the bombable kinds have no reaction for it.
 /// </summary>
 public enum BombableReaction
 {
@@ -34,9 +34,6 @@ public enum BombableReaction
     /// <summary>The empty reaction past the breaks: a bomb sets off a one-update object; breaking contact rejects it.</summary>
     Nothing,
 
-    /// <summary>A reaction past the end of the bomb table: a bomb or breaking contact rejects it.</summary>
-    PastTable,
-
-    /// <summary>One of the reactions the room's area gives the block: bombs and contact leave it alone and it stays solid.</summary>
-    AreaIgnored,
+    /// <summary>Bombs and Samus's breaking contact leave the block alone and set nothing off; a bombable block stays solid.</summary>
+    Inert,
 }

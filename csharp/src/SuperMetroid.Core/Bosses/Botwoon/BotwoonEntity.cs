@@ -10,10 +10,10 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeBotwoon;
+    public void Initialize() => species.InitializeBotwoon(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunBotwoonMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBotwoonTypedAnimation;

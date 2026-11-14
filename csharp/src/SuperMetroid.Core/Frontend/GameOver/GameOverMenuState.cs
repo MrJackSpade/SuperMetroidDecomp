@@ -16,7 +16,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Game-over screen requires the installed sprite sheets.");
-        screen.BindScreenTiles(sheets);
+        screen.BindScreenPictures(sheets);
     }
 
     /// <summary>The installed sprite sheets the Baby, egg and cursor draw from; artwork, never saved.</summary>

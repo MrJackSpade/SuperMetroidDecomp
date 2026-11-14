@@ -315,7 +315,7 @@ after the Baby Metroid cutscene. The import pre-colours those effects' pictures 
 in the picture store to recolor them. The cartridge bytecode, flash
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
-The room effects' animated characters, the `room-fx-animated-tiles.png` strip of the
+The room effects' animated characters, the `room-fx-block-animations.png` strip of the
 native lava, acid, rain, and Maridia sand frames, Wrecked Ship's four 32-byte
 treadmill frames, the Tourian statue strip and three 48-byte spores frames, are
 import data: the import composes the effect pictures from them, and the installation
@@ -456,7 +456,7 @@ compiled behavior.
 
 The enemy-tile import data contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
-Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
+Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch,
 the three Ripper variants, Fireflea, Magdollite, Ceres door visual frames
 (including the Ridley-room private overlay), the Ceres Baby's three poses,
 Rio's eight idle/swoop compositions, Lower Norfair Rio's eighteen parent/flame

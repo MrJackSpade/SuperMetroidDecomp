@@ -30,14 +30,14 @@ internal static class ImplicitScrollResidueVerification
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
         // #1336, #1500: past the 50 cells the scroll reads land in the stored explored maps, unexplored at power-on, and
         // past every stored map they are rejected.
-        AssertEqual(RoomScrollState.RedBoundary, grid.ReadCameraState(RoomScrollGrid.KeptCellCount),
+        AssertEqual(RoomScrollState.Closed, grid.ReadCameraState(RoomScrollGrid.KeptCellCount),
             "index $32 reads Crateria's unexplored stored map as red");
         AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(ushort.MaxValue),
             "the last index a 16-bit register selects lies past every stored map");
-        AssertEqual(RoomScrollState.Blue, grid.ReadCameraState(3), "the bottom row is blue");
+        AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadCameraState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.KeptCellCount; index++)
             AssertEqual(previousTail[index], grid.ReadState(index), $"scroll cell {index} keeps the previous room's value");
-        AssertEqual(RoomScrollState.Blue, grid.ReadCameraState(3 + room.Size.X),
+        AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadCameraState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
     }

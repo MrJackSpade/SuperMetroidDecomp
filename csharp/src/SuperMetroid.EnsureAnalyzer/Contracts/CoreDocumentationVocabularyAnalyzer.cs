@@ -26,10 +26,13 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
 /// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
 /// animation commands, then every other command of the original's streams and dispatchers and numbered functions and
-/// selectors. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
+/// selectors, then the original's dispatch named as a function without a number. #1632 adds the display path's hardware
+/// vocabulary: the tile characters pictures were assembled
 /// from, video and display memory, and per-line tables. #1726 adds the processor's arithmetic and the original's display
 /// and sound records: underflows, sign tests and sign bits, tile attributes and values, per-line effect objects and
-/// voices keyed on.
+/// voices keyed on. #1743 adds the original machine's provenance, which no type may describe, hardware owners included:
+/// its native words and bit patterns, the cartridge's routines, and a value written as the machine's hexadecimal fixed-point
+/// (<c>0.1000</c>, <c>7.0000</c>).
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -104,6 +107,21 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty)\b" +
         @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|layers?|levels?|rows?|columns?|more|fewer" +
         @"|less|of)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's dispatch named as a function without a number (#1624): the routine an enemy, part, boss or phase
+    /// runs (a door's main function, the eye's function, a body, death, growth, movement, corpse or crawl function, a
+    /// tube that has no function, a handler that requires a function). A Core action, phase, movement or connection says
+    /// what it is. English stays legal: a mathematical function (a function of each colour, a pure function of the
+    /// velocity, math or trigonometric functions, functions in a clause about arithmetic or mathematics), C#'s own (a
+    /// local, lambda or anonymous function, a function delegate) and writing one (inventing, writing, defining or
+    /// declaring a function).
+    /// </summary>
+    private static readonly Regex FunctionProse = new(
+        @"(?<!\b(?:pure|math|mathematical|trigonometric|arithmetic|local|lambda|anonymous|invent(?:s|ed|ing)?|writ(?:e|es|ing)" +
+        @"|wrote|written|defin(?:e|es|ed|ing)|declar(?:e|es|ed|ing))\s+(?:(?:an?|the|new)\s+)?)" +
+        @"\bfunctions?\b(?!\s+(?:of|delegates?)\b)(?![^.;:!?]*\b(?:arithmetic|mathematics|maths?)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -240,6 +258,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b(?:voices?|notes?|channels?)\s+(?:(?:is|are|was|were|stays?|stayed|remains?|remained)\s+)?keyed\s+on\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The original machine's provenance in prose (#1743), read in every Core type: a native word or bit pattern (spaced or
+    /// hyphenated, with up to two words between: a signed native word), a cartridge routine or the cartridge's routines, and a
+    /// value written as the machine's hexadecimal fixed-point, a whole part starting with a digit and a four-digit fraction
+    /// that ends in zero or holds a hexadecimal letter (<c>0.1000</c>, <c>7.0000</c>, <c>1.8C00</c>). A compatibility service
+    /// says which behaviour it reproduces and an encoding owner describes its encoding, but neither cites the machine's words,
+    /// its routines or its spelling of a value. English stays legal: a native pose number or any other native thing that is
+    /// not a word or bit pattern, a routine that is not the cartridge's, and a decimal with no trailing zero (<c>0.0625</c>,
+    /// <c>0.1875</c>, <c>0.125</c>) or a format's name (<c>16.16</c>, <c>8.8</c>).
+    /// </summary>
+    private static readonly Regex MachineProvenanceProse = new(
+        @"\bnative[-\s]+(?:[\w-]+\s+){0,2}?(?:words?|bit[-\s]+patterns?)\b" +
+        @"|\bcartridge(?:'s)?[-\s]+routines?\b" +
+        @"|(?<!\w|\w\.)\$?[0-9][0-9A-Fa-f]{0,3}\.(?:[0-9A-Fa-f]{3}0|(?=[0-9]{0,3}[A-Fa-f])[0-9A-Fa-f]{4})(?!\w|\.\w)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
     private const string SignWord = @"(?<!\b(?:percent|plus|minus|equals?|dollar)[-\s]+)sign\b";
 
@@ -364,7 +398,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Reports <paramref name="text"/> once when it names the hardware outside a hardware-owning type. A comment carries
+    /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), in
+    /// any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals.
     /// </summary>
@@ -372,13 +407,16 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         Lazy<ImmutableHashSet<string>>? codeNames)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
-        string? word = Address.Match(text) is { Success: true } address ? address.Value
+        string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
+            : IsInHardwareOwner(owner) ? null
+            : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
             : HardwareProse.Match(text) is { Success: true } prose ? prose.Value
             : HardwareTerms.Match(text) is { Success: true } term ? term.Value
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
             : InterpreterProse.Match(text) is { Success: true } interpreter ? interpreter.Value
             : DispatchProse.Match(text) is { Success: true } dispatch ? dispatch.Value
+            : FunctionProse.Match(text) is { Success: true } function ? function.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value
@@ -389,7 +427,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
-        if (word is null || IsInHardwareOwner(owner))
+        if (word is null)
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, word));
     }

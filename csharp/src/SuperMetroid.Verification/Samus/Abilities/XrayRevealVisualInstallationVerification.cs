@@ -51,12 +51,12 @@ internal static class XrayRevealVisualInstallationVerification
             ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.InTurn.Count + tank) * 2);
             InWorldCollectibleKind kind = InWorldCollectibleKind.EnergyTank + tank;
             AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
-                overlays.TankMetatile(kind), $"stock X-ray {kind} reveal");
+                overlays.TankBlock(kind), $"stock X-ray {kind} reveal");
         }
         int specialRecords = 0;
         foreach (ushort pointer in XrayRoomOverlaySources.Pointers)
         {
-            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(XrayRoomOverlaySources.Overlay(pointer));
+            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomBlocks(XrayRoomOverlaySources.Overlay(pointer));
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value | (pointer + index * 4));

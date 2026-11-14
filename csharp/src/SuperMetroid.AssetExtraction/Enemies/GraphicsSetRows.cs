@@ -44,7 +44,11 @@ internal sealed class GraphicsSetRows
             throw new InvalidDataException($"Enemy graphics set {set.Name} catalogues {recordRows.Length} palette rows for {records.Length} records.");
         var memberRows = new Dictionary<EnemyDefinitionId, int>();
         for (int record = 0; record < records.Length; record++)
-            memberRows.TryAdd(records[record].DefinitionId, recordRows[record]);
+        {
+            // A record loading artwork for no enemy fills its row, but no enemy draws in it by that record (#1686).
+            if (records[record].DefinitionId is { } member)
+                memberRows.TryAdd(member, recordRows[record]);
+        }
         return resolved = new Rows(recordRows, memberRows);
     }
 

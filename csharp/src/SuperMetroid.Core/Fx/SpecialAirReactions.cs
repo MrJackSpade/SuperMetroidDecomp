@@ -4,20 +4,22 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The special-air reaction each retail area gives each of the area reactions of special air: what the block does while
-/// Samus is inside it, and what it does when her movement reaches it. Every area reaction an area leaves unused does
-/// nothing; an area outside the retail game, a common reaction and an area reaction past the areas' tables are rejected.
-/// These are the game's rules for its special-air blocks, not editable room or presentation assets.
+/// What each retail area makes of each special-air reaction (#1742): what the block does while Samus is inside it, and
+/// what it does when her movement reaches it. A reaction whose meaning does not depend on the area (passing through, a
+/// conveyor, the scroll trigger), and every reaction an area leaves unused, does nothing here; an area outside the retail
+/// game and no reaction are rejected. These are the game's rules for its special-air blocks, not editable room or
+/// presentation assets.
 /// </summary>
 public static class SpecialAirReactions
 {
-    /// <summary>What the special-air block with area reaction <paramref name="reaction"/> does to Samus inside it in <paramref name="area"/>.</summary>
+    /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it in <paramref name="area"/>.</summary>
     /// <param name="area">The room's area, one of the retail areas.</param>
-    /// <param name="reaction">The block's reaction, one of the area reactions within the areas' tables.</param>
-    public static SpecialAirInsideReaction InsideOf(AreaId area, SpecialAirReaction reaction)
+    /// <param name="reaction">The block's reaction.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or the block has no reaction.</exception>
+    public static SpecialAirInsideReaction InsideOf(AreaId area, SpecialAirReaction? reaction)
     {
-        Validate(area, reaction, "inside-body");
-        return new AreaReaction(area, reaction) switch
+        SpecialAirReaction read = Validate(area, reaction, "inside-body");
+        return new AreaReaction(area, read) switch
         {
             (AreaId.Crateria, SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface) => SpecialAirInsideReaction.IcePhysics,
             (AreaId.Brinstar, SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface) => SpecialAirInsideReaction.BrinstarFloorPlant,
@@ -32,13 +34,14 @@ public static class SpecialAirReactions
         };
     }
 
-    /// <summary>What the special-air block with area reaction <paramref name="reaction"/> does when Samus's movement reaches it in <paramref name="area"/>.</summary>
+    /// <summary>What the special-air block with reaction <paramref name="reaction"/> does when Samus's movement reaches it in <paramref name="area"/>.</summary>
     /// <param name="area">The room's area, one of the retail areas.</param>
-    /// <param name="reaction">The block's reaction, one of the area reactions within the areas' tables.</param>
-    public static SpecialAirCollisionReaction CollisionOf(AreaId area, SpecialAirReaction reaction)
+    /// <param name="reaction">The block's reaction.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or the block has no reaction.</exception>
+    public static SpecialAirCollisionReaction CollisionOf(AreaId area, SpecialAirReaction? reaction)
     {
-        Validate(area, reaction, "movement-collision");
-        return new AreaReaction(area, reaction) switch
+        SpecialAirReaction read = Validate(area, reaction, "movement-collision");
+        return new AreaReaction(area, read) switch
         {
             (AreaId.Brinstar, SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface) => SpecialAirCollisionReaction.PassesThrough,
             (AreaId.Brinstar, SpecialAirReaction.CeilingPlantOrQuicksandSurface) => SpecialAirCollisionReaction.PassesThrough,
@@ -58,33 +61,19 @@ public static class SpecialAirReactions
         };
     }
 
-    /// <summary>Whether <paramref name="reaction"/> is one of the area reactions within the areas' tables, which the area tables read.</summary>
-    public static bool IsAreaTableReaction(SpecialAirReaction reaction) => reaction is
-        SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface or SpecialAirReaction.CeilingPlantOrQuicksandSurface or
-        SpecialAirReaction.SlowRespawningSpeedBlockOrQuicksandSurface or
-        SpecialAirReaction.SlowPermanentSpeedBlockChozoHandOrSubmergingQuicksand or
-        SpecialAirReaction.RespawningSpeedBlockOrSlowSandfall or SpecialAirReaction.PermanentSpeedBlockOrFastSandfall or
-        SpecialAirReaction.AreaNothing;
-
-    /// <summary>Whether <paramref name="reaction"/> is one the room's area gives special air, within its tables or past them.</summary>
-    public static bool IsArea(SpecialAirReaction reaction) =>
-        IsAreaTableReaction(reaction) || reaction == SpecialAirReaction.PastAreaTable;
-
-    /// <summary>An area and one of the area reactions its special-air table gives meaning to.</summary>
+    /// <summary>An area and a special-air reaction, which the area gives its meaning.</summary>
     /// <param name="Area">The room's area.</param>
-    /// <param name="Reaction">The block's area reaction.</param>
+    /// <param name="Reaction">The block's reaction.</param>
     private readonly record struct AreaReaction(AreaId Area, SpecialAirReaction Reaction);
 
-    /// <summary>Restricts the special-air reactions to the retail areas and the area reactions within their tables.</summary>
-    private static void Validate(AreaId area, SpecialAirReaction reaction, string context)
+    /// <summary>Restricts the special-air reactions to the retail areas and the blocks that have a reaction.</summary>
+    /// <returns>The block's reaction.</returns>
+    private static SpecialAirReaction Validate(AreaId area, SpecialAirReaction? reaction, string context)
     {
         _ = AreaIds.Require(area);
-        if (!IsAreaTableReaction(reaction))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(reaction),
-                reaction,
-                $"Special-air {context} reactions are only an area's first sixteen reactions.");
-        }
+        return reaction ?? throw new ArgumentOutOfRangeException(
+            nameof(reaction),
+            reaction,
+            $"A special-air block's {context} reaction needs a reaction the block has.");
     }
 }

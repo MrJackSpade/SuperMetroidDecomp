@@ -17,18 +17,18 @@ internal static class BeetomOwnedStateVerification
     /// </summary>
     internal static void VerifyBeetomOwnedState()
     {
-        var arc = new BeetomEnemyState(previous: null) { YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(8) };
+        var arc = new BeetomEnemyState(previous: null) { YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(8) };
         arc.StepRisingSpeed(4);
-        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.FromRows(4), false), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step above the apex keeps rising");
+        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.FromRows(4), false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step above the apex keeps rising");
         arc.StepRisingSpeed(4);
-        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.Start, false), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step landing on zero keeps rising");
+        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.Start, false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step landing on zero keeps rising");
         arc.StepRisingSpeed(5);
-        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.Start, true), new VerifyBeetomOwnedStateCase(arc.YSpeedTableIndex, arc.Falling), "a rising step below zero restarts at zero and falls");
-        arc.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(61);
+        AssertEqual(new VerifyBeetomOwnedStateCase(EnemyQuadraticSpeedIndex.Start, true), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step below zero restarts at zero and falls");
+        arc.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(61);
         arc.StepFallingSpeed(3);
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(64), arc.YSpeedTableIndex, "falling reaches the maximum");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(64), arc.YSpeedCurvePlace, "falling reaches the maximum");
         arc.StepFallingSpeed(3);
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(64), arc.YSpeedTableIndex, "falling holds at the maximum");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(64), arc.YSpeedCurvePlace, "falling holds at the maximum");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };

@@ -30,7 +30,7 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification
 {
-    /// <summary>Walks 123 native records, then checks initialization, Samus touch, and projectile shot handoffs.</summary>
+    /// <summary>Walks 122 native records, then checks initialization, Samus touch, and projectile shot handoffs.</summary>
     internal static void VerifyEnemyProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
@@ -38,7 +38,7 @@ internal static class EnemyProjectileDefinitionsVerification
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion.
-        AssertEqual(123, kinds.Length, "compiled enemy-projectile definition count");
+        AssertEqual(122, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
@@ -256,7 +256,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.PirateClaw or
                         RoomEnemyProjectileKind.PolypRock or
                         RoomEnemyProjectileKind.CacatacSpike or
-                        RoomEnemyProjectileKind.StokeProjectile or
                         RoomEnemyProjectileKind.NamiheFireball or
                         RoomEnemyProjectileKind.FuneFireball or
                         RoomEnemyProjectileKind.LavaThrownByMagdollite or
@@ -392,7 +391,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.PirateClaw or
                         RoomEnemyProjectileKind.PolypRock or
                         RoomEnemyProjectileKind.CacatacSpike or
-                        RoomEnemyProjectileKind.StokeProjectile or
                         RoomEnemyProjectileKind.NamiheFireball or
                         RoomEnemyProjectileKind.FuneFireball or
                         RoomEnemyProjectileKind.LavaThrownByMagdollite or

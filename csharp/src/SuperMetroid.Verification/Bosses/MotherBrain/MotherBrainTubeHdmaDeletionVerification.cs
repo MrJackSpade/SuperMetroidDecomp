@@ -36,7 +36,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         RoomEnemySlot tube = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes);
         MotherBrainFallingTubeState tubeState = tube.SpeciesState<MotherBrainFallingTubeState>()
             ?? throw new InvalidOperationException("The spawned main tube has no state.");
-        tubeState.Action = MotherBrainTubeAction.MainTube_Falling;
+        tubeState.Action = MotherBrainTubeAction.Falling;
         tubeState.FallSpeed = default;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
         runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);

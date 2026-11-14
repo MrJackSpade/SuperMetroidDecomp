@@ -936,7 +936,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.ScrollingSky is not null && Room.Camera is not null)
             Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition.Y, timeIsFrozen: Freeze.TimeIsFrozen);
 
-        RoomMains.RunAnimatedTilesObjectHandler(Room.LoadedScope);
+        RoomMains.RunBlockAnimations(Room.LoadedScope);
         EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope);
 
         // Landing Site's room main is selected by the room state rather than by coordinates.

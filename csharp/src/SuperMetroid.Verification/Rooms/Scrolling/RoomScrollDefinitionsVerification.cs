@@ -72,7 +72,7 @@ internal static class RoomScrollDefinitionsVerification
                     expected[index] = index < logicalCount
                         ? index / header.Size.X == header.Size.Y - 1
                             ? lastRow
-                            : RoomScrollState.Green
+                            : RoomScrollState.Open
                         : storage.Read(index);
                 }
             }
@@ -101,7 +101,7 @@ internal static class RoomScrollDefinitionsVerification
             SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Room);
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll cells start cleared, so Ceres's cells past its own read red.
-        RoomScrollState[] ceresResidue = [.. Enumerable.Repeat(RoomScrollState.RedBoundary, RoomScrollGrid.KeptCellCount)];
+        RoomScrollState[] ceresResidue = [.. Enumerable.Repeat(RoomScrollState.Closed, RoomScrollGrid.KeptCellCount)];
         guardedCeres.RoomLoader.InitializeStartingCeresRoom();
         var expectedCeres = new RoomScrollState[RoomScrollGrid.KeptCellCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;
@@ -113,7 +113,7 @@ internal static class RoomScrollDefinitionsVerification
             expectedCeres[index] = index < ceresLogicalCount
                 ? index / ceres.Size.X == ceres.Size.Y - 1
                     ? ceresLastRow
-                    : RoomScrollState.Green
+                    : RoomScrollState.Open
                 : ceresResidue[index];
         }
         AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.KeptStates),

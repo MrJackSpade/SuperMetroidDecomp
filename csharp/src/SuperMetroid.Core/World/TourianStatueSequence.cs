@@ -58,16 +58,16 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>One spawned statue animation's definition, animation playback, and frame timer.</summary>
-    internal sealed class TileObject(TourianStatueAnimationDefinition definition)
+    internal sealed class StatueBlockAnimation(TourianStatueAnimationDefinition definition)
     {
         /// <summary>The statue's animation and the values its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; } = definition;
         /// <summary>The statue's typed animation segments, built once for its first-frame duration.</summary>
-        public AnimationSegments<TourianStatueTileSegment, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
-            TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
+        public AnimationSegments<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue> Segments { get; } =
+            TourianStatueBlockAnimations.SegmentsFor(definition.FirstFrameDuration);
         /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
-        public AnimationPlayback<TourianStatueTileSegment>? Playback { get; private set; } =
-            new AnimationPlayback<TourianStatueTileSegment>(TourianStatueTileAnimations.StartingWith(TourianStatueTileSegment.Entry), AnimationPlace.StartOfAnimation);
+        public AnimationPlayback<TourianStatueBlockSegment>? Playback { get; private set; } =
+            new AnimationPlayback<TourianStatueBlockSegment>(TourianStatueBlockAnimations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation);
         /// <summary>Remaining duration of the current statue frame.</summary>
         public int Timer { get; private set; } = 1;
 
@@ -80,7 +80,7 @@ public sealed class TourianStatueSequence
         }
 
         /// <summary>Resumes the animation at <paramref name="playback"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
-        internal void Show(AnimationPlayback<TourianStatueTileSegment> playback, int duration)
+        internal void Show(AnimationPlayback<TourianStatueBlockSegment> playback, int duration)
         {
             Playback = playback;
             Timer = duration;
@@ -90,7 +90,7 @@ public sealed class TourianStatueSequence
         internal void Stop() => Playback = null;
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches slot traversal and busy-bit ownership.</summary>
-    internal readonly List<TileObject> objects = [];
+    internal readonly List<StatueBlockAnimation> objects = [];
     /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
     /// <summary>
@@ -144,8 +144,8 @@ public sealed class TourianStatueSequence
         }
         else
         {
-            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Closed);
         }
     }
 
@@ -175,28 +175,28 @@ public sealed class TourianStatueSequence
     /// Runs the statue animations in spawn order: each live statue counts its frame down and, when it expires,
     /// plays its typed animation on to the next shown picture, carrying out the animation's events on the way.
     /// </summary>
-    public void StepTiles()
+    public void StepBlockAnimations()
     {
         if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen) return;
-        foreach (TileObject tile in objects)
+        foreach (StatueBlockAnimation statueAnimation in objects)
         {
-            if (!tile.CountDown() || tile.Playback is not { } playback) continue;
+            if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
             // The statue animations play no counted phase; the play still takes a repeat counter.
             WrappingCountdown repeats = WrappingCountdown.Start(0);
-            TourianStatueAnimationDefinition definition = tile.Definition;
-            Animation<TourianStatueTileSegment> animation = playback.Animation;
+            TourianStatueAnimationDefinition definition = statueAnimation.Definition;
+            Animation<TourianStatueBlockSegment> animation = playback.Animation;
             AnimationPlace place = playback.Place;
-            AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture> shown = tile.Segments.PlayToNextFrame(
+            AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture> shown = statueAnimation.Segments.PlayToNextFrame(
                 ref animation, ref place, ref repeats, cue => RunCue(definition, cue));
             switch (shown)
             {
-                case AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture>.Frame frame:
-                    tile.Show(new AnimationPlayback<TourianStatueTileSegment>(animation, place), frame.Duration);
+                case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Frame frame:
+                    statueAnimation.Show(new AnimationPlayback<TourianStatueBlockSegment>(animation, place), frame.Duration);
                     _room.LoadedScope.ArtworkFrames.Select(definition.Picture(frame.Shown));
                     break;
-                case AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture>.Ended:
-                    tile.Stop();
+                case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Ended:
+                    statueAnimation.Stop();
                     break;
                 default:
                     throw new InvalidOperationException(
@@ -205,54 +205,54 @@ public sealed class TourianStatueSequence
         }
 
         // Carries out one event with the statue's values; a branching event whose condition holds returns where the play continues.
-        AnimationContinuation<TourianStatueTileSegment>? RunCue(
-            TourianStatueAnimationDefinition definition, TourianStatueTileCue cue)
+        AnimationContinuation<TourianStatueBlockSegment>? RunCue(
+            TourianStatueAnimationDefinition definition, TourianStatueBlockCue cue)
         {
             ITourianStatueActors statue = _enemies.TourianStatue;
-            var branch = new AnimationContinuation<TourianStatueTileSegment>(
-                TourianStatueTileAnimations.StartingWith(cue.Target), AnimationPlace.StartOfAnimation);
+            var branch = new AnimationContinuation<TourianStatueBlockSegment>(
+                TourianStatueBlockAnimations.StartingWith(cue.Target), AnimationPlace.StartOfAnimation);
             switch (cue.Kind)
             {
-                case TourianStatueTileCueKind.MarkAnimating:
+                case TourianStatueBlockCueKind.MarkAnimating:
                     statue.Animation.Animating |= definition.Statue;
                     return null;
-                case TourianStatueTileCueKind.GoToIfGrey:
+                case TourianStatueBlockCueKind.GoToIfGrey:
                     return _system.HasEvent(definition.GreyEvent) ? branch : null;
-                case TourianStatueTileCueKind.GoToIfBossDefeated:
+                case TourianStatueBlockCueKind.GoToIfBossDefeated:
                     return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? branch : null;
-                case TourianStatueTileCueKind.ClearAnimating:
+                case TourianStatueBlockCueKind.ClearAnimating:
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
-                case TourianStatueTileCueKind.GoToIfReleaseInProgress:
+                case TourianStatueBlockCueKind.GoToIfReleaseInProgress:
                     return statue.Animation.ReleaseInProgress ? branch : null;
-                case TourianStatueTileCueKind.ClaimRelease:
+                case TourianStatueBlockCueKind.ClaimRelease:
                     statue.Animation.ReleaseInProgress = true;
                     return null;
-                case TourianStatueTileCueKind.ClearThreeColors:
+                case TourianStatueBlockCueKind.ClearThreeColors:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
                     _enemies.TourianStatue.ShowStatueLook(definition.ClearedShade);
                     return null;
-                case TourianStatueTileCueKind.SpawnEyeGlow:
+                case TourianStatueBlockCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.Eye);
                     return null;
-                case TourianStatueTileCueKind.SpawnSoul:
+                case TourianStatueBlockCueKind.SpawnSoul:
                     statue.SpawnSoul(definition.Eye);
                     return null;
-                case TourianStatueTileCueKind.SpawnGreyColourEffect:
+                case TourianStatueBlockCueKind.SpawnGreyColourEffect:
                     _roomColourEffects.Start(definition.ColourEffect, _player.IntroducedSamus.EquippedItems);
                     return null;
-                case TourianStatueTileCueKind.SetGreyEvent:
+                case TourianStatueBlockCueKind.SetGreyEvent:
                     _system.SetEvent(definition.GreyEvent);
                     return null;
-                case TourianStatueTileCueKind.FinishRelease:
+                case TourianStatueBlockCueKind.FinishRelease:
                     statue.Animation.ReleaseInProgress = false;
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
-                case TourianStatueTileCueKind.ApplyGreyColors:
+                case TourianStatueBlockCueKind.ApplyGreyColors:
                     _enemies.TourianStatue.ShowStatueLook(definition.GreyShade);
                     return null;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueTileCueKind)} {cue.Kind}.");
+                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueBlockCueKind)} {cue.Kind}.");
             }
         }
     }
@@ -297,7 +297,7 @@ public sealed class TourianStatueSequence
     private void EnableScrolling()
     {
         _enemies.TourianStatue.Finished = true;
-        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
-        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Open);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Open);
     }
 }

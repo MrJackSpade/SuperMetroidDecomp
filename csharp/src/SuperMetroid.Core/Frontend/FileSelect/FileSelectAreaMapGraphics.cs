@@ -94,7 +94,7 @@ public sealed class FileSelectAreaMapGraphics
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Area-map graphics require the installed sprite sheets.");
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         worldSheets = installed;
-        screen.BindScreenTiles(installed);
+        screen.BindScreenPictures(installed);
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
@@ -141,10 +141,10 @@ public sealed class FileSelectAreaMapGraphics
         InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
         AreaId area = SelectedArea;
         var foreground = new PicturedPlaneLayer(new PicturedPlane(
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
+            [new PlacedPlanePicture(sheets.Get(ScreenPictureSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
             Offset16<PlanePixels>.Zero);
         var background = new PicturedPlane(
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
+            [new PlacedPlanePicture(sheets.Get(ScreenPictureSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
         return new(screen.Paint(), new DisplayLayer[] {
             foreground,
             new AddedPicturedPlaneLayer(background, GlowsOver(glow, foreground)) }, DisplayBrightness.Full);

@@ -523,8 +523,8 @@ internal static class LookupStream3Verification
                     var source = cells[index];
                     var cell = source.Cell;
                     ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
-                        cell.Palette, cell.Priority, (cell.FlipX ? TileFlip.Horizontal : TileFlip.None) |
-                        (cell.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
+                        cell.Palette, cell.Priority, (cell.FlipX ? PictureFlip.Horizontal : PictureFlip.None) |
+                        (cell.FlipY ? PictureFlip.Vertical : PictureFlip.None)).Raw;
                     AssertEqual(new FileSelectCompiledPatchCell(source.Offset - Position16<CharacterCells>.Zero, BackgroundTileWords.ToTile(word)), compiled.Cell(index),
                         "file-select supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
@@ -555,8 +555,8 @@ internal static class LookupStream3Verification
             {
                 MapPresentationCell source = document.Tilemap[cell];
                 ushort expected = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn,
-                    source.Palette, source.Priority, (source.FlipX ? TileFlip.Horizontal : TileFlip.None) |
-                    (source.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
+                    source.Palette, source.Priority, (source.FlipX ? PictureFlip.Horizontal : PictureFlip.None) |
+                    (source.FlipY ? PictureFlip.Vertical : PictureFlip.None)).Raw;
                 AssertEqual(expected, words[cell], "game-over native text word and placement");
             }
         }
@@ -626,8 +626,8 @@ internal static class LookupStream3Verification
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(button))][cell];
                     ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
-                        (source.FlipX ? TileFlip.Horizontal : TileFlip.None) |
-                        (source.FlipY ? TileFlip.Vertical : TileFlip.None)).Raw;
+                        (source.FlipX ? PictureFlip.Horizontal : PictureFlip.None) |
+                        (source.FlipY ? PictureFlip.Vertical : PictureFlip.None)).Raw;
                     System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(((point.Y + cell / 3) * 32 + point.X + cell % 3) * 2), word);
                 }
                 presentation.ApplyControllerLabel(actual, action, button);
@@ -675,18 +675,23 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(
                 () => DoorIdentityWords.SetupRoutines.Decode(undefined, "door setup routine"),
                 "stream 3 undefined door setup routine");
-        // Every cartridge routine the import maps to a setup that only changes screens runs over a grid of red cells and one of blue
-        // cells, so every write differs from the cells it replaces in at least one run; the native writes are compared as
-        // the cells the camera reads them as. A setup the cartridge has two routines for is checked against both.
+        // Every cartridge routine the import maps to a setup that only changes screens runs over a grid of closed cells and one of
+        // top-aligned cells, so every write differs from the cells it replaces in at least one run; the native writes are
+        // compared as the cells the camera reads them as. The setup names its screens by column and row in the room its
+        // doors lead into, so it runs over that room's grid, where the routine's row-major cells are those screens (#1741).
+        // A setup the cartridge has two routines for is checked against both.
+        Dictionary<DoorSetup, Extent16<RoomScreens>> roomSizes = DoorDefinitions.Definitions
+            .GroupBy(door => door.Setup)
+            .ToDictionary(group => group.Key, group => group.First().DestinationRoom.Size);
         foreach ((DoorSetup setup, ushort[] routines) in DoorIdentityWords.SetupRoutines.WordsByIdentity)
         {
             if (setup.RoomEvent != DoorRoomEvent.None || setup.ScreenChanges.Count == 0)
                 continue;
             foreach (ushort routine in routines)
-            foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
+            foreach (RoomScrollState fill in new[] { RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop })
             {
                 byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
-                var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
+                var actual = RoomScrollGrid.LoadNativeTable(expected, roomSizes[setup]);
                 ExecuteStream3DoorScroll(rom, routine, expected);
                 setup.ChangeScreens(actual);
                 AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Progression;
 public static class AreaMapSize
 {
     /// <summary>Map tiles across one area's map.</summary>
-    public const int WidthInTiles = 64;
+    public const int WidthInMapTiles = 64;
     /// <summary>Map tiles down one area's map.</summary>
-    public const int HeightInTiles = 32;
+    public const int HeightInMapTiles = 32;
 
-    /// <summary>One area's map, <see cref="WidthInTiles"/> by <see cref="HeightInTiles"/> map tiles.</summary>
-    public static Extent16<MapTiles> Extent => new(WidthInTiles, HeightInTiles);
+    /// <summary>One area's map, <see cref="WidthInMapTiles"/> by <see cref="HeightInMapTiles"/> map tiles.</summary>
+    public static Extent16<MapTiles> Extent => new(WidthInMapTiles, HeightInMapTiles);
 }

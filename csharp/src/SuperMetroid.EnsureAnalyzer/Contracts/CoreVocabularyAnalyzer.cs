@@ -26,7 +26,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. An area's name followed
 /// by a number and another word numbers the area by the cartridge's tileset (#1720, <see cref="TilesetNumber"/>):
 /// <c>Brinstar6DarkPattern</c>. A name that says <c>AlphaHandler</c>, <c>BetaHandler</c> or <c>SetupCode</c> names the
-/// original's routine (#1721, <see cref="RoutinePhrases"/>). See <c>docs/core-vocabulary.md</c>.
+/// original's routine (#1721, <see cref="RoutinePhrases"/>). A name that says <c>Tile</c> or <c>Metatile</c> names the
+/// hardware's tile (#1726, <see cref="TileWords"/>) unless it is one of the game's own tiles: the area map's, a room layer
+/// named as the destination engine names it, Ceres station's falling ceiling tiles (<see cref="GameTilePhrases"/>), or a
+/// value whose type is named for the map (<see cref="NamedForMap"/>); and a name that says <c>Underflow</c> names the CPU's
+/// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -119,6 +123,48 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<string> BehaviourFieldWords = ["Function"];
 
     /// <summary>
+    /// The enemy record's AI routine fields under the synonyms of <c>AiFunction</c> (#1738), two-word names matched like
+    /// <see cref="HardwarePhrases"/>: the cartridge's enemy record held its initialization, main, grapple and hurt AI as
+    /// routine pointers, and a Core name that says <c>AiRoutine</c> (an <c>EnemyAiRoutine</c> or <c>GrappleAiRoutine</c>
+    /// enum) or <c>AiHandler</c> (an <c>EnemyMainAiHandler</c> delegate a definition's entity looked up) names that pointer
+    /// field instead of the behaviour or response it selects. A delegate keeps no allowance: the handler delegates stood in
+    /// for the record's pointers. Each word alone stays the game's own: an AI, a routine, a handler.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> AiRoutinePhrases =
+    [
+        ["Ai", "Routine"], ["Ai", "Handler"],
+    ];
+
+    /// <summary>
+    /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
+    /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
+    /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
+    /// the block, the picture, the block animation or the eight-pixel cell it means. The game's own tiles keep the word
+    /// (<see cref="GameTilePhrases"/>, <see cref="NamedForMap"/>).
+    /// </summary>
+    internal static readonly ImmutableArray<string> TileWords = ["Tile", "Metatile"];
+
+    /// <summary>
+    /// The game's own tiles (#1726), each a <c>Tile</c> word of <see cref="TileWords"/> beside a word, matched without
+    /// regard to case, the neighbour with the endings of <see cref="Endings"/>: the area map's tiles, <c>Map</c> before it
+    /// (<c>MapTiles</c>, <c>IsMapTileExplored</c>); a room layer named as the destination engine names it, <c>Map</c> after
+    /// it (<c>TileMap</c>, <c>TileMapLayer</c>); and the ceiling tiles that fall in Ceres station and the room named for
+    /// them, <c>Falling</c> before it or <c>Fall</c> after it (<c>FallingTile</c>, <c>CeresTileFall</c>). A phrase is written
+    /// before, the tile word, after.
+    /// </summary>
+    internal static readonly ImmutableArray<(string? Before, string? After)> GameTilePhrases =
+    [
+        ("Map", null), (null, "Map"), ("Falling", null), (null, "Fall"),
+    ];
+
+    /// <summary>
+    /// The original's arithmetic (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: a value that
+    /// underflowed was the CPU's subtraction borrowing past zero (<c>speedUnderflowed</c>). Core says what the value did in
+    /// the game: it passed zero, ran out, turned round.
+    /// </summary>
+    internal static readonly ImmutableArray<string> MachineArithmeticWords = ["Underflow"];
+
+    /// <summary>
     /// The game's areas, as the camel-case words that name them (#1720): an area's name followed by a number is the
     /// cartridge's graphics-set number for one of its tilesets (<see cref="TilesetNumber"/>).
     /// </summary>
@@ -141,9 +187,11 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal or by its " +
             "tilesets, and " +
             "never call a behaviour the callback the original dispatched it through, the routine table it jumped through, " +
-            "the function field its record held or the handler or setup code routine it ran; " +
-            "hardware behaviour the game needs lives in " +
-            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, docs/core-vocabulary.md).");
+            "the function field its record held or the handler or setup code routine it ran, " +
+            "and never name the hardware's tile where they mean a block, a picture, a block animation or a cell, or the CPU's " +
+            "arithmetic; hardware behaviour the game needs lives in " +
+            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, #1726, " +
+            "docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -164,9 +212,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                 if (reported.TryAdd(location, 0))
                     report(Diagnostic.Create(Rule, location, name, finding));
             }
-            void Check(Action<Diagnostic> report, string name, Location location, Func<bool> holdsDelegate)
+            void Check(Action<Diagnostic> report, string name, Location location, Func<bool> holdsDelegate, Func<bool> typedForMap)
             {
-                if (Finding(name, holdsDelegate) is { } finding)
+                if (Finding(name, holdsDelegate, typedForMap) is { } finding)
                     Report(report, name, location, finding);
             }
             start.RegisterSymbolAction(symbolContext => AnalyzeSymbol(symbolContext, Check),
@@ -180,16 +228,19 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             start.RegisterSyntaxTreeAction(treeContext =>
             {
                 string file = Path.GetFileNameWithoutExtension(treeContext.Tree.FilePath);
-                // A file is named for its type, so a file named for a delegate type the file declares is that delegate's.
+                // A file is named for its type, so a file named for a delegate type the file declares is that delegate's;
+                // a file holds no value, so its name is never typed for the map.
                 Check(treeContext.ReportDiagnostic, file, Location.Create(treeContext.Tree, new TextSpan(0, 0)),
                     () => treeContext.Tree.GetRoot(treeContext.CancellationToken).DescendantNodes()
-                        .OfType<DelegateDeclarationSyntax>().Any(declaration => declaration.Identifier.ValueText == file));
+                        .OfType<DelegateDeclarationSyntax>().Any(declaration => declaration.Identifier.ValueText == file),
+                    static () => false);
             });
         });
     }
 
     /// <summary>Reports a declared type or member; overrides and implementations of external members keep their names.</summary>
-    private static void AnalyzeSymbol(SymbolAnalysisContext context, Action<Action<Diagnostic>, string, Location, Func<bool>> check)
+    private static void AnalyzeSymbol(SymbolAnalysisContext context,
+        Action<Action<Diagnostic>, string, Location, Func<bool>, Func<bool>> check)
     {
         ISymbol symbol = context.Symbol;
         if (symbol.IsImplicitlyDeclared || symbol.Locations.FirstOrDefault(location => location.IsInSource) is not { } location)
@@ -198,7 +249,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return;
         if (symbol.IsOverride || ImplementsExternal(symbol))
             return;
-        check(context.ReportDiagnostic, symbol.Name, location, () => DeclaresDelegate(symbol));
+        check(context.ReportDiagnostic, symbol.Name, location, () => DeclaresDelegate(symbol), () => NamedForMap(HeldType(symbol)));
     }
 
     /// <summary>
@@ -242,50 +293,57 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports a declared local, parameter, type parameter, local function, range variable or namespace segment.</summary>
-    private static void AnalyzeNode(SyntaxNodeAnalysisContext context, Action<Action<Diagnostic>, string, Location, Func<bool>> check)
+    private static void AnalyzeNode(SyntaxNodeAnalysisContext context,
+        Action<Action<Diagnostic>, string, Location, Func<bool>, Func<bool>> check)
     {
         // Whether the local or parameter the node declares holds a delegate; asked only of a name that says a dispatch word.
         bool HoldsDeclaredDelegate() =>
             context.SemanticModel.GetDeclaredSymbol(context.Node, context.CancellationToken) is { } declared && DeclaresDelegate(declared);
         static bool DeclaresNoDelegate() => false;
+        // Whether the local or parameter the node declares holds a value typed for the map; asked only of a name that
+        // says a tile word.
+        bool DeclaredForMap() =>
+            context.SemanticModel.GetDeclaredSymbol(context.Node, context.CancellationToken) is { } declared &&
+            NamedForMap(HeldType(declared));
+        static bool NotTypedForMap() => false;
         switch (context.Node)
         {
             case VariableDeclaratorSyntax declarator when declarator.Parent?.Parent is not (FieldDeclarationSyntax or EventFieldDeclarationSyntax):
-                check(context.ReportDiagnostic, declarator.Identifier.ValueText, declarator.Identifier.GetLocation(), HoldsDeclaredDelegate);
+                check(context.ReportDiagnostic, declarator.Identifier.ValueText, declarator.Identifier.GetLocation(), HoldsDeclaredDelegate, DeclaredForMap);
                 break;
             case SingleVariableDesignationSyntax designation:
-                check(context.ReportDiagnostic, designation.Identifier.ValueText, designation.Identifier.GetLocation(), HoldsDeclaredDelegate);
+                check(context.ReportDiagnostic, designation.Identifier.ValueText, designation.Identifier.GetLocation(), HoldsDeclaredDelegate, DeclaredForMap);
                 break;
             case ForEachStatementSyntax loop:
-                check(context.ReportDiagnostic, loop.Identifier.ValueText, loop.Identifier.GetLocation(), HoldsDeclaredDelegate);
+                check(context.ReportDiagnostic, loop.Identifier.ValueText, loop.Identifier.GetLocation(), HoldsDeclaredDelegate, DeclaredForMap);
                 break;
             case CatchDeclarationSyntax { Identifier.ValueText.Length: > 0 } caught:
-                check(context.ReportDiagnostic, caught.Identifier.ValueText, caught.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, caught.Identifier.ValueText, caught.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case LocalFunctionStatementSyntax function:
-                check(context.ReportDiagnostic, function.Identifier.ValueText, function.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, function.Identifier.ValueText, function.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case ParameterSyntax parameter when IsOwnParameter(parameter, context.SemanticModel, context.CancellationToken):
-                check(context.ReportDiagnostic, parameter.Identifier.ValueText, parameter.Identifier.GetLocation(), HoldsDeclaredDelegate);
+                check(context.ReportDiagnostic, parameter.Identifier.ValueText, parameter.Identifier.GetLocation(), HoldsDeclaredDelegate, DeclaredForMap);
                 break;
             case TypeParameterSyntax typeParameter:
-                check(context.ReportDiagnostic, typeParameter.Identifier.ValueText, typeParameter.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, typeParameter.Identifier.ValueText, typeParameter.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case BaseNamespaceDeclarationSyntax space:
                 foreach (IdentifierNameSyntax segment in space.Name.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
-                    check(context.ReportDiagnostic, segment.Identifier.ValueText, segment.GetLocation(), DeclaresNoDelegate);
+                    check(context.ReportDiagnostic, segment.Identifier.ValueText, segment.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case FromClauseSyntax from:
-                check(context.ReportDiagnostic, from.Identifier.ValueText, from.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, from.Identifier.ValueText, from.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case LetClauseSyntax let:
-                check(context.ReportDiagnostic, let.Identifier.ValueText, let.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, let.Identifier.ValueText, let.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case JoinClauseSyntax join:
-                check(context.ReportDiagnostic, join.Identifier.ValueText, join.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, join.Identifier.ValueText, join.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             case QueryContinuationSyntax continuation:
-                check(context.ReportDiagnostic, continuation.Identifier.ValueText, continuation.Identifier.GetLocation(), DeclaresNoDelegate);
+                check(context.ReportDiagnostic, continuation.Identifier.ValueText, continuation.Identifier.GetLocation(), DeclaresNoDelegate, NotTypedForMap);
                 break;
             default:
                 break;
@@ -324,12 +382,17 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.
     /// <paramref name="holdsDelegate"/> says whether the declaration holds a C# delegate; it is asked only of a name that
-    /// says a dispatch word or a behaviour-field word.
+    /// says a dispatch word or a behaviour-field word. <paramref name="typedForMap"/> says whether the declaration holds a
+    /// value whose type is named for the map (<see cref="NamedForMap"/>); it is asked only of a name that says a tile word.
     /// </summary>
-    internal static string? Finding(string identifier, Func<bool> holdsDelegate)
+    internal static string? Finding(string identifier, Func<bool> holdsDelegate, Func<bool> typedForMap)
     {
         if (HardwareWord(identifier) is { } word)
             return $"names the hardware ('{word}')";
+        if (HardwareTile(identifier) is { } tile && !typedForMap())
+            return $"names the hardware's tile ('{tile}')";
+        if (ContainedWord(identifier, MachineArithmeticWords) is { } arithmetic)
+            return $"names the CPU's arithmetic ('{arithmetic}')";
         if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
             return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
         if (ContainedWord(identifier, RoutineDispatchWords) is { } routine && ContainedWord(identifier, SentThingWords) is null &&
@@ -341,6 +404,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the original's routine ('{routineName}')";
         if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
+        if (ContainedPhrase(identifier, AiRoutinePhrases) is { } aiRoutine)
+            return $"names the enemy record's AI routine field ('{aiRoutine}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;
@@ -382,6 +447,58 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         }
         return null;
     }
+
+    /// <summary>
+    /// The tile word of <see cref="TileWords"/> that <paramref name="identifier"/> contains as a whole camel-case word, with
+    /// the endings of <see cref="Endings"/>, where it is not one of the game's own tiles of <see cref="GameTilePhrases"/>,
+    /// or null (#1726). Each occurrence is judged by its own neighbours: <c>MapTileFlip</c> keeps its tile, while
+    /// <c>FallingTileFrameTiles</c> names the hardware's in its second.
+    /// </summary>
+    internal static string? HardwareTile(string identifier)
+    {
+        string[] words = Words(identifier).ToArray();
+        for (int index = 0; index < words.Length; index++)
+        {
+            foreach (string listed in TileWords)
+            {
+                if (!IsWordWithEnding(words[index], listed))
+                    continue;
+                bool gameTile = false;
+                foreach ((string? before, string? after) in GameTilePhrases)
+                {
+                    gameTile |= (before is not null && index > 0 && IsWordWithEnding(words[index - 1], before)) ||
+                        (after is not null && index + 1 < words.Length && IsWordWithEnding(words[index + 1], after));
+                }
+                if (!gameTile)
+                    return listed;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Whether a type is named for the map (#1726): its name has the camel-case word <c>Map</c>, or it is an array or
+    /// constructed generic type of such a type (<c>MapCoordinateJsonDocument[]</c>, <c>Position16&lt;MapTiles&gt;</c>). A
+    /// value of it named <c>tile</c> is one of the area map's tiles.
+    /// </summary>
+    internal static bool NamedForMap(ITypeSymbol? type) => type switch
+    {
+        null => false,
+        IArrayTypeSymbol array => NamedForMap(array.ElementType),
+        INamedTypeSymbol named => Words(named.Name).Any(word => IsWordWithEnding(word, "Map")) ||
+            named.IsGenericType && named.TypeArguments.Any(NamedForMap),
+        _ => false,
+    };
+
+    /// <summary>The type of the value a declared field, property, parameter or local holds, or null for any other symbol.</summary>
+    private static ITypeSymbol? HeldType(ISymbol symbol) => symbol switch
+    {
+        IFieldSymbol field => field.Type,
+        IPropertySymbol property => property.Type,
+        IParameterSymbol parameter => parameter.Type,
+        ILocalSymbol local => local.Type,
+        _ => null,
+    };
 
     /// <summary>
     /// Whether a declared symbol holds a C# delegate (#1624): a delegate type, an event, or a field, property, parameter or

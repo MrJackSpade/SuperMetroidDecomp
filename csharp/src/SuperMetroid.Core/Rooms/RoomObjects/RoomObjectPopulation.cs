@@ -45,7 +45,7 @@ public sealed class RoomObjectPopulation
         Ensure.NotNull(placement);
         if (placement.Kind == RoomObjectKind.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        RoomScrollWrite[]? animation = placement.ScrollChange?.ToArray();
+        ScreenScrollChange[]? animation = placement.ScrollChange?.ToArray();
         RoomScrollChange? compiledChange = animation is null ? placement.CompiledScrollChange : null;
         if (compiledChange is not null)
         {
@@ -56,9 +56,11 @@ public sealed class RoomObjectPopulation
         {
             if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");
-            foreach (RoomScrollWrite write in animation)
+            foreach (ScreenScrollChange write in animation)
             {
-                if (write.Index is < 0 or >= RoomScrollGrid.KeptCellCount || !Enum.IsDefined(write.State))
+                // A screen in column X and row Y lies, in a room of any width past its column, at least (X + 1) * (Y + 1) - 1
+                // cells in; one no room width brings within the kept cells is a write to no screen.
+                if ((write.Screen.X + 1) * (write.Screen.Y + 1) > RoomScrollGrid.KeptCellCount || !Enum.IsDefined(write.State))
                     throw new InvalidDataException("A decoded scroll room object contains an invalid scroll write.");
             }
         }

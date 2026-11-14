@@ -12,10 +12,10 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Slot);
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => DeadTourianBehavior.InitializeDeadTourianCorpse;
+    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunDeadTourianMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;

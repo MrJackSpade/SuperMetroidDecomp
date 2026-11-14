@@ -57,7 +57,7 @@ public sealed class InstalledProjectileTrails
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             attributes.Add(frame, SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)));
+                p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0)));
         }
         return new(attributes);
     }

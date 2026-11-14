@@ -21,12 +21,20 @@ public sealed class EnemyTileSourceArtwork
     /// <summary>Each enemy's installed palette, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
 
+    /// <summary>The characters of the artwork graphics sets load for no enemy (#1686).</summary>
+    private readonly Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> unplacedSheets;
+
+    /// <summary>The colours of the artwork graphics sets load for no enemy (#1686).</summary>
+    private readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
+
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
     internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
     {
         RejectUnpaired(parts);
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
+        unplacedSheets = new Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas>(parts.UnplacedSheets);
+        unplacedPalettes = new Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>(parts.UnplacedPalettes);
         MagdollitePaletteCycle = parts.MagdollitePaletteCycle;
         WorkRobotPaletteCycle = parts.WorkRobotPaletteCycle;
         ChozoAndTubeColors = parts.ChozoAndTubeColors;
@@ -120,6 +128,18 @@ public sealed class EnemyTileSourceArtwork
     public ReadOnlyMemory<byte> TilesOf(EnemyDefinitionId enemy) =>
         TryGetSheet(enemy, out RoomCharacterAtlas? atlas) ? atlas.Characters
             : throw new InvalidDataException($"Installed enemy artwork holds no {enemy} tile set.");
+
+    /// <summary>The installed tiles of <paramref name="artwork"/>, which graphics sets load for no enemy (#1686).</summary>
+    /// <exception cref="InvalidDataException">The installed artwork holds no tile set for it.</exception>
+    internal ReadOnlyMemory<byte> UnplacedTilesOf(UnplacedEnemyArtwork artwork) =>
+        unplacedSheets.TryGetValue(artwork, out RoomCharacterAtlas? atlas) ? atlas.Characters
+            : throw new InvalidDataException($"Installed enemy artwork holds no {artwork} tile set.");
+
+    /// <summary>The installed colours of <paramref name="artwork"/>, which graphics sets load for no enemy (#1686).</summary>
+    /// <exception cref="InvalidDataException">The installed artwork holds no palette for it.</exception>
+    internal EnemyPaletteSheet UnplacedPaletteOf(UnplacedEnemyArtwork artwork) =>
+        unplacedPalettes.TryGetValue(artwork, out EnemyPaletteSheet? palette) ? palette
+            : throw new InvalidDataException($"Installed enemy artwork holds no {artwork} palette.");
 
     /// <summary>Publishes complete ordinary enemy sheets and palettes.</summary>
     /// <exception cref="InvalidDataException">A retail definition lacks its complete tile sheet or palette.</exception>

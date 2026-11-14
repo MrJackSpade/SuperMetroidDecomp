@@ -8,10 +8,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The codec between a room-FX record's sixteen cartridge bytes and its typed <see cref="RoomFxRecordDefinition"/>
+/// The codec between a room-FX record's sixteen cartridge bytes and its typed <see cref="RoomEffectDefinition"/>
 /// (#1415): the room-FX catalog generator decodes the retail records once, and checks that seed synthetic records encode
 /// through it. Core holds only the decoded fields: a record's two effect bitsets select from its room's area's lists
-/// (<see cref="AreaPaletteFxObjects"/>, <see cref="AreaAnimatedTileObjects"/>), and the decoded record names the effects
+/// (<see cref="AreaPaletteFxObjects"/>, <see cref="AreaBlockAnimations"/>), and the decoded record names the effects
 /// they select (#1526). The record's two blend bytes select entries of the game's blending dispatcher; the import reads
 /// them once into the room effect's own blend and whether the room animates Samus's visor (#1545), and its options byte
 /// once into the liquid the effect fills the room with (#1695); the numbers stay here. Never linked by player hosts.
@@ -97,7 +97,7 @@ internal static class RoomFxRecordCodec
     /// The record's door word is its entry door in its room's effect selection (<see cref="RoomFxSelection"/>), which the catalog generator reads.
     /// </summary>
     /// <exception cref="InvalidDataException">A field names no effect, blend or palette blend, or the effect blend is not one the effect shows; the message names <paramref name="context"/>.</exception>
-    internal static RoomFxRecordDefinition Decode(AreaId area, ReadOnlySpan<byte> native, string context)
+    internal static RoomEffectDefinition Decode(AreaId area, ReadOnlySpan<byte> native, string context)
     {
         Ensure.LengthEqual(native, RoomFxToolingRomData.Record.ByteCount);
         RoomFxType type = RoomFxRecordWords.Types.Decode(native[RoomFxRomDataRecordTooling.TypeOffset], $"{context} room-FX type");
@@ -218,14 +218,14 @@ internal static class RoomFxRecordCodec
             .Where(effect => effect != ColourEffectId.Nothing)];
 
     /// <summary>
-    /// The animated-tile objects a record's animated-tile byte starts in a room of <paramref name="area"/>, in ascending
+    /// The block animations a record's block-animation byte starts in a room of <paramref name="area"/>, in ascending
     /// bit order. No retail record sets a bit that selects no object of the game (#1686), and the decode rejects one.
     /// </summary>
-    internal static ImmutableArray<AnimatedTileObject> AnimatedTiles(AreaId area, byte value) =>
-        [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit) ?? throw new InvalidDataException(
-            $"A {area} record sets animated-tile bit {bit}, which selects no object of the game."))];
+    internal static ImmutableArray<BlockAnimation> AnimatedTiles(AreaId area, byte value) =>
+        [.. SetBits(value).Select(bit => AreaBlockAnimations.Read(area, bit) ?? throw new InvalidDataException(
+            $"A {area} record sets block-animation bit {bit}, which selects no block animation of the game."))];
 
     /// <summary>The bits <paramref name="value"/> sets, lowest first.</summary>
     private static IEnumerable<int> SetBits(byte value) =>
-        Enumerable.Range(0, AreaAnimatedTileObjectDefinitions.ObjectsPerArea).Where(bit => (value & (1 << bit)) != 0);
+        Enumerable.Range(0, AreaBlockAnimationDefinitions.ObjectsPerArea).Where(bit => (value & (1 << bit)) != 0);
 }

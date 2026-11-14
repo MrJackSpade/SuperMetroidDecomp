@@ -6,8 +6,8 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Shaktool's room controller (#1554). From its second update on, every update it opens all of the room's scroll cells
-/// while a power bomb explodes, and once Samus is past the cleared path's boundary it marks the path cleared and
+/// Shaktool's room controller (#1554). From its second update on, every update it opens every screen of the room to the
+/// camera while a power bomb explodes, and once Samus is past the cleared path's boundary it marks the path cleared and
 /// leaves the room.
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
@@ -36,8 +36,8 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlo
         if (scrolls is null || _samus?.Current is not { } current || _events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         if (context.Frame.PowerBombExplosionActive)
-            for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-                scrolls.SetCell(cell, RoomScrollState.Blue);
+            foreach (Position16<RoomScreens> screen in scrolls.Screens)
+                scrolls.SetLogicalState(screen, RoomScrollState.OpenAlignedToTop);
         if (current.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary)
             return;
         _events.Set(StoryEvent.ShaktoolClearedPath);

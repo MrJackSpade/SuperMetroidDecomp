@@ -28,17 +28,17 @@ internal static class RoomObjectPopulationInputBoundaryVerification
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyObjectPopulationInputBoundary()
     {
-        RoomScrollWrite[] writes = [new(1, RoomScrollState.Green)];
+        ScreenScrollChange[] writes = [new(new(1, 0), RoomScrollState.Open)];
         var trigger = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
             new(3, 3), null, writes);
         var extension = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.RightwardsScrollExtension),
             new(4, 3), null);
-        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollChange = Array.Empty<RoomScrollWrite>() };
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollChange = Array.Empty<ScreenScrollChange>() };
         RoomObjectPlacement[] records = [trigger, extension, second];
         var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
-        writes[0] = new(49, RoomScrollState.RedBoundary);
+        writes[0] = new(new(0, 49), RoomScrollState.Closed);
         records[0] = second;
-        AssertEqual(new RoomScrollWrite(1, RoomScrollState.Green), population.Placements.Span[0].ScrollChange![0],
+        AssertEqual(new ScreenScrollChange(new(1, 0), RoomScrollState.Open), population.Placements.Span[0].ScrollChange![0],
             "decoded population owns its scroll writes independently of caller mutation");
         AssertEqual(3, population.Placements.Span[0].Block.X,
             "decoded population owns its record ordering independently of caller mutation");
@@ -53,17 +53,22 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.Closed);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(3, 3)), "typed trigger wakes at its placement");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.Green, scrolls.ReadState(1), "decoded pairs mutate the intended live scroll cell");
+        AssertEqual(RoomScrollState.Open, scrolls.ReadState(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].Block), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollChange = [new(RoomScrollGrid.KeptCellCount, RoomScrollState.Blue)] }]),
-            "a decoded write past the scroll grid is rejected before allocation");
+            [trigger with { ScrollChange = [new(new(0, RoomScrollGrid.KeptCellCount), RoomScrollState.OpenAlignedToTop)] }]),
+            "a decoded write to a screen no room width brings within the kept cells is rejected before allocation");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollChange = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
+            [trigger with { ScrollChange = [new(new(4, 10), RoomScrollState.Open)] }]),
+            "a decoded write past the kept cells at every room width past its column is rejected before allocation");
+        AssertEqual(2, new RoomObjectPopulation($"$8F:{0x9000:X4}", [trigger with { ScrollChange = [new(new(4, 9), RoomScrollState.Open), new(new(0, 49), RoomScrollState.Open)] }]).Placements.Span[0].ScrollChange!.Count,
+            "writes to screens the last kept cell holds at the narrowest room width past their column are kept");
+        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
+            [trigger with { ScrollChange = [new(new(0, 0), (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
         // A population holds any number of placements, in order (#1627); the room's places bound how many objects it holds.
         RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => second with { Block = new(checked((ushort)(index % 8)), checked((ushort)(index / 8))) })];
         var large = new RoomObjectPopulation($"$8F:{0x9000:X4}", many);
@@ -71,7 +76,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertTrue(large.Placements.ToArray().Select(placement => placement.Block).SequenceEqual(many.Select(placement => placement.Block)),
             "a large population keeps its placements in authored order");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [extension with { ScrollChange = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
+            [extension with { ScrollChange = Array.Empty<ScreenScrollChange>() }]), "an extension cannot own a resident scroll program");
 
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)

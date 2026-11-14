@@ -114,7 +114,7 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
-                MapSpriteArtwork.Read(spriteJson, spritePng), stock.EscapeTimerTiles, stock.RoomFxAnimatedTiles, stock.WorldCharacters,
+                MapSpriteArtwork.Read(spriteJson, spritePng), stock.EscapeTimerTiles, stock.BlockAnimationAtlas, stock.WorldCharacters,
                 stock.IntroFont, stock.EndingFont, stock.TitleGraphics),
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,

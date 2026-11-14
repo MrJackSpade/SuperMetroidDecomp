@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 public sealed class BeetomEnemyState
 {
     /// <summary>The furthest place along the quadratic speed table a falling or flung Beetom accelerates to: row 64.</summary>
-    internal static readonly EnemyQuadraticSpeedIndex MaximumYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
+    internal static readonly EnemyQuadraticSpeedIndex MaximumYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>
     /// Starts one Beetom, facing the way the previous Beetom in its slot last faced, or left for the slot's first.
@@ -24,10 +24,10 @@ public sealed class BeetomEnemyState
 
     /// <summary>
     /// The current arc's whole-row place along the quadratic speed table, from its first row to
-    /// <see cref="MaximumYSpeedTableIndex"/> or the arc's later starting place: rising moves it back by the arc's step and
+    /// <see cref="MaximumYSpeedCurvePlace"/> or the arc's later starting place: rising moves it back by the arc's step and
     /// restarts it at the first row at the apex, falling moves it on up to the maximum, so it never leaves that range.
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
     public BeetomAction? Action { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
@@ -58,15 +58,15 @@ public sealed class BeetomEnemyState
     /// <param name="rows">The arc's rising step, three to five rows.</param>
     internal void StepRisingSpeed(int rows)
     {
-        YSpeedTableIndex -= EnemyQuadraticSpeedIndex.FromRows(rows);
-        if (!YSpeedTableIndex.IsNegative)
+        YSpeedCurvePlace -= EnemyQuadraticSpeedIndex.FromRows(rows);
+        if (!YSpeedCurvePlace.IsNegative)
             return;
-        YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+        YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
         Falling = true;
     }
 
-    /// <summary>One falling update: moves the place on by <paramref name="rows"/> rows, holding at <see cref="MaximumYSpeedTableIndex"/>.</summary>
+    /// <summary>One falling update: moves the place on by <paramref name="rows"/> rows, holding at <see cref="MaximumYSpeedCurvePlace"/>.</summary>
     /// <param name="rows">The arc's falling step, one to five rows.</param>
     internal void StepFallingSpeed(int rows) =>
-        YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(MaximumYSpeedTableIndex, YSpeedTableIndex + EnemyQuadraticSpeedIndex.FromRows(rows));
+        YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(MaximumYSpeedCurvePlace, YSpeedCurvePlace + EnemyQuadraticSpeedIndex.FromRows(rows));
 }

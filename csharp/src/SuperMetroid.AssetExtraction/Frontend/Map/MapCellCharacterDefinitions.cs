@@ -42,16 +42,16 @@ internal static class MapCellCharacterDefinitions
     private const MapCellEdge S = MapCellEdge.ElevatorShaft;
 
     /// <summary>A character drawn as it is.</summary>
-    private const TileFlip AsDrawn = TileFlip.None;
+    private const PictureFlip AsDrawn = PictureFlip.None;
 
     /// <summary>A character mirrored left to right.</summary>
-    private const TileFlip H = TileFlip.Horizontal;
+    private const PictureFlip H = PictureFlip.Horizontal;
 
     /// <summary>A character mirrored top to bottom.</summary>
-    private const TileFlip V = TileFlip.Vertical;
+    private const PictureFlip V = PictureFlip.Vertical;
 
     /// <summary>A character mirrored both ways.</summary>
-    private const TileFlip HV = TileFlip.Horizontal | TileFlip.Vertical;
+    private const PictureFlip HV = PictureFlip.Horizontal | PictureFlip.Vertical;
 
     /// <summary>
     /// Every character and mirroring the retail area maps use, with the cell it pictures; edges are listed top, bottom,

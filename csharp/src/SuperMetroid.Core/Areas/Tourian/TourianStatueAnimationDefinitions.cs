@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The four Tourian entrance statues' background animations: the values their shared typed animation
-/// (<see cref="TourianStatueTileAnimations"/>) acts on.
+/// (<see cref="TourianStatueBlockAnimations"/>) acts on.
 /// </summary>
 public static class TourianStatueAnimationDefinitions
 {

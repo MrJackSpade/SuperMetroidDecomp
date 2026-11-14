@@ -35,7 +35,7 @@ public static class PauseEquipmentLabelExtractor
 
         int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
             PauseEquipmentLabelArtworkDefinitions.HyperBeamItem * sizeof(ushort));
-        for (int index = 0; index < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); index++)
+        for (int index = 0; index < PauseEquipmentLabels.ItemCount(PauseEquipmentCategory.Beams); index++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));

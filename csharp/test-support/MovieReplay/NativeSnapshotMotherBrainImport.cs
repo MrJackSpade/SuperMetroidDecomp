@@ -100,7 +100,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
-        state.WalkCounter = MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
+        state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         state.AttackCooldown = W(MotherBrainMemory.BodyAttackCooldown);
         state.BombCounter = W(MotherBrainMemory.BombCounter);

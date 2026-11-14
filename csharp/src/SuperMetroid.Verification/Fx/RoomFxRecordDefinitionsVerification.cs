@@ -67,9 +67,9 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");
-        AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
+        AssertEqual(nativeFx.LiquidLevelSpeed.RawValue, compiledFx.LiquidLevelSpeed.RawValue,
             "Ceres compiled FX velocity");
-        AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");
+        AssertEqual(nativeFx.LiquidMoveDelay.RawValue, compiledFx.LiquidMoveDelay.RawValue, "Ceres compiled FX timer");
         AssertEqual(nativeFx.Liquid, compiledFx.Liquid,
             "Ceres compiled FX liquid");
         AssertTrue(nativeVram.ImageEquals(compiledVram),
@@ -88,13 +88,13 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
-        var nativeSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
-        var compiledSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
+        var nativeSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
+        var compiledSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
-        var nativeTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
-        var compiledTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
+        var nativeTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
+        var compiledTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
     }

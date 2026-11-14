@@ -27,7 +27,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("File select requires the installed sprite sheets.");
-        screen.BindScreenTiles(sheets);
+        screen.BindScreenPictures(sheets);
     }
 
     /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>

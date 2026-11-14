@@ -150,11 +150,11 @@ public static class SamusGroundedMovement
         // Can replace the block reaction's ordinary speed table with the
         // complete water/lava table after comparing Samus's bottom boundary.
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        speed.SelectEnvironmentSpeedTable(liquidMedium);
+        speed.SelectSpeedsFor(liquidMedium);
 
         // Handles Dash before calculating base speed. With no equipped Speed
-        // Booster, B establishes momentum, adds exactly 0.1000 per frame, and caps the
-        // extra component at 2.0000. The flag retains that component after B is released.
+        // Booster, B establishes momentum, adds exactly a sixteenth of a pixel per frame, and caps the
+        // extra component at two pixels. The flag retains that component after B is released.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
             controllerInput,
@@ -228,7 +228,7 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        speed.SelectEnvironmentSpeedTable(liquidMedium);
+        speed.SelectSpeedsFor(liquidMedium);
 
         // The turning handler calls the complete X movement before
         // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
@@ -293,7 +293,7 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        speed.SelectEnvironmentSpeedTable(liquidMedium);
+        speed.SelectSpeedsFor(liquidMedium);
 
         // Runs horizontal movement, whose first operation is the Dash acceleration.
         // Moonwalking can never enter that step's Dash-acceleration arm, but an

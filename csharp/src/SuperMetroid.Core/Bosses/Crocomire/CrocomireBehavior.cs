@@ -101,8 +101,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
                 samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
-                    ? RoomScrollState.RedBoundary : RoomScrollState.Blue);
-            _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
+                    ? RoomScrollState.Closed : RoomScrollState.OpenAlignedToTop);
+            _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
             // Main state zero always finishes through the body-layer placement, including the frame in
             // which the bridge approach changes the death index to two.
             BodyLayer.PlaceCrocomireBodyLayer(state);
@@ -234,7 +234,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.RunCrocomireWallRumble(state);
                 return;
             case CrocomireDeathPhase.BreakSpikeWall:
-                Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
+                Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
                 return;
             case CrocomireDeathPhase.DelaySkeletonFall:
                 Skeleton.RunCrocomireWallBreakDelay(state);

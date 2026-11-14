@@ -922,7 +922,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.PirateClaw:
                     case RoomEnemyProjectileKind.PolypRock:
                     case RoomEnemyProjectileKind.CacatacSpike:
-                    case RoomEnemyProjectileKind.StokeProjectile:
                     case RoomEnemyProjectileKind.NamiheFireball:
                     case RoomEnemyProjectileKind.FuneFireball:
                     case RoomEnemyProjectileKind.LavaThrownByMagdollite:

@@ -28,13 +28,6 @@ internal static class SamusOverreadDecoding
     /// </summary>
     internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
 
-    /// <summary>
-    /// Decodes the colours Samus's palette loaders read past their tables into the import data's document (#1693), which only
-    /// the import reads to pre-colour her sheets.
-    /// </summary>
-    internal static SamusOverrunColourDocument DecodeColours(IImportCartridgeSource cartridge) =>
-        new(SamusOverreadFormat.ColourVersion, SpeedBoosterOverrunColours(cartridge), ChainsawPaletteColours(cartridge));
-
     /// <summary>Decodes every glitch read the game reads into the installed document.</summary>
     internal static SamusOverreadDocument Decode(IImportCartridgeSource cartridge)
     {
@@ -241,19 +234,6 @@ internal static class SamusOverreadDecoding
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbers.Number(pose)) == 0);
 
     /// <summary>
-    /// The colours Gravity copies on each Speed Booster step past its cycle: the expansion window's open-bus words, then
-    /// the Grapple handler's code read as colour words.
-    /// </summary>
-    private static Dictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours(IImportCartridgeSource cartridge) => new()
-    {
-        [SpeedBoosterPaletteOverrun.FirstStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusColourSets.ColoursPerSet)
-            .Select(_ => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(SamusOverreadSourceDefinitions.ExpansionOpenBusWord)))],
-        [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusColourSets.ColoursPerSet)
-            .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
-                SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * ColourWordCodec.ByteCount))))],
-    };
-
-    /// <summary>
     /// The speeds each Spazer and Plasma combination launches at: the beam initializer reads a cardinal then a diagonal
     /// word at four bytes per combination from the speed table's start, so these combinations read the words after the
     /// table's twelve rows.
@@ -293,19 +273,4 @@ internal static class SamusOverreadDecoding
                 (SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;
             return new SamusOverreadDocument.CrashDepartures(cartridge.ReadCartridgeByte(pair), cartridge.ReadCartridgeByte(pair + 1));
         });
-
-    /// <summary>
-    /// The Chainsaw beam's sixteen colours: the loader copies sixteen words from the place it reads past the palette
-    /// table, whose first byte answers with the open bus and whose other bytes are Samus_Animate's code. The palette keeps
-    /// each word without its top bit.
-    /// </summary>
-    private static PaletteRgb5[] ChainsawPaletteColours(IImportCartridgeSource cartridge) =>
-        [.. Enumerable.Range(0, ChainsawBeamColours<RgbColor>.ColourCount).Select(colour =>
-        {
-            int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * ColourWordCodec.ByteCount;
-            int word = colour == 0
-                ? SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte | cartridge.ReadCartridgeByte(place + 1) << LittleEndianBytes.BitsPerByte
-                : cartridge.ReadCartridgeWord(place);
-            return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
-        })];
 }

@@ -66,6 +66,13 @@ that state is (`TorizoPhase`, `GunshipPhase`, `YardMovement`, `WallSpacePirateAc
 a `SetPhase` cue, a `PhaseTimer` or `ActionTimer`). A `Func<int>` field or parameter, a delegate type and its file keep
 the word, and words that only share its letters stay the game's own (`Functional`, `Func`, `Functor`).
 
+Two synonyms of `AiFunction` are reported too, with no delegate allowance (#1738, `CoreVocabularyAnalyzer.AiRoutinePhrases`):
+`AiRoutine` and `AiHandler`, the enemy record's initialization, main, grapple and hurt AI routine fields. A definition
+names the response it selects (`EnemyGrappleResponse`, `EnemyHurtResponse` with its `Inert` member), and a species
+exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyMainAi.RunMainAi`) instead of handing
+out a handler delegate the record's pointer stood behind. Each word alone stays the game's own (`AiState`, `Routine`,
+`EnemyHurtHandler`).
+
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
 characters after a lower-case letter that holds a hexadecimal letter and ends its word (`Unused0B`, `PoseFD`,
 `Backdrop2A`, `Projectile86E314Frame`); a run of four or more hexadecimal characters of either case that starts with a
@@ -88,10 +95,29 @@ Matching is by whole camel-case word, ignoring case, with plural and verb ending
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).
 
+A name that says `Tile` or `Metatile` names the hardware's tile and is reported too (#1726,
+`CoreVocabularyAnalyzer.TileWords`): the eight-pixel picture the machine drew its backgrounds and sprites from, and the
+block named as four of them. Core names what it means instead: a block animation (`BlockAnimation`,
+`RoomSandBlockAnimationsState`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
+block (`XrayRoomOverlayBlocks`, `TankBlock`), the part of a layer drawn behind or in front of the actors
+(`ActorDepth.BehindFrontParts`, `GameplayLayer.BackgroundFrontPart`) or the eight-pixel cell
+(`BackgroundCellSizePixels`). The game's own tiles keep the word (`CoreVocabularyAnalyzer.GameTilePhrases`), each tile
+word judged by its own neighbours: the area map's tiles, `Map` before it (`MapTiles`, `IsMapTileExplored`,
+`WidthInMapTiles`); a room layer named as the destination engine names it, `Map` after it (`TileMap`, `TileMapLayer`);
+and the ceiling tiles that fall in Ceres station and the room named for them, `Falling` before it or `Fall` after it
+(`FallingTile`, `CeresTileFall`). A field, property, parameter or local whose type is named for the map, or an array or
+generic type over one, holds one of the area map's tiles and keeps a bare `tile` or `tiles`
+(`MapCoordinateJsonDocument[] Tiles`, `Position16<MapTiles> tile`, `CoreVocabularyAnalyzer.NamedForMap`); a method's own
+name is never typed for the map. `Tileset` and `Projectile` are other words.
+
+A name that says `Underflow` names the CPU's arithmetic and is reported too (#1726,
+`CoreVocabularyAnalyzer.MachineArithmeticWords`): a subtraction borrowing past zero. Core says what the value did in the
+game (`speedPassedZero`).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
-it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as do `Tile`, `Tiles`,
-`Metatile` and `MapTiles`; so does `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside
-`Scanline` (#1694). Documentation prose is never read, so a comment may still say what a cartridge spritemap held.
+it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
+`SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is
+never read, so a comment may still say what a cartridge spritemap held.
 
 Members that override or implement a member declared outside Core keep the name the base declares. A record's
 positional parameter and the property it declares are reported once.
@@ -112,7 +138,9 @@ internal OwnedColor ClawGlow { get; }
 
 There is no identifier allowance. A type marked `[CompatibilityService]` (#1401) may say in its XML documentation which
 hardware behaviour it reproduces (for example "as the SPC port handshake did"); documentation is not an identifier, so
-the rule never reads it. Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
+the rule never reads it. Its documentation counterpart, SME6454, exempts compatibility services and encoding owners in
+the same way, except for the machine's provenance, which it reads in every type: native words and bit patterns, the
+cartridge's routines and values written as the machine's hexadecimal fixed-point (`0.1000`, `7.0000`) (#1743). Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
 allowlist, count, severity change or scope change (project manifesto, section 6).
 
 ## Status

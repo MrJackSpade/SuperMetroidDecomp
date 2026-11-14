@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Rules shared by room effects of several types (#1415: the record's type is decoded at import).</summary>
+/// <summary>Rules shared by room effects of several types (#1415: the effect's kind is decoded at import).</summary>
 public static class RoomFxTypes
 {
     /// <summary>

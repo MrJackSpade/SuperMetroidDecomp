@@ -20,7 +20,7 @@ internal sealed class PauseScreen
     {
         Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
         Objects = new ScreenSprites();
-        BindScreenTiles(sheets);
+        BindScreenPictures(sheets);
     }
 
     /// <summary>The installed sheets the screen's background pictures come from (#1392).</summary>
@@ -28,7 +28,7 @@ internal sealed class PauseScreen
     private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The pause screen's tiles are bound when the game is bound to its installed content."); set; }
 
     /// <summary>Rebinds the sheets the screen's background pictures come from (#1392).</summary>
-    public void BindScreenTiles(InstalledSpriteSheets? sheets)
+    public void BindScreenPictures(InstalledSpriteSheets? sheets)
     {
         Sheets = sheets ?? throw new InvalidOperationException("Pause requires the installed sprite sheets.");
         HudPictures = null;

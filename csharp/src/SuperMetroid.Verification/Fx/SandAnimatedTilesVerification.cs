@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
+using static SuperMetroid.Verification.Fx.RoomFxBlockAnimationArtworkVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Fx;
@@ -19,11 +19,11 @@ internal static class SandAnimatedTilesVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
-        AnimatedTileObject[] definitions = [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling];
+        BlockAnimation[] definitions = [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
-            AssertTrue(RoomFxAnimatedTiles.TryResolve(
-                    definitions[slot], out RoomFxAnimatedTileLoop? definition),
+            AssertTrue(RoomFxBlockAnimations.TryResolve(
+                    definitions[slot], out RoomFxBlockAnimationLoop? definition),
                 $"sand object {slot} resolves compiled mechanics");
             for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
@@ -35,32 +35,32 @@ internal static class SandAnimatedTilesVerification
             }
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(sandFxRecord), null);
+        var sand = new RoomSandBlockAnimationsState(RoomFxDefinitions.Suffix(sandFxRecord), null);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         var frames = new ArtworkFrameSelections();
         for (int tick = 0; tick < 31; tick++)
         {
             var before = new ArtworkFrame?[2];
             for (int slot = 0; slot < 2; slot++)
-                before[slot] = frames.TryShown(AnimatedTileFrames.Of(definitions[slot]), out ArtworkFrame previous) ? previous : null;
+                before[slot] = frames.TryShown(BlockAnimationFrames.Of(definitions[slot]), out ArtworkFrame previous) ? previous : null;
             sand.Step(frames);
             for (int slot = 0; slot < 2; slot++)
             {
                 var animatedObject = definitions[slot];
-                AssertTrue(frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown),
+                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(animatedObject), out ArtworkFrame shown),
                     $"sand object {slot} shows a frame from its first update");
-                AssertEqual(AnimatedTileFrames.Frame(animatedObject, tick / 10 % 4), shown,
+                AssertEqual(BlockAnimationFrames.Frame(animatedObject, tick / 10 % 4), shown,
                     "sand ceiling/fall frames loop independently on the compiled cartridge durations");
                 AssertEqual(tick % 10 != 0, before[slot] == shown,
                     "sand frames change only on the updates their durations end");
             }
         }
-        sand = new RoomSandAnimatedTilesState(null, null);
+        sand = new RoomSandBlockAnimationsState(null, null);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
         var departed = new ArtworkFrameSelections();
         sand.Step(departed);
         for (int slot = 0; slot < 2; slot++)
-            AssertTrue(!departed.TryShown(AnimatedTileFrames.Of(definitions[slot]), out _),
+            AssertTrue(!departed.TryShown(BlockAnimationFrames.Of(definitions[slot]), out _),
                 "departed room cannot continue showing sand frames");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, the frames shown, and room reset agree.");

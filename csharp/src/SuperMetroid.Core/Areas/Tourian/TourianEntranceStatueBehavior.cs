@@ -65,7 +65,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     internal void ShowStatueLook(PictureShade look)
     {
-        if (TourianStatueShades.RoomTileLooks.Contains(look))
+        if (TourianStatueShades.RoomPictureLooks.Contains(look))
         {
             _roomLooks.Add(look);
             return;

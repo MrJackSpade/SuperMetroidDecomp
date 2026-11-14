@@ -11,8 +11,8 @@ internal static class RoomScrollDefinitionsAccess
     /// <summary>Each compiled scroll definition, by the word room states store for it.</summary>
     private static readonly Dictionary<ushort, RoomScrollDefinition> ByWord = new()
     {
-        [0x0000] = RoomScrollDefinitions.GreenWithBlueBottomRow,
-        [0x0001] = RoomScrollDefinitions.AllGreen,
+        [0x0000] = RoomScrollDefinitions.OpenWithTopAlignedBottomRow,
+        [0x0001] = RoomScrollDefinitions.AllOpen,
         [0x9283] = RoomScrollDefinitions.LandingSite,
         [0x9370] = RoomScrollDefinitions.Parlor,
         [0x93d3] = RoomScrollDefinitions.CrateriaPowerBomb,

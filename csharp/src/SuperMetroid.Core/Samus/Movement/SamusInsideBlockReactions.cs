@@ -26,18 +26,18 @@ public static class SamusInsideBlockReactions
             if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            if (!SpecialAirReactions.IsArea(block.Behavior.SpecialAir))
+            // Admits only inside-block sample one (the center).
+            // Feet/head contacts belong to the separate movement scans. Keeping
+            // this center wake-up lets a lower trigger win after the torso clears
+            // an upper trigger, without changing room-object slot priority.
+            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
+                (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
+                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
+            // The conveyors carry Samus the same in every area; the reactions the area gives meaning
+            // own sand and plants. Both are visited in the same bottom/center/top order.
+            if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.ContainsKey(conveyed))
             {
-                // Admits only inside-block sample one (the center).
-                // Feet/head contacts belong to the separate movement scans. Keeping
-                // this center wake-up lets a lower trigger win after the torso clears
-                // an upper trigger, without changing room-object slot priority.
-                if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
-                    throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
-                // The normal table contains conveyors; area-table entries below own
-                // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Behavior.SpecialAir);
+                ApplyConveyor(conveyed);
                 return;
             }
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(area, block.Behavior.SpecialAir);
@@ -119,7 +119,7 @@ public static class SamusInsideBlockReactions
             // The common special-air reactions include the conveyors; only they react here.
             if (!ConveyorBlockDefinitions.Conveyors.TryGetValue(reaction, out ConveyorBlock conveyor)) return;
             bool rightward = conveyor.Direction == HorizontalDirection.Right;
-            samus.HorizontalSpeed.SelectNormalAirSpeedTable();
+            samus.HorizontalSpeed.SelectAirSpeeds();
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
                 ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;
@@ -156,7 +156,6 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects? roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        if (!SpecialAirReactions.IsArea(block.Behavior.SpecialAir)) return SpecialAirCollisionOutcome.PassesThrough;
         SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(body.SandCollisionArea, block.Behavior.SpecialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&

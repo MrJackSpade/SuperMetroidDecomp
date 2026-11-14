@@ -8,25 +8,45 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => CrawlersPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        CrawlersPart.Sciser => CrawlersBehavior.InitializeSciserAi,
-        CrawlersPart.Zero => CrawlersBehavior.InitializeZeroAi,
-        CrawlersPart.Viola => CrawlersBehavior.InitializeViolaAi,
-        CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer =>
-            CrawlersBehavior.InitializeSharedCrawlerAi,
-        CrawlersPart.HZoomer => CrawlersBehavior.InitializeHZoomer,
-        _ => throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}."),
-    };
+        switch (CrawlersPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case CrawlersPart.Sciser:
+                CrawlersBehavior.InitializeSciserAi(Slot);
+                break;
+            case CrawlersPart.Zero:
+                CrawlersBehavior.InitializeZeroAi(Slot);
+                break;
+            case CrawlersPart.Viola:
+                CrawlersBehavior.InitializeViolaAi(Slot);
+                break;
+            case CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer:
+                CrawlersBehavior.InitializeSharedCrawlerAi(Slot);
+                break;
+            case CrawlersPart.HZoomer:
+                CrawlersBehavior.InitializeHZoomer(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => CrawlersPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or
-            CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer => species.RunCrawlerMainAi,
-        CrawlersPart.HZoomer => species.RunHZoomerMainAi,
-        _ => throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}."),
-    };
+        switch (CrawlersPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer:
+                species.RunCrawlerMainAi(Slot, frame);
+                break;
+            case CrawlersPart.HZoomer:
+                species.RunHZoomerMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => CrawlersBehavior.AdvanceCrawlerTypedAnimation;

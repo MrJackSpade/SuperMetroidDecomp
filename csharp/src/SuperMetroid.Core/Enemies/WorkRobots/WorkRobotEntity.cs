@@ -8,16 +8,23 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeWorkRobot;
+    public void Initialize() => species.InitializeWorkRobot(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        WorkRobotPart.Robot => species.RunWorkRobotMainAi,
-        // The unpowered robot's main does nothing.
-        WorkRobotPart.RobotNoPower => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}."),
-    };
+        switch (WorkRobotPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case WorkRobotPart.Robot:
+                species.RunWorkRobotMainAi(Slot, frame);
+                break;
+            // The unpowered robot's main does nothing.
+            case WorkRobotPart.RobotNoPower:
+                break;
+            default:
+                throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceWorkRobotTypedAnimation;

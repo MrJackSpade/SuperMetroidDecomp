@@ -70,11 +70,6 @@ internal static class SamusPaletteNative
         ? SamusSuits.AtListPlace(byteOffset / sizeof(ushort))
         : throw new ArgumentOutOfRangeException(nameof(byteOffset), byteOffset, "An odd suit-table offset selects no suit.");
 
-    /// <summary>The cycle step a native list byte offset selects; odd offsets straddle two entries.</summary>
-    internal static int StepAtByteOffset(int byteOffset) => (byteOffset & 1) == 0
-        ? byteOffset / sizeof(ushort)
-        : throw new InvalidDataException($"List read at odd byte {byteOffset} straddles two entries and selects no cycle palette.");
-
     /// <summary>The bank-$9B address of a found cycle palette, or zero when none was found.</summary>
     private static bool Pointer(bool found, SamusFullBodyCyclePalette palette, out ushort pointer)
     {
@@ -139,25 +134,6 @@ internal static class SamusPaletteNative
             bool found = TryNativeSuitAndStep(suitByteOffset, phaseByteOffset, out SamusSuit suit, out int step) &&
                 SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(suit, step, out palette);
             return Pointer(found, palette, out pointer);
-        }
-
-        /// <summary>The Screw Attack list word read anywhere in its compiled allocation.</summary>
-        internal static ushort ReadScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset) =>
-            Address(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(SuitAtTableByteOffset(suitByteOffset),
-                StepAtByteOffset(phaseByteOffset)));
-
-        /// <summary>The active Speed Booster list word read anywhere in its compiled allocation, or an overrun's operand.</summary>
-        internal static ushort ReadActiveSpeedBoosterPalettePointer(ushort suitByteOffset, ushort phaseByteOffset)
-        {
-            SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-                SuitAtTableByteOffset(suitByteOffset), StepAtByteOffset(phaseByteOffset));
-            return source.Overrun switch
-            {
-                SpeedBoosterPaletteOverrun.FirstStepPastCycle => 0x68ad,
-                SpeedBoosterPaletteOverrun.SecondStepPastCycle => 0xc90a,
-                null => Address(source.Palette ?? throw new InvalidOperationException("A source without an overrun names a palette.")),
-                _ => throw new ArgumentOutOfRangeException(nameof(suitByteOffset)),
-            };
         }
 
         /// <summary>The bank-$9B source of the ten Hyper Beam frames $91:D99E selects, descending from $9B:A360.</summary>

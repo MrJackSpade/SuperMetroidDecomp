@@ -34,20 +34,20 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Gets whether bit 13 selects this background tile's higher priority tier.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
     /// <summary>Gets the horizontal and vertical reflection bits in their original packed positions.</summary>
-    public TileFlip FlipFlags =>
-        ((Raw & HorizontalFlipMask) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-        ((Raw & VerticalFlipMask) != 0 ? TileFlip.Vertical : TileFlip.None);
+    public PictureFlip FlipFlags =>
+        ((Raw & HorizontalFlipMask) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
+        ((Raw & VerticalFlipMask) != 0 ? PictureFlip.Vertical : PictureFlip.None);
     /// <summary>Gets whether pixels are reflected across the tile's horizontal axis of traversal.</summary>
-    public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
+    public bool FlipHorizontally => (FlipFlags & PictureFlip.Horizontal) != 0;
     /// <summary>Gets whether rows are drawn in reverse vertical order.</summary>
-    public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
+    public bool FlipVertically => (FlipFlags & PictureFlip.Vertical) != 0;
 
     /// <summary>Encodes every documented SNES BG tilemap field into one lossless word.</summary>
     public static SnesBgTilemapWord Create(
         int characterIndex,
         int paletteIndex,
         bool priority,
-        TileFlip flips = TileFlip.None)
+        PictureFlip flips = PictureFlip.None)
     {
         if ((uint)characterIndex > CharacterMask)
             throw new ArgumentOutOfRangeException(nameof(characterIndex));
@@ -63,14 +63,14 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     }
 
     /// <summary>The entry bits that store <paramref name="flips"/>.</summary>
-    private static int FlipBits(TileFlip flips) =>
-        ((flips & TileFlip.Horizontal) != 0 ? HorizontalFlipMask : 0) |
-        ((flips & TileFlip.Vertical) != 0 ? VerticalFlipMask : 0);
+    private static int FlipBits(PictureFlip flips) =>
+        ((flips & PictureFlip.Horizontal) != 0 ? HorizontalFlipMask : 0) |
+        ((flips & PictureFlip.Vertical) != 0 ? VerticalFlipMask : 0);
 
     /// <summary>Rejects flags outside the two reflection bits before packing a background word.</summary>
-    private static void ValidateFlips(TileFlip flips)
+    private static void ValidateFlips(PictureFlip flips)
     {
-        if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
+        if ((flips & ~(PictureFlip.Horizontal | PictureFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
 }

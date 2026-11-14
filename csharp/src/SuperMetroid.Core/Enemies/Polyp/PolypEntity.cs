@@ -8,10 +8,10 @@ internal sealed class PolypEntity(PolypBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializePolyp;
+    public void Initialize() => species.InitializePolyp(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunPolypMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPolypMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PolypBehavior.AdvancePolypTypedAnimation;

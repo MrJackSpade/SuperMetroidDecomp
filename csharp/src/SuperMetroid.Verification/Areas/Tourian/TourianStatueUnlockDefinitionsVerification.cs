@@ -79,15 +79,15 @@ internal static class TourianStatueUnlockDefinitionsVerification
         Suite(nameof(VerifyTourianStatueProgramMappings), () => VerifyTourianStatueProgramMappings(rom));
         Suite(nameof(VerifyTourianStatueSpawnOrder), () => VerifyTourianStatueSpawnOrder(rom));
         int pictureCount = 0;
-        RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlasPng.Read(
-            new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
+        RoomFxBlockAnimationAtlas artwork = RoomFxBlockAnimationAtlasPng.Read(
+            new MemoryStream(RoomFxBlockAnimationAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimationDefinition definition in
                  TourianStatueAnimatedTilePrograms.All)
-        foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
+        foreach (TourianStatueBlockPicture picture in RoomFxBlockAnimationPictures.TourianStatuePictures)
         {
             int source = AnimatedTileImageSources.TourianStatue(definition.Statue, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source,
-                RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(definition.Statue));
+                RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(definition.Statue));
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
                 installed.Span.SequenceEqual(native),
@@ -132,7 +132,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
-            runtime.TourianStatues.StepTiles();
+            runtime.TourianStatues.StepBlockAnimations();
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),
             "production Tourian sequence releases all four defeated-boss statues");

@@ -74,7 +74,7 @@ internal static class RoomFxLayer3TilemapsVerification
     private static ushort[] LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3Pages catalog, out CartridgeReadGuard guarded)
     {
-        RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
+        RoomEffectDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.Type == type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();

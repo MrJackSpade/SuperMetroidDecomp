@@ -47,8 +47,8 @@ public static class PauseBackdropExtractor
                     TileColumn = character % PauseBackdropDefinitions.AtlasColumns,
                     TileRow = character % PauseBackdropDefinitions.AtlasTileCount / PauseBackdropDefinitions.AtlasColumns,
                     Palette = word.PaletteIndex, Priority = word.HasPriority,
-                    FlipX = (word.Mirroring & TileFlip.Horizontal) != TileFlip.None,
-                    FlipY = (word.Mirroring & TileFlip.Vertical) != TileFlip.None,
+                    FlipX = (word.Mirroring & PictureFlip.Horizontal) != PictureFlip.None,
+                    FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None,
                 };
             }
             return cells;

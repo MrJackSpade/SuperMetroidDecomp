@@ -13,7 +13,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="change"/>.</param>
     /// <param name="change">The room's authored scroll change; null when the trigger applies <paramref name="writes"/>.</param>
     /// <exception cref="InvalidOperationException">Neither is given.</exception>
-    internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollChange? change)
+    internal ScrollTriggerObject(IReadOnlyList<ScreenScrollChange>? writes, RoomScrollChange? change)
     {
         Change = change;
         Writes = change.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
@@ -27,7 +27,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     internal RoomScrollChange? Change { get; }
 
     /// <summary>A constructed room's validated writes, in order; null when the trigger applies <see cref="Change"/>.</summary>
-    internal IReadOnlyList<RoomScrollWrite>? Writes { get; }
+    internal IReadOnlyList<ScreenScrollChange>? Writes { get; }
 
     /// <summary>Samus touches the trigger: its writes run on the next room-object update.</summary>
     internal void Touch() => Triggered = true;
@@ -41,10 +41,10 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
         RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
             "A touched scroll trigger requires the active scroll grid.");
         if (Change is { } change)
-            RoomObjectScrollChanges.Apply(change, scrolls.SetCell);
+            RoomObjectScrollChanges.Apply(change, scrolls.SetScreen);
         else
-            foreach (RoomScrollWrite write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
-                scrolls.SetCell(write.Index, write.State);
+            foreach (ScreenScrollChange write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
+                scrolls.SetScreen(write.Screen, write.State);
         Rest(context.Level, place.Block);
     }
 

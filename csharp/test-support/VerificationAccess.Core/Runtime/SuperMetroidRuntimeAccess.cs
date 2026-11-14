@@ -78,16 +78,16 @@ internal static class SuperMetroidRuntimeAccess
         internal CeresHazeState CeresHaze => self.Room.LoadedScope.CeresHaze;
 
         /// <summary>The loaded room's sand tiles.</summary>
-        internal RoomSandAnimatedTilesState SandAnimatedTiles => self.Room.LoadedScope.SandTiles;
+        internal RoomSandBlockAnimationsState SandAnimatedTiles => self.Room.LoadedScope.SandBlockAnimations;
 
         /// <summary>The loaded room's spike tiles.</summary>
-        internal RoomSpikeAnimatedTilesState RoomSpikes => self.Room.LoadedScope.SpikeTiles;
+        internal RoomSpikeBlockAnimationsState RoomSpikes => self.Room.LoadedScope.SpikeBlockAnimations;
 
         /// <summary>The loaded room's treadmill tiles.</summary>
-        internal RoomTreadmillAnimatedTilesState RoomTreadmills => self.Room.LoadedScope.TreadmillTiles;
+        internal RoomTreadmillBlockAnimationsState RoomTreadmills => self.Room.LoadedScope.TreadmillBlockAnimations;
 
         /// <summary>The loaded room's Wrecked Ship treadmill tiles.</summary>
-        internal WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill => self.Room.LoadedScope.WreckedShipTreadmill;
+        internal WreckedShipTreadmillBlockAnimationsState WreckedShipTreadmill => self.Room.LoadedScope.WreckedShipTreadmill;
 
         /// <summary>The loaded room's Maridia elevatube room main.</summary>
         internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube;

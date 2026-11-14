@@ -12,10 +12,10 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Slot);
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadSidehopper;
+    public void Initialize() => species.InitializeDeadSidehopper(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunDeadSidehopperMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation;

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -10,10 +9,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="HurtFlashFrames">The frames the enemy flashes when hurt, before any weapon's longer flash.</param>
 /// <param name="HurtSoundEffect">The enemy-library cry the enemy makes when a shot hurts it, or none.</param>
 /// <param name="Boss">The boss a room containing this enemy holds, or null when the enemy is no boss.</param>
-/// <param name="InitializationAi">Whether initialization runs the species' own behaviour or nothing.</param>
-/// <param name="MainAi">Whether the ordinary AI is the species' own behaviour or nothing.</param>
-/// <param name="GrappleAi">The Grapple reaction.</param>
-/// <param name="HurtAi">Whether the hurt AI is the species' own behaviour or nothing.</param>
+/// <param name="GrappleResponse">What the enemy does when the grapple beam reaches it.</param>
+/// <param name="HurtResponse">What the enemy does while it is hurt and flashing.</param>
 /// <param name="DeathExplosion">The explosion the enemy leaves when an ordinary shot kills it.</param>
 /// <param name="PowerBombReaction">
 /// The Power Bomb reaction, or null when the definition names none and the common Power Bomb damage applies.
@@ -34,10 +31,8 @@ public readonly record struct RoomEnemyDefinition(
     int HurtFlashFrames,
     SoundEffectId? HurtSoundEffect,
     AreaBoss? Boss,
-    EnemyAiRoutine InitializationAi,
-    EnemyAiRoutine MainAi,
-    GrappleAiRoutine GrappleAi,
-    EnemyAiRoutine HurtAi,
+    EnemyGrappleResponse GrappleResponse,
+    EnemyHurtResponse HurtResponse,
     EnemyDeathExplosion DeathExplosion,
     EnemyReaction? PowerBombReaction,
     EnemyReaction? Touch,

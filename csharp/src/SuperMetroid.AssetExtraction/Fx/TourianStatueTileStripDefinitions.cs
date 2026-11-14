@@ -16,14 +16,14 @@ internal static class TourianStatueTileStripDefinitions
     /// <summary>
     /// Each statue's windows of the strip: the animated-tile object that copies them, its first oscillation picture's
     /// first character, its pictures' width in characters and its released picture's first character
-    /// (<see cref="RoomFxAnimatedTilePictures"/>).
+    /// (<see cref="RoomFxBlockAnimationPictures"/>).
     /// </summary>
     internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueTileWindow> Windows =
         new Dictionary<TourianGreyStatues, TourianStatueTileWindow>
         {
-            [TourianGreyStatues.Phantoon] = new(AnimatedTileObject.TourianStatuePhantoon, 0, 8, 72),
-            [TourianGreyStatues.Ridley] = new(AnimatedTileObject.TourianStatueRidley, 24, 4, 80),
-            [TourianGreyStatues.Kraid] = new(AnimatedTileObject.TourianStatueKraid, 60, 4, 84),
-            [TourianGreyStatues.Draygon] = new(AnimatedTileObject.TourianStatueDraygon, 36, 8, 88),
+            [TourianGreyStatues.Phantoon] = new(BlockAnimation.TourianStatuePhantoon, 0, 8, 72),
+            [TourianGreyStatues.Ridley] = new(BlockAnimation.TourianStatueRidley, 24, 4, 80),
+            [TourianGreyStatues.Kraid] = new(BlockAnimation.TourianStatueKraid, 60, 4, 84),
+            [TourianGreyStatues.Draygon] = new(BlockAnimation.TourianStatueDraygon, 36, 8, 88),
         };
 }

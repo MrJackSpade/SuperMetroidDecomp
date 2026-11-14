@@ -10,10 +10,10 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeCeresSteam;
+    public void Initialize() => species.InitializeCeresSteam(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => CeresSteamBehavior.RunCeresSteamMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => CeresSteamBehavior.AdvanceCeresSteamAnimation(enemy);

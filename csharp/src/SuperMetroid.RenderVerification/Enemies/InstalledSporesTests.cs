@@ -32,7 +32,7 @@ internal static class InstalledSporesTests
         string maps = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
             SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         ImportAreaMapPresentation stock = MapPresentationFiles.LoadForImport(installedMaps, maps);
-        CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
+        CheckArtwork(stock.BlockAnimationAtlas, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         CheckOwners(stock, packets);
         CheckPixels(packets);
@@ -52,8 +52,8 @@ internal static class InstalledSporesTests
     /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
     private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
-        var mechanics = RoomFxAnimatedTileLoops.All.Single(
-            value => value.AnimatedObject == AnimatedTileObject.Spores);
+        var mechanics = RoomFxBlockAnimationLoops.All.Single(
+            value => value.AnimatedObject == BlockAnimation.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.PictureByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
@@ -88,10 +88,10 @@ internal static class InstalledSporesTests
                         unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
-                    Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
+                    Require(stock.BlockAnimationAtlas.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
-                    ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
-                    Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
+                    ArtworkFrame cadence = BlockAnimationFrames.Frame(BlockAnimation.Spores, tick / 10 % 3);
+                    Require(baselineFrames.TryShown(BlockAnimationFrames.Of(BlockAnimation.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
                         "Stock spore cadence differs.");
                     tick++;
                 }
@@ -134,28 +134,28 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Compares installed animated-tile atlas segments with the retail ROM.</summary>
-    private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
+    private static void CheckArtwork(RoomFxBlockAnimationAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {
-        using var currentPng = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFile.FileName));
-        IndexedPngImage image = IndexedPng.Read(currentPng, new(RoomFxAnimatedTileAtlasFile.Width, 8));
+        using var currentPng = File.OpenRead(Path.Combine(maps, RoomFxBlockAnimationAtlasFile.FileName));
+        IndexedPngImage image = IndexedPng.Read(currentPng, new(RoomFxBlockAnimationAtlasFile.Width, 8));
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(image.Size.X, image.Size.Y), 2);
         // Appending spores must not shift any earlier strip: every segment of the installed sheet,
         // frames and shared treadmill/statue strips alike, equals its native cartridge bytes.
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int segmentOffset = 0;
-        foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFile.Segments)
+        foreach (RoomFxAtlasSegment segment in RoomFxBlockAnimationAtlasFile.Segments)
         {
-            int segmentSource = RoomFxAnimatedTileSources.Of(segment).Value;
+            int segmentSource = RoomFxBlockAnimationSources.Of(segment).Value;
             for (int index = 0; index < segment.ByteCount; index++)
                 Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segmentSource + index),
                     $"Installed sheet segment ${segmentSource:X6} differs from its native bytes at +{index}.");
             segmentOffset += segment.ByteCount;
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
-        int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesTileCount * 16;
-        var controls = RoomFxAnimatedTileLoops.All.Single(
-            value => value.AnimatedObject == AnimatedTileObject.Spores);
+        int sporesOffset = RoomFxBlockAnimationAtlasFormat.PreSporesTileCount * 16;
+        var controls = RoomFxBlockAnimationLoops.All.Single(
+            value => value.AnimatedObject == BlockAnimation.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
             int source = AnimatedTileImageSources.OfCursor(controls, controls.FrameInstructionPointer(frame));

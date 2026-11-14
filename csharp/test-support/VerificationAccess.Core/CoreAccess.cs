@@ -120,7 +120,7 @@ internal static class CoreAccess
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>
-            pause.ShownMap.Cells[cell.Y * AreaMapSize.WidthInTiles + cell.X];
+            pause.ShownMap.Cells[cell.Y * AreaMapSize.WidthInMapTiles + cell.X];
     }
 
     /// <summary>Reads the shooting-star array in its native update order.</summary>
@@ -232,7 +232,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
-    internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
+    internal static IEnumerable<RoomEffectDefinition> AllRoomFxRecords()
     {
         return RoomFxDefinitions.AllRecords;
     }

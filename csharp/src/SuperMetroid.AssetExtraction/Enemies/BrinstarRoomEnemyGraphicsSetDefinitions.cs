@@ -29,7 +29,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Statues), [
             new(EnemyDefinitionId.TourianStatue),
-            new(EnemyDefinitionId.TourianStatueGhost),
+            new(UnplacedEnemyArtwork.TourianStatueGhosts),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.HopperETank), [
         ]),
@@ -129,7 +129,6 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.ShutterShootable),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseETank), [
-            new(EnemyDefinitionId.Reflec),
             new(EnemyDefinitionId.Beetom),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseEntrance), [

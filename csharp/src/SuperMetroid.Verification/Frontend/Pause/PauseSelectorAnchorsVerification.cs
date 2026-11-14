@@ -27,12 +27,12 @@ internal static class PauseSelectorAnchorsVerification
         foreach (var (anchor, name) in expectedNames)
             AssertEqual(name, PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item), "original named identity case");
         AssertTrue(expectedNames.Where(entry => entry.Anchor.Category != PauseEquipmentCategory.Reserves)
-                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabelTiles.Labels().Select(label => PauseEquipmentLabelKeys.Name(label.Label))),
+                .Select(entry => entry.Name).SequenceEqual(PauseEquipmentLabels.Labels().Select(label => PauseEquipmentLabelKeys.Name(label.Label))),
             "label identity view contains exactly the fourteen ordinary controls in order");
-        AssertEqual(0, PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
+        AssertEqual(0, PauseEquipmentLabels.ItemCount(PauseEquipmentCategory.Reserves), "reserve controls have no inventory labels");
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
-            AssertEqual(names[(int)category].Length, PauseEquipmentLabelTiles.ItemCount(category), "label category capacity");
+            AssertEqual(names[(int)category].Length, PauseEquipmentLabels.ItemCount(category), "label category capacity");
             for (int item = 0; item < names[(int)category].Length; item++)
                 AssertEqual(names[(int)category][item], PauseEquipmentLabelKeys.Key(category, item), "label alias identity");
         }

@@ -14,7 +14,7 @@ internal static class TwoScreenTilemapCells
     internal const int Count = 2 * TilemapScreenGeometry.CellCount;
 
     /// <summary>The pixels along either side of one cell.</summary>
-    private const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
+    private const int CellPixels = ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>The word of the two screens the layer pixel <paramref name="corner"/>, a cell's top-left corner, lies in.</summary>
     internal static int IndexOf(Position16<PlanePixels> corner)

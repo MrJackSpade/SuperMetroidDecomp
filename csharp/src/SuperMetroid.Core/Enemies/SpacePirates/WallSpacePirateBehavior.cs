@@ -81,7 +81,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
 
-        SnapWallSpacePirateXToTile(slot);
+        SnapWallSpacePirateXToWallGrid(slot);
     }
 
     /// <summary>Runs a wall Space Pirate's per-frame behaviour and its six actions.</summary>
@@ -153,7 +153,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             slot,
             state,
             direction == HorizontalDirection.Right ? WallSpacePirateSegment.LandedOnRightWall : WallSpacePirateSegment.LandedOnLeftWall);
-        SnapWallSpacePirateXToTile(slot);
+        SnapWallSpacePirateXToWallGrid(slot);
     }
 
     /// <summary>Uses sine and cosine products to place the Pirate on a jump ellipse sized by its jump span.</summary>
@@ -180,7 +180,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             WallPirateSamusDetectionBand;
 
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
-    private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
+    private static void SnapWallSpacePirateXToWallGrid(RoomEnemySlot slot)
     {
         // The wall alignment deliberately has two alignment grids. Offsets 0..10 within a block round down to an
         // eight-pixel boundary; 11..15 round up to the next block's start.

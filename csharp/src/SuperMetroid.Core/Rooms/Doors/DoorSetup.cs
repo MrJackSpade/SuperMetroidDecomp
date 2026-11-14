@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public sealed class DoorSetup
 {
     /// <summary>Keeps a setup's name, its screen changes in order and its room event.</summary>
-    internal DoorSetup(string name, IReadOnlyList<DoorScreenChange> screenChanges, DoorRoomEvent roomEvent = DoorRoomEvent.None)
+    internal DoorSetup(string name, IReadOnlyList<ScreenScrollChange> screenChanges, DoorRoomEvent roomEvent = DoorRoomEvent.None)
     {
         Name = Ensure.NotNull(name);
         ScreenChanges = Ensure.NotNull(screenChanges);
@@ -22,7 +22,7 @@ public sealed class DoorSetup
     public string Name { get; }
 
     /// <summary>The screens the setup closes and opens, in the order it changes them.</summary>
-    internal IReadOnlyList<DoorScreenChange> ScreenChanges { get; }
+    internal IReadOnlyList<ScreenScrollChange> ScreenChanges { get; }
 
     /// <summary>What the setup starts in the room besides changing its screens.</summary>
     public DoorRoomEvent RoomEvent { get; }
@@ -31,8 +31,8 @@ public sealed class DoorSetup
     internal void ChangeScreens(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        foreach (DoorScreenChange change in ScreenChanges)
-            scrolls.SetCell(change.Screen, change.State);
+        foreach (ScreenScrollChange change in ScreenChanges)
+            scrolls.SetScreen(change.Screen, change.State);
     }
 
     /// <inheritdoc/>

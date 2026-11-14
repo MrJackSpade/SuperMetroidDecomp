@@ -24,11 +24,11 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake), [
             new(EnemyDefinitionId.FaceBlock),
-            new(EnemyDefinitionId.Stoke),
+            new(UnplacedEnemyArtwork.Stoke),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault), [
             new(EnemyDefinitionId.FaceBlock),
-            new(EnemyDefinitionId.Stoke),
+            new(UnplacedEnemyArtwork.Stoke),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesAwake), [
             new(EnemyDefinitionId.Zoomer),

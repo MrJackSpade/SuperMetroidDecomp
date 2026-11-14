@@ -3,7 +3,7 @@
 static const uint SpriteLayerBlends = 16, NoSprite = 255;
 // The depths, as D3D11FrameRenderer.DepthWord packs them: behind the whole room, behind the room's front tiles, and in
 // front of the whole room. A frontend sprite layer's draws are packed in front.
-static const uint DepthBehindRoom = 0, DepthBehindFrontTiles = 1, DepthInFront = 2;
+static const uint DepthBehindRoom = 0, DepthBehindFrontParts = 1, DepthInFront = 2;
 
 // The frontmost sprite pixel at `screen`: its colour, then its depth, or NoSprite; `blends` says whether it takes part in
 // colour blending. Its depth decides only where it is inserted among the room's layers, never which sprite shows.

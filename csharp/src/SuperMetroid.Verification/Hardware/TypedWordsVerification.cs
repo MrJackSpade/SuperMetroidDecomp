@@ -460,11 +460,11 @@ internal static void VerifyTypedNativeWords()
         "BTS slope contextual fields");
     AssertEqual(BlockMirroring.Both, reflectedSlopeOrAreaReaction.Slope.Mirroring,
         "BTS slope reflections");
-    AssertTrue(reflectedSlopeOrAreaReaction.Shootable == ShootableReaction.PastAreaTable &&
-        reflectedSlopeOrAreaReaction.Bombable == BombableReaction.AreaIgnored &&
-        reflectedSlopeOrAreaReaction.Spike == SpikeReaction.AreaPastEnemyTable &&
+    AssertTrue(reflectedSlopeOrAreaReaction.Shootable is null &&
+        reflectedSlopeOrAreaReaction.Bombable == BombableReaction.Inert &&
+        reflectedSlopeOrAreaReaction.Spike is null &&
         reflectedSlopeOrAreaReaction.Grapple == GrappleReaction.Rejected,
-        "BTS area-reaction selector and bounds preserve table context");
+        "BTS area reactions: an inert bomb block and a rejecting grapple block, and no shootable or spike reaction past the tables");
     AssertEqual(0x7f, reflectedSlopeOrAreaReaction.DoorLink,
         "BTS door-link index");
     AssertTrue(RoomBlockBehaviorCodec.Decode(3).Grapple == GrappleReaction.UnrevealedAnchor &&
@@ -481,19 +481,23 @@ internal static void VerifyTypedNativeWords()
         "BTS weapon-gated shot-block views");
     for (int value = 0; value <= byte.MaxValue; value++)
     {
-        // The shot-block dispatcher's own entries are 0 through 63 and 78; every other byte is dispatched elsewhere.
-        bool dispatched = value is >= 0 and <= 63 or 78;
+        // The shot-block dispatcher's own entries are 0 through 63 and 78, and the block that sets off only when solid
+        // (the area entries 0 through 7); every other byte is dispatched elsewhere or has no shootable reaction.
+        bool dispatched = value is >= 0 and <= 63 or 78 or >= 0x80 and <= 0x87;
         AssertEqual(dispatched, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(value).Shootable) is not null,
             $"BTS ${value:X2} reaches the shot-block dispatcher");
         AssertEqual(value is >= 17 and <= 63 or 78,
-            RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.EmptyEntry,
-            $"BTS ${value:X2} is an empty shot-block entry");
+            RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.IgnoresShots,
+            $"BTS ${value:X2} is a shot-block entry that ignores shots");
+        AssertEqual(value is >= 0x50 and <= 0x7f or >= 0x88,
+            RoomBlockBehaviorCodec.Decode(value).Shootable is null,
+            $"BTS ${value:X2} is past the shot-block tables, no shootable reaction");
         AssertEqual(value == 0x10, RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.CollisionProbe,
             $"BTS ${value:X2} is the shot-block collision probe");
     }
 
     // Every reading of every byte, written as each other reading, is checked by BlockParameterCarryOverVerification.
-    AssertEqual(ShootableReaction.AreaNothing, RoomBlockBehaviorCodec.Decode(0x82).Shootable,
+    AssertEqual(ShootableReaction.NothingWhenSolid, RoomBlockBehaviorCodec.Decode(0x82).Shootable,
         "BTS area-reaction table view");
 
     RoomBlockBehavior[] blueDoorBehaviors =
@@ -541,15 +545,15 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");
     AssertEqual(5, bgEntry.PaletteIndex, "BG tile palette field");
     AssertTrue(bgEntry.HasPriority, "BG tile priority bit");
-    AssertEqual(TileFlip.Horizontal | TileFlip.Vertical,
+    AssertEqual(PictureFlip.Horizontal | PictureFlip.Vertical,
         bgEntry.FlipFlags, "BG tile flip flags");
-    AssertEqual(0x7555, bgEntry.ToggleFlips(TileFlip.Vertical).Raw,
+    AssertEqual(0x7555, bgEntry.ToggleFlips(PictureFlip.Vertical).Raw,
         "BG tile toggles only vertical flip");
     SnesBgTilemapWord encodedBg = SnesBgTilemapWord.Create(
         characterIndex: 0x155,
         paletteIndex: 5,
         priority: true,
-        TileFlip.Horizontal | TileFlip.Vertical);
+        PictureFlip.Horizontal | PictureFlip.Vertical);
     AssertEqual(bgEntry, encodedBg, "BG tile encode/decode round trip");
     AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false).Raw,
         "BG tile field replacement preserves character and flips");
@@ -564,12 +568,12 @@ internal static void VerifyTypedNativeWords()
         tileNumber: 0x1ab,
         paletteIndex: 6,
         priority: 2,
-        TileFlip.Horizontal);
+        PictureFlip.Horizontal);
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
     AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1).Raw,
         "OBJ palette replacement preserves tile, priority, and flips");
     AssertEqual(0x6e00, SnesObjAttributeWord.Create(0, 7, 0).Or(
-            SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)).Raw,
+            SnesObjAttributeWord.Create(0, 0, 2, PictureFlip.Horizontal)).Raw,
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(
         screenX: 0x0100,

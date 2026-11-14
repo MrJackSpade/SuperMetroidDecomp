@@ -46,8 +46,9 @@ public static class SamusTerrainHazardCollision
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
-        // Every other spike-block reaction is harmless.
-        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(block.Behavior.Spike, out SpikeBlockBehavior behavior))
+        // Every other spike-block reaction, and a spike with no reaction, is harmless.
+        if (block.Behavior.Spike is not { } spike ||
+            !SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
             return;
         int damage = behavior switch
         {
@@ -82,7 +83,7 @@ public static class SamusTerrainHazardCollision
         // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
-        samus.HorizontalSpeed.SelectNormalAirSpeedTable();
+        samus.HorizontalSpeed.SelectAirSpeeds();
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || !samus.InvincibilityTimer.IsZero)
             return;
 

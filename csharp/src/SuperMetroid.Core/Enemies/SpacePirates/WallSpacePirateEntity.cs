@@ -8,10 +8,10 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => WallSpacePirateBehavior.InitializeWallSpacePirate;
+    public void Initialize() => WallSpacePirateBehavior.InitializeWallSpacePirate(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => WallSpacePirateBehavior.RunWallSpacePirateMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => WallSpacePirateBehavior.RunWallSpacePirateMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceWallSpacePirateTypedAnimation;

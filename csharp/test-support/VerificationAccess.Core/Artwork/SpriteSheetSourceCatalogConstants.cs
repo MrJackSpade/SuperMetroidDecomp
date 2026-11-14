@@ -16,8 +16,8 @@ internal static class SpriteSheetSourceCatalogConstants
         sheet is not (SpriteSheetId.EscapeTimer or SpriteSheetId.PauseHud or SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures
             or SpriteSheetId.PausePictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures
             or SpriteSheetId.IntroNarrationPictures)
-        && !ScreenTileSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
-        && !ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
+        && !ScreenPictureSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
+        && !ScreenPictureSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
         && !FrontendFloorSheetComposer.Sheets.Contains(sheet)
         && !EndingPictureSheetComposer.Sheets.Contains(sheet);
 }

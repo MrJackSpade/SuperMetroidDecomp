@@ -40,7 +40,7 @@ public static class SamusMorphBallMovement
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool stationaryPose = samus.Pose is
             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
@@ -157,7 +157,7 @@ public static class SamusMorphBallMovement
         SamusMovementType movementType)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
             (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
@@ -239,7 +239,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         // The normal variable-height jump cutoff. Releasing Jump
         // while rising cancels the remaining magnitude; a speed passing zero at the apex takes

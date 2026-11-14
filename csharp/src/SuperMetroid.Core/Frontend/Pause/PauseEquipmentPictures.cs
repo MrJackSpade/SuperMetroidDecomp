@@ -48,7 +48,7 @@ internal static class PauseEquipmentPictures
         foreach (ShownEquipmentLabel label in page.Labels)
         {
             // Hyper's column covers the ordinary beam labels it replaces.
-            if (page.HyperBeam && PauseEquipmentLabelTiles.IsOrdinaryBeam(label.Label))
+            if (page.HyperBeam && PauseEquipmentLabels.IsOrdinaryBeam(label.Label))
                 continue;
             yield return LabelFrame(label.Label, label.State);
         }

@@ -44,7 +44,7 @@ internal static class EnemyQuadraticSpeedsVerification
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, EnemyQuadraticSpeedIndex.FromRows(EnemyQuadraticSpeedDefinitions.RowCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
         var beetom = new Func<int, int, EnemyQuadraticSpeedIndex>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
-        var hopper = new Func<int, int, EnemyQuadraticSpeedIndex>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
+        var hopper = new Func<int, int, EnemyQuadraticSpeedIndex>(HoppersBehavior.CalculateInitialHopperYSpeedCurvePlace);
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
         for (int height = 0; height <= ushort.MaxValue; height++)

@@ -101,9 +101,9 @@ internal static class RoomPaletteFxDefinitionsVerification
             // Tourian's third bit selects the glow copy no room sets, which is no effect of the game and starts nothing.
             if (AreaPaletteFxObjects.GetAreaDefinition(area, bit) is not { } effect)
                 continue;
-            var definition = new RoomFxRecordDefinition(BaseYPosition: 0, TargetYPosition: 0, YVelocity: default, Timer: 0,
+            var definition = new RoomEffectDefinition(LiquidStartLevel: 0, LiquidTargetLevel: 0, LiquidLevelSpeed: default, LiquidMoveDelay: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
-                PaletteEffects: [effect], AnimatedTiles: [], PaletteBlend: RoomFxPaletteBlend.None);
+                PaletteEffects: [effect], BlockAnimations: [], PaletteBlend: RoomFxPaletteBlend.None);
             var systemSession = new ColourEffectSessionState();
             var system = ColourEffectSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);

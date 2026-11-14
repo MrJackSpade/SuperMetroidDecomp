@@ -76,8 +76,8 @@ public static class MapPresentationExtractor
             using var buffer = new MemoryStream();
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationFile.Write(buffer, map);
-            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles)
-                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapSize.WidthInTiles)), checked((ushort)(i / AreaMapSize.WidthInTiles))))).ToArray());
+            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles)
+                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapSize.WidthInMapTiles)), checked((ushort)(i / AreaMapSize.WidthInMapTiles))))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited
@@ -320,10 +320,10 @@ public static class MapPresentationExtractor
             file.Write(motherBrainRoomColorBytes);
         hashes.Add(MotherBrainRoomColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRoomColorBytes)));
-        byte[] roomFxAnimatedTileBytes = RoomFxAnimatedTileAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(RoomFxAnimatedTileAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
+        byte[] roomFxAnimatedTileBytes = RoomFxBlockAnimationAtlasExtractor.Extract(bus);
+        using (var file = new FileStream(PathOf(RoomFxBlockAnimationAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(roomFxAnimatedTileBytes);
-        hashes.Add(RoomFxAnimatedTileAtlasFile.FileName,
+        hashes.Add(RoomFxBlockAnimationAtlasFile.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxAnimatedTileBytes)));
         byte[] roomFxLayer3TilemapBytes = RoomFxLayer3TilemapExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(RoomFxLayer3TilemapFormat.FileName), FileMode.CreateNew, FileAccess.Write))

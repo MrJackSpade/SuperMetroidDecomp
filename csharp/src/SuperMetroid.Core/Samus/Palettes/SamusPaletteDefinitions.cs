@@ -39,16 +39,6 @@ public static class SamusPaletteDefinitions
         public const int PingPongSpan = 6;
         /// <summary>The Speed Booster shade the Metroid-attachment flash alternates with the normal suit: the family's brightest.</summary>
         public const int SpeedBoostFlashShade = 3;
-        /// <summary>
-        /// The Speed Booster step, inherited from a Screw Attack cycle, at which Gravity's read runs past the lists into
-        /// the unconnected expansion window.
-        /// </summary>
-        public const int GravityExpansionOverrunStep = 4;
-        /// <summary>
-        /// The Speed Booster step, inherited from a Screw Attack cycle, at which Gravity's read runs past the lists into
-        /// the grapple handler's code.
-        /// </summary>
-        public const int GravityGrappleCodeOverrunStep = 5;
     }
 
     /// <summary>Palette object spawned with the Hyper Beam.</summary>

@@ -38,8 +38,8 @@ internal static class AreaMapPictures
         foreach (ShownMapCell shown in map.Cells)
         {
             string frame = FrameName(shown);
-            cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), TileFlip.None, PictureShading.Standard));
+            cells.Add(sheet.ShowsNothing(frame) ? null : new GridPicture(sheet.Frame(frame), PictureFlip.None, PictureShading.Standard));
         }
-        return new PictureGrid(new Extent16<MapTiles>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles), cells.MoveToImmutable());
+        return new PictureGrid(new Extent16<MapTiles>(AreaMapSize.WidthInMapTiles, AreaMapSize.HeightInMapTiles), cells.MoveToImmutable());
     }
 }

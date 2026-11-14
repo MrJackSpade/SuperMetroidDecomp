@@ -1,14 +1,20 @@
 namespace SuperMetroid.Core.Enemies.Inert;
 
-/// <summary>An occupant whose initialization and main AI are the shared empty behaviours its definition names.</summary>
+/// <summary>The respawn placeholder: it holds a killed enemy's slot and does nothing when it is initialized or each frame.</summary>
 /// <param name="slot">The slot the occupant holds.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class InertEnemyEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => EnemyCommonParticipation.FindInitialization(Slot);
+    /// <remarks>The placeholder sets nothing up.</remarks>
+    public void Initialize()
+    {
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => EnemyCommonParticipation.FindMain(Slot);
+    /// <remarks>The placeholder takes no action of its own.</remarks>
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+    }
 }

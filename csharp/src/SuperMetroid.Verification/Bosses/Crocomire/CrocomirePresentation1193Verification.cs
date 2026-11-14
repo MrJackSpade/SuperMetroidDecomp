@@ -67,7 +67,7 @@ internal static class CrocomirePresentation1193Verification
         ushort previousScroll = 0;
         for (int frame = 0; frame < (spikes ? 34 : 6); frame++)
         {
-            ArtworkAnimation spikeTiles = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             ArtworkFrame? before = runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame previous) ? previous : null;
             game.Step(0);
             if (spikes)
@@ -78,7 +78,7 @@ internal static class CrocomirePresentation1193Verification
                 if (frame % 8 == 0)
                 {
                     AssertEqual(sources[sourceIndex++], AnimatedTileFrameArtwork.SourceOf(shown), "Spikes follow 0/1/2/1/0 ping-pong sequence");
-                    AssertTrue(InstalledFixtures.ImportOf(maps).RoomFxAnimatedTiles.TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
+                    AssertTrue(InstalledFixtures.ImportOf(maps).BlockAnimationAtlas.TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
                         "Installed spike frame of four 4bpp characters exists");
                 }
             }
@@ -106,17 +106,17 @@ internal static class CrocomirePresentation1193Verification
             // A room load builds the room's spikes afresh, with their first frame pending.
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
             PlaceSamusInArena();
-            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
+            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.BlockAnimations;
             game.Step(0);
-            ArtworkAnimation spikeTiles = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertEqual(false, runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out _),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
-                    resumed == AnimatedTileFrames.Frame(AnimatedTileObject.HorizontalSpikes, 0),
+                    resumed == BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, 0),
                 "Re-enabled spikes resume the pending first frame");
-            var unselected = new RoomSpikeAnimatedTilesState(null, null);
+            var unselected = new RoomSpikeBlockAnimationsState(null, null);
             var cleared = new ArtworkFrameSelections();
             unselected.Step(cleared);
             AssertTrue(!cleared.TryShown(spikeTiles, out _), "A room without selected spikes builds an empty spike owner");
@@ -153,14 +153,14 @@ internal static class CrocomirePresentation1193Verification
         using var graph = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(graph, runtime.RoomSpikes);
         graph.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<RoomSpikeAnimatedTilesState>(graph);
+        var restored = DebuggerObjectGraphSerializer.Deserialize<RoomSpikeBlockAnimationsState>(graph);
         var expected = new ArtworkFrameSelections();
         var actual = new ArtworkFrameSelections();
         for (int tick = 0; tick < 8; tick++)
         {
             runtime.RoomSpikes.Step(expected);
             restored.Step(actual);
-            ArtworkAnimation spikeAnimation = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
+            ArtworkAnimation spikeAnimation = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertTrue(expected.TryShown(spikeAnimation, out ArtworkFrame expectedFrame) == actual.TryShown(spikeAnimation, out ArtworkFrame actualFrame) &&
                 expectedFrame == actualFrame, "Current debugger graph retains exact spike cadence");
         }

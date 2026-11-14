@@ -38,7 +38,7 @@ internal sealed class LoadedSetColours
         RgbColor[] colours = RoomLoadPalettes.SpriteColours(inputs.Palettes);
         ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
         for (int record = 0; record < records.Length; record++)
-            inputs.Enemies.PaletteOf(records[record].DefinitionId).Colours.CopyTo(colours.AsSpan(rows.RecordRow(record) * RowColours, RowColours));
+            records[record].PaletteIn(inputs.Enemies).Colours.CopyTo(colours.AsSpan(rows.RecordRow(record) * RowColours, RowColours));
         return new LoadedSetColours(colours, rows);
     }
 

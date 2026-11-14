@@ -10,7 +10,7 @@ internal static class SnesBgTilemapWordAccess
         /// Toggles only the requested flip fields, as the XOR performed while expanding a flipped 16x16 room block into
         /// its four 8x8 entries.
         /// </summary>
-        public SnesBgTilemapWord ToggleFlips(TileFlip flags) =>
+        public SnesBgTilemapWord ToggleFlips(PictureFlip flags) =>
             SnesBgTilemapWord.Create(self.CharacterIndex, self.PaletteIndex, self.HasPriority, self.FlipFlags ^ flags);
 
         /// <summary>Replaces only the priority bit.</summary>

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>
 /// What a special block does with its behaviour (#1722): the crumble block, Speed Booster block, station access, collectible
 /// or Chozo hand Samus's contact and a bomb select. Its values are arbitrary; a behaviour written for another collision kind
-/// is read as one of these through <see cref="RoomBlockBehavior"/>.
+/// is read as one of these through <see cref="RoomBlockBehavior"/>, or as none when special blocks have no reaction for it.
 /// </summary>
 public enum SpecialBlockReaction
 {
@@ -40,7 +40,10 @@ public enum SpecialBlockReaction
     /// <summary>The Speed Booster block every area has that breaks for good.</summary>
     PermanentSpeedBlock,
 
-    /// <summary>A solid block a normal bomb shows as a Speed Booster block for an update.</summary>
+    /// <summary>
+    /// A solid block a normal bomb shows as a Speed Booster block for an update, in every area
+    /// (<see cref="Compatibility.SpecialBlockBombRunOn{TReaction, TChange}"/>).
+    /// </summary>
     BombRevealsSpeedBlock,
 
     /// <summary>The visible frame of a collectible: Samus's touch is passed to the collectible.</summary>
@@ -70,21 +73,21 @@ public enum SpecialBlockReaction
     /// <summary>A plain solid block: a bomb sets off a one-update object.</summary>
     Solid,
 
-    /// <summary>A reaction past the end of the bombed-special table: a bomb rejects it.</summary>
-    PastTable,
-
-    /// <summary>The area reaction Wrecked Ship's Chozo statue gives its hand; elsewhere a plain solid block.</summary>
+    /// <summary>The reaction Wrecked Ship's Chozo statue gives its hand; elsewhere a plain solid block.</summary>
     WreckedShipChozoHand,
 
-    /// <summary>An area reaction that is a plain solid block in every area.</summary>
-    AreaSolid,
+    /// <summary>
+    /// A plain solid block in every area, as <see cref="Solid"/>; the block's other collision kinds read its behaviour
+    /// otherwise.
+    /// </summary>
+    SolidInEveryArea,
 
     /// <summary>Brinstar's slowly crumbling Speed Booster block that grows back; elsewhere a plain solid block.</summary>
     BrinstarSlowRespawningSpeedBlock,
 
     /// <summary>
-    /// Brinstar's slowly crumbling Speed Booster block that breaks for good, and the area reaction Lower Norfair's Chozo
-    /// statue gives its hand; elsewhere a plain solid block.
+    /// Brinstar's slowly crumbling Speed Booster block that breaks for good, and the reaction Lower Norfair's Chozo statue
+    /// gives its hand; elsewhere a plain solid block.
     /// </summary>
     BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand,
 
@@ -93,7 +96,4 @@ public enum SpecialBlockReaction
 
     /// <summary>Brinstar's Speed Booster block that breaks for good; elsewhere a plain solid block.</summary>
     BrinstarPermanentSpeedBlock,
-
-    /// <summary>An area reaction past the area's table: a bomb rejects it.</summary>
-    PastAreaTable,
 }

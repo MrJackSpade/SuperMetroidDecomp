@@ -51,7 +51,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal sealed class SamusShownFrames
 {
     /// <summary>The frames computed for each continuation an animation reads past its animations with.</summary>
-    private static readonly ConditionalWeakTable<LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>, SamusShownFrames> computed = new();
+    private static readonly ConditionalWeakTable<FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>, SamusShownFrames> computed = new();
 
     /// <summary>
     /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
@@ -63,7 +63,7 @@ internal sealed class SamusShownFrames
         [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>What a frame past an animation's end reads.</summary>
-    private readonly LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation;
+    private readonly FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation;
 
     /// <summary>The frames each pose can show.</summary>
     private readonly Dictionary<SamusPoseId, SortedSet<int>> shown = [];
@@ -85,7 +85,7 @@ internal sealed class SamusShownFrames
     /// frames, then the unauthored paths, until no further frame shows; and maps every shown frame to its picture frame.
     /// </summary>
     /// <exception cref="InvalidDataException">A shown frame has no picture frame of its pose at or before it.</exception>
-    private SamusShownFrames(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation)
+    private SamusShownFrames(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation)
     {
         this.continuation = continuation;
         var pending = new Queue<SamusPoseFrame>();
@@ -109,7 +109,7 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>The frames Samus's body can show, for the animations <paramref name="continuation"/> reads past.</summary>
-    internal static SamusShownFrames Of(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
+    internal static SamusShownFrames Of(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>

@@ -7,8 +7,8 @@ internal enum MotherBrainTubeAction
     NonMainTube = 1,
 
     /// <summary>Mother Brain tubes behaviour: main tube, waiting to fall.</summary>
-    MainTube_WaitingToFall,
+    WaitingToFall,
 
     /// <summary>Mother Brain tubes behaviour: main tube, falling.</summary>
-    MainTube_Falling,
+    Falling,
 }

@@ -75,8 +75,8 @@ internal static class TourianStatueWaterVerification
             descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
-        runtime.RoomFxOverlay.SetLiquidMotion(targetYPosition: 0xb4,
-            yVelocity: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x0100), timer: 1);
+        runtime.RoomFxOverlay.SetLiquidMotion(targetLevel: 0xb4,
+            levelSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x0100), moveDelay: 1);
         game.Step(0);
         AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water motion first arms its native wait");
         game.Step(0);

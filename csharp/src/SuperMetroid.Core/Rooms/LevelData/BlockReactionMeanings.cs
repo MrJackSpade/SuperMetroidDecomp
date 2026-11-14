@@ -35,6 +35,12 @@ public sealed class BlockReactionMeanings<TReaction, TMeaning>
             ? reaction
             : throw new ArgumentOutOfRangeException(nameof(meaning), meaning, $"Undefined {typeof(TMeaning).Name}.");
 
-    /// <summary>What <paramref name="reaction"/> stands for, if it is among the reactions.</summary>
-    public bool TryGetMeaning(TReaction reaction, out TMeaning meaning) => meanings.TryGetValue(reaction, out meaning);
+    /// <summary>What <paramref name="reaction"/> stands for, if it is among the reactions; no reaction stands for none.</summary>
+    public bool TryGetMeaning(TReaction? reaction, out TMeaning meaning)
+    {
+        if (reaction is { } read)
+            return meanings.TryGetValue(read, out meaning);
+        meaning = default;
+        return false;
+    }
 }

@@ -21,7 +21,7 @@ public sealed class BgCharacterFormat
     public const int BytesPerPlanePairRow = PlanesPerPair;
 
     /// <summary>Bytes of one plane pair across the character's eight rows; the next pair starts this far on.</summary>
-    public const int BytesPerPlanePair = ScreenGeometry.BackgroundTileSizePixels * BytesPerPlanePairRow;
+    public const int BytesPerPlanePair = ScreenGeometry.BackgroundCellSizePixels * BytesPerPlanePairRow;
 
     /// <summary>Captures the native two- or four-plane character depth used for palette and row strides.</summary>
     internal BgCharacterFormat(int bitsPerPixel) => BitsPerPixel = bitsPerPixel;
@@ -51,7 +51,7 @@ public sealed class BgCharacterFormat
     public int ColorIndexAt(ReadOnlySpan<byte> vram, int rowByteOffset, int column)
     {
         // The leftmost pixel is each plane byte's most significant bit.
-        int bit = ScreenGeometry.BackgroundTileSizePixels - 1 - column;
+        int bit = ScreenGeometry.BackgroundCellSizePixels - 1 - column;
         int color = (vram[rowByteOffset] >> bit & 1) | (vram[rowByteOffset + 1] >> bit & 1) << 1;
         if (BitsPerPixel == FourBitsPerPixelDepth)
         {

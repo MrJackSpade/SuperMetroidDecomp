@@ -7,10 +7,10 @@ internal sealed class FirefleaEntity(RoomEnemySlot slot, EnemyCommonParticipatio
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => FirefleaBehavior.InitializeFireflea;
+    public void Initialize() => FirefleaBehavior.InitializeFireflea(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => FirefleaBehavior.RunFirefleaMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => FirefleaBehavior.AdvanceFirefleaTypedAnimation;

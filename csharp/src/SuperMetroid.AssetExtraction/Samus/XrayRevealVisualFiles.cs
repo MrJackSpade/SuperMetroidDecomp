@@ -150,7 +150,7 @@ public static class XrayRevealVisualFiles
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
         var overlays = new InstalledXrayOverlays(document.TankMetatiles,
-            document.Rooms.Select(room => new XrayRoomOverlayTiles(OverlayNamed(room.Overlay),
+            document.Rooms.Select(room => new XrayRoomOverlayBlocks(OverlayNamed(room.Overlay),
                 room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
         return new InstalledXrayReveals(mappings, overlays, document.ExtensionExitBlock);

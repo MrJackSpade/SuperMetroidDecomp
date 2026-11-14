@@ -59,10 +59,10 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
+        var actual = RoomFxBlockAnimationAtlasFile.Segments.ToArray();
         AssertEqual(expected.Length, actual.Length, "Atlas original segment count");
         var bytes = Enumerable.Range(0, 3616).Select(index => (byte)(index * 37 + index / 256)).ToArray();
-        var atlas = new RoomFxAnimatedTileAtlas(bytes);
+        var atlas = new RoomFxBlockAnimationAtlas(bytes);
         int offset = 0;
         foreach (var segment in expected)
         {
@@ -90,7 +90,7 @@ internal static class LookupFxAtlasSegmentsVerification
         foreach (int missing in new[] { int.MinValue, 0, 0x878e63, 0x878e65, 0x87a9b5, int.MaxValue })
             AssertTrue(!atlas.TryResolve(missing, 32, out _), "Non-frame source remains unresolved");
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index].Source, RoomFxAnimatedTileSources.Of(actual[index]).Value,
+            AssertEqual(expected[index].Source, RoomFxBlockAnimationSources.Of(actual[index]).Value,
                 "Atlas source order: the import reads each segment from its original address");
     }
 
@@ -98,7 +98,7 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentSizes()
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
+        var actual = RoomFxBlockAnimationAtlasFile.Segments.ToArray();
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index].ByteCount, actual[index].ByteCount, "Atlas segment length");
         AssertEqual(3616, actual.Sum(segment => segment.ByteCount), "Complete original PNG byte geometry");
@@ -108,11 +108,11 @@ internal static class LookupFxAtlasSegmentsVerification
     internal static void VerifyRoomFxAtlasSegmentRoles()
     {
         var expected = OriginalRoomFxAtlasSegments();
-        var actual = RoomFxAnimatedTileAtlasFile.Segments.ToArray();
+        var actual = RoomFxBlockAnimationAtlasFile.Segments.ToArray();
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index].Source != StatueStrip, actual[index] is RoomFxAtlasSegment.Image,
                 "Atlas standalone picture or shared strip");
-        AssertTrue(RoomFxAnimatedTileAtlasFile.Segments is not ICollection<RoomFxAtlasSegment>,
+        AssertTrue(RoomFxBlockAnimationAtlasFile.Segments is not ICollection<RoomFxAtlasSegment>,
             "Segments are streamed without a materialized collection");
     }
 }

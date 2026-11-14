@@ -18,23 +18,39 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        PhantoonPart.Body => species.InitializePhantoonBody,
-        PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth => species.InitializePhantoonPart,
-        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}."),
-    };
+        switch (PhantoonPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case PhantoonPart.Body:
+                species.InitializePhantoonBody(Slot);
+                break;
+            case PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth:
+                species.InitializePhantoonPart(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        PhantoonPart.Body => species.RunPhantoonBodyMainAi,
-        // The eye's main is an empty step; the body positions it and it plays its own animation.
-        PhantoonPart.Eye => EnemyNoOpAi.Main,
-        // The drawing parts' main is an empty step; these drawing parts play their own animations.
-        PhantoonPart.Tentacles or PhantoonPart.Mouth => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}."),
-    };
+        switch (PhantoonPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case PhantoonPart.Body:
+                species.RunPhantoonBodyMainAi(Slot, frame);
+                break;
+            // The eye's main is an empty step; the body positions it and it plays its own animation.
+            case PhantoonPart.Eye:
+                break;
+            // The drawing parts' main is an empty step; these drawing parts play their own animations.
+            case PhantoonPart.Tentacles or PhantoonPart.Mouth:
+                break;
+            default:
+                throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvancePhantoonPartAnimation(enemy);

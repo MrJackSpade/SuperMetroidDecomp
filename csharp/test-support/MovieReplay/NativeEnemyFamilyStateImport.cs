@@ -57,7 +57,6 @@ using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Sparks;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.World;
@@ -430,7 +429,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
             maridiaLargeSnailRecord.Action = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            maridiaLargeSnailRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
+            maridiaLargeSnailRecord.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
             maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
             maridiaLargeSnailRecord.MovingLeft = words.D != 0;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
@@ -503,20 +502,20 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
         {
             hopperRecord.Action = words.A == 0 ? null : HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
-            hopperRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(words.B);
+            hopperRecord.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
-            hopperRecord.YSpeedTableIndexDelta = words.D;
+            hopperRecord.YSpeedCurvePlaceDelta = words.D;
         }
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
             platform.RightSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             platform.LeftSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
-            platform.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.F, platform.MaximumYSpeedTableIndex.WholeRows, "platform acceleration index"));
+            platform.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeRows, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
         {
-            beetom.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
+            beetom.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
             beetom.Action = words.C == 0 ? null : BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.ActionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
@@ -537,29 +536,13 @@ internal static class NativeEnemyFamilyStateImport
         {
             choot.Action = words.A == 0 ? null : ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
-            choot.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
+            choot.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
             choot.FallingPatternFrame = (words.C & 0xff) == 0
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = unchecked((short)words.D);
             choot.FallingPath = words.E == 0 ? null : ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
             choot.FallingPatternYDistance = words.F;
-        }
-        if (enemies.StokeStates[index] is { } stoke)
-        {
-            stoke.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            stoke.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            stoke.Direction = (StokeDirection)words.E;
-            stoke.Action = words.F switch
-            {
-                0 => null,
-                0x8a75 => StokeAction.IdleDuringAttack,
-                // The two moving routines must agree with the direction word, which alone carries the side.
-                0x8a43 when stoke.Direction == StokeDirection.Left => StokeAction.Moving,
-                0x8a5c when stoke.Direction != StokeDirection.Left => StokeAction.Moving,
-                _ => throw new InvalidDataException(
-                    $"Recorded Stoke function ${words.F:X4} does not agree with direction word ${words.E:X4}."),
-            };
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {
@@ -750,7 +733,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.PuyoStates[index] is { } puyo)
         {
-            puyo.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
+            puyo.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
             puyo.HopCooldownTimer = unchecked((short)words.B);
             puyo.Action = words.C == 0 ? null : PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
             puyo.AirborneMovement = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");

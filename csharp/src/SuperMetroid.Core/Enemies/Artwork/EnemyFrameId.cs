@@ -348,26 +348,6 @@ public enum EnemyFrameId
     OwtchMovingLeftLoopSecond,
     /// <summary>Owtch: moving left loop, third frame.</summary>
     OwtchMovingLeftLoopThird,
-    /// <summary>Stoke: moving left loop, first frame.</summary>
-    StokeMovingLeftLoopFirst,
-    /// <summary>Stoke: moving left loop, second frame.</summary>
-    StokeMovingLeftLoopSecond,
-    /// <summary>Stoke: moving left loop, third frame.</summary>
-    StokeMovingLeftLoopThird,
-    /// <summary>Stoke: moving left loop, fourth frame.</summary>
-    StokeMovingLeftLoopFourth,
-    /// <summary>Stoke: attack left.</summary>
-    StokeAttackLeft,
-    /// <summary>Stoke: moving right loop, first frame.</summary>
-    StokeMovingRightLoopFirst,
-    /// <summary>Stoke: moving right loop, second frame.</summary>
-    StokeMovingRightLoopSecond,
-    /// <summary>Stoke: moving right loop, third frame.</summary>
-    StokeMovingRightLoopThird,
-    /// <summary>Stoke: moving right loop, fourth frame.</summary>
-    StokeMovingRightLoopFourth,
-    /// <summary>Stoke: attack right.</summary>
-    StokeAttackRight,
     /// <summary>Gripper: moving left, first frame.</summary>
     GRipperMovingLeftFirst,
     /// <summary>Gripper: moving left, second frame.</summary>

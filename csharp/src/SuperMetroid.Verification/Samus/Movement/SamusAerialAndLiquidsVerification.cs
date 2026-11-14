@@ -112,8 +112,8 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
 
     // Aerial mode two accelerates because $90:9B22 tests only bit zero. This guards the
     // counterintuitive distinction from the grounded deceleration-allowed routine.
-    var aerialSpeed = new SamusHorizontalSpeedState { AccelerationMode = SamusAccelerationMode.Decelerating };
-    aerialSpeed.SelectNormalAirSpeedTable();
+    var aerialSpeed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { AccelerationMode = SamusAccelerationMode.Decelerating };
+    aerialSpeed.SelectAirSpeeds();
     AerialBaseSpeedResult accelerated =
         aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.NormalJumping);
     AssertEqual(0x0000c000u, accelerated.Speed.RawValue, "aerial mode two uses native normal-jump acceleration");
@@ -691,7 +691,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
-    var palettes = new SamusHorizontalSpeedState();
+    var palettes = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
@@ -815,19 +815,19 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(0x0900, sample.Kinematics.YAcceleration.Fraction, "lava gravity fraction");
 
     var speed = sample.HorizontalSpeed;
-    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Air);
+    speed.SelectSpeedsFor(SamusLiquidMedium.Air);
     AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "air X table base");
-    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
+    speed.SelectSpeedsFor(SamusLiquidMedium.Water);
     AssertEqual(SamusMovementDefinitions.HorizontalMotion.WaterSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "water X table base");
-    speed.SelectEnvironmentSpeedTable(SamusLiquidMedium.LavaOrAcid);
+    speed.SelectSpeedsFor(SamusLiquidMedium.LavaOrAcid);
     AssertEqual(SamusMovementDefinitions.HorizontalMotion.LavaAcidSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "lava X table base");
 
     // Submersion reaches `$90:9808` before the running/Dash test. It cannot establish new
     // momentum, but a pre-existing momentum flag preserves the accumulated pair exactly.
-    var submergedDash = new SamusHorizontalSpeedState();
+    var submergedDash = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
     submergedDash.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: ControllerButton.B,

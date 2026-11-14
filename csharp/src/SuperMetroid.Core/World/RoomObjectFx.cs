@@ -20,9 +20,9 @@ internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samu
     public void RemoveLiquidTarget() => fx.RemoveLiquidTarget();
 
     /// <inheritdoc/>
-    public void SetLiquidMotion(int? baseYPosition = null, int? targetYPosition = null,
-        SignedEightEight? yVelocity = null, int? timer = null) =>
-        fx.SetLiquidMotion(baseYPosition, targetYPosition, yVelocity, timer);
+    public void SetLiquidMotion(int? liquidLevel = null, int? targetLevel = null,
+        SignedEightEight? levelSpeed = null, int? moveDelay = null) =>
+        fx.SetLiquidMotion(liquidLevel, targetLevel, levelSpeed, moveDelay);
 
     /// <inheritdoc/>
     public void EnableWaterPhysics()

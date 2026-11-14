@@ -396,7 +396,7 @@ internal static class LookupStream2Verification
         static void ConfirmArea(PauseBackdropPresentation presentation, AreaId area, BackgroundTile[] native)
         {
             const int untouched = 8;
-            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
+            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, PictureFlip.Horizontal);
             BackgroundTile[] tiles = Enumerable.Repeat(sentinel, PauseBackdropDefinitions.Cells + untouched).ToArray();
             presentation.LoadTo(tiles, area);
             AssertTrue(native.AsSpan(0, PauseBackdropDefinitions.Cells).SequenceEqual(tiles.AsSpan(0, PauseBackdropDefinitions.Cells)) &&
@@ -466,7 +466,7 @@ internal static class LookupStream2Verification
             int nativeCell = label.Anchor.Row * 32 + label.Anchor.Column;
             words += label.Cells.Length;
             // Untouched tiles around and under the label; MANUAL/AUTO replacement keeps their colour variant, priority and mirroring.
-            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
+            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, PictureFlip.Horizontal);
             foreach (bool preserve in new[] { false, true })
             {
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
@@ -497,8 +497,8 @@ internal static class LookupStream2Verification
             words += document.Labels[key].Cells.Length;
         }
         // Each label laid out for its only collected item, equipped or not, among blank strips and untouched tiles around them.
-        var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
-        foreach (var identity in PauseEquipmentLabelTiles.Labels())
+        var sentinel = new BackgroundTile(0x155, 5, highPriority: false, PictureFlip.Horizontal);
+        foreach (var identity in PauseEquipmentLabels.Labels())
         {
             PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
             BackgroundTile[] labelTiles = PauseTileGrid.Compile(label.Cells, "Stock label");
@@ -507,7 +507,7 @@ internal static class LookupStream2Verification
             {
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
                 BackgroundTile[] expected = actual.ToArray();
-                foreach (var other in PauseEquipmentLabelTiles.Labels())
+                foreach (var other in PauseEquipmentLabels.Labels())
                 {
                     PauseEquipmentLabel blank = document.Labels[PauseEquipmentLabelKeys.Name(other.Label)];
                     expected.AsSpan(blank.Row * 32 + blank.Column, blank.Cells.Length).Clear();
@@ -542,11 +542,11 @@ internal static class LookupStream2Verification
         var presentation = PauseEquipmentLabelPresentation.Load(new MemoryStream(nativeJson));
         foreach (bool hyper in new[] { false, true })
         {
-            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, TileFlip.Horizontal);
+            var sentinel = new BackgroundTile(0x155, 5, highPriority: false, PictureFlip.Horizontal);
             BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
             BackgroundTile[] expected = actual.ToArray();
             BackgroundTile[] blankTiles = PauseTileGrid.Compile(document.Blank, "Reference blank");
-            foreach (var identity in PauseEquipmentLabelTiles.Labels())
+            foreach (var identity in PauseEquipmentLabels.Labels())
             {
                 PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
                 int destination = label.Row * 32 + label.Column;
@@ -622,7 +622,7 @@ internal static class LookupStream2Verification
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
             [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, priority: 3,
-                TileFlip.Horizontal)]),
+                PictureFlip.Horizontal)]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationary] = EnemyFrameId.DeadTorizoStationary };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);

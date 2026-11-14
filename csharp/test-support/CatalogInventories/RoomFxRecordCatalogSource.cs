@@ -24,7 +24,7 @@ internal static class RoomFxRecordCatalogSource
     /// in native order (#1546).
     /// </summary>
     internal sealed record RetailRoomFxCapture(
-        SortedDictionary<ushort, RoomFxRecordDefinition> Records,
+        SortedDictionary<ushort, RoomEffectDefinition> Records,
         SortedDictionary<ushort, DoorDefinition> Doors,
         SortedDictionary<ushort, ushort[]> Lists);
 
@@ -43,7 +43,7 @@ internal static class RoomFxRecordCatalogSource
     /// by headers of areas whose lists select different effects does.</exception>
     internal static RetailRoomFxCapture CaptureRetailRoomFx(ISnesAddressSpace bus)
     {
-        var records = new SortedDictionary<ushort, RoomFxRecordDefinition>();
+        var records = new SortedDictionary<ushort, RoomEffectDefinition>();
         var doors = new SortedDictionary<ushort, DoorDefinition>();
         var lists = new SortedDictionary<ushort, ushort[]>();
         foreach (ushort header in RoomFxSources.Pointers)
@@ -91,18 +91,18 @@ internal static class RoomFxRecordCatalogSource
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
 
     /// <summary>Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>.</summary>
-    private static void Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomFxRecordDefinition> records, ushort pointer,
+    private static void Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomEffectDefinition> records, ushort pointer,
         AreaId area)
     {
         int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
-        RoomFxRecordDefinition record = RoomFxRecordCodec.Decode(area,
+        RoomEffectDefinition record = RoomFxRecordCodec.Decode(area,
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
             $"room-FX record $83:{pointer:X4}");
-        if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
+        if (records.TryGetValue(pointer, out RoomEffectDefinition? existing))
         {
             // The effect lists are arrays, so the record's own equality compares them by reference; compare them in order here.
-            if (!(existing with { PaletteEffects = record.PaletteEffects, AnimatedTiles = record.AnimatedTiles }).Equals(record)
-                || !existing.PaletteEffects.SequenceEqual(record.PaletteEffects) || !existing.AnimatedTiles.SequenceEqual(record.AnimatedTiles))
+            if (!(existing with { PaletteEffects = record.PaletteEffects, BlockAnimations = record.BlockAnimations }).Equals(record)
+                || !existing.PaletteEffects.SequenceEqual(record.PaletteEffects) || !existing.BlockAnimations.SequenceEqual(record.BlockAnimations))
                 throw new InvalidDataException($"Shared room-FX record $83:{pointer:X4} reads differently from another header.");
         }
         else
@@ -175,13 +175,13 @@ internal static class RoomFxRecordCatalogSource
         y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
 
     /// <summary>Renders one record as the generated catalog spells it.</summary>
-    private static string RenderRecord(RoomFxRecordDefinition record) =>
-        $"new({SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
-        $"SignedEightEight.FromTwoHundredFiftySixthsOfPixel({record.YVelocity.InTwoHundredFiftySixthsOfPixel.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
-        $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
+    private static string RenderRecord(RoomEffectDefinition record) =>
+        $"new({SurfaceY(record.LiquidStartLevel)}, {SurfaceY(record.LiquidTargetLevel)}, " +
+        $"SignedEightEight.FromTwoHundredFiftySixthsOfPixel({record.LiquidLevelSpeed.InTwoHundredFiftySixthsOfPixel.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
+        $"{record.LiquidMoveDelay.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
         $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
         $"{Liquid(record.Liquid)}, {Effects(record.PaletteEffects)}, " +
-        $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})";
+        $"{Effects(record.BlockAnimations)}, {Member(record.PaletteBlend)})";
 
     /// <summary>
     /// Renders the named headers for the generated Core catalog, each as its door records and its default record (#1546),
@@ -201,7 +201,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
         source.AppendLine("/// <summary>");
-        source.AppendLine("/// The retail room states' effect selections, each holding its door records in the game's order and its default record, and the records");
+        source.AppendLine("/// The retail room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects");
         source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.");
         source.AppendLine("/// </summary>");
         source.AppendLine("public static class RoomFxDefinitions");
@@ -234,8 +234,8 @@ internal static class RoomFxRecordCatalogSource
         foreach ((ushort pointer, string name) in MotherBrainRecordNames)
         {
             source.AppendLine();
-            source.AppendLine($"    /// <summary>The {name} room FX record, which Mother Brain's fight applies to her room after its default record.</summary>");
-            source.AppendLine($"    public static RoomFxRecordDefinition {name} {{ get; }} = {RenderRecord(capture.Records[pointer])};");
+            source.AppendLine($"    /// <summary>The {name} room effect, which Mother Brain's fight applies to her room after its default effect.</summary>");
+            source.AppendLine($"    public static RoomEffectDefinition {name} {{ get; }} = {RenderRecord(capture.Records[pointer])};");
         }
         source.AppendLine("}");
         return source.ToString();

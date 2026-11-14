@@ -10,11 +10,13 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeTourianEntranceStatue;
+    public void Initialize() => species.InitializeTourianEntranceStatue(Slot);
 
     /// <inheritdoc/>
     /// <remarks>The statues have no main behaviour; they play their authored animations.</remarks>
-    public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => TourianEntranceStatueBehavior.AdvanceTourianEntranceStatueTypedAnimation;

@@ -15,7 +15,7 @@ internal static class RoomEnemyGraphicsSetLists
     internal const int ListCount = 301;
 
     /// <summary>Total member records across all retail sets; not a count of unique enemy definitions or artwork images.</summary>
-    internal const int RecordCount = 425;
+    internal const int RecordCount = 423;
 
     /// <summary>Every retail set's members, in the game's list order, checked complete when built.</summary>
     internal static IReadOnlyList<RoomEnemyGraphicsSetMembers> Retail { get; } = RoomEnemyGraphicsSets.Complete(

@@ -7,10 +7,10 @@ internal static class RoomFxOverlayStateAccess
     extension(RoomFxOverlayState)
     {
         /// <summary>Builds room FX from an explicit immutable FX definition through the normal room-load path.</summary>
-        internal static RoomFxOverlayState ForDefinition(RoomFxSession session, RoomFxRecordDefinition definition, ushort randomNumber)
+        internal static RoomFxOverlayState ForDefinition(RoomFxSession session, RoomEffectDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            return RoomFxOverlayState.ForRecord(session, new RoomFxLoadSource
+            return RoomFxOverlayState.ForSource(session, new RoomFxLoadSource
             {
                 Fx = null,
                 Door = null,

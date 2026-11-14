@@ -503,8 +503,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("cacatac_spike_down"),
         new("cacatac_spike_down_right"),
         new("cacatac_spike_right_facing_down"),
-        new("stoke_initial_first"),
-        new("stoke_initial_second"),
         new("spore_spawn_spawner_closed"),
         new("spore_spawn_spawner_release_first"),
         new("spore_spawn_spawner_release_second"),

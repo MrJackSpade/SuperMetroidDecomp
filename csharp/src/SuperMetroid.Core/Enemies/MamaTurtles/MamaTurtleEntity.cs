@@ -8,20 +8,36 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        MamaTurtlePart.MamaTurtle => species.InitializeMamaTurtle,
-        MamaTurtlePart.BabyTurtle => MamaTurtleBehavior.InitializeBabyTurtle,
-        _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}."),
-    };
+        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MamaTurtlePart.MamaTurtle:
+                species.InitializeMamaTurtle(Slot);
+                break;
+            case MamaTurtlePart.BabyTurtle:
+                MamaTurtleBehavior.InitializeBabyTurtle(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        MamaTurtlePart.MamaTurtle => species.RunMamaTurtleMainAi,
-        MamaTurtlePart.BabyTurtle => species.RunBabyTurtleMainAi,
-        _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}."),
-    };
+        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MamaTurtlePart.MamaTurtle:
+                species.RunMamaTurtleMainAi(Slot, frame);
+                break;
+            case MamaTurtlePart.BabyTurtle:
+                species.RunBabyTurtleMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch

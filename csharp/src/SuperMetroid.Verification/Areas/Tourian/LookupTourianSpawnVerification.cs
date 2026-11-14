@@ -46,8 +46,8 @@ internal static class LookupTourianSpawnVerification
             AssertEqual(expected[index], FxNativeWords.AnimatedTileObjects.Word(TourianStatueAnimatedTilePrograms.ObjectOf(definition.Statue)),
                 "Native spawn/handler order");
             // The program oracle proves the entry animation starts at the header's native program pointer.
-            AssertEqual<AnimationPlayback<TourianStatueTileSegment>?>(
-                new AnimationPlayback<TourianStatueTileSegment>(TourianStatueTileAnimations.StartingWith(TourianStatueTileSegment.Entry), AnimationPlace.StartOfAnimation),
+            AssertEqual<AnimationPlayback<TourianStatueBlockSegment>?>(
+                new AnimationPlayback<TourianStatueBlockSegment>(TourianStatueBlockAnimations.StartingWith(TourianStatueBlockSegment.Entry), AnimationPlace.StartOfAnimation),
                 tile.Playback, "Spawned statue starts at its entry animation");
             AssertEqual(1, tile.Timer, "Spawned instruction timer");
         }

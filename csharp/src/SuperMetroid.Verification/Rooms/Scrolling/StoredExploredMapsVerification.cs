@@ -39,8 +39,8 @@ internal static class StoredExploredMapsVerification
     private static List<Position16<MapTiles>> Exploration(int seed)
     {
         var cells = new List<Position16<MapTiles>>();
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             int run = x / 8;
             bool lastOnly = (y + run + seed) % 5 == 0;
@@ -55,7 +55,7 @@ internal static class StoredExploredMapsVerification
     internal static void VerifyStoredExploredMaps()
     {
         StoredExploredMaps<AreaId> maps = StoredExploredMapLoads.PowerOn();
-        RoomScrollGrid grid = RoomScrollGrid.CreateImplicit(RoomScrollGrid.KeepCellsAcrossRooms(maps), new Extent16<RoomScreens>(1, 1), RoomScrollState.Green);
+        RoomScrollGrid grid = RoomScrollGrid.CreateImplicit(RoomScrollGrid.KeepCellsAcrossRooms(maps), new Extent16<RoomScreens>(1, 1), RoomScrollState.Open);
         var native = new byte[KeptMaps * MapBytes];
 
         // Each area's map is marked on the live map and stored as that area's, as a save or an exchanging door stores it.

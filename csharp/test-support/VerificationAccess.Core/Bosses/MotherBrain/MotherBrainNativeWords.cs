@@ -225,8 +225,8 @@ internal static class MotherBrainNativeWords
     internal static readonly NativeWordIdentities<MotherBrainTubeAction> MotherBrainTubeActions = new(new Dictionary<MotherBrainTubeAction, ushort>
     {
         [MotherBrainTubeAction.NonMainTube] = 0x8b88,
-        [MotherBrainTubeAction.MainTube_WaitingToFall] = 0x8bcb,
-        [MotherBrainTubeAction.MainTube_Falling] = 0x8bd6,
+        [MotherBrainTubeAction.WaitingToFall] = 0x8bcb,
+        [MotherBrainTubeAction.Falling] = 0x8bd6,
     });
 
     /// <summary>The bank-$A6 routine word naming each <see cref="ZebetiteAction"/>.</summary>

@@ -18,7 +18,7 @@ public static class SamusOverreadFiles
     /// <summary>
     /// Decodes every glitch read and writes the results as JSON. No manifest is written (#1693): the document names its own
     /// format, and the cartridge it was decoded from is the installation receipt's. The colours Samus's palette loaders read
-    /// past their tables go to the component's import data, which only the import reads (#1693).
+    /// past their tables are not decoded: each of her colour cycles shows only its own colours (#1736).
     /// </summary>
     /// <param name="bus">Cartridge source for the reads.</param>
     /// <param name="directory">Destination directory, created if absent; an existing file is replaced.</param>
@@ -31,10 +31,6 @@ public static class SamusOverreadFiles
         SamusOverreadDocument document = SamusOverreadDecoding.Decode(cartridge);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, SamusOverreadFormat.JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
-        string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
-        Directory.CreateDirectory(importData);
-        File.WriteAllBytes(Path.Combine(importData, SamusOverreadFormat.ColourFileName),
-            JsonSerializer.SerializeToUtf8Bytes(SamusOverreadDecoding.DecodeColours(cartridge), SamusOverreadFormat.JsonOptions));
     }
 
     /// <summary>Loads the installed file, as the player may have edited it.</summary>
@@ -48,26 +44,12 @@ public static class SamusOverreadFiles
         SamusOverreadServicesReader.Read(LoadDocument(directory), straddledTerrain);
 
     /// <summary>
-    /// Loads the colours Samus's palette loaders read past their tables from the overread component's import data, which
-    /// only the import reads to pre-colour her sheets (#1512, #1693).
-    /// </summary>
-    /// <param name="importData">The overread component's import-data directory.</param>
-    /// <exception cref="InvalidDataException">The file's format or a colour run is invalid.</exception>
-    internal static SamusOverrunColours LoadColours(string importData)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        byte[] bytes = File.ReadAllBytes(Path.Combine(importData, SamusOverreadFormat.ColourFileName));
-        return SamusOverreadServicesReader.ReadColours(JsonAssetDocument.Read<SamusOverrunColourDocument>(
-            new MemoryStream(bytes, writable: false), SamusOverreadFormat.JsonOptions, "Samus overrun colour"));
-    }
-
-    /// <summary>
     /// Loads what an animation frame past a pose's program reads from the overread directory, which the import reads to
     /// compose the frames Samus's body can show (#1513).
     /// </summary>
     /// <param name="directory">The installed overread directory.</param>
     /// <exception cref="InvalidDataException">The file's format or a continuation is invalid.</exception>
-    internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> LoadAnimationContinuation(string directory) =>
+    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> LoadAnimationContinuation(string directory) =>
         SamusOverreadServicesReader.ReadAnimationContinuation(LoadDocument(directory));
 
     /// <summary>Reads the overread document in <paramref name="directory"/>; its readers check its format.</summary>

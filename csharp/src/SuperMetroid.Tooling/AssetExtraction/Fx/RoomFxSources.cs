@@ -15,5 +15,5 @@ public static class RoomFxSources
     public static RoomFxSelection Fx(ushort pointer) =>
         RoomFxSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomFxSelection? found)
             ? found
-            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 285 retail room FX headers.");
+            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 284 retail room FX headers.");
 }

@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>An enemy with a main AI, run when no AI-state handler is selected.</summary>
 internal interface IEnemyMainAi : IEnemyEntity
 {
-    /// <summary>The main-AI handler, or null when the definition names none this build models.</summary>
-    EnemyMainAiHandler? FindMain();
+    /// <summary>Runs the behaviour of the enemy in the slot the entity is bound to for this enemy frame.</summary>
+    /// <param name="frame">The enemy frame's camera, Samus, input, room and clock.</param>
+    void RunMainAi(IEnemyAiFrame frame);
 }

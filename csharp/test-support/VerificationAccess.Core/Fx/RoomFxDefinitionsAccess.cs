@@ -25,7 +25,7 @@ internal static class RoomFxDefinitionsAccess
     private static readonly Dictionary<ushort, RoomFxSelection> SuffixesByPointer = new();
 
     /// <summary>Each record instance's pointer.</summary>
-    private static readonly Dictionary<RoomFxRecordDefinition, ushort> PointersByRecord = new(ReferenceEqualityComparer.Instance);
+    private static readonly Dictionary<RoomEffectDefinition, ushort> PointersByRecord = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>Places every compiled record and terminator at its bank-$83 pointer.</summary>
     static RoomFxDefinitionsAccess()
@@ -33,14 +33,14 @@ internal static class RoomFxDefinitionsAccess
         foreach (ushort header in RoomFxSources.Pointers)
         {
             RoomFxSelection fx = RoomFxSources.Fx(header);
-            for (int index = 0; index < fx.DoorRecords.Count; index++)
+            for (int index = 0; index < fx.DoorEffects.Count; index++)
             {
-                RoomFxDoorRecord entry = fx.DoorRecords[index];
+                DoorRoomEffect entry = fx.DoorEffects[index];
                 ushort pointer = At(header, index);
-                Add(pointer, new IndexedFx(fx, entry.Record, DoorHeaderSourcesConstants.PointerOf(entry.Door)),
-                    new RoomFxSelection($"$83:{pointer:X4}", [.. fx.DoorRecords.Skip(index)], fx.Default));
+                Add(pointer, new IndexedFx(fx, entry.Effect, DoorHeaderSourcesConstants.PointerOf(entry.Door)),
+                    new RoomFxSelection($"$83:{pointer:X4}", [.. fx.DoorEffects.Skip(index)], fx.Default));
             }
-            ushort last = At(header, fx.DoorRecords.Count);
+            ushort last = At(header, fx.DoorEffects.Count);
             if (fx.Default is { } defaultRecord)
                 Add(last, new IndexedFx(fx, defaultRecord, 0), new RoomFxSelection($"$83:{last:X4}", [], defaultRecord));
             else
@@ -55,7 +55,7 @@ internal static class RoomFxDefinitionsAccess
 
         static ushort At(ushort header, int index) => checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount));
 
-        static void AddMotherBrainRecord(RoomFxSelection header, ushort pointer, RoomFxRecordDefinition record) =>
+        static void AddMotherBrainRecord(RoomFxSelection header, ushort pointer, RoomEffectDefinition record) =>
             Add(pointer, new IndexedFx(header, record, 0), new RoomFxSelection($"$83:{pointer:X4}", [], record));
 
         static void Add(ushort pointer, IndexedFx entry, RoomFxSelection suffix)
@@ -68,10 +68,10 @@ internal static class RoomFxDefinitionsAccess
 
     /// <summary>The door word a compiled record's header stores for it: its entry door's pointer, or zero for a default or a Mother Brain record.</summary>
     /// <exception cref="KeyNotFoundException">The record is not one of the compiled catalog's.</exception>
-    internal static ushort DoorPointerOf(RoomFxRecordDefinition record) => RecordsByPointer[PointersByRecord[record]].DoorPointer;
+    internal static ushort DoorPointerOf(RoomEffectDefinition record) => RecordsByPointer[PointersByRecord[record]].DoorPointer;
 
     /// <summary>The area of the rooms whose header holds a compiled record.</summary>
-    extension(RoomFxRecordDefinition self)
+    extension(RoomEffectDefinition self)
     {
         /// <summary>
         /// The area of the rooms that load this compiled record's header, whose lists its effects are selected from
@@ -99,15 +99,15 @@ internal static class RoomFxDefinitionsAccess
         internal static IEnumerable<ushort> EndPointers => EndsByPointer.Keys;
 
         /// <summary>Every compiled record, one per pointer, in pointer order.</summary>
-        internal static IEnumerable<RoomFxRecordDefinition> AllRecords => RecordsByPointer.Values.Select(entry => entry.Record);
+        internal static IEnumerable<RoomEffectDefinition> AllRecords => RecordsByPointer.Values.Select(entry => entry.Record);
 
         /// <summary>The compiled record at <paramref name="pointer"/>.</summary>
-        internal static RoomFxRecordDefinition RecordAt(ushort pointer) => RecordsByPointer.TryGetValue(pointer, out var entry)
+        internal static RoomEffectDefinition RecordAt(ushort pointer) => RecordsByPointer.TryGetValue(pointer, out var entry)
             ? entry.Record
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a compiled room-FX record.");
 
         /// <summary>The pointer of a compiled record instance.</summary>
-        internal static ushort RecordPointerOf(RoomFxRecordDefinition record) => PointersByRecord[record];
+        internal static ushort RecordPointerOf(RoomEffectDefinition record) => PointersByRecord[record];
 
         /// <summary>The records from <paramref name="root"/>, a record or a terminator, to the end of its header, as a header of their own.</summary>
         internal static RoomFxSelection Suffix(ushort root) => SuffixesByPointer.TryGetValue(root, out RoomFxSelection? suffix)

@@ -3,7 +3,7 @@
 /// <summary>
 /// The game's two frame counters, which advance once for every frame the game shows. They are separate counters, not
 /// one counter and its low part: a door's scroll restarts only the short one (<see cref="RestartShortCounter"/>). Enemy
-/// cadences, animated tiles, blinking and other periodic gameplay sample their low bits, so each counter's wrap at its
+/// cadences, block animations, blinking and other periodic gameplay sample their low bits, so each counter's wrap at its
 /// width, the frames a door's music load counts without a gameplay update, and the door scroll's restart of the short
 /// counter are all gameplay-observable.
 /// </summary>

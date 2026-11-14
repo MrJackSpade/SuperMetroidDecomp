@@ -264,7 +264,7 @@ EnemyProjectileFrameBehavior.Stationary,             new(0, 0), 0, EnemyProjecti
 EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall,
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = new(
-EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin,
+EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleFixedPlace,
             new(0, 0), 0, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
     };
 }

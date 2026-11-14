@@ -45,7 +45,7 @@ internal static class ProjectileContactPhaseVerification
         projectile.FrameHold = WrappingCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
         projectile.Radius = new(8, 8);
-        projectile.Damage = 20; projectile.InvincibilityFrames = 96;
+        projectile.Damage = 20;
         projectile.CanDamageSamus = true;
 
         // Original CPU trace: beta first, inert projectile contact afterward, timers last.
@@ -94,7 +94,6 @@ internal static class ProjectileContactPhaseVerification
             projectile.Position = projectile.Position.WithWhole(new(120, 120));
             projectile.Radius = new(8, 8);
             projectile.Damage = 20;
-            projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
             Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");

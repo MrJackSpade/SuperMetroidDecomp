@@ -51,7 +51,7 @@ internal static class EnemyProjectileFrameBehaviorWords
         [0xc94c] = EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking,
         [0xc914] = EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking,
         [0xc9d2] = EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall,
-        [0xcafa] = EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin,
+        [0xcafa] = EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleFixedPlace,
         [0x8dca] = EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus,
         [0x8dff] = EnemyProjectileFrameBehavior.DraygonTurretShotFlight,
         [0x8e0f] = EnemyProjectileFrameBehavior.DraygonGoopFlight,

@@ -31,13 +31,14 @@ public static class XrayRevealMap
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
+        Position16<RoomBlocks> cameraBlock = foregroundPosition.ToRoomBlock();
         var result = new RevealedBlock?[XrayRevealArea.BlockCount];
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         for (int col = 0; col < XrayRevealArea.Columns; col++)
             Place(col, row, Copied(col, row));
         // The reveal's lookups take the camera's row within the scan cycle and its column as it is, and reach each revealed
         // block in the room's reading order, so a column past the room's width runs into the following rows.
-        var firstBlock = Position16<RoomBlocks>.Of(foregroundPosition.X >> 4, BlockScanCycle.Within(foregroundPosition.Y >> 4));
+        var firstBlock = Position16<RoomBlocks>.Of(cameraBlock.X, BlockScanCycle.Within(cameraBlock.Y));
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
             // The prior column may own a 2-wide reveal crossing the left edge. Its
@@ -83,8 +84,8 @@ public static class XrayRevealMap
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
         {
-            int x = CoordinateAxis.Wrap(((foregroundPosition.X >> 4) + col) * RoomLevelPlane.BlockPixels);
-            int y = CoordinateAxis.Wrap(((foregroundPosition.Y >> 4) + row) * RoomLevelPlane.BlockPixels);
+            int x = CoordinateAxis.Wrap((cameraBlock.X + col) * RoomLevelPlane.BlockPixels);
+            int y = CoordinateAxis.Wrap((cameraBlock.Y + row) * RoomLevelPlane.BlockPixels);
             if (x >= foreground.Size.X * RoomLevelPlane.BlockPixels || y >= foreground.Size.Y * RoomLevelPlane.BlockPixels)
                 return null;
             RoomBlockCell cell = foreground.Cells[y / RoomLevelPlane.BlockPixels * foreground.Size.X + x / RoomLevelPlane.BlockPixels];
@@ -107,7 +108,7 @@ public static class XrayRevealMap
     /// </summary>
     /// <param name="foregroundPosition">Camera position.</param>
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition) =>
-        new(CoordinateAxis.Wrap(foregroundPosition.X >> 4 << 4), CoordinateAxis.Wrap(foregroundPosition.Y >> 4 << 4));
+        foregroundPosition.ToRoomBlock().ToRoomPixels();
 
     /// <summary>How a copied block lays out its picture: mirrored as the room mirrors it.</summary>
     private static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch

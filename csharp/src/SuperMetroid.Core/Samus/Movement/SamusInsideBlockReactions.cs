@@ -22,7 +22,7 @@ public static class SamusInsideBlockReactions
 
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(body.Position.X.Whole >> 4), CoordinateAxis.Wrap(y >> 4)));
+            var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
             if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;

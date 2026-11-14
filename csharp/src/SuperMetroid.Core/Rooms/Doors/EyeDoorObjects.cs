@@ -84,8 +84,8 @@ internal sealed class EyeDoorObjects
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
         int roomObjectX = slot.Block.X;
         int roomObjectY = slot.Block.Y;
-        int deltaX = Math.Abs((samus.Position.X.Whole >> 4) - roomObjectX);
-        int deltaY = Math.Abs((samus.Position.Y.Whole >> 4) - roomObjectY);
+        int deltaX = Math.Abs(RoomGridConversions.PixelToBlock(samus.Position.X.Whole) - roomObjectX);
+        int deltaY = Math.Abs(RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - roomObjectY);
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 

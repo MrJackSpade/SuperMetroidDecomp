@@ -168,8 +168,8 @@ internal sealed class GateObjects
             return false;
         int gateX = slot.Block.X;
         int gateY = slot.Block.Y;
-        return (samus.Position.X.Whole >> 4) == gateX &&
-            CoordinateAxis.Wrap((samus.Position.Y.Whole >> 4) - gateY) <
+        return RoomGridConversions.PixelToBlock(samus.Position.X.Whole) == gateX &&
+            CoordinateAxis.Wrap(RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - gateY) <
                 DownwardGateDefinitions.GateHeightInBlocks;
     }
 

@@ -464,8 +464,8 @@ internal sealed class ProjectileMotion
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
         // width is counted in 256-pixel screens; coordinates in or past the first screen beyond
         // the room skip reaction and are left for the later 64-pixel viewport deletion.
-        int roomWidthInScreens = (level.Size.X + 15) >> 4;
-        if ((EightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
+        int roomWidthInScreens = RoomGridConversions.ScreensCovering(level.Size.X);
+        if (RoomGridConversions.PixelToScreen(slot.Position.X.Whole) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
             level, slot, roomObjects: roomObjects);
@@ -479,8 +479,8 @@ internal sealed class ProjectileMotion
     {
         slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
 
-        int roomHeightInScreens = (level.Size.Y + 15) >> 4;
-        if ((EightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
+        int roomHeightInScreens = RoomGridConversions.ScreensCovering(level.Size.Y);
+        if (RoomGridConversions.PixelToScreen(slot.Position.Y.Whole) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
             level, slot, roomObjects: roomObjects);
@@ -493,8 +493,8 @@ internal sealed class ProjectileMotion
         SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
-        int blockX = slot.Position.X.Whole >> 4;
-        int blockY = slot.Position.Y.Whole >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
+        int blockY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {

@@ -59,9 +59,9 @@ internal sealed class EnemyTerrain
 
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
+        int spanMinusOne = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
         // The scan walks down the target column from the top row, as the block scan cycle counts it.
-        var firstBlock = Position16<RoomBlocks>.Of(targetEdge >> 4, topPixel >> 4);
+        Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(targetEdge, topPixel).ToRoomBlock();
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -123,9 +123,9 @@ internal sealed class EnemyTerrain
 
         int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int spanMinusOne = CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)) >> 4;
+        int spanMinusOne = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
         // The scan walks along the target row from the left column, as the block scan cycle counts it.
-        var firstBlock = Position16<RoomBlocks>.Of(leftPixel >> 4, targetEdge >> 4);
+        Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(leftPixel, targetEdge).ToRoomBlock();
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -173,9 +173,9 @@ internal sealed class EnemyTerrain
     {
         int targetCenter = slot.Position.Y.MovedBy(distance).Whole;
         int targetEdge = CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
-        int row = targetEdge >> 4;
-        int firstColumn = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
-        int lastColumn = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
+        int row = RoomGridConversions.PixelToBlock(targetEdge);
+        int firstColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X));
+        int lastColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1));
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             if ((uint)column >= level.Size.X ||
@@ -206,9 +206,9 @@ internal sealed class EnemyTerrain
 
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int firstRow = topPixel >> 4;
-        int lastRow = bottomPixel >> 4;
-        int column = targetEdge >> 4;
+        int firstRow = RoomGridConversions.PixelToBlock(topPixel);
+        int lastRow = RoomGridConversions.PixelToBlock(bottomPixel);
+        int column = RoomGridConversions.PixelToBlock(targetEdge);
         for (int row = firstRow; row <= lastRow; row++)
         {
             if ((uint)column >= level.Size.X ||
@@ -232,9 +232,9 @@ internal sealed class EnemyTerrain
         int edge = displacement.IsNegative
             ? CoordinateAxis.Wrap(center - slot.Radius.Y)
             : CoordinateAxis.Wrap(center + slot.Radius.Y - 1);
-        int blockY = edge >> 4;
-        int firstBlockX = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
-        int lastBlockX = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
+        int blockY = RoomGridConversions.PixelToBlock(edge);
+        int firstBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X));
+        int lastBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1));
         if ((uint)blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
@@ -484,7 +484,7 @@ internal sealed class EnemyTerrain
         bool movingUp)
     {
         // Only the slope block in the enemy center's column shapes the move; the others the scan reaches are passed.
-        if (block.X != slot.Position.X.Whole >> 4)
+        if (block.X != RoomGridConversions.PixelToBlock(slot.Position.X.Whole))
             return false;
 
         int xWithinBlock = behavior.Slope.FlipsHorizontally
@@ -546,8 +546,8 @@ internal sealed class EnemyTerrain
         Position16<RoomPixels> pixel,
         SlopeSurface surface)
     {
-        int blockX = pixel.X >> 4;
-        int blockY = pixel.Y >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(pixel.X);
+        int blockY = RoomGridConversions.PixelToBlock(pixel.Y);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {

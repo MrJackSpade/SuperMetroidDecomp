@@ -401,9 +401,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
         {
-            workRobotRecord.LaserVelocity = new(new SignedEightEight(words.A), default);
+            // The game keeps the robot's facing as its laser velocity's sign, two pixels either way.
+            workRobotRecord.Facing = words.A switch
+            {
+                0xfe00 => HorizontalDirection.Left,
+                0x0200 => HorizontalDirection.Right,
+                _ => throw new InvalidDataException($"Recorded Work Robot laser velocity ${words.A:X4} is not two pixels either way."),
+            };
             workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
-            workRobotRecord.BackupPosition = new(words.C, words.D);
             workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<KzanEnemyState>() is { } kzanRecord)

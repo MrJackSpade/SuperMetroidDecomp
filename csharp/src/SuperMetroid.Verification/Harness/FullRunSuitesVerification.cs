@@ -28,6 +28,7 @@ using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionH
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
+using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugEmergenceRiseVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardFallAccelerationVerification;
@@ -1062,6 +1063,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
         new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
+        new(nameof(VerifyPipeBugEmergenceRise), () => VerifyPipeBugEmergenceRise()),
         new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
         new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifyYardFallAcceleration), () => VerifyYardFallAcceleration()),

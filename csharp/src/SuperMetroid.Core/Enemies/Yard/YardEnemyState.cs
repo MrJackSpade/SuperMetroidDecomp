@@ -42,10 +42,9 @@ public sealed class YardEnemyState
     public YardMovement? Movement { get; internal set; }
 
     /// <summary>
-    /// Extra values zero through three: signed 1/65536-pixel airborne velocity in pixels per AI update (Y fraction/whole,
-    /// then X fraction/whole). Gravity adds 0.125 to Y, horizontal speed decays by 0.0625 toward zero
-    /// when not colliding, and collisions negate each part separately; downward collision lands when the Y whole part
-    /// is 0..2.
+    /// The airborne Yard's velocity in pixels per update. Gravity adds an eighth of a pixel to its fall, its sideways
+    /// speed slows by a sixteenth of a pixel toward rest while it meets nothing, and a collision reverses each part as the
+    /// compatibility services describe; a downward collision lands it while it falls less than three pixels an update.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
     /// <summary>Slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>

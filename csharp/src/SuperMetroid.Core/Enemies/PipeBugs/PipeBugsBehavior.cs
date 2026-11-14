@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -241,20 +242,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
-    /// <summary>Applies the fractional Y decrement until the bug rises above Samus and switches to horizontal flight.</summary>
+    /// <summary>Rises (<see cref="PipeBugEmergenceRise"/>) until the bug is above Samus, then switches to horizontal flight.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
     {
-        // The rise decrements the subposition as a separate value, then subtracts either one
-        // or two pixels according to the old value. This is deliberately not normal 1/65536-pixel
-        // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
-        FixedCoordinate y = slot.Position.Y;
-        bool oldSubpositionWasNonzero = y.Fraction != 0;
-        slot.Position = slot.Position.WithY(new(
-            CoordinateAxis.Wrap(y.Whole + (oldSubpositionWasNonzero ? -1 : -2)),
-            CoordinateAxis.Wrap(y.Fraction - 1)));
+        slot.Position = slot.Position.WithY(PipeBugEmergenceRise.Risen(slot.Position.Y));
         if ((state.EmergenceTop - slot.Position.Whole).Y < 0 ||
             slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
@@ -278,10 +272,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
-        slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0);
-        // This apparently strange assignment is literal game behaviour: the game
-        // stores the integer spawn Y as both whole and fraction rather than clearing the fraction.
-        slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
+            .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
         state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);

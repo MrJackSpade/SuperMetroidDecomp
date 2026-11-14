@@ -23,18 +23,13 @@ internal static class KraidFootCollisionDefinitionsVerification
         RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
         installedFoot.Bind(installedFoot.DefinitionId, default(RoomEnemyDefinition));
         installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.Definition);
-        AssertEqual(35, KraidFootCollisionDefinitions.FrameCount,
-            "Kraid foot walking extended-frame count");
         ushort[] frames =
         [
             KraidFootCollisionDefinitions.InitialFrame,
             .. Enumerable.Range(0, KraidFootCollisionDefinitions.FrameCount)
                 .Select(KraidFootCollisionDefinitions.FramePointer),
         ];
-        Suite(nameof(VerifyKraidFootFirstX), () => VerifyKraidFootFirstX(rom));
-        Suite(nameof(VerifyKraidFootFirstY), () => VerifyKraidFootFirstY(rom));
-        Suite(nameof(VerifyKraidFootSecondX), () => VerifyKraidFootSecondX(rom));
-        Suite(nameof(VerifyKraidFootSecondY), () => VerifyKraidFootSecondY(rom));
+        Suite(nameof(VerifyKraidFootCoordinates), () => VerifyKraidFootCoordinates(rom));
         Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(rom));
 
         // The typed foot programs match bank $A7 (--kraid-part-animations); every frame they show is a physical frame.

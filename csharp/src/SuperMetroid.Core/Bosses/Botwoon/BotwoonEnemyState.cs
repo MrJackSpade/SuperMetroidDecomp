@@ -103,16 +103,16 @@ public sealed class BotwoonEnemyState
     public bool SpitFrameReached { get; internal set; }
     /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
     public bool PendingDeath { get; internal set; }
-    /// <summary>Tail synchronization signal set when body argument zero crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
+    /// <summary>Tail synchronization signal set when the tail segment crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
     /// <summary>Shared death-start flag observed by all thirteen independent body-projectile turns to replace their normal animation with staggered falling.</summary>
     public bool BodyDeathStarted { get; internal set; }
-    /// <summary>Landing signal from retained body argument zero, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
+    /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Thirteen actors, indexed by spawn argument 0,2,...24 divided by two.</summary>
+    /// <summary>The thirteen body segments, from the tail (zero) to the segment behind the head (twelve).</summary>
     public EnemyProjectile?[] BodySegments { get; } =
         new EnemyProjectile?[13];
 

@@ -9,48 +9,48 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class KraidFootCollisionDefinitions
 {
-
-    /// <summary>Number of authored extended foot frames in the walk sequence.</summary>
-    internal const int FrameCount = 35;
-
-    /// <summary>The walk frame each Kraid-foot frame shows; the small-Kraid initial frame is physically the first.</summary>
-    internal static readonly Dictionary<EnemyFrameId, int> WalkFrames = new()
+    /// <summary>
+    /// The offsets of each foot frame's two components from the foot, in collision order (#1867): the first slides back
+    /// and forth along the floor through the walk, and the second lifts and comes down again. The neutral, standing and
+    /// last backward-walk frames share the resting placement.
+    /// </summary>
+    internal static readonly Dictionary<EnemyFrameId, Offset16<RoomPixels>[]> ComponentOffsets = new()
     {
-        [EnemyFrameId.KraidFootNeutral] = 0,
-        [EnemyFrameId.KraidFootWalkingForwardSecond] = 1,
-        [EnemyFrameId.KraidFootWalkingForwardThird] = 2,
-        [EnemyFrameId.KraidFootWalkingForwardFourth] = 3,
-        [EnemyFrameId.KraidFootWalkingForwardFifth] = 4,
-        [EnemyFrameId.KraidFootWalkingForwardSixth] = 5,
-        [EnemyFrameId.KraidFootWalkingForwardSeventh] = 6,
-        [EnemyFrameId.KraidFootWalkingForwardEighth] = 7,
-        [EnemyFrameId.KraidFootWalkingForwardNinth] = 8,
-        [EnemyFrameId.KraidFootWalkingForwardTenth] = 9,
-        [EnemyFrameId.KraidFootWalkingForwardEleventh] = 10,
-        [EnemyFrameId.KraidFootWalkingForwardTwelfth] = 11,
-        [EnemyFrameId.KraidFootWalkingForwardThirteenth] = 12,
-        [EnemyFrameId.KraidFootWalkingForwardFourteenth] = 13,
-        [EnemyFrameId.KraidFootWalkingForwardFifteenth] = 14,
-        [EnemyFrameId.KraidFootWalkingForwardSixteenth] = 15,
-        [EnemyFrameId.KraidFootWalkingForwardSeventeenth] = 16,
-        [EnemyFrameId.KraidFootWalkingForwardEighteenth] = 17,
-        [EnemyFrameId.KraidFootWalkingForwardNineteenth] = 18,
-        [EnemyFrameId.KraidFootWalkingForwardTwentieth] = 19,
-        [EnemyFrameId.KraidFootWalkingBackwardThirteenth] = 20,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyFirst] = 21,
-        [EnemyFrameId.KraidFootWalkingForwardTwentySecond] = 22,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyThird] = 23,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyFourth] = 24,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyFifth] = 25,
-        [EnemyFrameId.KraidFootWalkingForwardTwentySixth] = 26,
-        [EnemyFrameId.KraidFootWalkingForwardTwentySeventh] = 27,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyEighth] = 28,
-        [EnemyFrameId.KraidFootWalkingForwardTwentyNinth] = 29,
-        [EnemyFrameId.KraidFootWalkingForwardThirtieth] = 30,
-        [EnemyFrameId.KraidFootWalkingForwardThirtyFirst] = 31,
-        [EnemyFrameId.KraidFootWalkingBackwardSecond] = 32,
-        [EnemyFrameId.KraidFootWalkingBackwardFirst] = 34,
-        [EnemyFrameId.KraidFootStanding] = 0,
+        [EnemyFrameId.KraidFootNeutral] = [new(8, 40), new(0, 0)],
+        [EnemyFrameId.KraidFootWalkingForwardSecond] = [new(6, 39), new(-2, -1)],
+        [EnemyFrameId.KraidFootWalkingForwardThird] = [new(4, 38), new(-4, -2)],
+        [EnemyFrameId.KraidFootWalkingForwardFourth] = [new(2, 37), new(-6, -3)],
+        [EnemyFrameId.KraidFootWalkingForwardFifth] = [new(0, 36), new(-8, -4)],
+        [EnemyFrameId.KraidFootWalkingForwardSixth] = [new(-2, 35), new(5, -15)],
+        [EnemyFrameId.KraidFootWalkingForwardSeventh] = [new(-4, 34), new(3, -16)],
+        [EnemyFrameId.KraidFootWalkingForwardEighth] = [new(-6, 33), new(1, -17)],
+        [EnemyFrameId.KraidFootWalkingForwardNinth] = [new(-8, 32), new(-1, -18)],
+        [EnemyFrameId.KraidFootWalkingForwardTenth] = [new(-10, 31), new(-3, -19)],
+        [EnemyFrameId.KraidFootWalkingForwardEleventh] = [new(-12, 29), new(12, -26)],
+        [EnemyFrameId.KraidFootWalkingForwardTwelfth] = [new(-14, 28), new(26, -23)],
+        [EnemyFrameId.KraidFootWalkingForwardThirteenth] = [new(-16, 30), new(24, -21)],
+        [EnemyFrameId.KraidFootWalkingForwardFourteenth] = [new(-18, 32), new(22, -19)],
+        [EnemyFrameId.KraidFootWalkingForwardFifteenth] = [new(-20, 34), new(20, -17)],
+        [EnemyFrameId.KraidFootWalkingForwardSixteenth] = [new(-22, 36), new(18, -15)],
+        [EnemyFrameId.KraidFootWalkingForwardSeventeenth] = [new(-24, 38), new(16, -13)],
+        [EnemyFrameId.KraidFootWalkingForwardEighteenth] = [new(-26, 40), new(14, -11)],
+        [EnemyFrameId.KraidFootWalkingForwardNineteenth] = [new(-24, 40), new(16, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentieth] = [new(-22, 40), new(18, -10)],
+        [EnemyFrameId.KraidFootWalkingBackwardThirteenth] = [new(-20, 40), new(20, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyFirst] = [new(-18, 40), new(6, -15)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentySecond] = [new(-16, 40), new(8, -15)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyThird] = [new(-14, 40), new(-7, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyFourth] = [new(-12, 40), new(-5, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyFifth] = [new(-10, 40), new(-3, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentySixth] = [new(-8, 40), new(-1, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentySeventh] = [new(-6, 40), new(1, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyEighth] = [new(-4, 40), new(3, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardTwentyNinth] = [new(-2, 40), new(5, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardThirtieth] = [new(0, 40), new(7, -10)],
+        [EnemyFrameId.KraidFootWalkingForwardThirtyFirst] = [new(2, 40), new(-6, 0)],
+        [EnemyFrameId.KraidFootWalkingBackwardSecond] = [new(4, 40), new(-4, 0)],
+        [EnemyFrameId.KraidFootWalkingBackwardFirst] = [new(8, 40), new(0, 0)],
+        [EnemyFrameId.KraidFootStanding] = [new(8, 40), new(0, 0)],
     };
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>

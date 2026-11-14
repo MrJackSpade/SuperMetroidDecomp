@@ -23,8 +23,8 @@ internal interface IElevatorJourney
     /// <summary>The door-transition gate that suppresses actor movement.</summary>
     bool ElevatorDoorTransitionActive { get; set; }
 
-    /// <summary>Returns and clears the slot of the arriving elevator that placed Samus during the room load.</summary>
-    int? ConsumeElevatorArrivalPlacementSlot();
+    /// <summary>Returns and clears the arriving elevator that placed Samus during the room load.</summary>
+    RoomEnemySlot? ConsumeElevatorArrivalPlacement();
 
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();

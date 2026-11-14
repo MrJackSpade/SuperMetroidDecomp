@@ -24,7 +24,7 @@ internal static class DeadTorizoCollisionVerification
             slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(120, 100));
             slot.Radius = new(16, 32);
-            enemies.DeadTorizoBehavior.InitializeDeadTorizo(slot);
+            DeadTorizoBehavior.InitializeDeadTorizo(slot);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(slot.Contact.HasAny(EnemyContact.SolidToSamus),
                 "Native initial solidity must be retained.");
@@ -41,8 +41,8 @@ internal static class DeadTorizoCollisionVerification
                         samus.Kinematics.ExtraDisplacement.Y.WholePixels == 4,
                         "The custom touch rectangles must publish native displacement.");
                     break;
-                case "shot": enemies.DeadTorizoBehavior.TriggerDeadTorizoRotting(slot); break;
-                case "power bomb": enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot); break;
+                case "shot": DeadTorizoBehavior.TriggerDeadTorizoRotting(slot); break;
+                case "power bomb": DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot);
@@ -62,7 +62,7 @@ internal static class DeadTorizoCollisionVerification
                 ?? throw new InvalidOperationException("The initialized corpse has no state.");
             DeadTorizoPhase? phase = corpse.Phase;
             corpse.Phase = DeadTorizoPhase.NoOperation;
-            enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot);
+            DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot);
             Require(corpse.Phase == DeadTorizoPhase.NoOperation, "An ignored corpse must not restart from another power bomb.");
             Require(phase == DeadTorizoPhase.Rotting, "Each trigger must enter the native rotting phase.");
 

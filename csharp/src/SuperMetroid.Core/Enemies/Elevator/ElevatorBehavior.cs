@@ -72,18 +72,18 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// </summary>
     public bool ElevatorDoorTransitionActive { get; set; }
 
-    /// <summary>Arrival slot whose initializer placed Samus; consumed by the door loader this update.</summary>
-    private int? _arrivalPlacementSlot;
+    /// <summary>The arriving elevator whose setup placed Samus; consumed by the door loader this update.</summary>
+    private RoomEnemySlot? _arrivalPlacement;
 
     /// <summary>
-    /// Returns and clears the slot of the arriving elevator whose setup
+    /// Returns and clears the arriving elevator whose setup
     /// placed Samus during the room load just performed.
     /// </summary>
-    public int? ConsumeElevatorArrivalPlacementSlot()
+    public RoomEnemySlot? ConsumeElevatorArrivalPlacement()
     {
-        int? slot = _arrivalPlacementSlot;
-        _arrivalPlacementSlot = null;
-        return slot;
+        RoomEnemySlot? elevator = _arrivalPlacement;
+        _arrivalPlacement = null;
+        return elevator;
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
             slot.Position = slot.Position.WithWholeY(slot.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
             PinSamusToElevator(slot, samus);
-            _arrivalPlacementSlot = slot.SlotIndex;
+            _arrivalPlacement = slot;
         }
     }
 

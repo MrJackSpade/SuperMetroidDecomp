@@ -346,8 +346,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
         {
             // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth.
-            owtchRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            owtchRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            owtchRecord.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A),
+                SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C), "Owtch speed");
             owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
             owtchRecord.BurialDepth = words.F;
         }
@@ -509,8 +509,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
-            platform.RightSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            platform.LeftSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
+            platform.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
+                SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
             platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeMarks, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
@@ -818,4 +818,11 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="meaning">What the word holds, for the failure message.</param>
     private static int Index(ushort word, int maximum, string meaning) =>
         word <= maximum ? word : throw new InvalidDataException($"Recorded {meaning} {word} exceeds {maximum}.");
+
+    /// <summary>
+    /// The speed a recorded pair holds: the game stores a speed beside its negation, and Core keeps the speed alone and
+    /// negates it at use (#1804), so a pair whose second value is not the first's negation fails.
+    /// </summary>
+    private static SignedSixteenSixteen NegatedPair(SignedSixteenSixteen speed, SignedSixteenSixteen negation, string meaning) =>
+        negation == -speed ? speed : throw new InvalidDataException($"Recorded {meaning} {speed} is stored beside {negation}, not its negation.");
 }

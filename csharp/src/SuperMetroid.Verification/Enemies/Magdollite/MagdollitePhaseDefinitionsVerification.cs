@@ -49,8 +49,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         MagdolliteEnemyState headState = (enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0]."));
         MagdolliteEnemyState bodyState = (enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1]."));
         MagdolliteEnemyState overlayState = (enemies.MagdolliteStates[2] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2]."));
-        headState.DownwardVelocity = SignedSixteenSixteen.Zero;
-        headState.UpwardVelocity = SignedSixteenSixteen.Zero;
+        headState.Speed = SignedSixteenSixteen.Zero;
 
         AssertEqual(MagdolliteRise.Phase(0).BodyAnimation,
             bodyState.DesiredAnimation, "Magdollite production initial body list");

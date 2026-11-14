@@ -8,14 +8,9 @@ public sealed class OwtchEnemyState
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }
 
     /// <summary>
-    /// The signed 1/65536-pixel rightward patrol speed in pixels per update, taken from the shared linear-speed table.
+    /// The patrol speed in pixels per update, the spawn settings' speed: added walking right and negated walking left.
     /// </summary>
-    public SignedSixteenSixteen RightVelocity { get; internal set; }
-
-    /// <summary>
-    /// The signed 1/65536-pixel leftward patrol speed in pixels per update, the negative half of the same linear speed row.
-    /// </summary>
-    public SignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>The patrol state, which also indexes the state table.</summary>
     public OwtchBehaviorState Behavior { get; internal set; }

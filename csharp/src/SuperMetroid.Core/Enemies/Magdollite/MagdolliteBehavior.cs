@@ -91,9 +91,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The spawn settings name the speed Magdollite rises and sinks at.
-        SignedSixteenSixteen speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
-        state.DownwardVelocity = speed;
-        state.UpwardVelocity = SignedSixteenSixteen.Zero - speed;
+        state.Speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
 
         // The room has one lava glow, not one per part: each part's initialization restarts it, so the last part placed
         // sets its phase.
@@ -318,7 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // placement's speed. The arm's own speed is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
-        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
+        state.RiseDisplacement += AddMagdolliteY(body, -speedOwner.Speed);
 
         int upwardDistance = -state.RiseDisplacement.Y;
         MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
@@ -357,7 +355,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         (RoomEnemySlot speedHead, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = speedHead.RequireSpeciesState<MagdolliteEnemyState>();
-        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.DownwardVelocity);
+        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.Speed);
 
         if (state.RiseDisplacement.Y >= 0)
         {

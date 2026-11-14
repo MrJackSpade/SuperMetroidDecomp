@@ -66,8 +66,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             isKamer, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
-        state.RightSpeed = settings.Speed;
-        state.LeftSpeed = SignedSixteenSixteen.Zero - settings.Speed;
+        state.Speed = settings.Speed;
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
@@ -151,7 +150,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Platform X movement {state.XMovement} exceeds its two-entry table."),
         };
-        SignedSixteenSixteen displacement = movingLeft ? state.LeftSpeed : state.RightSpeed;
+        SignedSixteenSixteen displacement = movingLeft ? -state.Speed : state.Speed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 

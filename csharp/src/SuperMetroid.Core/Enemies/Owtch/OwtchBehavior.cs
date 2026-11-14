@@ -45,8 +45,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
         var state = new OwtchEnemyState
         {
-            RightVelocity = settings.Speed,
-            LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
+            Speed = settings.Speed,
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
@@ -144,7 +143,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.
-        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
+        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
 
         if (direction != HorizontalDirection.Right)
         {

@@ -101,9 +101,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PipeBugSegment.GeegaFlyingRight));
 
         // The spawn settings name the speed the bug flies at.
-        SignedSixteenSixteen speed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
-        state.PositiveVelocity = speed;
-        state.NegativeVelocity = SignedSixteenSixteen.Zero - speed;
+        state.FlightSpeed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
         state.Action = PipeBugAction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }
@@ -607,7 +605,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         bool movingLeft)
     {
-        slot.Position = slot.Position.AdvanceX(movingLeft ? state.NegativeVelocity : state.PositiveVelocity);
+        slot.Position = slot.Position.AdvanceX(movingLeft ? -state.FlightSpeed : state.FlightSpeed);
     }
 
     /// <summary>The linear-speed row a Norfair bug rises and staggers at.</summary>

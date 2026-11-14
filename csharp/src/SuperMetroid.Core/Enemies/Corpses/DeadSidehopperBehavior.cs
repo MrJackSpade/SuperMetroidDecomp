@@ -21,8 +21,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles level collision after the scripted opening movement reaches the terrain boundary.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>The room's enemy places, whose first, the Shitroid, suppresses the victim when it starts hidden.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>The room's Shitroid's feeding: once it has fed, the victim is gone.</summary>
+    private readonly IShitroidFeeding _shitroid;
     /// <summary>Supplies the enemy counter used to pace dust sound effects.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns dust from each completed corpse row.</summary>
@@ -39,7 +39,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         _rowDust = dependencies.RowDust;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
-        _slotTable = dependencies.SlotTable;
+        _shitroid = dependencies.Shitroid;
         _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
         _collision = dependencies.Collision;
@@ -86,8 +86,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // properties the room's population gave it stay as they were, which is observable.
         slot.Contact = slot.Contact.Without(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
-        // The victim's room lists the Shitroid first; a Shitroid that starts hidden has already fed, so the victim is gone.
-        if (_slotTable.ListedFirst().Presence.HasAny(EnemyPresence.Hidden))
+        // A Shitroid that has already fed on this Sidehopper leaves no victim.
+        if (_shitroid.HasAlreadyFed)
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));

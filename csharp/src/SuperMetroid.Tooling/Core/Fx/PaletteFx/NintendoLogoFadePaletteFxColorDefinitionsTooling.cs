@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Development-tool members of <see cref="NintendoLogoFadePaletteFxColorDefinitions"/>; never linked by player hosts.</summary>
 internal static class NintendoLogoFadePaletteFxColorDefinitionsTooling

@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
-/// <summary>Checks six Ceres planet, star, and title actor records against native setup metadata.</summary>
+/// <summary>Checks six Ceres planet, star, and title actor records and the Japanese subtitle's against native setup metadata.</summary>
 internal static class CeresZebesActorMetadataVerification
 {
     /// <summary>Compares spawn, slide, and completion callbacks while rejecting invalid actor ordinals.</summary>
@@ -63,6 +63,21 @@ internal static class CeresZebesActorMetadataVerification
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
                 () => CeresDestructionActors.ZebesActor(index), "Zebes metadata invalid index");
+
+        // The title's Japanese-text instruction ($8B:C9AF) spawns the subtitle's definition ($8B:CEB5), whose initializer
+        // ($8B:C9E6) selects the title's sprite colours and whose list ends before the slide (#1733).
+        CeresDestructionActorDefinition subtitle = CeresDestructionActorDefinitions.ZebesSubtitle;
+        AssertEqual((byte)0xa0, retail.ReadCartridgeByte(0x8bc9b5), "subtitle spawn LDY");
+        ushort subtitleDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9b6);
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 2), subtitle.ActiveFrameBehavior.NativeAddress,
+            "native subtitle callback");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 4), CinematicSpriteNativeListAddresses.Entry(subtitle.Animation),
+            "native subtitle program");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9f3), CeresSheetInks.SpriteSet(subtitle.Colouring),
+            "Japanese subtitle attributes");
+        AssertEqual((ushort)0, subtitle.SlideFrameBehavior.NativeAddress, "the Japanese subtitle cannot enter slide motion");
+        AssertTrue(!subtitle.CompletesScene && !subtitle.WrapX && subtitle.HorizontalDelta == SignedSixteenSixteen.Zero,
+            "the Japanese subtitle neither moves nor ends the scene");
 
         // Native lower-right slide callback alone installs the load-game function.
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc8f2), "completion load immediate opcode");

@@ -4,7 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
@@ -21,12 +21,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 internal static class EndingScreenShades
 {
     /// <summary>Every palette object the ending spawns, whose records the ending's sheets are pre-coloured in (#1512).</summary>
-    private static readonly PaletteFxObject[] PaletteFxObjects =
+    private static readonly ColourEffectId[] PaletteFxObjects =
     [
-        EndingPaletteFxDefinitions.FadePlanet, EndingPaletteFxDefinitions.Supernova, EndingPaletteFxDefinitions.SupernovaFinale,
-        EndingPaletteFxDefinitions.Explosion, EndingPaletteFxDefinitions.Lava, EndingPaletteFxDefinitions.Crust,
-        EndingPaletteFxDefinitions.GreyClouds, EndingPaletteFxDefinitions.WideExplosion, EndingPaletteFxDefinitions.PlanetAfterglow,
-        EndingPaletteFxDefinitions.GunshipEmergence, EndingLogoDefinitions.LandingPaletteFx,
+        EndingColourEffectDefinitions.FadePlanet, EndingColourEffectDefinitions.Supernova, EndingColourEffectDefinitions.SupernovaFinale,
+        EndingColourEffectDefinitions.Explosion, EndingColourEffectDefinitions.Lava, EndingColourEffectDefinitions.Crust,
+        EndingColourEffectDefinitions.GreyClouds, EndingColourEffectDefinitions.WideExplosion, EndingColourEffectDefinitions.PlanetAfterglow,
+        EndingColourEffectDefinitions.GunshipEmergence, EndingLogoDefinitions.LandingColourEffect,
     ];
 
     /// <summary>Every shade of the ending's screen colours, coloured from <paramref name="palettes"/> and <paramref name="paletteFx"/>.</summary>
@@ -79,7 +79,7 @@ internal static class EndingScreenShades
             shades.Add(new SheetShade(EndingShades.LogoCrossfade(step), EndingScreenInks.LogoCrossfade, colours));
         }
         // Every record any ending object can show, over the colours its group writes.
-        foreach ((PaletteFxColours group, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy(PaletteFxObjects))
+        foreach ((ColourEffectColours group, ColourEffectFrame record) in PaletteFxRecordShades.ShownBy(PaletteFxObjects))
             shades.Add(PaletteFxRecordShades.Shade(group, record, EndingScreenInks.PaletteFx(group), paletteFx));
         return shades;
     }

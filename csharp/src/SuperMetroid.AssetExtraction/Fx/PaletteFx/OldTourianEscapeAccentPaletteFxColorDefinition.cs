@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -14,7 +14,7 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     public required OldTourianEscapeAccentPaletteOwner Owner { get; init; }
 
     /// <summary>The palette-FX object that installs this program.</summary>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
 
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>

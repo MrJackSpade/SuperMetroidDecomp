@@ -76,10 +76,10 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] spritesFile = spritesJson.ToArray();
 
-        // These six X/Y operands are presentation data, read from the pinned cartridge into an editable layout; the game
+        // These seven X/Y operands are presentation data, read from the pinned cartridge into an editable layout; the game
         // keeps no copy of them (#1615).
         var placements = new CeresRevealActorPlacement[
-            CeresDestructionActorDefinitions.ZebesActorCount];
+            CeresDestructionActorDefinitions.RevealPlacementCount];
         for (int index = 0; index < placements.Length; index++)
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];

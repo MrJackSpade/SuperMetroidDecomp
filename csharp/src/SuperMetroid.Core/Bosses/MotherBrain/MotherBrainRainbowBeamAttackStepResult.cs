@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -23,7 +23,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool MusicStopQueued,
     bool EscapeMusicQueued,
     bool EscapeMusicTrackQueued,
-    IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,
+    IReadOnlyList<ColourEffectId> EscapeColourEffectRequests,
     bool EscapeTypewriterSetupRequested,
     bool TimeBombSetSubtitleSpawnRequested,
     DustExplosionRequest? EscapeDoorExplosion,

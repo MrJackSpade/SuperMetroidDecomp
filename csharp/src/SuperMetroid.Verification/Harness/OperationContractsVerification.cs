@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -57,8 +57,8 @@ internal static class OperationContractsVerification
             "the grapple wrapper withholds projectiles, Mode 7 and bombs");
 
         // Children that read a subset take that subset, not the parent's record.
-        AssertEqual(typeof(PaletteFxConditions),
-            MetadataShape.ParameterTypes(typeof(RoomPaletteFxSystem), "CheckCondition", instance)[1],
+        AssertEqual(typeof(ColourEffectInputs),
+            MetadataShape.ParameterTypes(typeof(ColourEffectSystem), "CheckCondition", instance)[1],
             "a colour effect's condition takes only the room's conditions; the power bomb stays with the step");
         AssertEqual(typeof(VerticalTerrainProbe),
             MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[3],

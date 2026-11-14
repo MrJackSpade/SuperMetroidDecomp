@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// ends the effects whose colours it restores (<see cref="EndingColourOwnerDefinitions.Restores"/>), so no shade depends
 /// on which was shown last.
 /// </remarks>
-[RoomScopeBoundary("The ending's colours own the ending's palette FX for the cinematic's lifetime; no gameplay room is loaded during it.")]
+[RoomScopeBoundary("The ending's colours own the ending's colour effects for the cinematic's lifetime; no gameplay room is loaded during it.")]
 internal sealed class EndingColours
 {
     /// <summary>The running scene's whole screen of colours, or none before the first scene.</summary>
@@ -34,7 +34,7 @@ internal sealed class EndingColours
     private readonly HashSet<EndingColourLoad> restored = [];
 
     /// <summary>The palette-effect colours whose settled look a load within the running scene replaced.</summary>
-    private readonly HashSet<PaletteFxColours> restoredPaletteFx = [];
+    private readonly HashSet<ColourEffectColours> restoredColourEffects = [];
 
     /// <summary>Each fade the running scene shows, at its current level.</summary>
     private readonly Dictionary<EndingFade, int> fades = [];
@@ -46,7 +46,7 @@ internal sealed class EndingColours
     private int? logoCrossfadeStep;
 
     /// <summary>The ending's palette effects, which each scene boundary clears.</summary>
-    internal RoomPaletteFxSystem PaletteFx { get; private set; } = new(new PaletteFxSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
 
     /// <summary>
     /// Shows the installed colours <paramref name="load"/>. A scene's whole screen of colours starts that scene, with
@@ -62,7 +62,7 @@ internal sealed class EndingColours
             scene = load;
             sceneBackdrop = backdrop ?? throw new ArgumentException($"The ending's {load} scene names no backdrop.", nameof(backdrop));
             restored.Clear();
-            restoredPaletteFx.Clear();
+            restoredColourEffects.Clear();
             fades.Clear();
             flashes.Clear();
             logoCrossfadeStep = null;
@@ -75,11 +75,11 @@ internal sealed class EndingColours
             : throw new InvalidDataException($"The ending's {load} load lists nothing it restores.");
         foreach (EndingFade fade in restores.Fades)
             fades.Remove(fade);
-        foreach (PaletteFxColours colours in restores.PaletteFx)
+        foreach (ColourEffectColours colours in restores.ColourEffects)
         {
-            if (PaletteFx.Animates(colours))
+            if (ColourEffects.Animates(colours))
                 throw new InvalidOperationException($"The ending's {load} load restores {colours}, which a running palette effect still animates.");
-            restoredPaletteFx.Add(colours);
+            restoredColourEffects.Add(colours);
         }
         restored.Add(load);
     }
@@ -100,7 +100,7 @@ internal sealed class EndingColours
     /// <summary>
     /// Clears the palette effects at a scene boundary (#1544): every effect ends, so the records they showed stop showing.
     /// </summary>
-    internal void ResetPaletteFx() => PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+    internal void ResetColourEffects() => ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
 
     /// <summary>
     /// The solid colour shown behind every layer, where nothing is drawn (#1597): the scene's own backdrop, the white the
@@ -114,7 +114,7 @@ internal sealed class EndingColours
         RgbColor backdrop = sceneBackdrop;
         if (FlashBackdrop(EndingFlash.SilhouetteBackdrop) is { } silhouette)
             backdrop = silhouette;
-        if (PaletteFx.FrameOf(EndingPaletteFxDefinitions.SpaceColours) is { } frame)
+        if (ColourEffects.FrameOf(EndingColourEffectDefinitions.SpaceColours) is { } frame)
         {
             backdrop = (space ?? throw new InvalidOperationException(
                 "The ending's explosion requires the installed backdrops of the space behind the exploding planet.")).Of(frame);
@@ -151,10 +151,10 @@ internal sealed class EndingColours
             }
             if (logoCrossfadeStep is { } step)
                 shades.Add(EndingShades.LogoCrossfade(step));
-            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in PaletteFx.Shown)
+            foreach ((ColourEffectColours colours, ColourEffectFrame frame) in ColourEffects.Shown)
             {
-                if (!restoredPaletteFx.Contains(colours))
-                    shades.Add(PaletteFxShades.Of(colours, frame));
+                if (!restoredColourEffects.Contains(colours))
+                    shades.Add(ColourEffectShades.Of(colours, frame));
             }
             return shades;
         }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// <summary>
 /// The shades the import pre-colours the title's sheets in (#1512): each colouring a title composition draws in, and the
 /// copyright's colours as the title's skip restores them. The floor's console lights are palette-effect shades
-/// (<see cref="Fx.PaletteFx.PaletteFxShades"/>). Which inks each recolours, and to what, is the import's.
+/// (<see cref="Fx.ColourEffects.ColourEffectShades"/>). Which inks each recolours, and to what, is the import's.
 /// </summary>
 public static class TitleShades
 {

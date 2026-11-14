@@ -77,13 +77,13 @@ internal static class RoomFxRecordDefinitionsVerification
         // The blend's colours are the layer-3 pictures' shade of it (#1512); the room names the same blend.
         AssertEqual(nativeFx.PaletteBlend, compiledFx.PaletteBlend, "Ceres compiled FX palette blend");
 
-        var nativePaletteSession = new PaletteFxSessionState();
-        RoomPaletteFxSystem nativePalette;
-        var compiledPaletteSession = new PaletteFxSessionState();
-        RoomPaletteFxSystem compiledPalette;
-        nativePalette = RoomPaletteFxSystem.ForRoom(nativePaletteSession, room.State.Fx, station.Door,
+        var nativePaletteSession = new ColourEffectSessionState();
+        ColourEffectSystem nativePalette;
+        var compiledPaletteSession = new ColourEffectSessionState();
+        ColourEffectSystem compiledPalette;
+        nativePalette = ColourEffectSystem.ForRoom(nativePaletteSession, room.State.Fx, station.Door,
             equippedItems: 0, areaMiniBossDefeated: false);
-        compiledPalette = RoomPaletteFxSystem.ForRoom(compiledPaletteSession, room.State.Fx, station.Door,
+        compiledPalette = ColourEffectSystem.ForRoom(compiledPaletteSession, room.State.Fx, station.Door,
             equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");

@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
@@ -36,9 +36,9 @@ internal static class LookupPaletteFxDispatchVerification
         {
             ushort pointer = (ushort)value;
             if (original.Contains(pointer))
-                _ = RoomPaletteFxSelection.Get(pointer);
+                _ = ColourEffectSelection.Get(pointer);
             else
-                AssertThrows<InvalidDataException>(() => RoomPaletteFxSelection.Get(pointer),
+                AssertThrows<InvalidDataException>(() => ColourEffectSelection.Get(pointer),
                     "Unknown/interior palette-FX identity rejects");
         }
     }
@@ -48,7 +48,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(FxNativeWords.StartOf(FxNativeWords.PaletteFxSetups.Decode(ReadVerificationWord(rom, 0x8d0000 | pointer), "palette-FX setup")),
-                RoomPaletteFxSelection.Get(pointer).Start, "Native palette-FX setup");
+                ColourEffectSelection.Get(pointer).Start, "Native palette-FX setup");
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>
@@ -56,7 +56,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
-                PaletteFxNativeListAddresses.Entry(RoomPaletteFxSelection.Get(pointer).InitialAnimation), "Native palette-FX initial program");
+                PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(pointer).InitialAnimation), "Native palette-FX initial program");
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>

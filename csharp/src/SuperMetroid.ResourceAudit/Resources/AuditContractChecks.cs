@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.Json;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.ResourceAudit.ClosedContracts;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;

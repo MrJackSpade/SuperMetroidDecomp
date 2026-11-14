@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The staff credits and what follows them: the reward copyright and fades, the white flash and the post-credits logo.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsRoll
 {
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
@@ -45,7 +45,7 @@ internal sealed class EndingCreditsRoll
     {
         ShootingStars = new EndingShootingStars();
         // Func126 clears palette objects before installing credits/reward palettes.
-        _stage.ResetPaletteFx();
+        _stage.ResetColourEffects();
         _artwork.LoadCreditsAndPostCreditsAssets();
         _artwork.CurrentCredits = new CreditsObjectState();
         _artwork.PostCreditsText.Clear();
@@ -119,7 +119,7 @@ internal sealed class EndingCreditsRoll
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
-            () => _stage.PaletteFxSystem.Start(EndingLogoDefinitions.LandingPaletteFx, 0));
+            () => _stage.ColourEffects.Start(EndingLogoDefinitions.LandingColourEffect, 0));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 

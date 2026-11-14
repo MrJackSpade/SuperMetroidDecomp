@@ -59,7 +59,10 @@ internal static class CeresCinematicSourceDefinitions
         new(CeresDestructionActors.InitialPlacementId(2), 0xbfa6, 0xbfba),
     ];
 
-    /// <summary>The X/Y immediates of the Zebes reveal's six actors' initializers ($8B:C810..C831), in spawn order.</summary>
+    /// <summary>
+    /// The X/Y immediates of the Zebes reveal's six actors' initializers ($8B:C810..C831), in spawn order, then of the
+    /// Japanese subtitle's initializer ($8B:C9E6), which the title spawns with Japanese text.
+    /// </summary>
     internal static IReadOnlyList<CinematicPlacementSourceDefinition> ZebesPlacements { get; } =
     [
         new(CeresDestructionActors.ZebesPlacementId(0), 0xc83c),
@@ -68,5 +71,6 @@ internal static class CeresCinematicSourceDefinitions
         new(CeresDestructionActors.ZebesPlacementId(3), 0xc96c),
         new(CeresDestructionActors.ZebesPlacementId(4), 0xc980),
         new(CeresDestructionActors.ZebesPlacementId(5), 0xc993),
+        new(CeresDestructionActors.ZebesPlacementId(CeresDestructionActorDefinitions.ZebesSubtitlePlacement), 0xc9e7),
     ];
 }

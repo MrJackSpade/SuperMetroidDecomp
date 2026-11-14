@@ -291,7 +291,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.ApplySelectedGameOptions();
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.MapPresentation?.PowerBombGlowColors,
-            session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets));
+            session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets,
+            japaneseText: session.GameplayRuntime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoom;
         session.display.PublishBlack();
     }

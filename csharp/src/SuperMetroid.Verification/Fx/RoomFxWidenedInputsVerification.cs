@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Fx;
 
@@ -62,7 +62,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(liquidLevel: -1), "a named surface above the room's top");
         AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetLevel: -1), "a named target above the room's top");
 
-        static PaletteFxConditions Conditions(int samusY) =>
+        static ColourEffectInputs Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessStep = darkness };

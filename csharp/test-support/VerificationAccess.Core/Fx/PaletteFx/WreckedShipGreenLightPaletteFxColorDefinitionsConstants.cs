@@ -1,7 +1,7 @@
 
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Cartridge values of <see cref="WreckedShipGreenLightPaletteFxColorDefinitions"/> that only verification reads.</summary>
 internal static class WreckedShipGreenLightPaletteFxColorDefinitionsConstants

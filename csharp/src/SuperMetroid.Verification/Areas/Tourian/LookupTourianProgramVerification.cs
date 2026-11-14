@@ -9,7 +9,7 @@ using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVer
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
 using Beat = SuperMetroid.Core.Animation.AnimationBeat<
     SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture,
@@ -144,7 +144,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 case AnimatedTileInstruction.SpawnPaletteFxObject:
                     AssertEqual(definition.PaletteFxDefinition, operand, $"{at}: grey palette effect");
-                    steps.Add(Cue(TourianStatueBlockCueKind.SpawnGreyPaletteFx));
+                    steps.Add(Cue(TourianStatueBlockCueKind.SpawnGreyColourEffect));
                     break;
                 case AnimatedTileInstruction.SetEvent:
                     AssertEqual(operand, definition.GreyEvent.Number(), $"{at}: grey event set");

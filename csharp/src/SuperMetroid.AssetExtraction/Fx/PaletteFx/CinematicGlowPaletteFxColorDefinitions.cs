@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -29,18 +29,18 @@ public static class CinematicGlowPaletteFxColorDefinitions
         new()
         {
             Owner = CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-            Object = PaletteFxObject.OldMotherBrainFightBackgroundLights,
+            Object = ColourEffectId.OldMotherBrainFightBackgroundLights,
             ColorsPerFrame = 3,
             FrameDuration = 6,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldMotherBrainFightBGLights1, 3),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.OldMotherBrainFightBackgroundLights, 3),
         },
         new()
         {
             Owner = CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-            Object = PaletteFxObject.GunshipGlow,
+            Object = ColourEffectId.GunshipGlow,
             ColorsPerFrame = 1,
             FrameDuration = 5,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.GunshipGlow1, 1),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.GunshipGlow, 1),
         },
     ];
 }

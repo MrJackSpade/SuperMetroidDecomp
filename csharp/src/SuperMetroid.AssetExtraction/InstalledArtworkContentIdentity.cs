@@ -357,8 +357,8 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresRevealActorLayout", content =>
         {
-            content.Append("actors", CeresDestructionActorDefinitions.ZebesActorCount);
-            for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
+            content.Append("actors", CeresDestructionActorDefinitions.RevealPlacementCount);
+            for (int index = 0; index < CeresDestructionActorDefinitions.RevealPlacementCount; index++)
             {
                 CeresRevealActorPlacement placement = placements[index];
                 content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));

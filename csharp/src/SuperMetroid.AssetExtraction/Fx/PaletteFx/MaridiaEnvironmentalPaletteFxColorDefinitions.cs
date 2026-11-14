@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -36,21 +36,21 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
             Owner = MaridiaEnvironmentalPaletteOwner.SandPits,
             FrameCount = SandRotationColors,
             ColorsPerFrame = SandRotationColors * SandPitBandCount,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.MaridiaSandPitsCycle, SandRotationColors * SandPitBandCount),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaSandPits, SandRotationColors * SandPitBandCount),
         },
         new()
         {
             Owner = MaridiaEnvironmentalPaletteOwner.SandFalls,
             FrameCount = SandRotationColors,
             ColorsPerFrame = SandRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.MaridiaSandFallsCycle, SandRotationColors),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaSandFalls, SandRotationColors),
         },
         new()
         {
             Owner = MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls,
             FrameCount = WaterfallRotationColors,
             ColorsPerFrame = WaterfallRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.MaridiaBackgroundWaterfallsCycle, WaterfallRotationColors),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaBackgroundWaterfalls, WaterfallRotationColors),
         },
     ];
 

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -95,7 +95,7 @@ internal static class GunshipGlowVerification
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(runtime.RoomPaletteFx.IsRunning(GunshipLightDefinitions.Glow), "loading the Landing Site starts the gunship's glow");
-        AssertTrue(runtime.RoomPaletteFx.FrameOf(PaletteFxColours.GunshipGlow) is null, "the glow shows its first record on the first update");
+        AssertTrue(runtime.RoomPaletteFx.FrameOf(ColourEffectColours.GunshipGlow) is null, "the glow shows its first record on the first update");
 
         var glow = new NativeColourEffectRun(cartridge, GlowDefinition);
         var images = new HashSet<SpriteImage>();
@@ -103,13 +103,13 @@ internal static class GunshipGlowVerification
         {
             runtime.StepFrame(0);
             glow.Step();
-            PaletteFxFrame frame = runtime.RoomPaletteFx.FrameOf(PaletteFxColours.GunshipGlow)
+            ColourEffectFrame frame = runtime.RoomPaletteFx.FrameOf(ColourEffectColours.GunshipGlow)
                 ?? throw new InvalidOperationException($"Landing Site update {update} shows no gunship glow.");
             AssertEqual(glow.Record, NativeColourEffectRun.RecordOf(frame), $"Landing Site update {update} shows the record the cartridge's glow list shows");
-            PictureShading lit = PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.GunshipGlow, frame));
+            PictureShading lit = PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.GunshipGlow, frame));
             foreach (RoomEnemySlot piece in pieces)
                 AssertEqual(lit, piece.Shading, $"Landing Site update {update} lays the glow's record over gunship piece {piece.SlotIndex}");
-            PictureShade glowShade = PaletteFxShades.Of(PaletteFxColours.GunshipGlow, frame);
+            PictureShade glowShade = ColourEffectShades.Of(ColourEffectColours.GunshipGlow, frame);
             ImageSpriteDraw[] draws = [.. runtime.Sprites.Draws.OfType<ImageSpriteDraw>()
                 .Where(draw => draw.Shading is { } shading && shading.Shades.Contains(glowShade))];
             AssertTrue(draws.Length > 0, $"Landing Site update {update} draws the gunship with the glow's record");
@@ -125,8 +125,8 @@ internal static class GunshipGlowVerification
         foreach (SpriteImage image in images)
         {
             recoloured += CeresColourEffectsVerification.InstalledShadeRecolourings(image,
-                [.. PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, PaletteFxColours.GunshipGlow, first, installed)],
-                [.. PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, PaletteFxColours.GunshipGlow, first, native)], $"the gunship's glow on {image.Name}");
+                [.. PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow, first, installed)],
+                [.. PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow, first, native)], $"the gunship's glow on {image.Name}");
         }
         AssertTrue(recoloured > 0, "the gunship's installed pictures show its glow");
         Console.WriteLine($"  Gunship glow: every initialisation path spawns it over the pieces' last row colour; the Landing Site starts it, " +

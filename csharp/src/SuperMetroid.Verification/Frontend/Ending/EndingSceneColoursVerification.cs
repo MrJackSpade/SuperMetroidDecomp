@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingSceneColoursVerification
 {
     /// <summary>The conditions a frontend screen's colour effects run under.</summary>
-    private static readonly PaletteFxConditions Screen = new() { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
+    private static readonly ColourEffectInputs Screen = new() { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
 
     /// <summary>Runs the scene colour checks on the ending's colours alone, without an installation.</summary>
     internal static void VerifyEndingSceneColours()
@@ -29,10 +29,10 @@ internal static class EndingSceneColoursVerification
         colours.Load(EndingColourLoad.Escape, escape);
         colours.Fade(EndingFade.ExplosionBackground, 3);
         colours.Flash(EndingFlash.SilhouetteBackdrop, black);
-        colours.PaletteFx.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        colours.PaletteFx.StepScreen(Screen);
+        colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        colours.ColourEffects.StepScreen(Screen);
         colours.Load(EndingColourLoad.Explosion, explosion);
-        colours.ResetPaletteFx();
+        colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.Explosion)]),
             "a scene's whole screen of colours shows nothing an earlier scene showed");
         AssertEqual(explosion, colours.Backdrop(null), "a scene shows its own backdrop");
@@ -45,16 +45,16 @@ internal static class EndingSceneColoursVerification
         AssertTrue(colours.Shades.SequenceEqual(restoredScene),
             "restoring the explosion's backgrounds ends the far background's fade-out and keeps the scene's other fades");
 
-        colours.PaletteFx.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        colours.PaletteFx.StepScreen(Screen);
-        PictureShade gunshipRecord = PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion,
-            colours.PaletteFx.FrameOf(PaletteFxColours.GunshipEmergingFromExplosion)
+        colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        colours.ColourEffects.StepScreen(Screen);
+        PictureShade gunshipRecord = ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion,
+            colours.ColourEffects.FrameOf(ColourEffectColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
         AssertTrue(colours.Shades.SequenceEqual([.. restoredScene, gunshipRecord]), "a running palette effect shows the record it holds");
         AssertThrows<InvalidOperationException>(() => colours.Load(EndingColourLoad.FinalGunship, null),
             "the final gunship's colours cannot restore colours the gunship's emergence still animates");
 
-        colours.ResetPaletteFx();
+        colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual(restoredScene), "cleared palette effects stop showing their records, and nothing else");
 
         colours.Load(EndingColourLoad.PostCredits, black);
@@ -67,14 +67,14 @@ internal static class EndingSceneColoursVerification
         actors.Load(EndingColourLoad.Explosion, explosion);
         actors.Fade(EndingFade.ExplodingPlanet, 5);
         actors.Flash(EndingFlash.PlanetGlow, null);
-        actors.PaletteFx.Start(EndingPaletteFxDefinitions.FadePlanet, 0);
-        actors.PaletteFx.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        actors.PaletteFx.StepScreen(Screen);
-        PictureShade planetFadeOut = PaletteFxShades.Of(PaletteFxColours.ZoomedOutExplodingZebes,
-            actors.PaletteFx.FrameOf(PaletteFxColours.ZoomedOutExplodingZebes)
+        actors.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
+        actors.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        actors.ColourEffects.StepScreen(Screen);
+        PictureShade planetFadeOut = ColourEffectShades.Of(ColourEffectColours.ZoomedOutExplodingZebes,
+            actors.ColourEffects.FrameOf(ColourEffectColours.ZoomedOutExplodingZebes)
             ?? throw new InvalidOperationException("The planet's fade-out showed no record on its first step."));
-        PictureShade actorsGunship = PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion,
-            actors.PaletteFx.FrameOf(PaletteFxColours.GunshipEmergingFromExplosion)
+        PictureShade actorsGunship = ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion,
+            actors.ColourEffects.FrameOf(ColourEffectColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
         PictureShade pod = EndingShades.Drawn(EndingSpriteColouring.AnimalEscape);
         PictureShade planet = EndingShades.Drawn(EndingSpriteColouring.ExplodingPlanet);

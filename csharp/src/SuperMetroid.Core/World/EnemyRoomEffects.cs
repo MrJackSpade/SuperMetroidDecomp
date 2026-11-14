@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -55,34 +55,34 @@ internal sealed class EnemyRoomEffects
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, RoomPaletteFxSystem roomPaletteFx, RoomEnemySystem enemies)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects, RoomEnemySystem enemies)
     {
         ApplyPendingBotwoonWallObject(requests, roomObjects);
         ApplyPendingSporeSpawnCeilingObject(requests, roomObjects);
         ApplyPendingCrocomireArenaObjects(requests, roomObjects);
         ApplyPendingKraidObjects(requests, roomObjects);
-        ApplyPendingMotherBrainObjects(requests, roomObjects, roomFxOverlay, roomPaletteFx);
+        ApplyPendingMotherBrainObjects(requests, roomObjects, roomFxOverlay, roomColourEffects);
         ApplyPendingShitroidWallObjects(requests, roomObjects);
         ApplyPendingPhantoonDoorObject(requests, roomObjects);
         ApplyPendingChozoStatueObjects(roomObjects, roomFxOverlay, enemies);
-        ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
+        ApplyPendingTorizoBellyGlow(requests, roomColourEffects);
     }
 
     /// <summary>
     /// Starts the colour effect an enemy's placement or AI started, if any, among the room's colour effects (#1733): the
     /// gunship's glow, which its top hull's placement starts.
     /// </summary>
-    internal void StartEnemyColourEffect(PaletteFxObject? effect, RoomPaletteFxSystem roomPaletteFx)
+    internal void StartEnemyColourEffect(ColourEffectId? effect, ColourEffectSystem roomColourEffects)
     {
         if (effect is { } started)
-            Ensure.NotNull(roomPaletteFx).Start(started, _player.Samus?.EquippedItems ?? 0);
+            Ensure.NotNull(roomColourEffects).Start(started, _player.Samus?.EquippedItems ?? 0);
     }
 
     /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>
-    internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, RoomPaletteFxSystem roomPaletteFx)
+    internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, ColourEffectSystem roomColourEffects)
     {
         if (requests.TorizoBellyGlow is { } glow)
-            roomPaletteFx.StartTorizoBellyGlow(glow.Glow, glow.Torizo, _player.IntroducedSamus.EquippedItems);
+            roomColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, _player.IntroducedSamus.EquippedItems);
     }
 
     /// <summary>
@@ -177,12 +177,12 @@ internal sealed class EnemyRoomEffects
     /// owner. The enemy state publishes requests in call order; consuming them
     /// here retains the descending-slot allocation and one-frame execution seam.
     /// </summary>
-    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, RoomPaletteFxSystem roomPaletteFx)
+    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects)
     {
         if (requests.MotherBrainDeathStep is { } death)
         {
-            foreach (PaletteFxObject definition in death.EscapePaletteFxRequests)
-                roomPaletteFx.Start(definition, _player.IntroducedSamus.EquippedItems);
+            foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
+                roomColourEffects.Start(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)

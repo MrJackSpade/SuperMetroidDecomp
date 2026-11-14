@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>Immutable game data shared by Samus palettes.</summary>

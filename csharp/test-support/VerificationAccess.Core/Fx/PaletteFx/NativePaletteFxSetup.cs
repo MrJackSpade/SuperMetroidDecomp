@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// The cartridge's palette-FX setup routines, verification's native view (#1554): each names the

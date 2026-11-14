@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Bosses.Torizo;
@@ -87,7 +87,7 @@ internal static class TorizoPaletteShakeVerification
         // The import pre-colours each step: the black fade's last moving step and the normal fade's are their targets'.
         IReadOnlyList<SheetShade> shades = TorizoSheetShades.Of(InstalledFixtures.EnemyTiles.AuxiliaryColors
             ?? throw new InvalidOperationException("The installed enemy artwork holds the Torizos' colours."),
-            InstalledFixtures.ImportMaps.RoomPaletteFx, PaletteFxObject.BombTorizoBelly);
+            InstalledFixtures.ImportMaps.RoomPaletteFx, ColourEffectId.BombTorizoBelly);
         SheetShade toBlack = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Black), 1, 13));
         AssertTrue(toBlack.Inks.SequenceEqual(Enumerable.Range(16, 32)), "The fades recolour only sprite rows one and two");
         AssertTrue(toBlack.Colours.All(colour => colour == RgbColor.Black), "The black fade's last step is black");
@@ -166,7 +166,7 @@ internal static class TorizoPaletteShakeVerification
     private static void VerifyBellyGlow(IReadOnlyList<SheetShade> shades)
     {
         SheetShade[] records = [.. shades.Where(shade =>
-            shade.Shade == PaletteFxShades.Of(PaletteFxColours.TorizoBelly, new PaletteFxFrame(PaletteFxSegment.BombTorizoBelly1, shade.Shade.Step)))];
+            shade.Shade == ColourEffectShades.Of(ColourEffectColours.TorizoBelly, new ColourEffectFrame(ColourEffectAnimation.BombTorizoBelly, shade.Shade.Step)))];
         AssertTrue(records.Length > 0, "The import pre-colours the belly glow's records");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The program's six records are ten bytes apart, each a duration and three colours.
@@ -178,11 +178,11 @@ internal static class TorizoPaletteShakeVerification
             AssertTrue(record.Inks.SequenceEqual([25, 26, 27]), "The glow recolours the tenth through twelfth colours of the first body row");
         AssertTrue(cartridge.SetEquals(imported), "The glow's records show bank $8D's colours");
 
-        PaletteFxFrame shown = new(PaletteFxSegment.BombTorizoBelly1, records[0].Shade.Step);
+        ColourEffectFrame shown = new(ColourEffectAnimation.BombTorizoBelly, records[0].Shade.Step);
         var colours = new TorizoColours();
         colours.Show(new TorizoLook(TorizoLookKind.Normal));
         colours.ShowBellyGlow(shown);
-        AssertEqual(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, shown), colours.Shading.Shades[^1], "The glow's record lies over the statue's colouring");
+        AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown), colours.Shading.Shades[^1], "The glow's record lies over the statue's colouring");
         colours.FadeToward(new TorizoLook(TorizoLookKind.Black));
         var counter = new SharedFadeStepCount();
         counter.Advance();
@@ -206,7 +206,7 @@ internal static class TorizoPaletteShakeVerification
             "The white hurt flash covers the glow");
         colours.Show(new TorizoLook(TorizoLookKind.Normal));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal)))
-            .With(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, shown)), colours.Shading,
+            .With(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown)), colours.Shading,
             "Once the flash ends, the glow shows its current record at once over the colouring written");
     }
 

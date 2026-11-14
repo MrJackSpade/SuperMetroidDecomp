@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -15,5 +15,5 @@ public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
     public const int ColorsPerFrame = 7;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CommonTourianEscapeRedFlashingCycle, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.TourianRedFlashingArkanoidBlocksAndRedOrbs, ColorsPerFrame);
 }

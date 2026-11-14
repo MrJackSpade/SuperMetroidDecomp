@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -20,14 +20,14 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
         new()
         {
             Owner = OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-            Object = PaletteFxObject.OldTourianBackgroundRailingsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldTourianBackgroundRailingsFlashYellowCycle, ColorsPerFrame),
+            Object = ColourEffectId.OldTourianBackgroundRailingsFlashYellow,
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.OldTourianBackgroundRailingsFlashYellow, ColorsPerFrame),
         },
         new()
         {
             Owner = OldTourianEscapeAccentPaletteOwner.YellowPanels,
-            Object = PaletteFxObject.OldTourianBackgroundPanelsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldTourianBackgroundPanelsFlashYellowCycle, ColorsPerFrame),
+            Object = ColourEffectId.OldTourianBackgroundPanelsFlashYellow,
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.OldTourianBackgroundPanelsFlashYellow, ColorsPerFrame),
         },
     ];
 }

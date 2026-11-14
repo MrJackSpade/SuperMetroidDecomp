@@ -5,7 +5,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
@@ -56,7 +56,7 @@ internal static class TorizoSheetShades
     /// records of the belly glow <paramref name="glow"/> from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A glow record has no installed colour, or writes past the body's first row.</exception>
-    internal static IReadOnlyList<SheetShade> Of(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, PaletteFxObject glow)
+    internal static IReadOnlyList<SheetShade> Of(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, ColourEffectId glow)
     {
         Ensure.NotNull(auxiliary);
         Ensure.NotNull(paletteFx);
@@ -95,11 +95,11 @@ internal static class TorizoSheetShades
     /// The belly glow's shades: each record its program shows over the glowing colours, and each run of fade steps from
     /// each record toward each fade target.
     /// </summary>
-    private static IEnumerable<SheetShade> BellyGlow(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, PaletteFxObject glow)
+    private static IEnumerable<SheetShade> BellyGlow(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, ColourEffectId glow)
     {
-        foreach ((PaletteFxColours colours, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy([glow]))
+        foreach ((ColourEffectColours colours, ColourEffectFrame record) in PaletteFxRecordShades.ShownBy([glow]))
         {
-            if (colours != PaletteFxColours.TorizoBelly)
+            if (colours != ColourEffectColours.TorizoBelly)
                 throw new InvalidDataException($"The Torizo belly glow {glow} shows {colours}.");
             SheetShade written = PaletteFxRecordShades.Shade(colours, record, new InkRange(BellyGlowFirstInk, BellyGlowEndInk), paletteFx);
             yield return written;

@@ -46,7 +46,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         var death = default(MotherBrainRainbowBeamAttackStepResult) with
         {
             DeathExplosions = [],
-            EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
+            EscapeColourEffectRequests = [], EscapeDoorParticleSpawns = [],
             CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: EnemySound.LiquidDamage)],
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, EnemySound.SmallExplosion),
         };

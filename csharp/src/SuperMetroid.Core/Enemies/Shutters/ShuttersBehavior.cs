@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
@@ -30,10 +30,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <paramref name="slots"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
     /// each record replaces the one before it.
     /// </summary>
-    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, PaletteFxFrame record)
+    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, ColourEffectFrame record)
     {
         Ensure.NotNull(slots);
-        PictureShade flash = PaletteFxShades.Of(PaletteFxColours.TourianShutters, record);
+        PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, record);
         foreach (RoomEnemySlot slot in slots)
         {
             if (slot.DefinitionId != EnemyDefinitionId.ShutterDestroyable)

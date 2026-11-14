@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -15,7 +15,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
 
     /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks>One object installs the afterglow and the other the lava.</remarks>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
 
 
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>

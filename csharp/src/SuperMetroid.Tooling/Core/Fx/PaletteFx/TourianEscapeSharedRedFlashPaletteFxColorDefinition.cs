@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>One entry into Tourian's shared escape red-flash loop.</summary>
 public sealed class TourianEscapeSharedRedFlashPaletteFxColorDefinition

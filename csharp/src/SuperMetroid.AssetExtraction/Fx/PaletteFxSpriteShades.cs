@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -17,12 +17,12 @@ internal static class PaletteFxSpriteShades
     private const int RowColours = 16;
 
     /// <summary>The colour of its sprite row each group's first written colour is.</summary>
-    private static readonly ImmutableDictionary<PaletteFxColours, int> FirstColours = new Dictionary<PaletteFxColours, int>
+    private static readonly ImmutableDictionary<ColourEffectColours, int> FirstColours = new Dictionary<ColourEffectColours, int>
     {
-        [PaletteFxColours.RidleyStatue] = 0,
-        [PaletteFxColours.PhantoonStatue] = 0,
-        [PaletteFxColours.TourianShutters] = 9,
-        [PaletteFxColours.GunshipGlow] = 15,
+        [ColourEffectColours.RidleyStatue] = 0,
+        [ColourEffectColours.PhantoonStatue] = 0,
+        [ColourEffectColours.TourianShutters] = 9,
+        [ColourEffectColours.GunshipGlow] = 15,
     }.ToImmutableDictionary();
 
     /// <summary>
@@ -33,13 +33,13 @@ internal static class PaletteFxSpriteShades
     /// The group recolours no sprite row, the program shows another group, a colour is not installed, or a record writes
     /// past the row.
     /// </exception>
-    internal static IEnumerable<SheetShade> Of(PaletteFxObject effect, PaletteFxColours group, int rowFirstInk, IPaletteFxColorSource colours)
+    internal static IEnumerable<SheetShade> Of(ColourEffectId effect, ColourEffectColours group, int rowFirstInk, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(colours);
         if (!FirstColours.TryGetValue(group, out int firstColour))
             throw new InvalidDataException($"Palette-FX colours {group} recolour no sprite row.");
         var shades = new List<SheetShade>();
-        foreach ((PaletteFxColours shownGroup, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy([effect]))
+        foreach ((ColourEffectColours shownGroup, ColourEffectFrame record) in PaletteFxRecordShades.ShownBy([effect]))
         {
             if (shownGroup != group)
                 throw new InvalidDataException($"Palette-FX object {effect} shows {shownGroup}, not {group}.");

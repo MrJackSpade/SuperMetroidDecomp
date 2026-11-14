@@ -45,7 +45,7 @@ internal static class IntroContentIdentityVerification
         foreach ((string family, int count) in new[]
         {
             new VerifyIntroContentIdentityCase("flight", CeresFlightActorDefinitions.RearViewActorCount),
-            new VerifyIntroContentIdentityCase("reveal", CeresDestructionActorDefinitions.ZebesActorCount),
+            new VerifyIntroContentIdentityCase("reveal", CeresDestructionActorDefinitions.RevealPlacementCount),
             new VerifyIntroContentIdentityCase("destruction", CeresDestructionActorDefinitions.InitialActorCount),
         })
         for (int index = 0; index < count; index++)
@@ -104,7 +104,7 @@ internal static class IntroContentIdentityVerification
             IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))),
             IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name), IntroDiscoveryActorSpriteFormat.Version)),
             IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name), IntroScientistSpriteFormat.Version)),
-            CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))));
+            CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name), CeresDestructionSpriteFormat.Version)));
         CeresFlightSpritePresentation flight = CeresFlightSpritePresentation.Load(Sprites("flight", CeresFlightSpriteDefinitions.Frames.Select(frame => frame.Name)));
         return sprites.ContentIdentity + flight.ContentIdentity;
 
@@ -147,7 +147,7 @@ internal static class IntroContentIdentityVerification
             Backdrop("flight-backdrop"),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
-        var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
+        var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.RevealPlacementCount).Select(index =>
             new CeresRevealActorPlacement
             {
                 Id = CeresDestructionActors.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),

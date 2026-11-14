@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingFlyaway
 {
     /// <summary>Controls the animals' escape detail in the planet cinematic.</summary>
@@ -42,8 +42,8 @@ internal sealed class EndingFlyaway
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
-        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
-        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.WrappedSteps(-112);

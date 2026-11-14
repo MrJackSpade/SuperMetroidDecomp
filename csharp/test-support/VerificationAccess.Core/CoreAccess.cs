@@ -13,7 +13,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -155,7 +155,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Counts the room's running colour effects.</summary>
-    extension(RoomPaletteFxSystem fx)
+    extension(ColourEffectSystem fx)
     {
         /// <summary>The colour effects running.</summary>
         internal int ActiveCount => fx.effects.Count;

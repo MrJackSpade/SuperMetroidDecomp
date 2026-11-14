@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// supply extracted graphics, palette, and gradient presentation. No original
 /// image is mapped during the title sequence.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class TitleSequenceState : IFrontendScreen
 {
     /// <inheritdoc/>
@@ -50,7 +50,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// Runs the title's colour effects (#1714): the two console lights for the whole sequence, and the logo's and the
     /// copyright's fades from the updates they first show.
     /// </summary>
-    private RoomPaletteFxSystem colourEffects = new(new PaletteFxSessionState());
+    private ColourEffectSystem colourEffects = new(new ColourEffectSessionState());
     /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
@@ -222,7 +222,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
-        colourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The skip's rebuild follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuiltTitleObjects)
@@ -384,9 +384,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// </summary>
     private void RestartColourEffects()
     {
-        colourEffects = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        colourEffects.Start(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
-        colourEffects.Start(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
+        colourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, 0);
+        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, 0);
     }
 
     /// <summary>
@@ -422,10 +422,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         get
         {
             PictureShading shading = PictureShading.Standard;
-            if (colourEffects.FrameOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
-                shading = shading.With(PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, tube));
-            if (colourEffects.FrameOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
-                shading = shading.With(PaletteFxShades.Of(PaletteFxColours.TitleScreenDisplays, displays));
+            if (colourEffects.FrameOf(ColourEffectColours.BabyMetroidTubeLight) is { } tube)
+                shading = shading.With(ColourEffectShades.Of(ColourEffectColours.BabyMetroidTubeLight, tube));
+            if (colourEffects.FrameOf(ColourEffectColours.TitleScreenDisplays) is { } displays)
+                shading = shading.With(ColourEffectShades.Of(ColourEffectColours.TitleScreenDisplays, displays));
             return shading;
         }
     }
@@ -448,9 +448,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// fade has not started, shows <paramref name="drawn"/>.
     /// </summary>
     private PictureShading Faded(TitleSpriteColouring colouring, PictureShading drawn) =>
-        TitleSequenceDefinitions.Sprites.FadedColours.TryGetValue(colouring, out PaletteFxColours colours)
+        TitleSequenceDefinitions.Sprites.FadedColours.TryGetValue(colouring, out ColourEffectColours colours)
         && colourEffects.FrameOf(colours) is { } frame
-            ? drawn.With(PaletteFxShades.Of(colours, frame))
+            ? drawn.With(ColourEffectShades.Of(colours, frame))
             : drawn;
 
     /// <summary>Resolves the installed title gradient at the floor's current zoom.</summary>

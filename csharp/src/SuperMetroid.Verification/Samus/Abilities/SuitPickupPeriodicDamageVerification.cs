@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -57,8 +57,8 @@ internal static class SuitPickupPeriodicDamageVerification
         while (runtime.SuitPickup.IsActive)
         {
             AssertTrue(pickupFrames < 4096, "the suit transformation finishes");
-            samus.LiquidPhysics.AccumulatePeriodicDamage(PaletteFxHeatData.SubdamagePerFrame, wholeDamage: 0);
-            reference.LiquidPhysics.AccumulatePeriodicDamage(PaletteFxHeatData.SubdamagePerFrame, wholeDamage: 0);
+            samus.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
+            reference.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
             int healthBefore = samus.Health;
             int subunitBefore = samus.SubunitHealth;
             runtime.StepFrame(0);

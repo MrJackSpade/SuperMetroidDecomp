@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 

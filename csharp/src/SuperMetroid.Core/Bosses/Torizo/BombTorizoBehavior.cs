@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -60,7 +60,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Shows step <paramref name="step"/> of the Torizo's belly glow over his belly (#1512, #1597).</summary>
     /// <exception cref="InvalidOperationException">No Torizo is loaded to glow.</exception>
-    internal void ShowBellyGlow(PaletteFxFrame step)
+    internal void ShowBellyGlow(ColourEffectFrame step)
     {
         TorizoEnemyState state = Access.TorizoState
             ?? throw new InvalidOperationException("The Torizo belly glow shows a step while no Torizo is loaded.");
@@ -304,7 +304,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
-                _frameResults.TorizoBellyGlow = new(PaletteFxObject.BombTorizoBelly, state);
+                _frameResults.TorizoBellyGlow = new(ColourEffectId.BombTorizoBelly, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.NoOperation }:
@@ -461,7 +461,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 torizo.Radius = new(18, 48);
-                _frameResults.TorizoBellyGlow = new(PaletteFxObject.GoldenTorizoBelly, state);
+                _frameResults.TorizoBellyGlow = new(ColourEffectId.GoldenTorizoBelly, state);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:

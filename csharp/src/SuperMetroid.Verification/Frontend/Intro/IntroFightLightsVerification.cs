@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Input;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -80,7 +80,7 @@ internal static class IntroFightLightsVerification
         var audio = AudioQueues.Standalone();
         IntroCinematicState intro = InstalledFixtures.CreateIntro(audio);
         NativeColourEffectRun? lights = null;
-        PaletteFxFrame? held = null;
+        ColourEffectFrame? held = null;
         bool pageTwo = false, discovered = false;
         for (int update = 0; !discovered; update++)
         {
@@ -94,15 +94,15 @@ internal static class IntroFightLightsVerification
                 lights = new NativeColourEffectRun(cartridge, LightsDefinition);
             bool pageTwoUpdate = !pageTwo && intro.CurrentFlashbackMotherBrain?.PageTwoRequested == true;
             pageTwo |= pageTwoUpdate;
-            PaletteFxFrame? shown = intro.ColourEffects.FrameOf(PaletteFxColours.OldMotherBrainBackgroundLights);
+            ColourEffectFrame? shown = intro.ColourEffects.FrameOf(ColourEffectColours.OldMotherBrainBackgroundLights);
             if (lights is null || (pageTwo && !pageTwoUpdate))
             {
                 AssertTrue(shown is null, $"intro update {update} ({intro.Phase}) shows no fight lights");
-                AssertTrue(!intro.FightRoomShading.Shades.Any(shade => shade.Effect.Contains(nameof(PaletteFxColours.OldMotherBrainBackgroundLights), StringComparison.Ordinal)),
+                AssertTrue(!intro.FightRoomShading.Shades.Any(shade => shade.Effect.Contains(nameof(ColourEffectColours.OldMotherBrainBackgroundLights), StringComparison.Ordinal)),
                     $"intro update {update} shades the fight's room without the lights");
                 continue;
             }
-            PaletteFxFrame frame = shown ?? throw new InvalidOperationException($"Intro update {update} shows no fight lights.");
+            ColourEffectFrame frame = shown ?? throw new InvalidOperationException($"Intro update {update} shows no fight lights.");
             if (pageTwoUpdate)
             {
                 // The check deletes the lights before their countdown runs: the record they showed stays.
@@ -114,7 +114,7 @@ internal static class IntroFightLightsVerification
                 AssertEqual(lights.Record, NativeColourEffectRun.RecordOf(frame), $"intro update {update} shows the record the cartridge's lights list shows");
             }
             held = frame;
-            AssertEqual(1, intro.FightRoomShading.Shades.Count(shade => shade == PaletteFxShades.Of(PaletteFxColours.OldMotherBrainBackgroundLights, frame)),
+            AssertEqual(1, intro.FightRoomShading.Shades.Count(shade => shade == ColourEffectShades.Of(ColourEffectColours.OldMotherBrainBackgroundLights, frame)),
                 $"intro update {update} shades the fight's room with the lights' record");
         }
         AssertTrue(lights is not null && pageTwo, "the intro runs the fight lights from the fight to page two");
@@ -139,8 +139,8 @@ internal static class IntroFightLightsVerification
         var native = new ReferencePaletteFxColorSource(bus);
         SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource installed = InstalledFixtures.ImportMaps.RoomPaletteFx;
         int recoloured = CeresColourEffectsVerification.InstalledShadeRecolourings(InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroScenePictures).Image,
-            PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], PaletteFxColours.OldMotherBrainBackgroundLights, IntroSheetInks.FightLights, installed),
-            PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], PaletteFxColours.OldMotherBrainBackgroundLights, IntroSheetInks.FightLights, native),
+            PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], ColourEffectColours.OldMotherBrainBackgroundLights, IntroSheetInks.FightLights, installed),
+            PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], ColourEffectColours.OldMotherBrainBackgroundLights, IntroSheetInks.FightLights, native),
             "the fight's lights");
         AssertTrue(recoloured > 0, "the installed Mother Brain room shows its fight's lights");
     }

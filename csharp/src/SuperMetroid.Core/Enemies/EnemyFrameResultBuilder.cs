@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -23,7 +23,7 @@ internal sealed class EnemyFrameResultBuilder
     /// The colour effect an enemy's placement or AI started for the room's colour effects to run, or none: the gunship's
     /// top hull starts its lights' glow as it is placed (#1733).
     /// </summary>
-    internal PaletteFxObject? ColourEffect { get; set; }
+    internal ColourEffectId? ColourEffect { get; set; }
 
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()

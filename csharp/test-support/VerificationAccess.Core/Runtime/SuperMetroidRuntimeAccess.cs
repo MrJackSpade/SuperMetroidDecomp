@@ -72,7 +72,7 @@ internal static class SuperMetroidRuntimeAccess
         internal RoomFxOverlayState RoomFxOverlay => self.Room.LoadedScope.FxOverlay;
 
         /// <summary>The loaded room's palette FX.</summary>
-        internal RoomPaletteFxSystem RoomPaletteFx => self.Room.LoadedScope.PaletteFx;
+        internal ColourEffectSystem RoomPaletteFx => self.Room.LoadedScope.ColourEffects;
 
         /// <summary>The loaded room's Ceres haze.</summary>
         internal CeresHazeState CeresHaze => self.Room.LoadedScope.CeresHaze;

@@ -8,11 +8,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>Reads and writes the installed layout of the Zebes reveal's actors.</summary>
 public static class CeresRevealActorLayoutFile
 {
-    /// <summary>Validates the six fixed reveal-actor identities and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
+    /// <summary>Validates the seven fixed reveal placement identities and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
-    /// <returns>The six installed placements of the reveal.</returns>
+    /// <returns>The seven installed placements of the reveal.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
-    /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or signed screen-pixel coordinate is invalid.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, seven-entry order, actor identity, or signed screen-pixel coordinate is invalid.</exception>
     public static CeresRevealActorPlacements Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -29,8 +29,8 @@ public static class CeresRevealActorLayoutFile
         }
 
         if (document.Version != CeresRevealActorLayoutFormat.Version ||
-            document.Actors is not { Length: CeresDestructionActorDefinitions.ZebesActorCount })
-            throw new InvalidDataException("Ceres reveal requires exactly six ordered actor placements.");
+            document.Actors is not { Length: CeresDestructionActorDefinitions.RevealPlacementCount })
+            throw new InvalidDataException("Ceres reveal requires exactly seven ordered actor placements.");
         for (int index = 0; index < document.Actors.Length; index++)
         {
             CeresRevealActorPlacement placement = document.Actors[index];

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
 
@@ -141,10 +141,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// colour the glow recolours; each record replaces the one before it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The room's top hull has not been placed.</exception>
-    internal void ShowGlow(PaletteFxFrame record)
+    internal void ShowGlow(ColourEffectFrame record)
     {
         GunshipPieces ship = _ship ?? throw new InvalidOperationException("The gunship's glow shows in a room whose gunship is not placed.");
-        PictureShading glow = PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.GunshipGlow, record));
+        PictureShading glow = PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.GunshipGlow, record));
         foreach (RoomEnemySlot piece in ship.All)
             piece.Shading = glow;
     }

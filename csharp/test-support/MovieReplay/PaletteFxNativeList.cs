@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-/// <summary>One segment's native list (#1600): each beat's native address, and the control instructions between its beats.</summary>
-/// <param name="BeatAddresses">The native address of each of the segment's beats, in order.</param>
+/// <summary>One native list (#1600, #1739): each beat's native address, and the control instructions between its beats.</summary>
+/// <param name="BeatAddresses">The native address of each of the list's beats, in order.</param>
 /// <param name="Controls">The list's control instructions, in order.</param>
 internal sealed record PaletteFxNativeList(ushort[] BeatAddresses, PaletteFxNativeControl[] Controls);
 
@@ -30,11 +30,11 @@ internal enum PaletteFxNativeControlKind
 /// <param name="Kind">What it does.</param>
 /// <param name="AfterBeat">The number of the list's beats before it.</param>
 /// <param name="Address">Its native address; for a run on into the next list, that list's entry.</param>
-/// <param name="Target">The list it continues at or replays, where it names one.</param>
+/// <param name="Target">The entry of the list it continues at or replays, where it names one.</param>
 /// <param name="Count">The timer it sets, where it sets one.</param>
-internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, int AfterBeat, ushort Address, PaletteFxSegment? Target, int? Count);
+internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, int AfterBeat, ushort Address, ushort? Target, int? Count);
 
-/// <summary>Where a live object resumes (#1600): the animation it plays, named by its first segment, and its place in it.</summary>
-/// <param name="Animation">The first segment of the animation it plays.</param>
+/// <summary>Where a live object resumes (#1600, #1739): the animation it plays, and its place in it.</summary>
+/// <param name="Animation">The animation it plays.</param>
 /// <param name="Place">Its place in that animation.</param>
-internal readonly record struct PaletteFxImportedPlace(PaletteFxSegment Animation, SuperMetroid.Core.Animation.AnimationPlace Place);
+internal readonly record struct PaletteFxImportedPlace(ColourEffectAnimation Animation, SuperMetroid.Core.Animation.AnimationPlace Place);

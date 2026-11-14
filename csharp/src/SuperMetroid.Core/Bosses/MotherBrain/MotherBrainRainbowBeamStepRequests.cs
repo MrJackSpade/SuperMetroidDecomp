@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -53,7 +53,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal bool EscapeMusicTrackQueued { get; set; }
 
     /// <summary>The escape's palette effects requested.</summary>
-    internal List<PaletteFxObject> EscapePaletteFxRequests { get; } = new(capacity: 4);
+    internal List<ColourEffectId> EscapeColourEffectRequests { get; } = new(capacity: 4);
 
     /// <summary>Whether the escape typewriter's setup was requested.</summary>
     internal bool EscapeTypewriterSetupRequested { get; set; }
@@ -103,7 +103,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
         new(phaseBefore, phaseAfter, Movement, SoundQueued, ColoursRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
             headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
-            EscapeMusicTrackQueued, EscapePaletteFxRequests,
+            EscapeMusicTrackQueued, EscapeColourEffectRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainDefeatRecordRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorObject, Earthquake, SamusProjectileCooldown);

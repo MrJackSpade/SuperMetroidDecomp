@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx;
@@ -27,7 +27,7 @@ internal static class RoomFxRecordEncoding
     /// bit in the area's list (#1526).
     /// </summary>
     /// <exception cref="InvalidDataException">An effect is not in the area's list once, or the effects are out of the list's order.</exception>
-    internal static byte PaletteEffectsByte(ImmutableArray<PaletteFxObject> effects, AreaId area) =>
+    internal static byte PaletteEffectsByte(ImmutableArray<ColourEffectId> effects, AreaId area) =>
         BitsetByte(effects, bit => AreaPaletteFxObjects.Read(area, bit), $"{area} palette effect");
 
     /// <summary>

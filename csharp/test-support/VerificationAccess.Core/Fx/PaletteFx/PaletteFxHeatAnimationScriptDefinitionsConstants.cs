@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Cartridge values of <see cref="PaletteFxHeatAnimationScriptDefinitions"/> that only verification reads.</summary>
 internal static class PaletteFxHeatAnimationScriptDefinitionsConstants
@@ -37,11 +37,11 @@ internal static class PaletteFxHeatAnimationScriptDefinitionsConstants
     /// </summary>
     public static ushort ResolveForEquippedItems(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, ushort phase)
     {
-        PaletteFxHeatSuit suit = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? PaletteFxHeatSuit.Gravity
+        ColourEffectHeatSuit suit = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? ColourEffectHeatSuit.Gravity
             : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? PaletteFxHeatSuit.Varia
-                : PaletteFxHeatSuit.Power;
+                ? ColourEffectHeatSuit.Varia
+                : ColourEffectHeatSuit.Power;
         return PaletteFxHeatAnimationScriptDefinitions.Resolve(suit, phase);
     }
 }

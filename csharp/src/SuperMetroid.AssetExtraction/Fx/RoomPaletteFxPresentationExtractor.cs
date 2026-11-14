@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
@@ -18,9 +18,9 @@ internal static class RoomPaletteFxPresentationExtractor
         RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
-            SamusHeatPowerSuit = ExtractFrames(Heat(PaletteFxHeatSuit.Power)),
-            SamusHeatVariaSuit = ExtractFrames(Heat(PaletteFxHeatSuit.Varia)),
-            SamusHeatGravitySuit = ExtractFrames(Heat(PaletteFxHeatSuit.Gravity)),
+            SamusHeatPowerSuit = ExtractFrames(Heat(ColourEffectHeatSuit.Power)),
+            SamusHeatVariaSuit = ExtractFrames(Heat(ColourEffectHeatSuit.Varia)),
+            SamusHeatGravitySuit = ExtractFrames(Heat(ColourEffectHeatSuit.Gravity)),
             NorfairForegroundAndHeatPhase = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase)),
             NorfairGreenForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.GreenForeground)),
             NorfairPurpleForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.PurpleForeground)),
@@ -90,7 +90,7 @@ internal static class RoomPaletteFxPresentationExtractor
         static PaletteFxColorFrames Maridia(MaridiaEnvironmentalPaletteOwner owner) =>
             MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item => item.Owner == owner).ColorFrames;
 
-        static PaletteFxColorFrames Heat(PaletteFxHeatSuit suit) =>
+        static PaletteFxColorFrames Heat(ColourEffectHeatSuit suit) =>
             PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit).ColorFrames;
 
         static PaletteFxColorFrames Loading(SamusLoadingSuitPaletteFxProgramOwner owner) =>

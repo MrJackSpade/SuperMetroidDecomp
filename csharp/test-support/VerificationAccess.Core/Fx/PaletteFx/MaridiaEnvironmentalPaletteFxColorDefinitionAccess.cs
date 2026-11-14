@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Verification access to <see cref="MaridiaEnvironmentalPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
@@ -14,7 +14,7 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
         /// <summary>Frames from the first record through the next first record.</summary>
         internal int CycleFrames => self.FrameCount * self.Duration;
         /// <summary>The colour group the definition's object animates.</summary>
-        internal PaletteFxColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
+        internal ColourEffectColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
         /// <summary>The authored cadence for sand or waterfall animation.</summary>
         public ushort Duration => self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
             ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallDuration

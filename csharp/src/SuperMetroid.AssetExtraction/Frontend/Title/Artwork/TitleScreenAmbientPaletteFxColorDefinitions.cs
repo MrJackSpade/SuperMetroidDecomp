@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -39,19 +39,19 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            Colours = PaletteFxColours.BabyMetroidTubeLight,
+            Colours = ColourEffectColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.TitleScreenBabyMetroidTubeLight, TubeColourCount),
         };
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
         new()
         {
             Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            Colours = PaletteFxColours.TitleScreenDisplays,
+            Colours = ColourEffectColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TitleScreenFlickeringDisplays1, DisplayColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.TitleScreenFlickeringDisplays, DisplayColourCount),
         };
 }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Areas.Tourian;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>
 public sealed class TourianStatueGreyPaletteFxColorDefinition

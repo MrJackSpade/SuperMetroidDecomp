@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -22,7 +22,7 @@ public static class TourianStatueAnimationDefinitions
             DefeatedBosses = DefeatedBosses.AreaBoss,
             ClearedShade = TourianStatueShades.PhantoonCleared,
             Eye = new(new(132, 144), TourianStatueShades.EyeGlow(0)),
-            PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
+            ColourEffect = ColourEffectId.GreyOutTourianStatuePhantoon,
             GreyShade = TourianStatueShades.PhantoonGrey,
         },
         [TourianGreyStatues.Ridley] = new()
@@ -34,7 +34,7 @@ public static class TourianStatueAnimationDefinitions
             DefeatedBosses = DefeatedBosses.AreaBoss,
             ClearedShade = TourianStatueShades.RidleyCleared,
             Eye = new(new(122, 81), TourianStatueShades.EyeGlow(1)),
-            PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
+            ColourEffect = ColourEffectId.GreyOutTourianStatueRidley,
             GreyShade = TourianStatueShades.RidleyGrey,
         },
         [TourianGreyStatues.Kraid] = new()
@@ -46,7 +46,7 @@ public static class TourianStatueAnimationDefinitions
             DefeatedBosses = DefeatedBosses.AreaBoss,
             ClearedShade = TourianStatueShades.KraidCleared,
             Eye = new(new(104, 114), TourianStatueShades.EyeGlow(3)),
-            PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
+            ColourEffect = ColourEffectId.GreyOutTourianStatueKraid,
             GreyShade = TourianStatueShades.KraidGrey,
         },
         [TourianGreyStatues.Draygon] = new()
@@ -58,7 +58,7 @@ public static class TourianStatueAnimationDefinitions
             DefeatedBosses = DefeatedBosses.AreaBoss,
             ClearedShade = TourianStatueShades.DraygonCleared,
             Eye = new(new(158, 128), TourianStatueShades.EyeGlow(2)),
-            PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
+            ColourEffect = ColourEffectId.GreyOutTourianStatueDraygon,
             GreyShade = TourianStatueShades.DraygonGrey,
         },
     };

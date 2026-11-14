@@ -67,8 +67,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
     public RoomFxOverlayState? FxOverlay { get; set; }
 
-    /// <summary>The palette FX, once the FX step has built them.</summary>
-    public RoomPaletteFxSystem? PaletteFx { get; set; }
+    /// <summary>The colour effects, once the FX step has built them.</summary>
+    public ColourEffectSystem? ColourEffects { get; set; }
 
     /// <summary>The Ceres haze, once the FX step has built it.</summary>
     public CeresHazeState? CeresHaze { get; set; }
@@ -137,7 +137,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
         FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),
-        PaletteFx = PaletteFx ?? throw Missing(nameof(PaletteFx)),
+        ColourEffects = ColourEffects ?? throw Missing(nameof(ColourEffects)),
         CeresHaze = CeresHaze ?? throw Missing(nameof(CeresHaze)),
         SandBlockAnimations = SandBlockAnimations ?? throw Missing(nameof(SandBlockAnimations)),
         SpikeBlockAnimations = SpikeBlockAnimations ?? throw Missing(nameof(SpikeBlockAnimations)),

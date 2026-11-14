@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Areas.Tourian;
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Development-tool members of <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions"/>; never linked by player hosts.</summary>
 internal static class TourianStatueGreyPaletteFxColorToolingDefinitions

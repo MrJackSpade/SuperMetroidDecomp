@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -31,18 +31,18 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
         new()
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
-            Object = PaletteFxObject.ZebesExplosionPlanetAfterglow,
+            Object = ColourEffectId.ZebesExplosionPlanetAfterglow,
             ColorsPerFrame = 8,
             CycleFrames = 96,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.ZebesExplosionPlanetAfterGlow1, 8),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.ZebesExplosionPlanetAfterglow, 8),
         },
         new()
         {
             Owner = ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
-            Object = PaletteFxObject.ExplodingZebesLava,
+            Object = ColourEffectId.ExplodingZebesLava,
             ColorsPerFrame = 1,
             CycleFrames = 70,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.ExplodingZebesLava1, 1),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.ExplodingZebesLava, 1),
         },
     ];
 

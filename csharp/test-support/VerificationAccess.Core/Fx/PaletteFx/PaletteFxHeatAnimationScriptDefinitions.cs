@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// Immutable program selectors consumed by <c>FrameBehavior_PaletteFXObject_SamusInHeat</c>.

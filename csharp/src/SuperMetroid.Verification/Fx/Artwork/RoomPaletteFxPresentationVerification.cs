@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
@@ -62,10 +62,10 @@ internal static class RoomPaletteFxPresentationVerification
             "Norfair presentation owns all 320 BGR555 source words");
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var nativeSession = new PaletteFxSessionState();
-        var native = new RoomPaletteFxSystem(nativeSession);
-        var installedSession = new PaletteFxSessionState();
-        var installed = new RoomPaletteFxSystem(installedSession);
+        var nativeSession = new ColourEffectSessionState();
+        var native = new ColourEffectSystem(nativeSession);
+        var installedSession = new ColourEffectSessionState();
+        var installed = new ColourEffectSystem(installedSession);
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -78,9 +78,9 @@ internal static class RoomPaletteFxPresentationVerification
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
@@ -138,7 +138,8 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (CinematicGlowPaletteFxColorDefinition definition in
                  CinematicGlowPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames * 2);
+            // The old Mother Brain fight's lights run on the intro's screen, the gunship's glow in its room (#1733).
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.Object.AnimatedColours) }, definition.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "exploding Zebes fade", new PaletteFxFamilyShape { FrameCount = ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer, Definitions = [ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "title-logo fade", new PaletteFxFamilyShape { FrameCount = TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TitleLogoFadePaletteFxColorDefinitions.ColorPointer, Definitions = [TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, TitleLogoFadePaletteFxColorDefinitions.CycleFrames + 1));
@@ -234,15 +235,15 @@ internal static class RoomPaletteFxPresentationVerification
                 forbidden.Count, $"{definition.Suit} heat colors have distinct source bytes");
 
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession);
-            var installedSession = new PaletteFxSessionState();
-            var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeSession = new ColourEffectSessionState();
+            var native = new ColourEffectSystem(nativeSession);
+            var installedSession = new ColourEffectSessionState();
+            var installed = new ColourEffectSystem(installedSession);
             ushort equipment = definition.Suit switch
             {
-                PaletteFxHeatSuit.Power => 0,
-                PaletteFxHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
-                PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
+                ColourEffectHeatSuit.Power => 0,
+                ColourEffectHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
+                ColourEffectHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => throw new InvalidOperationException(),
             };
             native.Start(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
@@ -253,9 +254,9 @@ internal static class RoomPaletteFxPresentationVerification
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
@@ -290,17 +291,17 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (ushort definition in shape.Definitions)
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession);
-            var installedSession = new PaletteFxSessionState();
-            var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeSession = new ColourEffectSessionState();
+            var native = new ColourEffectSystem(nativeSession);
+            var installedSession = new ColourEffectSessionState();
+            var installed = new ColourEffectSystem(installedSession);
             StartFamily(native, shape, definition);
             StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                var conditions = new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
+                var conditions = new ColourEffectInputs { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
                 StepFamily(native, shape, conditions);
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
                 StepFamily(installed, shape, conditions);
@@ -353,10 +354,10 @@ internal static class RoomPaletteFxPresentationVerification
                  })
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession);
-            var installedSession = new PaletteFxSessionState();
-            var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeSession = new ColourEffectSessionState();
+            var native = new ColourEffectSystem(nativeSession);
+            var installedSession = new ColourEffectSessionState();
+            var installed = new ColourEffectSystem(installedSession);
             native.Start(definition, equippedItems: 0);
             installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -364,9 +365,9 @@ internal static class RoomPaletteFxPresentationVerification
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
@@ -406,10 +407,10 @@ internal static class RoomPaletteFxPresentationVerification
             "Maridia presentation owns all 112 BGR555 source words");
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var nativeSession = new PaletteFxSessionState();
-        var native = new RoomPaletteFxSystem(nativeSession);
-        var installedSession = new PaletteFxSessionState();
-        var installed = new RoomPaletteFxSystem(installedSession);
+        var nativeSession = new ColourEffectSessionState();
+        var native = new ColourEffectSystem(nativeSession);
+        var installedSession = new ColourEffectSessionState();
+        var installed = new ColourEffectSystem(installedSession);
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -422,9 +423,9 @@ internal static class RoomPaletteFxPresentationVerification
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");
@@ -701,7 +702,7 @@ internal static class RoomPaletteFxPresentationVerification
     /// Starts <paramref name="definition"/>'s effect as the game starts <paramref name="shape"/>'s family: a Torizo belly glow
     /// with the Torizo it lights, as that Torizo's fight start hands itself to the glow (#1700); every other family plainly.
     /// </summary>
-    private static void StartFamily(RoomPaletteFxSystem fx, PaletteFxFamilyShape shape, ushort definition)
+    private static void StartFamily(ColourEffectSystem fx, PaletteFxFamilyShape shape, ushort definition)
     {
         if (shape.LitTorizo is { } torizo)
             fx.StartTorizoBellyGlow(definition, torizo, equippedItems: 0);
@@ -720,7 +721,7 @@ internal static class RoomPaletteFxPresentationVerification
     }
 
     /// <summary>Runs one handler pass of <paramref name="fx"/> as <paramref name="shape"/>'s family plays: on a frontend screen or in gameplay.</summary>
-    private static void StepFamily(RoomPaletteFxSystem fx, PaletteFxFamilyShape shape, PaletteFxConditions conditions)
+    private static void StepFamily(ColourEffectSystem fx, PaletteFxFamilyShape shape, ColourEffectInputs conditions)
     {
         if (shape.OnScreen)
             fx.StepScreen(conditions);

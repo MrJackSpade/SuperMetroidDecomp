@@ -7,7 +7,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -62,7 +62,7 @@ internal static class IntroScenePictureSheetComposer
             Manifest = sheet.Manifest with
             {
                 Shades = SheetShade.Documents([.. IntroSheetShades.Scene(colours),
-                    .. PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], PaletteFxColours.OldMotherBrainBackgroundLights,
+                    .. PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], ColourEffectColours.OldMotherBrainBackgroundLights,
                         IntroSheetInks.FightLights, paletteFx)]),
             },
         };

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
@@ -21,12 +21,12 @@ internal static class PaletteFxRoomLook
     /// Lays the shades of the room records <paramref name="fx"/> shows over <paramref name="cgram"/>'s room colours, each
     /// coloured from <paramref name="colours"/> as the import colours it.
     /// </summary>
-    internal static void LayRoomShades(RoomPaletteFxSystem fx, IPaletteColors cgram, IPaletteFxColorSource colours)
+    internal static void LayRoomShades(ColourEffectSystem fx, IPaletteColors cgram, IPaletteFxColorSource colours)
     {
         ArgumentNullException.ThrowIfNull(fx);
         ArgumentNullException.ThrowIfNull(cgram);
         List<SheetShade> made = [];
-        foreach (PaletteFxColours group in PaletteFxRoomColourDefinitions.RoomColours)
+        foreach (ColourEffectColours group in ColourEffectRoomColourDefinitions.RoomColours)
             if (fx.FrameOf(group) is { } record)
                 made.Add(PaletteFxRoomShades.Shade(group, record, colours));
         PictureShading shading = GameplayShadingProbe.ShadingOf(fx, GameplayPictures.Room, made.Select(shade => shade.Shade));
@@ -44,12 +44,12 @@ internal static class PaletteFxRoomLook
     /// screen shows. Both a native and an installed system are laid this way, so their colour tables differ exactly
     /// where the records shown or the colours they are coloured from differ.
     /// </summary>
-    internal static void LayShownShades(RoomPaletteFxSystem fx, IPaletteColors cgram, IPaletteFxColorSource colours)
+    internal static void LayShownShades(ColourEffectSystem fx, IPaletteColors cgram, IPaletteFxColorSource colours)
     {
         LayRoomShades(fx, cgram, colours);
-        foreach (PaletteFxColours group in Enum.GetValues<PaletteFxColours>())
+        foreach (ColourEffectColours group in Enum.GetValues<ColourEffectColours>())
         {
-            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.FrameOf(group) is not { } record)
+            if (ColourEffectRoomColourDefinitions.RoomColours.Contains(group) || fx.FrameOf(group) is not { } record)
                 continue;
             LayShade(cgram, group, record, colours);
         }
@@ -60,10 +60,10 @@ internal static class PaletteFxRoomLook
     /// show the group are pre-coloured from <paramref name="colours"/>: a room group's shade over the room's colours, any
     /// other group's from the native colour its records start at.
     /// </summary>
-    internal static void LayRecord(IPaletteColors cgram, PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
+    internal static void LayRecord(IPaletteColors cgram, ColourEffectColours group, ColourEffectFrame record, IPaletteFxColorSource colours)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if (!PaletteFxRoomColourDefinitions.RoomColours.Contains(group))
+        if (!ColourEffectRoomColourDefinitions.RoomColours.Contains(group))
         {
             LayShade(cgram, group, record, colours);
             return;
@@ -77,7 +77,7 @@ internal static class PaletteFxRoomLook
     /// Lays <paramref name="record"/>, shown in <paramref name="group"/>, over <paramref name="cgram"/> from the native colour
     /// its records start at, coloured from <paramref name="colours"/> as the import colours the pictures that show it.
     /// </summary>
-    internal static void LayShade(IPaletteColors cgram, PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
+    internal static void LayShade(IPaletteColors cgram, ColourEffectColours group, ColourEffectFrame record, IPaletteFxColorSource colours)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         int first = group.CartridgeColour;

@@ -32,7 +32,7 @@ internal static class CeresPlacementSelectorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActors.RearViewPlacementId(i), "rear selector bounds");
     }
 
-    /// <summary>Checks the six Zebes reveal actors' X and Y native placement immediates.</summary>
+    /// <summary>Checks the six Zebes reveal actors' and the Japanese subtitle's X and Y native placement immediates.</summary>
     internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
         CinematicPlacementSourceDefinition[] original =
@@ -43,8 +43,9 @@ internal static class CeresPlacementSelectorsVerification
             new("stars-lower-left", 0xc96c),
             new("stars-lower-right", 0xc980),
             new("planet-zebes-title", 0xc993),
+            new("planet-zebes-subtitle", 0xc9e7),
         ];
-        AssertEqual(original.Length, CeresDestructionActorDefinitions.ZebesActorCount, "reveal placement count");
+        AssertEqual(original.Length, CeresDestructionActorDefinitions.RevealPlacementCount, "reveal placement count");
         for (int i = 0; i < original.Length; i++)
         {
             var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];

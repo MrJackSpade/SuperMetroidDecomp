@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// preserve the game's behavior; editable text and fonts come from installed assets. The named phases follow the
 /// game's cinematic steps one for one, so the scene steps through the same boundaries the game does.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState : IFrontendScreen
 {
     /// <inheritdoc/>
@@ -126,8 +126,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
-                    Stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Lava, 0);
-                    Stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Crust, 0);
+                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, 0);
+                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, 0);
                     Stage.Brightness = 0;
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeInEscapeSceneA;
@@ -412,8 +412,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
 
         // The cinematic runs its colour effects after actors; the ending's colours show the record each holds (#1512, #1597).
-        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        if (Stage.PaletteFxSystem.AudioRequests.SoundRequests.Count != 0)
+        Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        if (Stage.ColourEffects.AudioRequests.SoundRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled sound.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-initialized records when the credits finish.

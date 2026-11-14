@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
@@ -13,32 +13,32 @@ internal static class CeresDestructionSceneDefinitions
     /// The gunship engine's flickering colours, started when the approach to Zebes is set up, which ends the station's
     /// navigation lights.
     /// </summary>
-    internal const PaletteFxObject GunshipEngineFlicker = PaletteFxObject.CutsceneGunshipEngineFlicker;
+    internal const ColourEffectId GunshipEngineFlicker = ColourEffectId.CutsceneGunshipEngineFlicker;
 
     /// <summary>The station's blinking navigation lights on the turning floor, started as the station is set up (#1733).</summary>
-    internal const PaletteFxObject NavigationLights = PaletteFxObject.CutsceneCeresNavigationLightsBackground;
+    internal const ColourEffectId NavigationLights = ColourEffectId.CutsceneCeresNavigationLightsBackground;
 
     /// <summary>The PLANET ZEBES caption's fade in from black, started as the caption first shows (#1733).</summary>
-    internal const PaletteFxObject ZebesTextFadeIn = PaletteFxObject.FadeInPlanetZebesText;
+    internal const ColourEffectId ZebesTextFadeIn = ColourEffectId.FadeInPlanetZebesText;
 
     /// <summary>The PLANET ZEBES caption's fade out to black, started as its hold ends; it stays black once faded (#1733).</summary>
-    internal const PaletteFxObject ZebesTextFadeOut = PaletteFxObject.FadeOutPlanetZebesText;
+    internal const ColourEffectId ZebesTextFadeOut = ColourEffectId.FadeOutPlanetZebesText;
 
     /// <summary>
     /// The colour groups the turning floor shows the records of (#1733): the station's navigation lights over Ceres, and the
     /// gunship engine's flicker on the approach to Zebes.
     /// </summary>
-    internal static IReadOnlyList<PaletteFxColours> FloorColours { get; } =
-        [PaletteFxColours.CeresNavigationLightsBackground, PaletteFxColours.CutsceneGunshipEngine];
+    internal static IReadOnlyList<ColourEffectColours> FloorColours { get; } =
+        [ColourEffectColours.CeresNavigationLightsBackground, ColourEffectColours.CutsceneGunshipEngine];
 
     /// <summary>
     /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
     /// record the effect last showed over its drawn colours.
     /// </summary>
-    internal static IReadOnlyDictionary<CeresSpriteColouring, PaletteFxColours> FadedColours { get; } =
-        new Dictionary<CeresSpriteColouring, PaletteFxColours>
+    internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> FadedColours { get; } =
+        new Dictionary<CeresSpriteColouring, ColourEffectColours>
         {
-            [CeresSpriteColouring.ZebesTitle] = PaletteFxColours.PlanetZebesText,
+            [CeresSpriteColouring.ZebesTitle] = ColourEffectColours.PlanetZebesText,
         };
 
     /// <summary>

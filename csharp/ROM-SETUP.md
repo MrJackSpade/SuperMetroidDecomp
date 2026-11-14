@@ -279,7 +279,7 @@ behind every layer, is installed as native-precision RGB5 JSON in
 flyaway keeps), credits and post-credits scenes', and `spaceBehindExplodingPlanet`,
 the backdrop the space behind the exploding planet shows at each frame of its
 colour effect. Edit it in place to change a backdrop without changing the scenes'
-fade cadence or palette-FX programs. A malformed file fails loudly where it is read.
+fade cadence or colour effect animations. A malformed file fails loudly where it is read.
 
 The ending's animated explosion, cloud, gunship and post-credits glare colors, like
 every room and cinematic palette effect's, are pre-coloured into the sheets each
@@ -287,15 +287,10 @@ effect frame shows. The import reads them from its import data's
 `room-palette-effects.json`, which is not installed. The ending still owns the cartridge
 object allocation, cycle timing, color destinations and scene transitions.
 
-Developer dependency boundary: `RoomPaletteFxSystem.Step` requires a non-null
-`IPaletteFxColorSource` argument. There is no optional binding API or cached
-provider on the interpreter; gameplay, title, Ceres destruction and ending
-owners explicitly supply their installed catalog on every execution. Restored
-states use the host's current catalog without restarting palette timers. Missing
-arguments, wrong types and nullable sources fail compilation (nullable warnings
-are errors). This checks the dependency handoff, not the contents of external
-JSON: resource loaders still validate those files. Deliberate `null!`/reflection
-bypasses fail before the interpreter mutates its slots or CGRAM.
+Developer dependency boundary: `ColourEffectSystem.Step` reads no colours: each colour effect
+names the frame it shows, and the owner of the pictures it recolours names that frame's pre-coloured
+shade. Restored states keep the effects' places and timers. The compiler contract checks the effects'
+start and frame handoff, not the contents of external JSON: resource loaders still validate those files.
 Run the focused compiler contract with
 `dotnet run --project csharp/src/SuperMetroid.EnsureVerification -- --palette-fx-contract`.
 

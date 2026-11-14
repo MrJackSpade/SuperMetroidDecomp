@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>A native timed record as the ROM oracles read it: its timer word and the colour words that follow.</summary>
 /// <param name="InstructionPointer">The bank-$8D address of the record's timer word.</param>
@@ -41,7 +41,7 @@ internal static class PaletteFxProgramLayoutAccess
     {
         /// <summary>The bank-$8D record <paramref name="suit"/>'s program shows at <paramref name="phase"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="suit"/> names no heat program's suit, or <paramref name="phase"/> no phase.</exception>
-        internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase)
+        internal static ushort Resolve(ColourEffectHeatSuit suit, ushort phase)
         {
             PaletteFxHeatProgramDefinition program = PaletteFxHeatProgramMechanicsDefinitions.All.SingleOrDefault(item => item.Suit == suit)
                 ?? throw new ArgumentOutOfRangeException(nameof(suit), suit, "No heat program belongs to this suit.");

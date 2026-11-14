@@ -57,9 +57,9 @@ public sealed class SamusXrayState
     public bool AreBlockAnimationsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.BlockAnimations) != XraySuspendedSubsystems.None;
 
-    /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends the room's colour effects, not the separate colouring of Samus's visor.</summary>
-    public bool ArePaletteFxSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != XraySuspendedSubsystems.None;
+    /// <summary>Whether X-ray's independent colour effect disable remains set; this suspends the room's colour effects, not the separate colouring of Samus's visor.</summary>
+    public bool AreColourEffectsSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.ColourEffects) != XraySuspendedSubsystems.None;
 
     /// <summary>Interrupted pose published by the input phase, awaiting pose commit in the movement phase.</summary>
     public SamusPoseId? PendingActivationPose { get; private set; }

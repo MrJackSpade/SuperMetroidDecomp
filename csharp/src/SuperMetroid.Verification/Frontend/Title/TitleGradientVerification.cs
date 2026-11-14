@@ -9,7 +9,7 @@ using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
@@ -258,10 +258,10 @@ internal static class TitleGradientVerification
         }
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var nativeSession = new PaletteFxSessionState();
-        var native = new RoomPaletteFxSystem(nativeSession);
-        var installedSession = new PaletteFxSessionState();
-        var installed = new RoomPaletteFxSystem(installedSession);
+        var nativeSession = new ColourEffectSessionState();
+        var native = new ColourEffectSystem(nativeSession);
+        var installedSession = new ColourEffectSessionState();
+        var installed = new ColourEffectSystem(installedSession);
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {
@@ -275,9 +275,9 @@ internal static class TitleGradientVerification
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {

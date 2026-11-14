@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -79,11 +79,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// Phantoon statue, over the scene's sprites (#1512): each record replaces the one its grey-out showed before.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="colours"/> names no sprite statue.</exception>
-    internal void ShowStatueGreyOut(PaletteFxColours colours, PaletteFxFrame record)
+    internal void ShowStatueGreyOut(ColourEffectColours colours, ColourEffectFrame record)
     {
-        if (colours is not (PaletteFxColours.RidleyStatue or PaletteFxColours.PhantoonStatue))
+        if (colours is not (ColourEffectColours.RidleyStatue or ColourEffectColours.PhantoonStatue))
             throw new ArgumentOutOfRangeException(nameof(colours), colours, "Only the Ridley and Phantoon statues grey out as sprites.");
-        PictureShade shade = PaletteFxShades.Of(colours, record);
+        PictureShade shade = ColourEffectShades.Of(colours, record);
         _statueLooks.RemoveAll(earlier => earlier.Effect == shade.Effect);
         _statueLooks.Add(shade);
         ShowScene();

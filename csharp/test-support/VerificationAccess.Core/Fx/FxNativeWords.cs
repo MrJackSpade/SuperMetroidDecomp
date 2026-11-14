@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -84,7 +84,7 @@ internal static class FxNativeWords
         NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies => ColourEffectCondition.EndsWhenTorizoDies.Instance,
         NativePaletteFxPreInstruction.Heat => ColourEffectCondition.BurnsSamusInHeat.Instance,
         NativePaletteFxPreInstruction.SwitchAboveY380 => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxSegment.CrateriaLightningCycle),
+            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight),
         NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies => ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
         _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined palette-FX pre-instruction."),
     };

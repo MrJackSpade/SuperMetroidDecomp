@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Definitions for the final assembling Super Metroid icon.</summary>
@@ -33,6 +33,6 @@ internal static class EndingLogoDefinitions
     public static Position16<ScreenPixels> BottomLanding => new(382, 383);
     /// <summary>The logo's colour cycle completes after sixteen colour pairs.</summary>
     public const int PaletteSteps = 16;
-    /// <summary>The upper S spawns the logo's glare palette-FX object at landing.</summary>
-    public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;
+    /// <summary>The upper S spawns the logo's glare colour effect at landing.</summary>
+    public const ColourEffectId LandingColourEffect = ColourEffectId.PostCreditsSuperMetroidIcon;
 }

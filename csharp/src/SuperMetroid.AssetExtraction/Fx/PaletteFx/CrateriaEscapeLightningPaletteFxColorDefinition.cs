@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -13,7 +13,7 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     /// <summary>The mutually exclusive palette owner.</summary>
     public required CrateriaEscapeLightningPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public required int ColorsPerFrame { get; init; }
 

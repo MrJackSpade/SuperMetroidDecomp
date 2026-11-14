@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -16,7 +16,7 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
 
     /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks>One object per suit.</remarks>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public required PaletteFxColorFrames ColorFrames { get; init; }

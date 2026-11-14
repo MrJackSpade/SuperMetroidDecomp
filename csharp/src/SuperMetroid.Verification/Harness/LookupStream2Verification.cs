@@ -37,7 +37,7 @@ using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -251,8 +251,8 @@ internal static class LookupStream2Verification
             }
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
-            var actualSession = new PaletteFxSessionState();
-            var actual = new RoomPaletteFxSystem(actualSession);
+            var actualSession = new ColourEffectSessionState();
+            var actual = new ColourEffectSystem(actualSession);
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -260,7 +260,7 @@ internal static class LookupStream2Verification
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                actual.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),

@@ -39,7 +39,7 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -819,7 +819,7 @@ internal static class LookupStream5Verification
         foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames)
             frames.Add(definition.Name, SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicSpriteFrameExtractor.Extract(
                 rom, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-        var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
+        var document = new CeresDestructionSpriteDocument { Version = CeresDestructionSpriteFormat.Version, Frames = frames };
         var stock = Load(document);
         int total = 0;
         foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames)
@@ -1377,7 +1377,7 @@ internal static class LookupStream5Verification
             var layout = CeresFlightActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresFlightActorPlacement>(index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
-        var reveal = Enumerable.Range(0, 6).Select(index =>
+        var reveal = Enumerable.Range(0, CeresDestructionActorDefinitions.RevealPlacementCount).Select(index =>
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             return new CeresRevealActorPlacement { Id = source.Id,

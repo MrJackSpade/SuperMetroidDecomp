@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 
@@ -22,21 +22,21 @@ internal static class PaletteFxContractTests
 
         // Guard against a compatibility overload that would bring colour writing back: the one Step takes the conditions
         // alone. Core declares no colour source at all; the palette-effect colours are the import's (#1583).
-        MethodInfo[] steps = typeof(RoomPaletteFxSystem).GetMethods().Where(method => method.Name == "Step").ToArray();
-        if (steps.Length != 1 || steps[0].GetParameters() is not [{ ParameterType: var conditions }] || conditions != typeof(PaletteFxConditions))
+        MethodInfo[] steps = typeof(ColourEffectSystem).GetMethods().Where(method => method.Name == "Step").ToArray();
+        if (steps.Length != 1 || steps[0].GetParameters() is not [{ ParameterType: var conditions }] || conditions != typeof(ColourEffectInputs))
             throw new InvalidOperationException("Palette FX must expose exactly one Step, which takes the conditions alone.");
 
         // A frontend screen's step writes no colours either: each effect holds the record it shows, which the screen
         // shades its pictures with (#1597). The gunship engine flickers on the Ceres destruction cinematic, so its first
         // step shows the flicker's first record in the engine's colours.
-        var fxSession = new PaletteFxSessionState();
-        var fx = new RoomPaletteFxSystem(fxSession);
-        fx.Start(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        IReadOnlyList<ShownPaletteFxFrame> shown = fx.Shown;
-        var first = new PaletteFxFrame(PaletteFxSegment.CutsceneGunshipEngineFlicker1, 0);
-        if (shown.Count != 1 || shown[0] != new ShownPaletteFxFrame(PaletteFxColours.CutsceneGunshipEngine, first)
-            || fx.FrameOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
+        var fxSession = new ColourEffectSessionState();
+        var fx = new ColourEffectSystem(fxSession);
+        fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
+        fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
+        var first = new ColourEffectFrame(ColourEffectAnimation.CutsceneGunshipEngineFlicker, 0);
+        if (shown.Count != 1 || shown[0] != new ShownColourEffectFrame(ColourEffectColours.CutsceneGunshipEngine, first)
+            || fx.FrameOf(ColourEffectColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
         Console.WriteLine("#1512: two compiler contracts, the colourless step shape and the screen step pass; no gameplay search.");
     }
@@ -46,10 +46,10 @@ internal static class PaletteFxContractTests
     {
         string source = $$"""
             using SuperMetroid.Core.Fx;
-            using SuperMetroid.Core.Fx.PaletteFx;
+            using SuperMetroid.Core.Fx.ColourEffects;
             class PaletteCaller
             {
-                void Run(RoomPaletteFxSystem fx, PaletteFxConditions frame)
+                void Run(ColourEffectSystem fx, ColourEffectInputs frame)
                 {
                     {{statement}}
                 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -25,7 +25,7 @@ public static class IntroCinematicDefinitions
     /// The old Mother Brain fight's blinking background lights (#1733), started as a crossfade into a flashback ends while
     /// Samus draws first, and ended on the update the cinematic starts page two.
     /// </summary>
-    public const PaletteFxObject FightLights = PaletteFxObject.OldMotherBrainFightBackgroundLights;
+    public const ColourEffectId FightLights = ColourEffectId.OldMotherBrainFightBackgroundLights;
 
     /// <summary>The music the opening's scene changes start.</summary>
     public static class Music

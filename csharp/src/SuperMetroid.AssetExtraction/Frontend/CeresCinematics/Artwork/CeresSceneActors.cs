@@ -48,7 +48,10 @@ internal static class CeresSceneActors
         return poses;
     }
 
-    /// <summary>The Zebes reveal's poses: its six actors', each in its definition's colouring.</summary>
+    /// <summary>
+    /// The Zebes reveal's poses: its six actors', and the Japanese subtitle's the title spawns with Japanese text (#1733),
+    /// each in its definition's colouring.
+    /// </summary>
     /// <exception cref="InvalidDataException">The reveal draws a pose in two colourings of different sets.</exception>
     internal static Dictionary<CinematicSpritePose, CeresSpriteColouring> ZebesReveal()
     {
@@ -59,6 +62,7 @@ internal static class CeresSceneActors
             CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
             Add(poses, scene, actor.Animation, actor.Colouring);
         }
+        Add(poses, scene, CeresDestructionActorDefinitions.ZebesSubtitle.Animation, CeresDestructionActorDefinitions.ZebesSubtitle.Colouring);
         return poses;
     }
 

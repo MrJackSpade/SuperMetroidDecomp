@@ -5,7 +5,7 @@ using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxAreasVerifica
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxDispatchVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -57,8 +57,8 @@ internal static class RoomPaletteFxDefinitionsVerification
             for (int index = 0; index < RoomPaletteFxDefinitions.DefinitionByteCount; index++)
                 forbidden.Add(address + index);
 
-            RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
-            if (definition.InitialAnimation == PaletteFxSegment.HyperBeam0)
+            ColourEffectDefinition definition = ColourEffectSelection.Get(pointer);
+            if (definition.InitialAnimation == ColourEffectAnimation.HyperBeam)
             {
                 specializedCompiledPrograms++;
             }
@@ -104,8 +104,8 @@ internal static class RoomPaletteFxDefinitionsVerification
             var definition = new RoomEffectDefinition(LiquidStartLevel: 0, LiquidTargetLevel: 0, LiquidLevelSpeed: default, LiquidMoveDelay: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
                 PaletteEffects: [effect], BlockAnimations: [], PaletteBlend: RoomFxPaletteBlend.None);
-            var systemSession = new PaletteFxSessionState();
-            var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition,
+            var systemSession = new ColourEffectSessionState();
+            var system = ColourEffectSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
                 PaletteFxObjectAccess.NativeAddress(effect),
@@ -113,7 +113,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 $"area {area} bit {bit} production room load");
         }
 
-        var hyperBeam = new HyperBeamPaletteFxState();
+        var hyperBeam = new HyperBeamColourEffectState();
         hyperBeam.Spawn();
         hyperBeam.Step(new SamusColours());
         AssertEqual(0, hyperBeam.CurrentFrameIndex,
@@ -123,7 +123,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             () => PaletteFxObjectAccess.FromNative(0),
             "zero palette-FX definition is outside the authored domain");
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxSelection.Get(
+            () => ColourEffectSelection.Get(
                 unchecked((ushort)(RoomPaletteFxDefinitions.RoomDefinitionsBegin + 1))),
             "unaligned palette-FX definition is outside the authored domain");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -145,9 +145,9 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         foreach (ushort pointer in pointers)
         {
-            RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
-            var systemSession = new PaletteFxSessionState();
-            var system = new RoomPaletteFxSystem(systemSession);
+            ColourEffectDefinition definition = ColourEffectSelection.Get(pointer);
+            var systemSession = new ColourEffectSessionState();
+            var system = new ColourEffectSystem(systemSession);
             system.Start(pointer, equippedItems: 0);
             RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
@@ -155,8 +155,8 @@ internal static class RoomPaletteFxDefinitionsVerification
                 $"${pointer:X4} production countdown");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
             AssertEqual(null, effect.Condition, $"${pointer:X4} production condition");
-            Animation<PaletteFxSegment> expected = PaletteFxAnimations.StartingWith(definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-                ? PaletteFxHeatAnimations.Start(PaletteFxHeatSuit.Power)
+            Animation<ColourEffectAnimation> expected = ColourEffectAnimations.Of(definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+                ? ColourEffectHeatAnimations.Start(ColourEffectHeatSuit.Power)
                 : definition.InitialAnimation);
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
             AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
@@ -171,43 +171,43 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
-        var conditions = new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
-        var system = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        system.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
-        system.Start(PaletteFxObject.FadeInSuperMetroidTitleLogo, 0);
-        system.Start(PaletteFxObject.TitleScreenBabyMetroidTubeLight, 0);
+        var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
+        var system = new ColourEffectSystem(new ColourEffectSessionState());
+        system.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
+        system.Start(ColourEffectId.FadeInSuperMetroidTitleLogo, 0);
+        system.Start(ColourEffectId.TitleScreenBabyMetroidTubeLight, 0);
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
-            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.FadeInSuperMetroidTitleLogo, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
+            [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.FadeInSuperMetroidTitleLogo, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "effects take turns in start order");
 
         // The title logo's fade ends by itself; the loops keep running.
         int updates = 0;
-        while (system.IsRunning(PaletteFxObject.FadeInSuperMetroidTitleLogo))
+        while (system.IsRunning(ColourEffectId.FadeInSuperMetroidTitleLogo))
         {
             AssertTrue(++updates <= 64, "the title logo's fade ends");
             system.StepScreen(conditions);
         }
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
-            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
+            [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "an ended effect leaves the turns");
 
-        system.Start(PaletteFxObject.FadeInNintendoCopyright, 0);
+        system.Start(ColourEffectId.FadeInNintendoCopyright, 0);
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
-            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.TitleScreenBabyMetroidTubeLight, PaletteFxObject.FadeInNintendoCopyright]),
+            [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight, ColourEffectId.FadeInNintendoCopyright]),
             "a later start joins after every running effect");
         system.StepScreen(conditions);
-        PaletteFxColours[] shown = [.. system.Shown.Select(record => record.Colours)];
+        ColourEffectColours[] shown = [.. system.Shown.Select(record => record.Colours)];
         // The title logo's fade ran to its end, so its final look lies under every running effect (#1597).
-        AssertTrue(shown.SequenceEqual([PaletteFxColours.TitleLogo, PaletteFxColours.TitleScreenDisplays,
-                PaletteFxColours.BabyMetroidTubeLight, PaletteFxColours.NintendoCopyright]),
+        AssertTrue(shown.SequenceEqual([ColourEffectColours.TitleLogo, ColourEffectColours.TitleScreenDisplays,
+                ColourEffectColours.BabyMetroidTubeLight, ColourEffectColours.NintendoCopyright]),
             "the settled logo lies first, then the running effects' records in the order they started");
-        AssertEqual<PaletteFxFrame?>(new PaletteFxFrame(PaletteFxSegment.CommonFadeInLogo, 0),
-            system.FrameOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
+        AssertEqual<ColourEffectFrame?>(new ColourEffectFrame(ColourEffectAnimation.FadeInNintendoCopyright, 0),
+            system.FrameOf(ColourEffectColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.
-        var many = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        var many = new ColourEffectSystem(new ColourEffectSessionState());
         for (int started = 0; started < 9; started++)
-            many.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
+            many.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
         AssertEqual(9, many.effects.Count, "any number of effects run at once");
     }
 
@@ -222,7 +222,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     }
 
     /// <summary>The one effect running after a production start or room load.</summary>
-    private static RoomColourEffect ActiveColourEffect(RoomPaletteFxSystem system) => system.effects is [RoomColourEffect effect]
+    private static RoomColourEffect ActiveColourEffect(ColourEffectSystem system) => system.effects is [RoomColourEffect effect]
         ? effect
         : throw new InvalidOperationException($"Expected one running colour effect, found {system.effects.Count}.");
 

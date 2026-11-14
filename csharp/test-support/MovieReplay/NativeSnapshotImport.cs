@@ -31,7 +31,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Samus;
 
@@ -96,21 +96,21 @@ internal static class NativeSnapshotImport
         // started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();
-        Dictionary<PaletteFxSegment, PaletteFxNativeList>? paletteFxLists = null;
+        Dictionary<ushort, PaletteFxNativeList>? paletteFxLists = null;
         for (int visit = 0; visit < NativeSnapshotMemory.PaletteFxObjectCount; visit++)
         {
             int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - visit;
             ushort id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
             if (id == 0)
                 continue;
-            PaletteFxObject effect = PaletteFxObjectAccess.FromNative(id);
+            ColourEffectId effect = PaletteFxObjectAccess.FromNative(id);
             // A live object resumes its typed animation where the recorded native pointer stands: in the animation its start
-            // plays, or one its conditions restart it at; its native timer is its repeat counter.
+            // plays, one of the heat shimmer's for an effect that chooses one; its native timer is its repeat counter.
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
                 paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
                 ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
-            ILitTorizo? litTorizo = effect is PaletteFxObject.BombTorizoBelly or PaletteFxObject.GoldenTorizoBelly
+            ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
                 ? runtime.Enemies.BombTorizoBehavior.Access.TorizoState
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
@@ -119,7 +119,7 @@ internal static class NativeSnapshotImport
                 Place = resumed.Place,
                 // The native colour index names the colours the object animates: of the colour groups its programs name,
                 // the one starting there.
-                Colours = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(effect,
+                Colours = SuperMetroid.Core.Fx.ColourEffects.PaletteFxColoursPositions.FromCartridge(effect,
                     RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), id)),
                 // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native
                 // view, where the deleted adjacent-slot inspection (#1526) stands for the none the port's glow keeps.
@@ -130,8 +130,8 @@ internal static class NativeSnapshotImport
             };
             ColourEffectTurnOrder.Join(importedEffects, imported);
         }
-        runtime.PaletteFxSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
-        runtime.PaletteFxSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.PaletteFx.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
+        runtime.ColourEffectSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
+        runtime.ColourEffectSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
         // Each recorded scroll byte becomes the cell the camera reads it as.
@@ -413,73 +413,46 @@ internal static class NativeSnapshotImport
             if (effect.Colours is not { } colours || LastShownFrame(effect.Animation, effect.Place) is not { } frame)
                 continue;
             effect.Frame = frame;
-            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
+            if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
                 continue;
-            if (PaletteFxSamusColourDefinitions.SuitColours.Contains(colours))
-                runtime.Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));
-            else if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(colours))
-                runtime.Enemies.PaletteFxShows.Show(colours, frame);
+            if (ColourEffectSamusColourDefinitions.SuitColours.Contains(colours))
+                runtime.Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
+            else if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(colours))
+                runtime.Enemies.ColourEffectShows.Show(colours, frame);
             else
                 throw new InvalidOperationException($"Imported colour effect {effect.Effect} showed {colours}, which no gameplay picture shows.");
         }
     }
 
     /// <summary>
-    /// The animations an imported <paramref name="effect"/> can be playing, its own first: the one its start plays (each
-    /// suit's heat shimmer for an effect that chooses one), then those its conditions restart it at.
+    /// The animations an imported <paramref name="effect"/> can be playing: the one its start plays, or each suit's heat
+    /// shimmer for an effect that chooses one. A restart plays on in the same animation.
     /// </summary>
-    private static IEnumerable<PaletteFxSegment> ImportedAnimationCandidates(PaletteFxObject effect)
+    private static IEnumerable<ColourEffectAnimation> ImportedAnimationCandidates(ColourEffectId effect)
     {
-        RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
-        PaletteFxSegment[] starts = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-            ? [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatAnimations.Start)]
+        ColourEffectDefinition definition = ColourEffectSelection.Get(effect);
+        return definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Start)]
             : [definition.InitialAnimation];
-        var seen = new HashSet<PaletteFxSegment>();
-        var pending = new Queue<PaletteFxSegment>(starts);
-        while (pending.TryDequeue(out PaletteFxSegment start))
-        {
-            if (!seen.Add(start))
-                continue;
-            yield return start;
-            foreach (AnimationPhase<PaletteFxSegment> phase in PaletteFxAnimations.StartingWith(start).Phases)
-            {
-                foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
-                {
-                    if (beat is AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.Watch { Condition: ColourEffectCondition.RestartsWhileSamusIsHigh high } })
-                        pending.Enqueue(high.Restart);
-                }
-            }
-        }
     }
 
     /// <summary>
     /// The frame a colour effect showed last before <paramref name="place"/> in <paramref name="animation"/>: the nearest
-    /// frame before the beat it resumes at, in its segment. The native instruction pointer rests after the record it last
-    /// showed (a loop's jump runs only when the object next advances). A list whose last record runs on into the next list
-    /// leaves the pointer at that list's entry, so a place at a segment's first beat showed the last frame of the segment
-    /// whose list runs on into it. A place with no frame before it, in its segment or any running on into it, has shown no
-    /// frame yet: null.
+    /// frame before the step it resumes at, among its animation's steps. The native instruction pointer rests after the
+    /// record it last showed (a loop's or a jump's goto runs only when the object next advances), so the steps before the
+    /// place are the ones the object played, a list that runs on into the next one's last record among them. A place with no
+    /// frame before it has shown no frame yet: null.
     /// </summary>
-    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<PaletteFxSegment> animation, SuperMetroid.Core.Animation.AnimationPlace place)
+    private static ColourEffectFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<ColourEffectAnimation> animation, SuperMetroid.Core.Animation.AnimationPlace place)
     {
-        AnimationPhase<PaletteFxSegment> phase = animation.Phases[place.Phase];
-        PaletteFxSegment segment = phase.Segment;
-        int end = phase.FirstBeat + place.Beat;
-        PaletteFxSegment[] authored = Enum.GetValues<PaletteFxSegment>();
-        while (true)
+        AnimationPhase<ColourEffectAnimation> phase = animation.Phases[place.Phase];
+        IReadOnlyList<AnimationBeat<int, ColourEffectCue>> steps = ColourEffectAnimations.Steps.Beats(phase.Segment);
+        for (int step = Math.Min(phase.FirstBeat + place.Beat, steps.Count) - 1; step >= 0; step--)
         {
-            IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(segment);
-            for (int beat = Math.Min(end, beats.Count) - 1; beat >= 0; beat--)
-            {
-                if (beats[beat] is AnimationBeat<int, PaletteFxCue>.Frame shown)
-                    return new PaletteFxFrame(segment, shown.Shown);
-            }
-            int index = Array.IndexOf(authored, segment);
-            if (index == 0 || !SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxListLayout.RunOnIntoNext.Contains(authored[index - 1]))
-                return null;
-            segment = authored[index - 1];
-            end = int.MaxValue;
+            if (steps[step] is AnimationBeat<int, ColourEffectCue>.Frame shown)
+                return new ColourEffectFrame(phase.Segment, shown.Shown);
         }
+        return null;
     }
 
     /// <summary>

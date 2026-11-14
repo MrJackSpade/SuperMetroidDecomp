@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
@@ -29,13 +29,13 @@ internal static class PaletteFxSpriteShadesVerification
         var native = new ReferencePaletteFxColorSource(bus);
         // The sprite row each group writes: the statues' rows of the statue scene and the first enemy row the shutters
         // and Mother Brain's brain draw in.
-        (PaletteFxObject Effect, PaletteFxColours Group, int Row)[] groups =
+        (ColourEffectId Effect, ColourEffectColours Group, int Row)[] groups =
         [
-            (PaletteFxObject.GreyOutTourianStatueRidley, PaletteFxColours.RidleyStatue, 1),
-            (PaletteFxObject.GreyOutTourianStatuePhantoon, PaletteFxColours.PhantoonStatue, 2),
-            (PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters, 1),
+            (ColourEffectId.GreyOutTourianStatueRidley, ColourEffectColours.RidleyStatue, 1),
+            (ColourEffectId.GreyOutTourianStatuePhantoon, ColourEffectColours.PhantoonStatue, 2),
+            (ColourEffectId.TourianShutterRedFlashing, ColourEffectColours.TourianShutters, 1),
         ];
-        foreach ((PaletteFxObject effect, PaletteFxColours group, int row) in groups)
+        foreach ((ColourEffectId effect, ColourEffectColours group, int row) in groups)
         {
             SheetShade[] fromInstalled = [.. PaletteFxSpriteShades.Of(effect, group, row * RowColours, installed)];
             SheetShade[] fromCartridge = [.. PaletteFxSpriteShades.Of(effect, group, row * RowColours, native)];

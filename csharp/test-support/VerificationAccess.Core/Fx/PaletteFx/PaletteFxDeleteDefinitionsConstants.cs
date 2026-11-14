@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>The two bank-$8D palette-FX lists whose whole program is deletion, which only verification reads.</summary>
 internal static class PaletteFxDeleteDefinitionsConstants

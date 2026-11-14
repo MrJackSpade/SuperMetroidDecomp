@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -56,7 +56,7 @@ internal static class EndingSpaceBackdropColours
         PaletteFxColorFrames frames = ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames;
         if (backdrops.Length != frames.FrameCount)
             throw new InvalidDataException($"The space behind the exploding planet requires a backdrop for each of its {frames.FrameCount} frames.");
-        var byFrame = new Dictionary<PaletteFxFrame, RgbColor>(frames.FrameCount);
+        var byFrame = new Dictionary<ColourEffectFrame, RgbColor>(frames.FrameCount);
         for (int frame = 0; frame < frames.FrameCount; frame++)
             byFrame.Add(frames.Frame(frame).Frame, backdrops[frame]);
         return new EndingSpaceBackdrops(byFrame);

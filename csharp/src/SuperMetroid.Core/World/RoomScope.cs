@@ -104,8 +104,8 @@ internal sealed record RoomScope
     /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay picture.</summary>
     public required RoomFxOverlayState FxOverlay { get; init; }
 
-    /// <summary>The room's palette-FX objects.</summary>
-    public required RoomPaletteFxSystem PaletteFx { get; init; }
+    /// <summary>The room's colour effects.</summary>
+    public required ColourEffectSystem ColourEffects { get; init; }
 
     /// <summary>The room's Ceres haze, enabled only where the room's setup spawns it.</summary>
     public required CeresHazeState CeresHaze { get; init; }
@@ -168,7 +168,7 @@ internal sealed record RoomScope
     internal void BindAudioRequests(GameplayAudioRequests requests)
     {
         FxOverlay.BindAudioRequests(requests);
-        PaletteFx.BindAudioRequests(requests);
+        ColourEffects.BindAudioRequests(requests);
         Projectiles.BindAudioRequests(requests);
         BombProjectiles.BindAudioRequests(requests);
         RoomObjects.Sounds.BindAudioRequests(requests);

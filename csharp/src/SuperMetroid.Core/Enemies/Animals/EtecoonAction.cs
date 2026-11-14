@@ -3,12 +3,11 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>
 /// The behaviour an Etecoon's main AI runs each frame. The names describe the actor-side work of each
 /// behaviour; animation is owned by the Etecoon's typed animations.
-/// Its values are arbitrary.
 /// </summary>
 public enum EtecoonAction
 {
     /// <summary>Waits for Samus within 128 vertical room pixels, runs the 256-frame wake/flex countdown, and defers activation during elevator-door transition.</summary>
-    WaitingForSamus = 1,
+    WaitingForSamus,
     /// <summary>Waits for the eleven-update hop countdown, then starts the bottom-room jump at signed 1/65536-pixel Y velocity -3 pixels per update.</summary>
     PreJumpCountdown,
     /// <summary>Hops vertically, clears upward velocity on ceiling contact, and chooses a Samus-facing pause or another hop on downward collision.</summary>
@@ -37,9 +36,9 @@ public enum EtecoonAction
     RunRightAfterLongJump,
     /// <summary>Moves right and vertically from the tunnel ledge until terrain collision starts the next eleven-update top-room hop wait.</summary>
     LongJumpLanding,
-    /// <summary>Performs the top-room vertical hop; downward collision may select route two's Samus-proximity wait, while upward collision clears vertical velocity.</summary>
+    /// <summary>Performs the top-room vertical hop; downward collision may select the teach-at-once route's Samus-proximity wait, while upward collision clears vertical velocity.</summary>
     TeachingJump,
-    /// <summary>Counts four teaching hops; route two repeats hop groups, while the other routes begin the failed tunnel-jump run.</summary>
+    /// <summary>Counts four teaching hops; the teach-at-once route repeats hop groups, while the other routes begin the failed tunnel-jump run.</summary>
     IdleBetweenTeachingJumps,
     /// <summary>After the hop wait, starts the successful tunnel run when Samus is within 64 vertical and 48 horizontal room pixels, otherwise hops again.</summary>
     WaitForSamusBeforeLongRun,

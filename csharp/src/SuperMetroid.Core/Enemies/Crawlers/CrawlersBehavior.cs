@@ -140,7 +140,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the orange Zoomer. This is not an alias of common crawler main: while attached,
-    /// orange Zoomer reverses its tangent to pursue Samus and reacts to earthquakes 20 and 30.
+    /// orange Zoomer reverses its tangent to pursue Samus and falls off during a Super Missile wall-impact earthquake.
     /// </summary>
     private void RunHZoomerMain(
         RoomEnemySlot slot,

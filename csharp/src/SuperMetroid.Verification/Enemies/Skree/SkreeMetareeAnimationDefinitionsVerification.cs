@@ -19,7 +19,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     {
         for (int index = 0; index < 4; index++)
         {
-            var phase = (SkreeMetareeAnimationPhase)index;
+            SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(index, "Skree/Metaree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)),
                 $"Metaree animation phase {phase}");
@@ -32,13 +32,9 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveMetareeAnimationHandoffs), () => VerifyLiveMetareeAnimationHandoffs());
         Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs());
 
-        var invalid = (SkreeMetareeAnimationPhase)4;
         AssertThrows<InvalidDataException>(
-            () => SkreeMetareeAnimationChoices.MetareeAnimation(invalid),
-            "Metaree animation phase past table");
-        AssertThrows<InvalidDataException>(
-            () => SkreeMetareeAnimationChoices.SkreeAnimation(invalid),
-            "Skree animation phase past table");
+            () => SkreeNativeWords.AnimationPhases.Decode(4, "Skree/Metaree animation phase"),
+            "Skree/Metaree animation phase past table");
         Console.WriteLine(
             "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
     }
@@ -47,9 +43,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
 
-        for (int index = 0; index < 4; index++)
+        foreach (SkreeMetareeAnimationPhase phase in Enum.GetValues<SkreeMetareeAnimationPhase>())
         {
-            var phase = (SkreeMetareeAnimationPhase)index;
             var metareeSlot = NewSkreeMetareeAnimationSlot();
             var metareeState = new MetareeEnemyState
             {

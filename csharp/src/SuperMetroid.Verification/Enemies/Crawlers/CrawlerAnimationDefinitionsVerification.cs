@@ -81,7 +81,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             }
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-                    family, (CrawlerSurfaceOrientation)orientation)), AnimationPlace.StartOfAnimation),
+                    family, orientations[orientation])), AnimationPlace.StartOfAnimation),
                 (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Playback,
                 $"crawler production initial selector {family}/{orientation}");
         }

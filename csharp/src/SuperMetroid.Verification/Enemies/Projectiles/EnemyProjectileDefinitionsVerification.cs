@@ -490,9 +490,6 @@ internal static class EnemyProjectileDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.None),
             "inactive enemy-projectile identity has no definition");
-        AssertThrows<InvalidDataException>(
-            () => EnemyProjectileKinds.Get((RoomEnemyProjectileKind)ushort.MaxValue),
-            "unknown enemy-projectile definition");
 
         Console.WriteLine(
             $"Enemy projectile definitions: {kinds.Length:N0} complete seven-word records, " +

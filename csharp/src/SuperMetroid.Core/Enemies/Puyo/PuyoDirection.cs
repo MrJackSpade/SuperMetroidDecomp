@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>The two values Puyo's direction holds.</summary>
+/// <summary>The way a Puyo hops.</summary>
 public enum PuyoDirection
 {
-    /// <summary>Direction zero: positive X motion and right-facing hop poses; also selected when Samus and Puyo have equal X coordinates.</summary>
-    Right = 0,
-    /// <summary>Direction one: negative X motion and left-facing hop poses; terrain collision can latch its opposite for the next launch.</summary>
-    Left = 1,
+    /// <summary>Hops right with right-facing hop poses; also chosen when Samus and the Puyo share an X coordinate.</summary>
+    Right,
+    /// <summary>Hops left with left-facing hop poses; terrain collision can latch the opposite way for the next launch.</summary>
+    Left,
 }

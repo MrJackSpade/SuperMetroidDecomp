@@ -18,11 +18,11 @@ public enum GunshipFrameEvent
     /// <summary>Ordinary restoration has finished and the gunship requests the save-confirmation prompt.</summary>
     SavePromptRequested,
     /// <summary>Samus has risen to the exit target and the pad begins closing before input is restored.</summary>
-    ExitPadClosing = 8,
+    ExitPadClosing,
     /// <summary>Ordinary gunship exit has completed, restoring idle gunship behavior and unlocking Samus input.</summary>
-    ExitCompleted = 9,
+    ExitCompleted,
     /// <summary>The active Zebes timebomb bypasses restoration and saving, starting escape takeoff with Samus attached inside.</summary>
-    EscapeTakeoffStarted = 10,
+    EscapeTakeoffStarted,
     /// <summary>Gunship escape takeoff has reached its completion boundary, allowing the outer game to begin the ending sequence.</summary>
-    EscapeTakeoffCompleted = 11,
+    EscapeTakeoffCompleted,
 }

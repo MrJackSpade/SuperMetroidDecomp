@@ -16,6 +16,14 @@ internal static class CacatacNativeWords
         [CacatacAction.Stopped] = 0xa01b,
     });
 
+    /// <summary>The direction word naming each <see cref="CacatacDirection"/>, as the placement and the enemy's state hold it.</summary>
+    internal static readonly NativeWordIdentities<CacatacDirection> Directions = new(new Dictionary<CacatacDirection, ushort>
+    {
+        [CacatacDirection.Left] = 0,
+        [CacatacDirection.Right] = 1,
+        [CacatacDirection.InitialStop] = 2,
+    });
+
     /// <summary>
     /// The even byte offset naming each <see cref="CacatacSpikeDirection"/> in the spike spawn command and the spike
     /// instruction and speed tables; offsets from <c>$0C</c> on are the diagonals.

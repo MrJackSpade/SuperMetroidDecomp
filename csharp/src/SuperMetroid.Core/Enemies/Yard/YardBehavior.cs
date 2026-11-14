@@ -1,26 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// Yard's behavior. The game uses
-/// only these six values and compares them for look-at, solidity, touch and airborne decisions.
+/// What a Yard is doing. Its look-at, solidity, touch and airborne decisions each test which of these it is.
 /// </summary>
 public enum YardBehavior
 {
-    /// <summary>Zero: normal crawling.</summary>
-    NormalCrawling = 0,
+    /// <summary>Crawling along its surface at its normal pace.</summary>
+    NormalCrawling,
 
-    /// <summary>One: aggressive crawling after a dropped Yard lands.</summary>
-    AggressiveCrawling = 1,
+    /// <summary>Crawling aggressively after a dropped Yard lands.</summary>
+    AggressiveCrawling,
 
-    /// <summary>Two: hiding in its shell.</summary>
-    Hiding = 2,
+    /// <summary>Hiding in its shell.</summary>
+    Hiding,
 
-    /// <summary>Three: dropped and falling.</summary>
-    Dropped = 3,
+    /// <summary>Dropped from its surface and falling.</summary>
+    Dropped,
 
-    /// <summary>Four: kicked by Samus.</summary>
-    Kicked = 4,
+    /// <summary>Kicked by Samus.</summary>
+    Kicked,
 
-    /// <summary>Five: launched by a beam.</summary>
-    BeamLaunched = 5,
+    /// <summary>Launched by a beam.</summary>
+    BeamLaunched,
 }

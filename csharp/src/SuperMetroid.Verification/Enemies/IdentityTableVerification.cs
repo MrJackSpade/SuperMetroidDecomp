@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -18,7 +17,6 @@ internal static class IdentityTableVerification
     internal static void VerifyIdentityTables()
     {
         SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitions.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
-        SequenceMatchesValues(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
         var spawned = new List<RidleyExplosionPart>();

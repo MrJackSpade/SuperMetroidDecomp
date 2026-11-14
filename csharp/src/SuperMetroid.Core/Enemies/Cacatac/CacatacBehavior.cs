@@ -142,8 +142,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation cue: restore patrol from the stored direction.</summary>
     private static void RestoreCacatacPatrol(CacatacEnemyState state)
     {
-        // The game tests the direction against zero, not against one. Its special initial direction two therefore
-        // becomes moving-right once the first idle step executes.
+        // The game tests only for left, so a Cacatac placed to stop at first patrols right from its first idle step.
         state.Action = state.Direction == CacatacDirection.Left
             ? CacatacAction.MovingLeft
             : CacatacAction.MovingRight;
@@ -184,7 +183,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
-        // Rejects an odd or out-of-table direction before allocating, as the selector check does.
+        // Rejects a direction with no spike animation before allocating a projectile.
         CacatacProjectileSegment segment = CacatacSpikes.Animation(direction);
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();

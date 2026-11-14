@@ -19,5 +19,5 @@ internal static class SkreeMetareeAnimationChoices
 
     /// <summary>Reports an animation phase with no animation, with its enemy name.</summary>
     private static InvalidDataException InvalidPhase(SkreeMetareeAnimationPhase phase, string enemyName) =>
-        new($"{enemyName} animation phase {phase} exceeds its four-entry table.");
+        new($"{enemyName} has no animation for phase {phase}.");
 }

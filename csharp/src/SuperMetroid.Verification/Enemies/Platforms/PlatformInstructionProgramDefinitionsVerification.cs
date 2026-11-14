@@ -61,8 +61,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 ? EnemyDefinitionId.Kamer2
                 : EnemyDefinitionId.Tripper, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter1(EnemyDefinitionId.Tripper, (ushort)testCase.Direction);
             slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
+            slot.SetSpawnSettings(slot.SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             slot.Position = slot.Position.WithWholeY(0x0100);
             PlatformsBehavior.InitializePlatform(slot);
 
@@ -159,7 +159,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual(next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
         }
     }
-    /// <summary>Checks the native initial list for every full-word horizontal direction value.</summary>
+    /// <summary>Checks the native initial list for both horizontal directions.</summary>
     private static void VerifyPlatformInitialProgramSelection(CartridgeImportAddressSpace rom)
     {
         // LDY immediate operands in the two native initializers.
@@ -167,15 +167,15 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         {
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
-            for (int direction = 0; direction <= ushort.MaxValue; direction++)
-                AssertEqual(direction == 0 ? left : right,
+            foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
+                AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
                     NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
-                    "platform initial program uses full-word zero/nonzero direction");
+                        PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, direction)),
+                    $"platform initial program faces {direction}");
         }
     }
 
-    /// <summary>Checks moving and still list selection for both species and every direction value.</summary>
+    /// <summary>Checks moving and still list selection for both species and both directions.</summary>
     private static void VerifyPlatformAnimationProgramSelection(CartridgeImportAddressSpace rom)
     {
         // Each native helper first loads Tripper's list, then substitutes Kamer's list.
@@ -190,14 +190,14 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 : (isKamer ? (ushort)0x9eab : (ushort)0x9ea2);
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
-            for (int direction = 0; direction <= ushort.MaxValue; direction++)
-                AssertEqual(direction == 0 ? left : right,
+            foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
+                AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
                     NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
-                    "platform animation program uses species, motion and full-word direction");
+                        PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, direction)),
+                    $"platform animation program uses species, motion and direction {direction}");
         }
     }
-    /// <summary>Checks the native zero-versus-nonzero direction choice for frozen Tripper frames.</summary>
+    /// <summary>Checks the native left-versus-right direction choice for frozen Tripper frames.</summary>
     private static void VerifyTripperFrozenFrameSelection(CartridgeImportAddressSpace rom)
     {
         // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
@@ -205,10 +205,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f1b);
         AssertEqual(left, TripperKamerVisualDefinitions.FrozenMovingLeft, "native frozen-left sprite identity");
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
-        for (int direction = 0; direction <= ushort.MaxValue; direction++)
-            AssertEqual(direction == 0 ? left : right,
-                TripperKamerVisualDefinitionsConstants.FrozenFrame((PlatformHorizontalMovement)direction),
-                "Tripper frozen selection preserves complete native zero/nonzero domain");
+        foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
+            AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
+                TripperKamerVisualDefinitionsConstants.FrozenFrame(direction),
+                $"Tripper frozen selection faces {direction}");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");
     }

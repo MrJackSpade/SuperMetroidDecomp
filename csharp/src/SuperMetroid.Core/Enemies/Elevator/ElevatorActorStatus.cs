@@ -1,18 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
-/// Values of the elevator status consumed by the four-entry elevator
-/// phases. The value is global because it survives the room transition between the
-/// departing and arriving elevator actors.
+/// Where an elevator ride stands. The status is global because it survives the room transition between the departing
+/// and arriving elevators.
 /// </summary>
 public enum ElevatorActorStatus
 {
-    /// <summary>Status zero, leaving the room, applies when pseudo-door contact is present; waits for the required newly pressed direction.</summary>
-    Inactive = 0,
-    /// <summary>Status one, leaving the room, moves the departing platform and pins Samus to it at one-and-one-half pixels per actor update.</summary>
-    Departing = 1,
-    /// <summary>Status two is entered after a door load; the arriving actor starts at its arrival height, then advances to the return state.</summary>
-    BeginArrivalReturn = 2,
-    /// <summary>Status three, entering the room, moves toward the destination actor's saved resting Y, then clears travel globals and unlocks Samus input.</summary>
-    ReturningToRest = 3,
+    /// <summary>No ride: the elevator waits, while Samus stands on its pseudo-door, for the newly pressed direction that starts one.</summary>
+    Inactive,
+    /// <summary>Leaving the room: the departing platform moves and carries Samus at one-and-one-half pixels per update.</summary>
+    Departing,
+    /// <summary>Set by the door load: the arriving elevator starts at its arrival height, then begins its return.</summary>
+    BeginArrivalReturn,
+    /// <summary>Entering the room: the platform moves toward its saved resting height, then ends the ride and unlocks Samus's input.</summary>
+    ReturningToRest,
 }

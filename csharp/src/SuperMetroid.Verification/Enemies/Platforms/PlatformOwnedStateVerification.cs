@@ -20,10 +20,10 @@ internal static class PlatformOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Tripper, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Tripper, (ushort)PlatformHorizontalMovement.Left);
         const int speedRecord = 5;
         const int accelerationCap = 3;
         slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
+        slot.SetSpawnSettings(slot.SpawnSettings<PlatformSpawnSettings>() with { Movement = PlatformHorizontalMovement.Left });
         slot.Position = slot.Position.WithWholeY(ushort.MaxValue);
         PlatformsBehavior.InitializePlatform(slot);
         PlatformEnemyState state = enemies.PlatformStates[0]

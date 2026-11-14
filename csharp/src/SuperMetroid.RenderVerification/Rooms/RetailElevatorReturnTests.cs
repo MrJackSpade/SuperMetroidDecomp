@@ -40,7 +40,7 @@ internal static class RetailElevatorReturnTests
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MorphBall);
         // This persistent native word is carried from the preceding downward ride.
         // Stage only that source state; the door coroutine and destination actor run normally.
-        runtime.Enemies.ElevatorBehavior.SetElevatorStatusForDebugging((ushort)ElevatorActorStatus.Departing);
+        runtime.Enemies.ElevatorBehavior.SetElevatorStatusForDebugging(ElevatorActorStatus.Departing);
         RetailDoorCaptureTests.PublishDoor(runtime, DoorPointers.BlueBrinstarElevatorFromMorphBall);
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();

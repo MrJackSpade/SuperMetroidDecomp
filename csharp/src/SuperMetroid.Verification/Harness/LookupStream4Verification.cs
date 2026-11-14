@@ -1483,19 +1483,17 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks stream-four enemy and projectile instruction words and terminal controls against cartridge programs.</summary>
-    private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
 
-        for (ushort phase = 0; phase < 4; phase++)
+        for (ushort number = 0; number < 4; number++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
+            SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(number, "stream4 Skree/Metaree animation phase");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)), "stream4 native Metaree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation(phase)), "stream4 native Skree phase program");
         }
         foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationChoices.MetareeAnimation((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
-            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationChoices.SkreeAnimation((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
-        }
+            AssertThrows<InvalidDataException>(() => SkreeNativeWords.AnimationPhases.Decode(invalid, "stream4 Skree/Metaree animation phase"), "stream4 invalid Skree/Metaree phase");
     }
 
     /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>

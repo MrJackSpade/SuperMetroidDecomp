@@ -396,7 +396,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));
             cacatacRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            cacatacRecord.Direction = (CacatacDirection)words.D;
+            cacatacRecord.Direction = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection");
             cacatacRecord.Action = words.E == 0 ? null : CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
         }
         if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
@@ -417,7 +417,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
             metroidRecord.EscapeTimer = unchecked((short)words.E);
-            metroidRecord.Movement = (MetroidMovement)words.F;
+            metroidRecord.Movement = MetroidsNativeWords.Movements.Decode(words.F, "recorded MetroidMovement");
         }
         if (slot.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
         {
@@ -438,7 +438,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
             wallSpacePirateRecord.Action = words.A == 0 ? null : SpacePiratesNativeWords.WallSpacePirateActions.Decode(words.A, "recorded WallSpacePirateAction");
-            wallSpacePirateRecord.ClimbDirection = (WallSpacePirateClimbDirection)words.C;
+            wallSpacePirateRecord.ClimbDirection = SpacePiratesNativeWords.WallClimbDirections.Decode(words.C, "recorded WallSpacePirateClimbDirection");
             wallSpacePirateRecord.WallJumpArcCenter = new(words.D, words.E);
             wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromSteps(checked((byte)words.F));
         }
@@ -453,8 +453,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Action = words.B == 0 ? null : SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
-            skreeRecord.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
-            skreeRecord.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
+            skreeRecord.RequestedAnimation = SkreeNativeWords.AnimationPhases.Decode(words.C, "recorded requested Skree animation phase");
+            skreeRecord.InstalledAnimation = SkreeNativeWords.AnimationPhases.Decode(words.D, "recorded installed Skree animation phase");
             skreeRecord.AttackReady = words.E != 0;
         }
         if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
@@ -490,7 +490,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
             mochtroidRecord.ShakeTimer = unchecked((short)words.E);
-            mochtroidRecord.MovementMode = (MochtroidMovementMode)words.F;
+            mochtroidRecord.MovementMode = MetroidsNativeWords.MochtroidMovementModes.Decode(words.F, "recorded MochtroidMovementMode");
         }
         if (slot.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
         {
@@ -720,8 +720,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Action = words.B == 0 ? null : MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
-            metaree.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
-            metaree.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
+            metaree.RequestedAnimation = SkreeNativeWords.AnimationPhases.Decode(words.C, "recorded requested Metaree animation phase");
+            metaree.InstalledAnimation = SkreeNativeWords.AnimationPhases.Decode(words.D, "recorded installed Metaree animation phase");
             metaree.AttackReady = words.E != 0;
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }

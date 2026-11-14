@@ -14,6 +14,9 @@ public static class HudItems
         HudItem.XRay,
     ];
 
+    /// <summary>Every HUD item, in the order the select button steps through them.</summary>
+    public static IReadOnlyList<HudItem> All => SelectionRing;
+
     /// <summary>The next entry of the selection ring, wrapping after X-ray.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="item"/> is not on the ring.</exception>
     public static HudItem Next(HudItem item)

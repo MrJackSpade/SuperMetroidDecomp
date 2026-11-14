@@ -78,13 +78,13 @@ internal static class SamusHudSelectionVerification
             "held item-cancel records Select auto-cancel target");
         AssertEqual(HudItem.Missile, samus.SelectedHudItem,
             "held-cancel Select still equips Missiles");
-        AssertEqual(HudItem.Missile, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Missile, samus.AutoCancelledItem,
             "held-cancel Select stores equipped index");
         AssertTrue(SelectionChanged(samus, cancel, cancel),
             "new item-cancel edge deselects current item");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "item-cancel returns to Nothing");
-        AssertEqual(HudItem.Beam, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Beam, samus.AutoCancelledItem,
             "item-cancel clears auto-cancel index");
 
         // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing

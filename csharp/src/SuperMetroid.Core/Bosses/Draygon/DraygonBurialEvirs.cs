@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using static SuperMetroid.Core.Bosses.Draygon.DraygonBurialEvirDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -7,16 +8,21 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonBurialEvirs
 {
     /// <summary>
+    /// The six burial Evirs in the order Draygon's death spawns them: from the lowest angle on the right of the circle,
+    /// a sixteenth turn at a time, up to <see cref="DraygonBurialEvirDefinitions.FirstAngle"/> on its left.
+    /// </summary>
+    internal static IReadOnlyList<DraygonBurialEvirDefinition> InSpawnOrder { get; } =
+        [.. Enumerable.Range(0, EntryCount).Select(step => AtAngle(FirstAngle - AngleStep * (EntryCount - 1 - step)))];
+
+    /// <summary>
     /// The burial subspeeds are the absolute unit-circle components scaled by <see cref="DraygonBurialEvirDefinitions.SubspeedScale"/>
     /// and truncated, in 65536ths of a pixel; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
     /// circle, floor to pixels, then wrap signed X into the coordinate range. The angle
-    /// selects the movement signs; its unused zero padding is not state.
+    /// selects the movement signs. An Evir left of the circle's centre faces right, toward Draygon, and one right of it is
+    /// drawn as the intro Evir, which faces left.
     /// </summary>
-    internal static DraygonBurialEvirDefinition ForEntry(int entry)
+    private static DraygonBurialEvirDefinition AtAngle(int angle)
     {
-        if ((uint)entry >= EntryCount)
-            throw new InvalidDataException($"Draygon burial Evir entry {entry} exceeds its six-record table.");
-        int angle = FirstAngle - AngleStep * entry;
         double radians = angle * Math.PI / 128;
         double x = Math.Cos(radians), y = Math.Sin(radians);
         return new(
@@ -26,7 +32,8 @@ internal static class DraygonBurialEvirs
             Position16<RoomPixels>.Wrapped(
                 (int)Math.Floor(CenterX + Radius * x),
                 (int)Math.Floor(CenterY - Radius * y)),
-            TrigonometryAngle.Wrapped(angle));
+            TrigonometryAngle.Wrapped(angle),
+            x < 0 ? RoomSpriteObjectKind.DraygonDeathEvirFacingRight : RoomSpriteObjectKind.DraygonIntroEvir);
     }
 
     /// <summary>

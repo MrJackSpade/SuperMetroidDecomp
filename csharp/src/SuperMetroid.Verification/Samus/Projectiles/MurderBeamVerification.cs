@@ -222,7 +222,7 @@ internal static class MurderBeamVerification
                 (select | cancel),
                 select),
             "held Item Cancel plus Select chooses Missiles for auto-cancel");
-        AssertEqual(HudItem.Missile, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Missile, samus.AutoCancelledItem,
             "missile auto-cancel request retains the selected HUD index");
 
         shared.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, ControllerButton.X);
@@ -231,7 +231,7 @@ internal static class MurderBeamVerification
             "auto-cancel setup fires one Missile");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");
-        AssertEqual(HudItem.Beam, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Beam, samus.AutoCancelledItem,
             "successful Missile consumes its auto-cancel request");
 
         HoldCharge(level, samus, projectiles, shared, shootAlreadyHeld: true);

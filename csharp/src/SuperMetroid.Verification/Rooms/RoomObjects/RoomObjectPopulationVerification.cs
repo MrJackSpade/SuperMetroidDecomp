@@ -340,7 +340,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(1, roomObjects.Stations.StationActivationEvents.Count,
             "energy station publishes one shared message request");
         AssertEqual(GameplayMessageIds.EnergyRechargeCompleted,
-            roomObjects.Stations.StationActivationEvents[0].MessageBoxIndex,
+            roomObjects.Stations.StationActivationEvents[0].Message,
             "energy station uses cartridge message $15");
 
         Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(bus));
@@ -1229,7 +1229,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 1,
             completionFrame,
             "save animation publishes completion after all 21 alternating native loops");
-        AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
+        AssertEqual(GameplayMessageIds.SaveCompleted, completion.Message,
             "save animation publishes game-saved message only after its draw loop");
         roomObjects.Stations.CompleteSaveStation(completion);
         AssertTrue(!samus.Control.InputLocked, "game-saved message return unlocks Samus");

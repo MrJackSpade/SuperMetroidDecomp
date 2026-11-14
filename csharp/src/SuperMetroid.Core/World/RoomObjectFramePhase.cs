@@ -146,13 +146,13 @@ internal sealed class RoomObjectFramePhase
                         "Multiple permanent items attempted to enter the synchronous " +
                         "message box during one room-object pass.");
                 }
-                _messageBox.Begin(pickup.MessageBoxIndex, _controller1.Current);
+                _messageBox.Begin(pickup.Message, _controller1.Current);
             }
             foreach (StationActivationEvent station in roomObjects.Stations.StationActivationEvents)
             {
                 if (station.Kind == StationKind.Save)
                 {
-                    if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
+                    if (station.Message == GameplayMessageIds.SaveConfirmation)
                     {
                         if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
@@ -165,7 +165,7 @@ internal sealed class RoomObjectFramePhase
                             _controller1.Current);
                         continue;
                     }
-                    if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
+                    if (station.Message == GameplayMessageIds.SaveCompleted)
                     {
                         if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
@@ -178,7 +178,7 @@ internal sealed class RoomObjectFramePhase
                         continue;
                     }
                     throw new InvalidDataException(
-                        $"Save station published unexpected message {station.MessageBoxIndex}.");
+                        $"Save station published unexpected message {station.Message}.");
                 }
                 if (_messageBox.IsActive)
                 {
@@ -186,7 +186,7 @@ internal sealed class RoomObjectFramePhase
                         "Multiple room objects attempted to open the synchronous message box " +
                         "during one handler pass.");
                 }
-                _messageBox.Begin(station.MessageBoxIndex, _controller1.Current);
+                _messageBox.Begin(station.Message, _controller1.Current);
             }
             foreach (MotherBrainGlassProjectileRequest request in
                      roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)

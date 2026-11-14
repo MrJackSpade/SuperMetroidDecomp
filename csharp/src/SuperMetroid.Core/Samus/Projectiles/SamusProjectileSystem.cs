@@ -244,7 +244,7 @@ public sealed class SamusProjectileSystem
             Charge.ChargePaletteStep = 0;
             samus.VisorPalette.Update(
                 colours,
-                samus.Xray.SpecialPaletteKind,
+                samus.SpecialColouring.Holder,
                 roomVisorAnimation);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive);

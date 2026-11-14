@@ -1542,20 +1542,20 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>
-    private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
     {
 
+        // The cartridge's tables list the burial Evirs from the last spawned to the first.
+        AssertEqual(6, DraygonBurialEvirs.InSpawnOrder.Count, "stream4 burial exact six Evirs");
         for (int entry = 0; entry < 6; entry++)
         {
-            var actual = DraygonBurialEvirs.ForEntry(entry);
+            var actual = DraygonBurialEvirs.InSpawnOrder[5 - entry];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), actual.Initial.Y, "stream4 burial radial spawn Y");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
         }
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => DraygonBurialEvirs.ForEntry(invalid), "stream4 burial exact six-record domain");
     }
 
     /// <summary>Checks Spore Spawn and Fly visual identity data against native tables.</summary>
@@ -1632,7 +1632,7 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
-    private static void VerifyLookupStream4RidleyFireballOperands()
+    internal static void VerifyLookupStream4RidleyFireballOperands()
     {
         // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
         // their installed frames keep the native operand addresses in list order.

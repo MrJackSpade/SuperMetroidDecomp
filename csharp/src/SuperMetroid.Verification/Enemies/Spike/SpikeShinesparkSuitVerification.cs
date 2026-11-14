@@ -51,7 +51,7 @@ internal static class SpikeShinesparkSuitVerification
                 $"dry spike-suit launch frame {expected.LaunchFrame} movement ownership");
             AssertEqual(expected.Pose, samus.Pose,
                 $"dry spike-suit launch frame {expected.LaunchFrame} final pose");
-            AssertEqual(expected.Palette, samus.Shinespark.PaletteType,
+            AssertEqual(expected.Palette, samus.SpecialColouring.Holder,
                 $"dry spike-suit launch frame {expected.LaunchFrame} palette state");
         }
 
@@ -75,7 +75,7 @@ internal static class SpikeShinesparkSuitVerification
         int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
-        SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
+        SamusSpecialPaletteType frozenPalette = frozenSamus.SpecialColouring.Holder;
         int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
@@ -86,7 +86,7 @@ internal static class SpikeShinesparkSuitVerification
             new AnimationResult(frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
-            new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer, frozenSamus.Shinespark.PaletteType),
+            new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer, frozenSamus.SpecialColouring.Holder),
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
             "global hurt timer continues while Reserve owns Samus");
@@ -110,7 +110,7 @@ internal static class SpikeShinesparkSuitVerification
             SamusState samus = RunReserveSpikeSuitCase(expected.FreezeAfter, expected.LaunchAfter);
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
-                samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
+                samus.SpecialColouring.Holds(SamusSpecialPaletteType.Shinesparking) &&
                 SamusInputSnapshot.HoldsShine(samus);
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");

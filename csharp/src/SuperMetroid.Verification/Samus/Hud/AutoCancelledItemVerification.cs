@@ -41,7 +41,7 @@ internal static class AutoCancelledItemVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
             samus.SelectedHudItem = HudItem.Grapple;
-            samus.AutoCancelHudItemIndex = autoCancelled ? HudItem.Grapple : HudItem.Beam;
+            samus.AutoCancelledItem = autoCancelled ? HudItem.Grapple : HudItem.Beam;
             samus.Grapple.Phase = phase;
             samus.LiquidPhysics.BeginFrameSoundRequests();
 
@@ -54,7 +54,7 @@ internal static class AutoCancelledItemVerification
                 autoCancelled
                     ? $"the grapple's {ending} returns an auto-cancelled Grapple to the beams"
                     : $"the grapple's {ending} keeps a Grapple chosen without Item Cancel");
-            AssertEqual(HudItem.Beam, samus.AutoCancelHudItemIndex, $"the grapple's {ending} leaves no auto-cancel");
+            AssertEqual(HudItem.Beam, samus.AutoCancelledItem, $"the grapple's {ending} leaves no auto-cancel");
         }
         Console.WriteLine("  Auto-cancel: each of the grapple's four endings returns an auto-cancelled Grapple to the beams.");
     }
@@ -77,7 +77,7 @@ internal static class AutoCancelledItemVerification
                 MaxHealth = 99,
                 EquippedItems = SamusEquipmentFlags.XrayScope,
                 SelectedHudItem = HudItem.XRay,
-                AutoCancelHudItemIndex = autoCancelled ? HudItem.XRay : HudItem.Beam,
+                AutoCancelledItem = autoCancelled ? HudItem.XRay : HudItem.Beam,
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
@@ -97,7 +97,7 @@ internal static class AutoCancelledItemVerification
                 autoCancelled
                     ? "X-ray's end returns an auto-cancelled X-ray to the beams"
                     : "X-ray's end keeps an X-ray chosen without Item Cancel");
-            AssertEqual(HudItem.Beam, samus.AutoCancelHudItemIndex, "X-ray's end leaves no auto-cancel");
+            AssertEqual(HudItem.Beam, samus.AutoCancelledItem, "X-ray's end leaves no auto-cancel");
         }
         Console.WriteLine("  Auto-cancel: X-ray's end returns an auto-cancelled X-ray to the beams.");
     }

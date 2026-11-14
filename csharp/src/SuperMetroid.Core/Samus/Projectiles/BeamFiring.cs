@@ -492,10 +492,10 @@ internal sealed class BeamFiring
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
         sharedProjectiles.SetSharedCooldown(isSuperMissile ? 20 : 10);
-        if (samus.AutoCancelHudItemIndex != HudItem.Beam)
+        if (samus.AutoCancelledItem != HudItem.Beam)
         {
             samus.SelectedHudItem = HudItem.Beam;
-            samus.AutoCancelHudItemIndex = HudItem.Beam;
+            samus.AutoCancelledItem = HudItem.Beam;
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = HudItem.Beam;

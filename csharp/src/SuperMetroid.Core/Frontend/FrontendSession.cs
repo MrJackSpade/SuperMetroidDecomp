@@ -378,7 +378,7 @@ internal sealed class FrontendSession
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
             runtime.Assists.GrantLoadoutToRestoredSamus();
             restartedSamus.SelectedHudItem = HudItem.Beam;
-            restartedSamus.AutoCancelHudItemIndex = HudItem.Beam;
+            restartedSamus.AutoCancelledItem = HudItem.Beam;
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
             RaiseSavesChanged();
             spacetimeIntroRestartSlot = null;
@@ -409,7 +409,7 @@ internal sealed class FrontendSession
                     "Ceres initialization did not create Samus."));
                 runtime.Assists.GrantLoadoutToRestoredSamus();
                 runtime.Player.Samus.SelectedHudItem = HudItem.Beam;
-                runtime.Player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
+                runtime.Player.Samus.AutoCancelledItem = HudItem.Beam;
                 ApplySelectedGameOptions();
                 return true;
             }

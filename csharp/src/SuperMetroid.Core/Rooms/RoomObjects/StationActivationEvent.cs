@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// confirmation or message-close results to the same resident room owner.
 /// </summary>
 /// <param name="Kind">The station family whose activation produced this event.</param>
-/// <param name="MessageBoxIndex">The gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
+/// <param name="Message">The gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
 /// <param name="Area">The room's area, used for map acquisition and save-station identity.</param>
 /// <param name="SaveStation">The load station a save station saves at, which identifies the resident save station; null for
 /// a map or refill station.</param>
 /// <param name="Block">The parent station's room block, rather than a side-access trigger's.</param>
 public readonly record struct StationActivationEvent(
     StationKind Kind,
-    GameplayMessageId MessageBoxIndex,
+    GameplayMessageId Message,
     AreaId Area,
     LoadStation? SaveStation,
     Position16<RoomBlocks> Block)

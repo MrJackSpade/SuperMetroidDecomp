@@ -23,6 +23,9 @@ internal sealed class IdentitySequence<T>
         _positions = Enumerable.Range(0, _members.Length).ToFrozenDictionary(position => _members[position]);
     }
 
+    /// <summary>The identities in sequence order.</summary>
+    internal IReadOnlyList<T> Members => _members;
+
     /// <summary>The identity at <paramref name="position"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The position is outside the sequence.</exception>
     internal T At(int position) => (uint)position < (uint)_members.Length

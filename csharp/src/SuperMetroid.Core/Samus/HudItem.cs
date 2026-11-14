@@ -1,22 +1,21 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The selected HUD item: the six items of the HUD selection (#1323). The selection ring,
-/// the arm-cannon cover policy and every weapon handler index exactly this domain.
+/// The item selected on the HUD, which decides what Samus fires (#1323). Select steps through them in the order
+/// <see cref="HudItems"/> keeps; the arm cannon's cover and every weapon's firing read this choice.
 /// </summary>
 public enum HudItem
 {
-    /// <summary>No HUD weapon; beam fire.</summary>
-    Beam = 0,
+    /// <summary>No HUD item: Samus fires her beam.</summary>
+    Beam,
     /// <summary>Missiles.</summary>
-    Missile = 1,
-    /// <summary>Super missiles.</summary>
-    SuperMissile = 2,
+    Missile,
+    /// <summary>Super Missiles.</summary>
+    SuperMissile,
     /// <summary>Power Bombs.</summary>
-    PowerBomb = 3,
-    /// <summary>Grapple Beam.</summary>
-    Grapple = 4,
-    /// <summary>X-ray Scope.</summary>
-    XRay = 5,
+    PowerBomb,
+    /// <summary>The Grapple Beam.</summary>
+    Grapple,
+    /// <summary>The X-ray Scope.</summary>
+    XRay,
 }
-

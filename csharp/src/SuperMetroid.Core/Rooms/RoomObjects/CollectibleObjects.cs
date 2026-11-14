@@ -236,7 +236,7 @@ internal sealed class CollectibleObjects
 
         var pickup = new CollectiblePickupEvent(
             item.Kind,
-            GetMessageBoxIndex(item.Kind));
+            PickupMessage(item.Kind));
         _collectiblePickupEvents.Add(pickup);
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
@@ -376,7 +376,7 @@ internal sealed class CollectibleObjects
     };
 
     /// <summary>Selects the message shown synchronously after a permanent pickup.</summary>
-    private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
+    private static GameplayMessageId PickupMessage(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
         InWorldCollectibleKind.MissileTank => GameplayMessageIds.MissileTank,

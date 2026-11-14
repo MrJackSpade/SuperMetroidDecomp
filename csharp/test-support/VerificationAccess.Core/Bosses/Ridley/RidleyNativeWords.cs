@@ -28,6 +28,21 @@ internal static class RidleyNativeWords
         [RidleyFightMode.Dying] = 0xffff,
     });
 
+    /// <summary>
+    /// The tail-function index ($7E:2000) naming each <see cref="RidleyTailAction"/>. The cartridge's table has two more
+    /// entries, seven and eight, that nothing selects.
+    /// </summary>
+    internal static readonly NativeWordIdentities<RidleyTailAction> TailActions = new(new Dictionary<RidleyTailAction, ushort>
+    {
+        [RidleyTailAction.None] = 0,
+        [RidleyTailAction.Neutral] = 1,
+        [RidleyTailAction.PogoSetup] = 2,
+        [RidleyTailAction.PointDown] = 3,
+        [RidleyTailAction.Pogo] = 4,
+        [RidleyTailAction.StabSetup] = 5,
+        [RidleyTailAction.Stab] = 6,
+    });
+
     /// <summary>The bank-$A6 routine word naming each <see cref="RidleyPhase"/>.</summary>
     internal static readonly NativeWordIdentities<RidleyPhase> Phases = new(new Dictionary<RidleyPhase, ushort>
     {

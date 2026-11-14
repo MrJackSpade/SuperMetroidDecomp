@@ -22,6 +22,13 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusXrayState
 {
+    /// <summary>The special suit colouring holding Samus's suit, which the X-ray visor takes.</summary>
+    private readonly SamusSpecialColouring _colouring;
+
+    /// <summary>Creates an X-ray owner whose visor colours take Samus's special suit colouring.</summary>
+    /// <param name="colouring">Samus's special suit colouring, which the visor takes.</param>
+    internal SamusXrayState(SamusSpecialColouring colouring) => _colouring = Ensure.NotNull(colouring);
+
     /// <summary>True while the dedicated X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
@@ -108,12 +115,6 @@ public sealed class SamusXrayState
     /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
     public XrayVisorPaletteMode VisorPaletteMode { get; private set; }
-
-    /// <summary>
-    /// The special suit colouring X-ray runs: X-ray's once the visor starts it, none after teardown
-    /// restores the suit colours or another colouring takes over.
-    /// </summary>
-    public SamusSpecialPaletteType SpecialPaletteKind { get; private set; }
 
     /// <summary>
     /// The visor shade shown next, 0 through 5: widening shows 0, 1 and 2 and holds 2; the full beam cycles 3, 4
@@ -233,7 +234,7 @@ public sealed class SamusXrayState
         // delay with frame two and a 63-tick timer, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and plays the X-ray's starting sound.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
-        SpecialPaletteKind = SamusSpecialPaletteType.Xray;
+        _colouring.Take(SamusSpecialPaletteType.Xray);
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
         // X-ray's activation installs both X-Ray handlers, so an interrupted Flash's no-op
@@ -300,7 +301,7 @@ public sealed class SamusXrayState
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
-        SpecialPaletteKind = SamusSpecialPaletteType.None;
+        _colouring.Release(SamusSpecialPaletteType.Xray);
         VisorShade = 0;
         CommonPaletteTimer = 0;
     }
@@ -308,7 +309,6 @@ public sealed class SamusXrayState
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishPaletteHandler()
     {
-        SpecialPaletteKind = SamusSpecialPaletteType.None;
         VisorShade = 0;
         CommonPaletteTimer = 0;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
@@ -493,14 +493,14 @@ public sealed class SamusXrayState
             // A handler that reports the palette unhandled asks the outer game-state loop to load the
             // complete normal suit palette, then clears every X-ray palette value.
             SamusNormalSuitPalette.Load(colours, equippedItems);
-            SpecialPaletteKind = SamusSpecialPaletteType.None;
+            _colouring.Release(SamusSpecialPaletteType.Xray);
             VisorShade = 0;
             CommonPaletteTimer = 0;
             VisorPaletteMode = XrayVisorPaletteMode.Widening;
             return true;
         }
 
-        if (SpecialPaletteKind != SamusSpecialPaletteType.Xray)
+        if (!_colouring.Holds(SamusSpecialPaletteType.Xray))
             return false;
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))

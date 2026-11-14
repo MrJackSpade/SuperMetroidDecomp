@@ -163,7 +163,13 @@ public sealed class SamusState
     /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
     /// teardown. Revealed-block pictures and the cone window remain presentation-owned outputs.
     /// </summary>
-    public SamusXrayState Xray { get; } = new();
+    public SamusXrayState Xray { get; }
+
+    /// <summary>
+    /// The one special suit colouring holding Samus's suit, which the stored shine, the shinespark, Crystal Flash and the
+    /// X-ray visor take from each other.
+    /// </summary>
+    public SamusSpecialColouring SpecialColouring { get; } = new();
 
     /// <summary>
     /// Fatal-damage death-pose ownership, death pictures/palettes, whiteout, and suit explosion.
@@ -282,11 +288,14 @@ public sealed class SamusState
     /// <summary>Maximum power bombs.</summary>
     public int MaxPowerBombs { get; set; }
 
-    /// <summary>Selected HUD item: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
+    /// <summary>The item selected on the HUD, which decides what Samus fires.</summary>
     public HudItem SelectedHudItem { get; set; }
 
-    /// <summary>HUD auto-cancel index.</summary>
-    public HudItem AutoCancelHudItemIndex { get; set; }
+    /// <summary>
+    /// The item chosen for auto-cancel, by pressing Select while Item Cancel is held: the HUD returns to the beam when its
+    /// use ends. <see cref="HudItem.Beam"/> when no item was chosen that way.
+    /// </summary>
+    public HudItem AutoCancelledItem { get; set; }
 
     /// <summary>
     /// Equipped beam bitfield. Equipping the Hyper Beam in the drain replaces
@@ -525,8 +534,9 @@ public sealed class SamusState
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
         HurtFlash = compatibility.HurtFlash;
-        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel);
-        CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount);
+        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel, SpecialColouring);
+        CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount, SpecialColouring);
+        Xray = new SamusXrayState(SpecialColouring);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();

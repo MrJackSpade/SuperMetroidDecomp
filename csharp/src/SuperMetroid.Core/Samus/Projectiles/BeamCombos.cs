@@ -129,7 +129,7 @@ internal sealed class BeamCombos
             };
         }
         if (samus.PowerBombs == 0)
-            samus.SelectedHudItem = samus.AutoCancelHudItemIndex = HudItem.Beam;
+            samus.SelectedHudItem = samus.AutoCancelledItem = HudItem.Beam;
         return activated;
     }
 

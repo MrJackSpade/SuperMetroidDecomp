@@ -2,22 +2,22 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// Which special suit colouring colours Samus: the stored shine, a shinespark, Crystal Flash or the X-ray visor.
-/// At most one runs at a time; starting one ends the one before.
+/// <see cref="SamusSpecialColouring"/> holds the one that runs; starting one ends the one before.
 /// </summary>
 public enum SamusSpecialPaletteType
 {
     /// <summary>No special colouring changes Samus's suit colours.</summary>
-    None = 0,
+    None,
 
-    /// <summary>Stored Speed Booster shine (the shine's colours, stored).</summary>
-    SpeedBoosterShine = 1,
+    /// <summary>The stored shine's glow, while a shinespark waits to be launched.</summary>
+    SpeedBoosterShine,
 
-    /// <summary>Active shinespark (the shinespark's colours, stored).</summary>
-    Shinesparking = 6,
+    /// <summary>The shinespark's flashing, from its windup through its flight.</summary>
+    Shinesparking,
 
-    /// <summary>Crystal Flash owns the special-palette timer and suit-color sequence.</summary>
-    CrystalFlash = 7,
+    /// <summary>Crystal Flash's pulsing suit and bubble colours.</summary>
+    CrystalFlash,
 
-    /// <summary>X-ray mode owns the special-palette timer and animated visor colors.</summary>
-    Xray = 8,
+    /// <summary>The X-ray visor's animated colours.</summary>
+    Xray,
 }

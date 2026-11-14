@@ -89,7 +89,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "stage four stores shine");
     AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
-    AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
+    AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.SpecialColouring.Holder, "the stored shine takes Samus's suit colouring");
 
     var samusColours = new SamusColours();
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.

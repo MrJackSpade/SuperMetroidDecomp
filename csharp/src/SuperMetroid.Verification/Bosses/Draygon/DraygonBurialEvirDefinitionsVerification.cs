@@ -19,10 +19,11 @@ internal static class DraygonBurialEvirDefinitionsVerification
         const int positionTable = 0xa5a1c7;
         const int angleTable = 0xa5a1df;
 
+        // The cartridge's three tables list the Evirs from the last spawned to the first.
+        AssertEqual(6, DraygonBurialEvirs.InSpawnOrder.Count, "Draygon's death spawns six burial Evirs");
         for (int entry = 0; entry < 6; entry++)
         {
-            DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirs.ForEntry(entry);
+            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)), definition.SubspeedMagnitude.X.Fraction,
                 $"Draygon burial Evir {entry} X subspeed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)), definition.SubspeedMagnitude.Y.Fraction,
@@ -37,13 +38,6 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} angle padding");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => DraygonBurialEvirs.ForEntry(-1),
-            "Draygon burial Evir negative entry");
-        AssertThrows<InvalidDataException>(
-            () => DraygonBurialEvirs.ForEntry(6),
-            "Draygon burial Evir entry past table");
-
         var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Draygon dies on a white hurt frame here; his burial Evirs spawn in their own colours, not in his flash (#1544).
@@ -52,14 +46,14 @@ internal static class DraygonBurialEvirDefinitionsVerification
 
         for (int entry = 5; entry >= 0; entry--)
         {
+            // The cartridge spawns its last three entries as the left-facing intro Evir and its first three facing right.
             RoomSpriteObjectKind kind = entry >= 3
                 ? RoomSpriteObjectKind.DraygonIntroEvir
                 : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
-            enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, entry, kind);
+            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
+            enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, definition);
             // The n-th Evir spawned is the n-th live sprite object.
             RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
-            DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirs.ForEntry(entry);
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
             AssertEqual(definition.Initial.X, sprite.Position.X.Whole,
@@ -78,8 +72,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         {
             // The n-th Evir spawned is the n-th live sprite object.
             RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
-            DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirs.ForEntry(entry);
+            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
                 definition.Initial.X,
                 definition.SubspeedMagnitude.X.Fraction,

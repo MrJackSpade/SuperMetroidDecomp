@@ -18,15 +18,17 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     internal static void VerifySkreeMetareeAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         // The tables' fourth entry is the stop animation the AI never selects, which the port does not keep (#1838).
+        // Each phase number names the animation in its species' phase table, which Core holds directly (#1810).
         for (int index = 0; index < 3; index++)
         {
-            SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(index, "Skree/Metaree animation phase");
+            SkreeMetareeSegment metaree = SkreeNativeWords.MetareeAnimationPhases.Decode(index, "Metaree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)),
-                $"Metaree animation phase {phase}");
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, metaree),
+                $"Metaree animation phase {index}");
+            SkreeMetareeSegment skree = SkreeNativeWords.SkreeAnimationPhases.Decode(index, "Skree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation(phase)),
-                $"Skree animation phase {phase}");
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, skree),
+                $"Skree animation phase {index}");
         }
 
         Suite(nameof(VerifyAllSkreeMetareeInstallHandoffs), () => VerifyAllSkreeMetareeInstallHandoffs());
@@ -34,47 +36,45 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs());
 
         AssertThrows<InvalidDataException>(
-            () => SkreeNativeWords.AnimationPhases.Decode(3, "Skree/Metaree animation phase"),
-            "Skree/Metaree animation phase past table");
+            () => SkreeNativeWords.SkreeAnimationPhases.Decode(3, "Skree animation phase"),
+            "Skree animation phase past table");
+        AssertThrows<InvalidDataException>(
+            () => SkreeNativeWords.MetareeAnimationPhases.Decode(3, "Metaree animation phase"),
+            "Metaree animation phase past table");
         Console.WriteLine(
             "Skree/Metaree animation definitions: six native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
     }
 
-    /// <summary>Installs every requested phase from a different prior phase and checks each slot's pointer and timer reset.</summary>
+    /// <summary>
+    /// Starts every animation the AI starts from a different installed one and checks each slot's animation and timer
+    /// reset; asking for the installed animation again leaves it playing.
+    /// </summary>
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
-
-        foreach (SkreeMetareeAnimationPhase phase in Enum.GetValues<SkreeMetareeAnimationPhase>())
+        SkreeMetareeSegment[] metareeAnimations = [SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving];
+        foreach (SkreeMetareeSegment animation in metareeAnimations)
         {
             var metareeSlot = NewSkreeMetareeAnimationSlot();
-            var metareeState = new MetareeEnemyState
-            {
-                RequestedAnimation = phase,
-                InstalledAnimation = DifferentSkreeMetareePhase(phase),
-            };
-            MetareeBehavior.StartRequestedMetareeAnimation(metareeSlot, metareeState);
-            AssertSkreeMetareeHandoff(
-                metareeSlot,
-                metareeState.InstalledAnimation,
-                phase,
-                metareeState.Playback,
-                SkreeMetareeAnimationChoices.MetareeAnimation(phase),
-                $"Metaree {phase}");
+            var metareeState = new MetareeEnemyState { InstalledAnimation = Different(metareeAnimations, animation) };
+            MetareeBehavior.StartMetareeAnimation(metareeSlot, metareeState, animation);
+            AssertSkreeMetareeHandoff(metareeSlot, metareeState.InstalledAnimation, animation, metareeState.Playback, $"Metaree {animation}");
 
+            AnimationPlayback<SkreeMetareeSegment> playing = metareeState.Playback;
+            MetareeBehavior.StartMetareeAnimation(metareeSlot, metareeState, animation);
+            AssertEqual(playing, metareeState.Playback, $"Metaree {animation} asked for again keeps playing");
+        }
+
+        SkreeMetareeSegment[] skreeAnimations = [SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving];
+        foreach (SkreeMetareeSegment animation in skreeAnimations)
+        {
             var skreeSlot = NewSkreeMetareeAnimationSlot();
-            var skreeState = new SkreeEnemyState()
-            {
-                RequestedAnimation = phase,
-                InstalledAnimation = DifferentSkreeMetareePhase(phase),
-            };
-            SkreeBehavior.StartRequestedSkreeAnimation(skreeSlot, skreeState);
-            AssertSkreeMetareeHandoff(
-                skreeSlot,
-                skreeState.InstalledAnimation,
-                phase,
-                skreeState.Playback,
-                SkreeMetareeAnimationChoices.SkreeAnimation(phase),
-                $"Skree {phase}");
+            var skreeState = new SkreeEnemyState { InstalledAnimation = Different(skreeAnimations, animation) };
+            SkreeBehavior.StartSkreeAnimation(skreeSlot, skreeState, animation);
+            AssertSkreeMetareeHandoff(skreeSlot, skreeState.InstalledAnimation, animation, skreeState.Playback, $"Skree {animation}");
+
+            AnimationPlayback<SkreeMetareeSegment> playing = skreeState.Playback;
+            SkreeBehavior.StartSkreeAnimation(skreeSlot, skreeState, animation);
+            AssertEqual(playing, skreeState.Playback, $"Skree {animation} asked for again keeps playing");
         }
     }
 
@@ -94,23 +94,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         };
 
         MetareeBehavior.RunMetareeIdle(slot, (state), samus);
-        AssertSkreeMetareeHandoff(
-                slot,
-                state.InstalledAnimation,
-                SkreeMetareeAnimationPhase.PreparingAttack,
-                state.Playback,
-                SkreeMetareeAnimationChoices.MetareeAnimation(SkreeMetareeAnimationPhase.PreparingAttack),
-            "live Metaree preparation");
+        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
 
         state.AttackReady = true;
         enemies.MetareeBehavior.RunMetareePreparation(slot, state);
-        AssertSkreeMetareeHandoff(
-                slot,
-                state.InstalledAnimation,
-                SkreeMetareeAnimationPhase.Diving,
-                state.Playback,
-                SkreeMetareeAnimationChoices.MetareeAnimation(SkreeMetareeAnimationPhase.Diving),
-            "live Metaree dive");
+        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
     }
 
     /// <summary>Drives a live Skree from idle through attack preparation into its diving animation.</summary>
@@ -129,23 +117,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         };
 
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
-        AssertSkreeMetareeHandoff(
-                slot,
-                state.InstalledAnimation,
-                SkreeMetareeAnimationPhase.PreparingAttack,
-                state.Playback,
-                SkreeMetareeAnimationChoices.SkreeAnimation(SkreeMetareeAnimationPhase.PreparingAttack),
-            "live Skree preparation");
+        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
 
         state.AttackReady = true;
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
-        AssertSkreeMetareeHandoff(
-                slot,
-                state.InstalledAnimation,
-                SkreeMetareeAnimationPhase.Diving,
-                state.Playback,
-                SkreeMetareeAnimationChoices.SkreeAnimation(SkreeMetareeAnimationPhase.Diving),
-            "live Skree dive");
+        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
     }
 
     /// <summary>Creates an enemy system that rejects reads from the two migrated animation selector tables.</summary>
@@ -160,24 +136,20 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() =>
         new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
 
-    /// <summary>Chooses an installed phase distinct from the requested one for each handoff fixture.</summary>
-    private static SkreeMetareeAnimationPhase DifferentSkreeMetareePhase(
-        SkreeMetareeAnimationPhase phase) =>
-        phase == SkreeMetareeAnimationPhase.Idling
-            ? SkreeMetareeAnimationPhase.PreparingAttack
-            : SkreeMetareeAnimationPhase.Idling;
+    /// <summary>One of <paramref name="animations"/> other than <paramref name="animation"/>, installed before each handoff.</summary>
+    private static SkreeMetareeSegment Different(SkreeMetareeSegment[] animations, SkreeMetareeSegment animation) =>
+        animations.First(candidate => candidate != animation);
 
-    /// <summary>Checks the installed phase and the freshly started animation plus both timer resets.</summary>
+    /// <summary>Checks the installed animation and the freshly started animation plus both timer resets.</summary>
     private static void AssertSkreeMetareeHandoff(
         RoomEnemySlot slot,
-        SkreeMetareeAnimationPhase installed,
-        SkreeMetareeAnimationPhase expectedPhase,
+        SkreeMetareeSegment installed,
+        SkreeMetareeSegment expected,
         AnimationPlayback<SkreeMetareeSegment> playback,
-        SkreeMetareeSegment expectedProgram,
         string context)
     {
-        AssertEqual(expectedPhase, installed, $"{context} installed phase");
-        AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expectedProgram), playback.Animation) &&
+        AssertEqual(expected, installed, $"{context} installed animation");
+        AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expected), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
         AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");

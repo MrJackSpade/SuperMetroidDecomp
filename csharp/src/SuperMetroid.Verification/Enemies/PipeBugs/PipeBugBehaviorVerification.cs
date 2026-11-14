@@ -14,15 +14,16 @@ internal static class PipeBugBehaviorVerification
 {
     /// <summary>
     /// The Zeb, Zebbo, Gamet and Geega initializers start their native first loops, and every loop installed through
-    /// <see cref="PipeBugsBehavior.StartPipeBugAnimation"/> runs one pass and returns to its first pose on time.
+    /// <see cref="PipeBugsBehavior.StartPipeBugAnimation"/> runs one pass and returns to its first pose on time; each family
+    /// keeps its animation in its own state (#1845).
     /// </summary>
     internal static void VerifyPipeBugBehavior()
     {
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebRisingLeft), Initialized(EnemyDefinitionId.Zeb, 0).Playback.Animation, "Zeb starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebboRisingLeft), Initialized(EnemyDefinitionId.Zebbo, 1).Playback.Animation, "Zebbo starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft), Initialized(EnemyDefinitionId.Gamet, 0).Playback.Animation, "Gamet starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingLeft), Initialized(EnemyDefinitionId.Geega, 1).Playback.Animation, "Geega with parameter one starts flying left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingRight), Initialized(EnemyDefinitionId.Geega, 0).Playback.Animation, "Geega with parameter zero starts flying right");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebRisingLeft), Initialized(EnemyDefinitionId.Zeb, 0).Animation, "Zeb starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebboRisingLeft), Initialized(EnemyDefinitionId.Zebbo, 1).Animation, "Zebbo starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft), Initialized(EnemyDefinitionId.Gamet, 0).Animation, "Gamet starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingLeft), Initialized(EnemyDefinitionId.Geega, 1).Animation, "Geega with parameter one starts flying left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingRight), Initialized(EnemyDefinitionId.Geega, 0).Animation, "Geega with parameter zero starts flying right");
 
         foreach (PipeBugSegment program in Enum.GetValues<PipeBugSegment>())
         {
@@ -35,8 +36,8 @@ internal static class PipeBugBehaviorVerification
             };
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
-            PipeBugsBehavior.StartPipeBugAnimation(slot, state, program);
+            Initialize(enemies, slot, definition, parameter);
+            slot.PipeBugPlayback = PipeBugsBehavior.StartPipeBugAnimation(slot, program);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Segments, program, PipeBugFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Segments, program)),
                 $"Pipe Bug {program} loop");
@@ -58,7 +59,8 @@ internal static class PipeBugBehaviorVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
+            Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
+            NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = PipeBugAction.NorfairWaitForStagger;
             state.StaggerTarget = 72;
             state.FormationCounter = before;
@@ -72,15 +74,16 @@ internal static class PipeBugBehaviorVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
+            Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
+            BrinstarPipeBugState state = slot.RequireSpeciesState<BrinstarPipeBugState>();
             state.Action = PipeBugAction.BrinstarWaitForSamus;
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(28, 78)));
-            AssertTrue(state.BrinstarFliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
+            AssertTrue(state.FliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
             AssertEqual(PipeBugAction.BrinstarWaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
-            AssertTrue(!state.BrinstarFliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
+            AssertTrue(!state.FliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(PipeBugAction.BrinstarEmerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
-            AssertEqual(PipeBugSegment.ZebRisingRight, state.RequestedAnimation, "Brinstar Pipe Bug emerges facing right");
+            AssertEqual(PipeBugSegment.ZebRisingRight, state.InstalledAnimation, "Brinstar Pipe Bug emerges facing right");
         }
 
         {
@@ -89,7 +92,8 @@ internal static class PipeBugBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
-            PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
+            Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
+            YellowPipeBugState state = slot.RequireSpeciesState<YellowPipeBugState>();
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.FlightSpeed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Action = PipeBugAction.YellowArcRight;
             state.ArcRising = true;
@@ -112,15 +116,17 @@ internal static class PipeBugBehaviorVerification
             new FrameCounters(0));
     }
 
-    /// <summary>A freshly initialized Pipe Bug's state.</summary>
-    private static PipeBugEnemyState Initialized(EnemyDefinitionId definition, ushort parameter)
+    /// <summary>A freshly initialized Pipe Bug's animation.</summary>
+    private static SuperMetroid.Core.Animation.AnimationPlayback<PipeBugSegment> Initialized(EnemyDefinitionId definition, ushort parameter)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        return Initialize(enemies, enemies.SlotTable.Slots[0], definition, parameter);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        Initialize(enemies, slot, definition, parameter);
+        return slot.PipeBugPlayback ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");
     }
 
     /// <summary>Runs <paramref name="definition"/>'s real initializer on <paramref name="slot"/>.</summary>
-    private static PipeBugEnemyState Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
+    private static void Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
     {
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -284,7 +290,6 @@ internal static class PipeBugBehaviorVerification
                 PipeBugsBehavior.InitializeYellowPipeBug(slot);
                 break;
         }
-        return enemies.PipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");
     }
 
     /// <summary>Runs the Pipe Bug behavior check and the program oracle against the local retail cartridge.</summary>

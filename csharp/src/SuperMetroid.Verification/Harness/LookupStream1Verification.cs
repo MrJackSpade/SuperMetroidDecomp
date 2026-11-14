@@ -219,15 +219,18 @@ internal static class LookupStream1Verification
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
-            PowampEnemyState slotState = slot.RequireSpeciesState<PowampEnemyState>();
-            slotState.Playback = new(PowampAnimations.StartingWith(root switch
+            PowampSegment program = root switch
             {
                 0xc163 => PowampSegment.BodyFast,
                 0xc173 => PowampSegment.BodySlow,
                 0xc183 => PowampSegment.BalloonInflatingFromDeflated,
                 _ => PowampSegment.BalloonStartSinking,
-            }), AnimationPlace.StartOfAnimation);
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
+            };
+            if (isBody)
+                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            else
+                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
+            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
             slot.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             int calls = 0;
@@ -1018,10 +1021,13 @@ internal static class LookupStream1Verification
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1PowampMotionRomByte(rom, address), LookupStream1PowampMotionRomByte(rom, address + 1))));
         for (int phase = 0; phase < 12; phase++)
             AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotion.WiggleOffset(phase), "Powamp native wiggle triangle");
+        // The cartridge lists the balloon's height for each pose in the order each sequence shows them (#1845).
         for (int pose = 0; pose < 3; pose++)
         {
-            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonOffset(pose, false), "Powamp native rising balloon offset");
-            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Inflating, pose + 1).Pose),
+                "Powamp native rising balloon offset");
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Sinking, pose + 1).Pose),
+                "Powamp native sinking balloon offset");
         }
         CompassDirection[] spikeDirections = SuperMetroid.Verification.Enemies.Powamp.PowampSpikeCartridgeOrder.Directions;
         for (int place = 0; place < spikeDirections.Length; place++)
@@ -1034,9 +1040,7 @@ internal static class LookupStream1Verification
             "Powamp fires its spikes from the cartridge table's last direction back to its first");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            for (int sinking = 0; sinking < 2; sinking++)
-                AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonHeight((PowampBalloonPose)3), "Powamp balloon pose domain");
         AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }
 

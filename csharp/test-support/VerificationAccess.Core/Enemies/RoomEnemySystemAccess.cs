@@ -306,9 +306,13 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<SbugEnemyState?> SbugStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<SbugEntity, SbugEnemyState>())];
 
-        /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
-        internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<PipeBugEnemyState>())];
+        /// <summary>The Brinstar Pipe Bug state of each slot that holds a Zeb or Zebbo.</summary>
+        internal IReadOnlyList<BrinstarPipeBugState?> BrinstarPipeBugStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<BrinstarPipeBugState>())];
+
+        /// <summary>The Norfair Pipe Bug state of each slot that holds a Gamet.</summary>
+        internal IReadOnlyList<NorfairPipeBugState?> NorfairPipeBugStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<NorfairPipeBugState>())];
 
         /// <summary>The Ki-Hunter body state of each slot that holds a body.</summary>
         internal IReadOnlyList<KiHunterBodyState?> KiHunterBodyStates =>

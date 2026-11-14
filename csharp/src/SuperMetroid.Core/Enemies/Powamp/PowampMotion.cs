@@ -10,13 +10,10 @@ public static class PowampMotion
     public static int WiggleOffset(int phase) =>
         (uint)phase < WigglePhaseCount ? WiggleOffsets[phase] : throw new InvalidDataException($"Invalid Powamp wiggle phase {phase}.");
 
-    /// <summary>The balloon's Y offset at inflation pose <paramref name="pose"/> while rising or sinking.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is outside the three poses.</exception>
-    public static int BalloonOffset(int pose, bool sinking)
-    {
-        int[] offsets = sinking ? SinkingBalloonOffsets : RisingBalloonOffsets;
-        return (uint)pose < (uint)offsets.Length ? offsets[pose] : throw new ArgumentOutOfRangeException(nameof(pose));
-    }
+    /// <summary>How far above the body the balloon sits in <paramref name="pose"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not one of the three poses.</exception>
+    public static int BalloonHeight(PowampBalloonPose pose) =>
+        BalloonHeights.TryGetValue(pose, out int height) ? height : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Not a Powamp balloon pose.");
 
     /// <summary>The signed 1/256-pixel acceleration of a spike flying in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the eight directions.</exception>

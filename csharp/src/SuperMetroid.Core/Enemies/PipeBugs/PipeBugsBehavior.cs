@@ -20,9 +20,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemySlotTable _slotTable;
     /// <summary>
     /// The five-bug formation each Norfair leader found when it was placed: itself, then the four bugs its room lists
-    /// right after it.
+    /// right after it, each in its role (#1840).
     /// </summary>
-    private readonly EnemyPartLinks<RoomEnemySlot[]> _formations = new();
+    private readonly EnemyPartLinks<NorfairPipeBugFormation> _formations = new();
     /// <summary>
     /// The places set up as Norfair Pipe Bugs this room. A formation member killed and not yet respawned holds no state,
     /// and its place is still the formation's.
@@ -44,9 +44,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wait before an offscreen Brinstar bug may emerge again.</summary>
     private const int BrinstarPipeBugRespawnFrames = 48;
 
-    /// <summary>Leader plus four consecutive followers driven by Norfair's behaviour.</summary>
-    private const int NorfairFormationSize = 5;
-
     /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
     private const int YellowPipeBugTriggerDistance = 192;
     /// <summary>Strict vertical distance allowed by the yellow bug's Samus trigger.</summary>
@@ -61,14 +58,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Brinstar Pipe Bug.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
-        PipeBugEnemyState state = CreatePipeBugState(slot);
+        var state = new BrinstarPipeBugState();
+        slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Action = PipeBugAction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
-        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.RequestedAnimation), AnimationPlace.StartOfAnimation);
+        state.InstalledAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.InstalledAnimation), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Whether the Brinstar Pipe Bug in <paramref name="slot"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
@@ -80,9 +77,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Only the formation's first bug has a trigger width; it leads the four its room lists after it.
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
-            _formations.Place(slot, [slot, .. _slotTable.ListedRunAfter(slot, NorfairFormationSize - 1)]);
+            _formations.Place(slot, NorfairPipeBugFormation.LedBy(_slotTable, slot));
         _ = _norfairPlaces.Add(slot);
-        PipeBugEnemyState state = CreatePipeBugState(slot);
+        var state = new NorfairPipeBugState();
+        slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SignedSixteenSixteen flightSpeed = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
@@ -95,7 +93,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
     internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
-        PipeBugEnemyState state = CreatePipeBugState(slot);
+        var state = new YellowPipeBugState();
+        slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(
@@ -109,10 +108,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
     }
 
-    /// <summary>Dispatches the three main behaviours and every action they select.</summary>
-    private void RunPipeBugMain(
+    /// <summary>Runs a Brinstar Pipe Bug's action.</summary>
+    private static void RunBrinstarPipeBug(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        BrinstarPipeBugState state,
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
@@ -140,7 +139,39 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (--state.RespawnDelay == 0)
                     state.Action = PipeBugAction.BrinstarWaitForSamus;
                 return;
+            // The other families' actions are never this Brinstar bug's.
+            case PipeBugAction.NorfairWaitForFormation:
+            case PipeBugAction.NorfairWaitForSamus:
+            case PipeBugAction.NorfairRise:
+            case PipeBugAction.NorfairLeaderStagger:
+            case PipeBugAction.NorfairUpperNearStagger:
+            case PipeBugAction.NorfairUpperFarStagger:
+            case PipeBugAction.NorfairLowerNearStagger:
+            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairFlyLeft:
+            case PipeBugAction.NorfairFlyRight:
+            case PipeBugAction.NorfairWaitForStagger:
+            case PipeBugAction.YellowWaitForSamus:
+            case PipeBugAction.YellowEmergenceDelay:
+            case PipeBugAction.YellowFlyLeft:
+            case PipeBugAction.YellowFlyRight:
+            case PipeBugAction.YellowArcLeft:
+            case PipeBugAction.YellowArcRight:
+            default:
+                throw new InvalidDataException(
+                    $"Brinstar Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+        }
+    }
 
+    /// <summary>Runs a Norfair Pipe Bug's action.</summary>
+    private void RunNorfairPipeBug(
+        RoomEnemySlot slot,
+        NorfairPipeBugState state,
+        SamusState? samus,
+        Position16<RoomPixels> camera)
+    {
+        switch (state.Action)
+        {
             case PipeBugAction.NorfairWaitForFormation:
                 RunNorfairPipeBugFormationWait(slot, state);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
@@ -189,7 +220,33 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.FlightSpeeds.Positive);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
+            // The other families' actions are never this Norfair bug's.
+            case PipeBugAction.BrinstarWaitUntilOnScreen:
+            case PipeBugAction.BrinstarWaitForSamus:
+            case PipeBugAction.BrinstarEmerge:
+            case PipeBugAction.BrinstarFlyHorizontally:
+            case PipeBugAction.BrinstarRespawnDelay:
+            case PipeBugAction.YellowWaitForSamus:
+            case PipeBugAction.YellowEmergenceDelay:
+            case PipeBugAction.YellowFlyLeft:
+            case PipeBugAction.YellowFlyRight:
+            case PipeBugAction.YellowArcLeft:
+            case PipeBugAction.YellowArcRight:
+            default:
+                throw new InvalidDataException(
+                    $"Norfair Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+        }
+    }
 
+    /// <summary>Runs a yellow Pipe Bug's action.</summary>
+    private static void RunYellowPipeBug(
+        RoomEnemySlot slot,
+        YellowPipeBugState state,
+        SamusState? samus,
+        Position16<RoomPixels> camera)
+    {
+        switch (state.Action)
+        {
             case PipeBugAction.YellowWaitForSamus:
                 RequirePipeBugSamus(samus);
                 RunYellowPipeBugWaiting(slot, state, samus);
@@ -211,23 +268,40 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.YellowArcRight:
                 RunYellowPipeBugArc(slot, state, camera, direction: HorizontalDirection.Right);
                 return;
+            // The other families' actions are never this yellow bug's.
+            case PipeBugAction.BrinstarWaitUntilOnScreen:
+            case PipeBugAction.BrinstarWaitForSamus:
+            case PipeBugAction.BrinstarEmerge:
+            case PipeBugAction.BrinstarFlyHorizontally:
+            case PipeBugAction.BrinstarRespawnDelay:
+            case PipeBugAction.NorfairWaitForFormation:
+            case PipeBugAction.NorfairWaitForSamus:
+            case PipeBugAction.NorfairRise:
+            case PipeBugAction.NorfairLeaderStagger:
+            case PipeBugAction.NorfairUpperNearStagger:
+            case PipeBugAction.NorfairUpperFarStagger:
+            case PipeBugAction.NorfairLowerNearStagger:
+            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairFlyLeft:
+            case PipeBugAction.NorfairFlyRight:
+            case PipeBugAction.NorfairWaitForStagger:
             default:
                 throw new InvalidDataException(
-                    $"Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Yellow Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
     /// <summary>Wakes a hidden Brinstar bug only when Samus enters its narrow horizontal and upper vertical band.</summary>
     private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        BrinstarPipeBugState state,
         SamusState samus)
     {
         int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole);
         if (deltaY >= 0 || CoordinateAxis.AsSigned(deltaY + BrinstarPipeBugTriggerTop) < 0)
             return;
 
-        state.BrinstarFliesLeft = (samus.Position.Whole - slot.Position.Whole).X < 0;
+        state.FliesLeft = (samus.Position.Whole - slot.Position.Whole).X < 0;
         if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >=
             BrinstarPipeBugTriggerWidth)
         {
@@ -237,15 +311,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = PipeBugAction.BrinstarEmerge;
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.AnimationClock.ClearRepeats();
-        state.RequestedAnimation = PipeBugAnimationChoices.Rising(
-            IsStrong(slot), state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
-        SelectBrinstarPipeBugAnimation(slot, state);
+        SelectBrinstarPipeBugAnimation(slot, state, PipeBugAnimationChoices.Rising(
+            IsStrong(slot), state.FliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Rises (<see cref="PipeBugEmergenceRise"/>) until the bug is above Samus, then switches to horizontal flight.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        BrinstarPipeBugState state,
         SamusState samus)
     {
         slot.Position = slot.Position.WithY(PipeBugEmergenceRise.Risen(slot.Position.Y));
@@ -255,54 +328,53 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.RequestedAnimation = PipeBugAnimationChoices.ShootingWithSameFacing(state.RequestedAnimation);
-        SelectBrinstarPipeBugAnimation(slot, state);
+        SelectBrinstarPipeBugAnimation(slot, state, PipeBugAnimationChoices.ShootingWithSameFacing(state.InstalledAnimation));
         state.Action = PipeBugAction.BrinstarFlyHorizontally;
     }
 
     /// <summary>Moves two pixels per frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        BrinstarPipeBugState state,
         int cameraX)
     {
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
-            (state.BrinstarFliesLeft ? -2 : 2));
+            (state.FliesLeft ? -2 : 2));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
         slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
             .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
-        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
-        SelectBrinstarPipeBugAnimation(slot, state);
+        SelectBrinstarPipeBugAnimation(slot, state, PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left));
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.Action = PipeBugAction.BrinstarRespawnDelay;
     }
 
-    /// <summary>Installs a strong or ordinary Brinstar segment only when the selected animation changes.</summary>
+    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
-        PipeBugEnemyState state)
+        BrinstarPipeBugState state,
+        PipeBugSegment animation)
     {
-        if (state.RequestedAnimation == state.InstalledAnimation)
+        if (animation == state.InstalledAnimation)
             return;
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(state.RequestedAnimation));
+        state.InstalledAnimation = animation;
+        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(animation));
     }
 
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
-    private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
+    private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, NorfairPipeBugState state)
     {
         // Only the first Pipe Bug listed has a trigger width. It is the formation controller and may
         // arm itself only while all four Pipe Bugs listed after it are still at the
         // dormant action.
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
-        RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
-        if (formation.All(member => KilledGametHoldsFormation.Waits(
-                member.SpeciesState<PipeBugEnemyState>(),
+        NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(slot);
+        if (formation.Members.All(member => KilledGametHoldsFormation.Waits(
+                member.Place.SpeciesState<NorfairPipeBugState>(),
                 static state => state.Action == PipeBugAction.NorfairWaitForFormation)))
         {
             state.Action = PipeBugAction.NorfairWaitForSamus;
@@ -312,7 +384,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower frame timers.</summary>
     internal void RunNorfairPipeBugSamusWait(
         RoomEnemySlot leader,
-        PipeBugEnemyState leaderState,
+        NorfairPipeBugState leaderState,
         SamusState samus)
     {
         int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
@@ -328,31 +400,25 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.AnimationClock.Restart();
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
-        RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
+        NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(leader);
         // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
-        foreach (RoomEnemySlot member in formation)
+        foreach (NorfairPipeBugMember member in formation.Members)
         {
-            if (member.SpeciesState<PipeBugEnemyState>() is not { } memberState)
+            if (member.Place.SpeciesState<NorfairPipeBugState>() is not { } memberState)
                 continue;
             memberState.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusIsRight
                 ? PipeBugSegment.GametRisingRight
                 : PipeBugSegment.GametRisingLeft), AnimationPlace.StartOfAnimation);
             memberState.Action = PipeBugAction.NorfairRise;
-        }
-
-        for (int index = 0; index < formation.Length; index++)
-        {
-            if (formation[index].SpeciesState<PipeBugEnemyState>() is not { } memberState)
-                continue;
-            memberState.StaggerTarget = PipeBugFormation.NorfairStaggerTarget(index);
-            memberState.NorfairPostRiseAction = PipeBugFormation.NorfairPostRiseAction(index);
+            memberState.StaggerTarget = member.Role.StaggerTarget;
+            memberState.PostRiseAction = member.Role.PostRiseAction;
         }
     }
 
     /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise action.</summary>
     private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        NorfairPipeBugState state,
         SamusState samus)
     {
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
@@ -360,10 +426,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
-        state.Action = state.NorfairPostRiseAction
+        state.Action = state.PostRiseAction
             ?? throw new InvalidOperationException("A Norfair Pipe Bug finished rising without a post-rise action from its formation.");
         state.RiseEnd = slot.Position.Whole;
-        StartPipeBugAnimation(slot, state,
+        state.Playback = StartPipeBugAnimation(slot,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0
                 ? PipeBugSegment.GametRisingRight
                 : PipeBugSegment.GametRisingLeft);
@@ -372,7 +438,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Offsets a rising Norfair member by its signed stagger target before its timed flight wait.</summary>
     private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        NorfairPipeBugState state,
         int signedOffset)
     {
         state.CountFormationTick();
@@ -396,7 +462,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Waits for a member's stagger counter and then chooses left or right flight from Samus's live X.</summary>
     private static void RunNorfairPipeBugStaggerWait(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        NorfairPipeBugState state,
         SamusState samus)
     {
         state.CountFormationTick();
@@ -422,7 +488,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        NorfairPipeBugState state,
         Position16<RoomPixels> camera)
     {
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
@@ -437,18 +503,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// place was set up as a Norfair Pipe Bug, and holds one or, killed, none until it respawns
     /// (<see cref="KilledGametHoldsFormation"/>).
     /// </summary>
-    private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
+    private NorfairPipeBugFormation RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
-        RoomEnemySlot[] formation = _formations.Of(leader);
-        foreach (RoomEnemySlot member in formation)
+        NorfairPipeBugFormation formation = _formations.Of(leader);
+        foreach (NorfairPipeBugMember member in formation.Members)
         {
-            PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
-            bool killed = state is null && member.DefinitionId == EnemyDefinitionId.None;
-            if (!_norfairPlaces.Contains(member) ||
-                (!killed && state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet))
+            RoomEnemySlot place = member.Place;
+            bool killed = place.SpeciesState<NorfairPipeBugState>() is null && place.DefinitionId == EnemyDefinitionId.None;
+            if (!_norfairPlaces.Contains(place) ||
+                (!killed && place.DefinitionId != EnemyDefinitionId.Gamet))
             {
                 throw new InvalidDataException(
-                    $"Norfair Pipe Bug formation slot {member.SlotIndex} holds {member.DefinitionId}, " +
+                    $"Norfair Pipe Bug formation slot {place.SlotIndex} holds {place.DefinitionId}, " +
                     $"not a {EnemyDefinitionId.Gamet} or a killed one's place.");
             }
         }
@@ -458,7 +524,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wakes a yellow bug when Samus is ahead on its authored side and within the narrow vertical band.</summary>
     private static void RunYellowPipeBugWaiting(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        YellowPipeBugState state,
         SamusState samus)
     {
         int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
@@ -477,7 +543,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Counts down the visible emergence delay before installing directional straight-flight art.</summary>
-    private static void RunYellowPipeBugDelay(RoomEnemySlot slot, PipeBugEnemyState state)
+    private static void RunYellowPipeBugDelay(RoomEnemySlot slot, YellowPipeBugState state)
     {
         if (--state.EmergenceDelay != 0)
             return;
@@ -497,7 +563,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances yellow flight and begins its single quadratic arc after passing Samus by the threshold.</summary>
     private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        YellowPipeBugState state,
         SamusState samus,
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
@@ -519,7 +585,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             : PipeBugAction.YellowArcRight;
         state.ArcCounter = YellowPipeBugArcCounterStart;
         state.ArcRising = true;
-        StartPipeBugAnimation(slot, state,
+        state.Playback = StartPipeBugAnimation(slot,
             direction == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaArcingLeft
                 : PipeBugSegment.GeegaArcingRight);
@@ -528,7 +594,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the two quadratic vertical phases until the bug returns to its spawn height.</summary>
     private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        YellowPipeBugState state,
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
     {
@@ -566,7 +632,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = direction == HorizontalDirection.Left
             ? PipeBugAction.YellowFlyLeft
             : PipeBugAction.YellowFlyRight;
-        StartPipeBugAnimation(slot, state,
+        state.Playback = StartPipeBugAnimation(slot,
             direction == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
                 : PipeBugSegment.GeegaFlyingRight);
@@ -575,7 +641,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Hides an offscreen yellow bug, restores its spawn point, and makes its arc available again.</summary>
     private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        YellowPipeBugState state,
         Position16<RoomPixels> camera)
     {
         // Every Geega flight action resets through the bare center's on-screen test.
@@ -595,7 +661,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the separately authored positive or negative 1/65536-pixel flight speed.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemySlot slot,
-        PipeBugEnemyState state,
+        YellowPipeBugState state,
         bool movingLeft)
     {
         slot.Position = slot.Position.AdvanceX(movingLeft ? -state.FlightSpeed : state.FlightSpeed);
@@ -629,19 +695,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Creates the enemy's species state before its first AI pass.</summary>
-    private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
-    {
-        var state = new PipeBugEnemyState(slot);
-        slot.SetSpeciesState(state);
-        return state;
-    }
-
-    /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
-    internal static void StartPipeBugAnimation(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugSegment segment)
-    {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(segment));
-    }
+    /// <summary>The playback of <paramref name="segment"/>'s animation restarted at timer one, its animation frame timer cleared.</summary>
+    internal static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemySlot slot, PipeBugSegment segment) =>
+        EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(segment));
 
     /// <summary>Rejects a behavior that needs Samus but received no live player actor.</summary>
     private static void RequirePipeBugSamus([NotNull] SamusState? samus)
@@ -650,19 +706,48 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
 
-    /// <summary>Advances PipeBugs's typed animation.</summary>
-    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, PipeBugAnimations.Segments,
-            static (PipeBugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events."));
+    /// <summary>Advances the Pipe Bug's typed animation, held in its family's state.</summary>
+    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    {
+        switch (PipeBugsPartDefinitions.Parts[slot.DefinitionId])
+        {
+            case PipeBugsPart.Zeb or PipeBugsPart.Zebbo:
+                EnemyAnimationPlayback.Advance(slot, PipeBugAnimations.Segments,
+                    static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+                return;
+            case PipeBugsPart.Gamet:
+                EnemyAnimationPlayback.Advance(slot, PipeBugAnimations.Segments,
+                    static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+                return;
+            case PipeBugsPart.Geega:
+                EnemyAnimationPlayback.Advance(slot, PipeBugAnimations.Segments,
+                    static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+                return;
+            default:
+                throw new InvalidOperationException($"Pipe Bug animation advanced for {slot.DefinitionId}.");
+        }
+    }
 
-    /// <summary>Runs PipeBugs's main AI.</summary>
+    /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>
+    private static AnimationContinuation<PipeBugSegment>? RaisesNoCues(NoAnimationCue cue) =>
+        throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events.");
+
+    /// <summary>Runs the Pipe Bug's main AI for its family.</summary>
     internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPipeBugMain(
-            slot,
-            slot.RequireSpeciesState<PipeBugEnemyState>(),
-            frame.Samus,
-            frame.Camera);
+        switch (PipeBugsPartDefinitions.Parts[slot.DefinitionId])
+        {
+            case PipeBugsPart.Zeb or PipeBugsPart.Zebbo:
+                RunBrinstarPipeBug(slot, slot.RequireSpeciesState<BrinstarPipeBugState>(), frame.Samus, frame.Camera);
+                return;
+            case PipeBugsPart.Gamet:
+                RunNorfairPipeBug(slot, slot.RequireSpeciesState<NorfairPipeBugState>(), frame.Samus, frame.Camera);
+                return;
+            case PipeBugsPart.Geega:
+                RunYellowPipeBug(slot, slot.RequireSpeciesState<YellowPipeBugState>(), frame.Samus, frame.Camera);
+                return;
+            default:
+                throw new InvalidOperationException($"Pipe Bug main AI ran for {slot.DefinitionId}.");
+        }
     }
 }

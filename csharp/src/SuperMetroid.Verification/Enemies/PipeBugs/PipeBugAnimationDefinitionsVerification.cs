@@ -29,7 +29,7 @@ internal static class PipeBugAnimationDefinitionsVerification
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
                     PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
-                (initializedEnemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
+                (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
                 $"production {(strong ? "strong" : "normal")} Pipe Bug initialization");
 
             for (int index = 0; index < 4; index++)
@@ -42,14 +42,13 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
-                var state = new PipeBugEnemyState(slot)
+                var state = new BrinstarPipeBugState
                 {
-                    RequestedAnimation = selector,
                     InstalledAnimation = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
                         ? PipeBugAnimationChoices.ShootingWithSameFacing(selector)
                         : PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left),
                 };
-                PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
+                PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state, selector);
                 AssertEqual(selector, state.InstalledAnimation,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation), state.Playback,

@@ -756,7 +756,7 @@ internal static class RidleyFullMovieVerification
         var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
+        BrinstarPipeBugState pipeBug = runtime.Enemies.BrinstarPipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Playback = pipeBugPointers.PlaybackAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
         actor.AnimationClock.StepOnNextUpdate();
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;

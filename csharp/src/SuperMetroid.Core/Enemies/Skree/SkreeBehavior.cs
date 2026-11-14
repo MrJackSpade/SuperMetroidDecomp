@@ -38,8 +38,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new SkreeEnemyState
         {
-            RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
-            InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
+            InstalledAnimation = SkreeMetareeSegment.SkreeIdling,
             AttackReady = false,
             Action = SkreeAction.Idling,
         };
@@ -58,9 +57,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkreeAction.Idling:
                 if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
                 {
-                    state.RequestedAnimation =
-                        SkreeMetareeAnimationPhase.PreparingAttack;
-                    StartRequestedSkreeAnimation(slot, state);
+                    StartSkreeAnimation(slot, state, SkreeMetareeSegment.SkreePreparingAttack);
                     state.Action = SkreeAction.PreparingAttack;
                 }
                 return;
@@ -69,8 +66,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AttackReady)
                     return;
                 state.AttackReady = false;
-                state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
-                StartRequestedSkreeAnimation(slot, state);
+                StartSkreeAnimation(slot, state, SkreeMetareeSegment.SkreeDiving);
                 state.Action = SkreeAction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
                 // cue releases the dive. Publishing it as a frame event retains
@@ -132,17 +128,17 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
-    /// <summary>Changes the Skree phase animation only when requested and installed phases differ.</summary>
-    internal static void StartRequestedSkreeAnimation(
+    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    internal static void StartSkreeAnimation(
         RoomEnemySlot slot,
-        SkreeEnemyState state)
+        SkreeEnemyState state,
+        SkreeMetareeSegment animation)
     {
-        if (state.RequestedAnimation == state.InstalledAnimation)
+        if (animation == state.InstalledAnimation)
             return;
 
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareeAnimationChoices.SkreeAnimation(
-            state.RequestedAnimation)));
+        state.InstalledAnimation = animation;
+        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(animation));
     }
 
     /// <summary>Runs Skree's main AI.</summary>

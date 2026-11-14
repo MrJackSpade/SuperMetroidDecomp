@@ -271,12 +271,17 @@ internal static class NativeEnemyFamilyStateImport
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
         }
-        if (slot.SpeciesState<PipeBugEnemyState>() is { } pipeBugRecord)
+        // A Brinstar Pipe Bug keeps its action in word F and its flight direction in word A's sign; the Norfair and yellow
+        // bugs keep their action in word A.
+        if (slot.SpeciesState<BrinstarPipeBugState>() is { } brinstarPipeBug)
         {
-            ushort pipeBugFunction = pipeBugRecord.IsBrinstar ? words.F : words.A;
-            pipeBugRecord.Action = pipeBugFunction == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(pipeBugFunction, "recorded PipeBugAction");
-            pipeBugRecord.BrinstarFliesLeft = pipeBugRecord.IsBrinstar && CoordinateAxis.AsSigned(words.A) < 0;
+            brinstarPipeBug.Action = words.F == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(words.F, "recorded PipeBugAction");
+            brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
+        if (slot.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
+            norfairPipeBug.Action = words.A == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+        if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
+            yellowPipeBug.Action = words.A == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
         if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
         {
             magdolliteRecord.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteActions.Decode(words.F, "recorded MagdolliteAction");
@@ -462,8 +467,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Action = words.B == 0 ? null : SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
-            skreeRecord.RequestedAnimation = SkreeNativeWords.AnimationPhases.Decode(words.C, "recorded requested Skree animation phase");
-            skreeRecord.InstalledAnimation = SkreeNativeWords.AnimationPhases.Decode(words.D, "recorded installed Skree animation phase");
+            skreeRecord.InstalledAnimation = InstalledSkreeMetareeAnimation(SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
             skreeRecord.AttackReady = words.E != 0;
         }
         if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
@@ -609,29 +613,21 @@ internal static class NativeEnemyFamilyStateImport
             polyp.Action = words.A == 0 ? null : PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
             polyp.CooldownTimer = unchecked((short)words.B);
         }
-        if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
+        // The halves reuse the same words for different values, each half into its own state (#1845).
+        if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampBalloonState>() is { } powampBalloon)
         {
-            // The halves reuse the same words for different values.
-            if (powamp.IsBalloon)
-            {
-                powamp.BalloonSpawn = new(words.A, words.B);
-                powamp.BalloonGrappleTravelDistance = words.D;
-            }
-            else
-            {
-                powamp.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
-                powamp.WiggleIndex = Index(words.C, 11, "Powamp wiggle phase");
-                powamp.WiggleTimer = unchecked((short)words.D);
-                powamp.ActionTimer = unchecked((short)words.E);
-            }
-            if (powamp.IsBalloon)
-            {
-                if (words.F != PowampNativeWords.BalloonIdleWord)
-                    throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
-                powamp.Action = null;
-            }
-            else
-                powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
+            powampBalloon.Spawn = new(words.A, words.B);
+            powampBalloon.GrappleTravelDistance = words.D;
+            if (words.F != PowampNativeWords.BalloonIdleWord)
+                throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
+        }
+        if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampBodyState>() is { } powampBody)
+        {
+            powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
+            powampBody.WiggleIndex = Index(words.C, 11, "Powamp wiggle phase");
+            powampBody.WiggleTimer = unchecked((short)words.D);
+            powampBody.ActionTimer = unchecked((short)words.E);
+            powampBody.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (slot.DefinitionId == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
@@ -737,8 +733,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Action = words.B == 0 ? null : MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
-            metaree.RequestedAnimation = SkreeNativeWords.AnimationPhases.Decode(words.C, "recorded requested Metaree animation phase");
-            metaree.InstalledAnimation = SkreeNativeWords.AnimationPhases.Decode(words.D, "recorded installed Metaree animation phase");
+            metaree.InstalledAnimation = InstalledSkreeMetareeAnimation(SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
             metaree.AttackReady = words.E != 0;
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }
@@ -835,6 +830,16 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="meaning">What the word holds, for the failure message.</param>
     private static int Index(ushort word, int maximum, string meaning) =>
         word <= maximum ? word : throw new InvalidDataException($"Recorded {meaning} {word} exceeds {maximum}.");
+
+    /// <summary>
+    /// The animation a recorded Skree or Metaree installed (#1810): the game keeps the requested phase beside the installed
+    /// one and installs a request in the same AI update, so Core keeps the installed animation alone and a record whose
+    /// two phases differ fails.
+    /// </summary>
+    private static SkreeMetareeSegment InstalledSkreeMetareeAnimation(NativeWordIdentities<SkreeMetareeSegment> phases, NativeEnemyRecordWords words, string enemyName) =>
+        words.C == words.D
+            ? phases.Decode(words.D, $"recorded installed {enemyName} animation phase")
+            : throw new InvalidDataException($"Recorded {enemyName} requests animation phase {words.C} while phase {words.D} is installed.");
 
     /// <summary>
     /// The speed a recorded pair holds: the game stores a speed beside its negation, and Core keeps the speed alone and

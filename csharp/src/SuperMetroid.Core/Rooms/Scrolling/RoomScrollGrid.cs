@@ -111,7 +111,8 @@ public sealed class RoomScrollGrid
 
     /// <summary>
     /// Sets the screen at <paramref name="screen"/>, in one of the room's columns and in one of its rows or a row past them,
-    /// as a door setup does: a row past the room's own names the kept cells after them, row by row at the room's width.
+    /// as a door setup or a scroll trigger does: a row past the room's own names the kept cells after them, row by row at
+    /// the room's width.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The column lies outside the room, the screen outside the kept cells, or the state is not a scroll state.

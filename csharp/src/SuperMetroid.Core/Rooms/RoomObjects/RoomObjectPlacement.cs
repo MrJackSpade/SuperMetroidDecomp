@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Scrolling;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -13,7 +15,7 @@ public sealed record RoomObjectPlacement(
     RoomObjectKind Kind,
     Position16<RoomBlocks> Block,
     RoomObjectRoomArgument? Argument,
-    IReadOnlyList<RoomScrollWrite>? ScrollChange = null,
+    IReadOnlyList<ScreenScrollChange>? ScrollChange = null,
     DraygonWallCannon? Cannon = null)
 {
     /// <summary>The retail scroll change a retail scroll trigger runs; constructed placements supply validated decoded writes instead.</summary>

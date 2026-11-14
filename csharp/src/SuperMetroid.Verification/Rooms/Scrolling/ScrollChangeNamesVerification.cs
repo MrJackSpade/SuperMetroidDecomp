@@ -2,7 +2,6 @@ using System.Text;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 
@@ -16,32 +15,19 @@ internal static class ScrollChangeNamesVerification
     /// <summary>
     /// Finds the room each retail scroll change is placed in from the rooms' state selections, and checks that the
     /// change's name is that room followed by the column and row of each screen its writes close, open and open
-    /// top-aligned, in that order and in screen order within each.
+    /// top-aligned, in that order and in screen order within each, a screen in a row past the room's marked as below the
+    /// room, and that each screen lies in one of the room's columns.
     /// </summary>
     internal static void VerifyScrollChangeNamesDescribeTheirScreens()
     {
-        var placedIn = new Dictionary<RoomScrollChange, RoomDefinition>();
-        foreach ((RoomDefinition room, RoomStateChoice choice) in RoomStateSelectionDefinitions.Choices)
-        {
-            foreach (RoomStateSettings state in choice.Branches.Select(branch => branch.State).Prepend(choice.Default))
-            {
-                foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.ToArray())
-                {
-                    if (placement.CompiledScrollChange is not { } change)
-                        continue;
-                    if (placedIn.TryGetValue(change, out RoomDefinition? earlier))
-                        AssertEqual(earlier.Name, room.Name, $"{change} is placed in one room");
-                    placedIn[change] = room;
-                }
-            }
-        }
+        IReadOnlyDictionary<RoomScrollChange, RoomDefinition> placedIn = RoomObjectScrollChangeDefinitions.PlacingRooms;
         AssertEqual(Enum.GetValues<RoomScrollChange>().Length, RoomObjectScrollChangeDefinitions.Changes.Count,
             "every scroll change has writes");
         AssertEqual(RoomObjectScrollChangeDefinitions.Changes.Count, placedIn.Count, "every scroll change is placed in a room");
-        foreach ((RoomScrollChange change, RoomScrollWrite[] writes) in RoomObjectScrollChangeDefinitions.Changes)
+        foreach ((RoomScrollChange change, ScreenScrollChange[] writes) in RoomObjectScrollChangeDefinitions.Changes)
         {
             RoomDefinition room = placedIn[change];
-            AssertEqual(writes.Length, writes.Select(write => write.Index).Distinct().Count(), $"{change} writes each screen once");
+            AssertEqual(writes.Length, writes.Select(write => write.Screen).Distinct().Count(), $"{change} writes each screen once");
             var name = new StringBuilder(room.Name);
             AppendScreens(name, room, writes, RoomScrollState.Closed, "Closes", "");
             AppendScreens(name, room, writes, RoomScrollState.Open, "Opens", "");
@@ -51,12 +37,12 @@ internal static class ScrollChangeNamesVerification
     }
 
     /// <summary>Appends the screens <paramref name="writes"/> set to <paramref name="state"/>, if any, under <paramref name="verb"/>.</summary>
-    private static void AppendScreens(StringBuilder name, RoomDefinition room, RoomScrollWrite[] writes, RoomScrollState state, string verb, string suffix)
+    private static void AppendScreens(StringBuilder name, RoomDefinition room, ScreenScrollChange[] writes, RoomScrollState state, string verb, string suffix)
     {
-        string[] screens = writes.Where(write => write.State == state).OrderBy(write => write.Index).Select(write =>
+        string[] screens = writes.Where(write => write.State == state).OrderBy(write => write.Screen.Y).ThenBy(write => write.Screen.X).Select(write =>
         {
-            AssertTrue(write.Index < room.Size.X * room.Size.Y, $"scroll write {write.Index} lies within {room.Name}'s screens");
-            return $"{write.Index % room.Size.X}x{write.Index / room.Size.X}";
+            AssertTrue(write.Screen.X < room.Size.X, $"scroll write {write.Screen} lies in one of {room.Name}'s columns");
+            return $"{write.Screen.X}x{write.Screen.Y}" + (write.Screen.Y < room.Size.Y ? "" : "BelowTheRoom");
         }).ToArray();
         if (screens.Length == 0)
             return;

@@ -21,11 +21,13 @@ internal static class BotwoonNativeWords
         [BotwoonPhase.WallExplosions] = 0x9af9,
     });
 
-    /// <summary>The bank-$B3 routine word naming each <see cref="BotwoonMovement"/>: the head's record word E.</summary>
+    /// <summary>
+    /// The bank-$B3 routine word naming each <see cref="BotwoonMovement"/>: the head's record word E. The cartridge's
+    /// separate path-loading routine ($B3:E250) has no member: the port loads a walk as it draws it (#1868).
+    /// </summary>
     internal static readonly NativeWordIdentities<BotwoonMovement> Movements = new(new Dictionary<BotwoonMovement, ushort>
     {
         [BotwoonMovement.MoveTowardHole] = 0x9bb7,
-        [BotwoonMovement.LoadAuthoredPath] = 0xe250,
         [BotwoonMovement.FollowAuthoredPath] = 0xe28c,
     });
 

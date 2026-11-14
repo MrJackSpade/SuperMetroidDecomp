@@ -117,7 +117,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
-        state.TargetHoleIndex = 0;
+        state.TargetHole = BotwoonHole.Left;
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
         // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
@@ -218,7 +218,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         if (choice < BotwoonNavigationDefinitions.AuthoredPathActions)
         {
             state.Phase = BotwoonPhase.FollowAuthoredPath;
-            state.Movement = BotwoonMovement.LoadAuthoredPath;
             state.AttackTimer = 0;
             state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
             ChooseBotwoonPath(head, state);
@@ -266,16 +265,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
 
         state.PathComplete = false;
         state.Phase = BotwoonPhase.FollowAuthoredPath;
-        state.Movement = BotwoonMovement.LoadAuthoredPath;
         state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
 
         state.InsideHole = !state.PendingDeath && BotwoonNavigationDefinitions.StartsInsideHole.IsSetIn(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
-        if (!state.InsideHole)
-        {
-            state.PathChoice = 0;
-        }
-        else
+        if (state.InsideHole)
         {
             state.HoleLatch = false;
             state.SavedHoleRingIndex = null;
@@ -305,10 +299,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
             case BotwoonMovement.MoveTowardHole:
                 MoveBotwoonTowardHole(head, state);
                 return;
-            case BotwoonMovement.LoadAuthoredPath:
-                LoadBotwoonPathDescriptor(state);
-                FollowBotwoonPath(head, state);
-                return;
             case BotwoonMovement.FollowAuthoredPath:
                 FollowBotwoonPath(head, state);
                 return;
@@ -322,7 +312,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         BotwoonHoleDefinition hole =
-            BotwoonNavigation.HoleAt(state.TargetHoleIndex);
+            BotwoonNavigation.Hole(state.TargetHole);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
         Bearing bearing = EnemyMath.CalculateBearing(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
@@ -350,13 +340,15 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     /// <summary>The farthest a hole's distance on either axis is measured for its bearing, in pixels.</summary>
     private const int HoleBearingReach = 255;
 
-    /// <summary>Uses health phase, current hole, and RNG to choose an authored path.</summary>
+    /// <summary>
+    /// Refreshes the health phase, then draws where the next walk from his hole leads, in the open or inside the wall,
+    /// and starts it.
+    /// </summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         UpdateBotwoonHealthPhase(head, state);
-        int hiddenBase = state.InsideHole ? BotwoonNavigationDefinitions.HiddenPathChoiceBase : 0;
-        int variant = _room.Random.Next(BotwoonNavigationDefinitions.PathChoice);
-        state.PathChoice = variant + hiddenBase + BotwoonNavigationDefinitions.PathVariantsPerHole * state.TargetHoleIndex;
+        int draw = _room.Random.Next(BotwoonNavigationDefinitions.PathDraw);
+        StartBotwoonWalk(state, BotwoonNavigation.WalkFrom(state.TargetHole, state.InsideHole, draw));
     }
 
     /// <summary>Changes traversal speed and body spacing at half and quarter health outside holes.</summary>
@@ -374,15 +366,17 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
     }
 
-    /// <summary>Loads the chosen path, the way it is walked, its first step and the destination hole.</summary>
-    private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
+    /// <summary>
+    /// Starts <paramref name="walk"/>: its path, the way it is walked, its first step and the hole it reaches. The game
+    /// loaded the walk on the next movement update; nothing reads the walk or the target hole before then, so loading it
+    /// as it is drawn moves him the same (#1868).
+    /// </summary>
+    internal static void StartBotwoonWalk(BotwoonEnemyState state, BotwoonPathWalk walk)
     {
-        BotwoonPathDescriptorDefinition descriptor =
-            BotwoonNavigation.PathForChoice(state.PathChoice);
-        state.PathIndex = descriptor.Path;
-        state.PathTraversal = descriptor.Traversal;
-        state.PathStep = descriptor.FirstStep;
-        state.TargetHoleIndex = descriptor.TargetHoleIndex;
+        state.Path = walk.Path;
+        state.PathTraversal = walk.Traversal;
+        state.PathStep = walk.FirstStep;
+        state.TargetHole = walk.Destination;
         state.PathComplete = false;
         state.Movement = BotwoonMovement.FollowAuthoredPath;
     }
@@ -393,16 +387,17 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     /// </summary>
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
+        BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.Speed; taken++)
         {
-            if (!BotwoonNavigation.HasStep(state.PathIndex, state.PathStep))
+            if (!BotwoonNavigation.HasStep(path, state.PathStep))
             {
                 state.PathComplete = true;
                 return;
             }
-            total += BotwoonNavigation.Step(state.PathIndex, state.PathStep);
+            total += BotwoonNavigation.Step(path, state.PathStep);
             state.PathStep += backward ? -1 : 1;
         }
 
@@ -478,9 +473,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
             return;
 
         // The game tests the holes from the last to the first and latches the first it finds.
-        for (int holeIndex = BotwoonNavigationDefinitions.HoleCount - 1; holeIndex >= 0; holeIndex--)
+        foreach (BotwoonHoleDefinition hole in Enumerable.Reverse(BotwoonNavigationDefinitions.Holes))
         {
-            BotwoonHoleDefinition hole = BotwoonNavigation.HoleAt(holeIndex);
             Offset16<RoomPixels> fromTopLeft = head.Position.Whole - hole.TopLeft;
             Offset16<RoomPixels> fromBottomRight = head.Position.Whole - hole.BottomRight;
             if (fromTopLeft.X >= 0 && fromBottomRight.X < 0 &&

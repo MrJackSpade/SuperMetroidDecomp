@@ -43,6 +43,18 @@ public static class MotherBrainDeathDefinitions
     /// <summary>The screen position of the escape subtitle.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;
 
+    /// <summary>
+    /// Where the escape door's dust bursts, by place: each burst takes the place before the last, so the dust shows from the
+    /// last position to the first and then again (#1872).
+    /// </summary>
+    internal static readonly Position16<RoomPixels>[] EscapeDoorDustPositions =
+    [
+        new(8, 108),
+        new(24, 128),
+        new(9, 144),
+        new(24, 116),
+    ];
+
     /// <summary>The escape door's behaviour: it leads through door-list entry one.</summary>
     public static readonly RoomBlockBehavior EscapeDoorBehavior = RoomBlockBehavior.LinkingDoor(1);
 

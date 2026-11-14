@@ -12,7 +12,9 @@ internal static class LookupRoomFxFieldsVerification
 {
     /// <summary>
     /// Independent set of accepted bank-$83 record pointers captured before catalog conversion, the terminator words that end
-    /// headers without a default record among them; the compiled headers hold no terminator record (#1546).
+    /// headers without a default record among them; the compiled headers hold no terminator record (#1546). The unused
+    /// Norfair room's record ($83:87EC) is not among them: no door list reaches that room, so it is no room of the game
+    /// and no compiled header holds its record (#1686).
     /// </summary>
     private static readonly ushort[] OriginalFxRecordPointers =
     [
@@ -29,7 +31,7 @@ internal static class LookupRoomFxFieldsVerification
         0x85C0, 0x85D0, 0x85E0, 0x85F0, 0x8600, 0x8610, 0x8620, 0x8630, 0x8640, 0x8650, 0x8660, 0x8670,
         0x8680, 0x8690, 0x86A0, 0x86B0, 0x86C0, 0x86D0, 0x86E0, 0x86F0, 0x8700, 0x8710, 0x8720, 0x8730,
         0x8740, 0x8750, 0x8760, 0x8762, 0x8764, 0x8766, 0x8768, 0x876A, 0x877A, 0x878A, 0x879A, 0x87AA,
-        0x87BA, 0x87BC, 0x87CC, 0x87DC, 0x87EC, 0x87FC, 0x880C, 0x881C, 0x882C, 0x883C, 0x884C, 0x885C,
+        0x87BA, 0x87BC, 0x87CC, 0x87DC, 0x87FC, 0x880C, 0x881C, 0x882C, 0x883C, 0x884C, 0x885C,
         0x886C, 0x887C, 0x888C, 0x889C, 0x88AC, 0x88BC, 0x88CC, 0x88DC, 0x88EC, 0x9AC2, 0x9AD2, 0x9AE2,
         0x9AF2, 0x9B02, 0x9B12, 0x9B22, 0x9B32, 0x9B42, 0x9B52, 0x9B62, 0x9B64, 0x9B74, 0x9B84, 0x9B94,
         0x9BA4, 0x9BB4, 0x9BC4, 0x9BD4, 0x9BE4, 0x9BF4, 0x9C04, 0x9C14, 0x9C24, 0x9C34, 0x9C44, 0x9C54,
@@ -70,7 +72,7 @@ internal static class LookupRoomFxFieldsVerification
     {
         AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
             "Original Mother Brain direct-record subset and order");
-        AssertEqual(295, OriginalFxRecordPointers.Length, "Original FX identity count");
+        AssertEqual(294, OriginalFxRecordPointers.Length, "Original FX identity count");
         AssertTrue(OriginalFxRecordPointers.SequenceEqual(originals.Keys.Concat(originalEnds).Order()),
             "Native FX record and terminator membership");
         AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxDefinitions.RecordPointers.Concat(RoomFxDefinitions.EndPointers).Order()),
@@ -235,6 +237,6 @@ internal static class LookupRoomFxFieldsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.Suffix(pointer),
                     "Unknown FX root rejects before door comparison");
         }
-        Console.WriteLine("FX list selection: all 295 suffixes x every door, null root and invalid roots pass.");
+        Console.WriteLine("FX list selection: all 294 suffixes x every door, null root and invalid roots pass.");
     }
 }

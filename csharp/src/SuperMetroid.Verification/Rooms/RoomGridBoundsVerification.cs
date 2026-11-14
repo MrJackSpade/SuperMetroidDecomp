@@ -68,6 +68,54 @@ internal static class RoomGridBoundsVerification
         AssertEqual(-8, RoomGridConversions.BlockStepCentre(-8), "a probe eight pixels back reaches its block step's centre at -8");
         AssertThrows<ArgumentOutOfRangeException>(() => RoomGridConversions.BlockStepCentre(short.MaxValue + 1),
             "a displacement past the signed whole-pixel range is refused");
+
+        VerifyBlockIdiomOperations();
         Console.WriteLine("Room grid bounds: a 300-block room, one-cell planes and grids, and every coordinate's block conversions.");
+    }
+
+    /// <summary>
+    /// The named grid operations that replaced the block and half-block masks (#1786) give the masks' results: on every
+    /// room coordinate, on the sums below zero and past 65535 that the collision code reads as their wrapped coordinate,
+    /// and, for the half-block count, on positions before the room's first pixel.
+    /// </summary>
+    private static void VerifyBlockIdiomOperations()
+    {
+        int mismatches = 0;
+        for (int pixel = 0; pixel <= ushort.MaxValue; pixel++)
+        {
+            mismatches += RoomGridConversions.BlockCentre(pixel) == ((pixel & ~15) | 8) ? 0 : 1;
+            mismatches += RoomGridConversions.HalfBlockStart(pixel) == (pixel & ~7) ? 0 : 1;
+            mismatches += RoomGridConversions.HalfBlockEnd(pixel) == (pixel | 7) ? 0 : 1;
+        }
+        AssertEqual(0, mismatches, "every room coordinate's block centre and half-block ends are the masks'");
+        AssertEqual(new Position16<RoomPixels>(40, 65528), new Position16<RoomPixels>(37, 65535).ToBlockCentre(),
+            "a position's block centre takes each axis to its block's centre");
+
+        int wrappedMismatches = 0;
+        for (int sum = -ushort.MaxValue - 1; sum <= 2 * ushort.MaxValue + 1; sum++)
+        {
+            wrappedMismatches += RoomGridConversions.InSecondHalfOfBlock(sum) == ((sum & 8) != 0) ? 0 : 1;
+            wrappedMismatches += RoomGridConversions.OffsetWithinHalfBlock(sum) == (sum & 7) ? 0 : 1;
+            wrappedMismatches += RoomGridConversions.OffsetFromHalfBlockEnd(sum) == ((sum & 7) ^ 7) ? 0 : 1;
+            wrappedMismatches += RoomGridConversions.OffsetWithinBlock(sum, mirrored: false) == (sum & 15) ? 0 : 1;
+            wrappedMismatches += RoomGridConversions.OffsetWithinBlock(sum, mirrored: true) == ((sum ^ 15) & 15) ? 0 : 1;
+        }
+        AssertEqual(0, wrappedMismatches, "every wrapped sum's block half and offsets are the masks'");
+
+        int halfMismatches = 0;
+        for (int position = short.MinValue; position <= ushort.MaxValue; position++)
+        {
+            int half = RoomGridConversions.HalfBlockOf(position);
+            halfMismatches += half == position >> 3 ? 0 : 1;
+            halfMismatches += RoomGridConversions.IsBlockSecondHalf(half) == ((half & 1) != 0) ? 0 : 1;
+        }
+        AssertEqual(0, halfMismatches, "every position's half block is the position shifted right three, and its parity the half");
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomGridConversions.HalfBlockOf(ushort.MaxValue + 1),
+            "a half block past the room's coordinates is refused");
+
+        int mapMismatches = 0;
+        for (int offset = short.MinValue; offset <= short.MaxValue; offset++)
+            mapMismatches += MapScreenConversions.RoundDownToMapTile(offset) == (offset & ~7) ? 0 : 1;
+        AssertEqual(0, mapMismatches, "every signed map offset rounds down to its map tile as the mask does");
     }
 }

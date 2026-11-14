@@ -484,7 +484,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         int verticalMiddle = minimumY + (maximumY - minimumY) / 2 + 16;
         // The centring offset is rounded down to whole eight-pixel map rows.
-        int verticalCenterOffset = (128 - verticalMiddle) & ~7;
+        int verticalCenterOffset = MapScreenConversions.RoundDownToMapTile(128 - verticalMiddle);
         int vertical = -verticalCenterOffset;
         int distanceFromTopClamp = 64 - (player.Y + verticalCenterOffset);
         if (distanceFromTopClamp >= 0)

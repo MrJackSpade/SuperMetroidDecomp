@@ -441,7 +441,7 @@ internal static class FileSelectRoomMapVerification
     }
 
     /// <summary>Checks native map centering, eight-frame arrow pulses, input precedence, and scroll limits.</summary>
-    private static void VerifyFileSelectMapScroll()
+    internal static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);

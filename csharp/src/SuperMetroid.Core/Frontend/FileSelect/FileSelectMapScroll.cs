@@ -63,7 +63,7 @@ public sealed class FileSelectMapScroll
             horizontal -= 32 - screenX;
         int middle = minimumY + (maximumY - minimumY) / 2 + 16;
         // The centring offset is rounded down to whole eight-pixel map rows.
-        int offset = (112 - middle) & ~7;
+        int offset = MapScreenConversions.RoundDownToMapTile(112 - middle);
         int vertical = -offset;
         int distance = 64 - (player.Y + offset);
         if (distance >= 0)

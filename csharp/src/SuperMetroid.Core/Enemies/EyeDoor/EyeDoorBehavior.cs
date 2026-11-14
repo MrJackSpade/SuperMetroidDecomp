@@ -306,11 +306,11 @@ internal sealed class EyeDoorBehavior
         if (movingBack)
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
-            int face = CoordinateAxis.Wrap((edge | 15) + 1 + radius);
+            int face = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(edge) + 1 + radius);
             return face <= current ? face : current;
         }
         // The near face of the blocking block: its first pixel.
-        int near = CoordinateAxis.Wrap((edge & ~15) - radius);
+        int near = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(edge) - radius);
         return near >= current ? near : current;
     }
 

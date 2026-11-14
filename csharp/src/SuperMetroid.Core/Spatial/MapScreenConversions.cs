@@ -11,6 +11,13 @@ public static class MapScreenConversions
         Position16<MapPixels>.Wrapped(tile.X * PixelsPerMapTile, tile.Y * PixelsPerMapTile);
 
     /// <summary>
+    /// A signed map-plane pixel offset rounded toward lower values to a whole number of map tiles: 13 gives 8 and -3
+    /// gives -8.
+    /// </summary>
+    public static int RoundDownToMapTile(int mapPixels) =>
+        mapPixels - (mapPixels % PixelsPerMapTile + PixelsPerMapTile) % PixelsPerMapTile;
+
+    /// <summary>
     /// The screen position of a map-plane pixel under the map's scroll (<c>position - scroll</c>),
     /// wrapping each axis at sixteen bits exactly as the game's sprite origins do.
     /// </summary>

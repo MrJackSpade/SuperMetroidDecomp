@@ -41,9 +41,4 @@ public static class PowerBombExplosionDefinitions
     /// levels (14,14,10). This is a lifetime count, not replacement artwork.
     /// </summary>
     internal const int CrystalFlashInitialFadeSteps = 14;
-    /// <summary>
-    /// The explosion selects a colour for each band of this many whole pixels of its consumed radius. Crystal Flash
-    /// reaches only the first four yellow colour steps.
-    /// </summary>
-    internal const int CrystalFlashColorBandPixels = 8;
 }

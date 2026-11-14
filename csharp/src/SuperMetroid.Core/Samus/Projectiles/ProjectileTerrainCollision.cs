@@ -237,9 +237,9 @@ internal sealed class ProjectileTerrainCollision
         if (horizontalMovement)
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
-            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor((span.TargetBoundary & 8) != 0), SquareSlopeRowHalf.Top);
-            bool topEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0;
-            bool bottomEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) & 8) != 0;
+            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)), SquareSlopeRowHalf.Top);
+            bool topEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole - slot.Radius.Y);
+            bool bottomEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole + slot.Radius.Y - 1);
             if (span.Span == 0)
                 return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell.OtherRow));
             if (span.Remaining == 0)
@@ -250,9 +250,9 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
-        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((span.TargetBoundary & 8) != 0));
-        bool leftEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) & 8) != 0;
-        bool rightEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) & 8) != 0;
+        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)));
+        bool leftEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole - slot.Radius.X);
+        bool rightEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole + slot.Radius.X - 1);
         if (span.Span == 0)
             return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell.OtherColumn));
         if (span.Remaining == 0)
@@ -292,10 +292,8 @@ internal sealed class ProjectileTerrainCollision
             int slopeBlock = axis == Axis.Horizontal ? block.At.Y : block.At.X;
             if (centerBlock != slopeBlock) return false;
 
-            int x = slot.Position.X.Whole & 15;
-            int y = slot.Position.Y.Whole & 15;
-            if (block.Behavior.Slope.FlipsHorizontally) x ^= 15;
-            if (block.Behavior.Slope.FlipsVertically) y ^= 15;
+            int x = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
+            int y = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
             bool hit = SlopeHeights.Read(block.Behavior.Slope.Shape, x) <= y;
             // A surface hit clears both scan counters. This overrides
             // earlier air rows and ends the span; Wave still discards whether the hit stops it.

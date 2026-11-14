@@ -26,7 +26,8 @@ internal sealed class SamusEaterObjects
         // the trigger. Alignment is tested against Samus, not the sampled block row.
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
             : samus.Position.Y.Whole + samus.Radius.Y - 1;
-        if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
+        int fromAlignedFace = definition.Ceiling ? RoomGridConversions.OffsetWithinBlock(edge) : RoomGridConversions.OffsetFromBlockEnd(edge);
+        if (fromAlignedFace != 0) return;
         // Descending allocation simply returns when all slots are occupied.
         if (_slotTable.Spawn() is not { } slot)
             return;

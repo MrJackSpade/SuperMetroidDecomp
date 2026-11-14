@@ -631,10 +631,10 @@ internal sealed class RoomLoader
         switch (state.Direction)
         {
             case DoorDirection.Right:
-                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(_player.Samus.Position.X.Whole | (7));
+                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(RoomGridConversions.HalfBlockEnd(_player.Samus.Position.X.Whole));
                 break;
             case DoorDirection.Left:
-                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(_player.Samus.Position.X.Whole & ~7);
+                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(RoomGridConversions.HalfBlockStart(_player.Samus.Position.X.Whole));
                 break;
             case DoorDirection.Down:
             case DoorDirection.Up:
@@ -1121,7 +1121,7 @@ internal sealed class RoomLoader
 
         // The room load applies this eight-pixel doorway alignment only horizontally.
         if (!direction.IsVertical())
-            finalX = direction == DoorDirection.Right ? CoordinateAxis.Wrap(finalX | 7) : CoordinateAxis.Wrap(finalX & ~7);
+            finalX = direction == DoorDirection.Right ? RoomGridConversions.HalfBlockEnd(finalX) : RoomGridConversions.HalfBlockStart(finalX);
         samus = samus.WithWhole(new Position16<RoomPixels>(finalX, NudgeOffScreenLeftEdge(samus.Y.Whole)));
         // The door scroll adds 32 to the destination Y after using the unmodified value
         // for Samus's setup origin. The scroll's completion later snaps an upward transition's

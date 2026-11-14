@@ -850,7 +850,7 @@ public static class SamusBlockCollision
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor((leadingBoundary & 8) != 0), SquareSlopeRowHalf.Top);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(leadingBoundary)), SquareSlopeRowHalf.Top);
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -859,7 +859,7 @@ public static class SamusBlockCollision
             // On the bottom scanned block, the body's bottom half can accept the selected
             // quadrant directly. Otherwise the test falls through to the opposite
             // vertical quadrant test below.
-            if (((state.Radius.Y + state.Position.Y.Whole - 1) & 8) == 0 && !selectedSolid)
+            if (!RoomGridConversions.InSecondHalfOfBlock(state.Radius.Y + state.Position.Y.Whole - 1) && !selectedSolid)
             {
                 clippedDisplacement = displacement;
                 return false;
@@ -872,7 +872,7 @@ public static class SamusBlockCollision
             // The first scanned row is remainingRows==totalRows; intermediate rows always
             // test the selected quadrant. The top-body bit supplies the exception on
             // that first row before the opposite vertical quadrant is consulted.
-            if (remainingRows != totalRows || ((state.Position.Y.Whole - state.Radius.Y) & 8) == 0)
+            if (remainingRows != totalRows || !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y))
             {
                 if (selectedSolid)
                 {
@@ -912,7 +912,7 @@ public static class SamusBlockCollision
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((leadingBoundary & 8) != 0));
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(leadingBoundary)));
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
 
@@ -921,7 +921,7 @@ public static class SamusBlockCollision
         // block. Interior blocks necessarily test both eight-pixel halves.
         if (blocksLeftToCheck == 0)
         {
-            if (((state.Radius.X + state.Position.X.Whole - 1) & 8) == 0 && !selectedSolid)
+            if (!RoomGridConversions.InSecondHalfOfBlock(state.Radius.X + state.Position.X.Whole - 1) && !selectedSolid)
             {
                 clippedDisplacement = displacement;
                 return false;
@@ -932,7 +932,7 @@ public static class SamusBlockCollision
         else
         {
             if (blocksLeftToCheck != totalColumns ||
-                ((state.Position.X.Whole - state.Radius.X) & 8) == 0)
+                !RoomGridConversions.InSecondHalfOfBlock(state.Position.X.Whole - state.Radius.X))
             {
                 if (selectedSolid)
                 {
@@ -969,7 +969,7 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole);
+            int whole = CoordinateAxis.AsSigned(state.Radius.X + RoomGridConversions.BlockEnd(leadingBoundary) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
@@ -977,7 +977,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.X, state.Position.X.Whole);
+            int whole = CoordinateAxis.Difference(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
@@ -994,7 +994,7 @@ public static class SamusBlockCollision
         if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(
-                state.Radius.X + (leadingBoundary | 7) + 1 - state.Position.X.Whole);
+                state.Radius.X + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
@@ -1002,7 +1002,7 @@ public static class SamusBlockCollision
         }
 
         int rightWhole = CoordinateAxis.Difference(
-            (leadingBoundary & ~7) - state.Radius.X, state.Position.X.Whole);
+            RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
         state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
@@ -1017,7 +1017,7 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole);
+            int whole = CoordinateAxis.AsSigned(state.Radius.Y + RoomGridConversions.BlockEnd(leadingBoundary) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
@@ -1025,7 +1025,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.Y, state.Position.Y.Whole);
+            int whole = CoordinateAxis.Difference(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
@@ -1042,7 +1042,7 @@ public static class SamusBlockCollision
         if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(
-                state.Radius.Y + (leadingBoundary | 7) + 1 - state.Position.Y.Whole);
+                state.Radius.Y + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
@@ -1050,7 +1050,7 @@ public static class SamusBlockCollision
         }
 
         int downWhole = CoordinateAxis.Difference(
-            (leadingBoundary & ~7) - state.Radius.Y, state.Position.Y.Whole);
+            RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
         state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
@@ -1134,9 +1134,6 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }
 
-    /// <summary>Pixels along a half block's side, the depth unit of a square slope's half.</summary>
-    private const int HalfBlockPixels = 8;
-
     /// <summary>
     /// Measures block overlap in the selected vertical direction after grapple releases
     /// Samus, allowing the caller to eject her before the new pose radius is installed.
@@ -1156,34 +1153,35 @@ public static class SamusBlockCollision
             // The post-grapple table treats even vertical extensions as solid, without
             // following behaviour. Ordinary movement's step is not interchangeable.
             if (block.CollisionType.IsSolidKind())
-                depth = boundary & 15;
+                depth = RoomGridConversions.OffsetWithinBlock(boundary);
             else if (block.CollisionType != RoomCollisionType.Slope)
                 continue;
             else if (block.Behavior.Slope.IsNonSquare)
             {
                 if (column != RoomGridConversions.PixelToBlock(state.Position.X.Whole)) continue;
                 if (block.Behavior.Slope.FlipsVertically == (direction == VerticalDirection.Down))
-                    depth = boundary & 15;
+                    depth = RoomGridConversions.OffsetWithinBlock(boundary);
                 else
                 {
-                    int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole) - (boundary & 15) - 1;
+                    int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole) - RoomGridConversions.OffsetWithinBlock(boundary) - 1;
                     depth = direction == VerticalDirection.Down ? (difference <= 0 ? -1 - difference : -1) : (difference >= 0 ? difference : -1);
                 }
             }
             else
             {
                 SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
-                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((boundary & 8) != 0));
+                SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(boundary)));
                 bool selected = SquareSlopes.IsSolid(shape, quadrant);
                 bool collides;
                 if (column == lastColumn)
-                    collides = (right & 8) == 0 ? selected : selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
-                else if (column != firstColumn || (left & 8) == 0)
+                    collides = !RoomGridConversions.InSecondHalfOfBlock(right) ? selected : selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
+                else if (column != firstColumn || !RoomGridConversions.InSecondHalfOfBlock(left))
                     collides = selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 else
                     collides = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
-                int halfBlockOffset = boundary % HalfBlockPixels;
-                depth = collides ? (direction == VerticalDirection.Down ? halfBlockOffset : HalfBlockPixels - 1 - halfBlockOffset) : -1;
+                depth = collides
+                    ? (direction == VerticalDirection.Down ? RoomGridConversions.OffsetWithinHalfBlock(boundary) : RoomGridConversions.OffsetFromHalfBlockEnd(boundary))
+                    : -1;
             }
             maximum = Math.Max(maximum, depth + 1);
         }

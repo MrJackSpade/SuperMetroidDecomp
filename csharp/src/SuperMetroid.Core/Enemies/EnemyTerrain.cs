@@ -427,14 +427,14 @@ internal sealed class EnemyTerrain
         int spanMinusOne)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor((targetEdge & 8) != 0), SquareSlopeRowHalf.Top);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)), SquareSlopeRowHalf.Top);
         if (remaining == 0)
         {
-            if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
+            if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.Y + slot.Position.Y.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (remaining == spanMinusOne &&
-                 ((slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0)
+                 RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole - slot.Radius.Y))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
@@ -453,14 +453,14 @@ internal sealed class EnemyTerrain
         int spanMinusOne)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor((targetEdge & 8) != 0));
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)));
         if (remaining == 0)
         {
-            if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
+            if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.X + slot.Position.X.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (remaining == spanMinusOne &&
-                 ((slot.Position.X.Whole - slot.Radius.X) & 8) != 0)
+                 RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole - slot.Radius.X))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }

@@ -7,7 +7,7 @@ internal static class SamusPoseProjectileOrigins
 {
     /// <summary>
     /// How far above Samus's centre the projectiles and Grapple of <paramref name="pose"/> start, in pixels, 0 through
-    /// 255: its authored height, or what a pose number past the authored poses reads
+    /// 255: its authored height, or what an unauthored pose reads
     /// (<see cref="SamusUnauthoredPoseDefinitions"/>). The drained poses' height is 252: their correction lowers the
     /// origin by four, which the beam and Grapple origins take as a height of 252 rather than four below the centre.
     /// </summary>

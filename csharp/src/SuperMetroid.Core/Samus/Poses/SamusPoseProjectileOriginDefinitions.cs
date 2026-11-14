@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Each authored pose's physical projectile-origin height, separate from editable Samus graphics offsets.</summary>
 /// <remarks>
-/// The pose numbers past the authored poses read their heights from what follows the definitions
-/// (<see cref="SamusUnauthoredPoseDefinitions"/>).
+/// The unauthored poses' heights are their unauthored definitions' (<see cref="SamusUnauthoredPoseDefinitions"/>).
 /// </remarks>
 internal static class SamusPoseProjectileOriginDefinitions
 {

@@ -1319,9 +1319,9 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.GrappleAirborneAimDownRightPose or
                 SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
                 SamusPoseId.DraygonGrabbingLeftPose => SamusPoseId.TurningRightToLeftPose,
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => SamusPoseId.TurningRightToLeftPose,
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => SamusPoseId.TurningRightToLeftPose,
             _ => SamusPoseId.TurningRightToLeftPose,
         };
         AssertEqual(expectedTurn, landingMoonwalk.Pose,
@@ -1580,9 +1580,9 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.GrappleAirborneAimDownRightPose or
                 SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
                 SamusPoseId.DraygonGrabbingLeftPose => SamusPoseId.TurningLeftToRightPose,
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => SamusPoseId.TurningLeftToRightPose,
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => SamusPoseId.TurningLeftToRightPose,
             _ => SamusPoseId.TurningLeftToRightPose,
         };
         AssertEqual(expectedTurn, landingMoonwalk.Pose,

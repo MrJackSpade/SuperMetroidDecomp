@@ -101,7 +101,7 @@ internal static class SamusBodyTransferContractChecks
             class SamusTransferConsumer {
                 void Inspect(InstalledSamusBodyArtwork body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame) {
                     body.OriginRise(pose, frame);
-                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.FirstUnauthoredPose, 0);
+                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, 0);
                 }
             }
             """, path: "fixture-samus-transfer-consumer.cs");

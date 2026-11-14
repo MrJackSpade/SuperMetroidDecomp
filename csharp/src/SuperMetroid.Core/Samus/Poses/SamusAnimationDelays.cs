@@ -7,7 +7,7 @@ internal static class SamusAnimationDelays
 {
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The pose is one of the three numbers past the pose records, which no gameplay path gives Samus.
+    /// The pose is one of the three unauthored poses, which no gameplay path gives Samus.
     /// </exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
 
@@ -298,9 +298,9 @@ internal static class SamusAnimationDelays
             SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => StandingTransitionAimDiagonalUpLeftAnimation,
             SamusPoseId.StandingTransitionAimDiagonalDownRightPose => StandingTransitionAimDiagonalDownRightAnimation,
             SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => StandingTransitionAimDiagonalDownLeftAnimation,
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(nameof(pose)),
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(nameof(pose)),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }

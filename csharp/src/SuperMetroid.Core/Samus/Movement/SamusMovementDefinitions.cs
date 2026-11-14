@@ -29,10 +29,10 @@ public static class SamusMovementDefinitions
 
         /// <summary>
         /// The no-input fallback that retains the current pose after input lookup failure. The game
-        /// spells it as <see cref="SamusPoseId.LastUnauthoredPose"/>, so it is the same identity as <see cref="SamusPoseId.LastUnauthoredPose"/>: a record
-        /// whose fallback names <see cref="SamusPoseId.LastUnauthoredPose"/> retains its pose.
+        /// spells it as <see cref="SamusPoseId.ForwardStillCrouchHeightPose"/>, so it is the same identity: a pose
+        /// whose fallback names <see cref="SamusPoseId.ForwardStillCrouchHeightPose"/> retains its pose.
         /// </summary>
-        public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.LastUnauthoredPose;
+        public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.ForwardStillCrouchHeightPose;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>

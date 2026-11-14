@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>What each authored pose does with Samus's arm cannon, independent of editable artwork.</summary>
 /// <remarks>
-/// The pose numbers past the authored poses read their aims from what follows the definitions
-/// (<see cref="SamusUnauthoredPoseDefinitions"/>).
+/// The unauthored poses' aims are their unauthored definitions' (<see cref="SamusUnauthoredPoseDefinitions"/>).
 /// </remarks>
 internal static class SamusPoseAimDefinitions
 {

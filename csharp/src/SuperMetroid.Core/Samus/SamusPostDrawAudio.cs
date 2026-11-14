@@ -19,10 +19,10 @@ public static class SamusPostDrawAudio
     {
         SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
-        if (speed.EchoSoundFlag != 0 &&
+        if (speed.EchoSoundPlaying &&
             !speed.SpeedBoostCounter.IsAtFullStage)
         {
-            speed.EchoSoundFlag = 0;
+            speed.EchoSoundPlaying = false;
             samus.LiquidPhysics.QueueMovementSound(RoomSound.SpeedBoosterEnd, priority: SoundRequestPriority.Essential);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||

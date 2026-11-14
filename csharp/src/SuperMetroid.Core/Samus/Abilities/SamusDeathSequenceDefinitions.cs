@@ -9,6 +9,14 @@ public static class SamusDeathSequenceDefinitions
     public const int PreFlashFrameCount = 16;
     /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
+    /// <summary>Calls the flash holds its first death shade, and waits before its first change of shade.</summary>
+    public const int FirstFlashShadeCalls = 3;
+    /// <summary>Calls the flash holds its second death shade.</summary>
+    public const int SecondFlashShadeCalls = 1;
+    /// <summary>The brightest whiteout shade the explosion's frames reach; the whiteout stays there until the last call.</summary>
+    public const int BrightestExplosionWhiteoutShade = 20;
+    /// <summary>The whiteout shade the sequence's last call shows, after the explosion's last frame: full white.</summary>
+    public const int FinalWhiteoutShade = 21;
 
     /// <summary>The death-pose animation frame each movement type starts the death pose on; InitialFrame looks it up.</summary>
     public static readonly IReadOnlyDictionary<SamusMovementType, int> InitialFrames = new Dictionary<SamusMovementType, int>

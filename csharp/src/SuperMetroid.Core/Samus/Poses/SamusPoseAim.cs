@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// What a pose does with Samus's arm cannon. An aiming pose fires in one of the ten projectile directions and places a
 /// held charge's flare at that direction's muzzle. A turning pose fires nothing and places the flare at its turning
 /// placement. A pose that disables shooting fires nothing, draws no flare, cancels a fired Grapple and lands in the
-/// ordinary facing landing. A pose number past the authored poses
+/// ordinary facing landing. An unauthored pose
 /// (<see cref="Compatibility.UnauthoredPoseReads{TPose, TDefinition}"/>) fires nothing and places the flare as its
 /// definition says.
 /// </summary>

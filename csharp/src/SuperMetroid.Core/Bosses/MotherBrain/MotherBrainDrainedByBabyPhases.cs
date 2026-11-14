@@ -212,13 +212,12 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             _state.PhaseTimer = 16;
 
-            // The grey-transition list has eight nonzero palette entries followed by an end marker.
-            // The caller increments its counter, passes the old index, and treats
-            // the ninth (index-eight) probe as completion without copying colours.
-            int paletteIndex = _state.GreyTransitionCounter;
+            // The body greys over eight steps, one each time the timer runs out; the ninth finishes the transition
+            // without new colours.
+            int greyStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested = paletteIndex < 8;
-            if (paletteIndex >= 8)
+            requests.ColoursRequested = greyStep < 8;
+            if (greyStep >= 8)
             {
                 _state.BrainHealth = 36000;
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;

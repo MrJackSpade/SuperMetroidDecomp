@@ -737,12 +737,21 @@ public enum SamusPoseId
     /// <summary>A left-facing Draygon-held pose whose animation ends grabbed by Draygon facing left.</summary>
     DraygonGrabbingLeftPose,
 
-    /// <summary>The first pose number past the definition table: its records read whatever follows the table.</summary>
-    FirstUnauthoredPose,
+    /// <summary>
+    /// An unauthored pose facing right in which no movement runs, so Samus holds still with a 138-pixel vertical radius;
+    /// with no input it falls back to the rightward neutral jump transition (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// </summary>
+    TallStillRightPose,
 
-    /// <summary>The second pose number past the definition table: its records read whatever follows the table.</summary>
-    SecondUnauthoredPose,
+    /// <summary>
+    /// An unauthored pose facing neither way that moves as standing, has the front view's radius and keeps its pose with no
+    /// input (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// </summary>
+    ForwardStandingPose,
 
-    /// <summary>The last pose number, past the definition table: its records read whatever follows the table.</summary>
-    LastUnauthoredPose,
+    /// <summary>
+    /// An unauthored pose facing neither way in which no movement runs, so Samus holds still with a crouch's radius; with
+    /// no input it falls back to landing aiming diagonally down facing left (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// </summary>
+    ForwardStillCrouchHeightPose,
 }

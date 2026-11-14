@@ -200,7 +200,7 @@ internal static class RoomObjectSystemAccess
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, RoomBlockBehavior behavior)
-            => self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, SamusPoseId.LastUnauthoredPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
+            => self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, SamusPoseId.ForwardStillCrouchHeightPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.

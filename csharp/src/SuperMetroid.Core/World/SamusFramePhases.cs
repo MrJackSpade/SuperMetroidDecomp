@@ -5,6 +5,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -324,7 +325,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // Each clears the charge and restores suit colors, except grapple's
             // while a grapple is already active, which changes nothing.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                samus.HudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
+                SamusHudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
@@ -971,9 +972,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 // The glitch-ball knockback's movement type has an empty normal entry: once its knockback
                 // ends, Samus holds still in it (#1535).
                 break;
-            case SamusPoseId.FirstUnauthoredPose:
-            case SamusPoseId.SecondUnauthoredPose:
-            case SamusPoseId.LastUnauthoredPose:
+            case SamusPoseId.TallStillRightPose:
+            case SamusPoseId.ForwardStandingPose:
+            case SamusPoseId.ForwardStillCrouchHeightPose:
             case SamusPoseId.CompactAirborneFallingRightPose:
             case SamusPoseId.CompactAirborneFallingLeftPose:
             case SamusPoseId.ShinesparkWindupRightPose:

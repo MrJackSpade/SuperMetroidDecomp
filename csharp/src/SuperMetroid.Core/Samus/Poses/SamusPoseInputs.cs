@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseInputs
 {
     /// <summary>Maps a supported pose to its transition list, preserving shared and empty-list identities.</summary>
-    /// <returns>False only when the pose lies beyond the 253-pose dispatch table.</returns>
+    /// <returns>False only for an unauthored pose, which has no input list.</returns>
     internal static bool TryGetInputList(SamusPoseId pose, out SamusPoseInputList inputList)
     {
-        // The poses past the 253 pose records read adjacent code, not a graph.
-        if (pose is SamusPoseId.FirstUnauthoredPose or SamusPoseId.SecondUnauthoredPose or SamusPoseId.LastUnauthoredPose)
+        // The unauthored poses have no input list.
+        if (pose is SamusPoseId.TallStillRightPose or SamusPoseId.ForwardStandingPose or SamusPoseId.ForwardStillCrouchHeightPose)
         {
             inputList = default;
             return false;
@@ -98,9 +98,9 @@ internal static class SamusPoseInputs
             SamusPoseId.MoonwalkTurnJumpAimUpRightPose => MoonwalkTurnJumpAimUpRightPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownLeftPose => MoonwalkTurnJumpAimDownLeftPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightPoseList,
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
         return true;

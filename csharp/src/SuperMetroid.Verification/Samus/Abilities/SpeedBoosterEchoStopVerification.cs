@@ -87,12 +87,12 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(1, stops, "one stop request reaches the SPC");
         AssertEqual(0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
         AssertEqual(0, finalPeak, "echo PCM reaches silence after wall cancellation");
-        Suite(nameof(VerifyEchoFlagOwnership), () => VerifyEchoFlagOwnership());
+        Suite(nameof(VerifyEchoSoundPlayingOwnership), () => VerifyEchoSoundPlayingOwnership());
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
     }
 
-    /// <summary>Checks deferred echo flags across charging, serialization, and quicksand suppression.</summary>
-    private static void VerifyEchoFlagOwnership()
+    /// <summary>Checks whether the echo sound is playing across charging, serialization, and quicksand suppression.</summary>
+    private static void VerifyEchoSoundPlayingOwnership()
     {
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose };
         var speed = samus.HorizontalSpeed;
@@ -107,28 +107,28 @@ internal static class SpeedBoosterEchoStopVerification
                 return null;
             });
         AssertEqual(1, echoRequests, "reaching stage four requests the echo's start sound");
-        AssertEqual(1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
+        AssertTrue(speed.EchoSoundPlaying, "consuming the start event leaves the echo sound playing");
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0);
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
-        AssertEqual(0, speed.EchoSoundFlag, "the post-draw pass after the boost ends consumes the echo flag");
+        AssertTrue(!speed.EchoSoundPlaying, "the post-draw pass after the boost ends stops the echo sound");
         AssertEqual(RoomSound.SpeedBoosterEnd, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 
-        speed.EchoSoundFlag = 1;
+        speed.EchoSoundPlaying = true;
         using var encoded = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(encoded, speed);
         encoded.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusHorizontalSpeedState>(encoded);
-        AssertEqual(1, restored.EchoSoundFlag, "serialized flag survives even after boost has stopped");
+        AssertTrue(restored.EchoSoundPlaying, "the serialized echo sound survives even after boost has stopped");
 
         samus.Position = samus.Position.WithWhole(new(24, 24));
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
-        speed.EchoSoundFlag = 1;
+        speed.EchoSoundPlaying = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
-        AssertEqual(0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
+        AssertTrue(!speed.EchoSoundPlaying, "quicksand silently ends the echo sound");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");
     }

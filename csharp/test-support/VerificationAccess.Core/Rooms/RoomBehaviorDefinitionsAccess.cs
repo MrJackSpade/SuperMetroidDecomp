@@ -1,92 +1,84 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// The import oracle's map between the typed room callbacks and the bank-$8F code offsets the cartridge stores; production
-/// knows only the typed identities.
+/// The import oracle's map from the bank-$8F code offsets the cartridge stores to the typed room callbacks; production
+/// knows only the typed identities. Every offset whose routine returns at once decodes to the callback's <c>None</c>,
+/// as offset zero does, so the many return instructions the cartridge points at are one behaviour (#1787); an offset
+/// the map does not know is refused.
 /// </summary>
 internal static class RoomBehaviorDefinitionsAccess
 {
-    /// <summary>Each room-main callback's bank-$8F code offset.</summary>
-    private static readonly Dictionary<RoomMainBehavior, ushort> MainPointers = new()
-    {
-        [RoomMainBehavior.None] = 0x0000,
-        [RoomMainBehavior.ScrollingSkyLand] = 0xc116,
-        [RoomMainBehavior.ScrollingSkyOcean] = 0xc11b,
-        [RoomMainBehavior.ScrollingSkyLandZebesTimebombSet] = 0xc120,
-        [RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions] = 0xc124,
-        [RoomMainBehavior.ScrollScreenRightInDachoraRoom] = 0xc1e6,
-        [RoomMainBehavior.MaridiaElevatube] = 0xe2b6,
-        [RoomMainBehavior.CeresElevatorShaft] = 0xe51f,
-        [RoomMainBehavior.Return] = 0xe524,
-        [RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris] = 0xe525,
-        [RoomMainBehavior.HandleCeresRidleyGetawayCutscene] = 0xe571,
-        [RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal] = 0xe57c,
-        [RoomMainBehavior.GenerateRandomExplosionEveryFourthFrame] = 0xe5a0,
-        [RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal] = 0xe5a4,
-        [RoomMainBehavior.CrocomireRoomShaking] = 0xe8cd,
-        [RoomMainBehavior.RidleyRoomShaking] = 0xe950,
-    };
-
-    /// <summary>Each room-setup callback's bank-$8F code offset.</summary>
-    private static readonly Dictionary<RoomSetupBehavior, ushort> SetupPointers = new()
-    {
-        [RoomSetupBehavior.None] = 0x0000,
-        [RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen] = 0x9194,
-        [RoomSetupBehavior.AutoDestroyWallDuringEscape] = 0x91a9,
-        [RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape] = 0x91b2,
-        [RoomSetupBehavior.ReturnAfterEscapeWallSetup] = 0x91bb,
-        [RoomSetupBehavior.ReturnBeforeEscapeSkySetup] = 0x91bc,
-        [RoomSetupBehavior.ShakeScreenAndCallScrollingSkyLandDuringEscape] = 0x91bd,
-        [RoomSetupBehavior.ScrollingSkyLand] = 0x91c9,
-        [RoomSetupBehavior.ScrollingSkyOcean] = 0x91ce,
-        [RoomSetupBehavior.Return] = 0x91d3,
-        [RoomSetupBehavior.ReturnAfterOceanSkySetup] = 0x91d4,
-        [RoomSetupBehavior.ReturnBeforeStatueSetupA] = 0x91d5,
-        [RoomSetupBehavior.ReturnBeforeStatueSetupB] = 0x91d6,
-        [RoomSetupBehavior.RunStatueUnlockingAnimations] = 0x91d7,
-        [RoomSetupBehavior.SharedReturn] = 0x91f4,
-        [RoomSetupBehavior.SharedReturnB] = 0x91f5,
-        [RoomSetupBehavior.SharedReturnC] = 0x91f6,
-        [RoomSetupBehavior.SharedReturnD] = 0x91f7,
-        [RoomSetupBehavior.OrdinaryReturn] = 0xc8c7,
-        [RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile] = 0xc8c8,
-        [RoomSetupBehavior.BossRoomReturn] = 0xc8d0,
-        [RoomSetupBehavior.BossRoomReturnB] = 0xc8d1,
-        [RoomSetupBehavior.BossRoomReturnC] = 0xc8d2,
-        [RoomSetupBehavior.SetupShaktoolRoomObject] = 0xc8d3,
-        [RoomSetupBehavior.ReturnBeforeDraygonSetup] = 0xc8dc,
-        [RoomSetupBehavior.SetPausingCodeForDraygon] = 0xc8dd,
-        [RoomSetupBehavior.SetCollectedMap] = 0xc90a,
-        [RoomSetupBehavior.ReturnBeforeZebesTimebombSetup] = 0xc91e,
-        [RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking] = 0xc91f,
-        [RoomSetupBehavior.SetLightHorizontalRoomShaking] = 0xc933,
-        [RoomSetupBehavior.SetMediumHorizontalRoomShaking] = 0xc946,
-        [RoomSetupBehavior.SetupEscapeRoom4ObjectAndMediumHorizontalShaking] = 0xc953,
-        [RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze] = 0xc96e,
-        [RoomSetupBehavior.SpawnCeresHaze] = 0xc976,
-        [RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze] = 0xc97b,
-    };
-
     /// <summary>The room-main callback each bank-$8F code offset names.</summary>
-    private static readonly Dictionary<ushort, RoomMainBehavior> MainCallbacks =
-        MainPointers.ToDictionary(pair => pair.Value, pair => pair.Key);
+    private static readonly Dictionary<ushort, RoomMainBehavior> MainCallbacks = new()
+    {
+        [0x0000] = RoomMainBehavior.None,
+        [0xc116] = RoomMainBehavior.ScrollingSkyLand,
+        [0xc11b] = RoomMainBehavior.ScrollingSkyOcean,
+        [0xc120] = RoomMainBehavior.ScrollingSkyLandZebesTimebombSet,
+        [0xc124] = RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions,
+        [0xc1e6] = RoomMainBehavior.ScrollScreenRightInDachoraRoom,
+        [0xe2b6] = RoomMainBehavior.MaridiaElevatube,
+        [0xe51f] = RoomMainBehavior.CeresElevatorShaft,
+        [0xe524] = RoomMainBehavior.None,
+        [0xe525] = RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris,
+        [0xe571] = RoomMainBehavior.HandleCeresRidleyGetawayCutscene,
+        [0xe57c] = RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal,
+        [0xe5a0] = RoomMainBehavior.GenerateRandomExplosionEveryFourthFrame,
+        [0xe5a4] = RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
+        [0xe8cd] = RoomMainBehavior.CrocomireRoomShaking,
+        [0xe950] = RoomMainBehavior.RidleyRoomShaking,
+    };
 
     /// <summary>The room-setup callback each bank-$8F code offset names.</summary>
-    private static readonly Dictionary<ushort, RoomSetupBehavior> SetupCallbacks =
-        SetupPointers.ToDictionary(pair => pair.Value, pair => pair.Key);
+    private static readonly Dictionary<ushort, RoomSetupBehavior> SetupCallbacks = new()
+    {
+        [0x0000] = RoomSetupBehavior.None,
+        [0x9194] = RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen,
+        [0x91a9] = RoomSetupBehavior.AutoDestroyWallDuringEscape,
+        [0x91b2] = RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape,
+        [0x91bb] = RoomSetupBehavior.None,
+        [0x91bc] = RoomSetupBehavior.None,
+        [0x91bd] = RoomSetupBehavior.LandSkyWithLandingSiteQuake,
+        [0x91c9] = RoomSetupBehavior.ScrollingSkyLand,
+        [0x91ce] = RoomSetupBehavior.ScrollingSkyOcean,
+        [0x91d3] = RoomSetupBehavior.None,
+        [0x91d4] = RoomSetupBehavior.None,
+        [0x91d5] = RoomSetupBehavior.None,
+        [0x91d6] = RoomSetupBehavior.None,
+        [0x91d7] = RoomSetupBehavior.RunStatueUnlockingAnimations,
+        [0x91f4] = RoomSetupBehavior.None,
+        [0x91f5] = RoomSetupBehavior.None,
+        [0x91f6] = RoomSetupBehavior.None,
+        [0x91f7] = RoomSetupBehavior.None,
+        [0xc8c7] = RoomSetupBehavior.None,
+        [0xc8c8] = RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile,
+        [0xc8d0] = RoomSetupBehavior.None,
+        [0xc8d1] = RoomSetupBehavior.None,
+        [0xc8d2] = RoomSetupBehavior.None,
+        [0xc8d3] = RoomSetupBehavior.SetupShaktoolRoomObject,
+        [0xc8dc] = RoomSetupBehavior.None,
+        [0xc8dd] = RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause,
+        [0xc90a] = RoomSetupBehavior.SetCollectedMap,
+        [0xc91e] = RoomSetupBehavior.None,
+        [0xc91f] = RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking,
+        [0xc933] = RoomSetupBehavior.SetLightHorizontalRoomShaking,
+        [0xc946] = RoomSetupBehavior.SetMediumHorizontalRoomShaking,
+        [0xc953] = RoomSetupBehavior.MediumHorizontalShakingWithRisingLava,
+        [0xc96e] = RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze,
+        [0xc976] = RoomSetupBehavior.SpawnCeresHaze,
+        [0xc97b] = RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,
+    };
 
-    /// <summary>Converts between typed room main and setup callbacks and their native dispatcher pointers.</summary>
+    /// <summary>Decodes the room main and setup callbacks the cartridge's room states point at.</summary>
     extension(RoomBehaviorDefinitions)
     {
-        /// <summary>Returns a defined room-main callback's native pointer.</summary>
-        internal static ushort PointerOf(RoomMainBehavior callback) => MainPointers.TryGetValue(callback, out ushort pointer)
-            ? pointer
-            : throw new ArgumentOutOfRangeException(nameof(callback));
+        /// <summary>Every nonzero bank-$8F room-main code offset the import knows, each naming a routine.</summary>
+        internal static IReadOnlyDictionary<ushort, RoomMainBehavior> MainRoutines =>
+            MainCallbacks.Where(pair => pair.Key != 0).ToDictionary();
 
-        /// <summary>Returns a defined room-setup callback's native pointer.</summary>
-        internal static ushort PointerOf(RoomSetupBehavior callback) => SetupPointers.TryGetValue(callback, out ushort pointer)
-            ? pointer
-            : throw new ArgumentOutOfRangeException(nameof(callback));
+        /// <summary>Every nonzero bank-$8F room-setup code offset the import knows, each naming a routine.</summary>
+        internal static IReadOnlyDictionary<ushort, RoomSetupBehavior> SetupRoutines =>
+            SetupCallbacks.Where(pair => pair.Key != 0).ToDictionary();
 
         /// <summary>Resolves a bank-$8F room-main pointer read from the cartridge to its typed callback.</summary>
         internal static RoomMainBehavior ResolveMain(ushort pointer) =>

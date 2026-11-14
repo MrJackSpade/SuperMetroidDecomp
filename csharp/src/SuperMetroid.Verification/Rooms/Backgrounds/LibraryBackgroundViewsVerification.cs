@@ -70,7 +70,7 @@ internal static class LibraryBackgroundViewsVerification
         AssertTrue(skyNames.SequenceEqual(skyRows, StringComparer.Ordinal),
             $"a sky room installs only its sky's rows, not [{string.Join(", ", skyNames)}]");
         AssertBindsNone(sky.Background, "a sky room");
-        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupBehavior = RoomSetupBehavior.Return }]),
+        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupBehavior = RoomSetupBehavior.None }]),
             "a background showing the sky's rows in a room without the sky's bands is refused");
 
         // Nothing: the Parlor's state loading the Ceres elevator shaft's cleared background.

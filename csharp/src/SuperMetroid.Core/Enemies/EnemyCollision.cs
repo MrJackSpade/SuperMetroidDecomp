@@ -76,11 +76,13 @@ internal sealed class EnemyCollision
     /// <param name="controllerInput">Current held input used by touch handlers.</param>
     /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-list audit.</param>
+    /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         ControllerButton controllerInput,
         RoomLevelData? level = null,
-        RoomEnemySlot? onlyEnemy = null)
+        RoomEnemySlot? onlyEnemy = null,
+        Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
@@ -158,7 +160,8 @@ internal sealed class EnemyCollision
                 level,
                 usesFrameHitboxes,
                 hitboxTouch,
-                contactDamageIndex));
+                contactDamageIndex,
+                camera));
             return true;
         }
         return false;
@@ -172,11 +175,13 @@ internal sealed class EnemyCollision
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
+    /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public int ResolveOrdinaryProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         SamusState? samus = null,
-        RoomEnemySlot? onlyEnemy = null)
+        RoomEnemySlot? onlyEnemy = null,
+        Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
@@ -281,7 +286,8 @@ internal sealed class EnemyCollision
                     projectileDirection,
                     family,
                     usesFrameHitboxes,
-                    hitboxShot)
+                    hitboxShot,
+                    camera)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };
@@ -439,11 +445,17 @@ internal sealed class EnemyCollision
     /// outside the common branch; each joins it only with its own bomb-specific post-processing, rather than
     /// silently treating every reaction as the ordinary shot reaction.
     /// </remarks>
+    /// <param name="bombs">The bomb slots whose exploding bombs may hit.</param>
+    /// <param name="ordinaryProjectiles">Samus's beam and missile slots, which reactions read.</param>
+    /// <param name="samus">Samus, when the pass has one.</param>
+    /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
+    /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public int ResolveOrdinaryBombHits(
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState? samus = null,
-        RoomEnemySlot? onlyEnemy = null)
+        RoomEnemySlot? onlyEnemy = null,
+        Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
@@ -530,7 +542,8 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShot,
-                    usesFrameHitboxes)
+                    usesFrameHitboxes,
+                    camera)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };

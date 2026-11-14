@@ -871,7 +871,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         BossFrameResults.Begin();
         // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
         RinkaBehavior.SetRinkaCamera(request.Camera);
-        ShuttersBehavior.BeginShutterFrame(request.Camera);
 
         // A room that places no enemies keeps drawing its spawned objects from the standard artwork (#1599): an empty
         // population loads no enemy artwork, so the objects such a room shows appear in their standard variants.
@@ -924,13 +923,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 if (slot.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
-                    frame.Samus, slot);
+                    frame.Samus, slot, frame.Camera);
                 // The input phase already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.
-                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
+                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot, frame.Camera);
                 if (slot.DefinitionId == EnemyDefinitionId.None)
                     continue;
-                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, slot);
+                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, slot, frame.Camera);
                 if (slot.Entity is IEnemyContactHooks contact)
                     contact.ResolveAfterSamusContact(frame.Samus);
                 if (slot.DefinitionId == EnemyDefinitionId.None)

@@ -26,7 +26,7 @@ internal sealed class IntroEggParticle
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
         fragment = index;
-        // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
+        // The spawn reads its fragment's start offset, stored 16 pixels left and 59 up, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve authored values so this physical spawn does not read game data.
         sprite = new IntroDiscoverySprite(

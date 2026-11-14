@@ -200,7 +200,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Requests a menu sound through the audio owner's six-entry queue limit.</summary>
+    /// <summary>Requests a menu sound at normal priority.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>

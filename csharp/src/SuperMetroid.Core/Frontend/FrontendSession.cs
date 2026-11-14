@@ -400,7 +400,7 @@ internal sealed class FrontendSession
             // Every other station uses the general room loader below.
             if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
-                // Room selection and actors must see the restored mirror, not a
+                // Room selection and actors must see the restored save's progress, not a
                 // fresh runtime followed by an after-the-fact progression overwrite.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -440,14 +440,14 @@ internal sealed class FrontendSession
         }
 
         // New-game loading first publishes the standard HUD/sprite artwork, then
-        // loads the area-six station-zero room and finally runs Samus's new-game setup. This is the
+        // loads the Ceres elevator room and finally runs Samus's new-game setup. This is the
         // same sequence used by the room diagnostic; there is no invented
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // The intro's end publishes area six/station zero
+        // The intro's end publishes Ceres and its elevator checkpoint
         // and saves immediately before the Ceres game state. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's enemy-library sound effects, queued with a six-entry admission limit.</summary>
+/// <summary>Crocomire's enemy-library sound effects, queued at normal priority.</summary>
 internal static class CrocomireSoundDefinitions
 {
     /// <summary>The sound queued as each fight projectile leaves the mouth.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's sound effects, queued by its animations with a six-entry admission limit.</summary>
+/// <summary>Draygon's sound effects, queued by its animations at normal priority.</summary>
 internal static class DraygonSoundDefinitions
 {
     /// <summary>The big explosion: the dying explosions and each tail-whip impact.</summary>

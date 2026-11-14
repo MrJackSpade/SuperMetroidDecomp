@@ -18,7 +18,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.display.PublishIntro(session.ActiveIntro);
         if (session.ActiveIntro.CeresFlightFinished)
         {
-            // The intro's end writes the Ceres game state, area six, and load-station zero only
+            // The intro's end selects the Ceres game state, Ceres and its elevator checkpoint only
             // after the SPACE COLONY fade has gone fully black. Preserve the
             // intervening game state instead of constructing a debug room
             // directly from cinematic code.
@@ -75,7 +75,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         if (destruction.Finished)
         {
             // The cinematic's end forces blank and enters the game-data load. The load's own
-            // Zebes-landing branch, not cinematic code, selects area zero/station eighteen.
+            // Zebes-landing branch, not cinematic code, selects Crateria and the Zebes arrival.
             session.RouteGameDataLoad(GameDataLoadRoute.ZebesLanding);
             session.GameState = SuperMetroidGameState.LoadingGameData;
             session.display.PublishBlack();

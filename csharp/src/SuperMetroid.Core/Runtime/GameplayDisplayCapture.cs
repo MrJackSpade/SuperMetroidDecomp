@@ -96,7 +96,7 @@ public static class GameplayDisplayCapture
         if (live.TourianStatuesEnabled)
             // The statues' descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
-            // scroll. Type 13 also gives the statue sprites zero quake displacement.
+            // scroll. The descent also gives the statue sprites zero quake displacement.
             backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset));
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
@@ -358,9 +358,9 @@ public static class GameplayDisplayCapture
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
         FramePaint paint = warmingUp ? basis.Paint
             : basis.Paint.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
-        // Releasing Run merely advances the beam to phase three. That
+        // Releasing Run merely advances the beam to RestoreFirstHalf. That
         // phase closes the beam's window on the NEXT call and clears the backdrop;
-        // restoration keeps ownership until phase five finally unfreezes gameplay.
+        // restoration keeps ownership until Finish finally unfreezes gameplay.
         bool closed = warmingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend

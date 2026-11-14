@@ -72,8 +72,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {
-            // The game soft-resets when the menu returns to the title. Re-entering state
-            // zero makes all frontend-owned state disposable and deterministic.
+            // The game soft-resets when the menu returns to the title. Re-entering Reset
+            // makes all frontend-owned state disposable and deterministic.
             session.GameState = SuperMetroidGameState.Reset;
         }
         else if (session.ActiveFileSelect.NewGameRequested)
@@ -125,7 +125,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 if (selectedSlot.StartupRoute ==
                     SaveLoadingGameState.OpeningCinematic)
                 {
-                    // Loading dispatches the zero startup route written by the Spacetime Beam
+                    // Loading dispatches the opening-cinematic startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.
@@ -277,7 +277,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     /// <summary>
     /// Loading dispatches the saved escape-ending mode to the initial destruction cinematic.
     /// Restore the saved inventory, but do not initialize any Ceres room or actors.
-    /// The existing cinematic handoff later loads Zebes station eighteen.
+    /// The existing cinematic handoff later loads the Zebes arrival.
     /// </summary>
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {

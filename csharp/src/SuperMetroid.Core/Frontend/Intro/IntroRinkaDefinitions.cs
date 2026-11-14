@@ -17,13 +17,9 @@ internal static class IntroRinkaDefinitions
     /// movement begins on the following actor call. The frame order is
     /// authored animation policy; retain the bounded two-phase stream.
     ///
-    /// Issues #625 and #991: the three selected frames,
-    /// f=0..2, each have four parts showing
-    /// the frame's picture, matching the authored data.
-    /// Part j=0..3 uses X=0 for even j or 504 for odd j, Y=0 for j&lt;2
-    /// or 248 otherwise, the Rinka's colours in front of the scene, the frame's picture, plus the vertical flip
-    /// for j&lt;2 and the horizontal flip for even j. This is an exact bounded
-    /// four-quadrant construction; the frame animation selects no other
+    /// Issues #625 and #991: the three selected frames each show the frame's whole picture,
+    /// matching the authored data: four mirrored quarters around the Rinka's centre, in the
+    /// Rinka's colours in front of the scene. The frame animation selects no other
     /// frames or adjacent visual data.
     /// </remarks>
     public static CinematicActorDefinition RinkaActor =>

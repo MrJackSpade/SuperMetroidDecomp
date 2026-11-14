@@ -16,8 +16,8 @@ public sealed class MotherBrainRainbowBeamEffect
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
     public RgbColor Color { get; private set; }
-    /// <summary>The next colour of the beam's cycle, advancing by one each update the beam shows; the cycle's end resets it to zero and repeats colour zero without advancing that update.</summary>
-    public int ColorIndex { get; private set; }
+    /// <summary>The beam cycle's next colour step, advancing by one each update the beam shows; the cycle's end resets it to the first step and repeats the first colour without advancing that update.</summary>
+    public int ColourStep { get; private set; }
     /// <summary>The cone the last update that showed the beam aimed; null until the beam first shows.</summary>
     public MotherBrainRainbowBeamGeometry? Geometry { get; private set; }
     /// <summary>What the beam shows now, or null while it is hidden; taking it never advances the beam.</summary>
@@ -38,19 +38,19 @@ public sealed class MotherBrainRainbowBeamEffect
         if (!Active)
         {
             Active = true;
-            ColorIndex = 0;
+            ColourStep = 0;
             Color = Colours.BeamInitialColor;
         }
-        else if (ColorIndex == Colours.BeamCycleLength)
+        else if (ColourStep == Colours.BeamCycleLength)
         {
             // Past the cycle's last colour, the update that restarts it repeats colour zero without advancing.
-            ColorIndex = 0;
+            ColourStep = 0;
             Color = Colours.BeamColor(0);
         }
         else
         {
-            Color = Colours.BeamColor(ColorIndex);
-            ColorIndex++;
+            Color = Colours.BeamColor(ColourStep);
+            ColourStep++;
         }
         // The cone's edges lie half its whole-step width either side of its direction.
         TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();

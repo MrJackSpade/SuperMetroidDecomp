@@ -93,7 +93,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// The selected save's loading game state, loaded from the save by file select.
-    /// A new game's is zero, the opening-cinematic route.
+    /// A new game's is the opening-cinematic route.
     /// </summary>
     public SaveLoadingGameState LoadingGameState { get; init; }
 
@@ -123,8 +123,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
-        // The selection missile is spawned by index one; the object handler
-        // then runs after every index's work, including that first one.
+        // The selection missile is spawned while the menu loads; it then animates
+        // after every step's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
             missile.Step((mapPresentation ?? throw new InvalidOperationException(
                 "Game options require installed menu presentation assets.")).GameOptions.CursorFrameDuration);
@@ -132,13 +132,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case GameOptionsPhase.FinishFadingOut:
-                // Index zero: the previous menu already reached black, so
-                // the fade-out leaves it there and the index advances.
+                // The previous menu already reached black, so
+                // the fade-out leaves it there and the menu moves on to loading.
                 Phase = GameOptionsPhase.LoadingMenu;
                 break;
 
             case GameOptionsPhase.LoadingMenu:
-                // Index one loads the menu on a black screen; fading starts next update.
+                // Loading puts the menu on a black screen; fading starts next update.
                 Phase = GameOptionsPhase.FadeIn;
                 break;
 
@@ -199,7 +199,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
-                // Index 12: reaching black selects index four, which
+                // Reaching black selects the start-game step, which
                 // dispatches the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)
@@ -207,7 +207,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.StartGame:
-                // Index four.
                 IntroRequested = true;
                 break;
 
@@ -278,8 +277,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         switch (row)
         {
             case GameOptionsPrimaryRow.StartGame:
-                // Starting: a save that resumes ordinary gameplay starts at once (index four);
-                // a new game and the cinematic routes fade out first (index 12).
+                // Starting: a save that resumes ordinary gameplay starts at once;
+                // a new game and the cinematic routes fade out first.
                 Phase = LoadingGameState == SaveLoadingGameState.MainGame
                     ? GameOptionsPhase.StartGame
                     : GameOptionsPhase.FadeOutToIntro;

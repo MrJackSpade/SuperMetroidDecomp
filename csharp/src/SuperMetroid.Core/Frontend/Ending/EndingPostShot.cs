@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Func139–142: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
+/// <summary>After the shot: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
 internal sealed class EndingPostShot
 {
     /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>

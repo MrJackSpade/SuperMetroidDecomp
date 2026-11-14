@@ -72,10 +72,10 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
 
-    /// <summary>Zero selects Yes; one selects No, numbered as the file-select map numbers its area choice.</summary>
+    /// <summary>The selected answer, Yes or No.</summary>
     public YesNoChoice SelectedItem { get; private set; }
 
-    /// <summary>Current menu step; these enum ordinals are not the game's step numbers.</summary>
+    /// <summary>Current menu step.</summary>
     public GameOverMenuPhase Phase { get; internal set; }
 
     /// <summary>
@@ -136,7 +136,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         }
 
         ControllerButton pressed = controller.NewlyPressed;
-        // Only indexes three, four, five and seven draw the selection missile.
+        // Only the fade-in, the interaction and the two fade-outs draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
             missile.Step((mapPresentation ?? throw new InvalidOperationException(

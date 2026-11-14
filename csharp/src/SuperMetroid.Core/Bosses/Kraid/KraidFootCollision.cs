@@ -14,7 +14,7 @@ internal static class KraidFootCollision
         return 8 - 2 * Math.Min(frame, 34 - frame);
     }
 
-    /// <summary>The fixed component rises, turns at pose A/B, then descends and holds.</summary>
+    /// <summary>The fixed component rises, turns at frames ten and eleven, then descends and holds.</summary>
     internal static int FirstY(int frame)
     {
         CheckFrame(frame);

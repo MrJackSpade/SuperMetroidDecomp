@@ -40,7 +40,7 @@ internal sealed class EndingFlyaway
     /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>
     internal void SetupPlanetEscape()
     {
-        // Func120 clears the explosion flash's backdrop and transparent palette entries.
+        // The flyaway's setup clears the explosion flash from the backdrop and the transparent colours.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
@@ -145,7 +145,7 @@ internal sealed class EndingFlyaway
     /// <summary>Restores the explosion's background colours as the explosion's hold begins (#1467).</summary>
     internal void PrepareFlyaway()
     {
-        // Func117 restores the background colours before the escape backdrop goes off;
+        // The explosion's hold restores the background colours before the escape backdrop goes off;
         // the sprites and their colours stay as they are through the hold.
         _stage.LoadColours(EndingColourLoad.ExplosionBackgrounds);
     }

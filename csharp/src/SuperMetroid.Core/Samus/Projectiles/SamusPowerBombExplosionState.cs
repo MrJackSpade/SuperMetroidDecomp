@@ -461,11 +461,11 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>Selects the installed glow colour a sequence shows at a radius-derived step.</summary>
-    private void SelectGlowColor(PowerBombGlowSequence sequence, int colorIndex)
+    private void SelectGlowColor(PowerBombGlowSequence sequence, int glowStep)
     {
         RgbColor color = (PresentationColors ?? throw new InvalidOperationException(
                 "The Power Bomb's glow requires installed glow colours."))
-            .Resolve(sequence, colorIndex);
+            .Resolve(sequence, glowStep);
         GlowColor = color;
     }
 }

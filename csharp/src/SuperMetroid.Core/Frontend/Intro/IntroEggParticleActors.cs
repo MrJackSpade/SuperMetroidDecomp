@@ -31,9 +31,9 @@ internal static class IntroEggParticleActors
     /// the self-loop, so the bounded selector preserves every selected animation.
     ///
     /// Issues #625 and #983: of the six referenced visual frames,
-    /// i=0..5, each holds one sprite part, matching the authored data:
-    /// X=508, Y=252, drawn in the egg's colours in front of the scene, with that
-    /// frame's own picture. The six pictures come in three pairs.
+    /// i=0..5, each holds one picture, matching the authored data: that frame's own picture,
+    /// four pixels left of and above the particle, drawn in the egg's colours in front of the
+    /// scene. The six pictures come in three pairs.
     /// The bounded selector reaches only these six records.
     /// </remarks>
     public static CinematicActorDefinition Particle(int index) =>

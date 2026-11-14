@@ -25,8 +25,8 @@ public enum GameOptionsPhase
     FadeOutToFileSelect,
     /// <summary>Publish the opening-sequence request after the preceding fade completes.</summary>
     StartGame,
-    /// <summary>Index zero: finish the previous menu's fade-out at black.</summary>
+    /// <summary>Finish the previous menu's fade-out at black.</summary>
     FinishFadingOut,
-    /// <summary>Index one: load the menu pages and spawn the selection missile.</summary>
+    /// <summary>Load the menu pages and spawn the selection missile.</summary>
     LoadingMenu,
 }

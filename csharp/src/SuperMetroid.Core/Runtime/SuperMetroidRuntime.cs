@@ -348,7 +348,7 @@ internal sealed class SuperMetroidRuntime
     public EscapeTimer EscapeTimer { get; } = new();
 
     /// <summary>
-    /// Frontend language bit consumed by room actors whose script differs
+    /// Frontend language choice read by room actors whose script differs
     /// between English and Japanese. The enemy owner retains the actual language branch.
     /// </summary>
     public bool JapaneseText
@@ -383,7 +383,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
-    /// <summary>Active room's fixed 32-slot enemy system.</summary>
+    /// <summary>Active room's enemy system.</summary>
     public EnemySession EnemySession { get; }
 
     /// <summary>The installed boss artwork every room's bosses read.</summary>
@@ -531,7 +531,7 @@ internal sealed class SuperMetroidRuntime
             LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
-        // replaces her handlers while the already-spawned blast continues normally.
+        // takes over her movement while the already-spawned blast continues normally.
         // Its cleanup resumes Samus's sounds, which can queue them before the Samus handler.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
             Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
@@ -823,7 +823,7 @@ internal sealed class SuperMetroidRuntime
             // The main gameplay state runs the main scrolling after movement and room objects and before
             // drawing Samus, enemies and projectiles, regardless of which Samus input handler is
             // installed. A locked input mode suppresses controller transitions; it does not
-            // suppress scrolling. That is why the station-eighteen gunship can carry
+            // suppress scrolling. That is why the gunship arriving on Zebes can carry
             // Samus down several screens while her ordinary movement handler is absent.
             if (samus.Grapple.SlowScrolling)
             {
@@ -986,7 +986,7 @@ internal sealed class SuperMetroidRuntime
     private void DecrementHurtTimers()
     {
         // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/background
-        // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
+        // bookkeeping, the room's own update, the energy-zero check, and room shaking. Keep this
         // shared tail out of individual movement handlers: in particular, grapple spike
         // reactions set the knockback timers without installing the knockback handler.
         // Death game states do not execute the gameplay-state tail at all.

@@ -142,7 +142,7 @@ internal sealed class TorizoCombat
     {
         // Golden's definition installs its own shot reaction, but its ordinary extended body hitboxes call the shared
         // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional reaction instead. That
-        // reaction is a no-op for area-zero Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
+        // reaction is a no-op for Crateria's Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
         // must remain distinguishable below.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
@@ -189,7 +189,7 @@ internal sealed class TorizoCombat
         TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot)
         {
-            // The transitional reaction returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
+            // The transitional reaction returns immediately in Crateria. In every other area it calls a guarded path, which admits common
             // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
             // never enters Golden's shot reaction, so missiles are not caught, Supers are not reflected, and the
             // counterattack flags are not armed through these transitional body rectangles.

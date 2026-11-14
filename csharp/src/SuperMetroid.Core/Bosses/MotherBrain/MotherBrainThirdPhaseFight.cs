@@ -271,7 +271,7 @@ internal sealed class MotherBrainThirdPhaseFight
         requests.BodyWalkRequested = StepPhase3WalkingHandler(frame.RandomNumberSeed);
 
         // The walking animation changes pose later in the enemy animation stage. The
-        // AI therefore still sees pose zero on the call that requests a walk and may
+        // AI therefore still sees her standing pose on the call that requests a walk and may
         // also select an attack, since it reads the pose after the handler runs.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
             !frame.RandomNumberSeed.IsNegative)

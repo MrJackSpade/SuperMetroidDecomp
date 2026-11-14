@@ -35,7 +35,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// (<c>0.1000</c>, <c>7.0000</c>). #1754 adds the original program's call structure and the C reimplementation, read in
 /// every type too: dispatchers, callables and a routine's labels, and the upstream C rewrite; and, outside hardware
 /// owners, the original's data and number encodings: decompression, colour indexes, two's complement, unsigned compares and
-/// the 8.8 and 16.16 format names.
+/// the 8.8 and 16.16 format names. #1765 adds the original's menu and table indexes and its enemy record. #1769 adds the
+/// original's numbered routine and variable labels, read in every type, and, outside hardware owners, its game state,
+/// load station, area and pose numbers, its sound queues named for their limits and its sprite parts' stored placement and
+/// colour data.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -345,6 +348,86 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"\b(?:menu|table)[-\s]+ind(?:ex|exes|ices)\b|\benemy[-\s]+records?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// A numbered routine or variable label of the original program in prose (#1769), read in every Core type and in any
+    /// case: <c>Func126</c>, <c>Func139–142</c>, <c>var4</c>. Core names the step, phase or countdown that runs; a
+    /// compatibility service or encoding owner names the behaviour or encoding, never the original's label for it. English
+    /// stays legal: C#'s <c>Func</c> delegate and a <c>var</c> declaration, which carry no number.
+    /// </summary>
+    private static readonly Regex NumberedLabelProse = new(@"\b(?:Func|var)[0-9]+\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's numbered game states, load stations and areas in prose (#1769), outside hardware owners, spaced or
+    /// hyphenated, in digits or words: a game state by number (game state eight, game-state-17), a load station by number
+    /// (station 18, load-station zero, station-eighteen) and an area by number (area six, area-zero, area 2). The original
+    /// numbered its game states, each area's load stations and its areas; Core names the game state
+    /// (<c>SuperMetroidGameState</c>), the load station (the gunship, the Zebes arrival) and the area (Crateria, Ceres). A menu
+    /// index is <see cref="TablePositionProse"/>'s. English stays legal: a number that counts the noun after it (a station
+    /// two rooms away, an area two tiles wide), an area number past the game's eight areas (the area 450 to the right), and a
+    /// game state, station or area, or a room's or the beam's state by number.
+    /// </summary>
+    private static readonly Regex GameNumberProse = new(
+        @"\bgame[-\s]+states?[-\s]+" + NumberWord + @"\b" +
+        @"|\b(?:load[-\s]+)?stations?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\bareas?[-\s]+(?:zero|one|two|three|four|five|six|seven|[0-7])\b" + CountedNoun,
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A pose by the original's number in prose (#1769), outside hardware owners: a hexadecimal pose number, holding a
+    /// capital hexadecimal letter or a leading zero (pose A/B, poses 0A, pose number 02), a pose number written as a word
+    /// (pose two, Pose zero's transitions), and a transition between two such numbers (<c>A5 -> 02</c>). Core names the pose
+    /// (<c>FacingLeftNormalPose</c>, her standing pose); an encoding owner of pose numbers describes them. English stays
+    /// legal: a decimal ordinal of a family's own animation frames in digits (Pose 3 of the wave trail, poses 4 and 5 lower
+    /// the arm), a number that counts the noun after it (the pose two frames later), and a pose alone.
+    /// </summary>
+    private static readonly Regex PoseNumberProse = new(
+        @"\bposes?[-\s]+(?:numbers?[-\s]+)?(?-i:(?=[0-9]?[A-F])[0-9A-F]{1,2}|0[0-9])\b" +
+        @"|\bposes?[-\s]+(?:numbers?[-\s]+)?" + NumberWordsOnly + @"\b" + CountedNoun +
+        @"|(?-i:\b(?:[A-F][0-9A-F]|[0-9][A-F]|0[0-9])\s*(?:->|→)\s*(?:[A-F][0-9A-F]|[0-9][A-F]|0[0-9])\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A sound queue named for the original's per-call limit in prose (#1769), outside hardware owners: a "max-N" queue or
+    /// entry point (the max-fifteen sound queue), a limit of queued sounds (maximum six queued, at most six queued) and an
+    /// N-entry or N-request limit (a six-entry admission limit, the six-request limit, a six-entry queue limit). Core states
+    /// the request's <c>SoundRequestPriority</c> (normal, essential); the compatibility service that owns those priorities
+    /// describes the limits they reproduce. English stays legal: a maximum or a limit that names no queue position (the
+    /// maximum speed, at most three steps), and a queue alone.
+    /// </summary>
+    private static readonly Regex QueueLimitProse = new(
+        @"\bmax(?:imum)?-" + NumberWord + @"\b" +
+        @"|\b(?:max(?:imum)?|at\s+most)\s+" + NumberWord + @"\s+queued\b" +
+        @"|\b" + NumberWord + @"[-\s]+(?:requests?|entry|entries|sounds?)[-\s]+(?:(?:queue|admission)[-\s]+)?limits?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A sprite part's placement and colour data in prose (#1769), outside hardware owners: a palette run on to its stored
+    /// attribute value (<c>palette0800</c>), a hexadecimal value written with an <c>h</c> suffix (<c>X-10h</c>,
+    /// <c>Y-3Bh</c>), a part placed by its stored X or Y (one part, at X=508; Part j uses X=0) and the nine-bit X the
+    /// original stored a part's horizontal place in (masks X to nine bits, nine-bit X wrap). Core shows whole pictures at
+    /// places in pixels, in named colours. English stays legal: a position by X or Y that no part is placed by (the goop path
+    /// at X=-80, the ship parts slowing below Y=768), a palette or a part alone, and a word ending in h.
+    /// </summary>
+    private static readonly Regex SpritePartProse = new(
+        @"(?-i:\bpalette[0-9][0-9A-F]{1,3}\b)" +
+        @"|(?-i:\b[0-9][0-9A-F]*h\b)" +
+        @"|\bpart\b(?:[^.;!?]|\.\.+){0,80}?\b[XY]\s*=\s*-?[0-9]" +
+        @"|\b(?:nine|9)[-\s]+bits?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The numbers a game state, station or queue is cited by: digits, or a word from zero through ninety.</summary>
+    private const string NumberWord = @"(?:[0-9]+|" + NumberWordsOnly + ")";
+
+    /// <summary>The numbers zero through twenty and the tens through ninety, as words.</summary>
+    private const string NumberWordsOnly =
+        @"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen" +
+        @"|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)";
+
+    /// <summary>A number that counts the noun after it (two frames, six tiles, one or more), not one that names a thing.</summary>
+    private const string CountedNoun =
+        @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|calls?|tiles?|blocks?|rooms?|screens?" +
+        @"|units?|more|fewer|less|of|or\s+more|percent)\b)";
+
     /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
     private const string SignWord = @"(?<!\b(?:percent|plus|minus|equals?|dollar)[-\s]+)sign\b";
 
@@ -482,6 +565,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
             : CallStructureProse.Match(text) is { Success: true } call ? call.Value
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
+            : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : IsInHardwareOwner(owner) ? null
             : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
@@ -501,6 +585,10 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : DataEncodingProse.Match(text) is { Success: true } encoding ? encoding.Value
             : MachineNumberProse.Match(text) is { Success: true } number ? number.Value
             : TablePositionProse.Match(text) is { Success: true } tablePosition ? tablePosition.Value
+            : GameNumberProse.Match(text) is { Success: true } gameNumber ? gameNumber.Value
+            : PoseNumberProse.Match(text) is { Success: true } poseNumber ? poseNumber.Value
+            : QueueLimitProse.Match(text) is { Success: true } queueLimit ? queueLimit.Value
+            : SpritePartProse.Match(text) is { Success: true } spritePart ? spritePart.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

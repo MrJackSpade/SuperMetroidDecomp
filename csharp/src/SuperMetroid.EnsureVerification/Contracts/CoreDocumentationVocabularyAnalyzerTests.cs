@@ -404,5 +404,66 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect(CompatibilityService + "/// <summary>Evidence: the launch reads the sibling's enemy record.</summary>\n[CompatibilityService(\"sibling\")] class Sibling { }");
         Expect("class P { /// <summary>The drop-chance table indexed by the definition; the menu's index; an enemy's record of kills.</summary>\nint F => 0; }");
         Expect("class P { // the table and its index; the menu, the enemy and the record\n }");
+        // The original's numbered routine and variable labels are read in every type (#1769), in any case.
+        Expect("class P { // Func126 clears the colour effects\n }", "('Func126')");
+        Expect("class P { /// <summary>Func139–142: rotate the shot.</summary>\nint F => 0; }", "('Func139')");
+        Expect("class P { /// <summary>Func115 seeds var4 to 63.</summary>\nint F => 0; }", "('Func115')");
+        Expect("class P { // the countdown seeds VAR4\n }", "('VAR4')");
+        Expect("class P { string Name => \"func12 finished.\"; }", "('func12')");
+        Expect(CompatibilityService + "/// <summary>Evidence: Func120 clears the flash.</summary>\n[CompatibilityService(\"flash\")] class Flash { }",
+            "('Func120')");
+        // C#'s Func delegate and a var declaration carry no number.
+        Expect("class P { /// <summary>Takes a Func of the speed; var declarations stay; the variance holds.</summary>\nint F => 0; }");
+        // The original's game state, load station and area numbers outside hardware owners (#1769), spaced or hyphenated,
+        // in digits or words, in documentation, line comments and string literals.
+        Expect("class P { // so the game state remains, with game state eight\n }", "('game state eight')");
+        Expect("class P { // in this very same game-state-17 call\n }", "('game-state-17')");
+        Expect("class P { /// <summary>Changes load station 18 to the gunship.</summary>\nint F => 0; }", "('load station 18')");
+        Expect("class P { // selects Crateria station zero\n }", "('station zero')");
+        Expect("class P { // That is why the station-eighteen gunship can carry Samus\n }", "('station-eighteen')");
+        Expect("class P { /// <summary>Publishes area six for the new game.</summary>\nint F => 0; }", "('area six')");
+        Expect("class P { // Bomb Torizo's area-zero orb\n }", "('area-zero')");
+        Expect("class P { string Name => \"Areas 2 and 3 share it.\"; }", "('Areas 2')");
+        Expect("class P { /// <summary>Norfair (area two) uses 300 frames.</summary>\nint F => 0; }", "('area two')");
+        // A number that counts the noun after it, an area number past the game's eight areas, a room's or the beam's state by
+        // number, a game state, station or area alone, and a hardware owner's description are English.
+        Expect("class P { /// <summary>A save station two rooms away; an area two tiles wide; the area 450 to the right.</summary>\nint F => 0; }");
+        Expect("class P { // the room's state 2; the beam's state two; the game state and the station; the areas\n }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the game state eight check.</summary>\n[CompatibilityService(\"pause\")] class Pause { }");
+        // A pose by the original's number outside hardware owners (#1769): in hexadecimal, as a word, and a transition
+        // between two hexadecimal numbers.
+        Expect("class P { /// <summary>The fixed component turns at pose A/B.</summary>\nint F => 0; }", "('pose A')");
+        Expect("class P { // poses 0A and 0B share it\n }", "('poses 0A')");
+        Expect("class P { // the flashback locks Samus in pose two\n }", "('pose two')");
+        Expect("class P { /// <summary>Pose zero's transitions overlap.</summary>\nint F => 0; }", "('Pose zero')");
+        Expect("class P { // completes landing art's A5 -> 02 transition\n }", "('A5 -> 02')");
+        Expect("class P { string Name => \"Samus took pose number 1C.\"; }", "('pose number 1C')");
+        // A family's own frames by decimal ordinal, a count of the noun after a number, a pose alone, decimal arrows and an
+        // encoding owner of pose numbers are English.
+        Expect("class P { /// <summary>Pose 3 of the wave trail; poses 4 and 5 lower the arm; the pose two frames later.</summary>\nint F => 0; }");
+        Expect("class P { // the pose holds; 10 -> 20 pixels; a pose a frame\n }");
+        Expect(EncodingOwner + "[EncodingOwner(\"pose numbers\")] static class Poses { /// <summary>Pose A5 is the left landing.</summary>\nstatic int N => 0; }");
+        // A sound queue named for the original's per-call limit outside hardware owners (#1769).
+        Expect("class P { /// <summary>Queues the shot through the max-fifteen sound queue.</summary>\nint F => 0; }", "('max-fifteen')");
+        Expect("class P { // the roar's queue (maximum six queued)\n }", "('maximum six queued')");
+        Expect("class P { /// <summary>The cries' policy: at most six queued.</summary>\nint F => 0; }", "('at most six queued')");
+        Expect("class P { /// <summary>Queued with a six-entry admission limit.</summary>\nint F => 0; }", "('six-entry admission limit')");
+        Expect("class P { // queues the cursor sound with the six-request limit\n }", "('six-request limit')");
+        Expect("class P { string Name => \"Over the 15-entry queue limit.\"; }", "('15-entry queue limit')");
+        // A maximum or limit that names no queue position, a queue alone, and the compatibility service owning the
+        // priorities are English.
+        Expect("class P { /// <summary>The maximum speed; at most three steps; the queue and its limit; maximum-speed threshold.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the max-six queue admits at most six queued.</summary>\n[CompatibilityService(\"queue\")] class Queue { }");
+        // A sprite part's stored placement and colour data outside hardware owners (#1769).
+        Expect("class P { /// <summary>Its initializer colours it with palette0800.</summary>\nint F => 0; }", "('palette0800')");
+        Expect("class P { // the spawn indexes interleaved (X-10h,Y-3Bh) pairs\n }", "('10h')");
+        Expect("class P { /// <summary>Each record has one part, at X=508, Y=252.</summary>\nint F => 0; }", "('part, at X=5')");
+        Expect("class P { // Part j=0..3 uses X=0 for even j\n }", "('Part j=0..3 uses X=0')");
+        Expect("class P { /// <summary>Its motion masks X to nine bits.</summary>\nint F => 0; }", "('nine bits')");
+        Expect("class P { // with nine-bit X wrap\n }", "('nine-bit')");
+        // A position no part is placed by, a palette or a part alone, a word ending in h and a hardware owner are English.
+        Expect("class P { /// <summary>Starts the goop path at X=-80, Y=384; the ship parts slow below Y=768.</summary>\nint F => 0; }");
+        Expect("class P { // the palette and its part; each part's picture; the depth of 8 high; the 256th; the height\n }");
+        Expect(EncodingOwner + "[EncodingOwner(\"sprite parts\")] static class Parts { /// <summary>One part, at X=508, in palette0800.</summary>\nstatic int N => 0; }");
     }
 }

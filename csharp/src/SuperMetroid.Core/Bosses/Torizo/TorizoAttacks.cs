@@ -751,8 +751,8 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's area-zero orb and Golden Torizo's
-    /// nonzero-area orb; the loaded variant selects between them, the room-scoped equivalent of consulting the area.
+    /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's Crateria orb and Golden Torizo's
+    /// orb outside Crateria; the loaded variant selects between them, the room-scoped equivalent of consulting the area.
     /// </summary>
     internal void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
     {

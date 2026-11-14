@@ -588,7 +588,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay palette.</summary>
     internal void SetupMotherBrainFlashback()
     {
-        // The shared scene setup moves the persistent narration caret to Y=248.
+        // The shared scene setup places the persistent narration caret off screen.
         // It remains alive and will be restored by the next text-page setup. Starting the cross-fade turns the page,
         // which deletes the Japanese text's next-page arrow.
         Objects.PlaceCaretOffScreen();
@@ -651,8 +651,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // Transition completion selects the visible layers and clears English text cells 128..767 to the
-        // blank cell. The top/bottom ornamental rows survive because the loop starts at 128.
+        // Transition completion selects the visible layers and blanks the English narration text. The
+        // ornamental top and bottom rows survive.
         ClearVisibleNarrationText();
         StartFightLightsIfSamusDrawsFirst(flashbackSamusDisplay);
         Phase = IntroCinematicPhase.MotherBrainFlashback;
@@ -912,7 +912,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
 
         // The HUD and projectile step calls the shared cooldown owner before
-        // its ordinary-projectile half. Standing pose two cannot place bombs, but running
+        // its ordinary-projectile half. Standing facing left cannot place bombs, but running
         // the real owner is still required for missile admission timing.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
@@ -1000,7 +1000,7 @@ level, samus, frameCounter);
         // The pose animation's transition steps publish a prospective pose; they are not ordinary frame
         // delays. The intro-demo handler consumes that publication before the value following the step
         // can ever be misread as another animation duration. This completes landing art's
-        // A5 -> 02 transition instead of walking beyond its pose animation.
+        // transition from NormalLandingLeftPose to FacingLeftNormalPose instead of walking beyond its pose animation.
         bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
@@ -1053,14 +1053,14 @@ level, samus, frameCounter);
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
             throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
 
-        // The flashback's end locks Samus in pose two, reinitializes the pose/animation bookkeeping,
+        // The flashback's end locks Samus standing facing left, reinitializes the pose/animation bookkeeping,
         // disables demo publication, and then returns to the demo's animation. The next
         // step is the shared delete, so the object is removed in the same
         // handler call. Freezing input after the exact pose change gives the remaining Mother Brain explosion
         // frames what the original's separately dispatched state handlers give them.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
-        // A Samus already in pose two keeps her running animation.
+        // A Samus already standing facing left keeps her running animation.
         SamusPresentation.SetAnimationFrameIfPoseChanged(FlashbackSamus);
         FlashbackSamus.CommitPoseHistory();
         FlashbackDemoInput.Disable();
@@ -1186,7 +1186,7 @@ level, samus, frameCounter);
         // The caret's blank pose, shown while it blinks off, draws nothing.
         if (Objects.CaretPose is { } caretPose && caretPose != CinematicSpritePose.Blank)
         {
-            // The persistent caret begins at (8,24), moves to (8,248) during illustrated
+            // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
                 caretPose, objectSprites, Objects.Caret.ToSpritePosition(),

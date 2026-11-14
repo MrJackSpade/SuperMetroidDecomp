@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// This class deliberately models the game's menu steps and brightness transitions instead
 /// of replacing the screen with desktop widgets. Its pictures, starfield, text, palette,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
-/// validity and displayed energy/time are decoded from the redundant save
-/// checksum layout rather than from separately authored metadata.
+/// validity and displayed energy/time are read from the saves themselves
+/// rather than from separately authored metadata.
 /// </remarks>
 public sealed class FileSelectMenuState : IMenuFrontendScreen
 {
@@ -35,7 +35,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>Reads and mutates the checksummed three-slot save layout.</summary>
+    /// <summary>Reads and changes the three save slots.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, pictures, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
@@ -43,7 +43,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly ControllerInputState controller = new();
     /// <summary>Installed file-select artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
-    /// <summary>Decoded slots whose null entries failed or lacked save checksums.</summary>
+    /// <summary>Each slot's save; a null entry is an empty or invalid slot.</summary>
     private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot?> saveSlots = [];
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile = new();
@@ -97,7 +97,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public int SelectedSaveSlot =>
         SaveSlots.StoreNumber(FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot slot) ? slot : SaveSlot.C);
 
-    /// <summary>Whether the selected A-C slot passed either checksum directory.</summary>
+    /// <summary>Whether the selected A-C slot holds a valid save.</summary>
     public bool SelectedSlotContainsSave =>
         FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot slot) && saveSlots[slot] is not null;
 
@@ -159,7 +159,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.FadeIn:
-                // Index three.
                 screenFade.FadeIn(ref brightness);
                 if (brightness == ScreenBrightness.FullyLit)
                     Phase = FileSelectPhase.Main;
@@ -365,7 +364,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
             audio?.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
-            // The menu advances 27 places to index 31, which enables only the selected helmet.
+            // The menu moves on to the helmet turn, which turns only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
             Phase = FileSelectPhase.TurnSelectedHelmet;
@@ -558,7 +557,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         CopyArrowRotation = (CopyArrowRotation + 1) % FileCopyArrowDefinitions.RotationSteps;
     }
 
-    /// <summary>Accepts Yes or No and mutates the checksummed save file only after explicit Yes confirmation.</summary>
+    /// <summary>Accepts Yes or No and changes the saves only after explicit Yes confirmation.</summary>
     private void StepConfirmation(ControllerButton pressed, FileSelectDataMode mode)
     {
         if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
@@ -587,7 +586,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             saves.CopySlot(SaveSlots.StoreNumber(operationSourceSlot), SaveSlots.StoreNumber(copyTargetSlot));
             saveSlots[copyTargetSlot] = saves.ReadSlot(SaveSlots.StoreNumber(copyTargetSlot))
-                ?? throw new InvalidDataException("Copied save slot failed its copied checksums.");
+                ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
             ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
         }
@@ -654,7 +653,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         return presentation.CursorPosition(page, row);
     }
 
-    /// <summary>Queues the menu cursor sound with the six-request limit.</summary>
+    /// <summary>Queues the menu cursor sound at normal priority.</summary>
     private void QueueCursorSound() =>
         audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
 

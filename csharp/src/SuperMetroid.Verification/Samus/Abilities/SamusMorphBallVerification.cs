@@ -263,7 +263,7 @@ empty, samus, frameCounter: 1);
         opposedDirectionFall,
         controllerInput: (ControllerButton.Left | ControllerButton.Right),
         frameCounter: 0);
-    AssertEqual(boostedFall.Kinematics.Position.X.RawValue, opposedDirectionFall.Kinematics.Position.X.RawValue,
+    AssertEqual(boostedFall.Kinematics.Position.X, opposedDirectionFall.Kinematics.Position.X,
         "Left+Right falling ball follows its pose direction instead of cancelling motion");
     AssertEqual(boostedFall.HorizontalSpeed.BaseSpeed.RawValue,
         opposedDirectionFall.HorizontalSpeed.BaseSpeed.RawValue,

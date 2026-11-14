@@ -103,8 +103,8 @@ left unwrapped fails where it is stored instead of being truncated there.
   bits, fractions unchanged — the platform pushes into Samus's external displacement).
 - Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SignedSixteenSixteen)`.
 - Exact native construction: `FixedPosition.FromStoredParts/FromWhole`, `FixedVector.FromStoredParts`,
-  `FixedVector.FromWholePixels(Offset16)`, `FixedCoordinate.FromRaw/RawValue` for one unsigned
-  16.16 axis; `SignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
+  `FixedVector.FromWholePixels(Offset16)`; one unsigned 16.16 axis is built from its whole pixel and
+  fraction and never from one combined count (#1833); `SignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
   `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `FixedCoordinate.Of`, each checked against its word.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
   one word: `FixedCoordinate.WithWhole/WithFraction`, `SignedSixteenSixteen.WithWholePixels/WithFraction`,

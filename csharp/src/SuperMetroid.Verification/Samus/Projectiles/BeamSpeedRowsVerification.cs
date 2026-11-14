@@ -119,8 +119,8 @@ internal static class BeamSpeedRowsVerification
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Slots[0];
-                    x = unchecked((new FixedCoordinate(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)SixteenSixteen.FromEightEight(vx));
-                    y = unchecked((new FixedCoordinate(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)SixteenSixteen.FromEightEight(vy));
+                    x = unchecked(SixteenSixteenWords.Compose(fired.Position.X.Whole, fired.Position.X.Fraction) - (uint)SixteenSixteen.FromEightEight(vx));
+                    y = unchecked(SixteenSixteenWords.Compose(fired.Position.Y.Whole, fired.Position.Y.Fraction) - (uint)SixteenSixteen.FromEightEight(vy));
                 }
                 else
                 {
@@ -136,8 +136,8 @@ internal static class BeamSpeedRowsVerification
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration X across ignition and movement");
                 AssertEqual((short)vy, owner.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration Y across ignition and movement");
-                AssertEqual(x, new FixedCoordinate(owner.Position.X.Whole, owner.Position.X.Fraction).RawValue, "Missile X trajectory retains fixed-point carry");
-                AssertEqual(y, new FixedCoordinate(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
+                AssertEqual(SixteenSixteenWords.ToCoordinate(x), FixedCoordinate.Of(owner.Position.X.Whole, owner.Position.X.Fraction), "Missile X trajectory retains fixed-point carry");
+                AssertEqual(SixteenSixteenWords.ToCoordinate(y), FixedCoordinate.Of(owner.Position.Y.Whole, owner.Position.Y.Fraction), "Missile Y trajectory retains fixed-point carry");
             }
         }
         Console.WriteLine("Projectile motion definitions: 60 native acceleration words by direction, the Spazer/Plasma launch speeds, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");

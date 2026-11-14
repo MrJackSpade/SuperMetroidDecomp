@@ -58,7 +58,7 @@ internal static class NativeCaptureSeeds
         File.WriteAllText(Path.Combine(output, "seed.txt"), scenario.TakeoffSeed());
         var (rows, apex) = scenario.Jump();
         File.WriteAllLines(Path.Combine(output, "managed.csv"), rows);
-        Console.WriteLine($"{output}: room, takeoff seed and {rows.Count - 1} managed jump frames; apex={apex:X8}.");
+        Console.WriteLine($"{output}: room, takeoff seed and {rows.Count - 1} managed jump frames; apex={apex.Whole:X4}{apex.Fraction:X4}.");
         return 0;
     }
 }

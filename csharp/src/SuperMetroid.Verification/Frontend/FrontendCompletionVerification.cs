@@ -228,16 +228,16 @@ internal static void VerifyDoorOpeningTrajectories()
         // perpendicular axis must not start at the supplied post-nudge endpoint.
         AssertEqual(direction switch
         {
-            0 => 0x02aa4000u,
-            1 => 0x04a04000u,
-            _ => 0x03a54000u,
-        }, trajectory.SamusPosition.X.RawValue, $"door direction {direction} rebased initial Samus X");
+            0 => FixedCoordinate.Of(0x02aa, 0x4000),
+            1 => FixedCoordinate.Of(0x04a0, 0x4000),
+            _ => FixedCoordinate.Of(0x03a5, 0x4000),
+        }, trajectory.SamusPosition.X, $"door direction {direction} rebased initial Samus X");
         AssertEqual(direction switch
         {
-            2 => 0x01938000u,
-            3 => 0x036d8000u,
-            _ => 0x02738000u,
-        }, trajectory.SamusPosition.Y.RawValue, $"door direction {direction} rebased initial Samus Y");
+            2 => FixedCoordinate.Of(0x0193, 0x8000),
+            3 => FixedCoordinate.Of(0x036d, 0x8000),
+            _ => FixedCoordinate.Of(0x0273, 0x8000),
+        }, trajectory.SamusPosition.Y, $"door direction {direction} rebased initial Samus Y");
 
         int expectedFrames = direction switch
         {
@@ -289,8 +289,8 @@ internal static void VerifyDoorOpeningTrajectories()
                 $"door direction {direction} per-IRQ camera step");
             AssertEqual(layer2Step, trajectory.BackgroundPosition - previousLayer2,
                 $"door direction {direction} per-IRQ layer-two step");
-            uint expectedTravelRaw = unchecked((direction < 2 ? previousSamus.X : previousSamus.Y).RawValue + (uint)samusStepRaw);
-            AssertEqual(expectedTravelRaw, (direction < 2 ? trajectory.SamusPosition.X : trajectory.SamusPosition.Y).RawValue,
+            FixedCoordinate expectedTravel = SixteenSixteenWords.ToCoordinate(unchecked(SixteenSixteenWords.Compose(direction < 2 ? previousSamus.X : previousSamus.Y) + (uint)samusStepRaw));
+            AssertEqual(expectedTravel, direction < 2 ? trajectory.SamusPosition.X : trajectory.SamusPosition.Y,
                 $"door direction {direction} per-IRQ Samus 16.16 step with 32-bit wrap");
             AssertEqual(direction < 2 ? previousSamus.Y : previousSamus.X,
                 direction < 2 ? trajectory.SamusPosition.Y : trajectory.SamusPosition.X,

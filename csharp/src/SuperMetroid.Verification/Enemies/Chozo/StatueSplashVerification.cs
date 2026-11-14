@@ -60,14 +60,14 @@ internal static class StatueSplashVerification
                 {
                     var splash = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
-                    AssertEqual(FixedCoordinate.WholeOf(x), (splash ?? throw new InvalidOperationException("Verification requires splash.")).Position.X.Whole, "splash X follows native particle trajectory");
+                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x)), (splash ?? throw new InvalidOperationException("Verification requires splash.")).Position.X.Whole, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.Projectiles.EnemyProjectiles)
                         if (other != splash) other.Kind = 0;
                     int visibleFrames = 0;
-                    ushort splashX = FixedCoordinate.WholeOf(x);
+                    ushort splashX = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x));
                     for (int age = 0; age < 64 && splash.IsActive; age++)
                     {
                         var expectedOam = new OamBuffer();

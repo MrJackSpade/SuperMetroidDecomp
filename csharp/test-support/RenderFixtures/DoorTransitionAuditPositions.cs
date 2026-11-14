@@ -1,7 +1,7 @@
 namespace SuperMetroid.TestSupport.RenderFixtures;
 
 /// <summary>
-/// Named world positions used to put Samus immediately before a real cartridge doorway.
+/// Named whole-pixel world positions used to put Samus immediately before a real cartridge doorway.
 /// These positions replace only the controller approach; the production collision and door
 /// transition code still discover and execute the authored bank-$83 door record.
 /// </summary>
@@ -20,26 +20,26 @@ internal static class DoorTransitionAuditPositions
     public const ushort FirstMissileCameraY = Origin;
 
     /// <summary>Standing X immediately inside First Missile's right-hand door.</summary>
-    public const uint FirstMissileSamusXFixed = 0x00ed_0000;
+    public const ushort FirstMissileSamusX = 0x00ed;
 
     /// <summary>Standing Y on First Missile's authored door floor.</summary>
-    public const uint FirstMissileSamusYFixed = 0x008b_0000;
+    public const ushort FirstMissileSamusY = 0x008b;
 
     /// <summary>Lower viewport of the two-screen-tall Ceres magnet-stairs room.</summary>
     public const ushort CeresMagnetStairsCameraY = 0x0100;
 
     /// <summary>Standing X immediately inside a room's right-hand horizontal door.</summary>
-    public const uint RightDoorSamusXFixed = 0x00ed_0000;
+    public const ushort RightDoorSamusX = 0x00ed;
 
     /// <summary>Standing X immediately inside a two-screen room's right-hand horizontal door.</summary>
-    public const uint SecondScreenRightDoorSamusXFixed = 0x01ed_0000;
+    public const ushort SecondScreenRightDoorSamusX = 0x01ed;
 
     /// <summary>Standing X immediately inside a room's left-hand horizontal door.</summary>
-    public const uint LeftDoorSamusXFixed = 0x0014_0000;
+    public const ushort LeftDoorSamusX = 0x0014;
 
     /// <summary>Standing Y on the Ceres magnet-stairs room's lower door floor.</summary>
-    public const uint CeresMagnetStairsDoorSamusYFixed = 0x018b_0000;
+    public const ushort CeresMagnetStairsDoorSamusY = 0x018b;
 
     /// <summary>Standing Y on the single-screen Ceres corridor door floor.</summary>
-    public const uint CeresCorridorDoorSamusYFixed = 0x008b_0000;
+    public const ushort CeresCorridorDoorSamusY = 0x008b;
 }

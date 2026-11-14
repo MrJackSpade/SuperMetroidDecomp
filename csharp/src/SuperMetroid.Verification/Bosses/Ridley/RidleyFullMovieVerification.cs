@@ -508,12 +508,12 @@ internal static class RidleyFullMovieVerification
         runtime.Controller1.Latch(ControllerButton.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
-        AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
+        AssertEqual(FixedCoordinate.Of(0x004c, 0x4000), samus.Kinematics.Position.X, "spring release retains native final displacement");
         AssertEqual(SamusPoseId.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "spring release clears base momentum after movement");
         AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
-        AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "released spring ball stays stopped next update");
+        AssertEqual(FixedCoordinate.Of(0x004c, 0x4000), samus.Kinematics.Position.X, "released spring ball stays stopped next update");
         // Original source 1983: stationary Spring Ball keeps command six even
         // while the hurt mover calculates a fresh fractional base speed.
         samus.Pose = SamusPoseId.SpringBallGroundRightPose;
@@ -524,7 +524,7 @@ internal static class RidleyFullMovieVerification
         samus.InvincibilityTimer = WrappingCountdown.Start(95);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(5); samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
         runtime.StepFrame(0);
-        AssertEqual(0x00cb4000u, samus.Kinematics.Position.X.RawValue, "stationary spring hurt frame preserves native displacement");
+        AssertEqual(FixedCoordinate.Of(0x00cb, 0x4000), samus.Kinematics.Position.X, "stationary spring hurt frame preserves native displacement");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "stationary spring fallback clears hurt mover base speed");
         AssertEqual(SamusPoseId.SpringBallGroundRightPose, samus.Pose, "stationary spring hurt fallback keeps pose");
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
@@ -739,7 +739,7 @@ internal static class RidleyFullMovieVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
-        uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
+        FixedCoordinate xFixed = samus.Kinematics.Position.X, yFixed = samus.Kinematics.Position.Y;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
@@ -747,8 +747,8 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
         AssertEqual(0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");
-        AssertEqual(xFixed, samus.Kinematics.Position.X.RawValue, "entry keeps Samus X fixed");
-        AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "entry keeps Samus Y fixed");
+        AssertEqual(xFixed, samus.Kinematics.Position.X, "entry keeps Samus X fixed");
+        AssertEqual(yFixed, samus.Kinematics.Position.Y, "entry keeps Samus Y fixed");
         game.Step(0);
         AssertEqual(0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
@@ -793,19 +793,19 @@ internal static class RidleyFullMovieVerification
             AssertEqual((ushort)(0xa4f1 + index), runtime.Clock.Counter, "loading accepts one NMI per update");
             if (index == 5)
             {
-                AssertEqual(0x010e9000u, samus.Kinematics.Position.X.RawValue, "native placement rebases and advances Samus while loading tiles");
+                AssertEqual(FixedCoordinate.Of(0x010e, 0x9000), samus.Kinematics.Position.X, "native placement rebases and advances Samus while loading tiles");
                 AssertEqual((ushort)0x00f8, runtime.Room.LoadedCamera.PixelPosition.X, "first loading IRQ moves camera four pixels");
             }
             if (index == 4)
             {
-                AssertEqual(0x00135800u, samus.Kinematics.Position.X.RawValue, "native scrolling setup moves Samus before destination placement");
-                AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left scrolling setup preserves perpendicular coordinate");
+                AssertEqual(FixedCoordinate.Of(0x0013, 0x5800), samus.Kinematics.Position.X, "native scrolling setup moves Samus before destination placement");
+                AssertEqual(yFixed, samus.Kinematics.Position.Y, "left scrolling setup preserves perpendicular coordinate");
                 AssertEqual((ushort)0x00fc, runtime.Room.LoadedCamera.PixelPosition.X, "native setup camera origin");
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
-        AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
+        AssertEqual(FixedCoordinate.Of(0x010d, 0xc800), samus.Kinematics.Position.X, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual(0, runtime.Clock.ShortCounter, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToEquipmentWord());
         // The colours the frame shows, composed from the published shading and the import's colours (#1512).
@@ -824,12 +824,12 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.AlignSamusWithDoorway, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
         AssertEqual(0x3be0, GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
             "final scrolling update publishes native visor green before PLMs");
-        AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
+        AssertEqual(FixedCoordinate.Of(0x00de, 0x2000), samus.Kinematics.Position.X, "native source frame 276 scrolling endpoint");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.StepDestinationBlockAnimations, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
         AssertEqual(0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
-        AssertEqual(0x00d82000u, samus.Kinematics.Position.X.RawValue, "native final doorway alignment preserves original subposition");
-        AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left door endpoint preserves perpendicular coordinate");
+        AssertEqual(FixedCoordinate.Of(0x00d8, 0x2000), samus.Kinematics.Position.X, "native final doorway alignment preserves original subposition");
+        AssertEqual(yFixed, samus.Kinematics.Position.Y, "left door endpoint preserves perpendicular coordinate");
         game.Step(0);
         AssertEqual(0xc5b9, runtime.System.RandomNumber, "native animated-tile outer dispatch RNG");
         game.Step(0);

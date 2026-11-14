@@ -30,7 +30,7 @@ internal static class MotherBrainTubeDescentVerification
         {
             speed += 6;
             expectedPosition += (uint)SixteenSixteen.FromEightEight(speed);
-            ushort expectedY = FixedCoordinate.WholeOf(unchecked((int)expectedPosition));
+            ushort expectedY = (ushort)SixteenSixteenWords.WholeOf(expectedPosition);
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);
             AssertEqual(expectedY, tube.Position.Y.Whole, $"Tube native acceleration at frame {frame}");

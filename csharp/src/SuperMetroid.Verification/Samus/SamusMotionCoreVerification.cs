@@ -527,17 +527,17 @@ internal static void VerifySamusExtraDisplacement()
     };
     transition.Kinematics.Radius = new(5, 19);
     transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
-    uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
-    uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
+    FixedCoordinate transitionXBefore = transition.Kinematics.Position.X;
+    FixedCoordinate transitionYBefore = transition.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(
 
         level,
         transition,
         ControllerButton.A,
         frameCounter: 0);
-    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.Position.X.RawValue - transitionXBefore)),
+    AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xffff8000)), transition.Kinematics.Position.X - transitionXBefore,
         "jump transition applies signed external X with zero base speed");
-    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.Position.Y.RawValue - transitionYBefore)),
+    AssertEqual(SixteenSixteenWords.ToDisplacement(0x00014000), transition.Kinematics.Position.Y - transitionYBefore,
         "jump transition applies extra-only Y with positive bias");
 
     var rising = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -549,14 +549,14 @@ internal static void VerifySamusExtraDisplacement()
     rising.Kinematics.YDirection = SamusVerticalDirection.Up;
     rising.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
-    uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
+    FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(
 
         level,
         rising,
         ControllerButton.A,
         frameCounter: 0);
-    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.Position.Y.RawValue - risingYBefore)),
+    AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");

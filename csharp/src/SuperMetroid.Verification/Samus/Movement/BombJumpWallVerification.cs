@@ -30,7 +30,7 @@ internal static class BombJumpWallVerification
         SamusBombJumpMovement.Start(samus);
         var result = SamusBombJumpMovement.Step(level, samus, 0, RoomObjectFixtures.Unbound());
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
-        AssertTrue(samus.HorizontalSpeed.BaseSpeed.RawValue == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.RawValue:X8}, radius={samus.Kinematics.Radius.X})");
+        AssertTrue(samus.HorizontalSpeed.BaseSpeed.RawValue == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.Whole:X4}{samus.Kinematics.Position.X.Fraction:X4}, radius={samus.Kinematics.Radius.X})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.

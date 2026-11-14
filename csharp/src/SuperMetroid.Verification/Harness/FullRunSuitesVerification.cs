@@ -242,7 +242,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathVi
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassSuperMissileVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlitchMechanicsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainHeadHitboxVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainInheritedExplosionIndexVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathExplosionStartVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMissileWalkResetVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRainbowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRaiseCounterVerification;
@@ -586,6 +586,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
         new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
             SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
+        new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotReadsPassCamera),
+            SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotReadsPassCamera),
         new(nameof(SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
             SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
         new(nameof(SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),
@@ -1115,7 +1117,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset()),
         new(nameof(VerifyMotherBrainWalkCreditShared), () => VerifyMotherBrainWalkCreditShared()),
         new(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes()),
-        new(nameof(VerifyMotherBrainInheritedExplosionIndex), () => VerifyMotherBrainInheritedExplosionIndex()),
+        new(nameof(VerifyMotherBrainDeathExplosionStart), () => VerifyMotherBrainDeathExplosionStart()),
         new(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaftWall()),
         new(nameof(VerifyTourianFirstRoomGrantsAreaMap), () => VerifyTourianFirstRoomGrantsAreaMap()),
         new(nameof(VerifyEscapeAcidRise), () => VerifyEscapeAcidRise()),

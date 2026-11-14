@@ -154,15 +154,15 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Applies the Baby's frame increment after the Baby's fractional 768
-    /// counter overflows a whole unit. The comparison clamps at ten rather than wrapping.
+    /// Holds each step of the rainbow glow one call longer, as the Baby slows it each time its 768ths of a step add up
+    /// to a whole one; the hold stops at <paramref name="longestHold"/> rather than wrapping.
     /// </summary>
-    /// <param name="maximumFrame">The largest hold the cycle may reach; the Baby passes ten.</param>
-    public void IncrementRainbowPaletteFrame(int maximumFrame)
+    /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
+    public void HoldRainbowGlowLonger(int longestHold)
     {
-        // The frame never exceeds the caller's small maximum, so the increment cannot reach a wrap.
-        int incremented = SpecialPaletteFrame + 1;
-        SpecialPaletteFrame = incremented < maximumFrame ? incremented : maximumFrame;
+        // The hold never exceeds the caller's small maximum, so lengthening it cannot reach a wrap.
+        int lengthened = SpecialPaletteFrame + 1;
+        SpecialPaletteFrame = lengthened < longestHold ? lengthened : longestHold;
     }
 
     /// <summary>

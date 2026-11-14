@@ -173,8 +173,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
-    /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public int BodySubPhaseTimer { get; internal set; }
+    /// <summary>
+    /// Where her ascent's dust, her death explosions and the escape door's dust burst next (#1872): each effect continues
+    /// the place the one before it left. The phase-three sequence attached to the encounter shares it.
+    /// </summary>
+    public MotherBrainBurstCycle Bursts { get; } = new();
 
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
@@ -271,6 +274,8 @@ public sealed class MotherBrainEnemyState
         {
             // An attached sequence reads and writes the encounter's own walk credit.
             value?.ShareWalkCounter(Walk);
+            // Its death explosions and the escape door's dust continue the encounter's bursts (#1872).
+            value?.ShareBurstCycle(Bursts);
             field = value;
         }
     }

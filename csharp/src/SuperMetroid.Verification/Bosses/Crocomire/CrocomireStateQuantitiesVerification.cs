@@ -127,7 +127,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeSinkStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"{name}: ends on the native frame");
@@ -152,7 +152,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeRiseStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state, default);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");

@@ -267,7 +267,6 @@ internal sealed class MotherBrainRainbowAndDeath
             state.BrainMainShakeTimer = 50;
         }
         state.Form = sequence.State.Body.Form;
-        state.BodySubPhaseTimer = sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex;
         state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
         state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
         state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;

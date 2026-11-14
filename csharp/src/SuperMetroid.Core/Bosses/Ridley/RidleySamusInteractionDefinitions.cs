@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </remarks>
 internal static class RidleySamusInteractionDefinitions
 {
-    /// <summary>Separates movement handlers by Ridley's grab eligibility and release delay.</summary>
+    /// <summary>Separates Samus's movement owners by Ridley's grab eligibility and release delay.</summary>
     internal enum GrabPolicy
     {
-        /// <summary>Ridley's contact cannot start a grab in this movement handler.</summary>
+        /// <summary>Ridley's contact cannot start a grab under this movement owner.</summary>
         Immune,
         /// <summary>A non-ball grab uses the longer post-release intangibility interval.</summary>
         Ordinary,

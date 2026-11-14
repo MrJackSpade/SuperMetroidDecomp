@@ -14,7 +14,7 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Shared momentum initialization of the normal-jump and falling pose
     /// initializers. Base velocity survives; extra dash momentum
-    /// alone selects deceleration mode two instead of ordinary acceleration.
+    /// alone selects <see cref="SamusAccelerationMode.Decelerating"/> instead of ordinary acceleration.
     /// </summary>
     internal static void InitializeOrdinaryAerialAcceleration(SamusState samus)
     {
@@ -36,7 +36,7 @@ internal static class SamusAerialPoseTransitions
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
     /// The wall-jump tables use this very same route for their diagonal-aim
-    /// poses and gun-extended Shot poses; they do not have a separate wall-fire handler.
+    /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
     public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus, 
 
@@ -205,11 +205,11 @@ internal static class SamusAerialPoseTransitions
             return false;
         }
 
-        // The changed-pose collision resolves expansion before the pose change dispatches the final movement type.
+        // The changed-pose collision resolves expansion before the pose change runs the final movement type.
         // A crouch substitution never reaches the aerial-turn momentum initializer.
         SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         samus.Pose = selectedTurnPose;
-        // The changed-pose handler preserves the source radius until the next input phase.
+        // The changed-pose step preserves the source radius until the next input phase.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -218,7 +218,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the spin-jump initializer when spin/wall-jump input selects the opposite spin pose. A true
-    /// direction reversal folds extra speed into base speed and selects mode one, preserving
+    /// direction reversal folds extra speed into base speed and selects <see cref="SamusAccelerationMode.Turning"/>, preserving
     /// old-world direction while the newly facing pose decelerates.
     /// </summary>
     public static void ApplySpinJumpDirectionTransition(SamusState samus, SamusPoseId targetPose)
@@ -277,7 +277,7 @@ internal static class SamusAerialPoseTransitions
         ISamusRoomObjects? roomObjects = null)
     {
 
-        // Only the type-3 spin mover reaches the wall-jump check. The cached movement type, not the
+        // Only the spin-jumping mover reaches the wall-jump check. The cached movement type, not the
         // live pose, gates it: a drained pose stored without the pose initializer keeps
         // spinning and still wall-jumps.
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
@@ -302,7 +302,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         }
 
-        // Observes previous movement type three plus equipped Screw Attack and
+        // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
         // immediately reloads the normal suit palette before the wall jump starts. The desktop
         // runtime performs palette writes later in the frame, so preserve that phase split.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
@@ -406,7 +406,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             // Chooses from the complete twelve-entry dropped-pose table, whose
             // outputs are exactly the standing/aim/crouch set above. Other releases use
-            // separate grapple wall-jump or swing-release handlers, not this API.
+            // separate grapple wall-jump or swing-release movements, not this API.
             throw new InvalidOperationException(
                 $"Grapple drop transition {samus.Pose} -> {targetPose} is not a retail dropped-table route.");
         }
@@ -724,7 +724,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
 
-        // Full submersion returns before either equipment substitution or sound dispatch.
+        // Full submersion returns before either equipment substitution or the sound.
         // Gravity bypasses this test; water's disabled-physics option is handled by the
         // shared top-boundary query, including the water-before-lava precedence.
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) && samus.LiquidPhysics.IsTopBoundarySubmerged(samus))
@@ -795,7 +795,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies a shinespark windup's directional input-table match and installs its exact special
-    /// movement handler. No ordinary jump velocity or grounded momentum step runs.
+    /// movement owner. No ordinary jump velocity or grounded momentum step runs.
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
     {
@@ -844,7 +844,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or SamusPoseId.RunningAimUpLeftPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
-            // Turning-on-ground uses its own input handler, but a Jump
+            // Turning-on-ground uses its own pose input, but a Jump
             // transition still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
@@ -881,7 +881,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
             ? SelectEquippedSpinPose(samus, targetPose)
             : targetPose;
-        // Pose dispatch happens after movement. The next input phase, including
+        // The pose update happens after movement. The next input phase, including
         // the intro-demo input mode, owns publication of the new live radius.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(samus);
@@ -890,7 +890,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (controllerNewInput & ControllerButton.X) != ControllerButton.None)
         {
             // Runs only in the normal-jumping initializer. It reads the
-            // newly installed pose's direction and hands it to the weapon handler; spin-jump's separate
+            // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
             samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
         }
@@ -899,7 +899,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Runs the unconditional current-state epilogue clear that follows the
-    /// HUD/projectile handler. A failed cooldown/slot allocation must lose the bridge too;
+    /// HUD and projectile step. A failed cooldown/slot allocation must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
     public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;
@@ -933,8 +933,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Applies a same-facing input/fallback transition within normal-jump type two or
-    /// falling type six without replacing the live 1/65536-pixel velocities. The horizontal
+    /// Applies a same-facing input/fallback transition within <see cref="SamusMovementType.NormalJumping"/> or
+    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities. The horizontal
     /// gun-extended jumping and falling poses use this same initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>

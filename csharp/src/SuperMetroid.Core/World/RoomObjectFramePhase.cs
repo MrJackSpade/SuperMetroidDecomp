@@ -12,11 +12,11 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room-object phase of a gameplay frame and the door-transition room-object handler.
+/// The room-object phase of a gameplay frame and the room objects' step for a door transition.
 /// </summary>
 internal sealed class RoomObjectFramePhase
 {
-    /// <summary>Current and newly pressed buttons passed to room-object and message handlers.</summary>
+    /// <summary>Current and newly pressed buttons passed to the room objects and message boxes.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
@@ -34,7 +34,7 @@ internal sealed class RoomObjectFramePhase
     private readonly SamusSuitPickupState _suitPickup;
 
 
-    /// <summary>Binds the shared room-object handler to live runtime state and its presentation effects.</summary>
+    /// <summary>Binds the room objects' step to live runtime state and its presentation effects.</summary>
     internal RoomObjectFramePhase(RoomObjectFramePhaseDependencies dependencies)
     {
         _controller1 = dependencies.Controller1;
@@ -56,15 +56,15 @@ internal sealed class RoomObjectFramePhase
     /// door/elevator freeze flag is set. This call is the game's one exception: it
     /// advances the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>
-    internal void RunDoorTransitionObjectHandler(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void RunRoomObjectsForDoor(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        // The explicit transition-time call still enters the common handler,
-        // whose first step returns while the room-object handler is disabled.
-        // Indirect G-Mode deliberately carries that disabled flag across the door.
+        // The explicit transition-time call still enters the common room-object step,
+        // which returns at once while the X-ray suspends the room objects.
+        // Indirect G-Mode deliberately carries that suspension across the door.
         if (_player.Samus?.Xray.AreObjectsSuspended == true)
             return;
 
-        RunObjectHandlerCore(controllerNewInput: 0, roomObjects, bombProjectiles, room);
+        StepRoomObjects(controllerNewInput: 0, roomObjects, bombProjectiles, room);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
         // change publishes a player-facing event here, fail at the exact ownership
@@ -72,7 +72,7 @@ internal sealed class RoomObjectFramePhase
         if (roomObjects.CollectibleObjects.CollectiblePickupEvents.Count != 0 || roomObjects.Stations.StationActivationEvents.Count != 0)
         {
             throw new InvalidDataException(
-                "A door-transition room-object handler unexpectedly published a player interaction.");
+                "A door-transition room-object step unexpectedly published a player interaction.");
         }
         foreach (MotherBrainGlassProjectileRequest request in roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
@@ -81,16 +81,16 @@ internal sealed class RoomObjectFramePhase
     }
 
     /// <summary>
-    /// Runs the shared handler body used by ordinary gameplay and the explicit
+    /// Steps the room objects, for ordinary gameplay and for the explicit
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void RunObjectHandlerCore(ControllerButton controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    private void StepRoomObjects(ControllerButton controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
         {
             throw new InvalidOperationException(
-                "The room-object handler requires an active room, camera, and Samus.");
+                "The room objects' step requires an active room, camera, and Samus.");
         }
 
         roomObjects.Step(_room.LevelData, new RoomObjectFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive });
@@ -107,10 +107,10 @@ internal sealed class RoomObjectFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.AreObjectsSuspended)
         {
-            RunObjectHandlerCore(_controller1.NewlyPressed, roomObjects, bombProjectiles, room);
+            StepRoomObjects(_controller1.NewlyPressed, roomObjects, bombProjectiles, room);
 
             // Item room objects publish acquisition only after their trigger and
-            // handler pass. Apply their colour consequences at that same seam:
+            // step. Apply their colour consequences at that same seam:
             // beam pickups show the newly equipped combination's colours, and
             // suit changes defer their visible palette reveal until stage
             // three after the message. Resource tanks and other equipment bits are
@@ -184,7 +184,7 @@ internal sealed class RoomObjectFramePhase
                 {
                     throw new InvalidDataException(
                         "Multiple room objects attempted to open the synchronous message box " +
-                        "during one handler pass.");
+                        "during one room-object step.");
                 }
                 _messageBox.Begin(station.Message, _controller1.Current);
             }

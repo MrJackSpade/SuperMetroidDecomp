@@ -26,7 +26,7 @@ public sealed class HyperBeamColourEffectState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Per-object frame hold. Spawn initializes it to one; the handler
+    /// Per-object frame hold. Spawn initializes it to one; the effect
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
     public int FrameHold { get; private set; }
@@ -49,7 +49,7 @@ public sealed class HyperBeamColourEffectState
         Place = AnimationPlace.StartOfAnimation;
     }
 
-    /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>
+    /// <summary>Runs one step of the colour effect for the Hyper Beam object.</summary>
     public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);

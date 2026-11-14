@@ -72,7 +72,7 @@ internal sealed class CeresRidleyBabyScene
 
             case CeresBabyAction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
-                // the real retreat and disappears with Ridley at the status-one handoff.
+                // the real retreat and disappears with Ridley at the escape handoff.
                 state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyFeetAnchor);
                 return;
 

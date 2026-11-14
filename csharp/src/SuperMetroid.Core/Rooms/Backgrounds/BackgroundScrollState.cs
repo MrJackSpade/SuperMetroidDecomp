@@ -55,7 +55,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// Implements the two background position calculations made by each directional door
-    /// setup after the door installs the destination camera coordinates. Fixed mode one
+    /// setup after the door installs the destination camera coordinates. A fixed background
     /// deliberately retains its old background position, exactly like the game's early return.
     /// </summary>
     /// <param name="destination">The foreground destination published to <see cref="ForegroundPosition"/>.</param>
@@ -91,7 +91,7 @@ public sealed class BackgroundScrollState
     {
         ForegroundScroll = ForegroundPosition;
 
-        // Mode one means "do not scroll the background on this axis": the caller skips both the
+        // A fixed background means "do not scroll the background on this axis": the caller skips both the
         // background position write and the background's view.
         if (TryCalculateBackgroundPosition(ForegroundPosition.X, BackgroundScrollModes.Horizontal, out int backgroundX))
         {

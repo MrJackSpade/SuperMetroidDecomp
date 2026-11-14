@@ -45,7 +45,7 @@ public sealed class VerticalShutterEnemyState
     public int MovedDownRestTime { get; internal set; }
     /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
     public bool MovingSamus { get; internal set; }
-    /// <summary>One-shot reaction latch, initially clear and set by the first mode-3 reaction so later reactions cannot activate movement again.</summary>
+    /// <summary>One-shot reaction latch, initially clear and set by the first touch-triggered reaction so later reactions cannot activate movement again.</summary>
     public bool ShotActivated { get; internal set; }
     /// <summary>The shutter's whole-pixel position saved before its current move to derive the rider's wrapped vertical displacement.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }

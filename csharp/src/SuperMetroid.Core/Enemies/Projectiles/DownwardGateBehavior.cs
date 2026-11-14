@@ -106,7 +106,7 @@ internal sealed class DownwardGateBehavior
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
             // Steps the animation past its sleep, which wakes the next visual frame
-            // on this same projectile-handler pass.
+            // on this same enemy-projectile pass.
             ResumeDownwardGate(projectile);
             travelled = 0;
         }

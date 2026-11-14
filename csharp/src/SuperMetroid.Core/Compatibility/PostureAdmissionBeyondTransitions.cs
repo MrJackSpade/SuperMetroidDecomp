@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Whether the posture-transition weapon admission admits weapons for a pose outside the transition table (#1411, #1474).
 /// The admission reads one flag per pose, indexed by the pose's number from the table's first transition, so a pose
-/// outside the table reads the turning, posture, spin, held and X-ray handlers' code stored around it: a zero admits
+/// outside the table reads the turning, posture, spin, held and X-ray transitions' code stored around it: a zero admits
 /// weapons and anything else preserves the charge. The import pipeline decodes each such pose's answer once.
 /// </summary>
 /// <remarks>

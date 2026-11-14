@@ -163,7 +163,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
-    /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot handler reports death, before the
+    /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the
     /// common death animation releases the enemy slot.</remarks>
     internal EnemyShotReaction SkreeShotReaction => field ??= new()
     {

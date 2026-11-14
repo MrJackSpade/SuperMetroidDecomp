@@ -480,7 +480,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // locking the arena to the first screen.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
-        // The arena lock is the stationary lock: its alpha handler places
+        // The arena lock is the stationary lock: its input phase places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);

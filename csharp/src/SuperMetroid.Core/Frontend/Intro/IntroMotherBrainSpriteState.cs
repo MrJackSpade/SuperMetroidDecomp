@@ -93,7 +93,7 @@ internal sealed class IntroMotherBrainSpriteState
         explodingTimer++;
         if (explodingTimer >= 128)
         {
-            // The exploding behaviour starts the page-two animation. The generic handler below runs its page request and
+            // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // frame behaviour install during this same cinematic-object call.
             actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
             pageTwoAnimationStarted = true;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A station action/message request published by a room-object handler pass for the gameplay
+/// A station action/message request published by a room-object step for the gameplay
 /// frontend to consume. Save events retain the station identity needed to return
 /// confirmation or message-close results to the same resident room owner.
 /// </summary>

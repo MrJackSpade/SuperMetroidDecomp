@@ -163,7 +163,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
 
 
     /// <summary>
-    /// Executes the room-object handler with the frame boundary's newly pressed controller bits.
+    /// Steps the room objects with the frame boundary's newly pressed controller bits.
     /// Resident room objects such as the n00b tube consume edges, not held input.
     /// </summary>
     public void Step(RoomLevelData level, RoomObjectFrameInputs frame)

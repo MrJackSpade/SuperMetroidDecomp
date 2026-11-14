@@ -5,12 +5,12 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The bomb-jump movement handler.
+/// The bomb jump's movement.
 /// </summary>
 /// <remarks>
 /// A bomb explosion does not substitute a normal jump. Enemy collision first publishes direction
 /// left/straight/right from bomb-versus-Samus X, Samus's pose handling locks pose input, and this special
-/// handler owns only the rising part of the arc. Input returns shortly before the apex;
+/// movement owns only the rising part of the arc. Input returns shortly before the apex;
 /// normal movement returns on a direction cancellation, downward turn, or collision.
 /// The retained pose can be morphed, humanoid, or damaged rather than always a ball.
 /// </remarks>
@@ -34,7 +34,7 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(null);
     }
 
-    /// <summary>Runs one main-handler frame.</summary>
+    /// <summary>Runs one bomb-jump frame.</summary>
     internal static BombJumpMovementResult Step(
 
         RoomLevelData level,
@@ -47,7 +47,7 @@ public static class SamusBombJumpMovement
         Ensure.NotNull(samus);
         Ensure.NotNull(roomObjects);
         if (!samus.BombJumpActive)
-            throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
+            throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
         SamusBombJumpDirection direction = samus.BombJumpRequest.Direction;
         if (direction == SamusBombJumpDirection.None)
@@ -70,7 +70,7 @@ public static class SamusBombJumpMovement
         }
 
         // The jump turns a speed that passed zero into the falling direction. A diagonal jump
-        // additionally selects mode two so normal horizontal movement decelerates after
+        // additionally selects SamusAccelerationMode.Decelerating so normal horizontal movement decelerates after
         // the bomb jump hands her movement back to her pose.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
@@ -89,7 +89,7 @@ public static class SamusBombJumpMovement
         }
 
         // The game ends immediately once direction becomes down; it does not spend one
-        // special-handler frame moving by a zero/negative vertical magnitude.
+        // bomb-jump frame moving by a zero/negative vertical magnitude.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Down)
             return End(samus, null);
 
@@ -99,7 +99,7 @@ public static class SamusBombJumpMovement
             samus,
             frameCounter,
             roomObjects);
-        // The handler tests Samus's collision result after moving Y. That move
+        // The movement tests Samus's collision result after moving Y. That move
         // replaces the horizontal result, so a shaft wall alone must not cancel the
         // upward bomb arc or return control to ordinary Morph Ball movement early.
         if (vertical.Collided)
@@ -134,7 +134,7 @@ public static class SamusBombJumpMovement
         return new BombJumpRise(result, !displacement.IsNegative);
     }
 
-    /// <summary>Clears bomb-jump direction, handler, and pose-input latches before normal movement resumes.</summary>
+    /// <summary>Clears bomb-jump direction, movement, and pose-input latches before normal movement resumes.</summary>
     private static BombJumpMovementResult End(
         SamusState samus,
         BlockMoveResult? vertical)

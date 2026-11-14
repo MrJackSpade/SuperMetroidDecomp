@@ -166,16 +166,16 @@ internal sealed class EnemyFramePhase
                 if (result.Gunship == GunshipFrameEvent.EntryStarted)
                 {
                     // Making Samus face forward performs a direct suit-palette reload and the
-                    // ship explicitly clears elevator status after installing locked demo
-                    // handlers. The enemy system owns pose/motion; these two global values
+                    // ship explicitly clears elevator status after locking Samus's
+                    // control. The enemy system owns pose/motion; these two global values
                     // remain runtime-owned and are applied on its typed event boundary.
                     SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
                     room.Enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {
-                    // The gunship restores the ordinary Samus handler pair only after the
-                    // closing-pad hold. Enemy AI has already restored Samus's normal pair;
+                    // The gunship restores Samus's normal input and movement modes only after the
+                    // closing-pad hold. Enemy AI has already restored Samus's normal modes;
                     // publish the runtime's matching movement gate at the same boundary.
                     _player.GroundedSamusMovementEnabled = true;
                 }

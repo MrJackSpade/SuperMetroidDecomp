@@ -312,7 +312,7 @@ public sealed class RoomLevelData
         if (index >= doors.Count)
             throw new InvalidDataException($"Door index {index} is outside the room's {doors.Count}-entry door list.");
         DoorListEntry entry = doors[index];
-        // The door handler normally publishes either a real transition or the elevator-contact flag. The runtime
+        // The door reaction normally publishes either a real transition or the elevator-contact flag. The runtime
         // collapses the outer transition states into one room-load call, however, so destination-side elevator return
         // scans must inspect the same door block without republishing either side effect. Keep the door lookup and
         // solid/passable classification intact while gating only the writes.

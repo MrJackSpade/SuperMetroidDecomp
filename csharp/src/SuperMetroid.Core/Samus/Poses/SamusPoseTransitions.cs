@@ -66,7 +66,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Pose = targetPose;
         // The input phase publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
-        // The pose refresh dispatches the new falling movement type through the falling initializer
+        // The pose refresh runs the new falling movement type through the falling initializer
         // before the fall's start initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
@@ -81,7 +81,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     {
         // The falling pose selection indexes its pair with the pose's facing, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics facing; aim input is reconsidered
-        // by the next frame's input handler after this ordinary falling pose is installed.
+        // by the next frame's input phase after this ordinary falling pose is installed.
         return SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
     }
 
@@ -117,7 +117,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies a normal or spinning landing through the game's shared prospective-pose
-    /// collision handler before committing the taller landing body.
+    /// collision response before committing the taller landing body.
     /// </summary>
     /// <returns>
     /// True when the selected landing pose fit. False means the game's collision retained the
@@ -231,7 +231,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
-        // Installs the same one-shot input handler a turn animation's transition installs.
+        // Selects the same one-shot pose input a turn animation's transition installs.
         // Its short held-Jump window is evaluated in the next input phase, not during landing.
         if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -407,7 +407,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.SpinJumpRightPose) or
             // Terminate Crystal Flash finish art in a transition to normal standing.
-            // Its installed movement handler observes type zero on the following frame.
+            // Its movement owner observes SamusMovementType.Standing on the following frame.
             (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // All four drained release animations end in ordinary standing art.

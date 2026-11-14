@@ -135,7 +135,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
 
-        // Shitroid's private shot handler applies recoil but no health loss. The main AI
+        // Shitroid's own shot response applies recoil but no health loss. The main AI
         // redundantly restores its health every processed frame, exactly as the game does.
         slot.Health = RestoredHealth;
         RunShitroidState(slot, state, samus, camera, sharedProjectiles);
@@ -802,7 +802,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
     internal void ReactToShitroidBomb(EnemyBombContext c) =>
-        // The Baby's shot handler reads damage from the projectile that hit it, but recoils from Samus's first shot
+        // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
         ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots));

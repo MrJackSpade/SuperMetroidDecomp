@@ -62,7 +62,7 @@ internal sealed class BeamChargeState
         internal set => field = Ensure.BetweenInclusive(0, SamusChargePaletteDefinitions.ChargeSteps - 1, value);
     }
 
-    /// <summary>The most recent charged-shot palette sub-handler result, which survives room loads.</summary>
+    /// <summary>The most recent charged-shot colour step result, which survives room loads.</summary>
     internal SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; set; }
 
     /// <summary>

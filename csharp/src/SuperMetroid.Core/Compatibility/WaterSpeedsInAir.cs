@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// A rule with no state beyond the speeds it hands out, created with each Samus (<c>SamusCompatibility</c>) from her
 /// speed catalog and given to her horizontal speeds. Consulted during the update's movement pass, whenever a movement
-/// handler calculates her base horizontal speed for her movement while she moves by air's speeds. Evidence: the
+/// step calculates her base horizontal speed for her movement while she moves by air's speeds. Evidence: the
 /// original selects a movement's speeds by stepping from the start of the medium's speed list by the movement's number,
 /// with no bound, and the air list ends after the damage boost, so Draygon's hold and special movement read the first
 /// two entries of the water list stored after it; the indexed speeds check (<c>VerifySamusIndexedSpeeds</c>) compares

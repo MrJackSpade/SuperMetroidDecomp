@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
 /// The poses that no path of the game gives Samus (#1513, #1535). No pose-input list, no-input pose,
-/// animation transition, pose-table fallback, mirror, movement handler or outside write installs one of them,
+/// animation transition, pose-table fallback, mirror, movement owner or outside write installs one of them,
 /// so Samus never holds them and the body never draws them.
 /// </summary>
 /// <remarks>

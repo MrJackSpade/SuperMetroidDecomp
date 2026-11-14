@@ -119,7 +119,7 @@ public sealed class SamusBombProjectileSystem
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
-    /// Advances the Power Bomb explosion's shape independently of Samus's alpha/input handler.
+    /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
     /// Scripted carries suppress the input phase but do not stop the per-line effect phase.
     /// </summary>
     public void AdvancePowerBombExplosion(
@@ -129,7 +129,7 @@ public sealed class SamusBombProjectileSystem
     {
         Ensure.NotNull(samus);
         // Each update runs the per-line display effects before gameplay reaches Samus's
-        // frame handler. A power bomb spawned later by alpha consequently receives
+        // frame. A power bomb spawned later in her input phase consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
@@ -173,7 +173,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Runs the bombs' share of Samus's HUD handler, which the game runs before it handles any projectile: the shared
+    /// Runs the bombs' share of Samus's HUD item step, which the game runs before it handles any projectile: the shared
     /// cooldown, then the morph ball's bomb producer.
     /// </summary>
     /// <returns>Whether the producer consumed the beam charge.</returns>
@@ -181,7 +181,7 @@ public sealed class SamusBombProjectileSystem
     {
         Ensure.NotNull(samus);
 
-        // The cooldown runs before the movement-type-specific HUD handler. A value of one
+        // The cooldown runs before the movement type's own HUD step. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
@@ -265,7 +265,7 @@ public sealed class SamusBombProjectileSystem
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
         // bombs) and before the movement phase moves Samus. Store only the direction here. The
-        // same frame's hit-interruption phase can arm the bomb movement handler.
+        // same frame's hit-interruption phase can arm the bomb jump's movement.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
         SamusBombJumpDirection publishedDirection = overlap == BombJumpOverlapPublication.Deferred ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
@@ -472,7 +472,7 @@ public sealed class SamusBombProjectileSystem
         bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         if (!shootHeld)
         {
-            // The outer Morph-Ball handler cancels charge before testing HUD selection
+            // The outer Morph-Ball step cancels charge before testing HUD selection
             //. Releasing Shoot must also cancel with Power Bombs selected;
             // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
             return samus.BeamCharge.IsCharging
@@ -769,7 +769,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The power-bomb boundary traversal, shared by every frame behaviour that dispatches to it.
+    /// The power-bomb boundary traversal, shared by every frame behaviour that runs it.
     /// Coordinates and radius belong to the global explosion, not the calling slot.
     /// </summary>
     internal static void CollectPowerBombBoundaryReactions(
@@ -842,7 +842,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Resolves a bombed block through extension, item, door and special-block dispatch, including synchronous room-object changes.</summary>
+    /// <summary>Resolves a bombed block through extension, item, door and special-block reactions, including synchronous room-object changes.</summary>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -857,8 +857,8 @@ public sealed class SamusBombProjectileSystem
 
         // The block reactions do not react to an extension block directly. A nonzero signed
         // behaviour redirects the current block horizontally (a horizontal extension) or by whole room rows
-        // (a vertical extension), then the dispatch restarts so the resolved parent
-        // is dispatched again. A zero-behaviour extension is simply air for this reaction.
+        // (a vertical extension), then the reaction restarts so the resolved parent
+        // reacts again. A zero-behaviour extension is simply air for this reaction.
         RoomCollisionBlock block = visitedBlock;
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
@@ -873,7 +873,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot dispatch selects the temporary generic trigger room object for both solid-block collision and
+        // The shot reaction selects the temporary generic trigger room object for both solid-block collision and
         // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
         // projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
@@ -912,7 +912,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The bomb dispatch sends these types to reactions that only report pass or stop. They
+        // The bomb reaction sends these types to reactions that only report pass or stop. They
         // spawn no room object and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is
@@ -929,7 +929,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid handlers use the bomb-block reactions. An inert
+            // Both bombable-air and bombable-solid reactions use the bomb-block reactions. An inert
             // block returns early and therefore neither allocates a room object nor mutates terrain.
             if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;

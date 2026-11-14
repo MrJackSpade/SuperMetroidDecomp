@@ -258,7 +258,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseFightingMain(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The main fighting phase tests death before either sub-handler. It installs the
+        // The main fighting phase tests death before either the neck or the walking step. It installs the
         // death explosion/fade sequence without executing that phase's property
         // writes until the following body turn; no phase-two behavior leaks through.
         if (_state.BrainHealth == 0)
@@ -298,7 +298,7 @@ internal sealed class MotherBrainThirdPhaseFight
     internal bool RunThirdPhaseFightingAttackCooldown()
     {
         // The attack cooldown accepts timer zero and returns to main only after the timer passes zero. It
-        // does not fall through, so neck and walking handlers pause for all 65 calls.
+        // does not fall through, so the neck and walking steps pause for all 65 calls.
         if (--_state.PhaseTimer < 0)
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
         return false;

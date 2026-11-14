@@ -48,7 +48,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     {
         // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
         // low-energy floor. Equality counts as low and changes the body phase without falling into the stand-up
-        // handler on this call.
+        // step on this call.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp;

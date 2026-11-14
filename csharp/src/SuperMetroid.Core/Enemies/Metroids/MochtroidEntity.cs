@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>One Mochtroid occupant: its own AI handlers, with the shared reactions.</summary>
+/// <summary>One Mochtroid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Mochtroid species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>

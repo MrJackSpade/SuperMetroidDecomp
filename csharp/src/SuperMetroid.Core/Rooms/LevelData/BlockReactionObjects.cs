@@ -96,7 +96,7 @@ internal sealed class BlockReactionObjects
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
-    /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object handler
+    /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
     /// collision check independently returns solid for the triggering frame, so allocation success is not a
     /// collision-result substitute.
@@ -130,7 +130,7 @@ internal sealed class BlockReactionObjects
     /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
     /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
     /// live block air before the
-    /// room-object handler draws the first crumble frame. Rejected contact deletes the temporary
+    /// room objects' step draws the first crumble frame. Rejected contact deletes the temporary
     /// slot synchronously and remains solid in the caller.
     /// </remarks>
     /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>

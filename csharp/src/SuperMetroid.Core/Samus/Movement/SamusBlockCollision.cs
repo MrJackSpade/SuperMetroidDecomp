@@ -258,7 +258,7 @@ public static class SamusBlockCollision
                         // setup would normally reject contact falls through as air.
                         if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                             break;
-                        // Dispatches the speed-block entries through the speed-block
+                        // Runs the speed-block entries through the speed-block
                         // setup. A stage-four boost or directional shinespark clears
                         // collision synchronously, so this same horizontal scan continues
                         // through the newly non-solid cell.
@@ -390,7 +390,7 @@ public static class SamusBlockCollision
         SolidEnemyCollisionResult? enemyCollision = null;
 
         // Most callers enter through the upward or downward move and therefore probe the
-        // solid-enemy list before dispatching terrain. A few callers use
+        // solid-enemy list before reacting to terrain. A few callers use
         // the explicitly named entry without solid-enemy collision instead. Keep that
         // distinction as an argument at the shared collision seam; clearing the caller's
         // enemy snapshot would mutate unrelated gameplay state and would make the omission
@@ -461,7 +461,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// The vertical block scans (left to right) and the mirrored scan
-    /// (right to left): every block under the leading boundary, dispatched by collision type.
+    /// (right to left): every block under the leading boundary, each reacting by its collision type.
     /// A zero displacement scans downward from the current bottom boundary.
     /// </summary>
     private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalTerrainProbe move)
@@ -543,7 +543,7 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.DoorBlock:
-                    // Is the vertical twin of the handler above. Preserve
+                    // Is the vertical twin of the reaction above. Preserve
                     // its collision result here; the room-level owner publishes the same
                     // door entry for the frontend game-state loop to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
@@ -683,7 +683,7 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.BombableBlock:
-                    // Vertical dispatch shares the exact room-object
+                    // The vertical reaction shares the exact room-object
                     // setup and collision contract documented in the horizontal branch above.
                     if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                     {
@@ -767,7 +767,7 @@ public static class SamusBlockCollision
     private static void ActivateCollisionBombableAir(SamusTerrain terrain, RoomCollisionBlock block,
         SamusState? owner, bool explicitAdmission)
     {
-        // The game's horizontal/vertical air dispatch invokes the same setup as solid
+        // The game's horizontal and vertical air reactions invoke the same setup as solid
         // bomb blocks, but ignores its collision result. Rejection or exhausted actor slots
         // must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
@@ -777,7 +777,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// The bomb-block setup reads the live boost stage and pose for every scan that reaches it,
-    /// independently of the movement handler; this includes the observational wall-jump
+    /// independently of the movement owner; this includes the observational wall-jump
     /// probe. Explicit admissions remain for ownerless probes.
     /// </summary>
     private static bool CanBreakCollisionBombBlock(SamusState? owner, bool explicitAdmission) =>

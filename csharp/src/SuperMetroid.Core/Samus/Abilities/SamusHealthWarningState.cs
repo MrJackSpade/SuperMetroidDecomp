@@ -19,7 +19,7 @@ public sealed class SamusHealthWarningState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Executes one admitted check. The caller owns handler admission and ordering;
+    /// Executes one admitted check. The caller owns admission and ordering;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
     internal void Update(int health, GameplayAudioRequests audio)

@@ -9,7 +9,7 @@ public sealed record HorizontalBlockMove
     /// <summary>Explicit permission to break supported collision-bomb blocks in addition to pose and momentum checks.</summary>
     public bool CanBreakBombBlocks { get; init; } = false;
 
-    /// <summary>Whether horizontal door dispatch publishes the door transition's side effects rather than only resolving the destination.</summary>
+    /// <summary>Whether a horizontal door reaction publishes the door transition's side effects rather than only resolving the destination.</summary>
     public bool PublishDoorSideEffects { get; init; } = true;
 
     /// <summary>Enables post-move non-square slope alignment when the state's slope-enable bit permits it, and live movement inheritance publication.</summary>

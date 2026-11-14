@@ -489,7 +489,7 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
-            // A handler that reports the palette unhandled asks the outer game-state loop to load the
+            // A colour step that reports the colours unhandled asks the outer game-state loop to load the
             // complete normal suit palette, then clears every X-ray palette value.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             _colouring.Release(SamusSpecialPaletteType.Xray);
@@ -606,7 +606,7 @@ public sealed class SamusXrayState
     private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
         (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());
 
-    /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request and beam state, and ends an auto-cancelled selection.</summary>
+    /// <summary>Restores Samus' normal pose and input and movement modes, subsystem enables, palette request and beam state, and ends an auto-cancelled selection.</summary>
     private void Finish(SamusState samus)
     {
         // The X-ray teardown intentionally classifies a grounded turn as standing. Releasing
@@ -659,7 +659,7 @@ public sealed class SamusXrayState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Both branches of X-ray's frozen-time pose input publish history after
-        // initializing their pose; ordinary gameplay transition dispatch is bypassed.
+        // initializing their pose; the ordinary gameplay pose transitions are bypassed.
         samus.CommitPoseHistory();
     }
 

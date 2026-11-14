@@ -64,8 +64,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The escape door's explosion requested, if any.</summary>
     internal DustExplosionRequest? EscapeDoorExplosion { get; set; }
 
-    /// <summary>Whether enabling timer handling was requested.</summary>
-    internal bool TimerHandlingEnableRequested { get; set; }
+    /// <summary>Whether ending Samus's drained get-up was requested, because the escape countdown takes its place.</summary>
+    internal bool GetUpReleaseRequested { get; set; }
 
     /// <summary>Whether starting the escape timer was requested.</summary>
     internal bool MotherBrainEscapeTimerStartRequested { get; set; }
@@ -104,7 +104,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
             headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapeColourEffectRequests,
-            EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
+            EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, GetUpReleaseRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainDefeatRecordRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorObject, Earthquake, SamusProjectileCooldown);
 }

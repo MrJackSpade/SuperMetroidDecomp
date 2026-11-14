@@ -306,7 +306,7 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding)
             state.NextRainbowFrame = 0;
         ApplyMotherBrainBeamColours(state, current);
-        // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
+        // The brain's step runs after body AI. Its health check is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthPalette.Band(state.Head.Health));

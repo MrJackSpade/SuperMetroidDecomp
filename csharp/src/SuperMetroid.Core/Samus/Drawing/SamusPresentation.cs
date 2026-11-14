@@ -125,7 +125,7 @@ internal sealed class SamusPresentation
     {
         EnsureAnimationInitialized(samus);
 
-        // The animation pass dispatches the active room-FX animation handler before touching the
+        // The animation pass runs the active room effect's liquid step before touching the
         // frame timer. This also updates the remembered medium, which the next Space Jump gate
         // consumes independently of its current top-boundary submersion check.
         samus.LiquidPhysics.PrepareAnimationFrame(
@@ -318,7 +318,7 @@ internal sealed class SamusPresentation
                 break;
 
             default:
-                throw new InvalidOperationException($"Samus animation step {step} has no handler.");
+                throw new InvalidOperationException($"Samus animation step {step} has no playback.");
         }
 
         if (samus.AnimationStep is not SamusAnimationDelay selected)
@@ -414,9 +414,9 @@ internal sealed class SamusPresentation
 
         if (samus.HorizontalSpeed.SpeedEchoesDeparting)
         {
-            // The echo update walks slot one before slot zero. Movement is a draw-handler side
+            // The echo update walks slot one before slot zero. Movement is a drawing side
             // effect in the retail game, so do not advance it earlier in StepFrame: frames
-            // whose Samus draw handler is suppressed must also freeze these copies.
+            // whose drawing of Samus is suppressed must also freeze these copies.
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     slot: 1,
                     samus.Position.Whole))

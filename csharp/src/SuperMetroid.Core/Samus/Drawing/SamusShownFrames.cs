@@ -31,10 +31,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </para>
 /// <para>
 /// The paths that publish frames outside the animation are of two kinds. The authored paths are made for the poses they
-/// meet: the drained-Samus get-up handlers, the Hyper Beam acquisition's freeze, the rainbow stop, the drained landing and
+/// meet: the drained-Samus get-up, the Hyper Beam acquisition's freeze, the rainbow stop, the drained landing and
 /// the release on the drained crouches, and the wall contact that rewinds a spin pose. The frames they reach, with the
 /// frames the starts reach, are the pose's own animation, whose delays and holds are the pose's picture frames. The
-/// unauthored paths meet poses they are not made for: the unable-to-stand handler meeting the poses Samus takes after the
+/// unauthored paths meet poses they are not made for: the drained crouch, while she cannot stand, meeting the poses Samus takes after the
 /// Baby Metroid's drain ends, the Baby's freeze and rainbow stop meeting a Samus the drain has let go of, and the wall
 /// contact rewinding a drained pose that carries a spin's movement. The game draws their frames from the pose's tables
 /// past its own pictures, which show other poses' halves or nothing. A frame written with a timer of one just before the
@@ -201,7 +201,7 @@ internal sealed class SamusShownFrames
     /// delay, or a hold reached by advancing; the delays a cue there selects; or none where the animation fails or
     /// the pose ends. <paramref name="reach"/> says whether a cue selected the frame, which must then be a delay.
     /// </summary>
-    /// <exception cref="InvalidDataException">An animation holds a step its playback has no handler for.</exception>
+    /// <exception cref="InvalidDataException">An animation holds a step its playback cannot play.</exception>
     private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
     {
         SamusPoseAnimationStep? step = SamusAnimationDelays.TryStepFor(pose, frame, framesBeyondAnimation);
@@ -225,7 +225,7 @@ internal sealed class SamusShownFrames
             SamusAnimationInstallDrainedFall => InstallDrainedFall(pose, frame),
             SamusAnimationTransition or SamusAnimationTurnTransition or SamusAnimationItemTransition or
                 SamusAnimationItemAirborneTransition or SamusAnimationVerticalSpeedTransition => [],
-            _ => throw new InvalidDataException($"Samus animation step {step} has no handler."),
+            _ => throw new InvalidDataException($"Samus animation step {step} has no playback."),
         };
     }
 
@@ -249,10 +249,10 @@ internal sealed class SamusShownFrames
     {
         SortedSet<int> frames = shown[pose];
         var publications = new List<SamusPublishedFrame>();
-        // The able-to-stand handler moves the left-facing drained crouch to its stand-up on Up, just before the animation.
+        // Once she can stand, the drained get-up moves the left-facing drained crouch to its stand-up on Up, just before the animation.
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
             publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, PublishedFrameDrawing.AfterAdvancing));
-        // The unable-to-stand handler is installed with the left-facing drained crouch and moves it, on Up, to its failed
+        // While she cannot stand, the drained get-up starts with the left-facing drained crouch and moves it, on Up, to its failed
         // attempt to stand, just before the animation.
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && ShowsUnableToStandFrame(frames))
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
@@ -287,7 +287,7 @@ internal sealed class SamusShownFrames
     private List<SamusPublishedFrame> UnauthoredPublications(SamusPoseId pose)
     {
         var publications = new List<SamusPublishedFrame>();
-        // The unable-to-stand handler stays installed until Mother Brain dies and checks only the frame, so on Up it moves
+        // The drained get-up for when she cannot stand runs until Mother Brain dies and checks only the frame, so on Up it moves
         // whatever pose shows one of its frames, just before the animation: every pose Samus takes in the fight that follows.
         if (pose != SamusPoseId.DrainedCrouchingLeftPose && UnableToStandMeets(pose) && ShowsUnableToStandFrame(shown[pose]))
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
@@ -309,7 +309,7 @@ internal sealed class SamusShownFrames
         return publications;
     }
 
-    /// <summary>Whether <paramref name="frames"/> holds a frame from which the unable-to-stand handler accepts Up.</summary>
+    /// <summary>Whether <paramref name="frames"/> holds a frame from which the drained crouch accepts Up while she cannot stand.</summary>
     private static bool ShowsUnableToStandFrame(SortedSet<int> frames) =>
         frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
             SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0;
@@ -329,12 +329,12 @@ internal sealed class SamusShownFrames
         SamusPoseMetadata.IsDrainedPose(pose) ? InitializedMovementTypes : [SamusPoseMetadata.ReadMovementType(pose)];
 
     /// <summary>
-    /// Whether the unable-to-stand handler can meet <paramref name="pose"/>. Mother Brain installs it only with her rainbow
+    /// Whether the drained get-up for when she cannot stand can meet <paramref name="pose"/>. Mother Brain installs it only with her rainbow
     /// beam, which turns Samus to the left-facing knockback and lets her fall into the left-facing drained crouch that she
     /// is held in until the Baby Metroid stands her up and puts her crouching again, both facing left; so the right-facing
     /// drained poses never meet it. The fall initializes the crouch, so the standing pose the Baby writes keeps the
-    /// crouch's own movement: no wall contact rewinds it into the handler's frames. Once the Baby's drain ends, Samus
-    /// takes her ordinary poses for the rest of the fight, each of which the handler can meet.
+    /// crouch's own movement: no wall contact rewinds it into the get-up's frames. Once the Baby's drain ends, Samus
+    /// takes her ordinary poses for the rest of the fight, each of which the get-up can meet.
     /// </summary>
     private static bool UnableToStandMeets(SamusPoseId pose) =>
         pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose or

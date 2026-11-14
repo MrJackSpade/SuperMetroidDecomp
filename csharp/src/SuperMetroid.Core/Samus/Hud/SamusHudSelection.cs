@@ -16,7 +16,7 @@ internal static class SamusHudSelection
     /// skipping ammunition Samus has run out of and equipment she has not equipped. Y cancels back to the beam.
     /// Holding Y while pressing Select records the chosen item for auto-cancel.
     /// </remarks>
-    /// <returns>Whether an item's switched-to handler ran.</returns>
+    /// <returns>Whether a cancel or select edge took effect on the now-selected item.</returns>
     public static HudSelectionOutcome HandleHudSelection(SamusState samus,
         ControllerButton controllerInput,
         ControllerButton controllerNewInput,
@@ -25,7 +25,7 @@ internal static class SamusHudSelection
     {
         ControllerButton switchMask = itemSwitchButton;
         ControllerButton cancelMask = itemCancelButton;
-        bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != ControllerButton.None;
+        bool itemSelectionTookEffect = (controllerNewInput & (cancelMask | switchMask)) != ControllerButton.None;
 
         if ((controllerNewInput & cancelMask) != ControllerButton.None)
         {
@@ -47,7 +47,7 @@ internal static class SamusHudSelection
                 ? samus.SelectedHudItem
                 : HudItem.Beam;
         }
-        return new HudSelectionOutcome(itemHandlerAccepted);
+        return new HudSelectionOutcome(itemSelectionTookEffect);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ internal static class SamusHudSelection
         samus.AutoCancelledItem = HudItem.Beam;
     }
 
-    /// <summary>Applies the switched-to handlers' ammo and equipment admission rules.</summary>
+    /// <summary>Whether Samus can select <paramref name="item"/>: the ammunition she has left and the equipment she has equipped.</summary>
     private static bool IsHudItemAvailable(SamusState samus, HudItem item) => item switch
     {
         HudItem.Beam => true,

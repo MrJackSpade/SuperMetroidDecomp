@@ -127,7 +127,7 @@ internal sealed class RoomObjectPopulationLoader
         return slot;
     }
 
-    /// <summary>Dispatches room-population definitions to their family setup; returns false for an unsupported definition so loading can fail with record context.</summary>
+    /// <summary>Hands room-population definitions to their family setup; returns false for an unsupported definition so loading can fail with record context.</summary>
     private bool TryRunRoomPopulationSetup(
         RoomObjectRoom room,
         IAreaBossFlagReader bosses,

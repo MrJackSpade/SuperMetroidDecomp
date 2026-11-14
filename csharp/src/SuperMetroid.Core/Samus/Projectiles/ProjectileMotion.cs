@@ -73,7 +73,7 @@ internal sealed class ProjectileMotion
         if (collided)
             _terrainCollision.KillBeamOnBlockCollision(slot);
 
-        // The beam update checks the movement window after the direction handler even
+        // The beam update checks the movement window after the direction step even
         // when collision changed the beam into an explosion. KillBeam moves its
         // origin to the contact edge, which can put an otherwise retained shot
         // outside that window on this very frame.
@@ -215,7 +215,7 @@ internal sealed class ProjectileMotion
         if (collided)
             _terrainCollision.KillMissile(slot, sharedProjectiles);
 
-        // The missile direction handler may create an explosion just
+        // The missile direction step may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
         DeleteIfOutsideMovementWindow(slot, cameraPosition);
@@ -535,7 +535,7 @@ internal sealed class ProjectileMotion
         }
         return block.CollisionType switch
         {
-            // The point reaction dispatch treats these categories as transparent air.
+            // The point reaction treats these categories as transparent air.
             RoomCollisionType.Air or
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or

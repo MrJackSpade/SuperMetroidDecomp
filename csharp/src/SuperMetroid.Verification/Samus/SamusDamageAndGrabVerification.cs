@@ -765,16 +765,16 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "rejected cross-family Draygon input retains current pose");
 
-    DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
+    DraygonEscapeResult locked = samus.DraygonGrabbed.CheckDraygonEscape(
         samus, newlyPressedInput: 0, grappleLockedInPlace: true);
     AssertTrue(locked.SuppressProspectivePose, "locked grapple suppresses grabbed pose transition");
     AssertEqual(0, samus.DraygonGrabbed.EscapeButtonCounter, "no D-pad edge does not count");
 
-    samus.DraygonGrabbed.StepEscapeHandler(
+    samus.DraygonGrabbed.CheckDraygonEscape(
         samus, newlyPressedInput: ControllerButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "first Up edge increments escape counter");
-    DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.StepEscapeHandler(
+    DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.CheckDraygonEscape(
         samus, newlyPressedInput: ControllerButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
@@ -790,7 +790,7 @@ internal static void VerifySamusGrabbedByDraygon()
     for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
     {
         ControllerButton direction = (inputNumber & 1) != 0 ? ControllerButton.Down : ControllerButton.Up;
-        release = samus.DraygonGrabbed.StepEscapeHandler(
+        release = samus.DraygonGrabbed.CheckDraygonEscape(
             samus, direction, grappleLockedInPlace: false);
     }
     AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
@@ -832,7 +832,7 @@ internal static void VerifySamusGrabbedByDraygon()
     {
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
         samus.EscapeAndDrainCount.LeaveSuitPickupStage(countLeft);
-        DraygonEscapeResult counted = samus.DraygonGrabbed.StepEscapeHandler(samus, ControllerButton.Up, grappleLockedInPlace: false);
+        DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, ControllerButton.Up, grappleLockedInPlace: false);
         AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");
         AssertEqual(frees, counted.Released, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
         if (!frees)

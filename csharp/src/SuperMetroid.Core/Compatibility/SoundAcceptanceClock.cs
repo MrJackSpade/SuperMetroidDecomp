@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// for each it acts on the request it took at the previous check, reports that request back as acknowledged, and takes
 /// the game's current request; a request replaced before a check is never seen. The game's sound queues compare the
 /// acknowledgement with the request they are waiting on, so when a request is accepted changes which sounds play and
-/// when handlers move on to the next.
+/// when the queues move on to the next.
 /// </summary>
 /// <typeparam name="TLibrary">A sound library; the clock finds a library by equality and never reads its value.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for; the clock only compares requests.</typeparam>

@@ -66,7 +66,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Current pose sampled by collision. Door collision is mostly geometric,
-    /// but the elevator pseudo-door handlers admit only the forward-facing and standing poses
+    /// but the elevator pseudo-door reactions admit only the forward-facing and standing poses
     /// before publishing the elevator flags. Keeping that pose beside the geometry lets every shared block
     /// mover preserve the test without guessing which higher-level movement caller
     /// happened to reach it.
@@ -80,7 +80,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     /// <remarks>
     /// Movement owns this snapshot because every ordinary movement wrapper probes
-    /// solid/frozen enemies before dispatching to room blocks. Empty remains the
+    /// solid/frozen enemies before reacting to room blocks. Empty remains the
     /// correct default for rooms whose enemy actor loader has not run. Keeping the
     /// list explicit prevents decorative render sprites from accidentally becoming physics.
     /// </remarks>

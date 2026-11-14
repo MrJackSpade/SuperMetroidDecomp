@@ -148,7 +148,7 @@ internal sealed class EnemyProjectileEngine
                 if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))
                     continue;
 
-                // The collision handler only marks non-plasma shots spent. It does not call the
+                // The collision response only marks non-plasma shots spent. It does not call the
                 // ordinary enemy impact and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
                 // frame. Its own frame behaviour consumes the mark on the next projectile pass.

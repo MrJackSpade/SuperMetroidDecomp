@@ -14,7 +14,7 @@ internal static class SamusGroundedPoseTransitions
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
     /// released. The definition's fallback is left-facing crouching for all six poses,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
-    /// Because the pose changes, the prospective pose handler skips the stop; only the pose initializer runs.
+    /// Because the pose changes, the prospective pose's step skips the stop; only the pose initializer runs.
     /// </summary>
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
@@ -56,8 +56,8 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies a same-facing arm-body transition within the movement-type-zero standing
-    /// family and movement-type-one running family. Besides aimed bodies, this includes the
+    /// Applies a same-facing arm-body transition within the standing
+    /// family and the running family. Besides aimed bodies, this includes the
     /// real gun-extended running horizontal-fire poses.
     /// </summary>
     /// <remarks>
@@ -111,7 +111,7 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Sees previous movement type one and publishes 32768. The below-zero check
+        // Sees previous SamusMovementType.Running and publishes 32768. The below-zero check
         // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
         // running arm pose plays the same animation, so the cached animation is
         // already exact and must not be rebound or reset here.
@@ -153,8 +153,8 @@ internal static class SamusGroundedPoseTransitions
     /// Checks whether the prospective pose runs into a wall.
     /// </summary>
     /// <remarks>
-    /// A current type-one collision maps the current pose immediately. Otherwise, only a
-    /// prospective type-one pose is interesting: the game first probes solid enemies one pixel
+    /// A current running collision maps the current pose immediately. Otherwise, only a
+    /// prospective running pose is interesting: the game first probes solid enemies one pixel
     /// ahead in the CURRENT pose direction and maps the prospective pose without moving when
     /// one is hit. Otherwise it moves Samus that pixel, retains the move when clear, and maps
     /// the prospective pose's shot direction when a block stops it. The retained move is the
@@ -319,7 +319,7 @@ internal static class SamusGroundedPoseTransitions
     /// <summary>
     /// Applies the moonwalk turn when a stable moonwalk pose reverses while Jump is held.
     /// The six requested moonwalk turn-jump poses are not airborne yet: they retain the grounded
-    /// turn movement handler while their three visible frames play.
+    /// turn movement while their three visible frames play.
     /// </summary>
     public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
     {
@@ -367,7 +367,7 @@ internal static class SamusGroundedPoseTransitions
     /// This is intentionally not a general pose setter. For this transition, momentum
     /// index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
     /// already-supported default render/picture paths. Other transitions can change momentum,
-    /// align radii, invoke collision, or run specialized handlers and remain rejected.
+    /// align radii, invoke collision, or run specialized movement and remain rejected.
     /// </remarks>
     public static void ApplyStandingRightToRunningRight(SamusState samus)
     {
@@ -472,7 +472,7 @@ internal static class SamusGroundedPoseTransitions
 
         // Crouching transition tables publish the crouching turn directly, whereas every admitted
         // standing/running/landing table publishes the standing turn. The initializer still uses
-        // previous movement type five to choose the full crouched aim-preserving table.
+        // previous SamusMovementType.Crouching to choose the full crouched aim-preserving table.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
         bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;
@@ -519,7 +519,7 @@ internal static class SamusGroundedPoseTransitions
         }
 
         // Reads the PREVIOUS pose before it installs the final turn art.
-        // Previous movement type five selects the second shot-direction table; every other admitted source uses
+        // Previous SamusMovementType.Crouching selects the second shot-direction table; every other admitted source uses
         // the first. Both tables have ten entries, but shot directions four/five belong to
         // the compact straight-down family, which this transition does not handle.
         SamusPoseId selectedTurnPose;
@@ -583,8 +583,8 @@ internal static class SamusGroundedPoseTransitions
         // preserve exactly that pair of operations, including overflow past the whole pixels.
         speed.BaseSpeed += speed.ExtraRunSpeed;
 
-        // The handler consumes the extra component and selects acceleration mode
-        // one. The direction selector reads that mode as “move opposite the NEW facing direction”
+        // The transition consumes the extra component and selects
+        // SamusAccelerationMode.Turning. The direction selector reads that mode as “move opposite the NEW facing direction”
         // while the speed calculation decelerates, which is how reversal preserves old momentum.
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;
@@ -593,7 +593,7 @@ internal static class SamusGroundedPoseTransitions
 
         if (wasMoonwalking)
         {
-            // The handed shot makes the turning HUD handler treat the one-frame turning
+            // The handed shot makes the turning HUD step treat the one-frame turning
             // state as shooting. The beam producer later fires it in this source pose's
             // direction when a beam slot can actually be initialized.
             samus.PendingTransitionShot = new SamusTransitionShot(moonwalkSourceShotDirection);

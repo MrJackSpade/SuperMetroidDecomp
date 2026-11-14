@@ -72,7 +72,7 @@ public static class SamusInsideBlockReactions
                         QuicksandReactions.SurfacePhysics(
                             samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
                     // Indexes a four-entry table with the direction's low two bits;
-                    // its fourth entry repeats the grounded handler, but the vertical direction only ever
+                    // its fourth entry repeats the grounded reaction, but the vertical direction only ever
                     // holds the three defined directions.
                     switch (body.YDirection)
                     {

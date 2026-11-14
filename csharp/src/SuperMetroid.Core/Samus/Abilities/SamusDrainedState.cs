@@ -191,7 +191,7 @@ public sealed class SamusDrainedState
     /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
     /// value becomes the delay between steps through the glow's ten shades.
     /// </remarks>
-    /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
+    /// <returns>True when this state owned the current frame's Samus colours.</returns>
     public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);

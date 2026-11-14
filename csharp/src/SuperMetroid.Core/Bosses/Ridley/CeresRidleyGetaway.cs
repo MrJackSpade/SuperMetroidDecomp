@@ -84,14 +84,14 @@ internal sealed class CeresRidleyGetaway
     /// Runs the room's Ceres Ridley getaway cutscene while it is active.
     /// It runs after the
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
-    /// in which Ridley's escape handoff publishes Ceres status one.
+    /// in which Ridley's escape handoff publishes <see cref="CeresEscapeStatus.RidleyEscaped"/>.
     /// </summary>
     public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter)
     {
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped)
             return;
         RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
-            "Ceres status one requires the Ceres Ridley getaway state.");
+            $"Ceres status {nameof(CeresEscapeStatus.RidleyEscaped)} requires the Ceres Ridley getaway state.");
         if (state.GetawayFinished)
             return;
         TickCeresRidleyGetawayFloor(state, samus, frameCounter);
@@ -132,7 +132,7 @@ internal sealed class CeresRidleyGetaway
             state.FloorOffset = Offset16<FloorPixels>.Zero;
             state.FloorCenter = Position16<FloorPixels>.Zero;
             // The getaway's end hands the same extended actor workspace to the escape-text sequence. Samus's
-            // special push/fall handler remains responsible for restoring normal input;
+            // special push and fall movement remains responsible for restoring normal input;
             // ending the rotating view itself does not unlock her in the game.
             state.Phase = RidleyPhase.CeresActivateSelfDestruct;
             state.CeresSelfDestructPhase = CeresSelfDestructPhase.Start;

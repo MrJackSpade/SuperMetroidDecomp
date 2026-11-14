@@ -37,7 +37,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>
     /// Effect updates left before the light beam's stage step is installed.
-    /// The handler runs an object's frame behaviour before its animation; the animation's
+    /// The step runs an object's frame behaviour before its animation; the animation's
     /// first call ends on a one-frame table entry and its second installs the
     /// frame behaviour and sleeps, so the first stage runs on the third.
     /// </summary>

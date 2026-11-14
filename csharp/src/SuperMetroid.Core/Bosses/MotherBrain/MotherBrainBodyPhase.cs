@@ -170,11 +170,11 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinalBabyAttackHolding,
     /// <summary>Changes body form to 4, requests a fourteen-pixel backward target, and seeds the 32-count combat-setup wait.</summary>
     ThirdPhaseRecoverMakeSomeDistance,
-    /// <summary>When the timer passes zero, installs the normal neck and walking sub-handlers and immediately runs the first phase-three fighting call.</summary>
+    /// <summary>When the timer passes zero, installs the normal neck and walking steps and immediately runs the first phase-three fighting call.</summary>
     ThirdPhaseRecoverSetupForFighting,
     /// <summary>Checks head death before neck/walking work, then uses standing pose, attack admission, and sampled RNG to choose bombs or four onion rings.</summary>
     ThirdPhaseFightingMain,
-    /// <summary>Pauses the neck/walking sub-handlers for the 64-count timer through zero and resumes main fighting only after it passes zero.</summary>
+    /// <summary>Pauses the neck and walking steps for the 64-count timer through zero and resumes main fighting only after it passes zero.</summary>
     ThirdPhaseFightingAttackCooldown,
     /// <summary>Phase-three death/escape: moves to the back of the room.</summary>
     ThirdPhaseDeathMoveToBackOfRoom,

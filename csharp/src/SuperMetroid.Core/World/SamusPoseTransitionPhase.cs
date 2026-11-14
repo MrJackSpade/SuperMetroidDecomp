@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class SamusPoseTransitionPhase
 {
 
-    /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
+    /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
@@ -24,7 +24,7 @@ internal sealed class SamusPoseTransitionPhase
     private readonly FrameClock _clock;
     /// <summary>Supplies player options such as configured movement controls.</summary>
     private readonly GameplayOptions _options;
-    /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
+    /// <summary>Owns the live Samus state and the selection of her input and movement modes.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
@@ -41,7 +41,7 @@ internal sealed class SamusPoseTransitionPhase
         _room = dependencies.Room;
     }
 
-    /// <summary>Applies post-movement pose and animation transitions after the frame's selected Samus handler.</summary>
+    /// <summary>Applies post-movement pose and animation transitions after the frame's selected movement mode.</summary>
     internal void Apply(SamusControlFrame frame, SamusState samus, ISamusRoomObjects roomObjects)
     {
         if (!_player.GroundedSamusMovementEnabled ||
@@ -113,7 +113,7 @@ internal sealed class SamusPoseTransitionPhase
         // The grapple launch applies its transitional
         // slot early and clears the ordinary input phase's input. It still reaches this
         // same history epilogue, once, after the forced launch pose.
-        // X-ray's activation installs its pose and handlers early and clears
+        // X-ray's activation installs its pose and movement early and clears
         // the ordinary input phase's targets. Preserve its final history commit here.
         if (animationTransitionApplied || frame.XrayActivatedThisFrame || _player.LastGrappleMovement is { WallJumpStarted: true } ||
             _player.ProspectiveSamusPose is not null ||
@@ -126,7 +126,7 @@ internal sealed class SamusPoseTransitionPhase
     /// drop and release poses, the finished Shinespark crash, hurt expiry and a pending hit, a published bomb jump, the
     /// windup's launch pose, X-ray's activation and grapple's connection. Returns whether a transition has been applied.
     /// </summary>
-    [IndependentFlag("An earlier transition this frame and a pending hit expiry are independent pose-handler states.")]
+    [IndependentFlag("An earlier transition this frame and a pending hit expiry are independent pose-update states.")]
     private bool ApplyInterruptionTransitions(SamusControlFrame frame, SamusState samus, bool alreadyApplied,
         bool hitInterruptionExpiryPending, ISamusRoomObjects roomObjects)
     {
@@ -184,7 +184,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // The pose interruption runs after Samus's animation and before the pose update. Terrain
         // spike reactions only publish their damage request; this common interruption
-        // converts that request into the same hurt pose and special movement handler
+        // converts that request into the same hurt pose and knockback movement owner
         // used by every damage producer. The animation's pending transition pose retains
         // its higher pose-update priority and therefore suppresses this branch.
         if (!animationTransitionApplied &&
@@ -308,12 +308,12 @@ internal sealed class SamusPoseTransitionPhase
 
         // The wall-stop check runs inside the pose update after movement/animation and
         // only when no animation or interruption transition has already won. Its first
-        // branch consumes the X-speed-killed flag produced by CURRENT type-one
-        // running movement. This creates a wall-stop pose even with no input match.
+        // branch consumes the X-speed-killed flag produced by CURRENT
+        // SamusMovementType.Running movement. This creates a wall-stop pose even with no input match.
         // An unobstructed upward platform carry leaves the prospective input
         // pose intact too. Requiring a vertical collision here wrongly skipped
         // the one-pixel run check while a Kamer was carrying Samus upward.
-        // A special movement handler can also retain a standing/running pose
+        // A special movement owner can also retain a standing/running pose
         // (suit-interrupted windup). The wall-stop check does not require the normal grounded movement phase.
         if (!animationTransitionApplied &&
             _player.LastGroundedSamusMovement is not
@@ -366,11 +366,11 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Morph landing has its own prospective-pose and collision tables. A hard
-        // impact retains the falling morph ball poses and launches bounce one; the next collision
-        // launches bounce two; only a gentle/second-bounce collision installs
+        // impact retains the falling morph ball poses and launches the first bounce; the next collision
+        // launches the second bounce; only a gentle or second-bounce collision installs
         // the grounded morph ball poses. Treat every branch as a consumed transition so input
         // selected before collision cannot override the game's bounce result.
-        // The collision table ignores ground-family type four, even if hurt
+        // The collision table ignores the ground family's SamusMovementType.MorphBallGround, even if hurt
         // movement left that pose with nonzero Y speed. Do not infer an airborne
         // landing step from velocity alone.
         if (!animationTransitionApplied &&
@@ -391,8 +391,8 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // Spring Ball's three movement families share collision result three, but
-        // the Spring Ball handler makes held Jump an immediate relaunch and stores the jump intent
+        // Spring Ball's three movement families share one collision transition, but
+        // Spring Ball's movement makes held Jump an immediate relaunch and stores the jump intent
         // during automatic rebounds. Keep it distinct from ordinary-ball state.
         // The grounded Spring Ball movement type likewise has the table's no-transition entry.
         if (!animationTransitionApplied &&
@@ -436,13 +436,13 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // An unobstructed DOWNWARD grounding probe publishes result two. An
-        // unobstructed upward platform carry publishes result zero
-        // and must leave the pose alone; treating every non-collision as result two
+        // An unobstructed DOWNWARD grounding probe publishes SamusVerticalCollisionResult.Falling. An
+        // unobstructed upward platform carry publishes SamusVerticalCollisionResult.None
+        // and must leave the pose alone; treating every non-collision as falling
         // made rising Kamers repeatedly alternate falling and landing. For admitted
         // standing (including landing art), running, and stable crouching types,
-        // data zero
-        // selects airborne family zero and the falling check chooses falling art.
+        // the table's first entry
+        // selects the first airborne family and the falling check chooses falling art.
         // The ground and jumping turn types contain the no-pose-change entry in that literal table;
         // they finish their turn transition, then the destination pose detects the missing floor.
         if (!animationTransitionApplied &&
@@ -467,7 +467,7 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // Movement type four publishes the ordinary airborne morph ball poses when its
+        // SamusMovementType.MorphBallGround movement publishes the ordinary airborne morph ball poses when its
         // no-speed grounding probe finds no floor. The shared rolling animation is
         // preserved, while Y speed starts at zero/down exactly like the falling check.
         if (!animationTransitionApplied &&
@@ -604,7 +604,7 @@ internal sealed class SamusPoseTransitionPhase
                        target is SamusPoseId.SpringBallJumpRightPose or
                            SamusPoseId.SpringBallJumpLeftPose):
                 // These six poses all share one animation.
-                // The initializer preserves frame/timer and applies mode-one
+                // The initializer preserves frame/timer and applies turning
                 // reversal momentum only when direction actually changes.
                 SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, target);
                 return true;
@@ -799,7 +799,7 @@ internal sealed class SamusPoseTransitionPhase
                 // That table can interrupt the art with either same-facing
                 // spin or neutral jump. Preserve newly pressed Shoot as well:
                 // the normal-jump initializer owns the simultaneous
-                // Jump+Fire bridge when the selected body is type two.
+                // Jump+Fire bridge when the selected body is SamusMovementType.NormalJumping.
                 SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, 
                     targetPose,
                     _controller1.NewlyPressed);
@@ -848,7 +848,7 @@ internal sealed class SamusPoseTransitionPhase
                 // Route an animation/collision-selected falling body through
                 // ordinary expansion collision while preserving the fall.
                 // Posture transitions do not poll controller pose tables:
-                // the posture-transition movement type's input handler returns before lookup.
+                // the posture-transition movement type's input lookup returns at once.
                 SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus, 
 
                     _room.LevelData ?? throw new InvalidOperationException(
@@ -912,7 +912,7 @@ internal sealed class SamusPoseTransitionPhase
                          SamusPoseId.ShinesparkDiagonalRightPose or
                          SamusPoseId.ShinesparkDiagonalLeftPose:
                 // These are ordinary held/new input transitions, but
-                // their handler installs a special movement handler instead of
+                // their transition hands her movement to a special owner instead of
                 // invoking a normal movement-type initializer.
                 SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, 
                     targetPose);

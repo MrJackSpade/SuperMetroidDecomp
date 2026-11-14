@@ -25,11 +25,11 @@ public sealed class SamusReserveAutoRecoveryState
         if (samus.ReserveTankMode != ReserveTankMode.Auto || samus.ReserveEnergy == 0)
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
 
-        // The reserve-recovery lock conditionally installs the ordinary locked handler pair.
+        // The reserve-recovery lock conditionally locks Samus's input and movement.
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves Samus's animation running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this gameplay frame, the reserve-recovery
-        // lock replaces those handlers without ending the independently running cone effect.
+        // lock replaces those modes without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place.
         bool rainbowBeam = samus.Control.Mode.Movement == SamusMovementMode.RainbowBeam;
         if (!rainbowBeam)
@@ -72,7 +72,7 @@ public sealed class SamusReserveAutoRecoveryState
             // normal control. X-Ray phase five deliberately checks that flag and skips
             // cleanup when it is zero, which is the game's Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
-            // Restoring Samus's control reinstalls the ordinary input/movement handlers unless
+            // Restoring Samus's control restores her normal input and movement modes unless
             // Mother Brain's rainbow-beam pair holds them.
             if (samus.Control.Mode.Movement != SamusMovementMode.RainbowBeam)
                 samus.Control.Unlock();

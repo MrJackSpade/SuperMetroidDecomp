@@ -35,7 +35,7 @@ internal static class SamusPoseFamilyDefinitions
     ];
 
     /// <summary>
-    /// The posture-transition weapon handler's answer for each pose it does not read beyond its table for; every pose not
+    /// The posture-transition weapon admission's answer for each pose it does not read beyond its table for; every pose not
     /// listed is <see cref="SamusPostureTransitionAdmission.BeyondTable"/>.
     /// </summary>
     internal static readonly Dictionary<SamusPoseId, SamusPostureTransitionAdmission> PostureTransitionAdmissions = new()

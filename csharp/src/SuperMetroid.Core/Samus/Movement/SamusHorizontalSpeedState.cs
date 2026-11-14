@@ -32,7 +32,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Whether Samus has running momentum. Once dash begins, releasing Dash or leaving
-    /// movement type one retains the accumulated extra component until a specific cancel
+    /// <see cref="SamusMovementType.Running"/> movement retains the accumulated extra component until a specific cancel
     /// (standing, turning, collision, etc.) clears it.
     /// </summary>
     public bool HasRunningMomentum { get; set; }
@@ -141,7 +141,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement handler last chose it:
+    /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement last chose it:
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The value set is not a medium.</exception>
@@ -158,7 +158,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void SelectAirSpeeds() => SpeedMedium = SamusLiquidMedium.Air;
 
-    /// <summary>Has Samus move by the speeds of <paramref name="liquidMedium"/>, the medium her movement handler found her in.</summary>
+    /// <summary>Has Samus move by the speeds of <paramref name="liquidMedium"/>, the medium her movement found her in.</summary>
     /// <param name="liquidMedium">Air, water, or lava and acid.</param>
     public void SelectSpeedsFor(SamusLiquidMedium liquidMedium) => SpeedMedium = liquidMedium;
 
@@ -561,7 +561,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
-    /// posture, aerial, and Morph-Ball handlers. The seam first cancels Speed Booster
+    /// posture, aerial, and Morph-Ball movements. The seam first cancels Speed Booster
     /// bookkeeping/echoes, then clears the extra run speed, the base speed and the
     /// acceleration mode; keeping that ordering here prevents five copies from diverging.
     /// </summary>
@@ -708,7 +708,7 @@ public sealed class SamusHorizontalSpeedState
             BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);
 
             // The test reads only the whole pixels. Once deceleration crosses
-            // below zero it clears both halves and returns to acceleration mode zero.
+            // below zero it clears both halves and returns to SamusAccelerationMode.Accelerating.
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;
@@ -734,7 +734,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Calculates the horizontal base speed with deceleration disallowed.
     /// Despite the name, the turning acceleration mode still selects the
-    /// turning/deceleration branch; modes zero and two both accelerate toward the movement's
+    /// turning/deceleration branch; accelerating and decelerating both accelerate toward the movement's
     /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.
     /// </summary>

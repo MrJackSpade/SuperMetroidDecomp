@@ -27,7 +27,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool EscapeTypewriterSetupRequested,
     bool TimeBombSetSubtitleSpawnRequested,
     DustExplosionRequest? EscapeDoorExplosion,
-    bool TimerHandlingEnableRequested,
+    bool GetUpReleaseRequested,
     bool MotherBrainEscapeTimerStartRequested,
     bool MotherBrainDefeatRecordRequested,
     bool ZebesTimebombEventRequested,

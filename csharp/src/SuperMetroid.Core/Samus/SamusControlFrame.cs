@@ -20,7 +20,7 @@ internal sealed class SamusControlFrame
     /// <summary>The pose the input phase sampled before any movement.</summary>
     internal SamusPoseId PoseAtFrameStart { get; private set; }
 
-    /// <summary>The pose the movement phase dispatches on, which the enemy update can replace after the input phase.</summary>
+    /// <summary>The pose the movement phase moves Samus by, which the enemy update can replace after the input phase.</summary>
     internal SamusPoseId PoseAtMovement { get; private set; }
 
     /// <summary>The movement type of the pose at frame start.</summary>
@@ -95,7 +95,7 @@ internal sealed class SamusControlFrame
     /// <summary>Replaces the camera point's whole pixels with a grapple snap's corrected position, keeping its subpositions.</summary>
     internal void SnapCameraPoint(Position16<RoomPixels> whole) => PreviousCameraPoint = PreviousCameraPoint.WithWhole(whole);
 
-    /// <summary>Samples the pose the input phase dispatches on, which the movement phase also dispatches on until the enemy update replaces it.</summary>
+    /// <summary>Samples the pose the input phase reads, which the movement phase also moves her by until the enemy update replaces it.</summary>
     internal void SampleFrameStartPose(SamusPoseId pose)
     {
         PoseAtFrameStart = pose;
@@ -156,7 +156,7 @@ internal sealed class SamusControlFrame
     /// <summary>Records whether the grapple-release mover keeps the input phase's pending aim or turn transition.</summary>
     internal void SampleGrappleReleasePoseInput(bool accepts) => GrappleReleaseAcceptsPoseInput = accepts;
 
-    /// <summary>Samples the pose movement dispatches on.</summary>
+    /// <summary>Samples the pose movement moves Samus by.</summary>
     internal void SampleMovementPose(SamusPoseId pose) => PoseAtMovement = pose;
 
     /// <summary>Records whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>

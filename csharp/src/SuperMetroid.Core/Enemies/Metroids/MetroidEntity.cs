@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>One Metroid occupant: its own AI handlers and reactions, with the shared ones its definition names.</summary>
+/// <summary>One Metroid occupant: its own AI and reactions, with the shared ones its definition names.</summary>
 /// <param name="species">The Metroid species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted at the start of every update, before the music processing and the frontend's random draw, with whether the
 /// current state's step is waiting out a frame of the display. Evidence: the original main loop (<c>$82:8948</c>) runs
 /// the music queue, draws its random number (<c>$82:894F</c>) and then calls the game state, which runs the sound
-/// handlers after it returns; a game-state routine that waits for the next frame inside itself (<c>$80:8338</c>)
+/// queues' passes after it returns; a game-state routine that waits for the next frame inside itself (<c>$80:8338</c>)
 /// continues there on that frame without a pass of the loop. The save-load random audit compares the random number on
 /// each such update.
 /// </remarks>

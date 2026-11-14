@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
-/// The caller must first dispatch any nonzero super-special palette flag, just as the
-/// game's suit colouring does. Runtime satisfies that contract by allowing the drained/rainbow
-/// handler to return before this step. All remaining special palettes run earlier and
+/// The caller must first run any nonzero super-special palette flag, just as the
+/// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
+/// colouring to return before this step. All remaining special palettes run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
 /// Crystal Flash, and X-ray colors during its first six calls.
 /// </remarks>
@@ -47,8 +47,8 @@ public static class SamusHurtFlashPalette
 
 
         // The hurt flash plays the impact sound exactly on call two. Cinematics and the
-        // Mother-Brain drained knockback handler are the two exceptions; the latter is
-        // identified by the same explicit phase/pose pair that replaces its handler.
+        // Mother-Brain drained knockback are the two exceptions; the latter is
+        // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == 2 &&
             !samus.LiquidPhysics.CinematicActive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
@@ -145,7 +145,7 @@ public static class SamusHurtFlashPalette
 
         // The grapple-phase comparison accepts firing, swinging, locked,
         // wall-grab, and wall-grab-release phases. Cancel and all later teardown/drop
-        // handlers intentionally leave grapple audio silent.
+        // phases intentionally leave grapple audio silent.
         bool grappleSoundActive = samus.Grapple.Phase is
             GrapplePhase.Firing or
             GrapplePhase.ConnectedSwinging or

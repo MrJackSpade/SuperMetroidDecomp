@@ -578,7 +578,7 @@ public static class SamusGrappleSwing
         SpikeReaction? reaction,
         SwingSpikeBlock block)
     {
-        // Both handlers return immediately while the invincibility timer is nonzero. This shared guard is observable
+        // Both steps return immediately while the invincibility timer is nonzero. This shared guard is observable
         // because one sweep can sample the same damaging block up to six times, yet only its first sample may publish
         // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
         if (!samus.InvincibilityTimer.IsZero)

@@ -78,7 +78,7 @@ public static class SamusSlopePhysics
         bool adjusted = false;
 
         // First probes the center-X block containing Samus's bottom pixel. Only
-        // type 1, shapes >=5, and the behaviour's ceiling bit clear participate as floor slopes.
+        // slope blocks, shapes >=5, and the behaviour's ceiling bit clear participate as floor slopes.
         int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&

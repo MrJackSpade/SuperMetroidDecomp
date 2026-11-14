@@ -31,7 +31,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Angular-physics coefficients embedded in behavior.</summary>
     public static class Physics
     {
-        /// <summary>Firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
+        /// <summary>Firing's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
         public const int InitialConnectionRetraction = -8;
         /// <summary>How far the rope grows each update while the beam is fired.</summary>
         public const int FiringExtension = 12;

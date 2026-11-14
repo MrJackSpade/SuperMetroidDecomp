@@ -54,10 +54,10 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The room flash's current frame (#641), or null while no flash runs. Its timer counts upward, unlike enemy
-    /// animation frame holds, because the room-flash handler compares elapsed frames with each duration.
+    /// animation frame holds, because the room flash's step compares elapsed frames with each duration.
     /// </summary>
     public int? RoomFlashFrame { get; internal set; }
-    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room-flash handler and reset when the frame changes; never above the frame's two-update duration.</summary>
+    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room flash's step and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
     /// <summary>The brain's tube-collapse step and its independent countdown.</summary>

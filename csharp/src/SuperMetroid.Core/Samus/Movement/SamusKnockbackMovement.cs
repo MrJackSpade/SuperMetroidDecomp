@@ -416,7 +416,7 @@ level, targetPose, frameCounter, roomObjects))
         // Calls the exact same vertical step as ordinary aerial
         // movement, so reuse that owner instead of maintaining a subtly narrower
         // copy. The retail Rinka timer expires while Samus is still rising; her reported
-        // midair hang came from failing to dispatch ordinary falling after that expiry, not
+        // midair hang came from failing to run ordinary falling after that expiry, not
         // from this calculation. Sharing the step still preserves the real direction-
         // reversal behavior for any longer knockback stimulus without inventing a new path.
         return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out _);

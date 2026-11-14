@@ -83,7 +83,7 @@ internal sealed class BeamFiring
         const ControllerButton shoot = ControllerButton.X;
         _charge.PreviousCharge = _charge.Level;
 
-        // The fire handler gives the Hyper flag priority over Charge equipment. It still uses
+        // Firing gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
         // desktop-held button from allocating more frequently than the game.
         if (samus.HyperBeamEnabled)
@@ -114,7 +114,7 @@ internal sealed class BeamFiring
 
         if (samus.PendingTransitionShot is not null)
         {
-            // The charge handler forces release before testing held Shoot. This is why a
+            // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
@@ -133,7 +133,7 @@ internal sealed class BeamFiring
 
         if (held)
         {
-            // The charge handler increments through 120 and fires one ordinary shot on the first
+            // Charging increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
@@ -165,7 +165,7 @@ internal sealed class BeamFiring
             {
                 // The game tries the special beam attack only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
-                // failed family dispatch leaves charge intact, including its ammo debit.
+                // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -512,7 +512,7 @@ internal sealed class BeamFiring
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        // The muzzle origin uses the running/moonwalk origin table for movement type one and for
+        // The muzzle origin uses the running/moonwalk origin table for SamusMovementType.Running and for
         // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted by the footstep sound during Samus's animation, by her body's draw, and by the jump pose transition and the
-/// shinespark windup it starts. Evidence: Crystal Flash's palette handler keeps its bubble countdown, and at its finish
+/// shinespark windup it starts. Evidence: Crystal Flash's colour step keeps its bubble countdown, and at its finish
 /// the request to restore the beams' colours, in the timer the stored shine counts down, and the countdown is reloaded
 /// on reaching zero, so the timer never reads zero while the handler is installed; the footstep, draw and jump tests
 /// read that timer without testing which handler owns it.

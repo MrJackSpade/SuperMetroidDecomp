@@ -92,7 +92,7 @@ public sealed class HudState
         values = HudSnapshot.Of(samus);
 
         // Selecting an item publishes the item-select sound. This belongs in the live HUD update rather than the input
-        // handler: the game suppresses the sound (but not the visual change) while spinning, wall-jumping, grappling, or
+        // phase: the game suppresses the sound (but not the visual change) while spinning, wall-jumping, grappling, or
         // time is frozen.
         if (samus.SelectedHudItem != PreviousSelectedItem)
         {

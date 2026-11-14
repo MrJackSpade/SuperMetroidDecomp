@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A beam frame behaviour the fire handlers select by charge state and beams, including what the Spazer and Plasma
+/// A beam frame behaviour firing selects by charge state and beams, including what the Spazer and Plasma
 /// combinations run (<see cref="UnauthoredBeamFrameBehaviors{TBeams, TBehavior}"/>).
 /// </summary>
 internal enum SamusBeamFrameBehaviorChoice

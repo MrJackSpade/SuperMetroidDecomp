@@ -43,7 +43,7 @@ internal static class EscapeRunningFootstepsVerification
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer;
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
-            AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
+            AssertTrue(request.GetUpReleaseRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
             // The death step's requests are applied in Mother Brain's room, whose PLMs, FX and enemies the room load owns.
             var runtime = CreateRetailRuntimeFixture();

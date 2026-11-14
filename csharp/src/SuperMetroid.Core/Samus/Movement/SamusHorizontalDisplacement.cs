@@ -26,8 +26,8 @@ public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen D
     }
 
     /// <summary>
-    /// The game's calculator choice: acceleration modes zero and two follow the pose's
-    /// X direction; any other value (normally mode one, turning) reverses it. The game
+    /// The game's calculator choice: accelerating and decelerating follow the pose's
+    /// X direction; turning reverses it. The game
     /// compares rather than validating the mode, so every value is handled this way.
     /// </summary>
     public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, UnsignedSixteenSixteen baseSpeed)

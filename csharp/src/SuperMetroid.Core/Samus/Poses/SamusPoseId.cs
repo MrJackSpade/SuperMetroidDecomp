@@ -12,8 +12,8 @@ public enum SamusPoseId
     ForwardFacingPowerSuitPose,
 
     /// <summary>
-    /// The Varia/Gravity-suit counterpart of <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/>. Both use movement type
-    /// zero, but only the power-suit pose needs the draw's extra chest-cover sprite.
+    /// The Varia/Gravity-suit counterpart of <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/>. Both use
+    /// <see cref="Movement.SamusMovementType.Standing"/> movement, but only the power-suit pose needs the draw's extra chest-cover sprite.
     /// </summary>
     ForwardFacingSuitedPose,
 
@@ -30,7 +30,7 @@ public enum SamusPoseId
     MovingLeftNormalPose,
 
     /// <summary>
-    /// This pose is the right-moving horizontal-fire body. It is a genuine movement-type-one
+    /// This pose is the right-moving horizontal-fire body. It is a genuine running
     /// pose, shares the ordinary ten-frame running delay stream, and is selected when Shot
     /// remains held with Right after the projectile direction has been established.
     /// </summary>

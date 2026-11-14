@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// What one room-object handler pass reaches: the room-object owners, the room and the frame's inputs. Family steps, per-frame steps and
+/// What one room-object step reaches: the room-object owners, the room and the frame's inputs. Family steps, per-frame steps and
 /// room-object behaviours all run against it.
 /// </summary>
 /// <param name="RoomObjects">The room's room-object owners.</param>

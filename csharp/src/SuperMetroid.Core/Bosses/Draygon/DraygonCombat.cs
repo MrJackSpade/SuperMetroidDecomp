@@ -152,7 +152,7 @@ internal sealed class DraygonCombat
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an
-        // unrelated movement handler. In particular, this can interrupt a shinespark.
+        // unrelated movement owner. In particular, this can interrupt a shinespark.
         // The caller then clears Samus's grapple flags, including the owner-release signal.
         if (samus is not null)
         {

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>One Ki-Hunter occupant: its own AI handlers, with the shared reactions.</summary>
+/// <summary>One Ki-Hunter occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Ki-Hunter species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>

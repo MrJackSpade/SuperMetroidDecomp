@@ -3,8 +3,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// A shot a pose transition hands to the next update's weapon handler (#1470). Its presence admits the turning
-/// weapon handler and forces a held charge to release; the shot then leaves in its own direction rather than the
+/// A shot a pose transition hands to the next update's weapon firing (#1470). Its presence admits the turning
+/// weapon firing and forces a held charge to release; the shot then leaves in its own direction rather than the
 /// direction of the pose Samus is in by then.
 /// </summary>
 public readonly record struct SamusTransitionShot

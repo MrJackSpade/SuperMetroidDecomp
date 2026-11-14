@@ -124,11 +124,11 @@ public sealed class SamusGrappleState
     public bool Submerged { get; set; }
 
     /// <summary>
-    /// Whether the released-from-swing movement handler is running. The grapple
+    /// Whether the released-from-swing movement is running. The grapple
     /// beam becomes inactive one frame after release, but this independent Samus
-    /// movement handler continues until the upward speed passes zero at the apex or vertical collision restores the
-    /// normal handler. Keeping it separate from <see cref="Phase"/> prevents premature
-    /// fallback to ordinary movement-type-two physics.
+    /// movement continues until the upward speed passes zero at the apex or vertical collision restores the
+    /// pose's own movement. Keeping it separate from <see cref="Phase"/> prevents premature
+    /// fallback to ordinary normal-jumping physics.
     /// </summary>
     public bool ReleasedMovementActive { get; set; }
     /// <summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// How a pose moves: each pose selects exactly one movement handler. This is an ordinary enum, not a flag set. Its values
+/// How a pose moves: each pose selects exactly one movement. This is an ordinary enum, not a flag set. Its values
 /// are arbitrary; the pose definitions name each pose's movement type at import.
 /// </summary>
 public enum SamusMovementType

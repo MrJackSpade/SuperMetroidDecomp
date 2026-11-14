@@ -94,9 +94,9 @@ public sealed class BabyMetroidCutsceneState
     public int Health { get; internal set; }
 
     /// <summary>
-    /// The Baby's onion-ring flash timer. Mother Brain's onion-ring collision handler
+    /// The Baby's onion-ring flash timer. Mother Brain's onion-ring collision response
     /// writes sixteen here. Main AI observes the nonzero value as a doubled shake, then
-    /// the later flashing handler decrements it and alternates the enemy palette.
+    /// the later flashing step decrements it and alternates the enemy palette.
     /// </summary>
     public int OnionRingHitFlashTimer { get; private set; }
 
@@ -432,8 +432,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.LatchOntoSamus:
                 // The latch approach itself only steers toward Samus's centre minus twenty pixels. It
-                // never performs the state change. That transition belongs to enemy-touch
-                // handler, executed after main AI and the common mover below.
+                // never performs the state change. That transition belongs to the enemy's touch
+                // response, executed after main AI and the common mover below.
                 GraduallyAccelerateTowardsPoint(
                     samus.Position.Whole + SamusLatchOffset,
                     accelerationDivisor: 16,
@@ -444,7 +444,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.HealSamusToFullHealth:
             {
                 // The healing step pins the actor to the four-entry shake table before healing. The
-                // subsequent common mover is harmless because the touch handler zeroed
+                // subsequent common mover is harmless because the touch response zeroed
                 // both velocities when it started this phase.
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
@@ -612,7 +612,7 @@ public sealed class BabyMetroidCutsceneState
                 if (--PhaseTimer < 0)
                 {
                     // The Hyper Beam acquisition freezes Samus's drained animation on its Hyper Beam acquisition frame.
-                    // The Hyper Beam step also installs the first rainbow handler; neither handler is
+                    // The Hyper Beam step also installs the first rainbow step; neither step is
                     // executed until the Baby's following enemy-AI call.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
                     SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
@@ -724,7 +724,7 @@ public sealed class BabyMetroidCutsceneState
             recoveryLightsFrame);
     }
 
-    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
+    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
     /// <param name="damage">The ring's damage (<see cref="MotherBrainAttackDamage.OnionRing"/>), zero or more; even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, the copy of the Baby's health to its enemy, and ring explosion/deletion.</remarks>

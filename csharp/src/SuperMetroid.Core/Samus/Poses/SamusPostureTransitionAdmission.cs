@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// How the posture-transition weapon handler treats a pose (#1517): whether it admits Samus's weapons outright, never
+/// How the posture-transition weapon admission treats a pose (#1517): whether it admits Samus's weapons outright, never
 /// does, answers from its transition table, or answers from what it reads beyond that table.
 /// </summary>
 internal enum SamusPostureTransitionAdmission
 {
-    /// <summary>The aimed crouch and stand transitions: the standard weapon handler admits them.</summary>
+    /// <summary>The aimed crouch and stand transitions: the standard weapon admission admits them.</summary>
     AlwaysAdmits,
 
     /// <summary>The landings, drained bodies and right-facing Draygon holds, and the compact transitions: never admitted.</summary>

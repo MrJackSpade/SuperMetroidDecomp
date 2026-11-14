@@ -21,20 +21,24 @@ public static class WreckedShipGhostAppearanceDefinitions
         new(206, 173, 8), new(82, 57, 0), new(41, 16, 0),
     ];
 
-    /// <summary>The spawn table contains the nine row-major positions of a three-by-three spawn grid.</summary>
-    public const int SpawnCount = 9;
-
     /// <summary>
-    /// The signed spawn offsets, i=0..8. Horizontal and vertical movement classes select columns and
-    /// rows, each spaced 64 pixels around Samus. The upper-right approach spawns level with Samus: its Y offset
-    /// is zero, consumed directly by the position addition.
+    /// Where the ghost appears around Samus for each way she has been moving: 64 pixels the way she moved on each
+    /// axis, and level with her on an axis she held still. A Samus moving up and right is the exception: the ghost
+    /// appears level with her, to her right.
     /// </summary>
-    internal static readonly Offset16<RoomPixels>[] SpawnOffsets =
-    [
-        new(-64, -64), new(0, -64), new(64, 0),
-        new(-64, 0), new(0, 0), new(64, 0),
-        new(-64, 64), new(0, 64), new(64, 64),
-    ];
+    internal static readonly IReadOnlyDictionary<SamusMotion, Offset16<RoomPixels>> SpawnOffsets =
+        new Dictionary<SamusMotion, Offset16<RoomPixels>>
+        {
+            [new(SamusAxisMotion.TowardSmaller, SamusAxisMotion.TowardSmaller)] = new(-64, -64),
+            [new(SamusAxisMotion.Still, SamusAxisMotion.TowardSmaller)] = new(0, -64),
+            [new(SamusAxisMotion.TowardLarger, SamusAxisMotion.TowardSmaller)] = new(64, 0),
+            [new(SamusAxisMotion.TowardSmaller, SamusAxisMotion.Still)] = new(-64, 0),
+            [new(SamusAxisMotion.Still, SamusAxisMotion.Still)] = new(0, 0),
+            [new(SamusAxisMotion.TowardLarger, SamusAxisMotion.Still)] = new(64, 0),
+            [new(SamusAxisMotion.TowardSmaller, SamusAxisMotion.TowardLarger)] = new(-64, 64),
+            [new(SamusAxisMotion.Still, SamusAxisMotion.TowardLarger)] = new(0, 64),
+            [new(SamusAxisMotion.TowardLarger, SamusAxisMotion.TowardLarger)] = new(64, 64),
+        };
 
     /// <summary>
     /// The steps of a ghost's flicker as it appears, in order; flickering ends when the last step does, leaving the ghost

@@ -1,20 +1,20 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using D = SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallExplosionAnimationDefinitions;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<int, SuperMetroid.Core.Rooms.RoomObjects.OldTourianWallExplosionCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Rooms.RoomObjects.OldTourianWallExplosionCue>;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape-shaft fake-wall explosion's typed animation.</summary>
 internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment segment)
-    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, int, OldTourianWallExplosionCue>(AllAnimations[segment])
+    : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment])
 {
     /// <summary>
     /// Both segments' beats: the setup that stops the movement, then the burst that scatters, sounds, plays its six poses
-    /// and, after its last play, deletes the explosion.
+    /// small explosions and, after its last play, deletes the explosion.
     /// </summary>
-    internal static AnimationSegments<OldTourianWallExplosionSegment, int, OldTourianWallExplosionCue> AllSegments { get; } = new(
+    internal static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
         new Dictionary<OldTourianWallExplosionSegment, Beat[]>
         {
             [OldTourianWallExplosionSegment.Start] =
@@ -25,7 +25,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
             [
                 new Beat.Event(OldTourianWallExplosionCue.Scatter),
                 new Beat.Event(OldTourianWallExplosionCue.ExplosionSound),
-                .. Enumerable.Range(0, D.FrameDurations.Length).Select(frame => new Beat.Frame(frame, D.FrameDurations[frame])),
+                .. Enumerable.Range(0, D.Frames.Count).Select(place => new Beat.Frame(D.Frames[place], D.FrameDurations[place])),
                 new Beat.Event(OldTourianWallExplosionCue.Delete),
             ],
         });
@@ -46,24 +46,11 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
         };
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<OldTourianWallExplosionSegment, int, OldTourianWallExplosionCue> Segments => AllSegments;
+    private protected override AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> StartingAt => AllAnimations;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(int frame) =>
-        ShownProjectileFrames[frame];
-
-    /// <summary>The projectile frame each frame of the family shows.</summary>
-    internal static IReadOnlyDictionary<int, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
-        new Dictionary<int, EnemyProjectileFrameId>
-        {
-            [0] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst,
-            [1] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond,
-            [2] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird,
-            [3] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth,
-            [4] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth,
-            [5] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth,
-        };
+    private protected override EnemyProjectileFrameId Present(EnemyProjectileFrameId frame) => frame;
 }

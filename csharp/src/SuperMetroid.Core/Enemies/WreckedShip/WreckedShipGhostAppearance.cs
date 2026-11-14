@@ -9,12 +9,7 @@ public static class WreckedShipGhostAppearance
     /// <summary>The sixteen colours the Wrecked Ship ghosts' fades move toward as they materialize, colour zero first.</summary>
     public static IReadOnlyList<RgbColor> Colours => OwnColours;
 
-    /// <summary>The spawn offset of grid position <paramref name="index"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the nine positions.</exception>
-    public static Offset16<RoomPixels> SpawnOffset(int index)
-    {
-        Ensure.AtLeastZero(index);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, SpawnCount);
-        return SpawnOffsets[index];
-    }
+    /// <summary>Where the ghost appears around Samus when she has been moving as <paramref name="motion"/> says.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="motion"/> names no way of moving.</exception>
+    public static Offset16<RoomPixels> SpawnOffset(SamusMotion motion) => Ensure.Listed(SpawnOffsets, motion);
 }

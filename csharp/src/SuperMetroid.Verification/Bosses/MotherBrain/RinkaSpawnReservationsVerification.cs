@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -32,9 +33,13 @@ internal static class RinkaSpawnReservationsVerification
         SpawnRecord[] table = ReadTable(rom);
         Position16<RoomPixels>[] spawns = [.. table.Select(record => record.Centre), .. UnmatchedSpawns];
         Position16<RoomPixels>[] cameras = DistinctScreens(spawns);
-        int cases = 0;
-        for (int held = 0; held < 1 << SpawnPointCount; held++)
+        // Each set of held points is one case with its own reservations and its own original table state, reading only
+        // the immutable table, spawns, cameras and point definitions, so the 2048 sets run across the machine's cores
+        // (#1757); a set writes only its own count, summed once every set has run.
+        var casesByHeld = new int[1 << SpawnPointCount];
+        ParallelSweep.For(0, 1 << SpawnPointCount, held =>
         {
+            int cases = 0;
             var reservations = new RinkaSpawnReservations();
             var original = new TokenTableReservations(table);
             for (int index = 0; index < SpawnPointCount; index++)
@@ -79,8 +84,9 @@ internal static class RinkaSpawnReservationsVerification
                 }
             }
             AssertSameHeld(original, reservations, $"held set {held} after every reservation and release");
-        }
-        Console.WriteLine($"Rinka spawn reservations: {cases} reservations and releases over {cameras.Length} screens match the original token table.");
+            casesByHeld[held] = cases;
+        });
+        Console.WriteLine($"Rinka spawn reservations: {casesByHeld.Sum()} reservations and releases over {cameras.Length} screens match the original token table.");
     }
 
     /// <summary>Reads the eleven spawn-point records.</summary>
@@ -123,7 +129,16 @@ internal static class RinkaSpawnReservationsVerification
     }
 
     /// <summary>The table index whose record carries <paramref name="token"/>.</summary>
-    private static int TableIndex(SpawnRecord[] table, int token) => Array.FindIndex(table, record => record.Token == token);
+    private static int TableIndex(SpawnRecord[] table, int token)
+    {
+        // A loop rather than a predicate: the check asks this of every case, and a capturing predicate allocates each time.
+        for (int index = 0; index < table.Length; index++)
+        {
+            if (table[index].Token == token)
+                return index;
+        }
+        return -1;
+    }
 
     /// <summary>Asserts both hold the same points: each table index's point is held exactly when the original marks it occupied.</summary>
     private static void AssertSameHeld(TokenTableReservations original, RinkaSpawnReservations reservations, string context)
@@ -165,9 +180,15 @@ internal static class RinkaSpawnReservationsVerification
         /// <summary>Reserves as the original did for a Rinka whose population spawn is <paramref name="spawn"/>.</summary>
         internal TokenReservation Reserve(Position16<RoomPixels> spawn, Position16<RoomPixels> camera)
         {
-            int mapped = Array.FindIndex(Table, record => record.Centre == spawn);
-            if (mapped < 0)
-                mapped = 0;
+            int mapped = 0;
+            for (int index = 0; index < Table.Length; index++)
+            {
+                if (Table[index].Centre == spawn)
+                {
+                    mapped = index;
+                    break;
+                }
+            }
             bool mustRelocate = IsOutsideCamera(spawn, camera) || Occupied[mapped];
             Position16<RoomPixels> position = spawn;
             if (mustRelocate)

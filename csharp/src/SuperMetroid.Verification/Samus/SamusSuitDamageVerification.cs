@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Samus;
 
@@ -76,36 +77,44 @@ internal static class SamusSuitDamageVerification
     internal static void VerifySamusPeriodicSuitDamage()
     {
         int[] wholes = [.. Enumerable.Range(0, 260), 511, 512, 32767, 32768, 65535];
-        int compared = 0, mismatches = 0;
-        string? firstMismatch = null;
-        foreach (SamusEquipmentFlags suits in SuitCombinations)
+        // The sweep stays exhaustive: each suit combination and whole damage is one case, whose every fraction runs on one
+        // worker, the cases across the machine's cores (#1757). The division is a pure function and a case writes only its
+        // own counts, which are summed once every case has run; cases are numbered suit first, as the sequential sweep
+        // visited them, so the first mismatch reported is the one it would have reported.
+        int cases = SuitCombinations.Length * wholes.Length;
+        var mismatchesByCase = new int[cases];
+        var firstMismatchByCase = new string?[cases];
+        ParallelSweep.For(0, cases, index =>
         {
+            SamusEquipmentFlags suits = SuitCombinations[index / wholes.Length];
+            int whole = wholes[index % wholes.Length];
             int divisorShift = suits.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? 2
                 : suits.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? 1
                     : 0;
-            foreach (int whole in wholes)
+            int caseMismatches = 0;
+            for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
             {
-                for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
+                int expectedWhole = whole, expectedFraction = fraction;
+                if (divisorShift != 0)
                 {
-                    int expectedWhole = whole, expectedFraction = fraction;
-                    if (divisorShift != 0)
-                    {
-                        int overlapping = EightEight.FromSixteenSixteen(whole % 256, fraction) >> divisorShift;
-                        expectedFraction = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlapping));
-                        expectedWhole = EightEight.WholeOf(overlapping);
-                    }
-
-                    UnsignedSixteenSixteen actual = SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(whole, fraction), suits);
-                    compared++;
-                    if (actual.Whole == expectedWhole && actual.Fraction == expectedFraction)
-                        continue;
-                    mismatches++;
-                    firstMismatch ??= $"{suits}, {whole}:{fraction}: expected {expectedWhole}:{expectedFraction}, got {actual.Whole}:{actual.Fraction}";
+                    int overlapping = EightEight.FromSixteenSixteen(whole % 256, fraction) >> divisorShift;
+                    expectedFraction = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlapping));
+                    expectedWhole = EightEight.WholeOf(overlapping);
                 }
+
+                UnsignedSixteenSixteen actual = SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(whole, fraction), suits);
+                if (actual.Whole == expectedWhole && actual.Fraction == expectedFraction)
+                    continue;
+                caseMismatches++;
+                firstMismatchByCase[index] ??= $"{suits}, {whole}:{fraction}: expected {expectedWhole}:{expectedFraction}, got {actual.Whole}:{actual.Fraction}";
             }
-        }
+            mismatchesByCase[index] = caseMismatches;
+        });
+        long compared = (long)cases * (ushort.MaxValue + 1);
+        int mismatches = mismatchesByCase.Sum();
+        string? firstMismatch = firstMismatchByCase.FirstOrDefault(mismatch => mismatch is not null);
         AssertEqual(0, mismatches, $"every periodic damage takes the replaced shift's division ({compared} compared; first mismatch: {firstMismatch})");
         Console.WriteLine($"Samus periodic suit damage: {compared} damages take the replaced 8.8 shift's division.");
     }

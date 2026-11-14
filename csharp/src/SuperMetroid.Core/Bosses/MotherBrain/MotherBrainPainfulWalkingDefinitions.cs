@@ -6,7 +6,7 @@ internal static class MotherBrainPainfulWalkingDefinitions
     /// <summary>The painful-walk tables each describe eight stages, paired by walking direction.</summary>
     internal const int StageCount = 8;
 
-    /// <summary>Each forward/backward pair of stages shares one timing record.</summary>
+    /// <summary>Each forward/backward pair of stages shares one timing.</summary>
     internal const int StagesPerPair = 2;
 
     /// <summary>By pair: the first pair is fastest; subsequent pairs add two animation ticks.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The eight compiled Kraid mouth hitbox records.</summary>
+/// <summary>The eight compiled Kraid mouth hitboxes.</summary>
 internal enum KraidMouthHitbox
 {
     /// <summary>Closed-mouth vulnerable shape.</summary>

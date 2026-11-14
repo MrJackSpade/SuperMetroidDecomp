@@ -30,7 +30,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The pause at the bottom before the top begins to rise.</summary>
-    private const int KzanNtscRiseWaitFrames = 64;
+    private const int KzanRiseWaitFrames = 64;
     /// <summary>The rise of each rising update: half a pixel upward.</summary>
     private static readonly SignedSixteenSixteen KzanRisingStep = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
     /// <summary>The speed each falling update adds: one sixteenth of a pixel per update.</summary>
@@ -149,7 +149,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // keeps: coordinates near the room's edge retain the same game behavior.
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
-            state.RiseWaitTimer = KzanNtscRiseWaitFrames;
+            state.RiseWaitTimer = KzanRiseWaitFrames;
             state.Action = KzanAction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
             _audio.QueueEnemySound(KzanLandingSound, priority: SoundRequestPriority.Normal);
@@ -178,7 +178,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
 
-        // The Japanese and North American release rises by exactly half a pixel per actor frame, the fraction's borrow reaching the whole pixels.
+        // The Japanese and North American release rises by exactly half a pixel per update.
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(KzanRisingStep));
         if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {

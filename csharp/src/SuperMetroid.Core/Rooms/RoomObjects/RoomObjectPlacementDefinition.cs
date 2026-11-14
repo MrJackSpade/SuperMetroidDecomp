@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One compiled room-object population record: its kind, block and room argument.</summary>
+/// <summary>One compiled room-object population entry: its kind, block and room argument.</summary>
 /// <param name="Kind">The kind of room object placed.</param>
 /// <param name="Block">The block it is placed on.</param>
 /// <param name="Argument">The decoded room argument, or null.</param>

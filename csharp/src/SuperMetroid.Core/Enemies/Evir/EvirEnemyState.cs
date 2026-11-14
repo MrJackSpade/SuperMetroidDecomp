@@ -33,9 +33,9 @@ public sealed class EvirEnemyState
     internal EvirSegment RequestedAnimation { get; set; }
     /// <summary>The animation this actor plays and where it stands in it (#1600), once one is installed.</summary>
     internal AnimationPlayback<EvirSegment>? Playback { get; set; }
-    /// <summary>The body's downward vertical velocity per AI update, from the positive half of its linear-speed record.</summary>
+    /// <summary>The body's downward vertical velocity per AI update, from the positive half of its linear speed row.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
-    /// <summary>The body's upward vertical velocity per AI update, from the negative half of its linear-speed record.</summary>
+    /// <summary>The body's upward vertical velocity per AI update, from the negative half of its linear speed row.</summary>
     public SignedSixteenSixteen UpVelocity { get; internal set; }
     /// <summary>The projectile's velocity per AI update, calculated from its launch angle.</summary>
     public FixedVector<RoomPixels> ProjectileVelocity { get; internal set; }

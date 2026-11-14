@@ -20,7 +20,7 @@ public static class Trigonometry
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling. Individual investigation: #625 / #909.
     /// </remarks>
-    public static int SignedSixteenBitSine(TrigonometryAngle angle)
+    public static int FineSignedSine(TrigonometryAngle angle)
     {
         int magnitude = UnsignedHalfWave(angle.HalfWaveIndex) >> 1;
         return angle.IsInSecondHalf ? -magnitude : magnitude;
@@ -81,7 +81,7 @@ public static class Trigonometry
     /// <remarks>
     /// Independently checked for #1165 against all 128 of the game's values.
     /// Scale 65535, not saturated 65536; preserve quantization
-    /// before multiplication and before SignedSixteenBitSine's shift and sign.
+    /// before multiplication and before <see cref="FineSignedSine"/>'s halving and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.
     /// Invalid indices throw ArgumentOutOfRangeException.
     /// </remarks>

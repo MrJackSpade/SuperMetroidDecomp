@@ -66,7 +66,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
     /// <summary>
-    /// Initializes the glass tube's cracks, which do nothing the game keeps: the record is deleted before any main-AI
+    /// Initializes the glass tube's cracks, which do nothing the game keeps: the enemy is deleted before any main-AI
     /// update, and the cracks' colours are the shade every tube projectile draws in
     /// (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512).
     /// </summary>
@@ -151,7 +151,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             // The Wrecked Ship hand opens two pairs of the room's screens before handing the statue to its carry: two
-            // green, then the two below them blue. The slope access's opening then queues its terrain change.
+            // open, then the two below them open with the camera aligned to their top. The slope access's opening then queues its terrain change.
             foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingOpenScreens)
                 _room.Services.RoomScroll.Write(screen, RoomScrollState.Open);
             foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingTopAlignedScreens)
@@ -326,7 +326,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnableChozoStatueSamusControls();
 
         // The release's overlapping writes leave five screens of the second row closed, then the third row's second
-        // screen blue and its third closed.
+        // screen open with the camera aligned to its top and its third closed.
         foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.ReleaseClosedScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
         _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseTopAlignedScreen, RoomScrollState.OpenAlignedToTop);

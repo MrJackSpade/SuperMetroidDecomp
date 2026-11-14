@@ -579,7 +579,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Spawning copies the spike's definition before
             // its initializer zeros velocities and captures the owner position. Reading
-            // the record through the shared helper preserves its animation, map sentinel, radii,
+            // the definition through the shared helper preserves its animation, map sentinel, radii,
             // damage, and all property bits instead of maintaining a second hand copy here.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,

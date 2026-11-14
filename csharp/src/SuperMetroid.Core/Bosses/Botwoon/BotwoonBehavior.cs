@@ -75,7 +75,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     private const int BotwoonDeathDelayEnd = 256;
     /// <summary>
     /// Fall acceleration the dying head and each falling body segment add each airborne update: three quarters of a
-    /// quadratic-speed record.
+    /// quadratic speed row.
     /// </summary>
     private static readonly QuadraticSpeedCurvePlace BotwoonDeathFallAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192);
     /// <summary>Updates the wall-explosion phase lasts before the boss is removed.</summary>
@@ -93,7 +93,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
-        // installs the permanent open wall and makes both one-screen scroll entries blue.
+        // installs the permanent open wall and opens both of its screens to the camera, aligned to their top.
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             _frameResults.BotwoonWall = BotwoonWallMutation.Clear;

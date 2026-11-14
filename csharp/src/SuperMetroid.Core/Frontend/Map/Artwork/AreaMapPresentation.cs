@@ -51,7 +51,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
         EndingText = parts.EndingText;
         TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
-        MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
+        MotherBrainRainbowBeamColours = parts.MotherBrainRainbowBeamColours;
         CeresHaze = parts.CeresHaze;
         PowerBombGlowColors = parts.PowerBombGlowColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
@@ -101,7 +101,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>Title-screen gradient presentation, separate from its static palette and pictures.</summary>
     public TitleGradientPresentation TitleGradient { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
-    public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
+    public MotherBrainRainbowBeamColours MotherBrainRainbowBeamColours { get; }
     /// <summary>The Ceres haze's installed tints.</summary>
     public CeresHazeTints CeresHaze { get; }
     /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>

@@ -65,7 +65,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the Owtch's main AI and its indirect state table.</summary>
+    /// <summary>Runs the Owtch's current behaviour.</summary>
     private void RunOwtchMain(RoomEnemySlot slot, OwtchEnemyState state)
     {
         switch (state.Behavior)

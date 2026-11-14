@@ -21,7 +21,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
-    /// <summary>Supplies current room bus, RNG, and installed Baby artwork.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and installed Baby artwork.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues healing, death, and cutscene cues with queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -66,7 +66,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (population.DefinitionId != EnemyDefinitionId.BabyMetroidCutscene)
         {
             throw new InvalidDataException(
-                "Mother Brain Baby spawn record " +
+                "Mother Brain Baby population entry " +
                 $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
         }
 
@@ -87,7 +87,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     internal void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
-            "The cutscene Baby was initialized without Mother Brain's physical records.");
+            "The cutscene Baby was initialized without Mother Brain's body and brain.");
         if (state.RainbowBeamSequence is null)
         {
             throw new InvalidDataException(
@@ -170,8 +170,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
-        // Cross-enemy writes happen during the later Baby slot and become visible in the
-        // body record immediately, though body AI cannot execute them until the next frame.
+        // Cross-enemy writes happen during the later Baby slot and become visible in
+        // Mother Brain's body immediately, though body AI cannot execute them until the next frame.
         state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body phase yet.");
 
         if (baby.Animation != state.BabyAppliedAnimation)

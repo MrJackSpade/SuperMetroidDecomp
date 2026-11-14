@@ -182,7 +182,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -220,7 +220,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -329,7 +329,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sets the next action but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -364,7 +364,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -501,8 +501,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void Bind(RoomEnemySlot slot, CrawlerEnemyState state) =>
         slot.SetSpeciesState(state);
 
-    /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
-    internal static SignedSixteenSixteen Shift8AddMagnitude(SignedEightEight velocity, int wholePixels)
+    /// <summary>The velocity's step with a whole-pixel probe margin added in the direction it moves.</summary>
+    internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)
     {
         SignedSixteenSixteen margin = SignedSixteenSixteen.FromWholePixels(wholePixels);
         return velocity.ToSixteenSixteenDelta() + (velocity.IsNegative ? -margin : margin);

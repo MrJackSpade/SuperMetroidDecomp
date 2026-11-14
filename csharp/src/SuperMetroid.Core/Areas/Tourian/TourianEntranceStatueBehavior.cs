@@ -20,7 +20,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Allocates the three fixed statue decoration actors in reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The room's enemy slots, whose statue records show the scene's look.</summary>
+    /// <summary>The room's enemy slots, whose statues show the scene's look.</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
@@ -97,7 +97,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             frame.Shade(GameplayPictures.Room, look);
     }
 
-    /// <summary>Recomposes the scene's look and shows it on every statue record and statue scene projectile.</summary>
+    /// <summary>Recomposes the scene's look and shows it on every statue and statue scene projectile.</summary>
     private void ShowScene()
     {
         PictureShading shading = PictureShading.Shaded(TourianStatueShades.Entrance);
@@ -125,7 +125,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 
-    /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
+    /// <summary>Installs one of three animations and lets only the first statue spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         TourianEntranceStatueSegment part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;

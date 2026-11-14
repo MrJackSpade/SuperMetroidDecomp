@@ -35,7 +35,7 @@ internal static class KraidArmCollision
 
     /// <summary>Constructs one physical component with the rectangles its calculated hitbox selector names.</summary>
     /// <remarks>Component2 in the twenty general/rising frames and both final
-    /// single-component records are anchored at the enemy origin. All22 authored
+    /// single-component frames are anchored at the enemy origin. All22 authored
     /// zero-coordinate pairs are independently confirmed for #1165; the remaining
     /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidCollisionComponent Component(int pose, int component)

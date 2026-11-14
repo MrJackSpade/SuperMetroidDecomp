@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Corpse-frame requests delegate to the separate corpse collision catalog.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165. The 50 frame records lie in four contiguous runs, so frame identities
-/// derive from run starts and record sizes. Component placements (jaw, legs, body bands) and
+/// Reviewed for #1165. The 50 frames' collision lies in four contiguous runs, so frame identities
+/// derive from run starts and each frame's component count. Component placements (jaw, legs, body bands) and
 /// list rectangles are fitted to the drawings and retained; Crocomire has no mirrored facing.
 /// </remarks>
 internal static class CrocomireBodyCollisionDefinitions

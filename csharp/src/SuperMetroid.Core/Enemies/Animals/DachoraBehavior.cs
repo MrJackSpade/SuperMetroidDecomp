@@ -118,7 +118,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = DachoraAction.WaitingForSamus;
     }
 
-    /// <summary>Dispatches the Dachora's main AI through its indirect jump.</summary>
+    /// <summary>Runs the Dachora's current action.</summary>
     private void RunDachoraMain(
         RoomEnemySlot slot,
         DachoraEnemyState state,

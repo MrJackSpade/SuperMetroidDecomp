@@ -466,7 +466,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the Magdollite's drawing-queue alias. For the third record, the source is the head's
+    /// Reproduces the Magdollite's drawing-queue alias. For the third part, the source is the head's
     /// Y position and the destination is its Y radius. Expressing that relationship directly
     /// preserves collision geometry without exposing unrelated queue storage to C#.
     /// </summary>
@@ -753,13 +753,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<MagdolliteSegment>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
+    /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
     internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()
     {
         AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>
+    /// <summary>Propagates common shot death and freezing effects to the composite's following parts.</summary>
     internal EnemyShotReaction MagdolliteShotReaction => field ??= new()
     {
         AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),

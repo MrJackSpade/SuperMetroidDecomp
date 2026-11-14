@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonSwoops
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
@@ -227,7 +227,7 @@ internal sealed class DraygonSwoops
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = UnsignedSixteenSixteen.Covering(distance, frameCount);
 
-    /// <summary>Runs the regional four-pixel upward retreat.</summary>
+    /// <summary>Runs the four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,

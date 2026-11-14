@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonGoop
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;

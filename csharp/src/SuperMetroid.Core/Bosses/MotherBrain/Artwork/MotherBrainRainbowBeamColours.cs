@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// every colour of its hue cycle, as installed (#1557). Her rainbow, drain, revival and restoration colours are the
 /// import's, which pre-colours her pictures in them (#1512, #1527, #1616).
 /// </summary>
-public sealed class MotherBrainRainbowPalettePresentation
+public sealed class MotherBrainRainbowBeamColours
 {
     /// <summary>Every colour of the backdrop's hue cycle, in the order the beam shows them, owned by this presentation.</summary>
     private readonly RgbColor[] beamCycle;
@@ -17,7 +17,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <param name="beamCycle">Every colour of the beam backdrop's hue cycle, in order; copied.</param>
     /// <exception cref="ArgumentNullException"><paramref name="beamCycle"/> is null.</exception>
     /// <exception cref="InvalidDataException">The cycle holds no colour.</exception>
-    internal MotherBrainRainbowPalettePresentation(RgbColor beamInitial, RgbColor[] beamCycle)
+    internal MotherBrainRainbowBeamColours(RgbColor beamInitial, RgbColor[] beamCycle)
     {
         BeamInitialColor = beamInitial;
         this.beamCycle = [.. Ensure.NotNull(beamCycle)];

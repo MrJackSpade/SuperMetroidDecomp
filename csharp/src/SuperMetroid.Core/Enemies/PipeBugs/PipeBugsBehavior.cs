@@ -305,8 +305,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
     {
-        // Only the first record has a trigger width. It is the formation controller and may
-        // arm itself only while all four following physical records are still at the
+        // Only the first Pipe Bug listed has a trigger width. It is the formation controller and may
+        // arm itself only while all four Pipe Bugs listed after it are still at the
         // dormant action.
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;

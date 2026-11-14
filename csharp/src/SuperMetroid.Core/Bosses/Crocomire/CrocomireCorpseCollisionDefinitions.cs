@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Physical component and hitbox records for the 33 Crocomire corpse frames.</summary>
+/// <summary>Physical components and hitboxes of the 33 Crocomire corpse frames.</summary>
 internal static class CrocomireCorpseCollisionDefinitions
 {
     /// <summary>The corpse's two body rectangles.</summary>

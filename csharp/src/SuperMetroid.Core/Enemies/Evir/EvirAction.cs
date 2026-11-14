@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <summary>The per-update behaviour an Evir body, arms or spit runs.</summary>
 public enum EvirAction
 {
-    /// <summary>Bobs the body vertically or positions its following arms record.</summary>
+    /// <summary>Bobs the body vertically or positions the arms that follow it.</summary>
     HandleBodyOrArms,
     /// <summary>Keeps the reusable projectile at the body's mouth until a launch is selected.</summary>
     ProjectileIdle,

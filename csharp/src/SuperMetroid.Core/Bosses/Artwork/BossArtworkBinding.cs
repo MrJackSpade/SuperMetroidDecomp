@@ -19,7 +19,7 @@ public sealed class BossArtworkBinding
     public KraidEyeColours? KraidEyes { get; set; }
 
     /// <summary>Mother Brain's installed rainbow-beam colors, bound with the map presentation.</summary>
-    public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }
+    public MotherBrainRainbowBeamColours? MotherBrainRainbowColors { get; set; }
 
     /// <summary>The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, bound with the map presentation.</summary>
     public CeresRidleyGetawayBoostDelays? CeresRidleyGetawayBoostDelays { get; set; }

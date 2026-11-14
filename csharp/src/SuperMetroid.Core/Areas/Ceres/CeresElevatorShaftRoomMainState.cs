@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 /// <remarks>
 /// The elevator door's setup seeds the shaft's turn step and timer before the shaft becomes visible.
-/// The room's main behaviour later sweeps the step forward and back through the records. The
+/// The room's main behaviour later sweeps the step forward and back through its rotations. The
 /// step it last reached is what the following room's main inherits (<see cref="RoomMainCarryover"/>).
 /// </remarks>
 [RoomLifetime]
@@ -37,7 +37,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The countdown to the shaft's next turn step.</summary>
     public int RotationTimer { get; private set; }
 
-    /// <summary>The shaft's turn step: its rotation record, 0 through 68.</summary>
+    /// <summary>The shaft's turn step: its rotation, 0 through 68.</summary>
     public int RotationStep { get; private set; }
 
     /// <summary>Which way the turn is sweeping: forward from step 0 to 67, or backward from step 68 down to 1.</summary>
@@ -121,7 +121,7 @@ public sealed class CeresElevatorShaftRoomMainState
         }
 
         // The turn steps when the timer runs past zero: zero remains visible for one complete call; only the following
-        // call makes it -1 and consumes the next record. This differs from a conventional <= 0 timer.
+        // call makes it -1 and turns to the next rotation. This differs from a conventional <= 0 timer.
         if (--RotationTimer >= 0)
             return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 

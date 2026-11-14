@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// The behaviour the Norfair lava-jumping enemy's main AI runs; the authored name record spells the internal name
+/// The behaviour the Norfair lava-jumping enemy's main AI runs; the authored name spells the internal name
 /// <c>SQUEEWPT</c>. Its values are arbitrary.
 /// </summary>
 public enum NorfairLavaJumpingEnemyAction

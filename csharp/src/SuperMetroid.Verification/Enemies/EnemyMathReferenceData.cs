@@ -6,7 +6,7 @@ internal static class EnemyMathReferenceData
     /// <summary>Pinned $A0:B443-$B642 sign-extended 8.8 sine words.</summary>
     public const int SignedSine = 0xa0b443;
     /// <summary>Pinned $A0:B1C3 signed 16-bit sine/cosine quadrants.</summary>
-    public const int SignedSixteenBitSine = 0xa0b1c3;
+    public const int FineSignedSine = 0xa0b1c3;
     /// <summary>Pinned $AA:E03D Shaktool negative-cosine prefix and sine quadrants.</summary>
     public const int ShaktoolOrbit = 0xaae03d;
     /// <summary>Pinned $A0:B3C3 negative-cosine prefix followed by the full signed sine wave.</summary>

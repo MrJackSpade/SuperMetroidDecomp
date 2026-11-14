@@ -166,7 +166,7 @@ internal static class EtecoonAnimations
     internal static EtecoonSegment AfterSleep(EtecoonSegment segment) =>
         ResumesAfterSleep.TryGetValue(segment, out P resumed)
             ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code.");
+            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation does not sleep.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

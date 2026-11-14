@@ -145,7 +145,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
             // Spawning installs the link's definition before
-            // its initializer runs. That record owns the twelve-map animation, the link's
+            // its initializer runs. That definition owns the twelve-map animation, the link's
             // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
             // initializer below only copies the live owner coordinates, associates this
             // projectile with one articulated link, and selects collision option one.

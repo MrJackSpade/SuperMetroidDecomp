@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Chooses the turn record a crawling Yard's movement state uses.</summary>
+/// <summary>Chooses the turn a crawling Yard's movement state uses.</summary>
 internal static class YardTurns
 {
     /// <summary>The turn of <paramref name="movement"/>, or its transition-disabled alternative when it has one.</summary>

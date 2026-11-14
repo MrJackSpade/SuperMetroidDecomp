@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal interface IEnemyLifecycle
 {
-    /// <summary>Installs a population record and definition into a free slot, as spawning an enemy does.</summary>
+    /// <summary>Installs a population entry and definition into a free slot, as spawning an enemy does.</summary>
     void InitializeSlotFromDefinition(RoomEnemySlot slot, RoomEnemyPlacement population, RoomEnemyDefinition definition);
 
     /// <summary>

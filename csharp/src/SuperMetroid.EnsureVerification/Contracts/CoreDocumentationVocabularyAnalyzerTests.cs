@@ -519,5 +519,27 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // the logo stage; the ending's stages; a staged fight; the staging point Ridley retreats to; attack staging positions\n }");
         Expect("class P { /// <summary>Samus's pal; a common room; the room's elements; the selector picks a row; a record of the kills; the input's record.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shots index the selector table and read the pose record in NTSC timing.</summary>\n[CompatibilityService(\"shots\")] class Shots { }");
+        // The original's indirect dispatch, the machine's bus and regionalized values outside hardware owners (#1812).
+        Expect("class P { /// <summary>Dispatches the Dachora's main AI through its indirect jump.</summary>\nint F => 0; }", "('indirect jump')");
+        Expect("class P { // runs the main AI, including all four indirect targets\n }", "('indirect targets')");
+        Expect("class P { /// <summary>The indirect main-AI entry, independent for each half.</summary>\nint F => 0; }", "('indirect main-AI entry')");
+        Expect("class P { // runs the Owtch's main AI and its indirect state table\n }", "('indirect state table')");
+        Expect("class P { /// <summary>Provides the active room bus used when departure sets up Samus.</summary>\nint F => 0; }", "('bus')");
+        Expect("class P { string Name => \"The room's bus is not bound.\"; }", "('bus')");
+        Expect("class P { // the regionalized displacement is exactly one pixel\n }", "('regionalized')");
+        // Indirect G-Mode, anything indirect that is not dispatch and a hardware owner are English.
+        Expect("class P { /// <summary>Indirect G-Mode deliberately carries the flag; the direct/indirect G-Mode state; an indirect hit.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the routine reads the room bus through its indirect jump.</summary>\n[CompatibilityService(\"jump\")] class Jump { }");
+        // The original's enemy entries named as records outside hardware owners (#1812).
+        Expect("class P { /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>\nint F => 0; }", "('population record')");
+        Expect("class P { // reads facing and position from the immediately prior body record\n }", "('body record')");
+        Expect("class P { string Name => \"A follower must follow a parent record of the same definition.\"; }", "('parent record')");
+        Expect("class P { // while all four following physical records are still at the start\n }", "('physical records')");
+        Expect("class P { /// <summary>The second record is not a second creature.</summary>\nint F => 0; }", "('second record')");
+        Expect("class P { /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>\nint F => 0; }", "('three-record')");
+        Expect("class P { // the body still holds the empty record the room load left\n }", "('empty record')");
+        // The verb, a record of something, an enemy's record, a record alone and a hardware owner are English.
+        Expect("class P { /// <summary>Records the desired animation; the death records the drop origin; the first record of the kills; the enemy's record; a record.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the arms read the facing in the body record, which the kill leaves an empty record.</summary>\n[CompatibilityService(\"evir\")] class Evir { }");
     }
 }

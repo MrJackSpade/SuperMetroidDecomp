@@ -73,7 +73,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     private static InvalidDataException NoInitialization(RoomEnemySlot slot) =>
         new($"Enemy {slot.DefinitionId} has no initialization behaviour.");
 
-    /// <summary>Exposes setting up a listed enemy from its population record to the enemy loader.</summary>
+    /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializeSlotFromDefinition(
         RoomEnemySlot slot, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
         InitializeSlotFromDefinition(slot, population, definition);

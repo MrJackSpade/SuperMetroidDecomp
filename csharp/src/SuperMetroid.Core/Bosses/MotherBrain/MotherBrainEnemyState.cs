@@ -26,9 +26,9 @@ public sealed class MotherBrainEnemyState
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body record's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
+    /// <summary>The body's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyPhase Phase { get; internal set; }
-    /// <summary>The brain record's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
+    /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainAction BrainAction { get; internal set; }
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room-flash handler and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
-    /// <summary>Head-record sub-dispatch and its independent countdown.</summary>
+    /// <summary>The brain's tube-collapse step and its independent countdown.</summary>
     public MotherBrainTubeCollapseStep TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }
@@ -100,7 +100,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// Set by the head main on frames where her brain is drawn after the ordinary enemy
     /// queues. It is deliberately rebuilt every frame rather than treated as
-    /// ordinary visibility because both physical records carry the hide-drawing property.
+    /// ordinary visibility because both the body and the brain carry the hide-drawing property.
     /// </summary>
     public bool DrawBrain { get; internal set; }
 

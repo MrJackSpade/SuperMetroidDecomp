@@ -11,7 +11,7 @@ internal static class FallingSparkLaunches
     /// </summary>
     /// <param name="random">The random number the spark takes.</param>
     /// <param name="unauthoredLaunch">Supplies the drift of the selection past the authored launches.</param>
-    /// <exception cref="InvalidDataException">The selection lies further past the authored launches than one record.</exception>
+    /// <exception cref="InvalidDataException">The selection lies further past the authored launches than one launch.</exception>
     internal static SignedSixteenSixteen FromRandom(int random, Func<FallingSparkUnauthoredLaunch> unauthoredLaunch)
     {
         int selection = LaunchSelector.Of(random);
@@ -20,6 +20,6 @@ internal static class FallingSparkLaunches
         return selection == Launches.Length
             ? Ensure.NotNull(unauthoredLaunch)().Drift
             : throw new InvalidDataException(
-                $"Falling spark launch selection {selection} lies more than one record past the {Launches.Length} authored launches.");
+                $"Falling spark launch selection {selection} lies more than one launch past the {Launches.Length} authored launches.");
     }
 }

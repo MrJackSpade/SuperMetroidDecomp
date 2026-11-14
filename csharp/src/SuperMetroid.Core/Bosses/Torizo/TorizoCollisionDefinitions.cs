@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The blank frame has an empty hitbox list, rather than invented collision.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165; the single owner of the Torizo collision space. Frame records
-/// are contiguous within four runs (the blank frame, turning plus 42 left-facing frames,
+/// Reviewed for #1165; the single owner of the Torizo collision space. Frames' collision
+/// is contiguous within four runs (the blank frame, turning plus 42 left-facing frames,
 /// seven awakening frames, right-facing frames), so every frame derives from its
-/// run start and the preceding record sizes (a count plus one entry per component).
+/// run start and the preceding frames' sizes (a count plus one entry per component).
 /// The first 49 right-facing frames are the exact X mirrors, in order, of the 49 left-facing
 /// frames: X negates and each hitbox list is replaced by its separately fitted right-facing
 /// counterpart (<see cref="TorizoHitboxList.RightFacing"/>); every list without collision is

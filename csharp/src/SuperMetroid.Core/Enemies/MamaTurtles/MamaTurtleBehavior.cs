@@ -351,7 +351,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.ActionTimer != 0)
             return;
 
-        // The two adjacent acceleration records accelerate toward Samus's side by a sixteenth of a pixel per update.
+        // The two adjacent accelerations accelerate toward Samus's side by a sixteenth of a pixel per update.
         state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
             ? SignedSixteenSixteen.FromSixteenthsOfPixel(1)
             : SignedSixteenSixteen.FromSixteenthsOfPixel(-1);

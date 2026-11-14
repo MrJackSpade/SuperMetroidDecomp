@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The five fixed enemy placements spawned during Mother Brain's
 /// glass-tube collapse. They are separate from room population lists because
-/// the cutscene selects one record at a time after the initial room load.
+/// the cutscene selects one entry at a time after the initial room load.
 /// </summary>
 internal static class MotherBrainFallingTubePopulationDefinitions
 {

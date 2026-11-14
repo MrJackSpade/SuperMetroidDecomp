@@ -71,7 +71,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public bool HealthColoursEnabled { get; internal set; }
 
-    /// <summary>Palette-transition record index.</summary>
+    /// <summary>The step her colours' transition to grey has reached.</summary>
     public int GreyTransitionCounter { get; internal set; }
 
     /// <summary>

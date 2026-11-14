@@ -309,7 +309,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the hand beam's charging initializer. The body record—not the articulated
+    /// Runs the hand beam's charging initializer. The body—not the articulated
     /// head—is the source: its extended map puts the hand at (+64,-48).
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(

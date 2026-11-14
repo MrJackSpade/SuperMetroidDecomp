@@ -285,7 +285,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>The parent the flame follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower) => _parents.Of(follower);
 
-    /// <summary>Requires the preceding slot to be an unfollowing Holtz parent record.</summary>
+    /// <summary>Requires the preceding slot to hold an unfollowing Holtz parent.</summary>
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -294,7 +294,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in slot {follower.SlotIndex} must immediately " +
-                "follow a parent record of the same definition.");
+                "follow a parent of the same definition.");
         }
     }
 

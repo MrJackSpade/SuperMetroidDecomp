@@ -13,7 +13,7 @@ public sealed class OwtchEnemyState
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// The signed 1/65536-pixel leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
+    /// The signed 1/65536-pixel leftward patrol speed in pixels per update, the negative half of the same linear speed row.
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 

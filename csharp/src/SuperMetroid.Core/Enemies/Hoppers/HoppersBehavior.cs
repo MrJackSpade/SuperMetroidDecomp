@@ -92,7 +92,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             curvePlaceStep: 4);
     }
 
-    /// <summary>Runs the Hopper's main AI and every indirect target.</summary>
+    /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
         RoomEnemySlot slot,
         SamusState? samus,

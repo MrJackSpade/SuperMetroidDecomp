@@ -76,12 +76,12 @@ public static class SamusPaletteDefinitions
     /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
     /// All 36 colours, including that authored exception, match the
     /// authored data. The bubble cursor visits steps 0..5 and wraps
-    /// independently of the body records. Bubble-color investigation:
+    /// independently of the body steps. Bubble-color investigation:
     /// #625 / #903.
     /// </remarks>
     public static class CrystalFlash
     {
-        /// <summary>Number of Crystal Flash body records.</summary>
+        /// <summary>Number of Crystal Flash body steps.</summary>
         public const int BodyStepCount = 10;
         /// <summary>Number of bubble palettes.</summary>
         public const int BubblePaletteCount = 6;

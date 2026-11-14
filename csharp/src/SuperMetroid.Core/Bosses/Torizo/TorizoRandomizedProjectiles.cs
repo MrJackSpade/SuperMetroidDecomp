@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinitio
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Chooses the Torizos' randomized launch records by the direction they face or move.</summary>
+/// <summary>Chooses the Torizos' randomized launches by the direction they face or move.</summary>
 internal static class TorizoRandomizedProjectiles
 {
     /// <summary>Bomb Torizo's Chozo orb for its facing.</summary>

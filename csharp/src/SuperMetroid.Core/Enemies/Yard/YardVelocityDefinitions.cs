@@ -5,7 +5,7 @@ public static class YardVelocityDefinitions
 {
     /// <summary>
     /// The speed a kicked Yard crawls at after it lands, two and a quarter pixels per update: the shared crawling speed
-    /// the game names by its ninth record.
+    /// the game names by its ninth row.
     /// </summary>
     internal static readonly SignedEightEight AggressiveCrawlSpeed = new(576);
 

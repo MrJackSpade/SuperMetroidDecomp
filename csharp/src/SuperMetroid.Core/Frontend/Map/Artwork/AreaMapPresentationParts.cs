@@ -87,7 +87,7 @@ internal sealed record AreaMapPresentationParts
     public required TitleGradientPresentation TitleGradient { get; init; }
 
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
-    public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
+    public required MotherBrainRainbowBeamColours MotherBrainRainbowBeamColours { get; init; }
 
     /// <summary>The Ceres haze's installed tints.</summary>
     public required CeresHazeTints CeresHaze { get; init; }

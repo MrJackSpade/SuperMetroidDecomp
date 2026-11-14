@@ -167,6 +167,17 @@ The reserve tanks' transfer, transferring a value, a stage of an animation, a st
 room, a selector alone and a record of something stay English. The grapple rope's installed frames name their mirroring
 (`Rope.Diagonal.2.MirroredVertically`), not the flip bits' value.
 
+Outside hardware owners SME6454 also reads the original's indirect dispatch, the machine's bus, regionalized values and
+the original's enemy entries named as records (#1812): "indirect" before a jump, target, entry, call, table, selection or
+dispatch (`its indirect jump`, `all four indirect targets`, `the indirect main-AI entry`, `its indirect state table`); a
+bus (`the room bus`); `regionalized` in any word form; and a record that is an enemy's entry in the room's enemy list: a
+population, spawn, definition or boss record, a part's record (body, wing, arms, head, brain, tongue, tube, statue,
+graphics, cosmetic), a parent, follower, partner, physical or composite record, a record by its place (`the second
+record`), an empty, emptied, deleted or cleared record and an actor of so many records (`the three-record Evir actor`).
+Core names the action, phase or movement that runs, the room binding that supplies what an enemy calls, the release whose
+value differs, and the enemy, its part, its partner or its place in the room's list. Indirect G-Mode, the verb (`the
+death records the drop origin`), a record of something, an enemy's record and a record alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

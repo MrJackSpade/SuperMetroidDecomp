@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 public static class CrawlerSlopes
 {
     /// <summary>The tangent multiplier of slope shape <paramref name="shape"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="shape"/> is not one of the 32 records.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="shape"/> is not one of the 32 slope shapes.</exception>
     public static int Multiplier(int shape) =>
         (uint)shape < (uint)CrawlerSlopeDefinitions.Multipliers.Length
             ? CrawlerSlopeDefinitions.Multipliers[shape]

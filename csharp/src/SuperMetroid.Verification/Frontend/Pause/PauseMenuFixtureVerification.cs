@@ -104,7 +104,7 @@ internal static class PauseMenuFixtureVerification
             EndingText = game.EndingText,
             TitleBackdrop = game.TitleBackdrop,
             TitleGradient = game.TitleGradient,
-            MotherBrainRainbowPalette = game.MotherBrainRainbowPalette,
+            MotherBrainRainbowBeamColours = game.MotherBrainRainbowBeamColours,
             CeresHaze = game.CeresHaze,
             PowerBombGlowColors = game.PowerBombGlowColors,
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,

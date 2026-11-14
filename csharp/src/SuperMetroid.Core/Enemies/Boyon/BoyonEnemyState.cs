@@ -79,7 +79,7 @@ public sealed class BoyonEnemyState
     /// <summary>The place along the curve at which falling reaches the spawn-height baseline, derived on the first update.</summary>
     public BoyonCurvePlace BaselineCurvePlace { get; internal set; }
 
-    /// <summary>Current indirect movement-table selection.</summary>
+    /// <summary>The bounce movement the Boyon runs each update.</summary>
     public BoyonBounceMovement BounceMovement { get; internal set; }
 
     /// <summary>

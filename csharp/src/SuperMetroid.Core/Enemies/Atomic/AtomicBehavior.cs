@@ -30,7 +30,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Atomic's main AI, including all four indirect targets.
+    /// Runs the Atomic's current action, any of its four.
     /// Atomic deliberately ignores terrain and chooses both signs again every frame.
     /// </summary>
     private static void RunAtomicMain(

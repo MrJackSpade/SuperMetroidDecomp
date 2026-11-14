@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Compiled parallel records used by the shared Bomb/Golden Torizo initializer.</summary>
+/// <summary>Compiled parallel definitions used by the shared Bomb/Golden Torizo initializer.</summary>
 internal static class TorizoInitializationDefinitions
 {
     /// <summary>

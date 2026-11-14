@@ -23,7 +23,7 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies RNG and enemy definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
+    /// <summary>Reinitializes a respawned enemy from its saved population entry.</summary>
     private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Receives the pickup and death sounds, each queued as the drop or death animation makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -116,7 +116,7 @@ internal sealed class EnemyDeathsAndDrops
         if (respawns)
         {
             // The respawn placeholder keeps the enemy's place in the room's listing taken until the
-            // explosion's respawn cue rebuilds the enemy from its population record.
+            // explosion's respawn cue rebuilds the enemy from its population entry.
             InstallRespawnPlaceholder(enemy);
         }
         _roomStatus.RecordKill();

@@ -17,7 +17,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ElevatorEntity(this, slot, common);
 
-    /// <summary>Provides the active room bus used when departure sets up Samus's elevator pose.</summary>
+    /// <summary>The loaded room's bindings, whose game-state services set up Samus's elevator pose when the elevator departs.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues the separate Samus-library and room-library departure sounds.</summary>
     private readonly EnemyAudioQueue _audio;

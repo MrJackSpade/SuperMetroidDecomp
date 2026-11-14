@@ -166,7 +166,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the game's signed sine sample for one Bull heading, in 256ths of a turn.</summary>
     internal static int ReadBullSignedSine(TrigonometryAngle angle) =>
-        Trigonometry.SignedSixteenBitSine(angle);
+        Trigonometry.FineSignedSine(angle);
 
     /// <summary>
     /// Moves one axis of the Bull by its speed along the sine: the sine's magnitude in whole 256ths (its finer part

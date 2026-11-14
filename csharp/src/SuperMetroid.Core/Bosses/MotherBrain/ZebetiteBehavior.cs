@@ -223,7 +223,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Restart();
     }
 
-    /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population record.</summary>
+    /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
     internal RoomEnemySlot SpawnZebetite(ZebetiteHalf half)
     {
         // The spawn takes the first free slot. In particular, a primary's death vacates
@@ -237,7 +237,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (population.DefinitionId != EnemyDefinitionId.Zebetite)
         {
             throw new InvalidDataException(
-                $"Zebetite {half} spawn record names enemy " +
+                $"Zebetite {half} population entry names enemy " +
                 $"{population.DefinitionId}.");
         }
 

@@ -89,11 +89,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
     private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
 
-    /// <summary>Recognizes the green, yellow and red body definition records.</summary>
+    /// <summary>Recognizes the green, yellow and red body definitions.</summary>
     internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterRed;
 
-    /// <summary>Recognizes the three corresponding wing definition records.</summary>
+    /// <summary>Recognizes the three corresponding wing definitions.</summary>
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
@@ -116,8 +116,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
         state.SpawnPosition = body.Position.Whole;
 
-        // A wingless Ki-Hunter is the permanently ground-bound form. Its following wing
-        // record starts deleted and the body skips every later detachment side effect.
+        // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
+        // starts deleted and the body skips every later detachment side effect.
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
         {
             state.HasLostWings = true;
@@ -556,7 +556,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the private tail after common shot/power-bomb AI. A surviving
-    /// body mirrors freeze/hurt timing into its wing until health reaches the wing record's
+    /// body mirrors freeze/hurt timing into its wing until health reaches the wing's
     /// detach health; that exact threshold—not an invented constant—starts detachment.
     /// </summary>
     private void ResolveKiHunterShotAfterCommon(RoomEnemySlot body)
@@ -753,7 +753,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
-        // The normal enemy shot AI clears the complete body record before returning to Ki-Hunter's
+        // The normal enemy shot AI clears the whole body before returning to Ki-Hunter's
         // private shot tail on a fatal hit. The game nevertheless keeps the
         // dead body's place in the room's listing and reaches the enemy listed after it to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition is
@@ -786,7 +786,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Ki-Hunter body slot {body.SlotIndex} is followed by {wings.DefinitionId}, " +
-                $"not expected wing {expected} or its deleted record.");
+                $"not expected wing {expected} or its deleted place.");
         }
         return wings;
     }

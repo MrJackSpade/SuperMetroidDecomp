@@ -56,7 +56,7 @@ internal static class ClosedPresentationContractChecks
                     InstalledBeamPalettes beam, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatuePalettes statues,
-                    MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
+                    MotherBrainRainbowBeamColours rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo,
                     InstalledSamusDeathPalettes samusDeath,
                     Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,

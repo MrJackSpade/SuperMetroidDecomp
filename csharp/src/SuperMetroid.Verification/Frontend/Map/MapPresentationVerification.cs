@@ -483,26 +483,26 @@ internal static class MapPresentationVerification
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
         AssertEqual(MotherBrainSourceDefinitions.Beam.InitialColor,
-            original.MotherBrainRainbowPalette.BeamInitialColor,
+            original.MotherBrainRainbowBeamColours.BeamInitialColor,
             "installed beam initial fixed color matches the cartridge");
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertEqual(RgbColor.FromWord(nativeBeamColor), original.MotherBrainRainbowPalette.BeamColor(frame),
+            AssertEqual(RgbColor.FromWord(nativeBeamColor), original.MotherBrainRainbowBeamColours.BeamColor(frame),
                 $"installed beam HDMA color {frame} matches bank-$88");
         }
-        AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowPalette.BeamCycleLength,
+        AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowBeamColours.BeamCycleLength,
             "installed beam colour cycle ends where the native loop does");
         var nativeBeamSequence = new MotherBrainRainbowBeamEffect
         {
             // Source words were compared independently against bank $88 above;
             // playback itself must use the installed catalog on both paths.
-            PresentationColors = original.MotherBrainRainbowPalette,
+            PresentationColors = original.MotherBrainRainbowBeamColours,
         };
         var installedBeamSequence = new MotherBrainRainbowBeamEffect
         {
-            PresentationColors = original.MotherBrainRainbowPalette,
+            PresentationColors = original.MotherBrainRainbowBeamColours,
         };
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 3; frame++)
         {

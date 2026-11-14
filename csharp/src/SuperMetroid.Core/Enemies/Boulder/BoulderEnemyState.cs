@@ -7,7 +7,7 @@ public sealed class BoulderEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoulderSegment> Playback { get; set; }
 
-    /// <summary>Current indirect AI target.</summary>
+    /// <summary>The action the Boulder runs each update.</summary>
     public BoulderAction? Action { get; internal set; }
 
     /// <summary>

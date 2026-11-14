@@ -9,10 +9,10 @@ internal static class MotherBrainBabyMetroidDefinitions
     internal const MusicTrack SamusThemeMusicTrack = MusicTrack.SamusTheme;
 
     /// <summary>
-    /// The single embedded population record. Baby init AI
-    /// subsequently replaces the actor coordinates, but the record remains its physical spawn
+    /// The single embedded population entry. Baby init AI
+    /// subsequently replaces the actor coordinates, but the entry remains its physical spawn
     /// snapshot and supplies its properties. Its initialization parameter is zero: the
-    /// game's record carries the Baby's first animation there, which the cutscene's own
+    /// game's entry carries the Baby's first animation there, which the cutscene's own
     /// animation replaces and nothing reads.
     /// </summary>
     internal static readonly RoomEnemyPlacement SpawnPopulation =

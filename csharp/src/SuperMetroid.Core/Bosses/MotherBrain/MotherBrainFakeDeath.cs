@@ -268,11 +268,11 @@ internal sealed class MotherBrainFakeDeath
         if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
-                $"Mother Brain tube record for {piece} names enemy " +
+                $"Mother Brain tube population entry for {piece} names enemy " +
                 $"{population.DefinitionId}, not the falling tube.");
         }
 
-        // SpawnEnemy silently fails when all 32 records are occupied.
+        // SpawnEnemy silently fails when all 32 enemy places are occupied.
         _ = _lifecycle.SpawnEnemy(population);
     }
 

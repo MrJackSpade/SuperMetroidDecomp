@@ -23,8 +23,8 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>Selected escape-sequence typewriter text and visual presentation.</summary>
     EscapeTypewriterPresentation EscapeTypewriter { get; }
 
-    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors.</summary>
-    MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
+    /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
+    MotherBrainRainbowBeamColours MotherBrainRainbowBeamColours { get; }
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }

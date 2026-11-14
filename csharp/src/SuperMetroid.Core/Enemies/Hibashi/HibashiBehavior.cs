@@ -68,7 +68,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = HibashiAction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
-        // The visible graphics record must never participate through its definition's radius.
+        // The visible part must never participate through its definition's radius.
         // Its following part receives the dynamic radius from animation cues.
         slot.Radius = slot.Radius.WithX(0);
     }

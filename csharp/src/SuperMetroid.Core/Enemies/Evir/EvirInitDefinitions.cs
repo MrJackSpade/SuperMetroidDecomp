@@ -9,7 +9,7 @@ public static class EvirInitDefinitions
     /// value it halves belongs to another enemy, fixed by the speed alone. Every Evir in the game bobs at half or three
     /// quarters of a pixel per update: the slower lands on the second enemy's direction-change period, and the faster on
     /// the third enemy's colour selection. The read happens while the room's population is loading, so an enemy later in the
-    /// list than the body still holds the empty record the room load left.
+    /// list than the body still holds the empty place the room load left.
     /// </summary>
     public static IReadOnlyList<EvirFirstHalfCycleSource> FirstHalfCycleSources { get; } =
     [

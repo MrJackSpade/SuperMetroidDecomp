@@ -36,7 +36,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Upper bound applied to the airborne speed-curve place when it selects a speed.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumPuyoYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(64);
+    private static readonly QuadraticSpeedCurvePlace MaximumPuyoYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
@@ -46,7 +46,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new PuyoEnemyState
         {
-            YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start,
+            YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Action = PuyoAction.Grounded,
             // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
@@ -60,8 +60,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             InvertDirection = false,
             InvertedDirection = PuyoDirection.Right,
-            InitialYSpeedCurvePlaceThreeQuarters = EnemyQuadraticSpeedIndex.Start,
-            InitialYSpeedCurvePlaceHalf = EnemyQuadraticSpeedIndex.Start,
+            InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
+            InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
         slot.SetSpeciesState(state);
         SetPuyoAnimation(slot, state, PuyoSegment.GroundedFast);
@@ -161,20 +161,20 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
             timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
-            EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator).Row;
+            QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
 
-            // Summing each row's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
-            // find the initial curve row.
+            // Summing each mark's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
+            // find the initial curve mark.
             distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
             if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;
 
-            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator);
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator);
             state.Falling = false;
-            state.InitialYSpeedCurvePlaceHalf = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 1);
+            state.InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator >> 1);
             state.InitialYSpeedCurvePlaceThreeQuarters =
-                EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 2) + state.InitialYSpeedCurvePlaceHalf;
+                QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator >> 2) + state.InitialYSpeedCurvePlaceHalf;
             return;
         }
 
@@ -295,7 +295,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Row;
+        QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
         SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
@@ -318,11 +318,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Pose selection happens before the index changes, matching the five discrete
+        // Pose selection happens before the place changes, matching the five discrete
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
         SetPuyoAirborneAnimation(slot, state);
 
-        state.StepAirborneIndex(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Hop(state).YIndexDelta));
+        state.StepAirbornePlace(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Hop(state).YIndexDelta));
 
         // X speed is authored as 1/256 pixels, but NTSC movement moves by the whole pixels only
         // and zeroes the subspeed; only the PAL build uses the fraction. The giant
@@ -348,7 +348,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AirborneMovement = PuyoAirborneMovement.Dropping;
     }
 
-    /// <summary>Selects the rising/falling one-frame pose for the current curve index.</summary>
+    /// <summary>Selects the rising/falling one-frame pose for the current curve place.</summary>
     private static void SetPuyoAirborneAnimation(RoomEnemySlot slot, PuyoEnemyState state)
     {
         PuyoSegment segment;

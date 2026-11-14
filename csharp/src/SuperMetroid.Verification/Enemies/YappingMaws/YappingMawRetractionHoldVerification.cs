@@ -25,9 +25,9 @@ internal static class YappingMawRetractionHoldVerification
     /// </summary>
     internal static void VerifyYappingMawRetractionHold()
     {
-        int row = Enumerable.Range(0, EnemyQuadraticSpeedDefinitions.RowCount).First(candidate =>
-            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Negative.RawValue < 0);
-        int retract = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Negative.RawValue;
+        int row = Enumerable.Range(0, QuadraticSpeedCurveDefinitions.MarkCount).First(candidate =>
+            QuadraticSpeedCurve.AtMark(checked((ushort)candidate)).Negative.RawValue < 0);
+        int retract = QuadraticSpeedCurve.AtMark(checked((ushort)row)).Negative.RawValue;
         foreach (int reachParameter in new[] { 0, 1 })
         for (int sector = 0; sector < 8; sector++)
         {
@@ -50,7 +50,7 @@ internal static class YappingMawRetractionHoldVerification
 
             state.Aim = aim;
             state.Extension = SixteenSixteenWords.ToDisplacement(-retract - 1);
-            state.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.FromRows(row);
+            state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             state.QuadraticSpeedSign = EnemySpeedSign.Negative;
             state.HasGrabbedSamus = true;
             state.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);

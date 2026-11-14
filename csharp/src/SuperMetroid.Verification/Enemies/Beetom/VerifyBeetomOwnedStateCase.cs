@@ -3,4 +3,4 @@ namespace SuperMetroid.Verification.Enemies.Beetom;
 /// <summary>The first and second of one verify beetom owned state case.</summary>
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
-internal readonly record struct VerifyBeetomOwnedStateCase(SuperMetroid.Core.Enemies.EnemyQuadraticSpeedIndex First, bool Second);
+internal readonly record struct VerifyBeetomOwnedStateCase(SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace First, bool Second);

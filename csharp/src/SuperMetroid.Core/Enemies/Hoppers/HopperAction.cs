@@ -10,9 +10,9 @@ public enum HopperAction
 {
     /// <summary>Consumes a shared RNG value and chooses small or big hop by whether it is odd, without starting movement that update.</summary>
     ChooseHopSize = 1,
-    /// <summary>Installs the precomputed small-hop speed index, index delta 3, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
+    /// <summary>Installs the precomputed small-hop speed-curve place, place step 3, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
     PrepareSmallHop,
-    /// <summary>Installs the precomputed big-hop speed index, index delta 4, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
+    /// <summary>Installs the precomputed big-hop speed-curve place, place step 4, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
     PrepareBigHop,
     /// <summary>Compares Samus X against a floor Hopper and selects the leftward/backward or rightward/forward start.</summary>
     ChooseDirectionUpsideUp,
@@ -32,7 +32,7 @@ public enum HopperAction
     JumpingUpsideUpBackward,
     /// <summary>Distinct floor hop entry selected by the initial rightward branch, with the same motion as <see cref="JumpingUpsideUpBackward"/>.</summary>
     JumpingUpsideUpForward,
-    /// <summary>Ceiling hop motion selected by the initial leftward branch, reversing the quadratic table's world-Y halves relative to floor hopping.</summary>
+    /// <summary>Ceiling hop motion selected by the initial leftward branch, reversing the quadratic speed curve's world-Y halves relative to floor hopping.</summary>
     JumpingUpsideDownBackward,
     /// <summary>Distinct ceiling hop entry selected by the initial rightward branch, with the same motion as <see cref="JumpingUpsideDownBackward"/>.</summary>
     JumpingUpsideDownForward,

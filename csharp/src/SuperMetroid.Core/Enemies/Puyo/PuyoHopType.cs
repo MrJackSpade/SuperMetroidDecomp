@@ -16,8 +16,8 @@ public enum PuyoHopType
     Giant,
     /// <summary>No horizontal motion and 1/256-pixel downward speed 1.0; wall or ceiling collision selects this fall before a recovery bounce.</summary>
     Dropping,
-    /// <summary>16-pixel post-drop bounce with 1/256-pixel X speed 1.0 and curve-index delta 448; one of two randomized recovery heights.</summary>
+    /// <summary>16-pixel post-drop bounce with 1/256-pixel X speed 1.0 and speed-curve step 448; one of two randomized recovery heights.</summary>
     DroppedSmall,
-    /// <summary>21-pixel post-drop bounce with 1/256-pixel X speed 1.0 and curve-index delta 448; the taller randomized recovery height.</summary>
+    /// <summary>21-pixel post-drop bounce with 1/256-pixel X speed 1.0 and speed-curve step 448; the taller randomized recovery height.</summary>
     DroppedBig,
 }

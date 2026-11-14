@@ -214,7 +214,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
-        state.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.Start;
+        state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
@@ -283,11 +283,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
                 state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
-                // The turn-around steps half a row further than the update's own advance: from a positive speed to
-                // the same row's negative speed, or from a negative speed on to the next row's positive one.
+                // The turn-around steps half a mark further than the update's own advance: from a positive speed to
+                // the same mark's negative speed, or from a negative speed on to the next mark's positive one.
                 if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
                 {
-                    state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
+                    state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
                     state.QuadraticSpeedSign = EnemySpeedSign.Positive;
                 }
                 else
@@ -336,11 +336,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionSamusInYappingMaw(slot, state, samus);
     }
 
-    /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
+    /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += state.QuadraticSpeedRow.Row.Toward(state.QuadraticSpeedSign);
-        state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
+        state.Extension += state.SpeedCurvePlace.Speed.Toward(state.QuadraticSpeedSign);
+        state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
     }
 
     /// <summary>Waits after retraction, including the expiry past zero on frame 65.</summary>

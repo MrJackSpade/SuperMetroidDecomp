@@ -29,12 +29,12 @@ internal static class YappingMawExtensionVerification
     /// </summary>
     internal static void VerifyYappingMawExtension()
     {
-        int row = Enumerable.Range(0, EnemyQuadraticSpeedDefinitions.RowCount).First(candidate =>
-            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Positive.RawValue is int extending &&
+        int row = Enumerable.Range(0, QuadraticSpeedCurveDefinitions.MarkCount).First(candidate =>
+            QuadraticSpeedCurve.AtMark(checked((ushort)candidate)).Positive.RawValue is int extending &&
             extending > 0 && SixteenSixteenWords.ToDisplacement(extending).Fraction != 0 &&
-            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Negative.RawValue < 0);
-        int extend = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Positive.RawValue;
-        int retract = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Negative.RawValue;
+            QuadraticSpeedCurve.AtMark(checked((ushort)candidate)).Negative.RawValue < 0);
+        int extend = QuadraticSpeedCurve.AtMark(checked((ushort)row)).Positive.RawValue;
+        int retract = QuadraticSpeedCurve.AtMark(checked((ushort)row)).Negative.RawValue;
         int extendWhole = SixteenSixteenWords.ToDisplacement(extend).WholePixels;
         ushort extendFraction = SixteenSixteenWords.ToDisplacement(extend).Fraction;
         var maximum = SignedSixteenSixteen.FromParts(128, 0);
@@ -48,19 +48,19 @@ internal static class YappingMawExtensionVerification
         AssertEqual(SignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
             "the fraction's carry reaches the whole part");
         AssertEqual(YappingMawAction.ExtendingOrRetracting, carried.Action, "a positive curl keeps extending");
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(row + 1), carried.QuadraticSpeedRow, "below the clamp the row advances once");
+        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), carried.SpeedCurvePlace, "below the clamp the row advances once");
         AssertEqual(EnemySpeedSign.Positive, carried.QuadraticSpeedSign, "below the clamp the speed stays extending");
 
         YappingMawEnemyState clamped = Advance(maximum - SixteenSixteenWords.ToDisplacement(extend), row, EnemySpeedSign.Positive);
         AssertEqual(maximum, clamped.Extension, "reaching +128 clamps the curl there with a cleared fraction");
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(row + 1), clamped.QuadraticSpeedRow, "the clamp keeps the update's row advance");
+        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), clamped.SpeedCurvePlace, "the clamp keeps the update's row advance");
         AssertEqual(EnemySpeedSign.Negative, clamped.QuadraticSpeedSign, "the clamp turns the speed around to the row's retracting speed");
 
         YappingMawEnemyState belowClamp = Advance(
             maximum - SixteenSixteenWords.ToDisplacement(extend) - SignedSixteenSixteen.FromParts(0, 1), row, EnemySpeedSign.Positive);
         AssertEqual(SignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension,
             "one fraction unit short of +128 is not clamped");
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(row + 1), belowClamp.QuadraticSpeedRow, "one fraction unit short of +128 advances the row once");
+        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), belowClamp.SpeedCurvePlace, "one fraction unit short of +128 advances the row once");
         AssertEqual(EnemySpeedSign.Positive, belowClamp.QuadraticSpeedSign, "one fraction unit short of +128 keeps extending");
 
         YappingMawEnemyState atZero = Advance(SixteenSixteenWords.ToDisplacement(-retract), row, EnemySpeedSign.Negative);
@@ -93,7 +93,7 @@ internal static class YappingMawExtensionVerification
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
 
         state.Extension = start;
-        state.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.FromRows(row);
+        state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
         state.QuadraticSpeedSign = sign;
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
         return state;

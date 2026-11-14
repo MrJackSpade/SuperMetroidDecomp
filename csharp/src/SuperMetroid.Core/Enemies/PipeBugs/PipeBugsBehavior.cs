@@ -54,8 +54,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int YellowPipeBugEmergenceDelayFrames = 24;
     /// <summary>Distance past Samus at which a yellow bug begins its one-time arc.</summary>
     private const int YellowPipeBugArcTriggerDistance = 48;
-    /// <summary>The place along the quadratic speed table, row 40, the yellow bug's vertical arc starts from.</summary>
-    private static readonly EnemyQuadraticSpeedIndex YellowPipeBugArcCounterStart = EnemyQuadraticSpeedIndex.FromRows(40);
+    /// <summary>The place along the quadratic speed curve, mark 40, the yellow bug's vertical arc starts from.</summary>
+    private static readonly QuadraticSpeedCurvePlace YellowPipeBugArcCounterStart = QuadraticSpeedCurvePlace.FromMarks(40);
 
     /// <summary>Initializes the Brinstar Pipe Bug.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
@@ -546,24 +546,24 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddYellowPipeBugHorizontalVelocity(slot, state, direction == HorizontalDirection.Left);
         if (state.ArcRising)
         {
-            // The game moves the place back and ends the rise when it would pass the first row, holding it there; the
-            // place never passes the first row, so the end is tested before the step.
-            if (state.ArcCounter == EnemyQuadraticSpeedIndex.Start)
+            // The game moves the place back and ends the rise when it would pass the curve's start, holding it there; the
+            // place never passes the curve's start, so the end is tested before the step.
+            if (state.ArcCounter == QuadraticSpeedCurvePlace.Start)
             {
                 state.ArcRising = false;
             }
             else
             {
-                state.ArcCounter -= EnemyQuadraticSpeedIndex.OneRow;
+                state.ArcCounter -= QuadraticSpeedCurvePlace.OneMark;
                 AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-                    state.ArcCounter.Row.Positive);
+                    state.ArcCounter.Speed.Positive);
             }
             return;
         }
 
-        state.ArcCounter += EnemyQuadraticSpeedIndex.OneRow;
+        state.ArcCounter += QuadraticSpeedCurvePlace.OneMark;
         AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-            state.ArcCounter.Row.Negative);
+            state.ArcCounter.Speed.Negative);
         bool returnedToSpawnY = direction == HorizontalDirection.Left
             ? CoordinateAxis.Difference(slot.Position.Y.Whole, state.SpawnPosition.Y) < 0
             : CoordinateAxis.Difference(state.SpawnPosition.Y, slot.Position.Y.Whole) >= 0;

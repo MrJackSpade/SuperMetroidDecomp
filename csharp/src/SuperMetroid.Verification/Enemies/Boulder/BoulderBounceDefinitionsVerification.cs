@@ -25,13 +25,13 @@ internal static class BoulderBounceDefinitionsVerification
         {
             int address = 0xa686f1 + (counter - 1) * 2;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual((int)expected, BoulderBounces.SpeedIndex(counter).InTwoHundredFiftySixthsOfRow, "Boulder native leading-zero/bounce word");
+            AssertEqual((int)expected, BoulderBounces.StartingPlace(counter).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;
-            state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(32);
+            state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromMarks(32);
             state.Action = BoulderAction.Falling;
             fall(actor, state, level);
-            AssertEqual((int)expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfRow, "Boulder real collision installs compiled sample without bus");
+            AssertEqual((int)expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfMark, "Boulder real collision installs compiled sample without bus");
             AssertEqual(counter - 1, state.BounceCounter, "Boulder bounce count after the impact, minus one after the last");
             AssertEqual(counter == 0 ? BoulderAction.Rolling : BoulderAction.Rebound,
                 state.Action, "Boulder last collision enters rolling");
@@ -40,8 +40,8 @@ internal static class BoulderBounceDefinitionsVerification
                 AssertEqual(actor.Position.Y, state.PreviousY, "Boulder rolling Y and subpixel handoff");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.SpeedIndex(3), "Boulder unsupported bounce count");
-        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.SpeedIndex(ushort.MaxValue), "Boulder underflow is not another bounce");
+        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.StartingPlace(3), "Boulder unsupported bounce count");
+        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.StartingPlace(ushort.MaxValue), "Boulder underflow is not another bounce");
         Console.WriteLine("Boulder bounce definitions: all three native words and real solid-floor collisions match without a bus, including the zero-to-minus-one rolling handoff.");
     }
 }

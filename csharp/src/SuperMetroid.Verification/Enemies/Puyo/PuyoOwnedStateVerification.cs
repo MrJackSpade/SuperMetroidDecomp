@@ -5,7 +5,7 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Puyo state the species owns: the airborne index's two sign-bit restarts.</summary>
+/// <summary>Checks the Puyo state the species owns: the airborne place's two sign-bit restarts.</summary>
 internal static class PuyoOwnedStateVerification
 {
     /// <summary>
@@ -15,23 +15,23 @@ internal static class PuyoOwnedStateVerification
     /// </summary>
     internal static void VerifyPuyoOwnedState()
     {
-        static EnemyQuadraticSpeedIndex Index(int twoHundredFiftySixths) => EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(twoHundredFiftySixths);
-        var hop = new PuyoEnemyState { YSpeedCurvePlace = Index(0x0200) };
-        hop.StepAirborneIndex(Index(0x0200));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a rising step landing on zero keeps rising");
-        hop.StepAirborneIndex(Index(0x0200));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a rising step below zero is the apex");
-        hop.StepAirborneIndex(Index(0x01c0));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step accumulates");
-        hop.YSpeedCurvePlace = Index(0x7f00);
-        hop.StepAirborneIndex(Index(0x0100));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step reaching the sign bit restarts the fall");
-        hop.YSpeedCurvePlace = Index(0x7e00);
-        hop.StepAirborneIndex(Index(0x0100));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step below the sign bit keeps falling");
-        hop.YSpeedCurvePlace = Index(0x7f00);
-        hop.StepAirborneIndex(Index(0x00ff));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
+        static QuadraticSpeedCurvePlace Place(int twoHundredFiftySixths) => QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(twoHundredFiftySixths);
+        var hop = new PuyoEnemyState { YSpeedCurvePlace = Place(0x0200) };
+        hop.StepAirbornePlace(Place(0x0200));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a rising step landing on zero keeps rising");
+        hop.StepAirbornePlace(Place(0x0200));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a rising step below zero is the apex");
+        hop.StepAirbornePlace(Place(0x01c0));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step accumulates");
+        hop.YSpeedCurvePlace = Place(0x7f00);
+        hop.StepAirbornePlace(Place(0x0100));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step reaching the sign bit restarts the fall");
+        hop.YSpeedCurvePlace = Place(0x7e00);
+        hop.StepAirbornePlace(Place(0x0100));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step below the sign bit keeps falling");
+        hop.YSpeedCurvePlace = Place(0x7f00);
+        hop.StepAirbornePlace(Place(0x00ff));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

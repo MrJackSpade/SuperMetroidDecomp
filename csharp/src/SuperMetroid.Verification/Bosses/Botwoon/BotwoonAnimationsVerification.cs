@@ -210,10 +210,10 @@ internal static class BotwoonAnimationsVerification
         FixedPosition<RoomPixels> expected = body.Position;
         foreach ((int update, int rows) in new[] { (1, 0), (2, 0), (3, 1), (4, 2) })
         {
-            expected = expected.AdvanceY(EnemyQuadraticSpeeds.Row(rows).Positive);
+            expected = expected.AdvanceY(QuadraticSpeedCurve.AtMark(rows).Positive);
             runBody(body, 0);
             AssertEqual(expected, body.Position, $"a falling Botwoon segment's update {update} falls by row {rows}");
-            AssertEqual(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(192 * update), body.StateOf<BotwoonSegmentState>().FallPlace,
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192 * update), body.StateOf<BotwoonSegmentState>().FallPlace,
                 $"a falling Botwoon segment's place after update {update}");
         }
         body.Position = body.Position.WithWholeY(200);

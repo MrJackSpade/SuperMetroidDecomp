@@ -9,7 +9,7 @@ public enum BoulderAction
     WaitingForSamus,
     /// <summary>Accelerates downward without terrain collision checks until the authored spawn Y is reached, then starts the first rebound.</summary>
     InitialFall,
-    /// <summary>Decelerates the upward quadratic-table motion while accelerating horizontally, then enters the falling half of the bounce.</summary>
+    /// <summary>Decelerates the upward motion along the quadratic speed curve while accelerating horizontally, then enters the falling half of the bounce.</summary>
     Rebound,
     /// <summary>Falls with terrain collision, selects progressively smaller rebounds, and enters rolling when the bounce counter passes zero; a Boulder that breaks on impact breaks into dust at its first landing instead.</summary>
     Falling,

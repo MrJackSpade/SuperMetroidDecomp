@@ -8,18 +8,18 @@ public sealed class PuyoEnemyState
     internal AnimationPlayback<PuyoSegment> Playback { get; set; }
 
     /// <summary>
-    /// The Puyo's place along the shared quadratic speed table, whose whole rows choose its vertical speed, from the first
-    /// row through <see cref="LargestYSpeedCurvePlace"/>: a hop starts below its 96th row, and any step that would leave
-    /// that range restarts the fall at the first row (<see cref="StepAirborneIndex"/>).
+    /// The Puyo's place along the shared quadratic speed curve, whose whole marks choose its vertical speed, from the curve's
+    /// start through <see cref="LargestYSpeedCurvePlace"/>: a hop starts below its 96th mark, and any step that would leave
+    /// that range restarts the fall at the curve's start (<see cref="StepAirbornePlace"/>).
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
+    public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The furthest place the Puyo's index keeps: a step past it, as past the first row, restarts the fall, as the game's
-    /// check for a negative index does.
+    /// The furthest place the Puyo keeps: a step past it, as past the curve's start, restarts the fall, as the game's
+    /// check for a negative place does.
     /// </summary>
-    internal static readonly EnemyQuadraticSpeedIndex LargestYSpeedCurvePlace =
-        EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(short.MaxValue);
+    internal static readonly QuadraticSpeedCurvePlace LargestYSpeedCurvePlace =
+        QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(short.MaxValue);
 
     /// <summary>Grounded-frame countdown copied from its spawn hop cooldown.</summary>
     public int HopCooldownTimer { get; internal set; }
@@ -36,7 +36,7 @@ public sealed class PuyoEnemyState
     /// </summary>
     public PuyoHopType CurrentHop { get; internal set; }
 
-    /// <summary>The record selected for the next hop.</summary>
+    /// <summary>The mark selected for the next hop.</summary>
     public PuyoHopType HopType { get; internal set; }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class PuyoEnemyState
     /// <summary>The direction of the current hop.</summary>
     public PuyoDirection Direction { get; internal set; }
 
-    /// <summary>Selects positive gravity-table rows.</summary>
+    /// <summary>Selects the curve's downward speeds.</summary>
     public bool Falling { get; internal set; }
 
     /// <summary>A terrain collision requests that the next hop use the precomputed opposite direction instead of re-aiming at Samus.</summary>
@@ -57,24 +57,24 @@ public sealed class PuyoEnemyState
     /// <summary>Opposite direction captured when Puyo strikes a wall or ceiling.</summary>
     public PuyoDirection InvertedDirection { get; internal set; }
 
-    /// <summary>Three-quarter point of the initial vertical speed index.</summary>
-    public EnemyQuadraticSpeedIndex InitialYSpeedCurvePlaceThreeQuarters { get; internal set; }
+    /// <summary>Three-quarter point of the initial vertical speed-curve place.</summary>
+    public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceThreeQuarters { get; internal set; }
 
-    /// <summary>One-half point of the initial vertical speed index.</summary>
-    public EnemyQuadraticSpeedIndex InitialYSpeedCurvePlaceHalf { get; internal set; }
+    /// <summary>One-half point of the initial vertical speed-curve place.</summary>
+    public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
     /// <summary>
-    /// One airborne update's change to the speed index: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves the first row through <see cref="LargestYSpeedCurvePlace"/> (the game checks whether it is negative) restarts
-    /// the fall at the first row: the apex while rising, and a restart of an overlong fall.
+    /// One airborne update's change to the speed-curve place: rising lowers it by <paramref name="delta"/>, falling raises it.
+    /// A step that leaves the curve's start through <see cref="LargestYSpeedCurvePlace"/> (the game checks whether it is negative) restarts
+    /// the fall at the curve's start: the apex while rising, and a restart of an overlong fall.
     /// </summary>
-    /// <param name="delta">The hop record's index step, at most three whole rows.</param>
-    internal void StepAirborneIndex(EnemyQuadraticSpeedIndex delta)
+    /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>
+    internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta)
     {
         YSpeedCurvePlace = Falling ? YSpeedCurvePlace + delta : YSpeedCurvePlace - delta;
         if (!YSpeedCurvePlace.IsNegative && YSpeedCurvePlace <= LargestYSpeedCurvePlace)
             return;
         Falling = true;
-        YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+        YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
     }
 }

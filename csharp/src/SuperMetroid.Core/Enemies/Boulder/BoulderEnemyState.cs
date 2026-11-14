@@ -13,41 +13,41 @@ public sealed class BoulderEnemyState
     /// <summary>
     /// The largest travel clock: its larger cap.
     /// </summary>
-    internal static readonly EnemyQuadraticSpeedIndex LargestTravelSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(80);
+    internal static readonly QuadraticSpeedCurvePlace LargestTravelSpeedAccumulator = QuadraticSpeedCurvePlace.FromMarks(80);
 
     /// <summary>
-    /// The largest bounce clock: the quadratic table rejects the record past it before another increment.
+    /// The largest bounce clock: the place past the curve's last mark, which the curve rejects before another increment.
     /// </summary>
-    internal static readonly EnemyQuadraticSpeedIndex LargestBounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(EnemyQuadraticSpeedDefinitions.RowCount);
+    internal static readonly QuadraticSpeedCurvePlace LargestBounceSpeedAccumulator = QuadraticSpeedCurvePlace.PastLastMark;
 
     /// <summary>
-    /// The travel acceleration clock along the quadratic speed table: advanced by 32 or 64 256ths of a record per update
-    /// and capped at record 80 or 64, so it stays within the start through record 80; its whole records select the speed. It
+    /// The travel acceleration clock along the quadratic speed curve: advanced by 32 or 64 256ths of a mark per update
+    /// and capped at mark 80 or 64, so it stays within the start through mark 80; its whole marks select the speed. It
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
     /// an independent clock rather than one axis of a velocity.
     /// </summary>
-    public EnemyQuadraticSpeedIndex TravelSpeedAccumulator
+    public QuadraticSpeedCurvePlace TravelSpeedAccumulator
     {
         get;
         internal set => field = InRange(value, LargestTravelSpeedAccumulator);
     }
 
     /// <summary>
-    /// The bounce acceleration clock along the quadratic speed table: the running sum for the initial fall and the
+    /// The bounce acceleration clock along the quadratic speed curve: the running sum for the initial fall and the
     /// rebound arcs, with its own steps, caps and resets. A rebound that would take it below the start clamps it to the
-    /// start, and the uncapped falling increment cannot pass record 95 because the quadratic table rejects that record
-    /// before another increment, so it stays within the start through record 95.
+    /// start, and the uncapped falling increment cannot pass the place past the curve's last mark, because the curve rejects that
+    /// place before another increment, so it stays within the start through that place.
     /// </summary>
-    public EnemyQuadraticSpeedIndex BounceSpeedAccumulator
+    public QuadraticSpeedCurvePlace BounceSpeedAccumulator
     {
         get;
         internal set => field = InRange(value, LargestBounceSpeedAccumulator);
     }
 
-    /// <summary><paramref name="value"/>, checked to lie from the start of the table through <paramref name="largest"/>.</summary>
-    private static EnemyQuadraticSpeedIndex InRange(EnemyQuadraticSpeedIndex value, EnemyQuadraticSpeedIndex largest)
+    /// <summary><paramref name="value"/>, checked to lie from the curve's start through <paramref name="largest"/>.</summary>
+    private static QuadraticSpeedCurvePlace InRange(QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace largest)
     {
-        _ = Ensure.BetweenInclusive(0, largest.InTwoHundredFiftySixthsOfRow, value.InTwoHundredFiftySixthsOfRow);
+        _ = Ensure.BetweenInclusive(0, largest.InTwoHundredFiftySixthsOfMark, value.InTwoHundredFiftySixthsOfMark);
         return value;
     }
 

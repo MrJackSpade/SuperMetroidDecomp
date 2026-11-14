@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
 /// The state of one Choot. Every value is the Choot's own: setup writes the spawn and falling positions and the
-/// starting ascent index, activation writes the jump delay and the apex writes the falling origin, each before it is
+/// ascent's starting place, activation writes the jump delay and the apex writes the falling origin, each before it is
 /// read, so nothing a previous Choot in the slot left reaches a new one.
 /// </summary>
 public sealed class ChootEnemyState
@@ -15,11 +15,11 @@ public sealed class ChootEnemyState
     public ChootAction? Action { get; internal set; }
 
     /// <summary>
-    /// The ascent's whole-row place along the quadratic speed table, moving back two rows per jumping update; the update
-    /// that takes it before the first row is the apex. It starts at the even row whose integrated speeds cover the jump
-    /// height, at most row 94.
+    /// The ascent's whole-mark place along the quadratic speed curve, moving back two marks per jumping update; the update
+    /// that takes it before the curve's start is the apex. It starts at the even mark whose integrated speeds cover the jump
+    /// height, at most the curve's last mark.
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
+    public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each loop's end.</summary>
     public int FallingPatternFrame { get; internal set; }
@@ -43,7 +43,7 @@ public sealed class ChootEnemyState
     public Position16<RoomPixels> FallingOrigin { get; internal set; }
 
     /// <summary>The ascent's starting place calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedCurvePlace"/> when the jump cycle finishes.</summary>
-    public EnemyQuadraticSpeedIndex InitialYSpeedCurvePlace { get; internal set; }
+    public QuadraticSpeedCurvePlace InitialYSpeedCurvePlace { get; internal set; }
 
     /// <summary>
     /// The jump delay's countdown. The jump begins only after decrementing through zero to

@@ -42,7 +42,7 @@ public sealed class BotwoonEnemyState
     /// the whole records select the fall speed. The fall reaches the floor before the speed table runs out, so it stays
     /// well below record 95.
     /// </summary>
-    public EnemyQuadraticSpeedIndex DeathFallAccumulator { get; internal set; }
+    public QuadraticSpeedCurvePlace DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
     public int WallExplosionFrame { get; internal set; }
     /// <summary>Frames until the next large wall explosion, active from update 64 and reloaded to 12 once it runs past zero.</summary>

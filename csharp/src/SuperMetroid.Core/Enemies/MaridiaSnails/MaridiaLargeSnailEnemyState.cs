@@ -48,12 +48,12 @@ public sealed class MaridiaLargeSnailEnemyState
     public MaridiaLargeSnailAction? Action { get; internal set; }
 
     /// <summary>
-    /// The bounce arc's place along the quadratic speed table, stepped by a record and a half per update. Falling caps it
-    /// at record 64; an impact removes 16 records and may leave it below the start, which ends the bounces, and rising
-    /// stores the start once it would go below it. It therefore stays within 3712 256ths of a record below the start
-    /// through record 64.
+    /// The bounce arc's place along the quadratic speed curve, stepped by a mark and a half per update. Falling caps it
+    /// at mark 64; an impact removes 16 marks and may leave it below the start, which ends the bounces, and rising
+    /// stores the start once it would go below it. It therefore stays within 3712 256ths of a mark below the start
+    /// through mark 64.
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
+    public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
     public int AttackCooldown { get; internal set; }

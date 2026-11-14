@@ -70,13 +70,13 @@ public sealed class YappingMawEnemyState
     public SignedSixteenSixteen Extension { get; internal set; }
 
     /// <summary>
-    /// The whole-row place along the quadratically increasing common enemy speeds the next curl update adds: each
-    /// update moves one row on, so the curl accelerates out and, after the turn-around, back.
+    /// The whole-mark place along the quadratically increasing common enemy speeds the next curl update adds: each
+    /// update moves one mark on, so the curl accelerates out and, after the turn-around, back.
     /// </summary>
-    public EnemyQuadraticSpeedIndex QuadraticSpeedRow { get; internal set; }
+    public QuadraticSpeedCurvePlace SpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// Which of the row's two speeds the curl adds: the positive one while the tongue extends, the negative one after
+    /// Which of the mark's two speeds the curl adds: the positive one while the tongue extends, the negative one after
     /// the turn-around clamp.
     /// </summary>
     internal EnemySpeedSign QuadraticSpeedSign { get; set; }

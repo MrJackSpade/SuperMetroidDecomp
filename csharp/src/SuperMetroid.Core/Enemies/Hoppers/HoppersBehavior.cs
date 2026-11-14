@@ -57,8 +57,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Global RNG seed written when a Hopper initializes.</summary>
     private const int HopperRandomSeed = 37;
-    /// <summary>Terminal place along the quadratic speed table, row 64, that caps the falling half of a hop.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumHopperYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(64);
+    /// <summary>Terminal place along the quadratic speed curve, mark 64, that caps the falling half of a hop.</summary>
+    private static readonly QuadraticSpeedCurvePlace MaximumHopperYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
@@ -243,7 +243,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Row.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Speed.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
@@ -278,12 +278,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (movingAwayFromSurface)
         {
-            // The game stores the moved-back place and checks whether it is negative: a place before the first row is the apex,
-            // replaced by the first row as the hop turns back toward the surface.
-            EnemyQuadraticSpeedIndex next = state.YSpeedCurvePlace - EnemyQuadraticSpeedIndex.FromRows(state.YSpeedCurvePlaceDelta);
+            // The game stores the moved-back place and checks whether it is negative: a place before the curve's start is the apex,
+            // replaced by the curve's start as the hop turns back toward the surface.
+            QuadraticSpeedCurvePlace next = state.YSpeedCurvePlace - QuadraticSpeedCurvePlace.FromMarks(state.YSpeedCurvePlaceDelta);
             if (next.IsNegative)
             {
-                state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
                 state.Falling = true;
             }
             else
@@ -293,30 +293,30 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The game caps the returning record by whether its wrapped difference from the cap is negative; both stay
+        // The game caps the returning mark by whether its wrapped difference from the cap is negative; both stay
         // far inside the signed range, so that is the ordinary minimum.
-        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(
-            state.YSpeedCurvePlace + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedCurvePlaceDelta),
+        state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
+            state.YSpeedCurvePlace + QuadraticSpeedCurvePlace.FromMarks(state.YSpeedCurvePlaceDelta),
             MaximumHopperYSpeedCurvePlace);
     }
 
-    /// <summary>Sums the quadratic table's coarse speeds until the authored jump height is reached.</summary>
-    internal static EnemyQuadraticSpeedIndex CalculateInitialHopperYSpeedCurvePlace(
+    /// <summary>Sums the quadratic speed curve's coarse speeds until the authored jump height is reached.</summary>
+    internal static QuadraticSpeedCurvePlace CalculateInitialHopperYSpeedCurvePlace(
         int jumpHeight,
         int curvePlaceStep)
     {
-        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
+        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
         int accumulatedHeight = 0;
-        // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
-        // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
+        // Each pass moves the place on by the delta, so the height is reached within the curve's marks or never: past them
+        // reading the speed rejects the climb before the place could grow further, and a delta of zero sums the start's
         // speed of zero only (#1627).
-        for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
+        for (int iteration = 0; iteration < QuadraticSpeedCurveDefinitions.MarkCount; iteration++)
         {
-            curvePlace += EnemyQuadraticSpeedIndex.FromRows(curvePlaceStep);
+            curvePlace += QuadraticSpeedCurvePlace.FromMarks(curvePlaceStep);
 
-            // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
-            // initial jump row.
-            int heightIncrement = curvePlace.Row.CoarseToward(EnemySpeedSign.Positive);
+            // The height sums each mark's coarse speed, in 256ths of a pixel; summing full speeds changes every
+            // initial jump mark.
+            int heightIncrement = curvePlace.Speed.CoarseToward(EnemySpeedSign.Positive);
             accumulatedHeight = CoordinateAxis.Wrap(accumulatedHeight + heightIncrement);
             if (CoordinateAxis.Difference(accumulatedHeight, jumpHeight) >= 0)
                 return curvePlace;

@@ -32,9 +32,9 @@ internal static class PuyoHopDefinitionsVerification
             } while (unchecked((short)(target - distance)) >= 0);
             state.CurrentHop = hopType;
             calculate(state);
-            AssertEqual(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(time), state.YSpeedCurvePlace, "Puyo real initial curve index without bus");
-            AssertEqual(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(time / 2), state.InitialYSpeedCurvePlaceHalf, "Puyo half threshold");
-            AssertEqual(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(time / 2 + time / 4), state.InitialYSpeedCurvePlaceThreeQuarters, "Puyo three-quarter threshold");
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(time), state.YSpeedCurvePlace, "Puyo real initial curve index without bus");
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(time / 2), state.InitialYSpeedCurvePlaceHalf, "Puyo half threshold");
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(time / 2 + time / 4), state.InitialYSpeedCurvePlaceThreeQuarters, "Puyo three-quarter threshold");
         }
         Console.WriteLine("Puyo definitions: all seven native records and six real initial hop integrations match without a bus; dropping remains a separate constant-speed path.");
     }

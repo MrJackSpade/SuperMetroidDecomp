@@ -70,11 +70,6 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly EnemyProjectileFrameId[] CrocomireProjectiles =
     [
         EnemyProjectileFrameId.CrocomireSpikeWallPiece,
-        EnemyProjectileFrameId.CrocomireShotFirst,
-        EnemyProjectileFrameId.CrocomireShotSecond,
-        EnemyProjectileFrameId.CrocomireShotThird,
-        EnemyProjectileFrameId.CrocomireShotFourth,
-        EnemyProjectileFrameId.CrocomireShotFifth,
     ];
 
     /// <summary>The room sprite objects <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns.</summary>
@@ -140,13 +135,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SporeSpawnSporeSecond,
         EnemyProjectileFrameId.SporeSpawnSporeThird,
         EnemyProjectileFrameId.SporeSpawnStalk,
-        EnemyProjectileFrameId.SporeSpawnSporeShotFirst,
-        EnemyProjectileFrameId.SporeSpawnSporeShotSecond,
-        EnemyProjectileFrameId.SporeSpawnSporeShotThird,
-        EnemyProjectileFrameId.SporeSpawnSporeShotFourth,
-        EnemyProjectileFrameId.SporeSpawnSporeShotFifth,
-        EnemyProjectileFrameId.SporeSpawnSporeShotSixth,
-        EnemyProjectileFrameId.SporeSpawnSporeShotSeventh,
     ];
 
     /// <summary>The room sprite objects <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns.</summary>
@@ -730,6 +718,15 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueSplashSecond,
         EnemyProjectileFrameId.TourianStatueSplashThird,
         EnemyProjectileFrameId.TourianStatueSplashFourth,
+        EnemyProjectileFrameId.TourianStatueEyeGlowFirst,
+        EnemyProjectileFrameId.TourianStatueEyeGlowSecond,
+        EnemyProjectileFrameId.TourianStatueEyeGlowThird,
+        EnemyProjectileFrameId.TourianStatueEyeGlowFourth,
+        EnemyProjectileFrameId.TourianStatueEyeGlowFifth,
+        EnemyProjectileFrameId.TourianStatueEyeGlowSixth,
+        EnemyProjectileFrameId.TourianStatueEyeGlowSeventh,
+        EnemyProjectileFrameId.TourianStatueEyeGlowEighth,
+        EnemyProjectileFrameId.TourianStatueEyeGlowNinth,
         EnemyProjectileFrameId.TourianStatueParticleFirst,
         EnemyProjectileFrameId.TourianStatueParticleSecond,
         EnemyProjectileFrameId.TourianStatueParticleThird,
@@ -738,6 +735,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueTailSecond,
         EnemyProjectileFrameId.TourianStatueTailThird,
         EnemyProjectileFrameId.TourianStatueTailFourth,
+        EnemyProjectileFrameId.TourianStatueSoulFirst,
+        EnemyProjectileFrameId.TourianStatueSoulSecond,
         EnemyProjectileFrameId.TourianStatueBaseDecoration,
         EnemyProjectileFrameId.TourianStatueBaseDecorationLoop,
         EnemyProjectileFrameId.TourianStatueRidley,
@@ -2109,6 +2108,63 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.Smoke,
     ];
 
+    /// <summary>The projectile frames <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] ShitroidSharedProjectiles =
+    [
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
+    ];
+
+    /// <summary>The room sprite objects <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomSpriteObjectKind[] ShitroidSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
+
     /// <summary>The projectile frames <c>Bosses/MotherBrain/ZebetiteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] ZebetiteSharedProjectiles =
     [
@@ -2489,7 +2545,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] SporeSpawnSharedProjectiles =
     [
-        EnemyProjectileFrameId.SporeSpawnSpawnerClosed,
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFirst,
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseSecond,
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseThird,
@@ -2498,7 +2553,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SporeSpawnSporeFirst,
         EnemyProjectileFrameId.SporeSpawnSporeSecond,
         EnemyProjectileFrameId.SporeSpawnSporeThird,
-        EnemyProjectileFrameId.SporeSpawnStalk,
         EnemyProjectileFrameId.SporeSpawnSporeShotFirst,
         EnemyProjectileFrameId.SporeSpawnSporeShotSecond,
         EnemyProjectileFrameId.SporeSpawnSporeShotThird,
@@ -3277,10 +3331,59 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSeventh,
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesEighth,
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Corpses/DeadTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DeadTorizoSharedSpriteObjects = [];
+    private static readonly RoomSpriteObjectKind[] DeadTorizoSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
 
     /// <summary>The projectile frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] DeadTourianSharedProjectiles =
@@ -3375,10 +3478,59 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSeventh,
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesEighth,
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Corpses/DeadTourianBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DeadTourianSharedSpriteObjects = [];
+    private static readonly RoomSpriteObjectKind[] DeadTourianSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
 
     /// <summary>The projectile frames <c>Enemies/Dragon/DragonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] DragonSharedProjectiles =
@@ -4068,6 +4220,63 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.Smoke,
     ];
 
+    /// <summary>The projectile frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] ShuttersSharedProjectiles =
+    [
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
+    ];
+
+    /// <summary>The room sprite objects <c>Enemies/Shutters/ShuttersBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomSpriteObjectKind[] ShuttersSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
+
     /// <summary>The projectile frames <c>Enemies/Skree/SkreeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] SkreeSharedProjectiles =
     [
@@ -4126,12 +4335,61 @@ internal static class SpawnedObjectFrameDefinitions
     ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] NinjaSpacePirateSharedProjectiles = [];
+    private static readonly EnemyProjectileFrameId[] NinjaSpacePirateSharedProjectiles =
+    [
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
+    ];
 
     /// <summary>The room sprite objects <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomSpriteObjectKind[] NinjaSpacePirateSharedSpriteObjects =
     [
+        RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.NinjaPirateLandingDust,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4163,10 +4421,59 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SpacePirateLaserRightEleventh,
         EnemyProjectileFrameId.SpacePirateLaserRightLoopFirst,
         EnemyProjectileFrameId.SpacePirateLaserRightLoopSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] WalkingSpacePirateSharedSpriteObjects = [];
+    private static readonly RoomSpriteObjectKind[] WalkingSpacePirateSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/WallSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] WallSpacePirateSharedProjectiles =
@@ -4261,10 +4568,116 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.WorkRobotLaserLoopSecond,
         EnemyProjectileFrameId.WorkRobotLaserLoopThird,
         EnemyProjectileFrameId.WorkRobotLaserLoopFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] WorkRobotSharedSpriteObjects = [];
+    private static readonly RoomSpriteObjectKind[] WorkRobotSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
+
+    /// <summary>The projectile frames <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] YappingMawSharedProjectiles =
+    [
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionThird,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth,
+        EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFirst,
+        EnemyProjectileFrameId.EnemyPickupBigEnergySecond,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyThird,
+        EnemyProjectileFrameId.EnemyPickupBigEnergyFourth,
+        EnemyProjectileFrameId.EnemyPickupMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst,
+        EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFirst,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsSecond,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsThird,
+        EnemyProjectileFrameId.EnemyPickupPowerBombsFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth,
+        EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
+    ];
+
+    /// <summary>The room sprite objects <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomSpriteObjectKind[] YappingMawSharedSpriteObjects =
+    [
+        RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.SmallExplosion,
+        RoomSpriteObjectKind.Smoke,
+    ];
 
     /// <summary>The projectile frames <c>Enemies/Yard/YardEnemyBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] YardEnemySharedProjectiles =
@@ -4742,20 +5155,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>EyeDoorBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomSpriteObjectKind[] CommonEyeDoorBehaviorSpriteObjects = [];
 
-    /// <summary>The projectile frames <c>FallingSparksBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonFallingSparksBehaviorProjectiles =
-    [
-        EnemyProjectileFrameId.FallingSparkHitFloorFirst,
-        EnemyProjectileFrameId.FallingSparkHitFloorThird,
-        EnemyProjectileFrameId.FallingSparkHitFloorFifth,
-        EnemyProjectileFrameId.FallingSparkHitFloorSeventh,
-        EnemyProjectileFrameId.FallingSparkHitFloorNinth,
-        EnemyProjectileFrameId.FallingSparkHitFloorEleventh,
-    ];
-
-    /// <summary>The room sprite objects <c>FallingSparksBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonFallingSparksBehaviorSpriteObjects = [];
-
     /// <summary>The projectile frames <c>NoobTubeBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonNoobTubeBehaviorProjectiles =
     [
@@ -4891,96 +5290,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresRidleyDirectionalThird,
         EnemyProjectileFrameId.CeresRidleyDirectionalFourth,
         EnemyProjectileFrameId.CeresRidleyDirectionalFifth,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleFirst,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleSecond,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleThird,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleFourth,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleFifth,
-        EnemyProjectileFrameId.MiscDustElbowChargeParticleSixth,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergyFirst,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergySecond,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergyThird,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergyFourth,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergyFifth,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergySixth,
-        EnemyProjectileFrameId.MiscDustElbowChargeEnergySeventh,
-        EnemyProjectileFrameId.MiscDustSmallExplosionFirst,
-        EnemyProjectileFrameId.MiscDustSmallExplosionSecond,
-        EnemyProjectileFrameId.MiscDustSmallExplosionThird,
-        EnemyProjectileFrameId.MiscDustSmallExplosionFourth,
-        EnemyProjectileFrameId.MiscDustSmallExplosionFifth,
-        EnemyProjectileFrameId.MiscDustSmallExplosionSixth,
-        EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFirst,
-        EnemyProjectileFrameId.MiscDustRainbowBeamExplosionSecond,
-        EnemyProjectileFrameId.MiscDustRainbowBeamExplosionThird,
-        EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFourth,
-        EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFifth,
-        EnemyProjectileFrameId.MiscDustDudShotFirst,
-        EnemyProjectileFrameId.MiscDustDudShotSecond,
-        EnemyProjectileFrameId.MiscDustDudShotThird,
-        EnemyProjectileFrameId.MiscDustDudShotFourth,
-        EnemyProjectileFrameId.MiscDustDudShotFifth,
-        EnemyProjectileFrameId.MiscDustDudShotSixth,
-        EnemyProjectileFrameId.MiscDustSmallDustCloudFirst,
-        EnemyProjectileFrameId.MiscDustSmallDustCloudSecond,
-        EnemyProjectileFrameId.MiscDustSmallDustCloudThird,
-        EnemyProjectileFrameId.MiscDustSmallDustCloudFourth,
-        EnemyProjectileFrameId.MiscDustSmallDustCloudFifth,
-        EnemyProjectileFrameId.MiscDustCorpseDustCloudFirst,
-        EnemyProjectileFrameId.MiscDustCorpseDustCloudSecond,
-        EnemyProjectileFrameId.MiscDustCorpseDustCloudThird,
-        EnemyProjectileFrameId.MiscDustCorpseDustCloudFourth,
-        EnemyProjectileFrameId.MiscDustEyeDoorSweatDropFirst,
-        EnemyProjectileFrameId.MiscDustEyeDoorSweatDropSecond,
-        EnemyProjectileFrameId.MiscDustEyeDoorSweatDropThird,
-        EnemyProjectileFrameId.MiscDustEyeDoorSweatDropFourth,
-        EnemyProjectileFrameId.MiscDustSmokeFirst,
-        EnemyProjectileFrameId.MiscDustSmokeSecond,
-        EnemyProjectileFrameId.MiscDustSmokeThird,
-        EnemyProjectileFrameId.MiscDustSmokeFourth,
-        EnemyProjectileFrameId.MiscDustBigExplosionFirst,
-        EnemyProjectileFrameId.MiscDustBigExplosionSecond,
-        EnemyProjectileFrameId.MiscDustBigExplosionThird,
-        EnemyProjectileFrameId.MiscDustBigExplosionFourth,
-        EnemyProjectileFrameId.MiscDustBigExplosionFifth,
-        EnemyProjectileFrameId.MiscDustBigExplosionSixth,
-        EnemyProjectileFrameId.MiscDustRockParticlesFirst,
-        EnemyProjectileFrameId.MiscDustRockParticlesSecond,
-        EnemyProjectileFrameId.MiscDustRockParticlesThird,
-        EnemyProjectileFrameId.MiscDustRockParticlesFourth,
-        EnemyProjectileFrameId.MiscDustRockParticlesFifth,
-        EnemyProjectileFrameId.MiscDustRockParticlesSixth,
-        EnemyProjectileFrameId.MiscDustRockParticlesSeventh,
-        EnemyProjectileFrameId.MiscDustRockParticlesEighth,
-        EnemyProjectileFrameId.MiscDustRockParticlesNinth,
-        EnemyProjectileFrameId.MiscDustRockParticlesTenth,
-        EnemyProjectileFrameId.MiscDustRockParticlesEleventh,
-        EnemyProjectileFrameId.MiscDustRockParticlesTwelfth,
-        EnemyProjectileFrameId.MiscDustRockParticlesThirteenth,
-        EnemyProjectileFrameId.MiscDustRockParticlesFourteenth,
-        EnemyProjectileFrameId.MiscDustRockParticlesFifteenth,
-        EnemyProjectileFrameId.MiscDustRockParticlesSixteenth,
-        EnemyProjectileFrameId.MiscDustShortBigDustCloudFirst,
-        EnemyProjectileFrameId.MiscDustShortBigDustCloudSecond,
-        EnemyProjectileFrameId.MiscDustShortBigDustCloudThird,
-        EnemyProjectileFrameId.MiscDustShortBigDustCloudFourth,
-        EnemyProjectileFrameId.MiscDustBigDustCloudFirst,
-        EnemyProjectileFrameId.MiscDustBigDustCloudSecond,
-        EnemyProjectileFrameId.MiscDustBigDustCloudThird,
-        EnemyProjectileFrameId.MiscDustBigDustCloudFourth,
-        EnemyProjectileFrameId.MiscDustBigDustCloudFifth,
-        EnemyProjectileFrameId.MiscDustBigDustCloudSixth,
-        EnemyProjectileFrameId.MiscDustBigDustCloudSeventh,
-        EnemyProjectileFrameId.MiscDustBigDustCloudEighth,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesFirst,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSecond,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesThird,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesFourth,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesFifth,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSixth,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSeventh,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesEighth,
-        EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
     /// <summary>The room sprite objects <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -5003,15 +5312,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueSplashSecond,
         EnemyProjectileFrameId.TourianStatueSplashThird,
         EnemyProjectileFrameId.TourianStatueSplashFourth,
-        EnemyProjectileFrameId.TourianStatueEyeGlowFirst,
-        EnemyProjectileFrameId.TourianStatueEyeGlowSecond,
-        EnemyProjectileFrameId.TourianStatueEyeGlowThird,
-        EnemyProjectileFrameId.TourianStatueEyeGlowFourth,
-        EnemyProjectileFrameId.TourianStatueEyeGlowFifth,
-        EnemyProjectileFrameId.TourianStatueEyeGlowSixth,
-        EnemyProjectileFrameId.TourianStatueEyeGlowSeventh,
-        EnemyProjectileFrameId.TourianStatueEyeGlowEighth,
-        EnemyProjectileFrameId.TourianStatueEyeGlowNinth,
         EnemyProjectileFrameId.TourianStatueParticleFirst,
         EnemyProjectileFrameId.TourianStatueParticleSecond,
         EnemyProjectileFrameId.TourianStatueParticleThird,
@@ -5020,8 +5320,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueTailSecond,
         EnemyProjectileFrameId.TourianStatueTailThird,
         EnemyProjectileFrameId.TourianStatueTailFourth,
-        EnemyProjectileFrameId.TourianStatueSoulFirst,
-        EnemyProjectileFrameId.TourianStatueSoulSecond,
     ];
 
     /// <summary>The room sprite objects <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -5095,6 +5393,7 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainSharedProjectiles, MotherBrainSharedSpriteObjects),
             [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainSharedProjectiles, MotherBrainSharedSpriteObjects),
             [EnemyDefinitionId.Rinka] = new(RinkaSharedProjectiles, RinkaSharedSpriteObjects),
+            [EnemyDefinitionId.BabyMetroid] = new(ShitroidSharedProjectiles, ShitroidSharedSpriteObjects),
             [EnemyDefinitionId.Zebetite] = new(ZebetiteSharedProjectiles, ZebetiteSharedSpriteObjects),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonSharedProjectiles, PhantoonSharedSpriteObjects),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonSharedProjectiles, PhantoonSharedSpriteObjects),
@@ -5130,6 +5429,10 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.Mochtroid] = new(MochtroidSharedProjectiles, MochtroidSharedSpriteObjects),
             [EnemyDefinitionId.Powamp] = new(PowampSharedProjectiles, PowampSharedSpriteObjects),
             [EnemyDefinitionId.Shaktool] = new(ShaktoolSharedProjectiles, ShaktoolSharedSpriteObjects),
+            [EnemyDefinitionId.Kamer] = new(ShuttersSharedProjectiles, ShuttersSharedSpriteObjects),
+            [EnemyDefinitionId.ShutterDestroyable] = new(ShuttersSharedProjectiles, ShuttersSharedSpriteObjects),
+            [EnemyDefinitionId.ShutterGrowing] = new(ShuttersSharedProjectiles, ShuttersSharedSpriteObjects),
+            [EnemyDefinitionId.ShutterShootable] = new(ShuttersSharedProjectiles, ShuttersSharedSpriteObjects),
             [EnemyDefinitionId.Skree] = new(SkreeSharedProjectiles, SkreeSharedSpriteObjects),
             [EnemyDefinitionId.PirateGoldNinja] = new(NinjaSpacePirateSharedProjectiles, NinjaSpacePirateSharedSpriteObjects),
             [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateSharedProjectiles, NinjaSpacePirateSharedSpriteObjects),
@@ -5145,6 +5448,7 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.PirateSilverWall] = new(WallSpacePirateSharedProjectiles, WallSpacePirateSharedSpriteObjects),
             [EnemyDefinitionId.Robot] = new(WorkRobotSharedProjectiles, WorkRobotSharedSpriteObjects),
             [EnemyDefinitionId.RobotNoPower] = new(WorkRobotSharedProjectiles, WorkRobotSharedSpriteObjects),
+            [EnemyDefinitionId.YappingMaw] = new(YappingMawSharedProjectiles, YappingMawSharedSpriteObjects),
             [EnemyDefinitionId.Yard] = new(YardEnemySharedProjectiles, YardEnemySharedSpriteObjects),
         };
 
@@ -5170,7 +5474,6 @@ internal static class SpawnedObjectFrameDefinitions
         new("EnemyProjectileEngine.SpawnSaveStationElectricity", new(CommonEnemyProjectileEngineSpawnSaveStationElectricityProjectiles, CommonEnemyProjectileEngineSpawnSaveStationElectricitySpriteObjects)),
         new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorSpriteObjects)),
         new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorSpriteObjects)),
-        new("FallingSparksBehavior", new(CommonFallingSparksBehaviorProjectiles, CommonFallingSparksBehaviorSpriteObjects)),
         new("NoobTubeBehavior", new(CommonNoobTubeBehaviorProjectiles, CommonNoobTubeBehaviorSpriteObjects)),
         new("OldTourianEscapeShaftWallBehavior", new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorSpriteObjects)),
         new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesSpriteObjects)),

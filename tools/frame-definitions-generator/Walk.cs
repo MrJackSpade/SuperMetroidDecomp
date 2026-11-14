@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.FrameDefinitionsGenerator;
 
@@ -127,11 +128,11 @@ internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTyp
 /// One reachability walk over Core's call graph, from a behaviour, a projectile program family, or the code outside
 /// every behaviour. It follows calls, constructions, property and indexer accesses, method groups, user-defined
 /// operators and conversions, static data reads (each member its own initializer, with the type's static constructor),
-/// and interface and virtual dispatch to every Core implementation. Tables naming every kind or frame are never
-/// entered. A projectile program family is a leaf: constructing it records the family, whose own walk supplies its
-/// frames. Another behaviour's code (the behaviour type, and the types only behaviour code constructs) is never reached
-/// by dispatch; a behaviour walk enters it only by a direct reference, and only to collect what it spawns. What code
-/// spawns goes to every sheet its graphics can name; graphics other code decides wait in <see cref="Pending"/>.
+/// and interface and virtual dispatch to every Core implementation but a projectile behaviour's. Tables naming every kind
+/// or frame are never entered. A projectile program family is a leaf: constructing it records the family, whose own walk
+/// supplies its frames. Another behaviour's code (the behaviour type, and the types only behaviour code constructs) is
+/// never reached by dispatch; a behaviour walk enters it only by a direct reference, and only to collect what it spawns.
+/// What code spawns goes to every sheet its graphics can name; graphics other code decides wait in <see cref="Pending"/>.
 /// </summary>
 internal sealed class Walk
 {
@@ -173,6 +174,7 @@ internal sealed class Walk
     private readonly List<(Unit Unit, string Kind)> _dataSpriteObjects = [];
     private readonly List<UnspawnedName> _unspawnedNames = [];
     private readonly Queue<(Unit Unit, WalkContext Context)> _pending = new();
+    private readonly List<(Unit Spawner, INamedTypeSymbol Family, WalkContext Context)> _handedPrograms = [];
 
     /// <summary>
     /// Creates a walk for <paramref name="behaviour"/>, for <paramref name="family"/>, or (both null) outside every
@@ -259,6 +261,7 @@ internal sealed class Walk
             foreach (Unit target in scan.Targets)
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
+        RecordHandedPrograms();
         RouteDataSpriteObjects();
         // Helper evidence first, so a family a helper starts on what its callers spawn is on those spawns' collections
         // when the names no spawning caller reaches look for where the walk spawns their families.
@@ -469,6 +472,12 @@ internal sealed class Walk
         INamedTypeSymbol type = unit.Type;
         if (_model.IsTable(type))
             return;
+        // Dispatch into a projectile behaviour (its Move override, its cue handlers) is the engine running whichever
+        // behaviour a projectile's spawner bound it to (#1760), which names none: a behaviour's code is reached as its
+        // owner's (the enemy behaviour whose code it is, or, shared, the code outside every behaviour), as the handlers
+        // the engine's table once held were, never by every walk that reaches the engine.
+        if (viaDispatch && _model.IsProjectileBehaviour(type))
+            return;
         if (origin is { } calling)
         {
             if (!_callers.TryGetValue(unit, out HashSet<Unit>? callers))
@@ -488,22 +497,13 @@ internal sealed class Walk
                 {
                     UnitScan scan = ScanOf(spawner);
                     // The programs the code starts the family in (#1513): those its constructions name, or any when it
-                    // reaches the family otherwise or names a program no constant decides.
+                    // reaches the family otherwise. A program its callers hand it is known once the walk has reached
+                    // every caller (#1784).
                     IReadOnlySet<string>? programs = scan.FamilyPrograms.TryGetValue(family, out HashSet<string>? named) ? named : null;
-                    Evidence(spawner).AddFamily(family, programs);
-                    if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
-                    {
-                        Of(_helperEvidence, spawner).AddFamily(family, programs);
-                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs), family, Member: null));
-                    }
+                    if (programs is not null && scan.FamilyProgramArguments.ContainsKey(family))
+                        _handedPrograms.Add((spawner, family, context));
                     else
-                    {
-                        foreach (SpawnTarget target in scan.UnitTargets)
-                            Collect(spawner, target)?.AddFamily(family, programs);
-                    }
-                    if (context == WalkContext.Own)
-                        Own.AddFamily(family, programs);
-                    Spawners.Add(spawner);
+                        RecordFamilyStart(spawner, scan, family, programs, context);
                 }
                 return;
             }
@@ -532,6 +532,56 @@ internal sealed class Walk
         {
             foreach (ISymbol implementation in _model.Implementations(unit.Symbol))
                 Reach(Unit.Member(implementation), entered, viaDispatch: true, origin: unit);
+        }
+    }
+
+    /// <summary>
+    /// Records that <paramref name="spawner"/>'s code starts <paramref name="family"/> in <paramref name="programs"/>, or in
+    /// any of its programs when null: on every sheet its spawns draw from, or, when it spawns nothing itself, wherever its
+    /// spawning callers' spawns draw.
+    /// </summary>
+    private void RecordFamilyStart(Unit spawner, UnitScan scan, INamedTypeSymbol family, IReadOnlySet<string>? programs, WalkContext context)
+    {
+        Evidence(spawner).AddFamily(family, programs);
+        if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+        {
+            Of(_helperEvidence, spawner).AddFamily(family, programs);
+            _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs), family, Member: null));
+        }
+        else
+        {
+            foreach (SpawnTarget target in scan.UnitTargets)
+                Collect(spawner, target)?.AddFamily(family, programs);
+        }
+        if (context == WalkContext.Own)
+            Own.AddFamily(family, programs);
+        Spawners.Add(spawner);
+    }
+
+    /// <summary>
+    /// Records the family starts whose programs the spawner's callers hand it (#1784), now that the walk has reached every
+    /// caller: the programs its constant constructions name with those its callers pass, or any program when a caller
+    /// passes one the walk cannot trace.
+    /// </summary>
+    private void RecordHandedPrograms()
+    {
+        var tracer = new ProgramTracer(_model, unit => _own.Contains(unit) || _foreign.Contains(unit));
+        foreach ((Unit spawner, INamedTypeSymbol family, WalkContext context) in _handedPrograms)
+        {
+            UnitScan scan = ScanOf(spawner);
+            INamedTypeSymbol programType = _model.ProgramTypeOf(family)
+                ?? throw new InvalidDataException($"{family.ToDisplayString()} derives from no typed animation naming its programs.");
+            HashSet<string>? programs = scan.FamilyPrograms[family] is { } constant ? new HashSet<string>(constant, StringComparer.Ordinal) : null;
+            foreach ((ExpressionSyntax argument, SemanticModel semantic) in scan.FamilyProgramArguments[family])
+            {
+                if (programs is null)
+                    break;
+                if (tracer.Programs(programType, argument, semantic) is { } traced)
+                    programs.UnionWith(traced);
+                else
+                    programs = null;
+            }
+            RecordFamilyStart(spawner, scan, family, programs, context);
         }
     }
 

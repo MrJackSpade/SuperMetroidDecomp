@@ -25,7 +25,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="EntryPrograms">The programs (the segments animations start at) code starts each definition's slot in, by definition.</param>
 /// <param name="KeySelectors">
 /// For a table split by key, the <c>Parameter=Value</c> selectors each definition's keys carry; an enum key is
-/// <c>EnumType=Member</c>.
+/// <c>EnumType=Member</c>. A selector naming only the parameter (or the enum type) selects every key carrying it.
 /// </param>
 /// <param name="ExcludedType">The type declaring frames drawn on another layer than the sprites, or null.</param>
 /// <param name="ExcludedMember">That type's set of those frames.</param>
@@ -103,12 +103,13 @@ internal sealed record PartFrameConfiguration(
                 ["KraidNailBad"] = ["Kind=Nail"],
             },
             null, null, []),
-        // Mother Brain's body poses are her body's: its slot draws their sprite limbs; her head and tubes draw none.
+        // Mother Brain's body poses (every MotherBrainBodyFrame, #1747) are her body's: its slot draws their sprite limbs;
+        // her head and tubes draw none.
         new("MotherBrainBehavior", "MotherBrainBodyVisualDefinitions", "ShownFrames", null, null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal),
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["MotherBrainBody"] = [.. Enumerable.Range(0, 17).Select(index => $"Index={index}")],
+                ["MotherBrainBody"] = ["MotherBrainBodyFrame"],
                 ["MotherBrainHead"] = [],
                 ["MotherBrainTubes"] = [],
             },
@@ -514,12 +515,25 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     private Dictionary<string, HashSet<string>> SelectedKeys(Dictionary<string, string> table, List<string> problems)
     {
         var keys = configuration.KeySelectors.ToDictionary(pair => pair.Key,
-            pair => new HashSet<string>(table.Keys.Where(key => pair.Value.Any(selector => KeyParts(key).Contains(selector))), StringComparer.Ordinal),
+            pair => new HashSet<string>(table.Keys.Where(key => pair.Value.Any(selector => KeyParts(key).Any(part => Selects(selector, part)))),
+                StringComparer.Ordinal),
             StringComparer.Ordinal);
+        foreach (string selector in configuration.KeySelectors.Values.SelectMany(selectors => selectors)
+                     .Where(selector => !table.Keys.Any(key => KeyParts(key).Any(part => Selects(selector, part)))))
+            problems.Add($"selector {selector} selects no key of {TableName}");
         foreach (string key in table.Keys.Where(key => !keys.Values.Any(selected => selected.Contains(key))))
             problems.Add($"table key {key} carries no part's selector");
         return keys;
     }
+
+    /// <summary>
+    /// Whether <paramref name="selector"/> selects the key part <paramref name="part"/>: a <c>Parameter=Value</c> selector
+    /// the part itself, a bare <c>Parameter</c> selector any value of that parameter (every member of an enum key type).
+    /// </summary>
+    private static bool Selects(string selector, string part) =>
+        selector.Contains('=', StringComparison.Ordinal)
+            ? string.Equals(selector, part, StringComparison.Ordinal)
+            : part.StartsWith(selector + "=", StringComparison.Ordinal);
 
     /// <summary>Each definition's keys by the closure of the programs its slot is started in.</summary>
     private Dictionary<string, HashSet<string>> ProgramKeys(Dictionary<string, string> table, List<string> problems)

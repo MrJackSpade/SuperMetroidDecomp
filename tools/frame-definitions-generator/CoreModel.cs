@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.FrameDefinitionsGenerator;
@@ -56,6 +57,10 @@ internal sealed class CoreModel
     private readonly HashSet<INamedTypeSymbol> _constructedFamilies = new(SymbolEqualityComparer.Default);
     private readonly INamedTypeSymbol _entity;
     private readonly Dictionary<INamedTypeSymbol, bool> _entityTypes = new(SymbolEqualityComparer.Default);
+    private readonly INamedTypeSymbol _projectileBehaviour;
+    private readonly Dictionary<IMethodSymbol, List<CallSite>> _callSites = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<INamedTypeSymbol, HashSet<IParameterSymbol>> _programParameters = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<INamedTypeSymbol, bool> _projectileBehaviourTypes = new(SymbolEqualityComparer.Default);
 
     /// <summary>Reads every fact the walks need from <paramref name="core"/>, failing on anything it cannot resolve.</summary>
     public CoreModel(CoreSource core)
@@ -77,6 +82,7 @@ internal sealed class CoreModel
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol typedAnimation = SingleType("EnemyProjectileTypedAnimation", arity: 3);
         TypedAnimation = typedAnimation;
+        _projectileBehaviour = SingleType("EnemyProjectileBehavior");
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
         foreach (string name in MemberSpawnerTypeNames)
@@ -275,19 +281,203 @@ internal sealed class CoreModel
     /// </summary>
     public IReadOnlySet<string>? ProgramsOf(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol family)
     {
-        INamedTypeSymbol? programType = null;
-        for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
-        {
-            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
-            {
-                programType = type.TypeArguments[0] as INamedTypeSymbol;
-                break;
-            }
-        }
+        INamedTypeSymbol? programType = ProgramTypeOf(family);
         if (creation.ArgumentList is not { Arguments: [var first, ..] } || programType is null)
             return null;
         var programs = new HashSet<string>(StringComparer.Ordinal);
         return AddPrograms(semantic, first.Expression, programType, programs) ? programs : null;
+    }
+
+    /// <summary>
+    /// The type naming <paramref name="family"/>'s programs (the segments an animation starts at): the first type argument
+    /// of the typed animation it derives from; null when it derives from none.
+    /// </summary>
+    public INamedTypeSymbol? ProgramTypeOf(INamedTypeSymbol family)
+    {
+        for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
+                return type.TypeArguments[0] as INamedTypeSymbol;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Every place Core calls <paramref name="callee"/> (#1784): invocations, constructions (target-typed ones included),
+    /// and constructor initializers and primary-constructor base calls, each with the unit whose code makes it.
+    /// </summary>
+    public IReadOnlyList<CallSite> CallSites(IMethodSymbol callee)
+    {
+        IMethodSymbol definition = callee.OriginalDefinition;
+        if (_callSites.TryGetValue(definition, out List<CallSite>? known))
+            return known;
+        bool constructor = definition.MethodKind == MethodKind.Constructor;
+        var sites = new List<CallSite>();
+        foreach (SyntaxTree tree in Compilation.SyntaxTrees)
+        {
+            SemanticModel? semantic = null;
+            foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())
+            {
+                // Only a call spelled with the callee's name (or a construction that may make its type) can call it; the
+                // rest need no binding.
+                ArgumentListSyntax? arguments = node switch
+                {
+                    InvocationExpressionSyntax invocation when !constructor && CalledName(invocation.Expression) == definition.Name => invocation.ArgumentList,
+                    ObjectCreationExpressionSyntax creation when constructor && CalledName(creation.Type) == definition.ContainingType.Name =>
+                        creation.ArgumentList ?? SyntaxFactory.ArgumentList(),
+                    ImplicitObjectCreationExpressionSyntax creation when constructor => creation.ArgumentList,
+                    ConstructorInitializerSyntax initializer when constructor => initializer.ArgumentList,
+                    PrimaryConstructorBaseTypeSyntax baseCall when constructor => baseCall.ArgumentList,
+                    _ => null,
+                };
+                if (arguments is null)
+                    continue;
+                semantic ??= ModelOf(tree);
+                if (semantic.GetSymbolInfo(node).Symbol is not IMethodSymbol called
+                    || !SymbolEqualityComparer.Default.Equals((called.ReducedFrom ?? called).OriginalDefinition, definition))
+                    continue;
+                sites.Add(new CallSite(arguments, semantic, CallerOf(semantic, node)));
+            }
+        }
+        _callSites.Add(definition, sites);
+        return sites;
+    }
+
+    /// <summary>The name a call or construction spells for what it calls or makes: the rightmost simple name.</summary>
+    private static string? CalledName(ExpressionSyntax expression) => expression switch
+    {
+        SimpleNameSyntax name => name.Identifier.Text,
+        MemberAccessExpressionSyntax access => access.Name.Identifier.Text,
+        MemberBindingExpressionSyntax binding => binding.Name.Identifier.Text,
+        QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
+        AliasQualifiedNameSyntax alias => alias.Name.Identifier.Text,
+        _ => null,
+    };
+
+    /// <summary>
+    /// The unit whose code <paramref name="node"/> is: the member declaring it (a lambda's or local function's code being
+    /// that member's, a property initializer's or accessor's its property's, a primary constructor's base call its
+    /// constructor's); null outside every member.
+    /// </summary>
+    private Unit? CallerOf(SemanticModel semantic, SyntaxNode node)
+    {
+        foreach (SyntaxNode ancestor in node.Ancestors())
+        {
+            ISymbol? declared = ancestor switch
+            {
+                BaseMethodDeclarationSyntax or BasePropertyDeclarationSyntax => semantic.GetDeclaredSymbol(ancestor),
+                VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax } declarator => semantic.GetDeclaredSymbol(declarator),
+                TypeDeclarationSyntax type => (semantic.GetDeclaredSymbol(type) as INamedTypeSymbol)?.InstanceConstructors
+                    .FirstOrDefault(constructor => constructor.DeclaringSyntaxReferences.Any(reference => reference.GetSyntax() == type)),
+                _ => null,
+            };
+            ISymbol? member = declared switch
+            {
+                IMethodSymbol method => NormalizeMethod(method),
+                IPropertySymbol property => NormalizeProperty(property),
+                IFieldSymbol field when IsSource(field) => field.OriginalDefinition,
+                IEventSymbol @event when IsSource(@event) => @event.OriginalDefinition,
+                _ => null,
+            };
+            if (member is not null)
+                return Unit.Member(member);
+            if (ancestor is BaseTypeDeclarationSyntax)
+                return null;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The parameters that hand <paramref name="family"/> the program it is constructed in (#1784): the parameter a
+    /// construction's program argument is, or the positional record parameter whose property it is, and, in turn, each such
+    /// parameter a call or construction passing one of them passes on. A program member passed to one of them is a start
+    /// the walks record, as one passed to the construction itself is.
+    /// </summary>
+    public IReadOnlySet<IParameterSymbol> ProgramParameters(INamedTypeSymbol family)
+    {
+        if (_programParameters.TryGetValue(family, out HashSet<IParameterSymbol>? known))
+            return known;
+        var parameters = new HashSet<IParameterSymbol>(SymbolEqualityComparer.Default);
+        var pending = new Queue<IParameterSymbol>();
+        foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
+        {
+            if (constructor.Parameters is [var program, ..])
+                Pass(constructor, program);
+        }
+        while (pending.TryDequeue(out IParameterSymbol? handed))
+            Pass((IMethodSymbol)handed.ContainingSymbol, handed);
+        _programParameters.Add(family, parameters);
+        return parameters;
+
+        // Each parameter (or positional record property) a call of the callee passes for its parameter hands the program on.
+        void Pass(IMethodSymbol callee, IParameterSymbol parameter)
+        {
+            foreach (CallSite site in CallSites(callee))
+            {
+                if (site.ArgumentFor(parameter) is not { } passed)
+                    continue;
+                foreach (ExpressionSyntax choice in Choices(passed))
+                {
+                    if (HandedParameter(site.Semantic.GetSymbolInfo(choice).Symbol) is { } source && parameters.Add(source))
+                        pending.Enqueue(source);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// The parameter <paramref name="symbol"/> reads a value handed in through: a parameter of a method (not of a lambda or
+    /// local function), or the primary-constructor parameter a positional record's property is; null for anything else.
+    /// </summary>
+    public IParameterSymbol? HandedParameter(ISymbol? symbol) => symbol switch
+    {
+        IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not (MethodKind.AnonymousFunction or MethodKind.LocalFunction) } } parameter =>
+            parameter.OriginalDefinition,
+        IPropertySymbol property when IsSource(property) => PositionalParameter(property),
+        _ => null,
+    };
+
+    /// <summary>The parameter <paramref name="argument"/> is passed for, in the call or construction holding it; null when none binds.</summary>
+    public static IParameterSymbol? ParameterOf(SemanticModel semantic, ArgumentSyntax argument)
+    {
+        if (argument.Parent is not ArgumentListSyntax { Parent: { } call } list
+            || semantic.GetSymbolInfo(call).Symbol is not IMethodSymbol { ReducedFrom: null } method)
+            return null;
+        IParameterSymbol? parameter = argument.NameColon is { } name
+            ? method.Parameters.FirstOrDefault(candidate => candidate.Name == name.Name.Identifier.Text)
+            : list.Arguments.IndexOf(argument) is var index && index < method.Parameters.Length ? method.Parameters[index] : null;
+        return parameter?.OriginalDefinition;
+    }
+
+    /// <summary>The values <paramref name="expression"/> may be, through parentheses, conditionals and switch expressions.</summary>
+    public static IEnumerable<ExpressionSyntax> Choices(ExpressionSyntax expression)
+    {
+        switch (expression)
+        {
+            case ParenthesizedExpressionSyntax parenthesized:
+                return Choices(parenthesized.Expression);
+            case ConditionalExpressionSyntax conditional:
+                return Choices(conditional.WhenTrue).Concat(Choices(conditional.WhenFalse));
+            case SwitchExpressionSyntax choice:
+                return choice.Arms.SelectMany(arm => Choices(arm.Expression));
+            default:
+                return [expression];
+        }
+    }
+
+    /// <summary>
+    /// The primary-constructor parameter a positional record's <paramref name="property"/> is (its containing symbol the
+    /// constructor); null for any other property.
+    /// </summary>
+    public IParameterSymbol? PositionalParameter(IPropertySymbol property)
+    {
+        foreach (SyntaxReference reference in property.OriginalDefinition.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is ParameterSyntax parameter
+                && ModelOf(parameter.SyntaxTree).GetDeclaredSymbol(parameter) is { ContainingSymbol: IMethodSymbol { MethodKind: MethodKind.Constructor } } declared)
+                return declared;
+        }
+        return null;
     }
 
     /// <summary>
@@ -323,6 +513,22 @@ internal sealed class CoreModel
 
     /// <summary>Whether <paramref name="type"/> is, or is nested in, a table that names every kind or frame.</summary>
     public bool IsTable(INamedTypeSymbol type) => Chain(type).Any(_tables.Contains);
+
+    /// <summary>
+    /// Whether <paramref name="type"/> is, or is nested in, an enemy projectile behaviour (#1760): EnemyProjectileBehavior or
+    /// a type deriving from it, whose members the projectile engine runs for whichever projectile its spawner bound it to.
+    /// </summary>
+    public bool IsProjectileBehaviour(INamedTypeSymbol type)
+    {
+        INamedTypeSymbol definition = type.OriginalDefinition;
+        if (!_projectileBehaviourTypes.TryGetValue(definition, out bool behaviour))
+        {
+            behaviour = Chain(definition).Any(candidate => SymbolEqualityComparer.Default.Equals(candidate, _projectileBehaviour)
+                || DerivesFrom(candidate, _projectileBehaviour));
+            _projectileBehaviourTypes.Add(definition, behaviour);
+        }
+        return behaviour;
+    }
 
     /// <summary>The program family <paramref name="type"/> is or is nested in, if any.</summary>
     public INamedTypeSymbol? FamilyOf(INamedTypeSymbol type) => Chain(type).FirstOrDefault(_families.Contains);

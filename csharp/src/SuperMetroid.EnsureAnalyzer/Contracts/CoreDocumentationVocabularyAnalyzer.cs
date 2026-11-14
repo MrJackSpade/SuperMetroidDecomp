@@ -32,7 +32,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and sound records: underflows, sign tests and sign bits, tile attributes and values, per-line effect objects and
 /// voices keyed on. #1743 adds the original machine's provenance, which no type may describe, hardware owners included:
 /// its native words and bit patterns, the cartridge's routines, and a value written as the machine's hexadecimal fixed-point
-/// (<c>0.1000</c>, <c>7.0000</c>).
+/// (<c>0.1000</c>, <c>7.0000</c>). #1754 adds the original program's call structure and the C reimplementation, read in
+/// every type too: dispatchers, callables and a routine's labels, and the upstream C rewrite; and, outside hardware
+/// owners, the original's data and number encodings: decompression, colour indexes, two's complement, unsigned compares and
+/// the 8.8 and 16.16 format names.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -266,12 +269,66 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// says which behaviour it reproduces and an encoding owner describes its encoding, but neither cites the machine's words,
     /// its routines or its spelling of a value. English stays legal: a native pose number or any other native thing that is
     /// not a word or bit pattern, a routine that is not the cartridge's, and a decimal with no trailing zero (<c>0.0625</c>,
-    /// <c>0.1875</c>, <c>0.125</c>) or a format's name (<c>16.16</c>, <c>8.8</c>).
+    /// <c>0.1875</c>, <c>0.125</c>). A format's name (<c>16.16</c>, <c>8.8</c>) is not a value; <see cref="MachineNumberProse"/>
+    /// reads it outside hardware owners.
     /// </summary>
     private static readonly Regex MachineProvenanceProse = new(
         @"\bnative[-\s]+(?:[\w-]+\s+){0,2}?(?:words?|bit[-\s]+patterns?)\b" +
         @"|\bcartridge(?:'s)?[-\s]+routines?\b" +
         @"|(?<!\w|\w\.)\$?[0-9][0-9A-Fa-f]{0,3}\.(?:[0-9A-Fa-f]{3}0|(?=[0-9]{0,3}[A-Fa-f])[0-9A-Fa-f]{4})(?!\w|\.\w)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's call structure in prose (#1754), read in every Core type: a dispatcher, in any number and as
+    /// a dispatcher index (the movement dispatcher, the outer dispatcher, dispatcher index one), a callable (a special
+    /// callable), and a routine's label, the place its code merged, branched or was entered (a merge, inverted, reversed,
+    /// source, branch, jump, entry, routine, code, program, assembly, local, loop or return label). Core names the phase,
+    /// step, check, response or game state that runs. A compatibility service says which behaviour it reproduces and an
+    /// encoding owner describes its encoding; neither is a routine, so neither describes the original's dispatch through
+    /// one. English stays legal: dispatching a request, a sound or an event (the verb), a callback, and every label the
+    /// game shows, and the verb (the ENERGY label, the Exit label, the map's area labels, zero labels for reserves, the
+    /// select map labels the area).
+    /// </summary>
+    private static readonly Regex CallStructureProse = new(
+        @"\bdispatchers?\b|\bcallables?\b" +
+        @"|\b(?:merge|inverted|reversed|source|branch|jump|entry|routine|code|program|assembly|local|loop|return)[-\s]+labels?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The C reimplementation of the original in prose (#1754), read in every Core type and case-sensitively for the
+    /// language's letter: the upstream C rewrite and its bugfixes (upstream C, upstream C's), and the C port, rewrite,
+    /// reimplementation, version, code, source or decompilation. Core is the game; another program's reading of the
+    /// cartridge is not its provenance. C# is not C, and a C that is not that program (a grade, a button, slot C) is not read.
+    /// </summary>
+    private static readonly Regex ReimplementationProse = new(
+        @"\b[Uu]pstream\s+C\b(?!#)" +
+        @"|\b(?:[Tt]he|[Aa])\s+C\s+(?:re-?implementations?|rewrites?|ports?|versions?|code|sources?|decompilations?)\b",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's data encodings in prose (#1754), outside hardware owners: decompression in any word form (the
+    /// decompressed foreground, the artwork decompression), and a colour index, spaced or hyphenated (the statue's grey colour
+    /// index, colour indices). Core loads installed pictures, levels and owned colours; what the cartridge compressed and
+    /// which palette entry held a colour are the import's. An encoding owner describes its encoding and a compatibility
+    /// service the hardware behaviour it reproduces. English stays legal: an uncompressed file, a colour, an index.
+    /// </summary>
+    private static readonly Regex DataEncodingProse = new(
+        @"\bdecompress\w*|\bcolou?r[-\s]+ind(?:ex|exes|exed|ices)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The machine's number formats in prose (#1754), outside hardware owners: two's complement, spaced or hyphenated
+    /// (the exact two's complement, two's-complement form), an unsigned compare or comparison, and the 8.8 and 16.16
+    /// fixed-point format names (an 8.8 velocity, a 16.16 position, promoted to 16.16). Core states a value in the game's
+    /// units: a speed in 1/256 pixels, a position in 1/65536 pixels, a value negated, a comparison by which side lies
+    /// higher. An encoding owner such as <c>EightEight</c> owns its format and names it, and a compatibility service
+    /// describes the arithmetic it reproduces. English stays legal: a decimal (<c>0.125</c>, <c>8.25</c>), a version
+    /// (<c>0.8.8</c>), an unsigned value, a complement that is not two's.
+    /// </summary>
+    private static readonly Regex MachineNumberProse = new(
+        @"\btwo(?:'s|s|’s)?[-\s]+complement\b" +
+        @"|\bunsigned[-\s]+compar(?:e|es|ed|ing|isons?)\b" +
+        @"|(?<![\w.])(?:8\.8|16\.16)(?!\w|\.\w)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
@@ -398,8 +455,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), in
-    /// any type, or names the hardware outside a hardware-owning type. A comment carries
+    /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), the
+    /// original's call structure (<see cref="CallStructureProse"/>) or the C reimplementation
+    /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals.
     /// </summary>
@@ -408,6 +466,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
+            : CallStructureProse.Match(text) is { Success: true } call ? call.Value
+            : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : IsInHardwareOwner(owner) ? null
             : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
@@ -424,6 +484,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : HostProvenanceProse.Match(text) is { Success: true } host ? host.Value
             : DisplayMemoryProse.Match(text) is { Success: true } display ? display.Value
             : MachineArithmeticProse.Match(text) is { Success: true } arithmetic ? arithmetic.Value
+            : DataEncodingProse.Match(text) is { Success: true } encoding ? encoding.Value
+            : MachineNumberProse.Match(text) is { Success: true } number ? number.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

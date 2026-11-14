@@ -26,14 +26,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Lays record <paramref name="record"/> of the escape's red shutter flash over every destroyable shutter among
+    /// Shows <paramref name="frame"/> of the escape's red shutter flash on every destroyable shutter among
     /// <paramref name="slots"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
-    /// each record replaces the one before it.
+    /// each frame of the flash replaces the one before it.
     /// </summary>
-    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, ColourEffectFrame record)
+    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, ColourEffectFrame frame)
     {
         Ensure.NotNull(slots);
-        PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, record);
+        PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
         foreach (RoomEnemySlot slot in slots)
         {
             if (slot.DefinitionId != EnemyDefinitionId.ShutterDestroyable)

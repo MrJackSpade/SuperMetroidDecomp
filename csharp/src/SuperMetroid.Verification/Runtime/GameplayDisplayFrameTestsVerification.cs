@@ -210,10 +210,7 @@ internal static class GameplayDisplayFrameTestsVerification
         GameplayDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
         AssertTrue(arena.PerspectiveFloor is null,
             "door setup $8F:E513 removes the elevator shaft's floor");
-        AssertTrue(arena.Rooms?.BlockArtwork != RoomBlockArtwork.Sprites, "room setup BG12NBA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(RoomBlockArtwork.Sprites, runtime.PublishDisplayFrame().Latched.Rooms?.BlockArtwork,
-            "the accepted NMI publishes the Ceres Ridley BG12NBA");
 
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");

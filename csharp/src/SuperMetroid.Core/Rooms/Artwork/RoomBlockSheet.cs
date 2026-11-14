@@ -55,30 +55,29 @@ public sealed class RoomBlockSheet
         return picture;
     }
 
-    /// <summary>The inputs block <paramref name="block"/>'s picture depends on over <paramref name="artwork"/> (#1466).</summary>
+    /// <summary>The inputs block <paramref name="block"/>'s picture depends on (#1466).</summary>
     /// <exception cref="InvalidDataException">
-    /// The sheet has no picture of the block, as the import found no room of the tileset that shows it (#1636), or no room of
-    /// the tileset shows that artwork.
+    /// The sheet has no picture of the block, as the import found no room of the tileset that shows it (#1636).
     /// </exception>
-    public ImmutableArray<AppearanceInput> InputsOf(int block, RoomBlockArtwork artwork)
+    public ImmutableArray<AppearanceInput> InputsOf(int block)
     {
         if (!Inputs.Shows(block))
             throw new InvalidDataException(
                 $"Room block sheet {Sheet.Image.Name} has no picture of block {block}: the import found no room of the tileset that shows it.");
-        return Inputs.Of(block, artwork);
+        return Inputs.Of(block);
     }
 
     /// <summary>
-    /// The picture block <paramref name="block"/> shows over <paramref name="artwork"/> while the inputs it depends on,
-    /// <paramref name="inputs"/>, take <paramref name="values"/>.
+    /// The picture block <paramref name="block"/> shows while the inputs it depends on, <paramref name="inputs"/>, take
+    /// <paramref name="values"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet has no picture of the block for those values (#1636), or its picture is not one block.</exception>
-    public LayeredPicture BlockPicture(int block, RoomBlockArtwork artwork, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
+    public LayeredPicture BlockPicture(int block, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
     {
-        string name = RoomBlockPictureNames.Of(block, artwork, inputs, values);
+        string name = RoomBlockPictureNames.Of(block, inputs, values);
         if (!PictureParts.Holds(Sheet, name))
             throw new InvalidDataException(
-                $"Room block sheet {Sheet.Image.Name} has no picture of block {block} over {artwork} for its inputs' values: it holds no picture {name}.");
+                $"Room block sheet {Sheet.Image.Name} has no picture of block {block} for its inputs' values: it holds no picture {name}.");
         return Picture(name);
     }
 

@@ -17,8 +17,8 @@ internal static class CeresRidleyBodyPublicationVerification
 {
     /// <summary>
     /// Ridley's getaway at two rotations publishes his simulation transform and the body frames his transfers drew
-    /// into the room's Mode 7 map, which the Mode 7 capture draws; the arena's backgrounds draw from the object
-    /// character page as room state, not a latched register.
+    /// into the room's Mode 7 map, which the Mode 7 capture draws; the arena publishes its blocks' pictures, which the import
+    /// composed over what the arena loads (#1791).
     /// </summary>
     internal static void VerifyCeresRidleyBodyPublication()
     {
@@ -29,8 +29,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(RoomBlockArtwork.Sprites, runtime.Display.Latched.Rooms?.BlockArtwork,
-            "the arena's backgrounds draw from the object character page");
+        AssertTrue(runtime.Display.Latched.Rooms?.Foreground.Pictures is not null, "the arena publishes its blocks' pictures");
 
         RidleyEnemyState ridley = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.");

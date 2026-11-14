@@ -11,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Pre-assembles and pre-colours each tileset's room blocks (#1392, #1431, #1466, #1513): every block its rooms show, as the
-/// import's inventory of them finds (#1636, <see cref="RoomBlockInventory"/>), and no other block its rooms load, over
-/// each artwork its rooms show their blocks over and no other (the tileset's own, or the sprites' in Ceres Ridley's arena,
-/// #1648), once as that artwork leaves the characters it reads and again for each value each appearance input that shows
-/// other artwork over them can take (an animation's frame, Kraid's backdrop, an encounter's look), and each frame of each
+/// import's inventory of them finds (#1636, <see cref="RoomBlockInventory"/>), and no other block its rooms load, over the
+/// characters its rooms' blocks read (the tileset's, or in Ceres Ridley's arena what the arena loads for his fight, #1648,
+/// #1791), once as the room's load leaves them and again for each value each appearance input that shows other artwork
+/// over them can take (an animation's frame, Kraid's backdrop, Ridley's look), and each frame of each
 /// collectible the tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone
 /// (#1538). No block
 /// is pictured over a collectible's graphics. Each picture is coloured with the tileset's standard background palette and
@@ -150,38 +150,33 @@ internal static class RoomBlockSheetComposer
         // A collectible is pictured only as its kind, from its own graphics, below: no block or background cell is pictured
         // over its graphics (#1513, #1538).
         var options = new AppearanceOptions(uploads.Options);
-        var looks = new AppearanceOptions(uploads.ObjectPageLooks);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
         foreach (BgCharacterUpload placement in load.Concat(options.All.Select(option => option.Upload))
-            .Concat(uploads.ObjectPageLoad ?? [])
-            .Concat(uploads.ObjectPageLooks.Select(option => option.Upload)))
+            .Concat(uploads.ArenaLoad ?? [])
+            .Concat(uploads.RidleyLooks.Select(option => option.Upload)))
             bytes[placement.Identity] = placement.Bytes;
-        // A room whose blocks show the sprites' artwork shows them over what its load places there, and over the looks its
-        // encounters show there after (#1392, #1466).
-        BgArtworkBindings? objectPage = null;
-        if (uploads.ObjectPageLoad is { } page)
+        // Ceres Ridley's arena shows its blocks over what it loads for his fight, and over the looks he shows there after
+        // (#1392, #1466, #1791); every other room over its load.
+        var blockOptions = new AppearanceOptions(uploads.BlockOptions);
+        BgArtworkBindings blockCharacters = loaded;
+        if (uploads.ArenaLoad is { } arena)
         {
-            objectPage = new BgArtworkBindings();
-            foreach (BgCharacterUpload placement in page)
-                placement.BindTo(objectPage);
+            blockCharacters = new BgArtworkBindings();
+            foreach (BgCharacterUpload placement in arena)
+                placement.BindTo(blockCharacters);
         }
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
-        // Only the blocks some room of the tileset shows are pictured, over each artwork its rooms show them over and no other
-        // (#1648); every other block it loads has no picture and depends on nothing (#1636).
-        ImmutableArray<AppearanceInput>[]? tilesetInputs = uploads.ShowsTilesetArtwork ? NoInputs(blocks.Characters.Count) : null;
-        ImmutableArray<AppearanceInput>[]? spriteInputs = objectPage is null ? null : NoInputs(blocks.Characters.Count);
+        // Only the blocks some room of the tileset shows are pictured; every other block it loads has no picture and depends on
+        // nothing (#1636).
+        ImmutableArray<AppearanceInput>[] inputsByBlock = NoInputs(blocks.Characters.Count);
         foreach (int block in shownBlocks.Order())
         {
             if ((uint)block >= (uint)blocks.Characters.Count)
                 throw new InvalidDataException(
                     $"A room of tileset {RoomBlockSheet.NameOf(tileset)} shows block {block}, past the {blocks.Characters.Count} blocks its rooms load.");
-            BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
-            if (tilesetInputs is not null)
-                tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.Characters.RunsOf(block), tiles, options, loaded);
-            if (spriteInputs is not null)
-                spriteInputs[block] = AddBlock(block, RoomBlockArtwork.Sprites, blocks.Characters.RunsOf(block), tiles, looks, objectPage);
+            inputsByBlock[block] = AddBlock(block, blocks.Characters.RunsOf(block), blocks.TilesOf(block).ToArray(), blockOptions, blockCharacters);
         }
         foreach (RoomObjectDynamicCollectibleGraphic collectible in uploads.Collectibles)
         {
@@ -251,18 +246,18 @@ internal static class RoomBlockSheetComposer
         ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames);
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
         return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
-            new RoomBlockAppearances(tilesetInputs, spriteInputs, shownBlocks), cells);
+            new RoomBlockAppearances(inputsByBlock, shownBlocks), cells);
 
-        // Adds a picture of block `block` over `artwork` for each assignment of values to the inputs `candidates` give the
-        // runs of characters `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A
-        // block one of whose runs shows nothing for an assignment is not pictured for it.
-        ImmutableArray<AppearanceInput> AddBlock(int block, RoomBlockArtwork artwork, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles,
-            AppearanceOptions candidates, BgArtworkBindings? over)
+        // Adds a picture of block `block` for each assignment of values to the inputs `candidates` give the runs of characters
+        // `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A block one of whose
+        // runs shows nothing for an assignment is not pictured for it.
+        ImmutableArray<AppearanceInput> AddBlock(int block, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles,
+            AppearanceOptions candidates, BgArtworkBindings over)
         {
-            ImmutableArray<AppearanceInput> blockInputs = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, runs.Select(run => run.FirstCharacter), candidates);
-            foreach (string[] values in RoomAppearanceComposition.Assignments(blockInputs, candidates, withLoaded: true))
-                AddPicture(RoomBlockPictureNames.Of(block, artwork, blockInputs, values), runs, tiles, blockInputs, values, candidates, over);
-            return blockInputs;
+            ImmutableArray<AppearanceInput> dependsOn = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, runs.Select(run => run.FirstCharacter), candidates);
+            foreach (string[] values in RoomAppearanceComposition.Assignments(dependsOn, candidates, withLoaded: true))
+                AddPicture(RoomBlockPictureNames.Of(block, dependsOn, values), runs, tiles, dependsOn, values, candidates, over);
+            return dependsOn;
         }
 
         // Adds the picture `name` of a block's `tiles`, which read `runs`, while `blockInputs` take `values`, unless a run

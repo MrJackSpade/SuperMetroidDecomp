@@ -54,11 +54,12 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(uploads);
         TileWordWriter[] ordered = [.. Ensure.NotNull(writers).Order()];
         List<WrittenSubject> subjects = [.. ordered.SelectMany(writer => Subjects(inputs, writer))];
-        // Pictures over the sprites' artwork show only what its load and encounters place there, never the tileset's.
+        // Pictures written over Ceres Ridley's arena show only what the arena loads under its blocks and Ridley's looks place
+        // there, never the tileset's (#1791).
         const WrittenPictureLayer layer = WrittenPictureLayer.WrittenOverRoom;
         ComposedPictures composed = Compose(inputs, tileset, WrittenPictureSheet.NameOf(layer, tileset), SpriteImageColours.Background,
             new WrittenSubjects(subjects, [], []), new WrittenOptions(
-                new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads,
+                new AppearanceOptions(uploads.ArenaLoad is null ? uploads.Options : []), BgCharacterSet.Tiles, uploads.WordUploads,
                 Ensure.NotNull(content)),
             WritersColours(ordered, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return new ComposedWrittenPictureSheet(layer, tileset, composed.Sheet, composed.Inputs);

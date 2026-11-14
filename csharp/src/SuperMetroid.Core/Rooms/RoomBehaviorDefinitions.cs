@@ -8,6 +8,6 @@ public static class RoomBehaviorDefinitions
     {
         RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze,
         RoomSetupBehavior.SpawnCeresHaze,
-        RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,
+        RoomSetupBehavior.SpawnCeresRidleyArenaHaze,
     };
 }

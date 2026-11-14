@@ -709,13 +709,13 @@ internal static class RoomBlockPicturesVerification
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Foreground.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomAppearanceView appearance = AppearanceOf(runtime, latched);
-        // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles,
-        // and the frames its animations paint over them.
-        bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
+        // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose, as its setup points them there; any
+        // other room's, the bound tiles, and the frames its animations paint over them.
+        RoomScope scope = RoomScopeOf(runtime);
+        bool sprites = RoomBlockUploads.DrawsBlocksOverArenaCharacters(scope.Room.State);
         byte[] tiles = sprites
             ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
-        RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.Area == AreaId.Ceres;
         ushort[] stock = BackgroundTileWordBytes.Words(InstalledFixtures.StockBlockTiles(scope.Assets.Tileset, ceres));
         int pictures = 0, uploaded = 0;
@@ -728,7 +728,7 @@ internal static class RoomBlockPicturesVerification
             pictures++;
             // A collectible's picture shows its kind's own graphics, whatever the room loaded or showed before it (#1538).
             bool collectible = block.ShowsCollectible;
-            bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block.Block, rooms.BlockArtwork)
+            bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block.Block)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
             ushort[] blockWords = collectible ? CollectibleWords(block.Collectible)
                 : stock[(block.Block * BlockTiles)..((block.Block + 1) * BlockTiles)];

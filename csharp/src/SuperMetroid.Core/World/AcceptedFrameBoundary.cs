@@ -218,32 +218,28 @@ internal sealed class AcceptedFrameBoundary
             _room.DoorSourceBackground,
             // The text shown over the foreground and the background is drawn once this frame boundary's pictures are bound (WithBlockPictures).
             null,
-            Floor: scope.Floor?.Publish(),
-            BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
+            Floor: scope.Floor?.Publish());
     }
 
     /// <summary>
     /// <paramref name="latched"/> with <paramref name="rooms"/>' foreground and the background planes, and the X-ray reveal showing
     /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show for the values the room's
-    /// appearance inputs take now (#1392, #1466); X-ray is never used while the blocks show the sprites' artwork.
+    /// appearance inputs take now (#1392, #1466).
     /// </summary>
-    /// <exception cref="InvalidOperationException">X-ray reveals a room whose blocks show the sprites' artwork.</exception>
     private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, XrayRevealedBlocks? reveal)
     {
         // While a Ceres room shows its turning floor, the floor draws its installed pictures (#1467); Ceres Ridley's getaway
         // shows its warning over the arena once his floor ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        if (rooms.BlockArtwork != RoomBlockArtwork.Tileset && reveal is not null)
-            throw new InvalidOperationException("X-ray reveals a room whose blocks show the sprites' artwork.");
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
-        // the Ceres Ridley arena, the looks shown on the sprites' artwork (#1466).
+        // the Ceres Ridley arena, Ridley's looks (#1466, #1791).
         var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks);
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         // The elevator shaft's screen is its turning floor alone: it draws none of its level's blocks (#1647).
         RoomBlockPictureTable pictures = RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior)
             ? RoomBlockPictureTable.NoneDrawn()
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
-                rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
+                rooms.Background is null ? null : scope.LevelData.BackgroundPlane, appearance,
                 reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.

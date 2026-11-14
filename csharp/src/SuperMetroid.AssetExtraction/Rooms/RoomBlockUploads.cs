@@ -31,7 +31,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// What each tileset's rooms show over their characters after loading (#1392, #1466), each as a value of the appearance
 /// input gameplay names it by, so its block sheet pictures every block for each value the inputs it depends on can take:
 /// the animated tiles their room effects run, the Tourian statues' frames, Kraid's room backdrop and, in the Ceres Ridley
-/// arena, its encounters' looks on the sprites' artwork; and the collectibles its rooms place, each pictured as its kind
+/// arena, Ridley's looks over what the arena loads under its blocks (#1791); and the collectibles its rooms place, each pictured as its kind
 /// alone (#1513, #1538), never under the room's other blocks.
 /// </summary>
 internal static class RoomBlockUploads
@@ -114,15 +114,18 @@ internal static class RoomBlockUploads
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
                 }
-                RoomBlockArtwork blockArtwork = RoomScope.BlockArtworkOf(new SelectedRoom(room, state));
-                uploads.ShowBlocksOver(blockArtwork);
-                BgCharacterUpload[] loadedObjects = [];
-                AppearanceOption[] encounterLooks = [];
-                if (blockArtwork == RoomBlockArtwork.Sprites)
+                bool arena = DrawsBlocksOverArenaCharacters(state);
+                BgCharacterUpload[] arenaLoad = [];
+                AppearanceOption[] ridleyLooks = [];
+                if (arena)
                 {
-                    loadedObjects = [.. ObjectPageUploads(inputs, state)];
-                    encounterLooks = [.. EncounterLookOptions(inputs, state)];
-                    uploads.AddObjectPage(loadedObjects, encounterLooks);
+                    arenaLoad = [.. ArenaLoadUploads(inputs, state)];
+                    ridleyLooks = [.. EncounterLookOptions(inputs, state)];
+                    uploads.DrawBlocksOverArena(arenaLoad, ridleyLooks);
+                }
+                else
+                {
+                    uploads.DrawBlocksOverTileset();
                 }
                 // Only a library background the player sees as its own picture is pictured (#1649).
                 if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
@@ -134,20 +137,20 @@ internal static class RoomBlockUploads
                 // frames.
                 uploads.AddBg3(Loaded(inputs, tileset), EffectsIn(state));
                 TileWordWriter[] writers = [.. WritersIn(state)];
-                if (writers.Length > 0 && blockArtwork == RoomBlockArtwork.Sprites)
+                if (writers.Length > 0 && arena)
                 {
-                    // Words written over a room whose backgrounds show the sprites' artwork show over what its load and its
-                    // encounters place there.
-                    BgCharacterUpload[] written = [.. loadedObjects, .. encounterLooks.Select(option => option.Upload)];
+                    // Words written over Ceres Ridley's arena show over what the arena loads under its blocks and Ridley's
+                    // looks place there.
+                    BgCharacterUpload[] written = [.. arenaLoad, .. ridleyLooks.Select(option => option.Upload)];
                     var content = new BgArtworkBindings();
                     foreach (BgCharacterUpload placement in written)
                         placement.BindTo(content);
-                    uploads.AddWriters(writers, content, blockArtwork, written);
+                    uploads.AddWriters(writers, content, written);
                 }
                 else if (writers.Length > 0)
                 {
                     // Words written over the room show over what its load binds.
-                    uploads.AddWriters(writers, Loaded(inputs, tileset), blockArtwork, []);
+                    uploads.AddWriters(writers, Loaded(inputs, tileset), []);
                 }
                 if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
                 {
@@ -290,11 +293,20 @@ internal static class RoomBlockUploads
             ? writers : []).Distinct();
 
     /// <summary>
+    /// Whether a room in <paramref name="state"/> draws its blocks over what Ceres Ridley's arena loads for its fight rather
+    /// than over its tileset's characters (#1357, #1648, #1791): the arena's setup ($8F:C97B) points BG1's and BG2's
+    /// characters at the OBJ character table before the room's first frame, because the arena's tileset's characters are
+    /// the turning floor of Ridley's getaway. Both of the arena's states run it, and no other state does.
+    /// </summary>
+    internal static bool DrawsBlocksOverArenaCharacters(RoomStateSettings state) =>
+        Ensure.NotNull(state).SetupBehavior == RoomSetupBehavior.SpawnCeresRidleyArenaHaze;
+
+    /// <summary>
     /// What <paramref name="state"/>'s room uploads over the OBJ character table as it loads, which the Ceres Ridley arena's
     /// blocks show: each enemy's tiles its graphics set loads, named as the table records them.
     /// </summary>
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
-    private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
+    private static IEnumerable<BgCharacterUpload> ArenaLoadUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))).Members;
         for (int member = 0; member < members.Count; member++)
@@ -463,51 +475,50 @@ internal static class RoomBlockUploads
         internal HashSet<TileWordWriter> Writers { get; } = [];
 
         /// <summary>
-        /// What a room whose blocks show the sprites' artwork has there as it loads, or null when none of the tileset's rooms
-        /// shows it.
+        /// What Ceres Ridley's arena loads under its blocks, where the tileset's rooms are the arena's (#1791): the tiles its
+        /// enemies' set loads; null where the tileset's rooms draw their blocks over the tileset's own characters.
         /// </summary>
-        internal IReadOnlyList<BgCharacterUpload>? ObjectPageLoad { get; private set; }
+        internal IReadOnlyList<BgCharacterUpload>? ArenaLoad { get; private set; }
 
-        /// <summary>The looks such a room's encounters show there after it loads, in the order they show them.</summary>
-        internal IReadOnlyList<AppearanceOption> ObjectPageLooks { get; private set; } = [];
+        /// <summary>The looks Ridley shows over the arena's blocks after it loads, in the order he shows them; none outside the arena.</summary>
+        internal IReadOnlyList<AppearanceOption> RidleyLooks { get; private set; } = [];
+
+        /// <summary>Whether some room of the tileset draws its blocks over the tileset's own characters.</summary>
+        private bool drawsOverTileset;
 
         /// <summary>
-        /// Whether some room of the tileset shows its blocks over the tileset's own artwork. A tileset every room of which
-        /// points its blocks at the sprites' artwork, as Ceres Ridley's arena's setup does before its first frame ($8F:C97B),
-        /// never shows them over the tileset's, so they have no picture over it (#1648).
+        /// What shows over the characters the tileset's blocks read after a room loads: Ridley's looks in his arena, otherwise
+        /// the animations' frames and Kraid's backdrop.
         /// </summary>
-        internal bool ShowsTilesetArtwork { get; private set; }
+        internal IReadOnlyList<AppearanceOption> BlockOptions => ArenaLoad is null ? options : RidleyLooks;
 
-        /// <summary>Records that a room of the tileset shows its blocks over <paramref name="artwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The artwork is undefined.</exception>
-        internal void ShowBlocksOver(RoomBlockArtwork artwork)
+        /// <summary>Records that a room of the tileset draws its blocks over the tileset's own characters.</summary>
+        /// <exception cref="InvalidDataException">Another room of the tileset is Ceres Ridley's arena: its blocks would have two pictures.</exception>
+        internal void DrawBlocksOverTileset()
         {
-            switch (artwork)
-            {
-                case RoomBlockArtwork.Tileset:
-                    ShowsTilesetArtwork = true;
-                    return;
-                case RoomBlockArtwork.Sprites:
-                    // What such a room shows there is recorded with its object page (AddObjectPage).
-                    return;
-                default:
-                    throw new InvalidDataException($"Undefined block artwork {artwork}.");
-            }
+            if (ArenaLoad is not null)
+                throw new InvalidDataException("A tileset of Ceres Ridley's arena is loaded by a room that draws its blocks over the tileset's characters.");
+            drawsOverTileset = true;
         }
 
         /// <summary>
-        /// Records what a room whose blocks show the sprites' artwork has there: <paramref name="loaded"/> as it loads, and
-        /// the looks <paramref name="looks"/> its encounters show after.
+        /// Records that a room of the tileset is Ceres Ridley's arena, whose blocks show <paramref name="loaded"/> as it loads
+        /// and the looks <paramref name="looks"/> Ridley shows there after.
         /// </summary>
-        /// <exception cref="InvalidDataException">Another such room of the tileset has otherwise.</exception>
-        internal void AddObjectPage(IReadOnlyList<BgCharacterUpload> loaded, IReadOnlyList<AppearanceOption> looks)
+        /// <exception cref="InvalidDataException">
+        /// Another room of the tileset draws its blocks over the tileset's characters, or another state of the arena loads
+        /// otherwise.
+        /// </exception>
+        internal void DrawBlocksOverArena(IReadOnlyList<BgCharacterUpload> loaded, IReadOnlyList<AppearanceOption> looks)
         {
-            if (ObjectPageLoad is { } known && (!known.Select(PagePlacement.Of).SequenceEqual(loaded.Select(PagePlacement.Of))
-                || !ObjectPageLooks.Select(option => PagePlacement.Of(option.Upload)).SequenceEqual(looks.Select(option => PagePlacement.Of(option.Upload)))))
-                throw new InvalidDataException("Two rooms of one tileset show different sprites' artwork.");
-            ObjectPageLoad ??= loaded;
-            if (ObjectPageLooks.Count == 0)
-                ObjectPageLooks = looks;
+            if (drawsOverTileset)
+                throw new InvalidDataException("A tileset of Ceres Ridley's arena is loaded by a room that draws its blocks over the tileset's characters.");
+            if (ArenaLoad is { } known && (!known.Select(PagePlacement.Of).SequenceEqual(loaded.Select(PagePlacement.Of))
+                || !RidleyLooks.Select(option => PagePlacement.Of(option.Upload)).SequenceEqual(looks.Select(option => PagePlacement.Of(option.Upload)))))
+                throw new InvalidDataException("Two states of Ceres Ridley's arena load different artwork under its blocks.");
+            ArenaLoad ??= loaded;
+            if (RidleyLooks.Count == 0)
+                RidleyLooks = looks;
         }
 
         /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
@@ -535,27 +546,19 @@ internal static class RoomBlockUploads
         /// <summary>What the first room with writers shows their words over, or null without writers.</summary>
         internal BgArtworkBindings? WordContent { get; private set; }
 
-        /// <summary>The artwork the rooms whose writers write words show their blocks over, which the words show over too.</summary>
-        internal RoomBlockArtwork WordArtwork { get; private set; }
-
         /// <summary>The placements <see cref="WordContent"/> binds beyond the room's load, whose characters the words show.</summary>
         internal IReadOnlyList<BgCharacterUpload> WordUploads { get; private set; } = [];
 
         /// <summary>
-        /// Records that a room's <paramref name="writers"/> write words over its blocks' <paramref name="artwork"/>, shown over
-        /// <paramref name="content"/>, which binds <paramref name="uploads"/> beyond the room's load.
+        /// Records that a room's <paramref name="writers"/> write words over its blocks, shown over <paramref name="content"/>,
+        /// which binds <paramref name="uploads"/> beyond the room's load.
         /// </summary>
-        /// <exception cref="InvalidDataException">Another room of the tileset writes words over other artwork.</exception>
-        internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content, RoomBlockArtwork artwork,
-            IReadOnlyList<BgCharacterUpload> uploads)
+        internal void AddWriters(IEnumerable<TileWordWriter> writers, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> uploads)
         {
-            if (WordContent is not null && WordArtwork != artwork)
-                throw new InvalidDataException("Two rooms of one tileset write words over different artwork.");
             Writers.UnionWith(writers);
             if (WordContent is null)
             {
                 WordContent = content;
-                WordArtwork = artwork;
                 WordUploads = uploads;
             }
         }

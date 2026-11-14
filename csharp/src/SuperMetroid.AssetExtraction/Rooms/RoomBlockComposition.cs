@@ -83,7 +83,7 @@ internal sealed class RoomBlockComposition
     /// <summary>Every binding a room of <paramref name="tileset"/> makes over its characters: its load and everything after.</summary>
     private static IEnumerable<BgCharacterUpload> Bindings(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) =>
         RoomBlockUploads.LoadUploads(inputs, tileset).Concat(uploads.Uploads)
-            .Concat(uploads.ObjectPageLoad ?? []).Concat(uploads.ObjectPageLooks.Select(option => option.Upload));
+            .Concat(uploads.ArenaLoad ?? []).Concat(uploads.RidleyLooks.Select(option => option.Upload));
 
     /// <summary>The blocks of <paramref name="set"/>, their runs split at <paramref name="bounds"/>.</summary>
     /// <exception cref="InvalidDataException">The compositions are not whole blocks.</exception>

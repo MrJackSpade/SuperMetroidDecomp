@@ -255,11 +255,11 @@ internal static class RoomBlockInventoryVerification
     {
         RoomBlockFixtures.PicturedBlocks painted = RoomBlockFixtures.Pictured([.. Tiles(highPriority: false, false, false, false),
             .. Tiles(highPriority: false, false, false, false)], Characters(), Palette());
-        var sheet = new RoomBlockSheet(default, painted.Sheet.Sheet, new RoomBlockAppearances([[], []], null, [0]));
+        var sheet = new RoomBlockSheet(default, painted.Sheet.Sheet, new RoomBlockAppearances([[], []], [0]));
         var resolver = new RoomBlockPictureResolver(sheet);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(2, 1), [RoomBlockAppearance.Of(0), RoomBlockAppearance.Of(1)]);
         InvalidDataException error = AssertThrows<InvalidDataException>(
-            () => resolver.Resolve(plane, null, RoomBlockArtwork.Tileset, default, []),
+            () => resolver.Resolve(plane, null, default, []),
             "a room showing a block its sheet does not picture fails");
         AssertTrue(error.Message.Contains(sheet.Sheet.Image.Name, StringComparison.Ordinal) && error.Message.Contains("of block 1", StringComparison.Ordinal),
             $"the failure names the sheet {sheet.Sheet.Image.Name} and block 1 by its decimal number, as its pictures are named: {error.Message}");

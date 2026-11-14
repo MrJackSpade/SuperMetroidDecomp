@@ -190,25 +190,15 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>A tileset's block appearance inputs in a content identity.</summary>
     extension(RoomBlockAppearances appearances)
     {
-        /// <summary>Appends every block's inputs over each artwork the tileset's rooms show their blocks over to a content identity.</summary>
+        /// <summary>Appends every block's inputs to a content identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("blocks", appearances.Count);
-            AppendArtwork("tileset", appearances.tileset);
-            AppendArtwork("sprites", appearances.sprites);
-
-            // Whether the tileset's rooms show their blocks over one artwork, and if so every block's inputs over it.
-            void AppendArtwork(string artwork, ImmutableArray<AppearanceInput>[]? blocks)
+            foreach (ImmutableArray<AppearanceInput> inputs in appearances.blocks)
             {
-                content.Append(artwork, blocks is null ? 0 : 1);
-                if (blocks is null)
-                    return;
-                foreach (ImmutableArray<AppearanceInput> inputs in blocks)
-                {
-                    content.Append("inputs", inputs.Length);
-                    foreach (AppearanceInput input in inputs)
-                        content.AppendName("input", input.Token);
-                }
+                content.Append("inputs", inputs.Length);
+                foreach (AppearanceInput input in inputs)
+                    content.AppendName("input", input.Token);
             }
         }
     }

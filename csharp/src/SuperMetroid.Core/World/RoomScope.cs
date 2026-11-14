@@ -77,15 +77,6 @@ internal sealed record RoomScope
     /// <summary>The images of the message boxes the room shows (#1392).</summary>
     public required MessageBoxSheet MessageBoxes { get; init; }
 
-    /// <summary>
-    /// Which artwork the blocks of <paramref name="room"/> show: the Ceres Ridley arena's setup points its foreground and the background at
-    /// the sprites' artwork (#1357); every other room, and the frames before a room is active, show the tileset's.
-    /// </summary>
-    internal static RoomBlockArtwork BlockArtworkOf(SelectedRoom? room) =>
-        room?.State.SetupBehavior == RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze
-            ? RoomBlockArtwork.Sprites
-            : RoomBlockArtwork.Tileset;
-
     /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 

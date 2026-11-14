@@ -143,7 +143,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Position = hitbox.Position.WithWrappedWholeY(
             state.SpawnHeight.Y - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
-        if (step.RestoresWidth)
+        if (step.Width == HibashiStepWidth.Restored)
             hitbox.Radius = hitbox.Radius.WithX(8);
     }
 

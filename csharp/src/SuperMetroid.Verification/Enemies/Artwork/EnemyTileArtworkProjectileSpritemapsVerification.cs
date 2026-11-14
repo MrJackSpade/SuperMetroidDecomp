@@ -20,7 +20,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core;

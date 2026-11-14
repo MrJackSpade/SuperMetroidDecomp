@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal static class HibashiAnimations
 {
     /// <summary>The eruption's rising steps, which its cues apply in order, one after each picture.</summary>
-    private static IReadOnlyList<HibashiEruptionStep> Steps => HibashiDefinitions.EruptionSteps;
+    private static HibashiEruptionStep[] Steps => HibashiDefinitions.EruptionSteps;
 
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<HibashiSegment, EnemyFrameId, HibashiCue> Segments { get; } = new(

@@ -21,17 +21,17 @@ internal static class KnockbackHorizontalStopVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(new SolidEnemyFixture(), new((ushort)(right ? 111 : 89), 100), new(5, 8), Solid: true)];
-            uint clippedBefore = samus.Kinematics.Position.X.RawValue;
+            FixedCoordinate clippedBefore = samus.Kinematics.Position.X;
             SamusKnockbackMovement.Step(level, samus, 0);
-            AssertTrue(Math.Abs(unchecked((int)(samus.Kinematics.Position.X.RawValue - clippedBefore))) < 98304,
+            AssertTrue(Math.Abs((samus.Kinematics.Position.X - clippedBefore).RawValue) < 98304,
                 "knockback encounters nearby solid enemy and is clipped short of its 1.5-pixel move");
             AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "clipped knockback clears base momentum immediately");
             AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "clipped knockback clears extra whole momentum");
             AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "clipped knockback clears extra fractional momentum");
             samus.Kinematics.InteractiveEnemies = [];
-            uint before = samus.Kinematics.Position.X.RawValue;
+            FixedCoordinate before = samus.Kinematics.Position.X;
             SamusKnockbackMovement.Step(level, samus, 1);
-            AssertEqual(right ? 98304 : -98304, unchecked((int)(samus.Kinematics.Position.X.RawValue - before)),
+            AssertEqual(SixteenSixteenWords.ToDisplacement(right ? 98304 : -98304), samus.Kinematics.Position.X - before,
                 "next clear knockback frame moves by the reset native 1.5 pixels instead of retaining clipped acceleration");
         }
     }

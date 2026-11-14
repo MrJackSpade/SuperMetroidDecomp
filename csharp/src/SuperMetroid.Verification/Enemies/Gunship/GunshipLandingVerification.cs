@@ -93,7 +93,7 @@ internal static class GunshipLandingVerification
                 if (previousTopY >= 0x0300)
                 {
                     uint previous = SixteenSixteenWords.Compose(previousTopY, previousTopSubY);
-                    uint current = top.Position.Y.RawValue;
+                    uint current = SixteenSixteenWords.Compose(top.Position.Y);
                     AssertEqual(0x0002_8000u, current - previous,
                         "gunship descent slows to cartridge 2.8 fixed pixels");
                     observedSlowDescent = true;

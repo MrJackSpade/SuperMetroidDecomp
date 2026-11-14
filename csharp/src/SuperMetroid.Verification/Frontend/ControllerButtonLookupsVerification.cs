@@ -37,8 +37,8 @@ internal static class ControllerButtonLookupsVerification
             if ((word & ~buttonBits) != 0) continue;
             ControllerButton buttons = ControllerWordCodec.FromJoypadWord((ushort)word, "assignable inverse word");
             int nativeIndex = Array.IndexOf(original, buttons, 0, 7);
-            AssertEqual(nativeIndex < 0 ? null : nativeIndex,
-                ControllerBindings.AssignableButtonIndex(buttons),
+            AssertEqual(nativeIndex >= 0,
+                ControllerBindings.IsAssignable(buttons),
                 $"assignable inverse {buttons}");
         }
 

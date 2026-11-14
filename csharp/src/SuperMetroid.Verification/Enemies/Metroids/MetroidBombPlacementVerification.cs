@@ -141,8 +141,8 @@ internal static class MetroidBombPlacementVerification
             AssertEqual(expected[frame - 61],
                 new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, checked((ushort)state.EscapeTimer), checked((ushort)samus.Health)),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
-            AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
-            AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");
+            AssertEqual(FixedCoordinate.Of(0x0095, 0x0000), samus.Kinematics.Position.X, "Samus remains at native release X");
+            AssertEqual(FixedCoordinate.Of(0x0099, 0xffff), samus.Kinematics.Position.Y, "Samus stays on the floor during detach");
         }
     }
 

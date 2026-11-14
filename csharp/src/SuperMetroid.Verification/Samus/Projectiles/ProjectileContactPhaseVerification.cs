@@ -60,9 +60,9 @@ internal static class ProjectileContactPhaseVerification
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(0);
-            var actual = new ProjectileContactPhaseExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
+            var actual = new ProjectileContactPhaseExpected(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Pose,
                 checked((ushort)samus.KnockbackTimer), SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection));
-            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+            Console.WriteLine($"CONTACT_FRAME {frame} x={SixteenSixteenWords.Compose(samus.Kinematics.Position.X):X8} y={SixteenSixteenWords.Compose(samus.Kinematics.Position.Y):X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }

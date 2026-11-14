@@ -82,8 +82,8 @@ internal static class YardAirborneVerification
                 vy = unchecked((short)(SixteenSixteenWords.WholeOf(accelerated) - 4)) < 0
                     ? accelerated : SixteenSixteenWords.Compose((ushort)SixteenSixteenWords.WholeOf(vy), (ushort)SixteenSixteenWords.FractionOf(accelerated));
                 enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus });
-                AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
-                AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");
+                AssertEqual(SixteenSixteenWords.ToCoordinate(x), actor.Position.X, "Yard airborne X trajectory");
+                AssertEqual(SixteenSixteenWords.ToCoordinate(y), actor.Position.Y, "Yard airborne Y trajectory");
                 AssertEqual(vx, unchecked((uint)state.AirborneVelocity.X.RawValue), "Yard native friction words");
                 AssertEqual(vy, unchecked((uint)state.AirborneVelocity.Y.RawValue), "Yard native gravity words");
                 AssertEqual(YardMovement.Airborne, state.Movement, "empty fixture remains airborne");

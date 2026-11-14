@@ -117,7 +117,7 @@ internal static class CompiledProjectileMathVerification
             int sampleIndex = (((phase & 510) | 128) / 2) + 64;
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
-            var debris = new NoobTubeDebrisState(column: 0) { X = FixedCoordinate.FromRaw(initial), SwayPhase = phase };
+            var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial), SwayPhase = phase };
             projectile.State = debris;
             arc(projectile, step);
             if (debris.X.Whole != SixteenSixteenWords.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||

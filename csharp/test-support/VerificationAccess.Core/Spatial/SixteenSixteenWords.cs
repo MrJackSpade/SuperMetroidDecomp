@@ -36,4 +36,16 @@ internal static class SixteenSixteenWords
 
     /// <summary>The fraction word of a 16.16 word pair.</summary>
     internal static uint FractionOf(uint raw) => raw & ushort.MaxValue;
+
+    /// <summary>
+    /// The position a recorded 16.16 word pair stores, built from its whole word and fraction word
+    /// (<see cref="FixedCoordinate.Of"/>).
+    /// </summary>
+    internal static FixedCoordinate ToCoordinate(uint raw) => FixedCoordinate.Of((int)WholeOf(raw), (int)FractionOf(raw));
+
+    /// <summary>
+    /// The 16.16 word pair of a position, for checks that state the cartridge's arithmetic on the recorded words: its
+    /// whole pixel above its fraction.
+    /// </summary>
+    internal static uint Compose(FixedCoordinate coordinate) => Compose(coordinate.Whole, coordinate.Fraction);
 }

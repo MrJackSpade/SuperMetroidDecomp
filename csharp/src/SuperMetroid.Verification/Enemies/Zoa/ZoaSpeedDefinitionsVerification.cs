@@ -48,7 +48,7 @@ internal static class ZoaSpeedDefinitionsVerification
                     actor.Position = new(new(128, (ushort)fraction), new(128, 123));
                     shoot(actor, state, Position16<RoomPixels>.Zero);
                     uint expected = unchecked(0x00800000u + (uint)fraction + (uint)displacement);
-                    AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actor.Position.X.Whole, "Zoa real signed whole displacement");
+                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), actor.Position.X.Whole, "Zoa real signed whole displacement");
                     AssertEqual((ushort)expected, actor.Position.X.Fraction, "Zoa real fractional carry/borrow");
                     AssertEqual((ushort)128, actor.Position.Y.Whole, "Zoa shooting preserves Y");
                     AssertEqual((ushort)123, actor.Position.Y.Fraction, "Zoa shooting preserves sub-Y");

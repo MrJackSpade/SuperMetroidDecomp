@@ -306,7 +306,7 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomFxOverlay.LavaAcidOverlayFrameBehaviorInstalled = true;
+        runtime.RoomFxOverlay.LiquidMotionStarted = true;
         runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
         runtime.RoomFxOverlay.TidePhase = RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase));
         runtime.RoomFxOverlay.TideOffset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));

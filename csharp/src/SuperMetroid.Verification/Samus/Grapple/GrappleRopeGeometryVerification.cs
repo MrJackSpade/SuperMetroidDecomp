@@ -48,7 +48,7 @@ internal static class GrappleRopeGeometryVerification
             int count = Math.Max(1, length / 8);
             for (int segment = 0; segment < count; segment++)
             {
-                ushort sx = FixedCoordinate.WholeOf(x), sy = FixedCoordinate.WholeOf(y);
+                ushort sx = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x)), sy = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)y));
                 expected.Add(new GrappleRopeGeometryExpected(unchecked((byte)sx), unchecked((byte)sy)));
                 x = unchecked(x + dx); y = unchecked(y + dy);
             }

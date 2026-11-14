@@ -52,7 +52,7 @@ public sealed class EscapeTypewriterState
         Ensure.NotNull(message);
         if (MessageId != EscapeTypewriterMessageId.None && MessageId != message.Id)
             throw new InvalidDataException(
-                $"Cannot bind escape typewriter program {message.Id} to saved {MessageId} state.");
+                $"Cannot bind the {message.Id} escape warning to a saved {MessageId} warning.");
         MessageId = message.Id;
         installedMessage = message;
     }
@@ -73,7 +73,7 @@ public sealed class EscapeTypewriterState
         if (DelayTimer != 0) { DelayTimer--; return false; }
         EscapeTypewriterMessage message = installedMessage ??
             throw new InvalidOperationException(
-                $"Escape typewriter program {MessageId} was restored without host content rebind.");
+                $"The {MessageId} escape warning was restored without its installed text bound again.");
         return StepInstalled(message, out glyph);
     }
 

@@ -54,8 +54,8 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(!samus.Control.InputLocked, "installed ejection replaces movement but not pose input");
 
         bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
-        uint xBeforeInitialization = samus.Kinematics.Position.X.RawValue;
-        uint yBeforeInitialization = samus.Kinematics.Position.Y.RawValue;
+        FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
+        FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
 
             emptyRoom,
@@ -67,8 +67,8 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
         AssertEqual(SamusMovementType.Knockback, samus.PoseHistory.PreviousMovement, "ejection initialization publishes hurt metadata");
-        AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X.RawValue, "first gamma performs no horizontal movement");
-        AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y.RawValue, "first gamma performs no vertical movement");
+        AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X, "first gamma performs no horizontal movement");
+        AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(CeresRidleyShoveDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed.Whole, "ejection installs terminal downward speed");

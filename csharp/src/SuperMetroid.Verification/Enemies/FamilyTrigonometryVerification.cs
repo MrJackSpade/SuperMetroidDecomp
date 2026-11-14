@@ -90,12 +90,12 @@ internal static class FamilyTrigonometryVerification
             var bullState = new BullEnemyState(previous: null);
             foreach (int speed in boundaryWords)
             {
-                bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+                bull.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
                 bullState.Angle = new TrigonometryAngle(angle);
                 bullState.Speed = new SignedEightEight(speed);
                 bullMove(bull, bullState);
-                uint x = bull.Position.X.RawValue;
-                uint y = bull.Position.Y.RawValue;
+                uint x = SixteenSixteenWords.Compose(bull.Position.X);
+                uint y = SixteenSixteenWords.Compose(bull.Position.Y);
                 if (x != BullReference(initial, native[unchecked((byte)(angle + 64))], speed) ||
                     y != BullReference(initial, native[angle], speed))
                     throw new InvalidDataException($"Bull movement differs: angle={angle}, speed={speed}, origin={initial:X8}.");
@@ -126,13 +126,13 @@ internal static class FamilyTrigonometryVerification
             foreach (uint initial in origins)
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
             {
-                previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+                previous.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
                 segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
                 place(segment, segmentState);
                 uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
                 uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
-                if ((segment.Position.X.RawValue) != expectedX ||
-                    (segment.Position.Y.RawValue) != expectedY ||
+                if (segment.Position.X != SixteenSixteenWords.ToCoordinate(expectedX) ||
+                    segment.Position.Y != SixteenSixteenWords.ToCoordinate(expectedY) ||
                     segmentState.OrbitAngle.RawValue != angle)
                     throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
             }

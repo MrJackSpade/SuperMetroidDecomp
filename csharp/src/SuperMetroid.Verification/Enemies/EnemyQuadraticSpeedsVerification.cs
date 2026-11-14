@@ -38,9 +38,9 @@ internal static class EnemyQuadraticSpeedsVerification
         {
             int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign).RawValue;
             uint expected = unchecked(origin + (uint)speed);
-            rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
+            rock.Position = rock.Position.WithY(SixteenSixteenWords.ToCoordinate(origin));
             addRock(rock, QuadraticSpeedCurvePlace.FromMarks(index), sign);
-            AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
+            AssertEqual(SixteenSixteenWords.ToCoordinate(expected), rock.Position.Y, "Polyp real split-word carry/wrap");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, QuadraticSpeedCurvePlace.FromMarks(QuadraticSpeedCurveDefinitions.MarkCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
         var beetom = new Func<int, int, QuadraticSpeedCurvePlace>(BeetomBehavior.CalculateInitialBeetomYSpeedCurvePlace);

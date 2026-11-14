@@ -66,14 +66,10 @@ public readonly record struct ControllerBindings(
     ];
 
     /// <summary>
-    /// The position of <paramref name="button"/> in <see cref="AssignableButtons"/>; null for every other button set,
+    /// Whether <paramref name="button"/> is one of the <see cref="AssignableButtons"/>; false for every other button set,
     /// including combinations of valid buttons, directions, Start, and none.
     /// </summary>
-    public static int? AssignableButtonIndex(ControllerButton button)
-    {
-        int index = AssignableButtons.IndexOf(button);
-        return index < 0 ? null : index;
-    }
+    public static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
 
     /// <summary>Returns the button bound to one action.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
@@ -100,7 +96,7 @@ public readonly record struct ControllerBindings(
     public ControllerBindings AssignAndSwap(ControllerAction action, ControllerButton physicalButton)
     {
         ControllerButton displaced = this[action];
-        if (AssignableButtonIndex(physicalButton) is null)
+        if (!IsAssignable(physicalButton))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
@@ -148,7 +144,7 @@ public readonly record struct ControllerBindings(
             for (int index = 0; index < Actions.Length; index++)
             {
                 ControllerButton button = this[Actions[index]];
-                if (AssignableButtonIndex(button) is null || seen[..index].Contains(button))
+                if (!IsAssignable(button) || seen[..index].Contains(button))
                     return false;
                 seen[index] = button;
             }

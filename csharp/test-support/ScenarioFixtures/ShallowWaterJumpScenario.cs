@@ -58,12 +58,14 @@ internal sealed class ShallowWaterJumpScenario
     internal JumpTrace Jump()
     {
         var rows = new List<string> { TraceHeader };
-        uint apex = Samus.Kinematics.Position.Y.RawValue;
+        FixedCoordinate apex = Samus.Kinematics.Position.Y;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
             Runtime.StepFrame(ControllerButton.A, new RuntimeFrameRequest());
-            apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
-            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.YSpeed.RawValue:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
+            FixedCoordinate y = Samus.Kinematics.Position.Y;
+            if (y.Whole < apex.Whole || (y.Whole == apex.Whole && y.Fraction < apex.Fraction))
+                apex = y;
+            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.YSpeed.RawValue:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }
         return new JumpTrace(rows, apex);
     }

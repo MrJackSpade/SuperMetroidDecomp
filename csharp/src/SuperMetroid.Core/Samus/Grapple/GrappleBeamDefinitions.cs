@@ -68,8 +68,6 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>The distance in pixels between the centres of consecutive rope pictures along the rope.</summary>
         public const int SegmentSpacing = 8;
-        /// <summary>Convert a signed 1/256-step sample into an eight-pixel 1/65536-pixel displacement.</summary>
-        public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
         /// <summary>Rope draws each of the rope's pictures lasts before the whole rope steps on to the next.</summary>
         public const int SegmentAnimationDelay = 5;
         /// <summary>

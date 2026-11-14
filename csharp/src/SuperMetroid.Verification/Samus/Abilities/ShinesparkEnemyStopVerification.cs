@@ -27,18 +27,18 @@ internal static class ShinesparkEnemyStopVerification
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(Enemy: enemy, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
                 Radius: new(8, 8), Solid: true)];
-            uint initialY = samus.Kinematics.Position.Y.RawValue;
+            FixedCoordinate initialY = samus.Kinematics.Position.Y;
             samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { FrameCounter = 0, Projectiles = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.SlotCount)) });
             if (gap == 4)
             {
-                AssertEqual(initialY, samus.Kinematics.Position.Y.RawValue, "spark enemy hit retains exact crash Y instead of advancing to boundary");
-                AssertEqual(0, unchecked((int)(samus.Kinematics.Position.Y.RawValue - initialY)), "spark solid-enemy stop accepts no vertical displacement");
+                AssertEqual(initialY, samus.Kinematics.Position.Y, "spark enemy hit retains exact crash Y instead of advancing to boundary");
+                AssertEqual(SignedSixteenSixteen.Zero, samus.Kinematics.Position.Y - initialY, "spark solid-enemy stop accepts no vertical displacement");
                 AssertTrue(samus.Kinematics.DidCollideWithSolidEnemy(enemy), "spark stop retains enemy collision evidence");
                 AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "spark enemy hit starts crash");
             }
             else
             {
-                AssertTrue(samus.Kinematics.Position.Y.RawValue < initialY, "clear spark enemy probe still moves upward");
+                AssertTrue((samus.Kinematics.Position.Y - initialY).IsNegative, "clear spark enemy probe still moves upward");
                 AssertEqual(ShinesparkPhase.Vertical, samus.Shinespark.Phase, "distant enemy does not force crash");
             }
         }

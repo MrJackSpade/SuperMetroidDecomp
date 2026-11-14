@@ -6,14 +6,12 @@ namespace SuperMetroid.Core.Rooms;
 internal enum RoomViewportLoadMode
 {
     /// <summary>
-    /// Load stations, startup, and explicit debug loads draw all
-    /// seventeen visible block columns immediately.
+    /// Load stations, startup, and explicit debug loads show the destination's whole view at once.
     /// </summary>
     DisplayInitialViewport,
 
     /// <summary>
-    /// Door loads retain the source room's background and replace it one boundary
-    /// row or column at a time as the door scrolls.
+    /// Door loads keep showing the source room's screen while the door's scroll moves the destination in around it.
     /// </summary>
     StreamThroughDoor,
 }

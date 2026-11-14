@@ -24,9 +24,9 @@ public sealed class EscapeTypewriterPresentation
         EscapeTypewriterMessageId.Ceres => ceres,
         EscapeTypewriterMessageId.Zebes => zebes,
         EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id,
-            "Escape typewriter program is not present in the installed catalog."),
+            "No escape warning of this kind is installed."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id,
-            "Escape typewriter program is not present in the installed catalog."),
+            "No escape warning of this kind is installed."),
     };
 
     /// <summary>Reads stock lines from compiled definitions and stores only authored changes by line index.</summary>

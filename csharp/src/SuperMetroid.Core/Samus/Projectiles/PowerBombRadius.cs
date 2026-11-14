@@ -21,6 +21,9 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <summary>The whole pixels no Power Bomb length reaches: those its blast's growth holds short of.</summary>
     public const int UnreachedPixels = PowerBombGrowthHold.HoldingPixels;
 
+    /// <summary>The whole pixels of radius in each band that selects one of the blast's glow colours.</summary>
+    public const int GlowColorBandPixels = 8;
+
     /// <summary>Stores a range-checked length.</summary>
     private PowerBombRadius(int wholePixels, int fraction)
     {
@@ -33,6 +36,12 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
 
     /// <summary>The 256ths of a pixel past <see cref="WholePixels"/>, 0 through 255.</summary>
     public int Fraction { get; }
+
+    /// <summary>
+    /// The band of <see cref="GlowColorBandPixels"/> whole pixels the radius reaches, 0 through 31: the step of a glow
+    /// colour sequence a blast of this radius shows.
+    /// </summary>
+    public int GlowColorBand => WholePixels / GlowColorBandPixels;
 
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;

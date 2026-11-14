@@ -71,8 +71,57 @@ public static class RoomGridConversions
     /// <summary>The last pixel of the 16-pixel block holding an unsigned room pixel coordinate.</summary>
     public static int BlockEnd(int pixel) => BlockStart(pixel) + BlockPixels - 1;
 
+    /// <summary>
+    /// A room pixel coordinate's offset within its 16-pixel block, 0 through 15, measured from the block's far edge when
+    /// <paramref name="mirrored"/>: how a flipped slope reads the coordinate it tests. The coordinate is read as
+    /// <see cref="OffsetWithinBlock(int)"/> reads it.
+    /// </summary>
+    public static int OffsetWithinBlock(int pixel, bool mirrored) => mirrored ? OffsetFromBlockEnd(pixel) : OffsetWithinBlock(pixel);
+
+    /// <summary>
+    /// The centre pixel of the 16-pixel block holding an unsigned room pixel coordinate: the block's first pixel plus half
+    /// a block.
+    /// </summary>
+    public static int BlockCentre(int pixel) => BlockStart(pixel) + HalfBlockPixels;
+
+    /// <summary>The centre pixel of the block holding a room pixel, on each axis.</summary>
+    public static Position16<RoomPixels> ToBlockCentre(this Position16<RoomPixels> position) =>
+        new(BlockCentre(position.X), BlockCentre(position.Y));
+
+    /// <summary>
+    /// Whether a room pixel coordinate lies in the second eight-pixel half of its 16-pixel block: the right half of a
+    /// column or the lower half of a row. The coordinate is read as <see cref="OffsetWithinBlock(int)"/> reads it.
+    /// </summary>
+    public static bool InSecondHalfOfBlock(int pixel) => OffsetWithinBlock(pixel) >= HalfBlockPixels;
+
+    /// <summary>
+    /// A room pixel coordinate's offset within its eight-pixel half block, 0 through 7, read as
+    /// <see cref="OffsetWithinBlock(int)"/> reads it.
+    /// </summary>
+    public static int OffsetWithinHalfBlock(int pixel) => OffsetWithinBlock(pixel) % HalfBlockPixels;
+
+    /// <summary>How far a room pixel coordinate lies before the last pixel of its eight-pixel half block, 0 through 7.</summary>
+    public static int OffsetFromHalfBlockEnd(int pixel) => HalfBlockPixels - 1 - OffsetWithinHalfBlock(pixel);
+
     /// <summary>The first pixel of the eight-pixel half block holding an unsigned room pixel coordinate.</summary>
     public static int HalfBlockStart(int pixel) => RequirePixel(pixel) - pixel % HalfBlockPixels;
+
+    /// <summary>The last pixel of the eight-pixel half block holding an unsigned room pixel coordinate.</summary>
+    public static int HalfBlockEnd(int pixel) => HalfBlockStart(pixel) + HalfBlockPixels - 1;
+
+    /// <summary>
+    /// The eight-pixel half block, counted from the room's first pixel, that a pixel position of -32768 through 65535 lies
+    /// in. The count rounds toward lower values, so a position before the room's first pixel lies in a negative half
+    /// block: -1 through -8 in half block -1.
+    /// </summary>
+    public static int HalfBlockOf(int pixel)
+    {
+        int position = Ensure.BetweenInclusive(short.MinValue, ushort.MaxValue, pixel);
+        return position >= 0 ? position / HalfBlockPixels : (position - (HalfBlockPixels - 1)) / HalfBlockPixels;
+    }
+
+    /// <summary>Whether a half block counted by <see cref="HalfBlockOf"/> is the second half of its 16-pixel block.</summary>
+    public static bool IsBlockSecondHalf(int halfBlock) => halfBlock % 2 != 0;
 
     /// <summary>The block column or row, 0 through 4095, holding an unsigned room pixel coordinate along one axis.</summary>
     public static int PixelToBlock(int pixel) => RequirePixel(pixel) / BlockPixels;

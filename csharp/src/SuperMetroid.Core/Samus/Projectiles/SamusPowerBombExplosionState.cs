@@ -235,7 +235,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         SelectGlowColor(
             PowerBombGlowSequence.PreExplosion,
-            (PreExplosionRadius.WholePixels >> 3) & 15);
+            PreExplosionGlowStep(PreExplosionRadius));
 
         // The white pre-explosion grows the radius by its speed and slows only while the grown radius is still
         // below the white limit.
@@ -291,7 +291,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         SelectGlowColor(
             PowerBombGlowSequence.PreExplosion,
-            (PreExplosionRadius.WholePixels >> 3) & 15);
+            PreExplosionGlowStep(PreExplosionRadius));
 
         // The yellow pre-explosion builds this frame's two window tables before advancing to the next
         // shape. Preserve that consumed shape for a host compositor running
@@ -322,7 +322,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
             PowerBombGlowSequence.Explosion,
-            ExplosionRadius.WholePixels >> 3);
+            ExplosionRadius.GlowColorBand);
 
         ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.ExplosionYellowLimit)
@@ -344,7 +344,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
             PowerBombGlowSequence.Explosion,
-            ExplosionRadius.WholePixels >> 3);
+            ExplosionRadius.GlowColorBand);
 
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
@@ -400,7 +400,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
             PowerBombGlowSequence.Explosion,
-            ExplosionRadius.WholePixels >> 3);
+            ExplosionRadius.GlowColorBand);
 
         ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
@@ -459,6 +459,14 @@ public sealed class SamusPowerBombExplosionState
                 $"Power Bomb afterglow stepped with {_afterglowStepsRemaining} steps remaining; the phase ends when the count reaches zero.");
         _afterglowStepsRemaining--;
     }
+
+    /// <summary>
+    /// The pre-explosion colour a flash of <paramref name="radius"/> shows: its glow band, the sixteen colours repeating
+    /// from 128 pixels on. The repeat is load-bearing: the white flash ends at 146 pixels and its yellow shapes grow it
+    /// toward 255, so its last colours are the sequence's first ones again.
+    /// </summary>
+    private static int PreExplosionGlowStep(PowerBombRadius radius) =>
+        radius.GlowColorBand % PowerBombGlowColorFormat.Count(PowerBombGlowSequence.PreExplosion);
 
     /// <summary>Selects the installed glow colour a sequence shows at a radius-derived step.</summary>
     private void SelectGlowColor(PowerBombGlowSequence sequence, int glowStep)

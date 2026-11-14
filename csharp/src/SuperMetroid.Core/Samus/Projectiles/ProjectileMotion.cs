@@ -580,13 +580,8 @@ internal sealed class ProjectileMotion
             // the game table: the behaviour's flips mirror X and Y. A table height at or
             // above the mirrored Y point (`height - y <= 0`, signed) is
             // solid. Values can reach 20 for overhanging shapes, so do not reduce them modulo 16.
-            int xInBlock = slot.Position.X.Whole & 15;
-            if (block.Behavior.Slope.FlipsHorizontally)
-                xInBlock ^= 15;
-
-            int yInBlock = slot.Position.Y.Whole & 15;
-            if (block.Behavior.Slope.FlipsVertically)
-                yInBlock ^= 15;
+            int xInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
+            int yInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
 
             int height = SlopeHeights.Read(slopeShape, xInBlock);
             return height <= yInBlock;
@@ -595,6 +590,6 @@ internal sealed class ProjectileMotion
         // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
         // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
         return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
-            SquareSlopeQuadrant.ColumnFor((slot.Position.X.Whole & 8) != 0), SquareSlopeQuadrant.RowFor((slot.Position.Y.Whole & 8) != 0)));
+            SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole)), SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole))));
     }
 }

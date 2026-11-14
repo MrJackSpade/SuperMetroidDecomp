@@ -17,6 +17,6 @@ public static class PowerBombExplosionAfterglow
         if (!(consumedRadius < CrystalFlashRadiusLimit))
             throw new ArgumentOutOfRangeException(nameof(consumedRadius),
                 "Crystal Flash consumes a radius below its compiled expansion limit.");
-        return CrystalFlashInitialFadeSteps + consumedRadius.WholePixels / CrystalFlashColorBandPixels;
+        return CrystalFlashInitialFadeSteps + consumedRadius.GlowColorBand;
     }
 }

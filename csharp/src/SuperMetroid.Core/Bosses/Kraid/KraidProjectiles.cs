@@ -309,8 +309,8 @@ internal sealed class KraidProjectiles
         {
             part.AlternateSpawn = false;
             RoomEnemySlot body = _parts.Body;
-            nail.Position = nail.Position.WithWhole(new(CoordinateAxis.Wrap(
-                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & ~15), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + 128)));
+            nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(CoordinateAxis.Wrap(
+                body.Position.X.Whole - body.Radius.X - nail.Radius.X)), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + 128)));
             return;
         }
 

@@ -765,12 +765,8 @@ public sealed class SamusBombProjectileSystem
 
         // Non-square slope collision mirrors X before indexing the slope-height row, then compares the
         // resulting height with Y within the block. Equality counts as collision.
-        int xWithinBlock = (block.Behavior.Slope.FlipsHorizontally
-            ? slot.Position.X.Whole ^ 15
-            : slot.Position.X.Whole) & 15;
-        int yWithinBlock = slot.Position.Y.Whole & 15;
-        if (block.Behavior.Slope.FlipsVertically)
-            yWithinBlock ^= 15;
+        int xWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
+        int yWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
         int height = SlopeHeights.Read(block.Behavior.Slope.Shape, xWithinBlock);
         return height <= yWithinBlock;
     }

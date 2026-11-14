@@ -208,9 +208,7 @@ public static class SamusGrappleMovement
 
             // The beam has connected. The collision centers the point in
             // the accepted 16x16 block before the grapple chooses the swing/locked pose.
-            grapple.Anchor = new(
-                CoordinateAxis.Wrap((grapple.Anchor.X & ~15) | 8),
-                CoordinateAxis.Wrap((grapple.Anchor.Y & ~15) | 8));
+            grapple.Anchor = grapple.Anchor.ToBlockCentre();
             return ConnectAcceptedFiringCore(
                 samus,
                 grapple,

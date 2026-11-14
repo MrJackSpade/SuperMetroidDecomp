@@ -89,12 +89,6 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step animations.</summary>
     internal int CurrentFrame8 { get; set; }
 
-    /// <summary>The pixel offset within a 16-pixel block.</summary>
-    private const int BlockPixelMask = 15;
-
-    /// <summary>The pixel offset within an 8-pixel half block.</summary>
-    private const int HalfBlockPixelMask = 7;
-
     /// <summary>The frame clock's count for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
@@ -473,8 +467,8 @@ internal sealed class EnemyProjectileEngine
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
                 int snappedPosition = slopeAlignedPosition ?? (movingNegative
-                    ? CoordinateAxis.Wrap((movementEdge | BlockPixelMask) + movementRadius + 1)
-                    : CoordinateAxis.Wrap((movementEdge & ~BlockPixelMask) - movementRadius));
+                    ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
+                    : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
                 bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (movingNegative
                     ? snappedPosition <= position
                     : snappedPosition >= position);
@@ -536,13 +530,14 @@ internal sealed class EnemyProjectileEngine
             // leading edge. Empty halves of square slopes are not solid walls.
             int perpendicularPosition = (axis == Axis.Horizontal) ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
             int perpendicularRadius = (axis == Axis.Horizontal) ? projectile.Radius.Y : projectile.Radius.X;
-            int blockStart = ((axis == Axis.Horizontal) ? block.Y : block.X) << 4;
+            Position16<RoomPixels> blockOrigin = block.ToRoomPixels();
+            int blockStart = (axis == Axis.Horizontal) ? blockOrigin.Y : blockOrigin.X;
             int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
-            int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
-            for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
+            int lastPixel = Math.Min(RoomGridConversions.BlockEnd(blockStart), perpendicularPosition + perpendicularRadius - 1);
+            for (int half = RoomGridConversions.HalfBlockOf(firstPixel); half <= RoomGridConversions.HalfBlockOf(lastPixel); half++)
             {
-                bool edgeInSecondHalf = (targetEdge & 8) != 0;
-                bool halfIsSecond = (half & 1) != 0;
+                bool edgeInSecondHalf = RoomGridConversions.InSecondHalfOfBlock(targetEdge);
+                bool halfIsSecond = RoomGridConversions.IsBlockSecondHalf(half);
                 SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
                     ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(edgeInSecondHalf), SquareSlopeQuadrant.RowFor(halfIsSecond))
                     : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(halfIsSecond), SquareSlopeQuadrant.RowFor(edgeInSecondHalf));
@@ -553,8 +548,8 @@ internal sealed class EnemyProjectileEngine
                 // boundary before the caller's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
-                    ? CoordinateAxis.Wrap((targetEdge | HalfBlockPixelMask) + radius + 1)
-                    : CoordinateAxis.Wrap((targetEdge & ~HalfBlockPixelMask) - radius);
+                    ? CoordinateAxis.Wrap(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
+                    : CoordinateAxis.Wrap(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
                 return true;
             }
             return false;
@@ -581,12 +576,8 @@ internal sealed class EnemyProjectileEngine
 
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
                 collisionBlock.Behavior,
-                (collisionBlock.Behavior.Slope.FlipsHorizontally
-                    ? projectile.Position.X.Whole ^ BlockPixelMask
-                    : projectile.Position.X.Whole) & BlockPixelMask);
-            int edgeWithinBlock = movingUp
-                ? (targetEdge & BlockPixelMask) ^ BlockPixelMask
-                : targetEdge & BlockPixelMask;
+                RoomGridConversions.OffsetWithinBlock(projectile.Position.X.Whole, mirrored: collisionBlock.Behavior.Slope.FlipsHorizontally));
+            int edgeWithinBlock = RoomGridConversions.OffsetWithinBlock(targetEdge, mirrored: movingUp);
             int adjustment = height - edgeWithinBlock - 1;
             if (movingUp)
             {
@@ -598,9 +589,10 @@ internal sealed class EnemyProjectileEngine
                 return false;
             }
 
+            int blockTop = block.ToRoomPixels().Y;
             slopeAlignedPosition = movingUp
-                ? CoordinateAxis.Wrap((block.Y << 4) + 16 - height + projectile.Radius.Y)
-                : CoordinateAxis.Wrap((block.Y << 4) + height - projectile.Radius.Y);
+                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
+                : CoordinateAxis.Wrap(blockTop + height - projectile.Radius.Y);
             return true;
         }
 

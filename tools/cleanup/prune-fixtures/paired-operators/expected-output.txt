@@ -1,0 +1,1 @@
+MANUAL Method SuperMetroid.Core.Lists.ListLength.operator <=(SuperMetroid.Core.Lists.ListLength, SuperMetroid.Core.Lists.ListLength) (csharp/src/SuperMetroid.Core/Lists/ListLength.cs:19)

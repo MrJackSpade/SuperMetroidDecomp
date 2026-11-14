@@ -89,6 +89,11 @@ internal sealed class RoomLoader
     /// </summary>
     private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
     /// <summary>
+    /// The camera fractions the previous game left, which the runtime's first room's camera starts from
+    /// (<see cref="CameraFractionsKeptAcrossGames"/>); later rooms carry the outgoing camera's own.
+    /// </summary>
+    private readonly CameraFractionsKeptAcrossGames _cameraFractions;
+    /// <summary>
     /// The runtime's shared fade step count, handed to every room's enemies, whose backdrop and body fades count their steps
     /// on it with the runtime's door, death and time-up fades.
     /// </summary>
@@ -131,6 +136,7 @@ internal sealed class RoomLoader
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
+        _cameraFractions = Ensure.NotNull(dependencies.CameraFractions);
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
@@ -787,7 +793,7 @@ internal sealed class RoomLoader
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
-        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedCameraPosition,
+        var carryOver = new RoomTransitionCarryOver(_room.Camera,
             _room.Scope is { } gated
                 ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
                     gated.Enemies.Elevator.ElevatorDoorTransitionActive)
@@ -831,7 +837,7 @@ internal sealed class RoomLoader
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
             if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
-            destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? carryOver.InheritedCameraPosition);
+            destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? _cameraFractions.Fractions);
         }
         else
         {
@@ -839,7 +845,7 @@ internal sealed class RoomLoader
             if (previousCamera is not null)
                 destinationCamera.RetainSubpositions(previousCamera);
             else
-                destinationCamera.RetainSubpositions(carryOver.InheritedCameraPosition);
+                destinationCamera.RetainSubpositions(_cameraFractions.Fractions);
         }
         _backgroundScroll.BackgroundScrollModes = room.State.BackgroundScrollModes;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)

@@ -139,6 +139,12 @@ internal sealed class SuperMetroidRuntime
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
     /// <summary>
+    /// The session's camera fractions kept across games: the runtime's first room's camera starts from them, and
+    /// <see cref="LeaveCameraFractions"/> keeps this runtime's when the session releases it.
+    /// </summary>
+    internal CameraFractionsKeptAcrossGames CameraFractions { get; }
+
+    /// <summary>
     /// The compatibility services reproducing what Samus's glitch paths read past their data, from the installed content;
     /// the runtime hands each to the owner that consults it as it builds that owner and every Samus and room.
     /// </summary>
@@ -176,7 +182,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="session">
     /// What the session keeps across its runtimes: the frame clock it shares with the frontend, the random number generator,
     /// the unauthored Speed Booster cadence its enemies and every Samus share, the power-on earthquake delay, the save
-    /// confirmation's input cadence and the live and stored explored maps.
+    /// confirmation's input cadence, the live and stored explored maps and the camera fractions kept across games.
     /// </param>
     internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork, GameplaySessionCarryover session)
     {
@@ -184,6 +190,7 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(session);
         FrameClock clock = session.Clock;
         UnauthoredBoostCadence = Ensure.NotNull(session.UnauthoredBoostCadence);
+        CameraFractions = Ensure.NotNull(session.CameraFractions);
         FadeOut = new GameplayFadeOut(FadeStepCount);
         MessageBox = new GameplayMessageBoxState(session.SaveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
@@ -221,7 +228,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, FramesBeyondAnimation = SamusOverreads.FramesBeyondAnimation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -1098,6 +1105,17 @@ internal sealed class SuperMetroidRuntime
         bool statuesOpening = !Assists.Current.TourianStatuesOpen && assists.TourianStatuesOpen;
         Assists.Rebind(assists);
         if (statuesOpening && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartWithStatuesOpen(Room.LoadedScope.RoomObjects);
+    }
+
+    /// <summary>
+    /// Keeps this runtime's camera fractions for the next game as the session releases it
+    /// (<see cref="CameraFractionsKeptAcrossGames"/>). A runtime that never placed a camera leaves the kept fractions as
+    /// it found them.
+    /// </summary>
+    internal void LeaveCameraFractions()
+    {
+        if (Room.Camera is { } camera)
+            CameraFractions.Keep(camera.Position);
     }
 
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>

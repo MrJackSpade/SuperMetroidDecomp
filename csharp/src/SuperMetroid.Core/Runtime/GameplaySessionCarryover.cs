@@ -24,6 +24,9 @@ internal sealed record GameplaySessionCarryover
     /// <summary>The session's live and stored explored maps, which the game keeps across games and demos.</summary>
     public required StoredExploredMaps<AreaId> StoredExploredMaps { get; init; }
 
+    /// <summary>The camera fractions the previous game left, which the runtime's first room's camera starts from and its release keeps.</summary>
+    public required CameraFractionsKeptAcrossGames CameraFractions { get; init; }
+
     /// <summary>
     /// The session's sound and music queues, which the runtime's gameplay requests go straight into as they are made; none
     /// for a runtime outside a session, whose requests reach no queue.

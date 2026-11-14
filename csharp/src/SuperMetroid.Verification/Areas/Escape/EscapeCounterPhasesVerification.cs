@@ -20,7 +20,7 @@ internal static class EscapeCounterPhasesVerification
             AssertSameAt(input & 127, EscapeTimerCadenceDefinitions.PeriodPlace.Of(input), "escape timer period place", input);
             AssertSameAt(input % 2 == 0, EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(input), "typewriter click", input);
             AssertSameAt(ZebesEscapeDefinitions.ExplosionChoice.Of(input) < 8,
-                ZebesEscapeDefinitions.ExplosionChoice.Of(input) < ZebesEscapeExplosionDefinitions.Choices.Length,
+                ZebesEscapeDefinitions.ExplosionChoice.Of(input) < ZebesEscapeExplosionDefinitions.Drawn.Length,
                 "explosion choice names an explosion", input);
             AssertSameAt(input < 512, ZebesEscapeDefinitions.LightShakeTurnsDiagonal.IsTakenBy(input), "light shake turns diagonal", input);
             AssertSameAt(input < 384, ZebesEscapeDefinitions.MediumShakeTurnsDiagonal.IsTakenBy(input), "medium shake turns diagonal", input);

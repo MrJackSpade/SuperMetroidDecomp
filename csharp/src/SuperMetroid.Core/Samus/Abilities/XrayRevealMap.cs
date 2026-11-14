@@ -31,45 +31,47 @@ public static class XrayRevealMap
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
         RoomBlockCells foreground = level.ForegroundPlane.Cells;
+        Position16<RoomBlocks> cameraBlock = foregroundPosition.ToRoomBlock();
         var result = new RevealedBlock?[XrayRevealArea.BlockCount];
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         for (int col = 0; col < XrayRevealArea.Columns; col++)
             Place(col, row, Copied(col, row));
         // The reveal's lookups take the camera's row within the scan cycle and its column as it is, and reach each revealed
         // block in the room's reading order, so a column past the room's width runs into the following rows.
-        var firstBlock = Position16<RoomBlocks>.Of(foregroundPosition.X >> 4, BlockScanCycle.Within(foregroundPosition.Y >> 4));
+        var firstBlock = Position16<RoomBlocks>.Of(cameraBlock.X, BlockScanCycle.Within(cameraBlock.Y));
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
             // The prior column may own a 2-wide reveal crossing the left edge. Its
             // right half is copied before this row's own reveals overwrite it; the room's first block has none.
             if (RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(-1, row), level.Size.X) is { } before &&
-                Lookup(before) is { } predecessor)
+                Lookup(before)?.Blocks is { } predecessor)
             {
-                if (predecessor.Shape == XrayRevealShape.CopySquare)
-                    CopyBlock(0, row + 1, predecessor.BottomRight);
-                if (predecessor.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
-                    CopyBlock(0, row, predecessor.TopRight);
+                if (predecessor.BottomRight is { } bottomRight)
+                    CopyBlock(0, row + 1, bottomRight);
+                if (predecessor.TopRight is { } topRight)
+                    CopyBlock(0, row, topRight);
             }
             for (int col = 0; col < XrayRevealArea.Columns; col++)
             {
                 Position16<RoomBlocks> block = RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(col, row), level.Size.X) ??
                     throw new InvalidOperationException("A revealed block lies before the room's first block.");
                 if (Lookup(block) is not { } reveal) continue;
-                if (reveal.Shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
+                if (reveal.Blocks is not { } shown)
                 {
+                    // An extension shows the block its chain reaches.
                     if (XrayRevealExtensions.Resolve(level, block, visuals) is { } replacement)
                         CopyBlock(col, row, replacement);
                     continue;
                 }
                 if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
-                CopyBlock(col, row, reveal.TopLeft);
-                if (reveal.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
-                    CopyBlock(col + 1, row, reveal.TopRight);
-                if (reveal.Shape is XrayRevealShape.CopyTall or XrayRevealShape.CopySquare)
-                    CopyBlock(col, row + 1, reveal.BottomLeft);
-                if (reveal.Shape == XrayRevealShape.CopySquare)
-                    CopyBlock(col + 1, row + 1, reveal.BottomRight);
+                CopyBlock(col, row, shown.TopLeft);
+                if (shown.TopRight is { } topRight)
+                    CopyBlock(col + 1, row, topRight);
+                if (shown.BottomLeft is { } bottomLeft)
+                    CopyBlock(col, row + 1, bottomLeft);
+                if (shown.BottomRight is { } bottomRight)
+                    CopyBlock(col + 1, row + 1, bottomRight);
             }
         }
         return result;
@@ -82,8 +84,8 @@ public static class XrayRevealMap
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
         {
-            int x = CoordinateAxis.Wrap(((foregroundPosition.X >> 4) + col) * RoomLevelPlane.BlockPixels);
-            int y = CoordinateAxis.Wrap(((foregroundPosition.Y >> 4) + row) * RoomLevelPlane.BlockPixels);
+            int x = CoordinateAxis.Wrap((cameraBlock.X + col) * RoomLevelPlane.BlockPixels);
+            int y = CoordinateAxis.Wrap((cameraBlock.Y + row) * RoomLevelPlane.BlockPixels);
             if (x >= foreground.Size.X * RoomLevelPlane.BlockPixels || y >= foreground.Size.Y * RoomLevelPlane.BlockPixels)
                 return null;
             RoomBlockCell cell = foreground.Cells[y / RoomLevelPlane.BlockPixels * foreground.Size.X + x / RoomLevelPlane.BlockPixels];
@@ -106,7 +108,7 @@ public static class XrayRevealMap
     /// </summary>
     /// <param name="foregroundPosition">Camera position.</param>
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition) =>
-        new(CoordinateAxis.Wrap(foregroundPosition.X >> 4 << 4), CoordinateAxis.Wrap(foregroundPosition.Y >> 4 << 4));
+        foregroundPosition.ToRoomBlock().ToRoomPixels();
 
     /// <summary>How a copied block lays out its picture: mirrored as the room mirrors it.</summary>
     private static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch

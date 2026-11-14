@@ -737,8 +737,8 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot)
     {
-        int blockX = slot.Position.X.Whole >> 4;
-        int blockY = slot.Position.Y.Whole >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
+        int blockY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {
@@ -790,14 +790,16 @@ public sealed class SamusBombProjectileSystem
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
-        int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;
+        // The blast's reach is clipped to the room: before its first pixel and, past the coordinate range, at its last pixel,
+        // whose block lies at or beyond every room's last column or row.
+        int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,
-            (explosion.X + horizontalRadius) >> 4);
-        int top = Math.Max(0, explosion.Y - verticalRadius) >> 4;
+            RoomGridConversions.PixelToBlock(Math.Min(ushort.MaxValue, explosion.X + horizontalRadius)));
+        int top = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.Y - verticalRadius));
         int bottom = Math.Min(
             level.Size.Y - 1,
-            (explosion.Y + verticalRadius) >> 4);
+            RoomGridConversions.PixelToBlock(Math.Min(ushort.MaxValue, explosion.Y + verticalRadius)));
 
         // The traversal visits all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous room-object terrain mutation means the second
@@ -820,8 +822,8 @@ public sealed class SamusBombProjectileSystem
         ISamusRoomObjects? roomObjects,
         AreaId areaIndex)
     {
-        int centerX = slot.Position.X.Whole >> 4;
-        int centerY = slot.Position.Y.Whole >> 4;
+        int centerX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
+        int centerY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
         // The centre, then above, right, left and below, in the reaction order.
         Offset16<RoomBlocks>[] cross = [new(0, 0), new(0, -1), new(1, 0), new(-1, 0), new(0, 1)];
 

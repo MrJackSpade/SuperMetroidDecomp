@@ -6,6 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.OldTourianWall;
@@ -51,6 +52,6 @@ internal sealed class EnemyObjectSpawns(
         bombTorizo.Attacks.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <inheritdoc/>
-    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX) =>
-        escapeExplosions.SpawnEscapeExplosion(position, random, inheritedX);
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomSpriteObjectKind kindLeftOpen) =>
+        escapeExplosions.SpawnEscapeExplosion(position, random, kindLeftOpen);
 }

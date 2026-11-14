@@ -78,6 +78,19 @@ public static class RoomGridConversions
     public static int PixelToBlock(int pixel) => RequirePixel(pixel) / BlockPixels;
 
     /// <summary>
+    /// The whole 16-pixel blocks in a pixel length of 0 through 65535, 0 through 4095. Measured from a block's first pixel to
+    /// a span's last pixel, it is how many blocks the span crosses after its first.
+    /// </summary>
+    public static int WholeBlocksIn(int pixels) => RequirePixel(pixels) / BlockPixels;
+
+    /// <summary>
+    /// The room screens a run of 0 through 65535 blocks along one axis reaches, a part screen counting as a whole one: the
+    /// screen count of a room that many blocks wide or high.
+    /// </summary>
+    public static int ScreensCovering(int blocks) =>
+        (Ensure.BetweenInclusive(0, ushort.MaxValue, blocks) + BlocksPerScreen - 1) / BlocksPerScreen;
+
+    /// <summary>
     /// The block boundary nearest an unsigned room pixel coordinate, 0 through 65536: a coordinate in the first half of its
     /// block rounds back to the block's first pixel, one in the second half on to the next block's. The boundary past the
     /// last block lies one beyond the coordinate range, for the caller to wrap.

@@ -252,13 +252,7 @@ internal static class RoomBlockWriters
             XrayRevealShape command = XrayRevealTable.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
             bool brinstar = command == XrayRevealShape.CopyBrinstar;
-            var blocks = new HashSet<int> { visual.TopLeft };
-            if (command is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
-                blocks.Add(visual.TopRight);
-            if (command is XrayRevealShape.CopyTall or XrayRevealShape.CopySquare)
-                blocks.Add(visual.BottomLeft);
-            if (command == XrayRevealShape.CopySquare)
-                blocks.Add(visual.BottomRight);
+            var blocks = new HashSet<int>(visual.InReadingOrder);
             yield return new(blocks,
                 state => state.Holds(key.Type, key.Reaction) && (!brinstar || state.Area == AreaId.Brinstar));
         }

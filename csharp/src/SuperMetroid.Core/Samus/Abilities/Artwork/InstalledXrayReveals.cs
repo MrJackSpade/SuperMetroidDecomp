@@ -23,7 +23,7 @@ public sealed class InstalledXrayReveals
     /// <param name="overlays">The installed item and special-room overlays.</param>
     /// <param name="extensionExitBlock">The block an extension chain shows when it leaves the room backward.</param>
     /// <exception cref="ArgumentNullException">The entry sequence or the overlays are null.</exception>
-    /// <exception cref="InvalidDataException">An entry has no drawable rule, duplicates another pair, or leaves drawable coverage incomplete.</exception>
+    /// <exception cref="InvalidDataException">An entry has no drawable rule, shows other blocks than its rule's shape copies, duplicates another pair, or leaves drawable coverage incomplete.</exception>
     /// <exception cref="ArgumentOutOfRangeException">An entry or the extension exit names a block outside the tileset's block set.</exception>
     public InstalledXrayReveals(IEnumerable<XrayRevealVisualDefinition> entries, InstalledXrayOverlays overlays, int extensionExitBlock)
     {
@@ -36,6 +36,9 @@ public sealed class InstalledXrayReveals
             if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
+            if (visual != XrayRevealVisualBlocks.ForShape(shape, visual.InReadingOrder))
+                throw new InvalidDataException(
+                    $"X-ray visual {type}/reaction {reaction} shows other blocks than its {shape} reveal copies.");
             ValidateBlocks(visual);
             if (!blocks.TryAdd(new XrayRevealVisualKey(type, reaction), visual))
                 throw new InvalidDataException(
@@ -67,10 +70,10 @@ public sealed class InstalledXrayReveals
     public XrayRevealDefinition? Apply(RoomCollisionType type, RoomBlockBehavior behavior)
     {
         if (XrayRevealTable.Find(type, behavior) is not { } shape) return null;
-        if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, 0, 0, 0, 0);
+        if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, null);
         if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
-        return new XrayRevealDefinition(shape, visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight);
+        return new XrayRevealDefinition(shape, visual);
     }
 
     /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
@@ -79,7 +82,7 @@ public sealed class InstalledXrayReveals
     /// <summary>Rejects reveal blocks outside the tileset's block set, as an appearance of each would.</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)
     {
-        foreach (int block in (ReadOnlySpan<int>)[visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight])
+        foreach (int block in visual.InReadingOrder)
             _ = RoomBlockAppearance.Of(block);
     }
 

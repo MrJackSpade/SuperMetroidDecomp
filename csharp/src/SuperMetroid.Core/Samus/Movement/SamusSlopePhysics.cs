@@ -127,8 +127,8 @@ public static class SamusSlopePhysics
         Position16<RoomPixels> pixel,
         out RoomCollisionBlock block)
     {
-        int blockX = pixel.X >> 4;
-        int blockY = pixel.Y >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(pixel.X);
+        int blockY = RoomGridConversions.PixelToBlock(pixel.Y);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {

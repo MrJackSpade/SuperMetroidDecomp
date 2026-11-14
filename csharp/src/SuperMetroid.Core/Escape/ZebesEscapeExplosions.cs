@@ -1,11 +1,21 @@
+using SuperMetroid.Core.Enemies.SpriteObjects;
+
 namespace SuperMetroid.Core.Escape;
 
-/// <summary>Chooses a Zebes escape explosion from the selector's weighted choices (<see cref="ZebesEscapeExplosionDefinitions"/>).</summary>
+/// <summary>Chooses a Zebes escape explosion from its random draw and its place (<see cref="ZebesEscapeExplosionDefinitions"/>).</summary>
 internal static class ZebesEscapeExplosions
 {
-    /// <summary>The explosion the low-three-bit choice <paramref name="index"/> selects.</summary>
-    internal static ZebesEscapeExplosionDefinition ForIndex(int index) =>
-        (uint)index < ZebesEscapeExplosionDefinitions.Choices.Length
-            ? ZebesEscapeExplosionDefinitions.Choices[index]
-            : throw new InvalidDataException($"Zebes escape explosion index {index} is outside eight definitions.");
+    /// <summary>
+    /// The explosion the random sample <paramref name="random"/> draws, or null when the draw names none and leaves the
+    /// kind to the explosion's place: half the draws name one of <see cref="ZebesEscapeExplosionDefinitions.Drawn"/>.
+    /// </summary>
+    internal static ZebesEscapeExplosionDefinition? Drawn(int random) =>
+        ZebesEscapeDefinitions.ExplosionChoice.Of(random) is var choice && choice < ZebesEscapeExplosionDefinitions.Drawn.Length
+            ? ZebesEscapeExplosionDefinitions.Drawn[choice]
+            : null;
+
+    /// <summary>The kind an outdoor explosion over <paramref name="block"/> shows when its draw leaves the kind open.</summary>
+    internal static RoomSpriteObjectKind OutdoorKindLeftOpen(Position16<RoomBlocks> block) =>
+        ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase[
+            block.X % ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase.Length];
 }

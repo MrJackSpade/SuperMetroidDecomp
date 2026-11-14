@@ -482,8 +482,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         int surfaceY = velocity.Y.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
             : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int blockX = slot.Position.X.Whole >> 4;
-        int blockY = surfaceY >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
+        int blockY = RoomGridConversions.PixelToBlock(surfaceY);
         if ((uint)blockX < level.Size.X &&
             (uint)blockY < level.Size.Y)
         {

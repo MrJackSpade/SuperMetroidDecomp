@@ -22,6 +22,22 @@ internal static class XrayRevealFixtures
     }
 
     /// <summary>
+    /// The blocks <paramref name="shape"/> copies out of a square of four: the top left alone, the top pair, the left pair or
+    /// all four.
+    /// </summary>
+    internal static XrayRevealVisualBlocks Corners(XrayRevealShape shape, int topLeft, int topRight, int bottomLeft, int bottomRight) =>
+        shape switch
+        {
+            XrayRevealShape.CopyWide => XrayRevealVisualBlocks.Wide(topLeft, topRight),
+            XrayRevealShape.CopyTall => XrayRevealVisualBlocks.Tall(topLeft, bottomLeft),
+            XrayRevealShape.CopySquare => XrayRevealVisualBlocks.Square(topLeft, topRight, bottomLeft, bottomRight),
+            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => XrayRevealVisualBlocks.One(topLeft),
+            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
+                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape shows no blocks."),
+            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
+        };
+
+    /// <summary>
     /// Complete reveal pictures whose blocks <paramref name="shown"/> chooses per command, with overlays that reveal no special
     /// room and show block zero for every tank, and the cartridge's blank block where an extension chain leaves the room.
     /// </summary>

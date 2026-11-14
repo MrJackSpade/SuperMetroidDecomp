@@ -127,9 +127,9 @@ public static class SamusBlockCollision
                 ? CoordinateAxis.Wrap(state.Radius.X + targetCenter - 1)
                 : CoordinateAxis.Wrap(targetCenter - state.Radius.X);
 
-            int topBlockY = CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y) >> 4;
+            int topBlockY = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
             int verticalSpan = GetVerticalBlockSpan(state);
-            int blockX = leadingBoundary >> 4;
+            int blockX = RoomGridConversions.PixelToBlock(leadingBoundary);
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
@@ -473,11 +473,11 @@ public static class SamusBlockCollision
         int leadingBoundary = !acceptedDisplacement.IsNegative
             ? CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1)
             : CoordinateAxis.Wrap(targetCenter - state.Radius.Y);
-        int blockY = leadingBoundary >> 4;
+        int blockY = RoomGridConversions.PixelToBlock(leadingBoundary);
         int horizontalSpan = GetHorizontalBlockSpan(state);
         int firstBlockX = move.ScanLeftToRight
-            ? CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X) >> 4
-            : CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1) >> 4;
+            ? RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X))
+            : RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1));
 
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
@@ -799,7 +799,7 @@ public static class SamusBlockCollision
 
         // Non-square slopes react vertically only under Samus's center column. The broader
         // X-radius scan still visits neighboring blocks, but the slope reaction rejects them here.
-        if ((state.Position.X.Whole >> 4) != blockX)
+        if (RoomGridConversions.PixelToBlock(state.Position.X.Whole) != blockX)
             return new SlopeClip(displacement, false);
 
         if (movingDown)
@@ -1065,14 +1065,14 @@ public static class SamusBlockCollision
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
         int alignedTop = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
-        return CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop) >> 4;
+        return RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop));
     }
 
     /// <summary>Counts block columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
         int alignedLeft = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X));
-        return CoordinateAxis.Wrap(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft) >> 4;
+        return RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft));
     }
 
     /// <summary>
@@ -1146,12 +1146,12 @@ public static class SamusBlockCollision
         int boundary = CoordinateAxis.Wrap(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y));
         int left = CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X);
         int right = CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1);
-        int firstColumn = left >> 4;
-        int lastColumn = right >> 4;
+        int firstColumn = RoomGridConversions.PixelToBlock(left);
+        int lastColumn = RoomGridConversions.PixelToBlock(right);
         int maximum = 0;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(boundary >> 4)));
+            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), RoomGridConversions.PixelToBlock(boundary)));
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
             // following behaviour. Ordinary movement's dispatcher is not interchangeable.
@@ -1161,7 +1161,7 @@ public static class SamusBlockCollision
                 continue;
             else if (block.Behavior.Slope.IsNonSquare)
             {
-                if (column != state.Position.X.Whole >> 4) continue;
+                if (column != RoomGridConversions.PixelToBlock(state.Position.X.Whole)) continue;
                 if (block.Behavior.Slope.FlipsVertically == (direction == VerticalDirection.Down))
                     depth = boundary & 15;
                 else

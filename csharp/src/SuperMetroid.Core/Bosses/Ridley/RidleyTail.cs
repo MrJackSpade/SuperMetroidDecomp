@@ -414,7 +414,7 @@ internal sealed class RidleyTail
         {
             RidleyTailSegment segment = state.TailSegments[index];
             Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, index == tipIndex ? 16 : 18);
-            if ((probe.X >> 4) >= level.Size.X || (probe.Y >> 4) >= level.Size.Y)
+            if (RoomGridConversions.PixelToBlock(probe.X) >= level.Size.X || RoomGridConversions.PixelToBlock(probe.Y) >= level.Size.Y)
                 continue;
             if (level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air)
                 return true;

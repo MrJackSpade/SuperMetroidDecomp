@@ -590,7 +590,7 @@ internal sealed class EnemyProjectileEngine
             // profiles as Samus's. Only the column containing the projectile center owns
             // non-square geometry; neighboring columns touched by its radius do not turn
             // the slope into a full-height wall.
-            if (block.X != projectile.Position.X.Whole >> 4)
+            if (block.X != RoomGridConversions.PixelToBlock(projectile.Position.X.Whole))
                 return false;
 
             bool movingUp = movingNegative;
@@ -646,7 +646,7 @@ internal sealed class EnemyProjectileEngine
     /// read directly without following extensions.
     /// </summary>
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
-        level.GetCollisionBlock(new(CoordinateAxis.Wrap(pixel.X >> 4), CoordinateAxis.Wrap(pixel.Y >> 4))).CollisionType != RoomCollisionType.Air;
+        level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
     internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(

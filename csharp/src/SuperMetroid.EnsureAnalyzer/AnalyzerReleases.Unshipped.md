@@ -58,3 +58,4 @@ SME6451 | Design | Error | CatalogDecisionAnalyzer
 SME6452 | Performance | Error | WholeImageFixtureInLoopAnalyzer
 SME6455 | Performance | Error | PrivateInstallationAnalyzer
 SME6456 | Design | Error | NativeAddressAnalyzer
+SME6457 | Design | Error | RoomGridShiftAnalyzer

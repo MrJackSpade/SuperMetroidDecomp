@@ -145,12 +145,12 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
-        int topBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) >> 4;
-        int bottomBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) >> 4;
+        int topBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y));
+        int bottomBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int targetX = slot.Velocity.X.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X)
             : CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int blockX = targetX >> 4;
+        int blockX = RoomGridConversions.PixelToBlock(targetX);
 
         if ((uint)blockX >= level.Size.X ||
             (uint)topBlock >= level.Size.Y ||
@@ -181,12 +181,12 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectile slot,
         ISamusRoomObjects? roomObjects)
     {
-        int leftBlock = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
-        int rightBlock = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
+        int leftBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X));
+        int rightBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1));
         int targetY = slot.Velocity.Y.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
             : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int blockY = targetY >> 4;
+        int blockY = RoomGridConversions.PixelToBlock(targetY);
 
         if ((uint)blockY >= level.Size.Y ||
             (uint)leftBlock >= level.Size.X ||
@@ -288,7 +288,7 @@ internal sealed class ProjectileTerrainCollision
         {
             // Non-square slopes dispatch through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
-            int centerBlock = axis == Axis.Horizontal ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
+            int centerBlock = RoomGridConversions.PixelToBlock(axis == Axis.Horizontal ? slot.Position.Y.Whole : slot.Position.X.Whole);
             int slopeBlock = axis == Axis.Horizontal ? block.At.Y : block.At.X;
             if (centerBlock != slopeBlock) return false;
 
@@ -568,20 +568,20 @@ internal sealed class ProjectileTerrainCollision
         Ensure.NotNull(straddledTerrain);
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int span = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
+        int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottom - RoomGridConversions.BlockStart(top)));
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.IsNegative
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
         // The game's check reads whether the whole coordinate is negative, not whether its pixel offset within the
         // screen is 128 or more. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (span >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
-            (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
-            RoomGridConversions.PixelToScreen(targetX) >= (level.Size.X + 15) / 16)
+            RoomGridConversions.PixelToScreen(slot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(level.Size.Y) ||
+            RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(level.Size.X))
             return;
 
         for (int step = 0; step <= span; step++)
         {
-            WaveScanRead read = WaveScanRead.At(Position16<RoomBlocks>.Of(targetX >> 4, top >> 4), level.Size.X, step);
+            WaveScanRead read = WaveScanRead.At(Position16<RoomPixels>.Of(targetX, top).ToRoomBlock(), level.Size.X, step);
             Position16<RoomBlocks> readBlock = read.BlockIn(level.Size.X);
             if (!level.Size.Contains(readBlock))
                 continue;
@@ -610,14 +610,14 @@ internal sealed class ProjectileTerrainCollision
     {
         int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int span = CoordinateAxis.Wrap(right - (left & ~15)) >> 4;
+        int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(right - RoomGridConversions.BlockStart(left)));
         if (span >= 16) return;
         int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.IsNegative
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int centerScreenX = EightEight.WholeOf(slot.Position.X.Whole);
-        if (centerScreenX >= (level.Size.X + 15) / 16 ||
-            RoomGridConversions.PixelToScreen(targetY) >= (level.Size.Y + 15) / 16)
+        int centerScreenX = RoomGridConversions.PixelToScreen(slot.Position.X.Whole);
+        if (centerScreenX >= RoomGridConversions.ScreensCovering(level.Size.X) ||
+            RoomGridConversions.PixelToScreen(targetY) >= RoomGridConversions.ScreensCovering(level.Size.Y))
             return;
 
         // The row lookup takes the target row within the scan cycle. X is deliberately not clipped to the
@@ -625,7 +625,7 @@ internal sealed class ProjectileTerrainCollision
         // of the room's edge starts 4095 blocks forward while the center remains inside the room.
         // The block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual block span.
-        var firstBlock = Position16<RoomBlocks>.Of(left >> 4, targetY >> 4);
+        Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(left, targetY).ToRoomBlock();
         for (int step = 0; step <= span; step++)
         {
             Position16<RoomBlocks> block = BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, step);

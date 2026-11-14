@@ -37,9 +37,6 @@ public record GameOptionsLayoutDocument
     /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
     [JsonPropertyOrder(9)]
     public required Dictionary<string, Position16<SpritePixels>[]> CursorAnchors { get; init; }
-    /// <summary>Cursor origin for phases without a selection table, in screen pixels X=0-511 and Y=0-255, allowing offscreen placement.</summary>
-    [JsonPropertyOrder(10)]
-    public required Position16<SpritePixels> HiddenCursor { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     [JsonPropertyOrder(11)]
     public required int SelectedPalette { get; init; }

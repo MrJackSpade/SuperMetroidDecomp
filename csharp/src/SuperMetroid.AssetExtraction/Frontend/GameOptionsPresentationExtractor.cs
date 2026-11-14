@@ -110,7 +110,6 @@ public static class GameOptionsPresentationExtractor
             Sprites = sprites,
             HeadingAnchors = headings,
             CursorAnchors = cursors,
-            HiddenCursor = new(GameOptionsPageDefinitions.HiddenCursorX, GameOptionsPageDefinitions.HiddenCursorY),
             SelectedPalette = GameOptionsPageDefinitions.TilePalettes.Selected,
             UnselectedPalette = GameOptionsPageDefinitions.TilePalettes.Unselected,
             CursorPalette = MenuRenderDefinitions.ObjectPalette,

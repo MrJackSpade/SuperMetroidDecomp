@@ -241,7 +241,7 @@ public sealed class GameOptionsSourcePresentation
                 .. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
             "options sprites");
         GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
-            document.HiddenCursor, document.CursorFrameDuration);
+            document.CursorFrameDuration);
         if (document.ControllerLabelAnchors is null ||
             document.ControllerLabelAnchors.Length != GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new InvalidDataException("Options require seven controller-label anchors.");

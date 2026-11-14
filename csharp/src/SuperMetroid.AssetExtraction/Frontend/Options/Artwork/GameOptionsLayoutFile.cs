@@ -15,8 +15,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsLayoutFile
 {
-    /// <summary>Supported layout revision.</summary>
-    public const int Version = 1;
+    /// <summary>Supported layout revision: 2 holds no hidden cursor anchor, since transitions show no cursor (#1775).</summary>
+    public const int Version = 2;
 
     /// <summary>The layout of the extracted artwork document <paramref name="artwork"/>, as the installation holds it.</summary>
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
@@ -27,7 +27,7 @@ public static class GameOptionsLayoutFile
         return JsonSerializer.SerializeToUtf8Bytes(new GameOptionsPlacementDocument
         {
             Version = Version, HeadingAnchors = document.HeadingAnchors, CursorAnchors = document.CursorAnchors,
-            HiddenCursor = document.HiddenCursor, CursorFrameDuration = document.CursorFrameDuration,
+            CursorFrameDuration = document.CursorFrameDuration,
         }, ArtworkJson.Options);
     }
 
@@ -41,20 +41,19 @@ public static class GameOptionsLayoutFile
         catch (JsonException error) { throw new InvalidDataException("Invalid options layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Options layout version must be {Version}.");
-        return Presentation(document.HeadingAnchors, document.CursorAnchors, document.HiddenCursor, document.CursorFrameDuration);
+        return Presentation(document.HeadingAnchors, document.CursorAnchors, document.CursorFrameDuration);
     }
 
     /// <summary>The presentation the anchors and duration name, once each is checked.</summary>
     /// <exception cref="InvalidDataException">A menu's anchors are missing or off screen, or the duration is below one update.</exception>
     internal static GameOptionsPresentation Presentation(Dictionary<string, Position16<SpritePixels>>? headingAnchors,
-        Dictionary<string, Position16<SpritePixels>[]>? cursorAnchors, Position16<SpritePixels> hiddenCursor, int cursorFrameDuration)
+        Dictionary<string, Position16<SpritePixels>[]>? cursorAnchors, int cursorFrameDuration)
     {
         string[] menuNames = [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsPresentationFormat.MenuName)];
         RequireExactKeys(headingAnchors, menuNames, "options heading anchors");
         RequireExactKeys(cursorAnchors, menuNames, "options cursor anchors");
         if (cursorFrameDuration < 1)
             throw new InvalidDataException("Options cursor frame duration must be at least one update.");
-        ValidatePoint(hiddenCursor, "hidden cursor", SpritePart.PlaneWidth - 1);
         foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
             string name = GameOptionsPresentationFormat.MenuName(page);
@@ -72,7 +71,6 @@ public static class GameOptionsLayoutFile
                 page => page, page => headingAnchors[GameOptionsPresentationFormat.MenuName(page)]),
             CursorAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
                 page => page, page => cursorAnchors[GameOptionsPresentationFormat.MenuName(page)]),
-            HiddenCursor = hiddenCursor,
             CursorFrameDuration = cursorFrameDuration,
         });
     }
@@ -88,7 +86,7 @@ public static class GameOptionsLayoutFile
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
-    /// <summary>Requires an OAM origin within X=0..<paramref name="maximumX"/> and Y=0..255.</summary>
+    /// <summary>Requires a screen origin within X=0..<paramref name="maximumX"/> and Y=0..255.</summary>
     /// <exception cref="InvalidDataException">The origin is outside that range.</exception>
     private static void ValidatePoint(Position16<SpritePixels> point, string owner, int maximumX)
     {

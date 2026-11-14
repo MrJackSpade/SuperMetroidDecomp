@@ -12,7 +12,11 @@ internal sealed class IntroEggParticle
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
 
-    /// <summary>The frames the fragment has fallen, 0 through 255: its step along the fall's gravity curve.</summary>
+    /// <summary>
+    /// The frames the fragment has fallen: its step along the fall's gravity curve, then past it. A plain count (#1781):
+    /// every fragment reaches the floor within its curve or the installed steps past it, and a later step throws, so the
+    /// count never approaches the 256 at which the game's byte would have wrapped.
+    /// </summary>
     private int framesFallen;
 
     /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>
@@ -34,9 +38,6 @@ internal sealed class IntroEggParticle
             segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
-
-    /// <summary>The frames fallen count runs past 255 back to zero.</summary>
-    private const int FramesFallenWrap = 256;
 
     /// <summary>Applies 1/65536-pixel fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
@@ -62,7 +63,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            framesFallen = (framesFallen + 1) % FramesFallenWrap;
+            framesFallen++;
         }
 
         sprite.Step();

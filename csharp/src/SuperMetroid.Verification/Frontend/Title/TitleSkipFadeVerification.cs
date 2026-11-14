@@ -141,7 +141,7 @@ internal static class TitleSkipFadeVerification
             AssertTrue(rebuilt.Draws.SequenceEqual(shown.Draws), $"{place} draws the rebuilt logo and copyright");
             AssertEqual(rebuilt.Floor, shown.Floor, $"{place} keeps the rebuilt floor");
         }
-        AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenNtscFrames, title.TitleScreenFramesRemaining,
+        AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames, title.TitleScreenFramesRemaining,
             $"{pressed} reaches the idle title screen with its demo countdown");
     }
 

@@ -8,26 +8,26 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroEggMotion
 {
-    /// <summary>62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
+    /// <summary>62 odd / 69 even gravity records, selected by the drop's trajectory parity, not frame parity.</summary>
     /// <remarks>
-    /// Issues #625 and #979: the odd-actor table has
+    /// Issues #625 and #979: the odd-trajectory table has
     /// 62 signed 1/65536-pixel records matching
     /// the authored data. For f=0..13, g=f/7 and r=f%7
     /// give whole=g-2 and fraction=0 for r=0, otherwise (7-r) eighths of a pixel.
     /// For f=14..61 the signed value is (f-14) eighths of a pixel, ending at five and seven eighths.
-    /// The slime motion chooses this table when the actor timer is odd,
-    /// then indexes by the timer over 256; ordinary odd actors are IDs 1 and 3.
+    /// The slime motion chooses this table for an odd trajectory, trajectories 1 and 3,
+    /// then indexes it by the frames the drop has fallen.
     /// In the 96-pixel start fixture, fractional starts from zero to just under a
     /// whole pixel all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
     /// table; fractional addition and the overflow into the whole part stay exact.
     ///
-    /// Issues #625 and #980: the separate even-actor table
+    /// Issues #625 and #980: the separate even-trajectory table
     /// has 69 signed 1/65536-pixel records matching the authored data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
     /// otherwise (7-r) eighths of a pixel. For f=21..68 the signed value is
-    /// (f-21) eighths of a pixel, ending at five and seven eighths. An even timer selects
-    /// this table for ordinary actor IDs 0 and 2, and the timer over 256 indexes
+    /// (f-21) eighths of a pixel, ending at five and seven eighths. An even trajectory,
+    /// 0 or 2, selects this table, and the frames the drop has fallen index
     /// the records. The 96-pixel start fixture with fractions from zero to just
     /// under a whole pixel grounds at frame 62, within the table. Frame 69 and
     /// negative frames throw instead of reading adjacent data.
@@ -97,8 +97,8 @@ internal static class IntroEggMotion
     /// Issues #625 and #978: the authored data
     /// match all five signed 1/65536-pixel speeds, in pixels per frame:
     /// -1, -0.5, 1, 0.5, -0.5.
-    /// The slime motion indexes them by the actor timer's count within its
-    /// 256-frame cycle; the retail spawn path creates indices 0..3, while index 4 is
+    /// The slime motion indexes them by the drop's trajectory, which never
+    /// changes; the retail spawn path creates trajectories 0..3, while index 4 is
     /// the fifth authored entry. The first four form opposing full-
     /// and half-pixel speeds, but the fifth repeats -0.5. Retain the five
     /// explicit launch choices rather than hide this authored extra entry

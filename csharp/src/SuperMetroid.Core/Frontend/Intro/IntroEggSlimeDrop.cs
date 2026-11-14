@@ -13,7 +13,11 @@ internal sealed class IntroEggSlimeDrop
     /// changes.
     /// </summary>
     private readonly int trajectory;
-    /// <summary>The frames the drop has fallen, 0 through 255: its step along the fall's gravity curve.</summary>
+    /// <summary>
+    /// The frames the drop has fallen: its step along the fall's gravity curve. A plain count (#1781): every drop reaches
+    /// the puddle height within its curve, whose next step throws, so the count never approaches the 256 at which the
+    /// game's byte would have wrapped.
+    /// </summary>
     private int framesFallen;
     /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
     private bool motionEnabled = true;
@@ -35,9 +39,6 @@ internal sealed class IntroEggSlimeDrop
             segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
-
-    /// <summary>The frames fallen count runs past 255 back to zero.</summary>
-    private const int FramesFallenWrap = 256;
 
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then plays the puddle animation in place.</summary>
     public void Step()
@@ -70,7 +71,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                framesFallen = (framesFallen + 1) % FramesFallenWrap;
+                framesFallen++;
             }
         }
 

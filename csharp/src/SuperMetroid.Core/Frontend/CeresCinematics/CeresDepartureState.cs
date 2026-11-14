@@ -17,7 +17,10 @@ public sealed class CeresDepartureState
     /// <summary>Current portion of the departure sequence.</summary>
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
-    /// <summary>Live elevator-hold countdown seeded to 60 by Samus code two.</summary>
+    /// <summary>
+    /// The updates left in the elevator hold, started at <see cref="CeresElevatorShaftRoomMainState.DepartureHoldFrames"/>
+    /// when Samus reaches the elevator and the room's main behaviour begins the departure.
+    /// </summary>
     public int HoldFramesRemaining { get; private set; }
 
     /// <summary>

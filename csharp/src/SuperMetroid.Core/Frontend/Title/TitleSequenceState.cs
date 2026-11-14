@@ -100,7 +100,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Creates the initial title setup.</summary>
     /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
-    /// <param name="titleGradientPresentation">The installed gradients, one per zoom bucket.</param>
+    /// <param name="titleGradientPresentation">The installed gradients, one per zoom range.</param>
     /// <param name="titleBackdrop">Required installed title backdrop.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
@@ -469,9 +469,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects.BeginFrame();
         if (ActiveSprite is { } sprite)
         {
-            // Cinematic drawing replaces each part's colour choice
-            // after masking the stored one. It does not offset the parts' pictures;
-            // confusing it with the enemy loader makes the title art uniformly blue.
+            // Every part of the composition draws in the active colouring's shading, whatever colouring the part
+            // was stored with; the parts' pictures draw as the title sheet holds them.
             TitleSpriteDrawing.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToSpritePosition(), ActiveShading);
         }
@@ -581,7 +580,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         EnterImmediateTitleObjects();
         Phase = TitleSequencePhase.TitleScreen;
-        PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenNtscFrames;
+        PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames;
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
     }
 

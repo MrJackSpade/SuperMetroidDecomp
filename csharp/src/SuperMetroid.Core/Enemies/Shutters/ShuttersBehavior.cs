@@ -527,8 +527,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 ActivateVerticalShutter(slot, state, camera);
                 break;
 
-            case VerticalShutterAction.InitialNoOp:
-            case VerticalShutterAction.PermanentNoOp:
+            case VerticalShutterAction.Still:
                 break;
 
             case VerticalShutterAction.MovingUp:
@@ -575,7 +574,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
             ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
             ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.InitialNoOp,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
             _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
@@ -630,7 +629,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int restTime = atTop ? state.MovedUpRestTime : state.MovedDownRestTime;
         if (restTime == PermanentStopRestTime)
         {
-            state.Action = VerticalShutterAction.PermanentNoOp;
+            state.Action = VerticalShutterAction.Still;
             return;
         }
         state.ActionTimer = WrappingCountdown.Start(restTime);

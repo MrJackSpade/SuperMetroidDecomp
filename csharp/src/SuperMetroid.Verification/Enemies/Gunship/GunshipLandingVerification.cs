@@ -73,7 +73,7 @@ internal static class GunshipLandingVerification
         {
             ushort previousTopY = top.Position.Y.Whole;
             ushort previousTopSubY = top.Position.Y.Fraction;
-            GunshipPhase previousPhase = GunshipPartState.Of(top).Phase;
+            GunshipPhase? previousPhase = GunshipPartState.Of(top).Phase;
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;

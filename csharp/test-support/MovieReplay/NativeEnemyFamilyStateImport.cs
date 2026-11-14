@@ -489,7 +489,6 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {
             mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
-            mochtroidRecord.ShakeTimer = unchecked((short)words.E);
             mochtroidRecord.MovementMode = MetroidsNativeWords.MochtroidMovementModes.Decode(words.F, "recorded MochtroidMovementMode");
         }
         if (slot.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
@@ -554,7 +553,6 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {
-            kago.Action = words.A == 0 ? null : KagoNativeWords.KagoActions.Decode(words.A, "recorded KagoAction");
             kago.UsesFastAnimation = words.B != 0;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)

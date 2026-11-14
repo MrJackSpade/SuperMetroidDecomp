@@ -140,7 +140,7 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("enum Release { Pal }", $"'Pal' {standard} ('Pal')");
         Expect("class P { bool IsPal { get; } }", $"'IsPal' {standard} ('Pal')");
         Expect("class P { int MetareeNtscSpeed() => 0; }", $"'MetareeNtscSpeed' {standard} ('Ntsc')");
-        Expect("class P { void Run(bool ntscRelease) { } }", $"'ntscRelease' {standard} ('Ntsc')");
+        Expect("class P { void Run(bool ntscRelease) { } }", $"'ntscRelease' {standard} ('ntsc')");
         Expect("class P { void Run() { int ntsc = 0; _ = ntsc; } }", $"'ntsc' {standard} ('ntsc')");
         Expect("class P { int PALTiming; }", $"'PALTiming' {standard} ('PAL')");
         Expect("class P { int KzanSpeedNTSC; }", $"'KzanSpeedNTSC' {standard} ('NTSC')");

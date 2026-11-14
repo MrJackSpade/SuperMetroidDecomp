@@ -264,7 +264,7 @@ internal static class ChainsawFiringVerification
             "charged Chainsaw reaches mutable low-WRAM execution");
         AssertTrue(chargedFault.Message.Contains("is read from Samus's changing state", StringComparison.Ordinal),
             "charged Chainsaw diagnostic names the mutable state it would execute");
-        AssertEqual(SamusProjectileFrameBehavior.ChargedChainsawOverrun,
+        AssertEqual(SamusProjectileFrameBehavior.ChargedChainsawRunsSamusState,
             chargedProjectiles.Slots[0].FrameBehavior,
             "charged Chainsaw retains its native unstable callback identity");
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Slots[0].Type,

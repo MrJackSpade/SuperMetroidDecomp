@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
 /// The state of an ordinary Metroid, with its three extra values: the two outer-body sprite objects it spawned and
-/// the drain counter.
+/// its energy drain.
 /// </summary>
 public sealed class MetroidEnemyState
 {
@@ -35,25 +35,21 @@ public sealed class MetroidEnemyState
     public RoomSpriteObject OuterBodyB { get; }
 
     /// <summary>
-    /// Fractional health-drain counter, 0 through 65535 in 1/65536ths of one energy. A borrow from subtracting the
-    /// suit-selected rate removes exactly one energy from Samus (<see cref="DrainBorrows"/>).
+    /// The Metroid's drain of Samus's energy, a fraction an update: it takes an energy whenever its suit's fraction is
+    /// more than what is held over from the last energy it took (<see cref="FractionalEnergyDrain"/>).
     /// </summary>
-    public int DrainAccumulator { get; internal set; }
-
-    /// <summary>The counter's range: one energy in fractional steps.</summary>
-    private const int DrainFractionSteps = ushort.MaxValue + 1;
+    public FractionalEnergyDrain Drain { get; internal set; }
 
     /// <summary>
-    /// Subtracts one update's drain <paramref name="rate"/> from the counter, wrapping below zero back into its
-    /// range, and reports whether it borrowed: a borrow drains one energy.
+    /// Drains one update's <paramref name="fraction"/> of an energy and reports whether it takes a whole energy from
+    /// Samus (<see cref="FractionalEnergyDrain.TakesEnergy"/>).
     /// </summary>
-    /// <param name="rate">The suit-selected drain per update, in the counter's fractional steps.</param>
-    internal bool DrainBorrows(int rate)
+    /// <param name="fraction">The suit-selected fraction of an energy drained each update, in <see cref="FractionalEnergyDrain.PartsPerEnergy"/>ths.</param>
+    internal bool DrainTakesEnergy(int fraction)
     {
-        int remaining = DrainAccumulator - rate;
-        bool borrowed = remaining < 0;
-        DrainAccumulator = borrowed ? remaining + DrainFractionSteps : remaining;
-        return borrowed;
+        bool takesEnergy = Drain.TakesEnergy(fraction);
+        Drain = Drain.After(fraction);
+        return takesEnergy;
     }
 
     /// <summary>

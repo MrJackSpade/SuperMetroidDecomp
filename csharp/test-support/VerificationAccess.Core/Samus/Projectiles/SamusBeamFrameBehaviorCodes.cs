@@ -18,7 +18,7 @@ internal static class SamusBeamFrameBehaviorCodes
     /// <c>$3920</c>, the non-routine word observed when uncharged combination twelve
     /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
     /// </summary>
-    public const ushort UnchargedCombinationTwelveAdjacentWord = 0x3920;
+    public const ushort UnchargedSpazerPlasmaUnconnectedRegionWord = 0x3920;
     /// <summary>
     /// $90:AD16, the invalid beam-combination fourteen entry read two words beyond
     /// FireUnchargedBeam's callback table. JSR enters the operand of LoadBeamPalette's
@@ -39,17 +39,17 @@ internal static class SamusBeamFrameBehaviorCodes
     /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
-    public const ushort ChargedChainsawOverrun = 0x0a0a;
+    public const ushort ChargedChainsawSamusStateWord = 0x0a0a;
     /// <summary>
     /// <c>$0DC2</c>, the non-routine word observed when uncharged combination fifteen
     /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
     /// </summary>
-    public const ushort UnchargedCombinationFifteenAdjacentWord = 0x0dc2;
+    public const ushort UnchargedAllBeamsLiveStateWord = 0x0dc2;
     /// <summary>
     /// <c>$1CAD</c>, the non-routine word observed when charged combination twelve
     /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
     /// </summary>
-    public const ushort ChargedCombinationTwelveAdjacentWord = 0x1cad;
+    public const ushort ChargedSpazerPlasmaLiveStateWord = 0x1cad;
     /// <summary>
     /// $90:A4AA, the callback obtained when charged all-beams combination fifteen reads
     /// beyond the charged callback table at <c>$90:BA3E..BA55</c>. The safe left-facing Murder Beam has a zero
@@ -64,12 +64,12 @@ internal static class SamusBeamFrameBehaviorCodes
         SamusBeamFrameBehaviorChoice.NoWave => NoWave,
         SamusBeamFrameBehaviorChoice.WaveThreeFrameTrail => WaveThreeFrameTrail,
         SamusBeamFrameBehaviorChoice.WaveFourFrameTrail => WaveFourFrameTrail,
-        SamusBeamFrameBehaviorChoice.UnchargedCombinationTwelveOverrun => UnchargedCombinationTwelveAdjacentWord,
+        SamusBeamFrameBehaviorChoice.UnchargedSpazerPlasmaRunsUnconnectedRegion => UnchargedSpazerPlasmaUnconnectedRegionWord,
         SamusBeamFrameBehaviorChoice.SpaceTimeProgressionOverwrite => SpaceTimeProgressionOverwrite,
         SamusBeamFrameBehaviorChoice.ChainsawPowerBomb => ChainsawPowerBomb,
-        SamusBeamFrameBehaviorChoice.ChargedChainsawOverrun => ChargedChainsawOverrun,
-        SamusBeamFrameBehaviorChoice.UnchargedCombinationFifteenOverrun => UnchargedCombinationFifteenAdjacentWord,
-        SamusBeamFrameBehaviorChoice.ChargedCombinationTwelveOverrun => ChargedCombinationTwelveAdjacentWord,
+        SamusBeamFrameBehaviorChoice.ChargedChainsawRunsSamusState => ChargedChainsawSamusStateWord,
+        SamusBeamFrameBehaviorChoice.UnchargedAllBeamsRunsLiveState => UnchargedAllBeamsLiveStateWord,
+        SamusBeamFrameBehaviorChoice.ChargedSpazerPlasmaRunsLiveState => ChargedSpazerPlasmaLiveStateWord,
         SamusBeamFrameBehaviorChoice.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,
         _ => throw new ArgumentOutOfRangeException(nameof(callback), callback, "Undefined beam callback."),
     };

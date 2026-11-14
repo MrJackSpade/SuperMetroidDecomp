@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Chainsaw frame behaviour, reached by uncharged beam combination thirteen: it runs the Power Bomb frame behaviour over the
+/// The Chainsaw frame behaviour, which an uncharged Spazer-Plasma-Wave shot runs: it runs the Power Bomb frame behaviour over the
 /// shot. Its misaligned store into the cached window edges is a presentation quirk the model drops (#1407).
 /// </summary>
 internal sealed class ChainsawPowerBombFrameBehavior

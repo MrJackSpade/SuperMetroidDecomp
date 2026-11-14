@@ -516,13 +516,12 @@ public sealed class SamusProjectileSystem
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.FrameBehavior ==
-                SamusProjectileFrameBehavior.ChargedChainsawOverrun)
+                SamusProjectileFrameBehavior.ChargedChainsawRunsSamusState)
             {
-                // Charged combination thirteen does not point at game code. Its table
-                // overrun reads a value of Samus's state, so the game jumps there and begins
-                // decoding the cached previous-Super-Missile value as code. This semantic
-                // model cannot execute arbitrary mutable data as code; fail at the
-                // same frame-behaviour dispatch seam instead of silently substituting Wave motion.
+                // The charged Chainsaw shot's frame behaviour is not game code: the game runs Samus's
+                // changing state as its frame behaviour (UnauthoredBeamFrameBehaviors). The model cannot
+                // run changing data, so it fails at the frame-behaviour dispatch instead of silently
+                // substituting Wave motion.
                 throw new NotSupportedException(
                     "A charged Chainsaw shot's frame behaviour is read from Samus's changing state and runs whatever " +
                     "that state holds; reproducing that needs full memory and processor emulation, which is outside " +
@@ -533,7 +532,7 @@ public sealed class SamusProjectileSystem
             {
                 // Safe left-facing Murder Beam has no animation and never
                 // enters the projectile update. Other directions retain an animation;
-                // the overread frame behaviour then jumps into unrelated code and the
+                // its frame behaviour then starts in an unrelated part of the game and the
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(

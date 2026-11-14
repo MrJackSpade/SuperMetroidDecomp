@@ -35,10 +35,16 @@ public enum SamusProjectileFrameBehavior
     ShinesparkEcho,
     /// <summary>The Spacetime shot's frame behaviour, which overwrites saved progression from an animation that reaches far enough.</summary>
     SpaceTimeProgressionOverwrite,
-    /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
+    /// <summary>The uncharged Chainsaw shot's frame behaviour, which runs a Power Bomb's fuse over the shot.</summary>
     ChainsawPowerBomb,
-    /// <summary>Represents the charged chainsaw combination's overrun past the authored frame behaviours.</summary>
-    ChargedChainsawOverrun,
-    /// <summary>Represents the Murder Beam's misaligned execution path.</summary>
+    /// <summary>
+    /// The charged Chainsaw shot's frame behaviour, which runs whatever Samus's changing state holds; outside the
+    /// emulation scope limit (#1500), it is refused when it runs.
+    /// </summary>
+    ChargedChainsawRunsSamusState,
+    /// <summary>
+    /// The Murder Beam's frame behaviour, which starts in the middle of an unrelated part of the game; outside the
+    /// emulation scope limit (#1500), it is refused when it runs.
+    /// </summary>
     MurderBeamMisalignedExecution,
 }

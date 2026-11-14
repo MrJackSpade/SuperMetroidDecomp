@@ -109,50 +109,6 @@ public static class SamusGrappleMovement
     /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
     private const int WallJumpProbePixels = 16;
 
-    /// <summary>The substeps the extending rope moves and probes in each update, each by a quarter of its velocity.</summary>
-    private const int ExtensionSubsteps = 4;
-
-    /// <summary>The whole pixels an 8.8 velocity's whole part spans, -128 through 127.</summary>
-    private const int VelocityWholePixelRange = 256;
-
-    /// <summary>The whole pixels a 16.16 displacement's whole part spans, -32768 through 32767.</summary>
-    private const int DisplacementWholePixelRange = ushort.MaxValue + 1;
-
-    /// <summary>One substep's share of the velocity, in 256ths: the factor that scales the velocity to its quarter.</summary>
-    private static readonly int SubstepShareInTwoHundredFiftySixths = EightEight.FromWhole(1) / ExtensionSubsteps;
-
-    /// <summary>The 16.16 fraction steps in each 256th of a pixel, the finest step an 8.8 velocity takes.</summary>
-    private static readonly int FractionStepsPerVelocityStep = SixteenSixteen.FromEightEight(1);
-
-    /// <summary>
-    /// The rope's extension step for one of its four substeps, on one axis: a quarter of
-    /// <paramref name="velocity"/>, rounded toward negative infinity, into which a quarter of the parts of last update's
-    /// step <paramref name="previous"/> the velocity does not reach leaks. The step's fraction always takes a quarter of
-    /// the previous fraction finer than the velocity's 256ths. A velocity that is not negative also takes a quarter of the
-    /// previous whole pixels beyond the velocity's whole range, and an odd previous fraction moves its whole pixels half
-    /// the displacement's whole range down; a negative velocity's step keeps only its own whole pixels.
-    /// </summary>
-    /// <remarks>
-    /// The rope keeps the four substeps' quarter in the storage that held last update's, and builds it there without
-    /// clearing what the velocity does not cover, so the substeps need not add up to the update's velocity.
-    /// </remarks>
-    internal static SignedSixteenSixteen QuarterExtensionVelocity(
-        SignedEightEight velocity, SignedSixteenSixteen previous)
-    {
-        SignedSixteenSixteen quarter = velocity.ScaledBy(SubstepShareInTwoHundredFiftySixths);
-        int whole = quarter.WholePixels;
-        if (!velocity.IsNegative)
-        {
-            int beyondVelocityRange = previous.UnsignedWholePixels / VelocityWholePixelRange * VelocityWholePixelRange;
-            whole += beyondVelocityRange / ExtensionSubsteps;
-            if (previous.Fraction % 2 != 0)
-                whole -= DisplacementWholePixelRange / 2;
-        }
-
-        int fraction = quarter.Fraction + previous.Fraction % FractionStepsPerVelocityStep / ExtensionSubsteps;
-        return SignedSixteenSixteen.FromParts(whole, fraction);
-    }
-
     /// <summary>
     /// Advances the extending grapple beam, including the enemy
     /// enemy pass which precedes the grapple beam's block collision.
@@ -229,14 +185,14 @@ public static class SamusGrappleMovement
             }
         }
 
-        // The rope collision quarters each velocity and performs four identical probes. The quarter
-        // keeps stale parts of the previous frame's value, so the four steps need not add up to
-        // exactly one authored per-frame velocity.
+        // The rope moves its end in four equal substeps, probing after each; each keeps parts of the
+        // update before's substep, so together they need not add up to the extension speed
+        // (GrappleExtensionStepCarryover).
         grapple.QuarterVelocity = new(
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
-            QuarterExtensionVelocity(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
+            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
+            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
         GrappleBlockReaction finalReaction = GrappleBlockReaction.Passes;
-        for (int substep = 0; substep < ExtensionSubsteps; substep++)
+        for (int substep = 0; substep < GrappleExtensionStepCarryover.Substeps; substep++)
         {
             grapple.EndpointOffset += grapple.QuarterVelocity;
             PublishFiringGeometry(samus, grapple);

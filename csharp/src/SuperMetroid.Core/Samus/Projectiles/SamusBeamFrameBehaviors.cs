@@ -5,7 +5,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Which frame behaviour each beam projectile runs.</summary>
 internal static class SamusBeamFrameBehaviors
 {
-    /// <summary>Resolves every combination for one beam producer.</summary>
+    /// <summary>
+    /// The frame behaviour a shot of <paramref name="combination"/> runs, charged when <paramref name="charged"/>. A
+    /// Spazer and Plasma combination runs what follows the authored frame behaviours
+    /// (<see cref="SamusBeamFrameBehaviorDefinitions.Unauthored"/>).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is not one Samus's beams can make.</exception>
     public static SamusBeamFrameBehaviorDefinition Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
@@ -17,24 +22,9 @@ internal static class SamusBeamFrameBehaviors
         SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
             SamusBeamCombination.PlasmaIceWave =>
             Runs(SamusBeamFrameBehaviorChoice.WaveFourFrameTrail, SamusProjectileFrameBehavior.WaveBeamFourFrameTrail),
-        // The four glitched combinations read past the twelve authored frame behaviours.
-        SamusBeamCombination.SpazerPlasma => charged
-            ? OutsideScope(SamusBeamFrameBehaviorChoice.ChargedCombinationTwelveOverrun)
-            : OutsideScope(SamusBeamFrameBehaviorChoice.UnchargedCombinationTwelveOverrun),
-        SamusBeamCombination.SpazerPlasmaWave => charged
-            ? Runs(SamusBeamFrameBehaviorChoice.ChargedChainsawOverrun,
-                SamusProjectileFrameBehavior.ChargedChainsawOverrun)
-            : Runs(SamusBeamFrameBehaviorChoice.ChainsawPowerBomb,
-                SamusProjectileFrameBehavior.ChainsawPowerBomb),
-        SamusBeamCombination.SpazerPlasmaIce => charged
-            ? Runs(SamusBeamFrameBehaviorChoice.ChargedChainsawOverrun,
-                SamusProjectileFrameBehavior.ChargedChainsawOverrun)
-            : Runs(SamusBeamFrameBehaviorChoice.SpaceTimeProgressionOverwrite,
-                SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite),
-        SamusBeamCombination.SpazerPlasmaIceWave => charged
-            ? Runs(SamusBeamFrameBehaviorChoice.MurderBeamMisalignedExecution,
-                SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
-            : OutsideScope(SamusBeamFrameBehaviorChoice.UnchargedCombinationFifteenOverrun),
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+            SamusBeamFrameBehaviorDefinitions.Unauthored.FrameBehavior(combination, charged),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
@@ -43,11 +33,4 @@ internal static class SamusBeamFrameBehaviors
         SamusBeamFrameBehaviorChoice choice,
         SamusProjectileFrameBehavior frameBehavior) =>
         new(choice, frameBehavior);
-
-    /// <summary>
-    /// A choice past the authored list that runs whatever the game's live state or an unconnected region holds: it has no
-    /// frame behaviour, so firing it is rejected under the emulation scope limit (#1500).
-    /// </summary>
-    private static SamusBeamFrameBehaviorDefinition OutsideScope(SamusBeamFrameBehaviorChoice choice) =>
-        new(choice, null);
 }

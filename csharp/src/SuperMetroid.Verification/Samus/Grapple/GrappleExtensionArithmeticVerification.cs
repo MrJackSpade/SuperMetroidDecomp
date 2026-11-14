@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Verification.Samus.Grapple;
@@ -25,7 +26,7 @@ internal static class GrappleExtensionArithmeticVerification
                 {
                     SignedSixteenSixteen previous = SignedSixteenSixteen.FromParts(previousWhole, previousFraction);
                     SignedSixteenSixteen expected = ReplacedQuarterExtensionVelocity(velocity, previous);
-                    SignedSixteenSixteen actual = SamusGrappleMovement.QuarterExtensionVelocity(velocity, previous);
+                    SignedSixteenSixteen actual = GrappleExtensionStepCarryover.Step(velocity, previous);
                     quarterCompared++;
                     if (actual == expected)
                         continue;

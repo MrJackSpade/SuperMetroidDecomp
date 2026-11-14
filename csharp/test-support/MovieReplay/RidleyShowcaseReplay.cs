@@ -756,7 +756,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         SamusProjectileFrameBehavior.ShinesparkEcho or
                         SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite or
                         SamusProjectileFrameBehavior.ChainsawPowerBomb or
-                        SamusProjectileFrameBehavior.ChargedChainsawOverrun or
+                        SamusProjectileFrameBehavior.ChargedChainsawRunsSamusState or
                         SamusProjectileFrameBehavior.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
                     _ => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
                 };

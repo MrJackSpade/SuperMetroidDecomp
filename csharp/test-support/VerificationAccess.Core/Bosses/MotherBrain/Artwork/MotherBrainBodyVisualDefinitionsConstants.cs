@@ -51,7 +51,8 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
     internal static NativeEnemySpritemapDefinition Frame(MotherBrainBodyFrame frame) => Frame(Array.IndexOf(CartridgeOrder, frame));
     /// <summary>Calculates the published OAM identity. Native record strides are
     /// two header bytes plus eight bytes per component; explicit run boundaries
-    /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
+    /// preserve the shorter crouched/dummy frames and skipped unselected roots.
+    /// The name is the one the installed extended-frame document stores the frame under (#1623).</summary>
     internal static NativeEnemySpritemapDefinition Frame(int index)
     {
         if ((uint)index >= MotherBrainBodyFrameDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -60,16 +61,7 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
             : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
             : index < 13 ? Uncrouching + 0x4a * (index - 10)
             : DeathBeamStart + 0x4a * (index - 13));
-        string pose = index switch
-        {
-            0 => "standing",
-            >= 1 and <= 8 => FormattableString.Invariant($"walking_{index - 1}"),
-            9 => "crouched",
-            10 => "uncrouching",
-            11 => "leaning_down",
-            12 => "initial_dummy",
-            _ => FormattableString.Invariant($"death_beam_{index - 13}"),
-        };
-        return new(MotherBrainBodyVisualToolingDefinitions.Bank, pointer, $"mother_brain_body_oam_{pose}");
+        string name = EnemyFrameNameDefinitions.Names[MotherBrainBodyVisualDefinitions.ShownFrames.Of(CartridgeOrder[index])];
+        return new(MotherBrainBodyVisualToolingDefinitions.Bank, pointer, name);
     }
 }

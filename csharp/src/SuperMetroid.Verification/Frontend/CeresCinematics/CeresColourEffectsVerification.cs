@@ -170,7 +170,7 @@ internal static class CeresColourEffectsVerification
     private const int CinematicBank = 0x8b0000;
 
     /// <summary>The Japanese subtitle's pose: its list's one spritemap.</summary>
-    private static readonly CinematicSpritePose SubtitlePose = new(40);
+    private static readonly CinematicSpritePose SubtitlePose = CinematicSpritePose.ZebesJapaneseTitle;
 
     /// <summary>The Japanese subtitle's initializer, <c>$8B:C9E6</c>, whose two immediates place it.</summary>
     private const int SubtitleInit = 0x8bc9e6;

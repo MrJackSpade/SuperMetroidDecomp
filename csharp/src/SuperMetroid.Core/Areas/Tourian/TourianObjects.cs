@@ -24,14 +24,14 @@ internal sealed class TourianObjects
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Sets up a Metroid room's clearance watch: its placement's entry selects the event it marks, or none for the
-    /// table's nine leading entries, and it stays in the room for good.
+    /// Sets up a Metroid room's clearance watch: its placement names the event it marks, or none for a watch that
+    /// observes nothing, and it stays in the room for good.
     /// </summary>
     internal static void SetupMetroidsClearedSlot(RoomObjectSlot slot)
     {
         Ensure.NotNull(slot);
-        slot.Become(new MetroidRoomClearanceObject(MetroidsClearedEvents.ResolveEvent((slot.Argument as MetroidRoomArgument
-            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.Block} was placed without its entry.")).Entry)));
+        slot.Become(new MetroidRoomClearanceObject((slot.Argument as MetroidRoomArgument
+            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.Block} was placed without its event.")).Cleared));
     }
 
     /// <summary>

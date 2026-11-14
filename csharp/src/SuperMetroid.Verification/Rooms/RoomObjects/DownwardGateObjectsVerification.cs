@@ -114,7 +114,7 @@ internal static class DownwardGateObjectsVerification
             "first resident slot holds the closed downward gate");
         AssertEqual(1, slots[1].ProcessingPosition, "shot block is processed next");
         AssertTrue(slots[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateShotBlockDefinitions.Triggers[0].Change,
+                && triggerChange == DownwardGateShotBlockDefinitions.BlueLeft.Change,
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)

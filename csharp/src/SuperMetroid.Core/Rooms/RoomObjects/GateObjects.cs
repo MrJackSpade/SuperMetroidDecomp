@@ -59,8 +59,8 @@ internal sealed class GateObjects
     /// <summary>Installs a side trigger's selected gate and its authored neighboring shot block.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectSlot slot)
     {
-        DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument
-            ?? throw new InvalidDataException($"Downward gate shot block at block {slot.Block} was placed without its trigger.")).Trigger);
+        DownwardGateShotBlockDefinition definition = (slot.Argument as GateTriggerArgument
+            ?? throw new InvalidDataException($"Downward gate shot block at block {slot.Block} was placed without its trigger.")).ShotBlock;
         slot.Become(new TerrainChangeObject(definition.Change));
 
         // The setup performs independent left and right writes even though every authored row installs exactly one
@@ -70,15 +70,6 @@ internal sealed class GateObjects
         if (definition.RightCollision is { } right)
             WriteDownwardGateShotBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(1, 0)), right, definition.Trigger);
     }
-
-    /// <summary>
-    /// The shot-block trigger at <paramref name="trigger"/> in <see cref="DownwardGateShotBlockDefinitions.Triggers"/>;
-    /// a position past the last trigger names no color and side and is rejected.
-    /// </summary>
-    internal static DownwardGateShotBlockDefinition DownwardGateShotBlock(int trigger) =>
-        (uint)trigger < (uint)DownwardGateShotBlockDefinitions.Triggers.Count
-            ? DownwardGateShotBlockDefinitions.Triggers[trigger]
-            : throw new InvalidDataException($"Downward gate trigger {trigger} does not name one of the eight colors and sides.");
 
     /// <summary>
     /// Gives one block inside the room a trigger's collision kind and its gate-trigger behaviour, keeping what the block

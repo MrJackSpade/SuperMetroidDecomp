@@ -104,12 +104,15 @@ internal static class LookupRetailPopulationsVerification
                     3 => ReadSamusEaterObjectWord(rom, address + 4),
                     _ => 0,
                 };
+                // A clearance watch that observes nothing keeps none of the no-op entries' words (#1746); it is compared
+                // by what its word decodes to instead.
+                bool observesNothing = placement.Argument is MetroidRoomArgument { Cleared: null };
                 int result = field switch
                 {
                     0 => RoomObjectNativeWords.Word(placement.Kind),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
-                    3 => placement.NativeRoomArgument,
+                    3 when !observesNothing => placement.NativeRoomArgument,
                     _ => 0,
                 };
                 if (field == 3 && placement.Cannon is { } control)
@@ -118,6 +121,11 @@ internal static class LookupRetailPopulationsVerification
                     AssertEqual(DraygonWallCannonAddresses.Decode(checked((ushort)expected)), control,
                         $"population {pointer:X4} operation {count} cannon control");
                     AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
+                }
+                else if (field == 3 && observesNothing)
+                {
+                    AssertEqual(RoomObjectRoomArgumentWords.Decode(placement.Kind, expected), placement.Argument,
+                        $"population {pointer:X4} operation {count} clearance watch observes nothing");
                 }
                 else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Kind))
                 {

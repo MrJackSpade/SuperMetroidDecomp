@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -22,6 +24,41 @@ internal static class RoomObjectRoomArgumentWords
 
     /// <summary>The bits of a grey door's unlock-condition index once shifted down.</summary>
     private const int GreyConditionMask = 0x1f;
+
+    /// <summary>The unlock conditions in the order of the cartridge's grey-door condition table, which a grey door's word indexes.</summary>
+    private static readonly GreyDoorCondition[] GreyDoorConditionsInTableOrder =
+    [
+        GreyDoorCondition.AreaBossDefeated, GreyDoorCondition.AreaMiniBossDefeated, GreyDoorCondition.AreaTorizoDefeated,
+        GreyDoorCondition.EnemyDeathQuota, GreyDoorCondition.Never, GreyDoorCondition.TourianStatueFinished,
+        GreyDoorCondition.CrittersEscaped,
+    ];
+
+    /// <summary>
+    /// The shot-block triggers in the order of the cartridge's trigger tables (blue, red, green, yellow; left then right),
+    /// which a gate trigger's word indexes in steps of two.
+    /// </summary>
+    internal static IReadOnlyList<DownwardGateShotBlockDefinition> GateTriggersInTableOrder { get; } =
+    [
+        DownwardGateShotBlockDefinitions.BlueLeft, DownwardGateShotBlockDefinitions.BlueRight,
+        DownwardGateShotBlockDefinitions.RedLeft, DownwardGateShotBlockDefinitions.RedRight,
+        DownwardGateShotBlockDefinitions.GreenLeft, DownwardGateShotBlockDefinitions.GreenRight,
+        DownwardGateShotBlockDefinitions.YellowLeft, DownwardGateShotBlockDefinitions.YellowRight,
+    ];
+
+    /// <summary>The entries of the cartridge's Metroids-cleared table, which a clearance watch's word indexes in steps of two.</summary>
+    internal const int MetroidRoomEntryCount = 13;
+
+    /// <summary>The table's leading entries, which observe nothing.</summary>
+    internal const int MetroidRoomNoOpEntryCount = 9;
+
+    /// <summary>The events the table's quota observers mark, in entry order after the no-op entries.</summary>
+    private static readonly StoryEvent[] MetroidRoomQuotaObserverEvents =
+    [
+        StoryEvent.FirstMetroidHallCleared,
+        StoryEvent.FirstMetroidShaftCleared,
+        StoryEvent.SecondMetroidHallCleared,
+        StoryEvent.SecondMetroidShaftCleared,
+    ];
 
     /// <summary>The word a placement that carries nothing for its setup holds.</summary>
     private const ushort Filler = 0x8000;
@@ -74,7 +111,9 @@ internal static class RoomObjectRoomArgumentWords
             return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
         {
-            return new GreyDoorArgument((word >> GreyConditionShift) & GreyConditionMask,
+            int condition = (word >> GreyConditionShift) & GreyConditionMask;
+            return new GreyDoorArgument(condition < GreyDoorConditionsInTableOrder.Length ? GreyDoorConditionsInTableOrder[condition]
+                    : throw new InvalidDataException($"Grey door argument ${word:X4} selects condition {condition}, past the condition table."),
                 new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & GreyDoorBitMask), Persistence(word)));
         }
         if (name.StartsWith("RedDoor", StringComparison.Ordinal) || name.StartsWith("GreenDoor", StringComparison.Ordinal) ||
@@ -92,25 +131,31 @@ internal static class RoomObjectRoomArgumentWords
         }
         if (header == RoomObjectKind.MetroidRoomClearance)
         {
-            return (word & 1) == 0
-                ? new MetroidRoomArgument(word / 2)
-                : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is odd.");
+            int entry = (word & 1) == 0 ? word / 2 : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is odd.");
+            return entry >= MetroidRoomEntryCount
+                ? throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is not one of its {MetroidRoomEntryCount} entries.")
+                : entry < MetroidRoomNoOpEntryCount ? MetroidRoomArgument.ObservesNothing
+                : new MetroidRoomArgument(MetroidRoomQuotaObserverEvents[entry - MetroidRoomNoOpEntryCount]);
         }
         if (header == RoomObjectKind.DownwardGateShotBlock)
         {
-            return (word & 1) == 0
-                ? new GateTriggerArgument(word / 2)
-                : throw new InvalidDataException($"Downward gate trigger argument ${word:X4} is odd.");
+            int trigger = (word & 1) == 0 ? word / 2 : throw new InvalidDataException($"Downward gate trigger argument ${word:X4} is odd.");
+            return trigger < GateTriggersInTableOrder.Count
+                ? new GateTriggerArgument(GateTriggersInTableOrder[trigger])
+                : throw new InvalidDataException($"Downward gate trigger argument ${word:X4} does not name one of the eight colours and sides.");
         }
         throw new InvalidDataException($"PLM {header} has no decoded room argument for ${word:X4}.");
     }
 
     /// <summary>
     /// The native word of a placement's argument: its typed argument's word, the scroll program's place for a scroll
-    /// trigger, the fixed or filler word of a placement that carries nothing, else zero.
+    /// trigger, the fixed or filler word of a placement that carries nothing, else zero. A clearance watch that observes
+    /// nothing has no word: the cartridge's is one of its table's no-op entries, which the port does not keep.
     /// </summary>
     internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, RoomScrollChange? scroll) =>
-        ArgumentWord(argument) ?? (header == RoomObjectKind.ScrollTrigger && scroll is { } program ? RoomScrollProgramNative.Addresses[program]
+        argument is MetroidRoomArgument { Cleared: null }
+            ? throw new InvalidOperationException("A clearance watch that observes nothing keeps no no-op entry's word.")
+            : ArgumentWord(argument) ?? (header == RoomObjectKind.ScrollTrigger && scroll is { } program ? RoomScrollProgramNative.Addresses[program]
             : FixedWords.TryGetValue(header, out ushort fixedWord) ? fixedWord
             : FillerHeaders.Contains(header) || header == RoomObjectKind.ScrollTrigger ? Filler
             : (ushort)0);
@@ -132,14 +177,28 @@ internal static class RoomObjectRoomArgumentWords
             CollectedItemArgument item => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(item.Location)),
             DoorBitArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
-                (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
+                (Array.IndexOf(GreyDoorConditionsInTableOrder, grey.Condition) << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SpentDoorArgument => SpentMark,
             SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
-            MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
-            GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
+            MetroidRoomArgument { Cleared: { } cleared } =>
+                checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, cleared)) * 2)),
+            // A watch that observes nothing keeps none of the no-op entries' words.
+            MetroidRoomArgument => null,
+            GateTriggerArgument gate => checked((ushort)(GateTriggerIndex(gate.ShotBlock) * 2)),
             null => null,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };
+
+    /// <summary>The trigger's place in the cartridge's trigger tables.</summary>
+    private static int GateTriggerIndex(DownwardGateShotBlockDefinition shotBlock)
+    {
+        for (int index = 0; index < GateTriggersInTableOrder.Count; index++)
+        {
+            if (GateTriggersInTableOrder[index] == shotBlock)
+                return index;
+        }
+        throw new InvalidOperationException($"Downward gate trigger {shotBlock.Trigger} is not in the trigger tables.");
+    }
 
     /// <summary>
     /// The part of a spent cap's word the port keeps: its never-persists mark. The cartridge also leaves the bits of the

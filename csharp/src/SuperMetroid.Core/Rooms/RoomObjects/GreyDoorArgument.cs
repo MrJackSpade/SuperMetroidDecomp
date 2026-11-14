@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>A grey door's unlock condition and the door it keeps once set up.</summary>
-/// <param name="ConditionIndex">The condition's position in the grey-door condition table.</param>
+/// <param name="Condition">What unlocks the cap.</param>
 /// <param name="Door">The door the cap keeps.</param>
-public sealed record GreyDoorArgument(int ConditionIndex, DoorBitArgument Door) : RoomObjectRoomArgument;
+public sealed record GreyDoorArgument(GreyDoorCondition Condition, DoorBitArgument Door) : RoomObjectRoomArgument;

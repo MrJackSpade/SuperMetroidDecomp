@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// A Metroid room's clearance watch (#1554): it stays in the room for good and, on every room-object update from its
-/// first, marks its room's cleared event once the room's enemy deaths reach the room's kill quota. A placement whose
-/// entry names no event (the table's nine leading entries) watches nothing.
+/// first, marks its room's cleared event once the room's enemy deaths reach the room's kill quota. A placement that names
+/// no event (<see cref="MetroidRoomArgument.ObservesNothing"/>) watches nothing.
 /// </summary>
-/// <param name="cleared">The event the watch marks, or null for an entry that marks nothing.</param>
+/// <param name="cleared">The event the watch marks, or null for a watch that marks nothing.</param>
 internal sealed class MetroidRoomClearanceObject(StoryEvent? cleared) : RoomObjectBehaviour
 {
     /// <summary>The event the watch marks once the quota is met, or null for one that marks nothing.</summary>

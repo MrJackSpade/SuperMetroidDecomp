@@ -99,6 +99,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                         // animation starting there.
                         pending.Enqueue((next.Node.IsStart ? AnimationNode.Segment(item.Value) : AnimationNode.Start(item.Value), switched));
                         break;
+                    case ProgramItemKind.Cue:
+                    case ProgramItemKind.SetsMotion:
+                        // A cue whose handler continues the play, or a motion under which the frame behaviours restart the
+                        // object, runs those programs on the object publishing it, drawing where it draws (#1881).
+                        IReadOnlyDictionary<string, HashSet<string>> by = item.Kind == ProgramItemKind.Cue ? set.CueStarts : set.MotionStarts;
+                        foreach (string program in by.GetValueOrDefault(item.Value) ?? [])
+                            pending.Enqueue((AnimationNode.Start(program), switched));
+                        break;
                     case ProgramItemKind.ShowFrame:
                         (switched ? room : spawned).Add(item.Value);
                         break;
@@ -170,7 +178,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             ? ProjectileFramesNamed([.. segmentInitializers, .. SharedRunsIn(segmentInitializers)])
             : new HashSet<string>(entries.Values, StringComparer.Ordinal);
         if (!precise)
-            return new FamilyProgramSet(entries, tableFrames, [], new HashSet<string>(StringComparer.Ordinal), new HashSet<string>(StringComparer.Ordinal), Precise: false);
+        {
+            return new FamilyProgramSet(entries, tableFrames, [], new HashSet<string>(StringComparer.Ordinal), new HashSet<string>(StringComparer.Ordinal), Precise: false,
+                new Dictionary<string, HashSet<string>>(), new Dictionary<string, HashSet<string>>());
+        }
         var nodes = new Dictionary<AnimationNode, List<ProgramItem>>();
         INamedTypeSymbol helpers = segments.ContainingType;
         foreach (AssignmentExpressionSyntax entry in segmentEntries)
@@ -189,15 +200,24 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         if (table is not null)
             excluded.Add(CoreModel.InitializerOf(table));
         HashSet<string> starts = [.. nodes.Keys.Where(node => node.IsStart).Select(node => node.Name)];
-        HashSet<string> entered = NamedOutside(family, segmentType, excluded);
-        HandlerStartSet cues = CueStarts((INamedTypeSymbol)animation.TypeArguments[2]);
+        // A program a cue handler's case continues the play in is run by the segments publishing that cue, and one a start
+        // reads from a table or a method's returns (#1881) by that start, which the walks trace: neither is a program every
+        // start of the family runs.
+        var cueType = (INamedTypeSymbol)animation.TypeArguments[2];
+        (Dictionary<string, HashSet<string>> cueStarts, HashSet<SyntaxNode> cueNamed) = CueSectionStarts(cueType, segmentType);
+        HashSet<SyntaxNode> traced = TracedValues(family, segmentType);
+        HashSet<string> entered = NamedOutside(family, segmentType, excluded, name => cueNamed.Contains(name) || IsTracedValue(name, traced));
+        // The restarts frame behaviours make under a motion only this family's cues set run where a segment sets it.
+        Dictionary<string, HashSet<string>> motionStarts = model.KindRestarts.CueMotionRestarts(family)
+            .ToDictionary(pair => pair.Key, pair => pair.Value is null ? starts : new HashSet<string>(pair.Value, StringComparer.Ordinal), StringComparer.Ordinal);
+        HandlerStartSet cues = CueStarts(cueType);
         // So can the frame behaviours its kinds run (an afterburn hitting a wall switching to its final puff, #1537), except
         // a restart under a motion only some kinds' definitions give, which the walks add where they name those kinds (#1854).
         HandlerStartSet motions = FrameBehaviourStarts();
         entered.UnionWith(cues.Own.Of(family) ?? starts);
         entered.UnionWith(motions.Own.Of(family) ?? starts);
         HashSet<string> room = [.. cues.Room.Of(family) ?? starts, .. motions.Room.Of(family) ?? starts];
-        var set = new FamilyProgramSet(entries, tableFrames, nodes, entered, room, Precise: true);
+        var set = new FamilyProgramSet(entries, tableFrames, nodes, entered, room, Precise: true, cueStarts, motionStarts);
         // The self-check: every frame the segments or table hold is shown by some program, so no beat the reader missed
         // leaves a frame the family draws off its sheets.
         ProgramFrameSplit all = Shown(family, set, programs: null);
@@ -300,12 +320,29 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 return;
             case IdentifierNameSyntax name when semantic.GetSymbolInfo(name).Symbol is IFieldSymbol field:
                 FindRoomCues();
+                // Any other enum member may name a cue whose handler's case continues the play, a room cue's included.
+                bool cue = field.ContainingType.TypeKind == TypeKind.Enum;
                 if (_roomCues!.Contains(field.OriginalDefinition))
+                {
                     items.Add(new ProgramItem(ProgramItemKind.RoomGraphics, field.Name));
+                }
                 else if (SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType))
+                {
                     items.Add(new ProgramItem(ProgramItemKind.Continue, field.Name));
+                    cue = false;
+                }
                 else if (direct && SymbolEqualityComparer.Default.Equals(field.ContainingType, model.EnemyProjectileFrameId))
+                {
                     items.Add(new ProgramItem(ProgramItemKind.ShowFrame, field.Name));
+                    cue = false;
+                }
+                else if (SymbolEqualityComparer.Default.Equals(field.ContainingType, model.EnemyProjectileFrameBehavior))
+                {
+                    items.Add(new ProgramItem(ProgramItemKind.SetsMotion, field.Name));
+                    cue = false;
+                }
+                if (cue)
+                    items.Add(new ProgramItem(ProgramItemKind.Cue, CueKey(field.OriginalDefinition)));
                 return;
             // A helper's segment parameter outside a pose names the segment its call was handed.
             case IdentifierNameSyntax name
@@ -531,7 +568,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// program (case labels, patterns, equality) start nothing, and neither does a table pose naming the program it belongs
     /// to: the Kago bug, started in Kraid's rocks' still pose, never shows the spat rock's burst its table's keys name.
     /// </summary>
-    private HashSet<string> NamedOutside(INamedTypeSymbol family, INamedTypeSymbol segmentType, IReadOnlyCollection<SyntaxNode> excluded)
+    private HashSet<string> NamedOutside(INamedTypeSymbol family, INamedTypeSymbol segmentType, IReadOnlyCollection<SyntaxNode> excluded,
+        Func<IdentifierNameSyntax, bool> accounted)
     {
         var named = new HashSet<string>(StringComparer.Ordinal);
         var members = new HashSet<string>(segmentType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
@@ -549,12 +587,116 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 if (name.Ancestors().Any(node => excluded.Contains(node) || IsTest(node, name))
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" })
                     || IsStartArgument(semantic, name, family)
-                    || IsHandedProgram(semantic, name, family))
+                    || IsHandedProgram(semantic, name, family)
+                    || accounted(name))
                     continue;
                 named.Add(field.Name);
             }
         }
         return named;
+    }
+
+    /// <summary>
+    /// The programs each cue's handler case continues the play in (#1881), by <see cref="CueKey"/>, and the program names
+    /// those cases hold: in each handler of <paramref name="cueType"/>'s cues, a case of a switch over the cue whose labels
+    /// name enum members (a <c>Signal</c> of a cue kind) runs only for those cues, so the programs it names are entered by
+    /// the segments publishing them. A case naming no enum member leaves its programs to every start.
+    /// </summary>
+    private (Dictionary<string, HashSet<string>> Starts, HashSet<SyntaxNode> Named) CueSectionStarts(INamedTypeSymbol cueType, INamedTypeSymbol segmentType)
+    {
+        var starts = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var named = new HashSet<SyntaxNode>();
+        foreach (SyntaxNode handler in CueHandlers(cueType))
+        {
+            SemanticModel semantic = model.ModelOf(handler.SyntaxTree);
+            foreach (SwitchSectionSyntax section in handler.DescendantNodes().OfType<SwitchSectionSyntax>())
+            {
+                if (section.Parent is not SwitchStatementSyntax { Expression: var governing }
+                    || semantic.GetTypeInfo(governing).Type is not { } governed
+                    || !SymbolEqualityComparer.Default.Equals(governed.OriginalDefinition, cueType))
+                    continue;
+                string[] cues = [.. section.Labels.SelectMany(label => label.DescendantNodes().OfType<IdentifierNameSyntax>())
+                    .Select(name => semantic.GetSymbolInfo(name).Symbol).OfType<IFieldSymbol>()
+                    .Where(member => member.ContainingType.TypeKind == TypeKind.Enum).Select(member => CueKey(member.OriginalDefinition)).Distinct()];
+                if (cues.Length == 0)
+                    continue;
+                foreach (IdentifierNameSyntax name in section.Statements.SelectMany(statement => statement.DescendantNodesAndSelf()).OfType<IdentifierNameSyntax>())
+                {
+                    if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol program || !SymbolEqualityComparer.Default.Equals(program.ContainingType, segmentType)
+                        || name.Ancestors().Any(node => IsTest(node, name)))
+                        continue;
+                    named.Add(name);
+                    foreach (string cue in cues)
+                    {
+                        if (!starts.TryGetValue(cue, out HashSet<string>? programs))
+                            starts.Add(cue, programs = new HashSet<string>(StringComparer.Ordinal));
+                        programs.Add(program.Name);
+                    }
+                }
+            }
+        }
+        return (starts, named);
+    }
+
+    /// <summary>
+    /// The values the starts of <paramref name="family"/> read their programs from in tables and methods' returns (#1881):
+    /// for each construction of the family whose program the tracer follows through a table or a method, the entries and
+    /// returns it read, as Bomb Torizo's statue fragments read the table of the sixteen fragment programs.
+    /// </summary>
+    private HashSet<SyntaxNode> TracedValues(INamedTypeSymbol family, INamedTypeSymbol segmentType)
+    {
+        var tracer = new ProgramTracer(model, reaches: null);
+        var values = new HashSet<SyntaxNode>();
+        foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
+        {
+            if (constructor.Parameters is not [var program, ..])
+                continue;
+            foreach (CallSite site in model.CallSites(constructor))
+            {
+                if (site.ArgumentFor(program) is { } argument)
+                    values.UnionWith(tracer.ValuesReadFor(segmentType, argument, site.Semantic));
+            }
+        }
+        return values;
+    }
+
+    /// <summary>
+    /// Whether <paramref name="name"/> is in one of <paramref name="values"/>, or is the key a dictionary initializer gives one
+    /// of them under: a table's key looks a value up and starts nothing itself.
+    /// </summary>
+    private static bool IsTracedValue(IdentifierNameSyntax name, HashSet<SyntaxNode> values) =>
+        values.Count > 0
+        && (name.AncestorsAndSelf().Any(values.Contains)
+            || name.Ancestors().OfType<AssignmentExpressionSyntax>().Any(entry => entry.Left is ImplicitElementAccessSyntax && values.Contains(entry.Right))
+            || name.Ancestors().OfType<InitializerExpressionSyntax>().Any(entry =>
+                entry.IsKind(SyntaxKind.ComplexElementInitializerExpression) && entry.Expressions is [_, var value] && values.Contains(value)));
+
+    /// <summary>
+    /// The animation data of <paramref name="family"/>: its segments' initializers with the dictionaries and shared runs
+    /// they spread in, and its animations' initializer; empty when the family names no segments or animations this
+    /// generator can read. A cue constructed there is published by the family's segments.
+    /// </summary>
+    public IReadOnlyList<ExpressionSyntax> AnimationData(INamedTypeSymbol family)
+    {
+        if (model.ProgramTypeOf(family) is null || ReadableNamedBy(family, "Segments") is not { } segments || ReadableNamedBy(family, "StartingAt") is not { } startingAt)
+            return [];
+        List<ExpressionSyntax> initializers = model.InitializersWithSpreads(segments);
+        return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt)];
+    }
+
+    /// <summary>The static member <paramref name="family"/>'s <paramref name="property"/> returns, when it declares one this generator reads.</summary>
+    private ISymbol? ReadableNamedBy(INamedTypeSymbol family, string property)
+    {
+        foreach (IPropertySymbol declared in DeclaredIn(family, property).OfType<IPropertySymbol>())
+        {
+            foreach (SyntaxReference reference in declared.DeclaringSyntaxReferences)
+            {
+                if (reference.GetSyntax() is PropertyDeclarationSyntax { ExpressionBody.Expression: var body }
+                    && model.ModelOf(body.SyntaxTree).GetSymbolInfo(body).Symbol is (IPropertySymbol or IFieldSymbol) and { IsStatic: true } member)
+                    return member.OriginalDefinition;
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -829,7 +971,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         /// starting there.
         /// </summary>
         Continue,
+        /// <summary>It names a cue member (<see cref="CueKey"/>), whose handler's case may continue the play elsewhere.</summary>
+        Cue,
+        /// <summary>It names a motion, which a cue sets on the object.</summary>
+        SetsMotion,
     }
+
+    /// <summary>The key a cue enum member is looked up by: its type and name.</summary>
+    private static string CueKey(IFieldSymbol member) => member.ContainingType.ToDisplayString() + "." + member.Name;
 
     /// <summary>One thing a beat or phase contributes, in order.</summary>
     /// <param name="Kind">What it is.</param>
@@ -846,8 +995,18 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </param>
     /// <param name="RoomStarted">The programs its handlers start on objects they spawn with the room's graphics (#1854).</param>
     /// <param name="Precise">Whether each frame a segment shows is read from it, so the programs choose the frames.</param>
+    /// <param name="CueStarts">
+    /// By cue (<see cref="CueKey"/>), the programs its handler's case continues the play in (#1881): a segment publishing the
+    /// cue runs them, as a Golden Torizo egg's hatch cue continues it in its hatched loop.
+    /// </param>
+    /// <param name="MotionStarts">
+    /// By motion, the programs frame-behaviour handlers restart the object in under that motion, when only cues of this
+    /// family's segments set it (#1881): a segment setting the motion runs them, as a thrown super missile's flight restarts
+    /// it in its impact.
+    /// </param>
     private sealed record FamilyProgramSet(IReadOnlyDictionary<string, string> Table, IReadOnlySet<string> TableFrames,
-        Dictionary<AnimationNode, List<ProgramItem>> Nodes, IReadOnlySet<string> NamedOutside, IReadOnlySet<string> RoomStarted, bool Precise);
+        Dictionary<AnimationNode, List<ProgramItem>> Nodes, IReadOnlySet<string> NamedOutside, IReadOnlySet<string> RoomStarted, bool Precise,
+        IReadOnlyDictionary<string, HashSet<string>> CueStarts, IReadOnlyDictionary<string, HashSet<string>> MotionStarts);
 
     /// <summary>The programs handlers start, by family: those drawing where the handlers' objects do, and room starts.</summary>
     /// <param name="Own">The programs started on the objects the handlers move, or on objects drawing where those do.</param>

@@ -7,7 +7,10 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <summary>One program start a frame-behaviour handler makes on the object it moves.</summary>
 /// <param name="Family">The projectile program family started.</param>
 /// <param name="Programs">The programs it is started in; null when it may be any of them.</param>
-/// <param name="Motions">The motions whose objects run the code making it.</param>
+/// <param name="Motions">
+/// The motions whose objects run the code making it, with those the objects were given that lead to them (#1881): the
+/// motions its kinds' definitions or its family's cues give carry it.
+/// </param>
 internal sealed record KindRestart(INamedTypeSymbol Family, IReadOnlySet<string>? Programs, IReadOnlySet<IFieldSymbol> Motions);
 
 /// <summary>
@@ -17,9 +20,11 @@ internal sealed record KindRestart(INamedTypeSymbol Family, IReadOnlySet<string>
 /// and spores share his projectile behaviour, and only a spawner's cadence restarts it releasing. Such a restart runs on the
 /// objects of the kinds whose definitions name a tested motion, so it draws wherever those kinds are spawned: the walks add
 /// it where they name those kinds, never to every start of its family, and a handler spawning such a kind with the room's
-/// graphics carries it with that room start. A restart reached otherwise, under a motion code can assign at run time (a cue
-/// setting it, a value handed round), or with a switch of the object's graphics, stays as the walks and the family's
-/// handler starts read it.
+/// graphics carries it with that room start. A motion its family's own cues set carries a restart too (#1881): the segments
+/// publishing that cue run it, as a Golden Torizo super missile's throw cue sets the flight whose wall hit restarts it in its
+/// impact; and a motion guarded code assigns leads back to the motions held there, as a charging egg drops. A restart
+/// reached otherwise, under a motion other code can assign at run time (a value handed round, another family's cue), or
+/// with a switch of the object's graphics, stays as the walks and the family's handler starts read it.
 /// </summary>
 internal sealed class KindRestarts
 {
@@ -33,24 +38,29 @@ internal sealed class KindRestarts
     private readonly Dictionary<IFieldSymbol, IFieldSymbol> _kindMotions = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<SyntaxNode, KindRestart> _restarts = [];
 
-    /// <summary>Reads every kind's motion, every motion code can assign, and every handler restart under kind-given motions.</summary>
+    /// <summary>
+    /// Reads every kind's motion, where every other motion comes from, and every handler restart under motions that only
+    /// kinds' definitions, a family's own cues, or code running under such motions give.
+    /// </summary>
     public KindRestarts(CoreModel model)
     {
         _model = model;
         ExpressionSyntax catalog = CoreModel.InitializerOf(model.Member(CatalogType, CatalogMember));
         ReadKindMotions(catalog);
-        HashSet<IFieldSymbol> assignable = AssignableMotions(catalog);
         List<(StatementSyntax Region, HashSet<IFieldSymbol> Motions)> regions = [.. GuardedRegions()];
         Dictionary<IMethodSymbol, HashSet<IFieldSymbol>> methods = GuardedOnlyMethods(regions);
+        MotionSources sources = ReadMotionSources(catalog, regions, methods);
         var spawned = new SpawnedStarts(model);
         IEnumerable<(SyntaxNode Code, IReadOnlySet<IFieldSymbol> Motions)> code =
             regions.Select(region => ((SyntaxNode)region.Region, (IReadOnlySet<IFieldSymbol>)region.Motions))
                 .Concat(methods.SelectMany(method => method.Key.DeclaringSyntaxReferences
                     .Select(reference => (reference.GetSyntax(), (IReadOnlySet<IFieldSymbol>)method.Value))));
-        foreach ((SyntaxNode root, IReadOnlySet<IFieldSymbol> motions) in code)
+        foreach ((SyntaxNode root, IReadOnlySet<IFieldSymbol> guard) in code)
         {
-            // A restart under a motion an object can be given at run time may run on any object of its family.
-            if (motions.Count == 0 || motions.Any(assignable.Contains))
+            // The code runs on objects holding a tested motion, so on objects given a motion that leads to one.
+            HashSet<IFieldSymbol> motions = sources.Origins(guard);
+            // A restart under a motion an object can be given at run time from anywhere may run on any object of its family.
+            if (motions.Count == 0 || motions.Any(sources.Free.Contains))
                 continue;
             SemanticModel semantic = model.ModelOf(root.SyntaxTree);
             foreach (BaseObjectCreationExpressionSyntax creation in root.DescendantNodesAndSelf().OfType<BaseObjectCreationExpressionSyntax>())
@@ -63,7 +73,11 @@ internal sealed class KindRestarts
                     // Only a start on the object the handler was handed restarts it: a start on an object the handler spawns
                     // is that spawn's, and one whose code switches the object's graphics draws where the switch says (a
                     // landed Botwoon segment's explosion, on the shared sheet), which the walks read from that code.
-                    || spawned.Of(semantic, creation) is not { Receiver: not null, Spawn: null, Switched: false })
+                    || spawned.Of(semantic, creation) is not { Receiver: not null, Spawn: null, Switched: false }
+                    // A motion another family's cues set would carry the restart into that family's objects, which its
+                    // programs do not reach; such a restart stays with every start of its family.
+                    || motions.Any(motion => sources.CueSet.TryGetValue(motion, out HashSet<INamedTypeSymbol>? setters)
+                        && !setters.All(setter => SymbolEqualityComparer.Default.Equals(setter, family))))
                 {
                     continue;
                 }
@@ -83,6 +97,34 @@ internal sealed class KindRestarts
                 }
             }
         }
+        _cueSet = sources.CueSet;
+    }
+
+    /// <summary>The families whose segments' cues set each motion they set.</summary>
+    private readonly Dictionary<IFieldSymbol, HashSet<INamedTypeSymbol>> _cueSet;
+
+    /// <summary>
+    /// By motion, the programs <paramref name="family"/>'s objects are restarted in under a motion only its own segments'
+    /// cues set (#1881); null when one restart may be in any of its programs. A segment publishing such a cue runs them.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlySet<string>?> CueMotionRestarts(INamedTypeSymbol family)
+    {
+        var restarts = new Dictionary<string, HashSet<string>?>(StringComparer.Ordinal);
+        foreach (KindRestart restart in _restarts.Values.Where(restart => SymbolEqualityComparer.Default.Equals(restart.Family, family)))
+        {
+            foreach (IFieldSymbol motion in restart.Motions.Where(_cueSet.ContainsKey))
+            {
+                if (!restarts.TryGetValue(motion.Name, out HashSet<string>? programs))
+                    restarts.Add(motion.Name, programs = new HashSet<string>(StringComparer.Ordinal));
+                if (programs is null)
+                    continue;
+                if (restart.Programs is null)
+                    restarts[motion.Name] = null;
+                else
+                    programs.UnionWith(restart.Programs);
+            }
+        }
+        return restarts.ToDictionary(pair => pair.Key, pair => (IReadOnlySet<string>?)pair.Value, StringComparer.Ordinal);
     }
 
     /// <summary>Whether <paramref name="node"/> is a restart the kinds whose motions run it carry, rather than code its walk records.</summary>
@@ -137,15 +179,26 @@ internal sealed class KindRestarts
     }
 
     /// <summary>
-    /// The motions an object can be given other than by its kind's definition: the default (a freed or cleared object's),
-    /// and every motion Core names outside the catalog except to test it, since code naming a motion can set it.
+    /// Where each motion an object can hold comes from, besides its kind's definition (#1881). Every place Core names a
+    /// motion outside the catalog, other than to test it, can give it to an object: a cue constructed in a family's animation
+    /// data is published by that family's segments; an assignment of the moving object's motion in a guarded branch, or in a
+    /// method only such branches run, gives it to objects already holding the branch's motions (a Golden Torizo egg charging
+    /// drops); any other naming, and the default motion (a freed or cleared object's), can give it to any object.
     /// </summary>
-    private HashSet<IFieldSymbol> AssignableMotions(ExpressionSyntax catalog)
+    private MotionSources ReadMotionSources(ExpressionSyntax catalog, List<(StatementSyntax Region, HashSet<IFieldSymbol> Motions)> regions,
+        Dictionary<IMethodSymbol, HashSet<IFieldSymbol>> methods)
     {
         INamedTypeSymbol motionType = _model.EnemyProjectileFrameBehavior;
-        var assignable = new HashSet<IFieldSymbol>(motionType.GetMembers().OfType<IFieldSymbol>()
+        var sources = new MotionSources(new HashSet<IFieldSymbol>(motionType.GetMembers().OfType<IFieldSymbol>()
             .Where(member => member.HasConstantValue && Convert.ToInt64(member.ConstantValue, System.Globalization.CultureInfo.InvariantCulture) == 0),
-            SymbolEqualityComparer.Default);
+            SymbolEqualityComparer.Default));
+        // The animation data each family's segments publish cues from.
+        var data = new Dictionary<SyntaxNode, INamedTypeSymbol>();
+        foreach (INamedTypeSymbol family in _model.Families)
+        {
+            foreach (ExpressionSyntax initializer in _model.ProgramFrames.AnimationData(family))
+                data.TryAdd(initializer, family);
+        }
         var names = new HashSet<string>(motionType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
         foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
         {
@@ -156,16 +209,83 @@ internal sealed class KindRestarts
                 if (!names.Contains(name.Identifier.Text))
                     continue;
                 semantic ??= _model.ModelOf(tree);
-                if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol motion || !SymbolEqualityComparer.Default.Equals(motion.ContainingType, motionType)
+                if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol named || !SymbolEqualityComparer.Default.Equals(named.ContainingType, motionType)
                     || name.Ancestors().Any(node => node == catalog || ProjectileProgramFrames.IsTest(node, name))
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" }))
                 {
                     continue;
                 }
-                assignable.Add(motion.OriginalDefinition);
+                IFieldSymbol motion = named.OriginalDefinition;
+                if (name.Ancestors().Select(node => data.GetValueOrDefault(node)).FirstOrDefault(family => family is not null) is { } publisher)
+                    Of(sources.CueSet, motion).Add(publisher);
+                else if (GuardOfAssignment(semantic, name, regions, methods) is { } guard)
+                    Of(sources.Derived, motion).Add(guard);
+                else
+                    sources.Free.Add(motion);
             }
         }
-        return assignable;
+        return sources;
+    }
+
+    /// <summary>
+    /// The motions the moving object holds where <paramref name="name"/> is assigned as its motion: those of the guarded
+    /// branch around the assignment, or of the method only guarded branches run that holds it; null when the name is not
+    /// assigned as a motion there.
+    /// </summary>
+    private HashSet<IFieldSymbol>? GuardOfAssignment(SemanticModel semantic, IdentifierNameSyntax name,
+        List<(StatementSyntax Region, HashSet<IFieldSymbol> Motions)> regions, Dictionary<IMethodSymbol, HashSet<IFieldSymbol>> methods)
+    {
+        SyntaxNode value = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name;
+        if (value.Parent is not AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment || assignment.Right != value
+            || semantic.GetTypeInfo(assignment.Left).Type is not { } assigned
+            || !SymbolEqualityComparer.Default.Equals(assigned.OriginalDefinition, _model.EnemyProjectileFrameBehavior))
+            return null;
+        HashSet<IFieldSymbol>? guard = null;
+        foreach ((StatementSyntax region, HashSet<IFieldSymbol> motions) in regions)
+        {
+            if (region.SyntaxTree == name.SyntaxTree && region.Span.Contains(name.Span))
+                (guard ??= new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default)).UnionWith(motions);
+        }
+        if (guard is null && EnclosingMethod(semantic, name) is { } method && methods.TryGetValue(method, out HashSet<IFieldSymbol>? under))
+            guard = new HashSet<IFieldSymbol>(under, SymbolEqualityComparer.Default);
+        return guard;
+    }
+
+    /// <summary>The value for <paramref name="key"/>, created when absent.</summary>
+    private static TValue Of<TValue>(Dictionary<IFieldSymbol, TValue> values, IFieldSymbol key) where TValue : new()
+    {
+        if (!values.TryGetValue(key, out TValue? value))
+            values.Add(key, value = new TValue());
+        return value;
+    }
+
+    /// <summary>Where the motions objects hold come from, besides their kinds' definitions.</summary>
+    /// <param name="Free">The motions code can give any object.</param>
+    private sealed record MotionSources(HashSet<IFieldSymbol> Free)
+    {
+        /// <summary>For each motion a family's cues set, the families whose segments publish those cues.</summary>
+        public Dictionary<IFieldSymbol, HashSet<INamedTypeSymbol>> CueSet { get; } = new(SymbolEqualityComparer.Default);
+
+        /// <summary>For each motion guarded code assigns, the motions the objects hold where it does.</summary>
+        public Dictionary<IFieldSymbol, List<HashSet<IFieldSymbol>>> Derived { get; } = new(SymbolEqualityComparer.Default);
+
+        /// <summary>
+        /// The motions an object holding one of <paramref name="motions"/> was given by its kind, a cue or anywhere: each of
+        /// them, and, for each guarded assignment giving one, the origins of the motions held there.
+        /// </summary>
+        public HashSet<IFieldSymbol> Origins(IEnumerable<IFieldSymbol> motions)
+        {
+            var origins = new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default);
+            var pending = new Stack<IFieldSymbol>(motions.Select(motion => motion.OriginalDefinition));
+            while (pending.TryPop(out IFieldSymbol? motion))
+            {
+                if (!origins.Add(motion))
+                    continue;
+                foreach (IFieldSymbol held in Derived.GetValueOrDefault(motion)?.SelectMany(guard => guard) ?? [])
+                    pending.Push(held);
+            }
+            return origins;
+        }
     }
 
     /// <summary>

@@ -217,6 +217,7 @@ internal sealed class SpawnAnalysis
             behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.SpriteObjects,
                 sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
         }
+        RequireOwnAndSharedApart(behaviours);
         analysis.Behaviours = behaviours;
         var common = new Dictionary<string, Collected>(StringComparer.Ordinal);
         foreach ((string spawner, Collected spawns) in sheets.Common)
@@ -337,6 +338,23 @@ internal sealed class SpawnAnalysis
             throw new InvalidDataException("The generator's excluded sprite objects (" + string.Join(", ", excluded)
                 + ") are not the kinds RoomSpriteObjectVisualDefinitions.SamusHitBursts lists (" + string.Join(", ", listed) + ").");
         }
+    }
+
+    /// <summary>
+    /// Requires each behaviour's own sheet and its sets' shared sheet to hold no spawned frame or sprite object in common
+    /// (#1881): a spawn draws from the one sheet its graphics name, so a frame on both is pictured twice and drawn from one
+    /// (#1635, one picture per appearance). An over-reaching walk, as one sending a whole behaviour's spawns to the sheet a
+    /// handler switches one landed segment to, fails here instead of installing every picture twice.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A behaviour's own and shared spawns share a frame or sprite object.</exception>
+    private static void RequireOwnAndSharedApart(IEnumerable<BehaviourSpawns> behaviours)
+    {
+        string[] twice = [.. behaviours.SelectMany(spawns => spawns.ProjectileFrames.Intersect(spawns.SharedProjectileFrames)
+                .Concat(spawns.SpriteObjects.Intersect(spawns.SharedSpriteObjects))
+                .Select(frame => $"{spawns.Behaviour.Family}: {frame}"))
+            .Order(StringComparer.Ordinal)];
+        if (twice.Length > 0)
+            throw new InvalidDataException("Spawned frames both an enemy's own sheet and its sets' shared sheet would hold:\n" + string.Join('\n', twice));
     }
 
     /// <summary>Requires <paramref name="type"/> to declare every excluded member, so a rename cannot silently stop the exclusion.</summary>

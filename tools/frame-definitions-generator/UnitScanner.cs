@@ -96,9 +96,11 @@ internal sealed class UnitScan
 
     /// <summary>
     /// Where graphics this code assigns to a spawned object (after spawning it, before or between draws) can make it draw
-    /// from: the object may draw with these as well as with the graphics it was spawned with.
+    /// from: the object may draw with these as well as with the graphics it was spawned with. <c>Restarts</c> says the same
+    /// statements restart the object in a new program (#1881), so the switch decides where that program draws, which this
+    /// code's own start of it names, and never where the object's earlier programs draw.
     /// </summary>
-    public List<(IReadOnlyList<SpawnTarget> Targets, string Graphics)> Reassignments { get; } = [];
+    public List<(IReadOnlyList<SpawnTarget> Targets, string Graphics, bool Restarts)> Reassignments { get; } = [];
 
     /// <summary>Every sheet what this code spawns (constructs, starts) can draw from, whichever call spawns it.</summary>
     public IReadOnlyList<SpawnTarget> UnitTargets =>
@@ -439,7 +441,7 @@ internal sealed class UnitScanner(CoreModel model)
             bool cueSwitch = assignment.Ancestors().OfType<SwitchSectionSyntax>().FirstOrDefault() is { } section
                 && model.ProgramFrames.IsRoomGraphicsCueSection(section);
             if (switched.Any(target => target.Source != GraphicsSource.Parameter) && !cueSwitch)
-                scan.Reassignments.Add((switched, assignment.ToString()));
+                scan.Reassignments.Add((switched, assignment.ToString(), RestartsSwitchedObject(semantic, assignment)));
         }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })
@@ -508,6 +510,27 @@ internal sealed class UnitScanner(CoreModel model)
             : name.Parent is MemberBindingExpressionSyntax binding ? binding
             : name;
         return callee.Parent is InvocationExpressionSyntax invocation && invocation.Expression == callee;
+    }
+
+    /// <summary>
+    /// Whether the block making the graphics switch <paramref name="assignment"/> also restarts the object it switches: a
+    /// statement of that block hands the object a newly constructed program of a projectile family (#1881). A landed Botwoon
+    /// segment starts the big explosion and switches to the room's graphics together, so only the explosion draws from the
+    /// shared sheet, never the body and tail segments the object showed before.
+    /// </summary>
+    private bool RestartsSwitchedObject(SemanticModel semantic, AssignmentExpressionSyntax assignment)
+    {
+        if (assignment.Left is not MemberAccessExpressionSyntax { Expression: var owner }
+            || semantic.GetSymbolInfo(owner).Symbol is not { } switched || switched is not (ILocalSymbol or IParameterSymbol)
+            || assignment.Parent is not ExpressionStatementSyntax { Parent: BlockSyntax block })
+            return false;
+        return block.Statements.OfType<ExpressionStatementSyntax>().Any(statement =>
+            statement.Expression is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Expression: var receiver } } restart
+            && SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(receiver).Symbol, switched)
+            && restart.ArgumentList.Arguments.Any(argument => argument.Expression is BaseObjectCreationExpressionSyntax creation
+                && semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol { MethodKind: MethodKind.Constructor, ContainingType: { } started }
+                && model.FamilyOf(started.OriginalDefinition) is { } family
+                && SymbolEqualityComparer.Default.Equals(family, started.OriginalDefinition)));
     }
 
     /// <summary>Records an <c>EnemySheetDraw</c> whose first argument names its definition's sheet as a constant.</summary>

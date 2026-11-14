@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The beam combination the Chainsaw beam's graphics belong to, and the beam palette it shows.</summary>
 internal static class ChainsawBeamGraphicsDefinitions
 {
-    /// <summary>Index 13: Plasma/Spazer/Wave indexes two entries beyond the twelve-entry picture table.</summary>
+    /// <summary>The Chainsaw beam's combination: Spazer, Plasma and Wave.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaWave;
 
     /// <summary>

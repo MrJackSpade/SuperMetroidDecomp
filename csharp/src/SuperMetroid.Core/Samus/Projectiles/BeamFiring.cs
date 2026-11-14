@@ -302,7 +302,7 @@ internal sealed class BeamFiring
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != ControllerButton.None
                 ? BeamShotCooldowns.Shot.Uncharged
                 : BeamShotCooldowns.Shot.HeldFire;
-        // A Spazer and Plasma combination waits the cooldowns read past the cooldown rows (#1506).
+        // A Spazer and Plasma combination waits its own cooldowns (UnauthoredBeamFiring, #1506).
         int cooldown = beamType.IsRetail
             ? SamusProjectileCooldowns.Read(beamType, shot)
             : _unauthoredFiring.Cooldown(beamType, shot);
@@ -323,14 +323,14 @@ internal sealed class BeamFiring
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
-            // The game installs the frame behaviour only after muzzle collision. Do not
-            // infer it from Wave bits: the table is the dispatcher, including overreads.
+            // The game installs the frame behaviour only after muzzle collision. Do not infer it from
+            // the Wave component: each combination names its own, the Spazer and Plasma ones included.
             SamusBeamFrameBehaviorDefinition definition =
                 SamusBeamFrameBehaviors.Resolve(charged, beamType);
-            // The frame behaviours with no model are Spazer and Plasma combinations whose table read lands outside
-            // the game's code: on the game's live state or an unconnected region. The game then runs
-            // whatever that data holds, which only full memory and processor emulation could reproduce, so the
-            // model rejects the shot under the emulation scope limit (#1500).
+            // The frame behaviours with no model are Spazer and Plasma combinations that run the game's live state
+            // or an unconnected region instead of the game's code (UnauthoredBeamFrameBehaviors). Only full memory
+            // and processor emulation could reproduce that, so the model rejects the shot under the emulation scope
+            // limit (#1500).
             slot.FrameBehavior = definition.FrameBehavior ?? throw new NotSupportedException(
                 $"Beam frame behaviour {definition.Choice} runs whatever the game's live state or an unconnected region " +
                 "holds; reproducing that needs full memory and processor emulation, which is outside the emulation " +

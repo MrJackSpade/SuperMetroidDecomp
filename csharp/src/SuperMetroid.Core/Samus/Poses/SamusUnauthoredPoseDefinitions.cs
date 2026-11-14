@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -9,9 +10,11 @@ internal static class SamusUnauthoredPoseDefinitions
 {
     /// <summary>
     /// The three poses' definitions. The first faces right, places a held charge's flare at the neutral turning placement,
-    /// and has a vertical radius of 138 pixels; the second faces neither way, places the flare at the muzzle aiming down facing
-    /// left, and has the front view's radius; the third faces neither way, places the flare at the muzzle aiming down
-    /// facing right, and has a crouch's radius.
+    /// has a vertical radius of 138 pixels, reads a movement beyond every movement type, and falls back with no input to
+    /// the rightward neutral jump transition; the second faces neither way, places the flare at the muzzle aiming down
+    /// facing left, has the front view's radius, moves as standing, and keeps its pose with no input; the third
+    /// faces neither way, places the flare at the muzzle aiming down facing right, has a crouch's radius, reads a movement
+    /// beyond every movement type, and falls back with no input to landing aiming diagonally down facing left.
     /// </summary>
     internal static readonly UnauthoredPoseReads<SamusPoseId, SamusUnauthoredPoseDefinition> Poses = new(
         new Dictionary<SamusPoseId, SamusUnauthoredPoseDefinition>
@@ -20,16 +23,22 @@ internal static class SamusUnauthoredPoseDefinitions
                 SamusFacingDirection.Right,
                 SamusPoseAim.Unaimed(SamusFlareAim.WhileTurning(SamusTurningAim.Neutral)),
                 VerticalRadius: 138,
-                ProjectileYOffset: 194),
+                ProjectileYOffset: 194,
+                Movement: null,
+                NoInputPose: SamusPoseId.NeutralJumpTransitionRightPose),
             [SamusPoseId.SecondUnauthoredPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingLeft)),
                 VerticalRadius: 24,
-                ProjectileYOffset: 22),
+                ProjectileYOffset: 22,
+                Movement: SamusMovementType.Standing,
+                NoInputPose: SamusMovementDefinitions.Poses.RetainCurrentPoseFallback),
             [SamusPoseId.LastUnauthoredPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingRight)),
                 VerticalRadius: 16,
-                ProjectileYOffset: 133),
+                ProjectileYOffset: 133,
+                Movement: null,
+                NoInputPose: SamusPoseId.LandingAimDiagonalDownLeftPose),
         });
 }

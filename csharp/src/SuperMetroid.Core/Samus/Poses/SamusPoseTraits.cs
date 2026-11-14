@@ -259,15 +259,21 @@ internal static class SamusPoseTraits
     };
 
     /// <summary>
-    /// The pose's movement type, from the pose definition's movement entry, which selects the movement handler.
-    /// The first and last pose numbers past the authored poses read movement entries beyond every movement type, which is
-    /// corrupt metadata and fails here; the second reads the special movement type.
+    /// The pose's movement type, from the pose definition's movement entry, which selects the movement handler: its
+    /// authored movement, or what a pose number past the authored poses reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose is <see cref="SamusPoseId.FirstUnauthoredPose"/> or
-    /// <see cref="SamusPoseId.LastUnauthoredPose"/>.</exception>
-    internal static SamusMovementType ReadMovement(SamusPoseId pose) => pose switch
+    /// <exception cref="InvalidDataException">The pose reads a movement beyond every movement type, which no handler
+    /// runs.</exception>
+    internal static SamusMovementType ReadMovement(SamusPoseId pose) =>
+        SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
+            ? unauthored.Movement ?? throw new InvalidDataException(
+                $"Pose {pose} reads a movement beyond every movement type, past {nameof(SamusMovementType.Special)}; no movement handler runs it.")
+            : ReadAuthoredMovement(pose);
+
+    /// <summary>An authored pose's movement type.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    private static SamusMovementType ReadAuthoredMovement(SamusPoseId pose) => pose switch
     {
-        SamusPoseId.SecondUnauthoredPose or
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.FacingLeftNormalPose or
@@ -501,18 +507,25 @@ internal static class SamusPoseTraits
         SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => SamusMovementType.Special,
-        // The three poses past the tables read the X-ray cone's off-screen table builder as data.
         SamusPoseId.FirstUnauthoredPose or
-        SamusPoseId.LastUnauthoredPose => throw new InvalidDataException(
-            $"Pose {pose} reads what follows the pose definitions as its movement type, beyond {nameof(SamusMovementType.Special)}."),
+        SamusPoseId.SecondUnauthoredPose or
+        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "A pose number past the authored poses reads its movement from what follows the definitions."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>
-    /// The pose a pose falls back to with no input; the three pose numbers past the authored poses read theirs from what
-    /// follows the definitions.
+    /// The pose a pose falls back to with no input: its authored fallback, or what a pose number past the authored poses
+    /// reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
-    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => pose switch
+    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) =>
+        SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
+            ? unauthored.NoInputPose
+            : ReadAuthoredNoInputPose(pose);
+
+    /// <summary>The pose an authored pose falls back to with no input.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    private static SamusPoseId ReadAuthoredNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or
@@ -747,10 +760,10 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
-        // The three poses past the tables read the X-ray cone's off-screen table builder as data.
-        SamusPoseId.FirstUnauthoredPose => SamusPoseId.NeutralJumpTransitionRightPose,
-        SamusPoseId.SecondUnauthoredPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
-        SamusPoseId.LastUnauthoredPose => SamusPoseId.LandingAimDiagonalDownLeftPose,
+        SamusPoseId.FirstUnauthoredPose or
+        SamusPoseId.SecondUnauthoredPose or
+        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "A pose number past the authored poses reads its no-input pose from what follows the definitions."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

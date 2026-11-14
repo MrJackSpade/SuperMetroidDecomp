@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A beam frame behaviour the fire handlers select by charge state and beams, including the entries they read past their authored lists.</summary>
+/// <summary>
+/// A beam frame behaviour the fire handlers select by charge state and beams, including what the Spazer and Plasma
+/// combinations run (<see cref="UnauthoredBeamFrameBehaviors{TBeams, TBehavior}"/>).
+/// </summary>
 internal enum SamusBeamFrameBehaviorChoice
 {
     /// <summary>A beam without Wave: ordinary terrain-stopping beam motion.</summary>
@@ -10,49 +13,41 @@ internal enum SamusBeamFrameBehaviorChoice
     /// <summary>Wave-Plasma and the other Wave combinations: Wave movement with a four-frame trail reload.</summary>
     WaveFourFrameTrail,
     /// <summary>
-    /// Uncharged combination twelve reads past the authored frame behaviours into a value that
-    /// names a region that holds nothing, so the game runs whatever it reads there. That is outside the emulation scope limit
-    /// (#1500): the shot is rejected loudly.
+    /// The uncharged Spazer-Plasma shot's: it runs whatever an unconnected region holds, which is outside the emulation
+    /// scope limit (#1500), so the shot is refused loudly.
     /// </summary>
-    UnchargedCombinationTwelveOverrun,
+    UnchargedSpazerPlasmaRunsUnconnectedRegion,
     /// <summary>
-    /// The invalid beam-combination fourteen entry read two entries beyond
-    /// the uncharged firing's authored frame behaviours: the Spacetime shot's progression overwrite. From an animation that
-    /// reaches far enough, the shot's frame behaviour turns saved progression on and off as
+    /// The uncharged Spazer-Plasma-Ice shot's, the Spacetime shot: from an animation that reaches far enough, the shot
+    /// turns saved progression on and off as
     /// <see cref="SuperMetroid.Core.Compatibility.SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> decodes it.
     /// </summary>
     SpaceTimeProgressionOverwrite,
     /// <summary>
-    /// The invalid beam-combination thirteen entry produced by indexing two
-    /// entries beyond the uncharged authored frame behaviours. It starts partway into
-    /// the step before it, so it stores the shot's vertical value to the cached layer-scroll pair its horizontal value
-    /// selects and falls through to the Power Bomb frame behaviour.
+    /// The uncharged Spazer-Plasma-Wave shot's, the Chainsaw: it runs a Power Bomb's fuse over the shot. The store it
+    /// starts with changes only the display's window edges, a presentation quirk the port does not reproduce (#1407).
     /// </summary>
     ChainsawPowerBomb,
     /// <summary>
-    /// Charged combination thirteen overruns the authored frame behaviours and
-    /// reads its frame behaviour from Samus's state. It therefore enters
-    /// whatever Samus's cached previous Super-Missile count encodes. The game's
-    /// execution is data-dependent and may crash; it is not a stable behaviour.
+    /// The charged Spazer-Plasma-Wave and Spazer-Plasma-Ice shots': they run whatever Samus's changing state holds, so
+    /// the game's execution depends on that state and may crash; outside the emulation scope limit (#1500), the shot is
+    /// refused when it runs.
     /// </summary>
-    ChargedChainsawOverrun,
+    ChargedChainsawRunsSamusState,
     /// <summary>
-    /// Uncharged combination fifteen reads past the authored frame behaviours into a value that names a
-    /// place in the game's live state, so the game runs whatever Samus's state holds. That is outside the emulation scope limit
-    /// (#1500): the shot is rejected loudly.
+    /// The uncharged all-beams shot's: it runs whatever the game's live state holds, which is outside the emulation
+    /// scope limit (#1500), so the shot is refused loudly.
     /// </summary>
-    UnchargedCombinationFifteenOverrun,
+    UnchargedAllBeamsRunsLiveState,
     /// <summary>
-    /// Charged combination twelve reads past the charged
-    /// frame behaviours; it names a place in the game's live state, so the game runs whatever that state holds. That is outside the
-    /// emulation scope limit (#1500): the shot is rejected loudly.
+    /// The charged Spazer-Plasma shot's: it runs whatever the game's live state holds, which is outside the emulation
+    /// scope limit (#1500), so the shot is refused loudly.
     /// </summary>
-    ChargedCombinationTwelveOverrun,
+    ChargedSpazerPlasmaRunsLiveState,
     /// <summary>
-    /// The frame behaviour obtained when charged all-beams combination fifteen reads
-    /// beyond the charged authored frame behaviours. The safe left-facing Murder Beam has no
-    /// animation, so the game never runs this frame behaviour; unsafe directions
-    /// keep their animations and run an unrelated part of the game.
+    /// The charged all-beams shot's, the Murder Beam: it starts in the middle of an unrelated part of the game. The safe
+    /// left-facing Murder Beam has no animation, so the game never runs it; the other directions keep their animations
+    /// and run it.
     /// </summary>
     MurderBeamMisalignedExecution,
 }

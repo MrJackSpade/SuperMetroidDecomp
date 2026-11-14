@@ -15,15 +15,6 @@ internal static class ShaktoolAnimations
     internal static AnimationSegments<ShaktoolSegment, EnemyFrameId, ShaktoolCue> Segments { get; } = new(
         new Dictionary<ShaktoolSegment, AnimationBeat<EnemyFrameId, ShaktoolCue>[]>
     {
-        [P.SawHandAttackPrimaryPiece] =
-        [
-            Wait(576),
-        ],
-        [P.SawHandAttackFinalPiece] =
-        [
-            Wait(576),
-            Cue(new(K.ResetFrameBehaviors)),
-        ],
         [P.SawHandHeadBobPrimaryPiece] =
         [
             Wait(20),
@@ -45,22 +36,6 @@ internal static class ShaktoolAnimations
             Show(EnemyFrameId.ShaktoolSawHandFinalPieceSecond, 3),
             Show(EnemyFrameId.ShaktoolSawHandFinalPieceThird, 3),
         ],
-        [P.ArmPieceAttackBack] =
-        [
-            Wait(192),
-            Cue(new(K.LowerAwayFromCenter)),
-            Wait(128),
-            Cue(new(K.RaiseTowardCenter)),
-            Wait(256),
-        ],
-        [P.ArmPieceAttackFront] =
-        [
-            Wait(256),
-            Cue(new(K.LowerAwayFromCenter)),
-            Wait(128),
-            Cue(new(K.RaiseTowardCenter)),
-            Wait(192),
-        ],
         [P.ArmPieceHeadBobBack] =
         [
             Cue(new(K.Lower)),
@@ -78,16 +53,6 @@ internal static class ShaktoolAnimations
         [P.ArmPieceNormal] =
         [
             Show(EnemyFrameId.ShaktoolArm, 119),
-        ],
-        [P.HeadAttack] =
-        [
-            Wait(128),
-            Cue(new(K.LowerAwayFromCenter)),
-            Cue(new(K.Nothing)),
-            Wait(128),
-            Cue(new(K.RaiseTowardCenter)),
-            Wait(320),
-            Wait(1),
         ],
         [P.HeadHeadBob] =
         [
@@ -135,18 +100,13 @@ internal static class ShaktoolAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
     {
-        [P.SawHandAttackPrimaryPiece] = new([new(P.SawHandAttackPrimaryPiece, 0, 1, 1), new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SawHandAttackFinalPiece] = new([new(P.SawHandAttackFinalPiece, 0, 2, 1), new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SawHandHeadBobPrimaryPiece] = new([new(P.SawHandHeadBobPrimaryPiece, 0, 1, 1), new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SawHandHeadBobFinalPiece] = new([new(P.SawHandHeadBobFinalPiece, 0, 2, 1), new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SawHandPrimaryPiece] = new([new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SawHandFinalPiece] = new([new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmPieceAttackBack] = new([new(P.ArmPieceAttackBack, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmPieceAttackFront] = new([new(P.ArmPieceAttackFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ArmPieceHeadBobBack] = new([new(P.ArmPieceHeadBobBack, 0, 3, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ArmPieceHeadBobFront] = new([new(P.ArmPieceHeadBobFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ArmPieceNormal] = new([new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAttack] = new([new(P.HeadAttack, 0, 7, 1), new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
         [P.HeadHeadBob] = new([new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HeadAimingLeft] = new([new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HeadAimingUpLeft] = new([new(P.HeadAimingUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),

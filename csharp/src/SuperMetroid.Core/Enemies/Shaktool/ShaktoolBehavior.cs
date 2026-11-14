@@ -411,19 +411,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue.Kind)
         {
-            case ShaktoolCueKind.LowerAwayFromCenter:
-            case ShaktoolCueKind.RaiseTowardCenter:
-            {
-                RoomEnemySlot[] group = GetShaktoolGroup(slot);
-                TrigonometryAngle centerDirection = Bearing.Toward(RequireShaktoolState(group[3]).Orientation).ToMirroredTableAngle();
-                MoveShaktoolSegmentForAnimation(
-                    slot,
-                    cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
-                        ? centerDirection.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn)
-                        : centerDirection);
-                break;
-            }
-
             case ShaktoolCueKind.Lower:
             case ShaktoolCueKind.Raise:
             {
@@ -435,10 +422,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                         : targetDirection);
                 break;
             }
-
-            case ShaktoolCueKind.Nothing:
-                // Explicit empty step used between the two long attack pauses.
-                break;
 
             case ShaktoolCueKind.ResetFrameBehaviors:
             {

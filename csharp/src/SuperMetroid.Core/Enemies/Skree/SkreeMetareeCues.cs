@@ -20,9 +20,6 @@ internal static class SkreeMetareeCues
             case SkreeMetareeCueKind.ProcessOffScreen:
                 slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 break;
-            case SkreeMetareeCueKind.StopProcessingOffScreen:
-                slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
-                break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
         }

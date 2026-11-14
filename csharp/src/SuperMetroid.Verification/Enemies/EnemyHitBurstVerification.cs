@@ -58,7 +58,7 @@ internal static class EnemyHitBurstVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health, frozenTimer);
             (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(beam);
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus: null, onlyEnemy: slot), $"{kind}: the beam hits the enemy");
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: null, onlyEnemy: slot), $"{kind}: the beam hits the enemy");
             AssertTrue(kind == "immune" ? slot.Health == health : slot.Health < health || slot.FrozenTimer != frozenTimer,
                 $"{kind}: the hit's damage or freeze lands");
             if (kind == "frozen instead of killed")
@@ -145,7 +145,7 @@ internal static class EnemyHitBurstVerification
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
         RoomSpriteObject burst = Bursts(enemies).Single();
         AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 1, enemies.SpriteObjects.PlaceOf(burst), "the burst takes the highest place");
 
@@ -194,7 +194,7 @@ internal static class EnemyHitBurstVerification
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
         _ = Bursts(enemies).Single();
         var camera = new Position16<RoomPixels>(Place.X - 128, Place.Y - 112);
         // Every beam combination the game shows a beam colouring for, retail and glitched: the import's beam shades.

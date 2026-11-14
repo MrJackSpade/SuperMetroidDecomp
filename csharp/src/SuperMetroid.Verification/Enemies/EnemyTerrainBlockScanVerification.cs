@@ -16,7 +16,7 @@ internal static class EnemyTerrainBlockScanVerification
     /// </summary>
     internal static void VerifyEnemyTerrainBlockScan()
     {
-        var terrain = new EnemyTerrain();
+        var terrain = new EnemyTerrain(breakableTerrain: null);
         SignedSixteenSixteen eightPixels = SignedSixteenSixteen.FromWholePixels(8);
 
         RoomLevelData tall = Room(2, 260, new EnemyTerrainScanBlock(1, 0, RoomCollisionType.SolidBlock, RoomBlockBehavior.None));

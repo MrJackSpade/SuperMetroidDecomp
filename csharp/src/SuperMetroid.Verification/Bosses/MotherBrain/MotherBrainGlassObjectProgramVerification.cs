@@ -65,7 +65,7 @@ internal static class MotherBrainGlassObjectProgramVerification
         // pass. Advance it through the final $12 threshold, then let each
         // one-frame draw and each authored burst execute in production order.
         for (int shot = 0; shot < 18; shot++)
-            roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
+            roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
         int emitted = 0;
         for (int frame = 0; frame < 128 && roomObjects.LiveMotherBrainGlass is not null; frame++)
         {

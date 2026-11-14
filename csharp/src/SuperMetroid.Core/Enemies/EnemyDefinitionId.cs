@@ -101,9 +101,7 @@ public enum EnemyDefinitionId
     Zoa,
     /// <summary>The Viola enemy definition.</summary>
     Viola,
-    /// <summary>The Respawn enemy definition.</summary>
-    /// <remarks>Reserves a killed actor's slot until it respawns; its AI is inert.</remarks>
-    Respawn,
+
     /// <summary>The Skree enemy definition.</summary>
     Skree,
     /// <summary>The Yard enemy definition.</summary>

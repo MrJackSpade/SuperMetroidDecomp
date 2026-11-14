@@ -74,7 +74,6 @@ internal static class EnemyDefinitionsVerification
             RoomEnemyAuxiliaryDefinitionCatalog.Pointers.Order().ToArray();
         AssertTrue(auxiliaryPointers.SequenceEqual(new EnemyDefinitionId[]
             {
-                EnemyDefinitionId.Respawn,
                 EnemyDefinitionId.SporeSpawnStalk,
                 EnemyDefinitionId.BabyMetroidCutscene,
                 EnemyDefinitionId.MotherBrainTubes,
@@ -87,21 +86,20 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
             AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
                 $"verification's native words for {pointer} match the cartridge header");
-        // The species own whether their initialization and main AI do anything (#1738): the headers whose initialization
-        // or main-AI word names the shared no-op are exactly those whose entities do nothing at that point, the respawn
-        // placeholder's, and for main AI also the gunship's bottom and the glass tube's cracks.
+        // The species own whether their initialization and main AI do anything (#1738): no header's initialization word
+        // names the shared no-op, and the headers whose main-AI word names it are exactly those whose entities take no
+        // action, the gunship's bottom and the glass tube's cracks.
         bool NamesSharedNoOp(EnemyDefinitionId pointer, int offset)
         {
             int header = RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer);
             return EnemyInteractionCallbacks.NamesSharedNoOp(bus.ReadCartridgeByte(header + 12), ReadVerificationWord(bus, header + offset));
         }
         EnemyDefinitionId[] everyHeader = [.. referencedPointers.Concat(auxiliaryPointers)];
-        AssertTrue(everyHeader.Where(pointer => NamesSharedNoOp(pointer, 18)).Order()
-                .SequenceEqual([EnemyDefinitionId.Respawn]),
-            "only the respawn placeholder's header names no initialization, and its entity sets nothing up");
+        AssertTrue(!everyHeader.Any(pointer => NamesSharedNoOp(pointer, 18)),
+            "every placed or spawned enemy's header names an initialization");
         AssertTrue(everyHeader.Where(pointer => NamesSharedNoOp(pointer, 24)).Order()
-                .SequenceEqual(new[] { EnemyDefinitionId.Respawn, EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.NoobTubeCrack }.Order()),
-            "only the respawn placeholder's, the gunship bottom's and the glass tube cracks' headers name no main AI, and their entities take no action");
+                .SequenceEqual(new[] { EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.NoobTubeCrack }.Order()),
+            "only the gunship bottom's and the glass tube cracks' headers name no main AI, and their entities take no action");
         // The tile word's low fifteen bits are the tile set's size and bit 15 its fixed-block placement, which the import
         // alone keeps (#1513): its catalogue holds each header's size, and a fixed block for exactly the headers that set it.
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))

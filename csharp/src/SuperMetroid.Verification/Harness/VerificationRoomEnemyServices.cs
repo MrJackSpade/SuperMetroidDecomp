@@ -38,7 +38,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Optional case-owned callback for writes of a screen's scroll state.</summary>
     public Action<Position16<RoomScreens>, RoomScrollState>? SetRoomScrollState { get; set; }
     /// <summary>Optional case-owned callback for Mother Brain glass hit-count increments.</summary>
-    public Action? IncrementMotherBrainGlassRoomArgument { get; set; }
+    public Action? HeadShotOnGlassCounted { get; set; }
 
     /// <summary>Exposes this fixture's RNG overrides through the enemy service contract.</summary>
     public IEnemyRandomNumbers Random => this;
@@ -127,12 +127,12 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public void DisableControls() => Loaded("disable Samus's controls").SamusControls.DisableControls();
 
     /// <summary>Advances the Mother Brain glass hit count through an override or loaded services.</summary>
-    public void IncrementGlassRoomArgument()
+    public void CountHeadShotOnGlass()
     {
-        if (IncrementMotherBrainGlassRoomArgument is { } increment)
+        if (HeadShotOnGlassCounted is { } increment)
             increment();
         else
-            Loaded("advance Mother Brain's glass-room argument").MotherBrain.IncrementGlassRoomArgument();
+            Loaded("count a head shot on Mother Brain's glass").MotherBrain.CountHeadShotOnGlass();
     }
 
     /// <summary>Shows a frame on the part of the loaded room's turning floor it animates.</summary>

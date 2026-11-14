@@ -2,11 +2,24 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The Tourian statue room's shared animation state (#1549): which boss statues are still animating, whether one statue
-/// is playing its release, and whether all four have released. The statue animations and the descent set and clear
-/// each part independently.
+/// is playing its release, whether all four have released, how far the entrance statue has sunk and whether its sinking
+/// has finished. The statue animations, the descent and the entrance statue's decorations set and clear each part
+/// independently.
 /// </summary>
 public sealed class TourianStatueAnimation
 {
+    /// <summary>
+    /// Signed background displacement owned by the statue's sinking; sprites follow the same sinking statue. The statue
+    /// sequence only writes its descent offset, between minus the descent distance and zero.
+    /// </summary>
+    public int VerticalOffset { get; internal set; }
+
+    /// <summary>
+    /// Whether the entrance statue has finished sinking. The statue's base decoration sets it once the sinking animation
+    /// has ended.
+    /// </summary>
+    public bool Finished { get; internal set; }
+
     /// <summary>The statues running their idle or release animation.</summary>
     public TourianGreyStatues Animating { get; internal set; }
 

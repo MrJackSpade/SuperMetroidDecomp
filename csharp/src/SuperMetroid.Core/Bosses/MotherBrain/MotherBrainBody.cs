@@ -430,7 +430,7 @@ internal sealed class MotherBrainBody
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
         // 256 upward.
-        _projectileAttacks.ResetMotherBrainTurretRotationTimer(turret);
-        _projectileAttacks.ResetMotherBrainTurretCooldown(turret);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
+        _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
     }
 }

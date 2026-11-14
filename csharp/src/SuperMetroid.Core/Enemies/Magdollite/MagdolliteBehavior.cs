@@ -700,34 +700,36 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Magdollite's thrown lava (#1760).</summary>
-    internal EnemyProjectileBehavior Lava => field ??= new LavaBehavior(this);
+    internal EnemyProjectileBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
 
     /// <summary>
     /// Thrown lava: it flies sideways until it leaves the view, handles its animations' cues, and a shot ball runs its
     /// typed shot animation, the animation its definition names.
     /// </summary>
-    private sealed class LavaBehavior(MagdolliteBehavior owner) : SingleMotionProjectileBehavior(
+    /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
+    private sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
         EnemyProjectileFrameBehavior.MagdolliteLavaFlight,
         context => RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera),
         shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
     {
-        /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue) => owner.ApplyMagdolliteLavaCue(context.Projectile, cue);
-    }
-
-    /// <summary>Carries out one cue of the thrown lava's animations.</summary>
-    private void ApplyMagdolliteLavaCue(EnemyProjectile projectile, MagdolliteLavaCue cue)
-    {
-        switch (cue.Kind)
+        /// <summary>Carries out one cue of the thrown lava's animations.</summary>
+        public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue)
         {
-            case MagdolliteLavaCueKind.Delete:
-                projectile.Delete();
-                break;
-            case MagdolliteLavaCueKind.SpawnDrops:
-                RequestMagdolliteLavaDrop(projectile);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue.Kind)
+            {
+                case MagdolliteLavaCueKind.Delete:
+                    projectile.Delete();
+                    break;
+                case MagdolliteLavaCueKind.SpawnDrops:
+                    // The shot animation's drop step: the ball leaves Magdollite's drop.
+                    deathsAndDrops.SpawnEnemyDropFromDefinition(
+                        projectile.Position.Whole,
+                        EnemyDefinitionId.Magdollite);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
+            }
         }
     }
 
@@ -810,13 +812,5 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             projectile.Delete();
         }
-    }
-
-    /// <summary>Shot-animation cue: requests the lava's drop.</summary>
-    internal void RequestMagdolliteLavaDrop(EnemyProjectile projectile)
-    {
-        _deathsAndDrops.SpawnEnemyDropFromDefinition(
-            projectile.Position.Whole,
-            EnemyDefinitionId.Magdollite);
     }
 }

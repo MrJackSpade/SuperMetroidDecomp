@@ -180,22 +180,23 @@ internal sealed class SuperMetroidRuntime
     /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="session">
-    /// What the session keeps across its runtimes: the frame clock it shares with the frontend, the random number generator,
-    /// the unauthored Speed Booster cadence its enemies and every Samus share, the power-on earthquake delay, the save
-    /// confirmation's input cadence, the live and stored explored maps and the camera fractions kept across games.
+    /// What the session keeps across its runtimes: the frame clock it shares with the frontend; what the shared game state
+    /// continues from (the random number generator, the power-on earthquake delay and the live and stored explored maps);
+    /// and the compatibility services kept across games (the unauthored Speed Booster cadence its enemies and every Samus
+    /// share, the save confirmation's input cadence and the camera fractions).
     /// </param>
     internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork, GameplaySessionCarryover session)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(session);
         FrameClock clock = session.Clock;
-        UnauthoredBoostCadence = Ensure.NotNull(session.UnauthoredBoostCadence);
-        CameraFractions = Ensure.NotNull(session.CameraFractions);
+        UnauthoredBoostCadence = Ensure.NotNull(session.Compatibility.UnauthoredBoostCadence);
+        CameraFractions = Ensure.NotNull(session.Compatibility.CameraFractions);
         FadeOut = new GameplayFadeOut(FadeStepCount);
-        MessageBox = new GameplayMessageBoxState(session.SaveChoiceInput);
+        MessageBox = new GameplayMessageBoxState(session.Compatibility.SaveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
-        System = new SharedGameState(session.Random, session.EarthquakeSoundDelay, session.StoredExploredMaps);
+        System = new SharedGameState(session.GameState.Random, session.GameState.EarthquakeSoundDelay, session.GameState.StoredExploredMaps);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
         Room = new ActiveRoomState();

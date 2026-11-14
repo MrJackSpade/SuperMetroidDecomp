@@ -20,99 +20,109 @@ internal sealed class MotherBrainProjectiles
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
-    private readonly RoomEarthquake _earthquake;
     /// <summary>The medium diagonal foreground shake a hand beam leaving the arena or an onion ring exploding starts.</summary>
     private static readonly EarthquakeShake ExplosionShake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
-    /// <summary>Applies the encounter's damage and death/drop rules.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
-    /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
-    private readonly IMotherBrainRoomActors _roomActors;
+    /// <summary>What Mother Brain's projectile behaviour is constructed with.</summary>
+    private readonly MotherBrainProjectileDependencies _behaviorDependencies;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainProjectiles(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, MotherBrainEncounter motherBrainEncounter, IMotherBrainRoomActors roomActors)
     {
         _room = room;
         _projectiles = projectiles;
-        _earthquake = earthquake;
-        _deathsAndDrops = deathsAndDrops;
-        _motherBrainEncounter = motherBrainEncounter;
-        _roomActors = roomActors;
-    }
-
-    /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
-    private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
-    {
-        switch (cue)
+        _behaviorDependencies = new MotherBrainProjectileDependencies
         {
-            case MotherBrainEffectCue.SetRadius setRadius:
-                projectile.Radius = setRadius.Radius;
-                break;
-            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DrawFromSharedSheet }:
-                projectile.Graphics = SpriteGraphics.SharedStandard;
-                break;
-            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
-                // After changing to the falling frame behaviour, the released drool drops twelve pixels before its first
-                // falling frame.
-                projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
-                break;
-            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
-                (_motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-                    "Mother Brain's small purple breath ran without its encounter state."))
-                    .SmallPurpleBreathActive = false;
-                break;
-            case MotherBrainEffectCue.SetFrameBehavior setFrameBehavior:
-                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
-                break;
-            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-                break;
-            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
-        }
+            Room = room,
+            Projectiles = projectiles,
+            Earthquake = earthquake,
+            DeathsAndDrops = deathsAndDrops,
+            Encounter = motherBrainEncounter,
+            RoomActors = roomActors,
+        };
     }
 
     /// <summary>
     /// Mother Brain's projectiles other than the onion rings and the turrets' bullets (#1760): her bombs, drool, breath,
     /// beams, glass, tubes, turrets, explosions, door fragments and escape subtitle. Their spawners start their animations.
     /// </summary>
-    internal EnemyProjectileBehavior Projectile => field ??= new MotherBrainProjectileBehavior(this);
+    internal MotherBrainProjectileBehavior Projectile => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet);
 
     /// <summary>
     /// An onion ring (#1760): its spawner starts its animation, and touching Samus runs its typed impact animation, the
     /// animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior OnionRing => field ??= new MotherBrainProjectileBehavior(this,
-        touch: () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
+    internal MotherBrainProjectileBehavior OnionRing => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet,
+        spawned: Projectile, touch: () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
 
     /// <summary>
     /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret
     /// family's smoke, the animation its definition names for both.
     /// </summary>
-    internal EnemyProjectileBehavior TurretBullet => field ??= new MotherBrainProjectileBehavior(this,
-        shot: () => new MotherBrainTurretAnimation(),
-        touch: () => new MotherBrainTurretAnimation());
+    internal EnemyProjectileBehavior TurretBullet { get; } = new TurretBulletBehavior();
+
+    /// <summary>
+    /// A room turret's bullet: it flies, flickering its vulnerability, until it meets a solid block, and handles its turret
+    /// animation's cues. It needs nothing of the encounter.
+    /// </summary>
+    private sealed class TurretBulletBehavior()
+        : EnemyProjectileBehavior(shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
+        IEnemyProjectileCues<MotherBrainTurretCue>
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        {
+            if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight)
+                RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
+            else
+                base.Move(context);
+        }
+
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
+    }
+
+    /// <summary>Carries out a turret cue, a turret's or its bullet's: the shared sheet, stopping, or deletion.</summary>
+    private static void RunTurretCue(EnemyProjectile projectile, MotherBrainTurretCue cue)
+    {
+        switch (cue)
+        {
+            case MotherBrainTurretCue.DrawFromSharedSheet:
+                projectile.Graphics = SpriteGraphics.SharedStandard;
+                return;
+            case MotherBrainTurretCue.ClearFrameBehavior:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                return;
+            case MotherBrainTurretCue.Delete:
+                projectile.Delete();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
+        }
+    }
 
     /// <summary>
     /// One of Mother Brain's projectiles: every frame behaviour of her bombs, glass, beams, rings, turrets, tubes and
     /// effects, and the cues of her turret, glass, effect and hand-beam animations.
     /// </summary>
-    private sealed class MotherBrainProjectileBehavior(
-        MotherBrainProjectiles owner,
-        Func<EnemyProjectileAnimation>? shot = null,
+    /// <param name="dependencies">The room, projectiles, earthquake, drops, Mother Brain's fight state and the room's other actors.</param>
+    /// <param name="turretBullet">The behaviour the bullets a turret fires run.</param>
+    /// <param name="spawned">The behaviour the sparkles and hand beams these spawn run; null for this behaviour itself.</param>
+    /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
+    internal sealed class MotherBrainProjectileBehavior(
+        MotherBrainProjectileDependencies dependencies,
+        EnemyProjectileBehavior turretBullet,
+        MotherBrainProjectileBehavior? spawned = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileBehavior(shot, touch),
+        : EnemyProjectileBehavior(touch: touch),
         IEnemyProjectileCues<MotherBrainTurretCue>,
         IEnemyProjectileCues<MotherBrainGlassCue>,
         IEnemyProjectileCues<MotherBrainEffectCue>,
         IEnemyProjectileCues<MotherBrainHandBeamCue>
     {
+        /// <summary>The behaviour the glass sparkles and hand beams this spawns run: Mother Brain's own projectiles'.</summary>
+        private MotherBrainProjectileBehavior Spawned => spawned ?? this;
+
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
@@ -120,7 +130,7 @@ internal sealed class MotherBrainProjectiles
             EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
             if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretAiming)
             {
-                owner.RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
+                RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight)
             {
@@ -128,15 +138,15 @@ internal sealed class MotherBrainProjectiles
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainGlassShardFlight)
             {
-                owner.RunMotherBrainGlassShardFrameBehavior(projectile);
+                RunMotherBrainGlassShardFrameBehavior(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainTubeFall)
             {
-                owner.RunMotherBrainTopTubeFrameBehavior(projectile);
+                RunMotherBrainTopTubeFrameBehavior(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolHanging)
             {
-                owner.RunMotherBrainAttachedDroolFrameBehavior(projectile);
+                RunMotherBrainAttachedDroolFrameBehavior(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolFall)
             {
@@ -144,15 +154,15 @@ internal sealed class MotherBrainProjectiles
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight)
             {
-                owner.RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
+                RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainBombBounce)
             {
-                owner.RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
+                RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowBeamCharge)
             {
-                owner.RunMotherBrainRainbowChargingFrameBehavior(projectile);
+                RunMotherBrainRainbowChargingFrameBehavior(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking)
             {
@@ -160,11 +170,11 @@ internal sealed class MotherBrainProjectiles
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking)
             {
-                owner.RunMotherBrainDeathExplosion(projectile);
+                RunMotherBrainDeathExplosion(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall)
             {
-                owner.RunMotherBrainDoorFragment(projectile);
+                RunMotherBrainDoorFragment(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin)
             {
@@ -177,24 +187,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Carries out a turret cue: the shared sheet, stopping, or deletion.</summary>
-        public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue)
-        {
-            EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case MotherBrainTurretCue.DrawFromSharedSheet:
-                    projectile.Graphics = SpriteGraphics.SharedStandard;
-                    return;
-                case MotherBrainTurretCue.ClearFrameBehavior:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-                    return;
-                case MotherBrainTurretCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
-            }
-        }
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
         /// <summary>Carries out a glass cue: deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainGlassCue cue)
@@ -211,7 +204,7 @@ internal sealed class MotherBrainProjectiles
 
         /// <summary>Carries out an effect cue.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
-            owner.ApplyMotherBrainEffectCue(context.Projectile, cue);
+            ApplyMotherBrainEffectCue(context.Projectile, cue);
 
         /// <summary>Carries out a hand-beam cue: the next beam's spawn, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainHandBeamCue cue)
@@ -219,7 +212,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    owner.SpawnMotherBrainHandBeamFired();
+                    SpawnMotherBrainHandBeamFired();
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     context.Projectile.Delete();
@@ -228,74 +221,460 @@ internal sealed class MotherBrainProjectiles
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamCue)} {cue}.");
             }
         }
-    }
 
-    /// <summary>Runs the bomb's frame behaviour.</summary>
-    internal void RunMotherBrainBombFrameBehavior(
-        EnemyProjectile bomb,
-        SamusBombProjectileSystem? samusBombs)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain bomb ran without its multipart encounter state.");
-        if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
-            return;
-
-        MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
-        int acceleration;
-        if (bombState.Bounces == 0)
+        /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
+        private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
         {
-            // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
-            // direction.
-            bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.SlowedBy(MotherBrainBombBounceDefinitions.FallDrag));
-            acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
-        }
-        else
-        {
-            if (MotherBrainBombBounces.YAcceleration(bombState.Bounces) is not { } bounceAcceleration)
+            switch (cue)
             {
-                ExpireMotherBrainBomb(bomb, state);
+                case MotherBrainEffectCue.SetRadius setRadius:
+                    projectile.Radius = setRadius.Radius;
+                    break;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DrawFromSharedSheet }:
+                    projectile.Graphics = SpriteGraphics.SharedStandard;
+                    break;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
+                    // After changing to the falling frame behaviour, the released drool drops twelve pixels before its first
+                    // falling frame.
+                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
+                    break;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
+                    (dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
+                        "Mother Brain's small purple breath ran without its encounter state."))
+                        .SmallPurpleBreathActive = false;
+                    break;
+                case MotherBrainEffectCue.SetFrameBehavior setFrameBehavior:
+                    projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
+                    break;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                    break;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
+                    projectile.Delete();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue}.");
+            }
+        }
+
+        /// <summary>Runs the bomb's frame behaviour.</summary>
+        private void RunMotherBrainBombFrameBehavior(
+            EnemyProjectile bomb,
+            SamusBombProjectileSystem? samusBombs)
+        {
+            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
+                "Mother Brain bomb ran without its multipart encounter state.");
+            if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
+                return;
+
+            MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
+            int acceleration;
+            if (bombState.Bounces == 0)
+            {
+                // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
+                // direction.
+                bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.SlowedBy(MotherBrainBombBounceDefinitions.FallDrag));
+                acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
+            }
+            else
+            {
+                if (MotherBrainBombBounces.YAcceleration(bombState.Bounces) is not { } bounceAcceleration)
+                {
+                    ExpireMotherBrainBomb(bomb, state);
+                    return;
+                }
+
+                acceleration = bounceAcceleration;
+            }
+
+            if (MoveMotherBrainBomb(bomb, acceleration))
+                bombState.Bounces++;
+        }
+
+        /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
+        private bool TryDestroyMotherBrainBombWithSamusBomb(
+            EnemyProjectile bomb,
+            MotherBrainEnemyState state,
+            SamusBombProjectileSystem? samusBombs)
+        {
+            if (samusBombs is null || samusBombs.BombCounter == 0)
+                return false;
+
+            foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
+            {
+                if (samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
+                    !samusBomb.BombTimer.IsZero ||
+                    !MotherBrainBombStrictOverlap(
+                        bomb.Position.Whole,
+                        bomb.Radius,
+                        samusBomb.Position.Whole,
+                        samusBomb.Radius))
+                {
+                    continue;
+                }
+
+                Position16<RoomPixels> position = bomb.Position.Whole;
+                DeleteMotherBrainBomb(bomb, state);
+                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
+                dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
+                    position,
+                    state.Head.DefinitionId);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Removes an expired bomb and emits the associated explosion effect.</summary>
+        private void ExpireMotherBrainBomb(
+            EnemyProjectile bomb,
+            MotherBrainEnemyState state)
+        {
+            Position16<RoomPixels> impact = bomb.Position.Whole;
+            int afterburnCount = bomb.StateOf<MotherBrainBombState>().Afterburns;
+            DeleteMotherBrainBomb(bomb, state);
+
+            // The bomb's explosion clears the source slot before both allocations. They therefore use
+            // the normal descending shared-pool competition, including legitimate same-slot
+            // replacement that the outer scheduler will continue processing on this pass.
+            // Its afterburn pair flies left and right.
+            dependencies.RoomActors.SpawnAfterburnCenter(
+                Axis.Horizontal,
+                impact,
+                afterburnCount);
+            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
+            dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
+        }
+
+        /// <summary>Advances a death explosion projectile through its installed animation.</summary>
+        internal void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
+        {
+            var body = dependencies.Encounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
+            projectile.Position = projectile.Position.WithWhole(body.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
+        }
+
+        /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
+        private void RunMotherBrainDoorFragment(EnemyProjectile fragment)
+        {
+            // The speed loses the drag, stopping at rest, and keeps its direction.
+            fragment.Velocity = fragment.Velocity.WithX(fragment.Velocity.X.SlowedBy(MotherBrainDeathDefinitions.DoorFragmentDrag));
+            // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
+            fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
+            fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
+            // The fragment's lifetime expires when it passes zero.
+            MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
+            if (--fragmentState.Lifetime >= 0) return;
+            Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
+            fragment.Delete();
+            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
+        }
+
+        /// <summary>Runs the frame behaviour of the four falling ceiling-tube actors.</summary>
+        private void RunMotherBrainTopTubeFrameBehavior(EnemyProjectile projectile)
+        {
+            MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
+            if (tube.DustPending)
+            {
+                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(
+                    new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + 8)),
+                    MiscDustAnimation.SmallDustCloud);
+                tube.DustPending = false;
+            }
+
+            // A tube falls from the ceiling to its floor at 208 and is removed there, so its speed stays a few pixels an update.
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6));
+            projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+            if (projectile.Position.Y.Whole < 208)
+                return;
+
+            Position16<RoomPixels> position = projectile.Position.Whole;
+            projectile.Delete();
+            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
+        }
+
+        /// <summary>Runs the glass shard's frame behaviour.</summary>
+        private void RunMotherBrainGlassShardFrameBehavior(EnemyProjectile shard)
+        {
+            shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
+
+            // Tests which screen of the room its Y lies on rather than camera visibility. A shard
+            // is deleted as soon as wrapped Y leaves the top screen; X may freely leave the viewport.
+            if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
+            {
+                shard.Delete();
                 return;
             }
 
-            acceleration = bounceAcceleration;
+            // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
+            // pixels an update above its launch speed.
+            shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
+
+            // The condition itself consumes one random value every live shard frame; a successful
+            // sparkle consumes two more below. Both of the sample's sparkle checks clear: one sample in four.
+            int sparkleSample = dependencies.Room.Random.Generate();
+            if (!MotherBrainGlassShardDefinitions.SparkleCheckLowBit.IsSetIn(sparkleSample) &&
+                !MotherBrainGlassShardDefinitions.SparkleCheckHighBit.IsSetIn(sparkleSample))
+                SpawnMotherBrainGlassSparkle(shard);
         }
 
-        if (MoveMotherBrainBomb(bomb, acceleration))
-            bombState.Bounces++;
-    }
-
-    /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
-    private bool TryDestroyMotherBrainBombWithSamusBomb(
-        EnemyProjectile bomb,
-        MotherBrainEnemyState state,
-        SamusBombProjectileSystem? samusBombs)
-    {
-        if (samusBombs is null || samusBombs.BombCounter == 0)
-            return false;
-
-        foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
+        /// <summary>Runs the sparkle initializer using the spawning shard as parameter.</summary>
+        private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
-            if (samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
-                !samusBomb.BombTimer.IsZero ||
-                !MotherBrainBombStrictOverlap(
-                    bomb.Position.Whole,
-                    bomb.Radius,
-                    samusBomb.Position.Whole,
-                    samusBomb.Radius))
+            EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile();
+            if (sparkle is null)
+                return;
+
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+                sparkle,
+                RoomEnemyProjectileKind.MotherBrainGlassSparkle,
+                Spawned,
+                graphics: default);
+            sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
+            sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
+                source.Position.X.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16), CoordinateAxis.Wrap(
+                source.Position.Y.Whole + dependencies.Room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16)));
+            sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
+        }
+
+        /// <summary>
+        /// Runs the fired child's initializer. Each child first advances the
+        /// shared aimed cursor, then receives a randomized secondary displacement used only for
+        /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
+        /// children turn into the game's large impact dust and earthquake.
+        /// </summary>
+        private void SpawnMotherBrainHandBeamFired()
+        {
+            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
+                "Mother Brain hand-beam bytecode ran without its encounter state.");
+            EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile();
+            if (beam is null)
+                return;
+
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+                beam,
+                RoomEnemyProjectileKind.MotherBrainHandBeamFired,
+                Spawned,
+                graphics: default);
+            beam.Position = state.HandBeamNextPosition;
+            beam.Velocity = state.HandBeamNextVelocity;
+
+            beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
+            state.HandBeamNextPosition = beam.Position;
+
+            int angleRandom = dependencies.Room.Random.Generate();
+            TrigonometryAngle scatterAngle = state.HandBeamNextAngle.TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
+            int speedRandom = dependencies.Room.Random.Generate();
+            SignedEightEight scatterSpeed = SignedEightEight.FromPixels(MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom));
+            beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
+            beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
+                scatterSpeed,
+                scatterAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
+
+            if (IsMotherBrainHandBeamOutsideArena(beam))
             {
-                continue;
+                Position16<RoomPixels> impact = beam.Position.Whole;
+                beam.Delete();
+                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(
+                    impact,
+                    MiscDustAnimation.BigExplosion);
+                dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
+                dependencies.Earthquake.Start(ExplosionShake, 10);
+                return;
             }
 
-            Position16<RoomPixels> position = bomb.Position.Whole;
-            DeleteMotherBrainBomb(bomb, state);
-            _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
-            _deathsAndDrops.SpawnEnemyDropFromDefinition(
-                position,
-                state.Head.DefinitionId);
-            return true;
+            beam.Velocity = EightEightVector<RoomPixels>.Zero;
+            beam.StartAnimation(new MotherBrainHandBeamAnimation());
         }
 
-        return false;
+        /// <summary>Exact six-position mouth attachment table.</summary>
+        internal void RunMotherBrainAttachedDroolFrameBehavior(
+            EnemyProjectile drool)
+        {
+            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
+                "Mother Brain drool ran without its multipart encounter state.");
+            RoomEnemySlot head = state.Head;
+            int parameter = drool.StateOf<MotherBrainDroolState>().MouthPoint;
+
+            drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
+            drool.Velocity = EightEightVector<RoomPixels>.Zero;
+        }
+
+        /// <summary>
+        /// Runs the onion ring's frame behaviour. A live Baby slot is tested before Samus and the room,
+        /// matching the private projectile's cross-enemy collision order during phase three.
+        /// </summary>
+        internal void RunMotherBrainOnionRingFrameBehavior(
+            EnemyProjectile ring,
+            SamusState? samus,
+            int cameraX)
+        {
+            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
+                "Mother Brain onion ring ran without its multipart encounter state.");
+
+            // The ring stays pinned to the mouth while its attach delay runs out.
+            MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
+            if (ringState.AttachDelay != 0)
+            {
+                ringState.AttachDelay--;
+                PinMotherBrainOnionRingToMouth(ring, state);
+                return;
+            }
+
+            ring.Position = ring.Position.Advance(ring.Velocity.ToSixteenSixteen());
+
+            BabyMetroidCutsceneState? baby = state.BabyMetroid;
+            if (baby is { IsDeleted: false })
+            {
+                // The ring deletes every later ring as soon as the still-registered Baby
+                // reaches zero health, without an explosion.
+                if (baby.Health == 0)
+                {
+                    ring.Delete();
+                    return;
+                }
+
+                if (MotherBrainOnionRingOverlapsBaby(ring, baby))
+                {
+                    state.PendingBabyCryCount++;
+                    _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
+                    // The ring writes the Baby slot's Enemy.health from this projectile
+                    // pass; it must not wait for the Baby's next AI turn to publish it.
+                    RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
+                        "A Mother Brain onion ring hit the Baby while the Baby has no enemy in the room.");
+                    babySlot.Health = baby.Health;
+                    ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
+                    return;
+                }
+            }
+
+            // This private collision path intentionally ignores Samus's current invincibility
+            // timer. It writes a fresh 96 only after applying suit-divided damage.
+            if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
+            {
+                Position16<RoomPixels> ringPosition = ring.Position.Whole;
+                SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
+                samus.InvincibilityTimer = WrappingCountdown.Start(96);
+                samus.KnockbackTimer = 5;
+                samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0
+                    ? KnockbackHorizontalDirection.Right
+                    : KnockbackHorizontalDirection.Left;
+                ExplodeMotherBrainOnionRing(ring, ringPosition);
+                return;
+            }
+
+            int signedY = CoordinateAxis.AsSigned(ring.Position.Y.Whole);
+            int signedX = CoordinateAxis.AsSigned(ring.Position.X.Whole);
+            int screenX = CoordinateAxis.Difference(ring.Position.X.Whole, cameraX);
+            if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
+                screenX < 0 || screenX >= 248)
+            {
+                dependencies.Earthquake.Start(ExplosionShake, 10);
+                ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
+            }
+        }
+
+        /// <summary>Ends a ring on contact and spawns its explosion effect.</summary>
+        private void ExplodeMotherBrainOnionRing(
+            EnemyProjectile ring,
+            Position16<RoomPixels> position)
+        {
+            // The ring's impact clears the source before allocating the small-explosion room dust. If the
+            // allocator reuses this place in the projectile pool, the outer projectile pass will advance
+            // the newborn dust animation during the same pass.
+            ring.Delete();
+            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
+            dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
+        }
+
+        /// <summary>Runs one of Mother Brain's turrets per frame.</summary>
+        private void RunMotherBrainTurretFrameBehavior(
+            EnemyProjectile turret,
+            Position16<RoomPixels> camera)
+        {
+            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ??
+                throw new InvalidDataException("A Mother Brain turret has no owning encounter state.");
+            bool onScreen = MotherBrainTurretIsOnScreen(turret, camera);
+
+            // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
+            // the shared deletion flag is set they disappear silently off-screen, but visible
+            // turrets replace themselves with the dust animation's smoke.
+            if (!onScreen)
+            {
+                if (state.DeleteTurretsAndRinkas)
+                    turret.Delete();
+                return;
+            }
+            if (state.DeleteTurretsAndRinkas)
+            {
+                Position16<RoomPixels> position = turret.Position.Whole;
+                turret.Delete();
+                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
+                return;
+            }
+
+            // Each wait counts down and is reloaded when it reaches zero.
+            MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
+            if (--turretState.RotationWait == 0)
+            {
+                ResetMotherBrainTurretRotationTimer(turret);
+                SelectNextMotherBrainTurretDirection(turret);
+                MotherBrainTurretDirection direction =
+                    MotherBrainTurretDefinitions.Ring.At(turretState.RingPosition);
+                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
+            }
+
+            if (--turretState.FiringWait == 0)
+            {
+                ResetMotherBrainTurretCooldown(turret);
+                SpawnMotherBrainTurretBullet(turret);
+            }
+        }
+
+        /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
+        internal void ResetMotherBrainTurretRotationTimer(EnemyProjectile turret)
+        {
+            int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretRotationWait);
+            turret.StateOf<MotherBrainTurretState>().RotationWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
+        }
+
+        /// <summary>Restarts the turret's pause between fired bullets.</summary>
+        internal void ResetMotherBrainTurretCooldown(EnemyProjectile turret)
+        {
+            int sample = dependencies.Room.Random.Next(MotherBrainRandomDefinitions.TurretFiringWait);
+            turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
+        }
+
+        /// <summary>Runs turret-bullet initialization.</summary>
+        internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
+        {
+            EnemyProjectile? bullet = dependencies.Projectiles.AllocateEnemyProjectile();
+            if (bullet is null)
+                return;
+
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+                bullet,
+                RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+                turretBullet,
+                MotherBrainTurretDefinitions.Graphics);
+            MotherBrainTurretDirection direction =
+                MotherBrainTurretDefinitions.Ring.At(turret.StateOf<MotherBrainTurretState>().RingPosition);
+            MotherBrainTurretDirectionDefinition definition =
+                MotherBrainTurrets.ForDirection(direction);
+            bullet.Velocity = definition.BulletVelocity;
+            bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
+            // The bullet animation's first cue jumps to the pose for this direction.
+            bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
+        }
+
+        /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
+        internal void RunMotherBrainRainbowChargingFrameBehavior(
+            EnemyProjectile projectile)
+        {
+            RoomEnemySlot head = dependencies.Encounter.MotherBrain?.Head ?? throw new InvalidOperationException(
+                "Mother Brain rainbow charge ran without the physical head slot.");
+            projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
+        }
     }
 
     /// <summary>Advances a bomb through its trajectory and reports arena-boundary expiry.</summary>
@@ -321,27 +700,6 @@ internal sealed class MotherBrainProjectiles
         return true;
     }
 
-    /// <summary>Removes an expired bomb and emits the associated explosion effect.</summary>
-    private void ExpireMotherBrainBomb(
-        EnemyProjectile bomb,
-        MotherBrainEnemyState state)
-    {
-        Position16<RoomPixels> impact = bomb.Position.Whole;
-        int afterburnCount = bomb.StateOf<MotherBrainBombState>().Afterburns;
-        DeleteMotherBrainBomb(bomb, state);
-
-        // The bomb's explosion clears the source slot before both allocations. They therefore use
-        // the normal descending shared-pool competition, including legitimate same-slot
-        // replacement that the outer scheduler will continue processing on this pass.
-        // Its afterburn pair flies left and right.
-        _roomActors.SpawnAfterburnCenter(
-            Axis.Horizontal,
-            impact,
-            afterburnCount);
-        _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
-        _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
-    }
-
     /// <summary>Clears a bomb slot when its lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         EnemyProjectile bomb,
@@ -363,57 +721,11 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Distance(first.Y, second.Y) <
             firstRadius.Y + secondRadius.Y;
 
-    /// <summary>Advances a death explosion projectile through its installed animation.</summary>
-    internal void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
-    {
-        var body = _motherBrainEncounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
-        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
-    }
-
-    /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
-    internal void RunMotherBrainDoorFragment(EnemyProjectile fragment)
-    {
-        // The speed loses the drag, stopping at rest, and keeps its direction.
-        fragment.Velocity = fragment.Velocity.WithX(fragment.Velocity.X.SlowedBy(MotherBrainDeathDefinitions.DoorFragmentDrag));
-        // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
-        fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
-        fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
-        // The fragment's lifetime expires when it passes zero.
-        MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
-        if (--fragmentState.Lifetime >= 0) return;
-        Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
-        fragment.Delete();
-        _projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
-    }
-
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(EnemyProjectile subtitle)
     {
         subtitle.Velocity = EightEightVector<RoomPixels>.Zero;
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
-    }
-
-    /// <summary>Runs the frame behaviour of the four falling ceiling-tube actors.</summary>
-    internal void RunMotherBrainTopTubeFrameBehavior(EnemyProjectile projectile)
-    {
-        MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
-        if (tube.DustPending)
-        {
-            _projectiles.SpawnRoomGraphicsDustExplosion(
-                new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + 8)),
-                MiscDustAnimation.SmallDustCloud);
-            tube.DustPending = false;
-        }
-
-        // A tube falls from the ceiling to its floor at 208 and is removed there, so its speed stays a few pixels an update.
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6));
-        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        if (projectile.Position.Y.Whole < 208)
-            return;
-
-        Position16<RoomPixels> position = projectile.Position.Whole;
-        projectile.Delete();
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
     }
 
     /// <summary>
@@ -469,101 +781,6 @@ internal sealed class MotherBrainProjectiles
             shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - 8);
     }
 
-    /// <summary>Runs the glass shard's frame behaviour.</summary>
-    internal void RunMotherBrainGlassShardFrameBehavior(EnemyProjectile shard)
-    {
-        shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
-
-        // Tests which screen of the room its Y lies on rather than camera visibility. A shard
-        // is deleted as soon as wrapped Y leaves the top screen; X may freely leave the viewport.
-        if (RoomGridConversions.PixelToScreen(shard.Position.Y.Whole) != 0)
-        {
-            shard.Delete();
-            return;
-        }
-
-        // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
-        // pixels an update above its launch speed.
-        shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
-
-        // The condition itself consumes one random value every live shard frame; a successful
-        // sparkle consumes two more below. Both of the sample's sparkle checks clear: one sample in four.
-        int sparkleSample = _room.Random.Generate();
-        if (!MotherBrainGlassShardDefinitions.SparkleCheckLowBit.IsSetIn(sparkleSample) &&
-            !MotherBrainGlassShardDefinitions.SparkleCheckHighBit.IsSetIn(sparkleSample))
-            SpawnMotherBrainGlassSparkle(shard);
-    }
-
-    /// <summary>Runs the sparkle initializer using the spawning shard as parameter.</summary>
-    internal void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
-    {
-        EnemyProjectile? sparkle = _projectiles.AllocateEnemyProjectile();
-        if (sparkle is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            sparkle,
-            RoomEnemyProjectileKind.MotherBrainGlassSparkle,
-            Projectile,
-            graphics: default);
-        sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
-        sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
-            source.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16), CoordinateAxis.Wrap(
-            source.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16)));
-        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
-    }
-
-    /// <summary>
-    /// Runs the fired child's initializer. Each child first advances the
-    /// shared aimed cursor, then receives a randomized secondary displacement used only for
-    /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
-    /// children turn into the game's large impact dust and earthquake.
-    /// </summary>
-    internal void SpawnMotherBrainHandBeamFired()
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain hand-beam bytecode ran without its encounter state.");
-        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile();
-        if (beam is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            beam,
-            RoomEnemyProjectileKind.MotherBrainHandBeamFired,
-            Projectile,
-            graphics: default);
-        beam.Position = state.HandBeamNextPosition;
-        beam.Velocity = state.HandBeamNextVelocity;
-
-        beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
-        state.HandBeamNextPosition = beam.Position;
-
-        int angleRandom = _room.Random.Generate();
-        TrigonometryAngle scatterAngle = state.HandBeamNextAngle.TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
-        int speedRandom = _room.Random.Generate();
-        SignedEightEight scatterSpeed = SignedEightEight.FromPixels(MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom));
-        beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
-        beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
-            scatterSpeed,
-            scatterAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
-        beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
-
-        if (IsMotherBrainHandBeamOutsideArena(beam))
-        {
-            Position16<RoomPixels> impact = beam.Position.Whole;
-            beam.Delete();
-            _projectiles.SpawnRoomGraphicsDustExplosion(
-                impact,
-                MiscDustAnimation.BigExplosion);
-            _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
-            _earthquake.Start(ExplosionShake, 10);
-            return;
-        }
-
-        beam.Velocity = EightEightVector<RoomPixels>.Zero;
-        beam.StartAnimation(new MotherBrainHandBeamAnimation());
-    }
-
     /// <summary>Detects when a fired hand beam has crossed the fight arena's bounds.</summary>
     private static bool IsMotherBrainHandBeamOutsideArena(
         EnemyProjectile beam) =>
@@ -571,19 +788,6 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.Y.Whole, 206) >= 0 ||
         CoordinateAxis.Difference(beam.Position.X.Whole, 2) < 0 ||
         CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
-
-    /// <summary>Exact six-position mouth attachment table.</summary>
-    internal void RunMotherBrainAttachedDroolFrameBehavior(
-        EnemyProjectile drool)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain drool ran without its multipart encounter state.");
-        RoomEnemySlot head = state.Head;
-        int parameter = drool.StateOf<MotherBrainDroolState>().MouthPoint;
-
-        drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
-        drool.Velocity = EightEightVector<RoomPixels>.Zero;
-    }
 
     /// <summary>
     /// Runs the falling drool's frame behaviour. The actor uses signed 1/256-pixel velocity, adds twelve
@@ -600,80 +804,6 @@ internal sealed class MotherBrainProjectiles
 
         drool.Position = drool.Position.WithWrappedWholeY(drool.Position.Y.Whole - 4);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor));
-    }
-
-    /// <summary>
-    /// Runs the onion ring's frame behaviour. A live Baby slot is tested before Samus and the room,
-    /// matching the private projectile's cross-enemy collision order during phase three.
-    /// </summary>
-    internal void RunMotherBrainOnionRingFrameBehavior(
-        EnemyProjectile ring,
-        SamusState? samus,
-        int cameraX)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain onion ring ran without its multipart encounter state.");
-
-        // The ring stays pinned to the mouth while its attach delay runs out.
-        MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
-        if (ringState.AttachDelay != 0)
-        {
-            ringState.AttachDelay--;
-            PinMotherBrainOnionRingToMouth(ring, state);
-            return;
-        }
-
-        ring.Position = ring.Position.Advance(ring.Velocity.ToSixteenSixteen());
-
-        BabyMetroidCutsceneState? baby = state.BabyMetroid;
-        if (baby is { IsDeleted: false })
-        {
-            // The ring deletes every later ring as soon as the still-registered Baby
-            // reaches zero health, without an explosion.
-            if (baby.Health == 0)
-            {
-                ring.Delete();
-                return;
-            }
-
-            if (MotherBrainOnionRingOverlapsBaby(ring, baby))
-            {
-                state.PendingBabyCryCount++;
-                _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-                // The ring writes the Baby slot's Enemy.health from this projectile
-                // pass; it must not wait for the Baby's next AI turn to publish it.
-                RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
-                    "A Mother Brain onion ring hit the Baby while the Baby has no enemy in the room.");
-                babySlot.Health = baby.Health;
-                ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
-                return;
-            }
-        }
-
-        // This private collision path intentionally ignores Samus's current invincibility
-        // timer. It writes a fresh 96 only after applying suit-divided damage.
-        if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
-        {
-            Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
-            samus.InvincibilityTimer = WrappingCountdown.Start(96);
-            samus.KnockbackTimer = 5;
-            samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0
-                ? KnockbackHorizontalDirection.Right
-                : KnockbackHorizontalDirection.Left;
-            ExplodeMotherBrainOnionRing(ring, ringPosition);
-            return;
-        }
-
-        int signedY = CoordinateAxis.AsSigned(ring.Position.Y.Whole);
-        int signedX = CoordinateAxis.AsSigned(ring.Position.X.Whole);
-        int screenX = CoordinateAxis.Difference(ring.Position.X.Whole, cameraX);
-        if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
-            screenX < 0 || screenX >= 248)
-        {
-            _earthquake.Start(ExplosionShake, 10);
-            ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
-        }
     }
 
     /// <summary>Positions an unlaunched ring at the moving head's mouth.</summary>
@@ -703,63 +833,6 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Distance(ring.Position.Y.Whole, baby.Position.Y.Whole) <
             ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
 
-    /// <summary>Ends a ring on contact and spawns its explosion effect.</summary>
-    private void ExplodeMotherBrainOnionRing(
-        EnemyProjectile ring,
-        Position16<RoomPixels> position)
-    {
-        // The ring's impact clears the source before allocating the small-explosion room dust. If the
-        // allocator reuses this place in the projectile pool, the outer projectile pass will advance
-        // the newborn dust animation during the same pass.
-        ring.Delete();
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
-        _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
-    }
-
-    /// <summary>Runs one of Mother Brain's turrets per frame.</summary>
-    internal void RunMotherBrainTurretFrameBehavior(
-        EnemyProjectile turret,
-        Position16<RoomPixels> camera)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
-            throw new InvalidDataException("A Mother Brain turret has no owning encounter state.");
-        bool onScreen = MotherBrainTurretIsOnScreen(turret, camera);
-
-        // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
-        // the shared deletion flag is set they disappear silently off-screen, but visible
-        // turrets replace themselves with the dust animation's smoke.
-        if (!onScreen)
-        {
-            if (state.DeleteTurretsAndRinkas)
-                turret.Delete();
-            return;
-        }
-        if (state.DeleteTurretsAndRinkas)
-        {
-            Position16<RoomPixels> position = turret.Position.Whole;
-            turret.Delete();
-            _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
-            return;
-        }
-
-        // Each wait counts down and is reloaded when it reaches zero.
-        MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
-        if (--turretState.RotationWait == 0)
-        {
-            ResetMotherBrainTurretRotationTimer(turret);
-            SelectNextMotherBrainTurretDirection(turret);
-            MotherBrainTurretDirection direction =
-                MotherBrainTurretDefinitions.Ring.At(turretState.RingPosition);
-            turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
-        }
-
-        if (--turretState.FiringWait == 0)
-        {
-            ResetMotherBrainTurretCooldown(turret);
-            SpawnMotherBrainTurretBullet(turret);
-        }
-    }
-
     /// <summary>Runs the signed direction-delta and allowed-rotation test.</summary>
     internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)
     {
@@ -784,20 +857,6 @@ internal sealed class MotherBrainProjectiles
         state.RingPosition = currentDirection + state.RotationStep;
     }
 
-    /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
-    internal void ResetMotherBrainTurretRotationTimer(EnemyProjectile turret)
-    {
-        int sample = _room.Random.Next(MotherBrainRandomDefinitions.TurretRotationWait);
-        turret.StateOf<MotherBrainTurretState>().RotationWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
-    }
-
-    /// <summary>Restarts the turret's pause between fired bullets.</summary>
-    internal void ResetMotherBrainTurretCooldown(EnemyProjectile turret)
-    {
-        int sample = _room.Random.Next(MotherBrainRandomDefinitions.TurretFiringWait);
-        turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
-    }
-
     /// <summary>Runs the asymmetric viewport bounds.</summary>
     private static bool MotherBrainTurretIsOnScreen(
         EnemyProjectile turret,
@@ -815,28 +874,6 @@ internal sealed class MotherBrainProjectiles
             CoordinateAxis.Wrap(turret.Position.X.Whole + 4 - camera.X) < 264;
     }
 
-    /// <summary>Runs turret-bullet initialization.</summary>
-    internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
-    {
-        EnemyProjectile? bullet = _projectiles.AllocateEnemyProjectile();
-        if (bullet is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            bullet,
-            RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-            TurretBullet,
-            MotherBrainTurretDefinitions.Graphics);
-        MotherBrainTurretDirection direction =
-            MotherBrainTurretDefinitions.Ring.At(turret.StateOf<MotherBrainTurretState>().RingPosition);
-        MotherBrainTurretDirectionDefinition definition =
-            MotherBrainTurrets.ForDirection(direction);
-        bullet.Velocity = definition.BulletVelocity;
-        bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-        // The bullet animation's first cue jumps to the pose for this direction.
-        bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
-    }
-
     /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>
     internal static void RunMotherBrainTurretBulletFrameBehavior(
         EnemyProjectile bullet,
@@ -849,15 +886,6 @@ internal sealed class MotherBrainProjectiles
 
         if (EnemyProjectileEngine.NonAirBlockAt(level, bullet.Position.Whole))
             bullet.Delete();
-    }
-
-    /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
-    internal void RunMotherBrainRainbowChargingFrameBehavior(
-        EnemyProjectile projectile)
-    {
-        RoomEnemySlot head = _motherBrainEncounter.MotherBrain?.Head ?? throw new InvalidOperationException(
-            "Mother Brain rainbow charge ran without the physical head slot.");
-        projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
     }
 
     /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>

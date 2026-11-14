@@ -493,10 +493,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Shaktool's attack circles, front, middle and back (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior AttackCircles => field ??= new AttackCircleBehavior(this);
+    internal EnemyProjectileBehavior AttackCircles => field ??= new AttackCircleBehavior(_projectiles);
 
-    /// <summary>An attack circle: the front one's flight with room collision, and the trailing ones' while their owner lives.</summary>
-    private sealed class AttackCircleBehavior(ShaktoolBehavior owner) : EnemyProjectileBehavior
+    /// <summary>
+    /// An attack circle: the front one's flight with room collision, and the trailing ones' while the first
+    /// enemy-projectile place, the front circle's, stays live.
+    /// </summary>
+    /// <param name="projectiles">The enemy projectiles, whose first place the trailing circles follow.</param>
+    private sealed class AttackCircleBehavior(EnemyProjectileEngine projectiles) : EnemyProjectileBehavior
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileFrameBehaviorContext context)
@@ -508,12 +512,30 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else if (motion == EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)
             {
-                owner.RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
+                RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
             }
             else
             {
                 base.Move(context);
             }
+        }
+
+        /// <summary>
+        /// Runs the middle and back linked circles' per-frame behaviour: a circle vanishes once the first enemy-projectile
+        /// place is free (<see cref="ShaktoolCirclesFollowFirstPlace"/>).
+        /// </summary>
+        private void RunShaktoolLinkedCircleFrameBehavior(
+            EnemyProjectile projectile,
+            RoomLevelData level)
+        {
+            if (!ShaktoolCirclesFollowFirstPlace.Lasts(projectiles.EnemyProjectiles, place => place.IsActive))
+            {
+                projectile.Delete();
+                return;
+            }
+
+            _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
+            _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         }
     }
 
@@ -558,23 +580,5 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             projectile.Delete();
         }
-    }
-
-    /// <summary>
-    /// Runs the middle and back linked circles' per-frame behaviour: a circle vanishes once the first enemy-projectile
-    /// place is free (<see cref="ShaktoolCirclesFollowFirstPlace"/>).
-    /// </summary>
-    internal void RunShaktoolLinkedCircleFrameBehavior(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        if (!ShaktoolCirclesFollowFirstPlace.Lasts(_projectiles.EnemyProjectiles, place => place.IsActive))
-        {
-            projectile.Delete();
-            return;
-        }
-
-        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
     }
 }

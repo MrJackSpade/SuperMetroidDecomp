@@ -11,9 +11,12 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The Botwoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// The Botwoon species owner: its per-room state, behaviour and the interactions it registers. Botwoon runs his own body
+/// segments and spit (#1801): it is their projectile behaviour, since a segment is a piece of Botwoon run from his state.
+/// </summary>
 [RoomLifetime]
-internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
@@ -801,28 +804,28 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations.</summary>
-    internal EnemyProjectileBehavior BodyAndSpit => field ??= new BodyAndSpitBehavior(this);
+    /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
+    internal EnemyProjectileBehavior BodyAndSpit => this;
 
-    /// <summary>A body segment, oriented and coloured with its hurt and run through its death, or a spit flying until it leaves the camera.</summary>
-    private sealed class BodyAndSpitBehavior(BotwoonBehavior owner) : EnemyProjectileBehavior
+    /// <summary>
+    /// Moves a body segment, oriented and coloured with his hurt and run through its death, or a spit flying until it
+    /// leaves the camera.
+    /// </summary>
+    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
+    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+        if (motion == EnemyProjectileFrameBehavior.BotwoonBodySegment)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.BotwoonBodySegment)
-            {
-                owner.RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.BotwoonSpitFlight)
-            {
-                RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
-            }
-            else
-            {
-                base.Move(context);
-            }
+            RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
+        }
+        else if (motion == EnemyProjectileFrameBehavior.BotwoonSpitFlight)
+        {
+            RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
+        }
+        else
+        {
+            base.Move(context);
         }
     }
 

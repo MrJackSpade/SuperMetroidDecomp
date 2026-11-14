@@ -123,7 +123,7 @@ internal static class SporeSpawnAnimationsVerification
         foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
         {
             RoomEnemySystem enemies = NewProjectileSystem();
-            enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
+            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
                 started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),

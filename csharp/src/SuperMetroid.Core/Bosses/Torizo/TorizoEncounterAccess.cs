@@ -17,6 +17,9 @@ internal sealed class TorizoEncounterAccess
     /// <summary>Current statue state, cleared when the room reloads.</summary>
     internal TorizoEnemyState? TorizoState { get; set; }
 
+    /// <summary>Golden Torizo's state while Golden Torizo owns slot zero.</summary>
+    internal TorizoEnemyState? GoldenTorizo => TorizoState is { IsGolden: true } ? TorizoState : null;
+
     /// <summary>Torizo's posture.</summary>
     internal TorizoPostureFlags Posture(RoomEnemySlot torizo) => RequireBombTorizoState(torizo).Posture;
 

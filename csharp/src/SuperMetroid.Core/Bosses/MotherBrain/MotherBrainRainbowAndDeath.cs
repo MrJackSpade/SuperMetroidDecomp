@@ -155,7 +155,7 @@ internal sealed class MotherBrainRainbowAndDeath
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
-        _projectileAttacks.RunMotherBrainDeathExplosion(projectile);
+        _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
     }
 
     /// <summary>Spawns a falling door fragment from the parameter identity.</summary>

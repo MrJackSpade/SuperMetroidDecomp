@@ -323,21 +323,36 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>A spore (#1760): its spawner starts its animation, and a shot spore runs its typed shot animation.</summary>
-    internal EnemyProjectileBehavior Spore => field ??= new SporeSpawnProjectileBehavior(this,
-        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
+    internal SporeSpawnProjectileBehavior Spore => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops, _encounter,
+        spores: null, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
 
     /// <summary>A ceiling spore spawner (#1760): its spawner starts its animation, and a shot one restarts it closed.</summary>
-    internal EnemyProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(this,
-        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+    internal EnemyProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops, _encounter,
+        spores: Spore, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
 
     /// <summary>A link of Spore Spawn's stalk (#1760): its spawner starts its animation, and a shot one restarts it.</summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new SporeSpawnProjectileBehavior(this,
-        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+    internal EnemyProjectileBehavior Stalk => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops, _encounter,
+        spores: Spore, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
 
     /// <summary>A spore, spawner or stalk link: the spores' drift and the spawners' cadence, and their animations' cues.</summary>
-    private sealed class SporeSpawnProjectileBehavior(SporeSpawnBehavior owner, Func<EnemyProjectileAnimation> shot)
+    /// <param name="room">The loaded room, whose random numbers time the spawners' releases.</param>
+    /// <param name="projectiles">The enemy projectiles, which hold the spores a spawner releases.</param>
+    /// <param name="deathsAndDrops">The killed sound and the drops a shot spore leaves.</param>
+    /// <param name="encounter">Spore Spawn's fight state: whether he suppresses his spores, and his body's colours.</param>
+    /// <param name="spores">The spores' behaviour, which the spores a spawner releases run; null for the spores' own.</param>
+    /// <param name="shot">The animation a destroying shot starts.</param>
+    internal sealed class SporeSpawnProjectileBehavior(
+        EnemyRoomBinding room,
+        EnemyProjectileEngine projectiles,
+        EnemyDeathsAndDrops deathsAndDrops,
+        SporeSpawnEncounter encounter,
+        SporeSpawnProjectileBehavior? spores,
+        Func<EnemyProjectileAnimation> shot)
         : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
     {
+        /// <summary>The behaviour the spores a spawner releases run: the spores' own.</summary>
+        private SporeSpawnProjectileBehavior Spores => spores ?? this;
+
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
@@ -348,7 +363,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else if (motion == EnemyProjectileFrameBehavior.SporeSpawnerCadence)
             {
-                owner.RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
+                RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
             }
             else
             {
@@ -363,16 +378,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (cue)
             {
                 case SporeSpawnProjectileCue.SpawnSpore:
-                    owner.SpawnSporeSpawnSpore(projectile.Position.Whole);
+                    SpawnSporeSpawnSpore(projectile.Position.Whole);
                     return;
                 case SporeSpawnProjectileCue.SetImpactProperties:
                     SetSporeSpawnImpactProperties(projectile);
                     return;
                 case SporeSpawnProjectileCue.QueueKilledSound:
-                    owner._deathsAndDrops.QueueEnemyKilledSound();
+                    deathsAndDrops.QueueEnemyKilledSound();
                     return;
                 case SporeSpawnProjectileCue.RequestDrop:
-                    owner.RequestSporeSpawnSporeDrop(projectile);
+                    RequestSporeSpawnSporeDrop(projectile);
                     return;
                 case SporeSpawnProjectileCue.Delete:
                     projectile.Delete();
@@ -380,6 +395,60 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
             }
+        }
+
+        /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
+        private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((encounter.SporeSpawn
+            ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
+
+        /// <summary>Spawns one spore projectile and runs its initializer.</summary>
+        internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position)
+        {
+            EnemyProjectile? spore = projectiles.AllocateEnemyProjectile();
+            if (spore is null)
+                return;
+
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+                spore,
+                RoomEnemyProjectileKind.SporeSpawnSpore,
+                Spores,
+                SporeSpawnGraphicsIndex);
+            spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
+            spore.Position = spore.Position.WithWhole(position);
+
+            // A spore from the right half of a screen drifts mirrored, so emitters at X 32/160 move one way and 96/224
+            // the other.
+            spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
+        }
+
+        /// <summary>Runs a spore emitter's per-frame behaviour.</summary>
+        private void RunSporeSpawnSpawnerFrameBehavior(EnemyProjectile spawner)
+        {
+            SporeSpawnEnemyState state = encounter.SporeSpawn ?? throw new InvalidOperationException(
+                "A Spore Spawn ceiling emitter survived without its owning boss state.");
+            if (state.SporeGenerationSuppressed)
+                return;
+
+            SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
+            if (emitter.ReleaseWait.IsZero)
+            {
+                spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
+                emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
+            }
+            emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
+        }
+
+        /// <summary>Runs the spore's drop-request step.</summary>
+        private void RequestSporeSpawnSporeDrop(EnemyProjectile spore)
+        {
+            if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
+            {
+                throw new InvalidOperationException(
+                    $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
+            }
+            deathsAndDrops.SpawnEnemyDropFromDefinition(
+                spore.Position.Whole,
+                EnemyDefinitionId.SporeSpawnStalk);
         }
     }
 
@@ -640,10 +709,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
         }
     }
-    /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
-    private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((SporeSpawn
-        ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
-
     /// <summary>Spawns Spore Spawn's stalk projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)
     {
@@ -685,26 +750,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spawner.State = new SporeSpawnEmitterState();
     }
 
-    /// <summary>Spawns one spore projectile and runs its initializer.</summary>
-    internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position)
-    {
-        EnemyProjectile? spore = _projectiles.AllocateEnemyProjectile();
-        if (spore is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            spore,
-            RoomEnemyProjectileKind.SporeSpawnSpore,
-            Spore,
-            SporeSpawnGraphicsIndex);
-        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
-        spore.Position = spore.Position.WithWhole(position);
-
-        // A spore from the right half of a screen drifts mirrored, so emitters at X 32/160 move one way and 96/224
-        // the other.
-        spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
-    }
-
     /// <summary>Runs a spore's per-frame drift.</summary>
     internal static void RunSporeSpawnSporeFrameBehavior(EnemyProjectile spore)
     {
@@ -721,23 +766,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spore.Delete();
 
         drift.AdvancePath();
-    }
-
-    /// <summary>Runs a spore emitter's per-frame behaviour.</summary>
-    internal void RunSporeSpawnSpawnerFrameBehavior(EnemyProjectile spawner)
-    {
-        SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
-            "A Spore Spawn ceiling emitter survived without its owning boss state.");
-        if (state.SporeGenerationSuppressed)
-            return;
-
-        SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
-        if (emitter.ReleaseWait.IsZero)
-        {
-            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
-            emitter.ReleaseWait = WrappingCountdown.Start(_room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
-        }
-        emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
     }
 
     /// <summary>Runs the spore's impact step, which replaces its whole property set.</summary>
@@ -758,21 +786,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.BlocksSamusProjectiles = false;
     }
 
-    /// <summary>Runs the spore's drop-request step.</summary>
-    internal void RequestSporeSpawnSporeDrop(EnemyProjectile spore)
-    {
-        if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
-        {
-            throw new InvalidOperationException(
-                $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
-        }
-        _deathsAndDrops.SpawnEnemyDropFromDefinition(
-            spore.Position.Whole,
-            EnemyDefinitionId.SporeSpawnStalk);
-    }
+    /// <summary>Spore Spawn's fight state, which his projectiles share.</summary>
+    private readonly SporeSpawnEncounter _encounter = new();
 
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
-    internal SporeSpawnEnemyState? SporeSpawn { get; set; }
+    internal SporeSpawnEnemyState? SporeSpawn
+    {
+        get => _encounter.SporeSpawn;
+        set => _encounter.SporeSpawn = value;
+    }
 
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
 

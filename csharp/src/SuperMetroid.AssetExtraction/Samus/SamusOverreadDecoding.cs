@@ -197,7 +197,7 @@ internal static class SamusOverreadDecoding
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
-        DefeatedBossKinds.InMarkerOrder.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
+        DefeatedBossKinds.Listed.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
 
     /// <summary>
     /// Where the Chainsaw fuse's fast-list offset moves every animation position that lands on one; a position whose move

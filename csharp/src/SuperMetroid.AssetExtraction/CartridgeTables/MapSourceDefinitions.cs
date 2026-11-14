@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -126,6 +128,17 @@ internal static class MapSourceDefinitions
     {
         /// <summary>$82:C7CB, the boss coordinate lists.</summary>
         internal const int BossLists = 0x82c7cb;
+
+        /// <summary>A boss-list record's X word marking an unused slot, which shows no marker.</summary>
+        internal const ushort UnusedBossSlot = 0xfffe;
+
+        /// <summary>
+        /// The defeated-boss flag a marker in each slot of an area's boss list shows, slot by slot (#1773). The cartridge's
+        /// marker loop moves to the next flag for each slot it passes; every retail list holds at most one marker, in its first
+        /// slot.
+        /// </summary>
+        internal static readonly ImmutableArray<DefeatedBosses> BossSlotFlags =
+            [DefeatedBosses.AreaBoss, DefeatedBosses.AreaMiniBoss, DefeatedBosses.AreaTorizo];
 
         /// <summary>$82:C7DB, the missile-refill coordinate lists.</summary>
         internal const int MissileLists = 0x82c7db;

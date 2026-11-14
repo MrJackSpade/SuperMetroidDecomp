@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 public static class MapLandmarkFormat
 {
     /// <summary>Supported revision of the complete named-landmark coordinate schema.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>Asset filename loaded by the area-map presentation catalog for landmark drawing positions.</summary>
     public const string FileName = "map-landmarks.json";
 }

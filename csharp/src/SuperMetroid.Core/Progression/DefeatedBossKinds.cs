@@ -10,10 +10,7 @@ public static class DefeatedBossKinds
     public const DefeatedBosses AllKnown =
         DefeatedBosses.AreaBoss | DefeatedBosses.AreaMiniBoss | DefeatedBosses.AreaTorizo;
 
-    /// <summary>
-    /// The kinds in the order an area map's boss markers show them: the first listed marker shows the area boss, the next
-    /// the mini-boss, the next the Torizo.
-    /// </summary>
-    public static IReadOnlyList<DefeatedBosses> InMarkerOrder { get; } =
+    /// <summary>Every kind of boss an area records, listed area boss first, then the mini-boss, then the Torizo.</summary>
+    public static IReadOnlyList<DefeatedBosses> Listed { get; } =
         [DefeatedBosses.AreaBoss, DefeatedBosses.AreaMiniBoss, DefeatedBosses.AreaTorizo];
 }

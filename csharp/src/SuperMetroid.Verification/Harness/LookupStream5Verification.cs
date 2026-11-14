@@ -559,33 +559,35 @@ internal static class LookupStream5Verification
         MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
-        string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
-            "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
-            "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
-            "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
+        string[] expectedIds = ["Crateria.Elevator.ToBrinstarWest", "Crateria.Elevator.ToBrinstarCentral", "Crateria.Elevator.ToBrinstarEast",
+            "Crateria.Elevator.ToWreckedShip", "Crateria.Elevator.ToMaridia",
+            "Boss.Kraid", "Brinstar.Elevator.ToCrateriaWest", "Brinstar.Elevator.ToCrateriaCentral", "Brinstar.Elevator.ToCrateriaEast",
+            "Brinstar.Elevator.ToMaridia", "Brinstar.Elevator.ToNorfair",
+            "Boss.Ridley", "Norfair.Elevator.ToBrinstar", "Boss.Phantoon", "WreckedShip.Elevator.ToCrateriaWest", "WreckedShip.Elevator.ToCrateriaEast",
+            "Boss.Draygon", "Maridia.Elevator.ToCrateria", "Maridia.Elevator.ToBrinstarWest", "Maridia.Elevator.ToBrinstarEast",
+            "Tourian.Elevator.ToCrateria", "Boss.CeresRidley", "Crateria.Gunship"];
         AssertTrue(expectedIds.SequenceEqual(MapLandmarkFile.Ids()), "Original public identity and manifest order");
         int bossSlots = 0, elevatorSlots = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            var bosses = MapLandmarks.Bosses(area);
+            var markers = MapLandmarks.BossMarkers(area);
             int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area);
-            int count = 0;
+            int count = 0, shown = 0;
             if (pointer != 0)
                 while (Read(pointer + count * 4) != ushort.MaxValue)
                 {
-                    string? id = bosses[count];
-                    AssertEqual(Read(pointer + count * 4) == 0xfffe, id is null, "Native unused boss slot");
-                    if (id is not null)
+                    if (Read(pointer + count * 4) != 0xfffe)
                     {
-                        AssertEqual(Read(pointer + count * 4), layout.Get(id).X, "Native semantic boss X");
-                        AssertEqual(Read(pointer + count * 4 + 2), layout.Get(id).Y, "Native semantic boss Y");
+                        // The cartridge's first slot shows the area boss's flag.
+                        AssertEqual(0, count, "Native used boss slot is the area boss's");
+                        MapBossMarker marker = markers[shown++];
+                        AssertEqual(DefeatedBosses.AreaBoss, marker.Boss, "Named marker shows the area boss");
+                        AssertEqual(Read(pointer + count * 4), layout.Get(marker.Id).X, "Native semantic boss X");
+                        AssertEqual(Read(pointer + count * 4 + 2), layout.Get(marker.Id).Y, "Native semantic boss Y");
                     }
                     count++;
                 }
-            AssertEqual(count, bosses.Length, "Native boss slot count");
-            AssertEqual(count, bosses.ToArray().Length, "Boss enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
-            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
+            AssertEqual(shown, markers.Length, "Every named marker stands in a used native slot");
             bossSlots += count;
             if (area == AreaId.Ceres) continue;
             var elevators = MapLandmarks.Elevators(area);
@@ -599,10 +601,7 @@ internal static class LookupStream5Verification
                 AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
                 count++;
             }
-            AssertEqual(count, elevators.Count, "Native elevator count");
-            AssertEqual(count, elevators.ToArray().Length, "Elevator enumeration count");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = elevators[-1], "Elevator lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = elevators[count], "Elevator upper bound");
+            AssertEqual(count, elevators.Length, "Native elevator count");
             elevatorSlots += count;
         }
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -650,7 +649,7 @@ internal static class LookupStream5Verification
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x - 7)), unchecked((ushort)(y - 9))), MapSpriteScreen.FileSelect, colouring);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Bosses((AreaId)7), "Invalid boss area");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");

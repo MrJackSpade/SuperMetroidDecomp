@@ -30,30 +30,20 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     {
         var layout = landmarks ?? throw new InvalidOperationException(
             "Map boss markers require installed landmark layout.");
-        // Each listed marker consumes the next defeated-boss flag in marker order, and a marker that is neither defeated
-        // nor shown by the area's map consumes one more; an empty entry consumes one.
+        // Each marker shows the boss it names: defeated once the area records that boss, alive while the map is known.
         DefeatedBosses defeated = system.BossesDefeatedIn(area);
-        int flag = 0;
-        foreach (string? id in MapLandmarks.Bosses(area))
+        foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
         {
-            if (id is not null)
+            Position16<MapPixels> point = layout.Get(marker.Id);
+            if (defeated.HasFlag(marker.Boss))
             {
-                Position16<MapPixels> point = layout.Get(id);
-                bool dead = flag < DefeatedBossKinds.InMarkerOrder.Count && defeated.HasFlag(DefeatedBossKinds.InMarkerOrder[flag]);
-                flag++;
-                if (dead)
-                {
-                    Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
-                    Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
-                    continue;
-                }
-                if (system.HasAreaMap(area))
-                {
-                    Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.Markers);
-                    continue;
-                }
+                Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
+                Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
             }
-            flag++;
+            else if (system.HasAreaMap(area))
+            {
+                Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.Markers);
+            }
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, MapSpriteColouring colouring) =>
             Add(entries, id, position, scroll, colouring);

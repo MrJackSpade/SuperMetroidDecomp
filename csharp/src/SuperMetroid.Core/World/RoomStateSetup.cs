@@ -51,6 +51,11 @@ internal static class RoomStateSetup
             case RoomSetupBehavior.SetCollectedMap:
                 system.SetAreaMapAcquired(room.Area);
                 return;
+            // The escape room before the old Tourian escape shaft places the room object that raises its acid, before
+            // it starts the quake EscapeRoomEffects owns (#1800).
+            case RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid:
+                roomObjects.Tourian.TrySpawnEscapeAcidRise(level);
+                return;
             case RoomSetupBehavior.None:
             case RoomSetupBehavior.LandSkyWithLandingSiteQuake:
             case RoomSetupBehavior.ScrollingSkyLand:
@@ -61,7 +66,6 @@ internal static class RoomStateSetup
             case RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking:
             case RoomSetupBehavior.SetLightHorizontalRoomShaking:
             case RoomSetupBehavior.SetMediumHorizontalRoomShaking:
-            case RoomSetupBehavior.MediumHorizontalShakingWithRisingLava:
             case RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze:
             case RoomSetupBehavior.SpawnCeresHaze:
             case RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze:

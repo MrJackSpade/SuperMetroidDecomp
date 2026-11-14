@@ -34,14 +34,14 @@ internal sealed class EscapeRoomEffects
         // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupBehavior.SetLightHorizontalRoomShaking or
-            RoomSetupBehavior.MediumHorizontalShakingWithRisingLava)
+            RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid)
             diagonalQuake.Countdown = WrappingCountdown.Start(0);
         EarthquakeShake? shake = setup switch
         {
             RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking or
             RoomSetupBehavior.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
             RoomSetupBehavior.SetMediumHorizontalRoomShaking or
-            RoomSetupBehavior.MediumHorizontalShakingWithRisingLava => ZebesEscapeDefinitions.MediumHorizontal,
+            RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid => ZebesEscapeDefinitions.MediumHorizontal,
             RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
             RoomSetupBehavior.LandSkyWithLandingSiteQuake => ZebesEscapeDefinitions.LandingQuake,
             RoomSetupBehavior.None or RoomSetupBehavior.AutoDestroyWallDuringEscape or

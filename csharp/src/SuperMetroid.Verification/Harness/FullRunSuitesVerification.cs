@@ -409,6 +409,7 @@ using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerifi
 using static SuperMetroid.Verification.Frontend.Title.TitleSnapshotTestsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessObjectProgramsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessVisualsVerification;
+using static SuperMetroid.Verification.Areas.Tourian.EscapeAcidRiseVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianFirstRoomMapVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueDescentRoundingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueXrayFreezeVerification;
@@ -1112,6 +1113,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainInheritedExplosionIndex), () => VerifyMotherBrainInheritedExplosionIndex()),
         new(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaftWall()),
         new(nameof(VerifyTourianFirstRoomGrantsAreaMap), () => VerifyTourianFirstRoomGrantsAreaMap()),
+        new(nameof(VerifyEscapeAcidRise), () => VerifyEscapeAcidRise()),
         new(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstreetEscapePassage()),
         new(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade()),
         new(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits()),

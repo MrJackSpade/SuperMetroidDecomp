@@ -13,6 +13,12 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [EncodingOwner("bank-$A0 enemy header pointer words")]
 internal static class EnemyHeaderWords
 {
+    /// <summary>
+    /// The header word the cartridge leaves in a killed enemy's place while it waits to respawn (#1851): the port holds
+    /// that place as awaiting respawn, with no enemy and no definition, so only native comparisons need the word.
+    /// </summary>
+    internal const ushort AwaitingRespawnHeader = 0xdaff;
+
     /// <summary>The bank-$A0 pointer of each enemy definition's 64-byte header.</summary>
     internal static readonly NativeWordIdentities<EnemyDefinitionId> Headers = new(new Dictionary<EnemyDefinitionId, ushort>
     {

@@ -333,11 +333,11 @@ internal sealed class MotherBrainBody
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
         TrigonometryAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
-            .ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+            .ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(HandBeamSpeed, angle),
-            EnemyMath.MultiplySineSample(HandBeamSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            EnemyMath.SineSpeed(HandBeamSpeed, angle),
+            EnemyMath.SineSpeed(HandBeamSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }

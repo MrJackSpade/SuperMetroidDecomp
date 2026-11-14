@@ -176,7 +176,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "active rainbow start installs wall-motion function");
     AssertEqual(SamusPoseId.KnockbackLeftPose, samus.Pose,
         "active rainbow start runs native drained setup command");
-    AssertEqual(DrainedGetUpHandler.AbleToStand, samus.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.AbleToStand, samus.Drained.GetUpCheck,
         "energy 999 selects command five able handler");
     AssertTrue(samus.Control.InputLocked, "rainbow start locks Samus input handlers");
     AssertTrue(attack.RainbowAttack.BeamActive, "rainbow start shows the beam");
@@ -287,7 +287,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     };
     var lowAttack = new MotherBrainRainbowBeamAttackSequence();
     lowAttack.RainbowAttack.StartActiveBeam(low);
-    AssertEqual(DrainedGetUpHandler.UnableToStand, low.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.UnableToStand, low.Drained.GetUpCheck,
         "energy 699 selects command $18 unable handler");
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 1 });
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });

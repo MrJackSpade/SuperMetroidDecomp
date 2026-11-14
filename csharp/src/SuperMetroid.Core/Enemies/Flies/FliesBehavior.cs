@@ -109,7 +109,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Action = FlyAction.AttackSamus;
@@ -132,7 +132,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The dive toward Samus along <paramref name="angle"/>, the mirrored table angle of her bearing: two pixels per update
+    /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: two pixels per update
     /// along its sine across and four along its sine a quarter turn behind (the negative cosine) down.
     /// </summary>
     internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(

@@ -38,7 +38,7 @@ internal sealed class DraygonDeath
     internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
         EnemyMath.CalculateBearing(new(
             CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetX / BurialAimCellPixels, body.X / BurialAimCellPixels),
-            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetY / BurialAimCellPixels, body.Y / BurialAimCellPixels))).ToTableAngle();
+            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetY / BurialAimCellPixels, body.Y / BurialAimCellPixels))).ToTrigonometryAngle();
 
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)

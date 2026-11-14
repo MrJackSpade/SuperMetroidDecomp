@@ -490,7 +490,7 @@ internal sealed class SuperMetroidRuntime
             RunSamusAndEnemyMain(context, Player.Samus, Room.Camera, frameRequest.Audio);
             bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
             if (!deathOwnsSamus)
-                DoorTransition.RunEnemyProjectileHandler(Room.LoadedScope.BombProjectiles, Room.LoadedScope);
+                DoorTransition.RunEnemyProjectiles(Room.LoadedScope.BombProjectiles, Room.LoadedScope);
             RoomObjectPhase.RunObjectPhase(deathOwnsSamus, Player.Samus, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
             OpenGunshipPrompt();
             context.Tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
@@ -666,7 +666,7 @@ internal sealed class SuperMetroidRuntime
         EnemyPhase.PrepareEnemyFrame(Room.LoadedScope);
         // Host-disabled Samus movement has no input phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before the movement phase.
-        SamusHandlerFrame frame = context.Samus;
+        SamusControlFrame frame = context.Samus;
         frame.RecordHoistedEnemyMain(Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled);
         // The enemy phase follows Samus's input mode. An actor that restores the
         // normal modes there (the gunship) affects this frame's movement phase only:
@@ -683,7 +683,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the input phase, the enemy phase, the resample after it and the movement phase, in the game's order.</summary>
     private void RunSamusAndEnemyMain(GameplayFrameContext context, SamusState samus, ScrollBoundaryCamera camera, RuntimeFrameAudio audio)
     {
-        SamusHandlerFrame frame = context.Samus;
+        SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
         if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);

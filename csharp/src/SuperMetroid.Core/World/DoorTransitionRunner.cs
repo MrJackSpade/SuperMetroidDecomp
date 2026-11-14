@@ -192,7 +192,7 @@ internal sealed class DoorTransitionRunner
         _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
-            RunEnemyProjectileHandler(room.BombProjectiles, room);
+            RunEnemyProjectiles(room.BombProjectiles, room);
         _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
         // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
@@ -206,7 +206,7 @@ internal sealed class DoorTransitionRunner
     /// suspension X-ray applies, so their animations keep running while time is frozen for
     /// a reserve refill.
     /// </summary>
-    internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void RunEnemyProjectiles(SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;

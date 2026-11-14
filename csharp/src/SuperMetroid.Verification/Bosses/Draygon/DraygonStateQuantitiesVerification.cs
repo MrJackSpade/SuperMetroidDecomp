@@ -64,11 +64,11 @@ internal static class DraygonStateQuantitiesVerification
         state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(RotationAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.ToTrigonometryAngle().RawValue, "the wrapped phase advances by one unit");
     }
@@ -94,8 +94,8 @@ internal static class DraygonStateQuantitiesVerification
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
-            unchecked((short)EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(angle), radiusWhole)),
-            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(angle), radiusWhole >> 2)));
+            unchecked((short)EnemyMath.CircleCosinePixels(new TrigonometryAngle(angle), radiusWhole)),
+            unchecked((short)EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(angle), radiusWhole >> 2)));
         AssertEqual(expectedBody, state.Body.Position.Whole, "the body is placed from the angle and radius before they advance");
         uint nativeRadius = unchecked(SixteenSixteenWords.Compose(radiusWhole, radiusFraction) + 8192u);
         AssertEqual(unchecked((int)nativeRadius), state.SpiralXRadius.RawValue, "the radius grows by one eighth of a pixel, carrying into its whole pixels");

@@ -38,7 +38,7 @@ public sealed class SamusSnapshot
     public required DrainedSamusPhase DrainedPhase { get; init; }
 
     /// <summary>How a drained Samus gets back up.</summary>
-    public required DrainedGetUpHandler DrainedGetUp { get; init; }
+    public required DrainedGetUpCheck DrainedGetUp { get; init; }
 
     /// <summary>The escape countdown's phase.</summary>
     public required EscapeTimerPhase EscapeTimer { get; init; }

@@ -61,7 +61,7 @@ public sealed class SamusDrainedState
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
-    public DrainedGetUpHandler GetUpHandler { get; internal set; }
+    public DrainedGetUpCheck GetUpCheck { get; internal set; }
 
     /// <summary>
     /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's
@@ -74,7 +74,7 @@ public sealed class SamusDrainedState
     /// Ends the drained get-up when the escape countdown starts: the countdown's display takes the place of the check
     /// that runs after her movement. The runtime owns that timer; the old drained behaviour must stop.
     /// </summary>
-    internal void RelinquishGetUp() => GetUpHandler = DrainedGetUpHandler.Inactive;
+    internal void RelinquishGetUp() => GetUpCheck = DrainedGetUpCheck.Inactive;
 
     /// <summary>
     /// Runs the able-to-stand drain setup: Up can stand her once she is crouched,
@@ -82,7 +82,7 @@ public sealed class SamusDrainedState
     /// </summary>
     public void SetupForRainbowBeamAbleToStand(SamusState samus)
     {
-        GetUpHandler = DrainedGetUpHandler.AbleToStand;
+        GetUpCheck = DrainedGetUpCheck.AbleToStand;
         SetupForRainbowBeam(samus);
     }
 
@@ -92,7 +92,7 @@ public sealed class SamusDrainedState
     /// </summary>
     public void SetupForRainbowBeamUnableToStand(SamusState samus)
     {
-        GetUpHandler = DrainedGetUpHandler.UnableToStand;
+        GetUpCheck = DrainedGetUpCheck.UnableToStand;
         SetupForRainbowBeam(samus);
     }
 
@@ -101,14 +101,14 @@ public sealed class SamusDrainedState
     /// it after movement and immediately before animation, so a written timer of one is
     /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
-    public bool StepGetUpHandler(SamusState samus, ControllerButton newlyPressedInput)
+    public bool RunGetUpCheck(SamusState samus, ControllerButton newlyPressedInput)
     {
         Ensure.NotNull(samus);
         ControllerButton newlyPressed = newlyPressedInput;
         if (!newlyPressed.HasAny(ControllerButton.Up))
             return false;
 
-        if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&
+        if (GetUpCheck == DrainedGetUpCheck.AbleToStand &&
             samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
             samus.AnimationFrame >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
         {
@@ -116,11 +116,11 @@ public sealed class SamusDrainedState
 
             // The able branch ends its get-up after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
-            GetUpHandler = DrainedGetUpHandler.Inactive;
+            GetUpCheck = DrainedGetUpCheck.Inactive;
             return true;
         }
 
-        if (GetUpHandler == DrainedGetUpHandler.UnableToStand &&
+        if (GetUpCheck == DrainedGetUpCheck.UnableToStand &&
             samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
             samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
         {
@@ -184,7 +184,7 @@ public sealed class SamusDrainedState
     /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow palette is enabled.
     /// </summary>
     /// <remarks>
-    /// While the rainbow palette is enabled, this handler has absolute priority over
+    /// While the rainbow palette is enabled, this colouring has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
     /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
     /// (#1512). The Baby
@@ -208,7 +208,7 @@ public sealed class SamusDrainedState
         if (!RainbowPaletteEnabled)
             return false;
 
-        // The handler shows the glow's current step before counting down the shared timer.
+        // The colouring shows the glow's current step before counting down the shared timer.
         colours.ShowSuit(SamusShades.HyperBeamSuit(HyperBeamGlowStep));
 
         if (--CommonPaletteTimer > 0)

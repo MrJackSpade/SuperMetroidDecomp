@@ -465,8 +465,8 @@ internal sealed class MotherBrainProjectiles
             TrigonometryAngle scatterAngle = state.HandBeamNextAngle.TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
             int speedRandom = dependencies.Room.Random.Generate();
             SignedEightEight scatterSpeed = SignedEightEight.FromPixels(MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom));
-            beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
-            beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
+            beam.Velocity = beam.Velocity.WithX(EnemyMath.SineSpeed(scatterSpeed, scatterAngle));
+            beam.Velocity = beam.Velocity.WithY(EnemyMath.SineSpeed(
                 scatterSpeed,
                 scatterAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
             beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());

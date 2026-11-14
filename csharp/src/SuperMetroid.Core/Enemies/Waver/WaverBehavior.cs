@@ -91,7 +91,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
+            int verticalPixels = EnemyMath.CircleNegativeSinePixels(
                 state.Angle.ToTrigonometryAngle(),
                 WaverVerticalRadius);
             if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(verticalPixels)))
@@ -106,7 +106,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Once per half-wave, the phase's position within its half-turn equals 56. Waver temporarily swaps to
         // the four-map spin without changing its facing.
-        if (state.Angle.ToTrigonometryAngle().HalfWaveIndex == 56)
+        if (state.Angle.ToTrigonometryAngle().StepsIntoHalfTurn == 56)
         {
             state.RequestedAnimation = WaverAnimationChoices.Spinning(state.RequestedAnimation);
             SetWaverAnimation(slot, state);

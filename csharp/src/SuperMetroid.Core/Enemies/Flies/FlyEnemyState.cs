@@ -19,13 +19,13 @@ public sealed class FlyEnemyState
     /// <summary>Samus's whole room-pixel height captured when the attack begins; only Y is meaningful. It determines the turnaround rather than tracking Samus's later movement.</summary>
     public Position16<RoomPixels> TargetHeight { get; internal set; }
 
-    /// <summary>The circular flight's phase, advanced sixteen table units per circling update and wrapping after a full turn.</summary>
+    /// <summary>The circular flight's phase, advanced sixteen 256ths of a turn per circling update and wrapping after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour.</summary>
     public FlyAction? Action { get; internal set; }
 
-    /// <summary>One circling update's phase advance: sixteen table units one way or the other, wrapping after a full turn.</summary>
+    /// <summary>One circling update's phase advance: sixteen 256ths of a turn one way or the other, wrapping after a full turn.</summary>
     /// <param name="clockwise">Whether the fly circles clockwise.</param>
     internal void AdvanceCircle(bool clockwise) => Angle = Angle.TurnedBySteps(clockwise ? 16 : -16);
 }

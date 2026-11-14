@@ -7,8 +7,8 @@ internal sealed class GameplayFrameContext(FixedPosition<RoomPixels>? samusCamer
     /// <summary>Samus's position sampled before the frame's movement; the camera fallback for a new camera.</summary>
     internal FixedPosition<RoomPixels>? SamusCameraPointAtFrameStart { get; } = samusCameraPointAtFrameStart;
 
-    /// <summary>The frame handler's state for this frame.</summary>
-    internal Samus.SamusHandlerFrame Samus { get; } = new();
+    /// <summary>Samus's control for this frame: her modes, who moves her and what her input and movement phases sampled.</summary>
+    internal Samus.SamusControlFrame Samus { get; } = new();
 
     /// <summary>The tail a room object's message box suspends; set once Samus's section has run.</summary>
     internal SuperMetroidRuntime.SuspendedGameplayFrameTail? Tail { get; set; }

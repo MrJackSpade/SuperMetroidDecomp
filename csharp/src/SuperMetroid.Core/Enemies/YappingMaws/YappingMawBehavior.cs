@@ -217,7 +217,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
-        state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
+        state.CurlAngle = state.AimAngle.ToTrigonometryAngle().ToAngle();
         state.MirroredBend = state.CurlAngle >= RotationAngle.HalfTurn;
 
         state.Baseline = new Offset16<RoomPixels>(
@@ -543,20 +543,20 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Both magnitudes are below the reach here, so each short product is below 255 pixels and their sum below 510:
         // neither the products' magnitudes nor their sum reach 32768, where the sum would read as negative.
-        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
+        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTrigonometryAngle();
         int distance =
-            Math.Abs(EnemyMath.ReadEightBitNegativeSineProduct(positiveQuadrantAngle, absoluteX)) +
-            Math.Abs(EnemyMath.ReadEightBitCosineProduct(positiveQuadrantAngle, absoluteY));
+            Math.Abs(EnemyMath.CircleNegativeSinePixels(positiveQuadrantAngle, absoluteX)) +
+            Math.Abs(EnemyMath.CircleCosinePixels(positiveQuadrantAngle, absoluteY));
         return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(deltaX, deltaY)));
     }
 
     /// <summary>
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
     /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
-    /// bearing's units are read through its mirrored table angle, which counts the same units.
+    /// bearing's units are read through its mirrored trigonometry angle, which counts the same steps.
     /// </summary>
     internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
-        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8));
+        aim.ToMirroredTrigonometryAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8));
 
     /// <summary>X is the Y helper a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>

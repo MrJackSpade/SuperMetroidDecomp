@@ -26,7 +26,7 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
+        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.SineSpeed(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(new SignedEightEight(rainbowSpeed), rainbowAngle).RawValue);
         var flyCircle = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.CircleStep);

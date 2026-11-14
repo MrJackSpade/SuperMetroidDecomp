@@ -26,7 +26,7 @@ internal static class FixedPointVocabularyVerification
         foreach (byte angle in new byte[] { 0x00, 0x40, 0x80, 0xc0, 0xa3 })
         for (int radius = 0; radius <= 0x1ff; radius++)
         {
-            int sample = Trigonometry.EightBitHalfWave(angle & 0x7f);
+            int sample = Trigonometry.CoarseHalfWave(angle & 0x7f);
             ushort product = unchecked((ushort)(sample * (radius & 0xff)));
             ushort whole = (ushort)(product >> 8);
             ushort fraction = (ushort)((product & 0xff) << 8);
@@ -37,21 +37,21 @@ internal static class FixedPointVocabularyVerification
                 if (fraction != 0)
                     negatedWithFraction++;
             }
-            SignedSixteenSixteen actual = EnemyMath.ReadEightBitSineFixedProduct(new TrigonometryAngle(angle), (ushort)radius);
+            SignedSixteenSixteen actual = EnemyMath.CircleSine(new TrigonometryAngle(angle), (ushort)radius);
             AssertEqual(unchecked((short)whole), actual.WholePixels, $"sine product whole, angle {angle:X2} radius {radius:X3}");
             AssertEqual(fraction, actual.Fraction, $"sine product fraction, angle {angle:X2} radius {radius:X3}");
         }
         AssertTrue(negatedWithFraction > 0, "the samples include a negated product with a nonzero fraction");
     }
 
-    /// <summary><see cref="Bearing.ToTableAngle"/> is the replaced <c>0x40 - bearing</c> for every byte.</summary>
+    /// <summary><see cref="Bearing.ToTrigonometryAngle"/> is the replaced <c>0x40 - bearing</c> for every byte.</summary>
     private static void VerifyBearingConversion()
     {
         for (int bearing = 0; bearing <= byte.MaxValue; bearing++)
         {
-            AssertEqual(unchecked((byte)(0x40 - bearing)), new Bearing((byte)bearing).ToTableAngle().RawValue,
+            AssertEqual(unchecked((byte)(0x40 - bearing)), new Bearing((byte)bearing).ToTrigonometryAngle().RawValue,
                 $"bearing {bearing:X2} in the table convention");
-            AssertEqual((byte)bearing, new Bearing((byte)bearing).ToMirroredTableAngle().RawValue,
+            AssertEqual((byte)bearing, new Bearing((byte)bearing).ToMirroredTrigonometryAngle().RawValue,
                 $"bearing {bearing:X2} read unconverted");
         }
     }

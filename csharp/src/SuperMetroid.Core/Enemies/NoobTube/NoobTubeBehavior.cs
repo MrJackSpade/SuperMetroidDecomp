@@ -158,7 +158,7 @@ internal sealed class NoobTubeBehavior
     private static void AdvanceNoobTubeShardX(EnemyProjectile projectile, SignedEightEight velocity)
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
-        debris.X = EnemyMath.AddEightBitVelocity(debris.X, velocity);
+        debris.X = EnemyMath.AddVelocity(debris.X, velocity);
     }
 
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>

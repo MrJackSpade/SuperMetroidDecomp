@@ -185,7 +185,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 TrigonometryAngle angle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
                 state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
                     angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
                 state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));

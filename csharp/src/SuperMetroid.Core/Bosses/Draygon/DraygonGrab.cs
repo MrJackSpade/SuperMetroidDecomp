@@ -167,8 +167,8 @@ internal sealed class DraygonGrab
         // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
         // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
-            EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
-            EnemyMath.ReadEightBitNegativeSineProduct(
+            EnemyMath.CircleCosinePixels(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
+            EnemyMath.CircleNegativeSinePixels(
                 state.SpiralAngle.ToTrigonometryAngle(),
                 state.SpiralXRadius.WholePixels / 4)));
 
@@ -291,7 +291,7 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         int speed)
     {
-        TrigonometryAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
+        TrigonometryAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTrigonometryAngle();
 
         UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
         UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);

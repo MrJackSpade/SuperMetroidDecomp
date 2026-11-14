@@ -381,7 +381,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // The clamp performs two signed comparisons within one turn. The
         // wraparound half, from three quarters of a turn round past zero, maps to the lowest aim; the opposite half maps
@@ -453,8 +453,8 @@ internal sealed class MotherBrainHead
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
-        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(OnionRingSpeed, angle));
-        ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
+        ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(OnionRingSpeed, angle));
+        ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
             OnionRingSpeed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 

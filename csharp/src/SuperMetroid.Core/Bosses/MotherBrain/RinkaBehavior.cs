@@ -205,10 +205,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
 
                 TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
-                    EnemyMath.MultiplySineSample(RinkaSpeed, velocityAngle),
-                    EnemyMath.MultiplySineSample(
+                    EnemyMath.SineSpeed(RinkaSpeed, velocityAngle),
+                    EnemyMath.SineSpeed(
                         RinkaSpeed,
                         velocityAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
                 return;

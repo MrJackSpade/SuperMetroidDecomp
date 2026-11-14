@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// An angle of 256 units per turn that wraps at a full turn, in the sine-table convention: zero points right and
-/// <c>64</c> up (negative Y). This is the angle the game's sine and cosine lookups take; <see cref="RotationAngle"/>
-/// is the form with a fraction, whose whole units are this value.
+/// An angle counted in steps of a 256th of a turn that wraps at a full turn, in the trigonometric convention: zero
+/// points right and <c>64</c> up (negative Y). This is the angle the game's sine and cosine take
+/// (<see cref="Trigonometry"/>); <see cref="RotationAngle"/> is the form with a fraction, whose whole steps are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
 public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
@@ -11,18 +11,18 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// <summary>Orders angles by how far they lie through the turn from zero.</summary>
     public int CompareTo(TrigonometryAngle other) => RawValue.CompareTo(other.RawValue);
 
-    /// <summary>The angle of <paramref name="rawValue"/> table units, 0 through 255.</summary>
-    /// <param name="rawValue">The angle in table units, 0 through 255.</param>
+    /// <summary>The angle of <paramref name="rawValue"/> steps, 0 through 255.</summary>
+    /// <param name="rawValue">The angle in steps of a 256th of a turn, 0 through 255.</param>
     public TrigonometryAngle(int rawValue) => RawValue = checked((byte)rawValue);
 
-    /// <summary>The angle in table units, 0 through 255.</summary>
+    /// <summary>The angle in steps of a 256th of a turn, 0 through 255.</summary>
     public byte RawValue { get; init; }
 
     /// <summary>
-    /// The angle a computation in table units lands on: a turn past a full turn, or below zero, continues around the
+    /// The angle a computation in steps lands on: a turn past a full turn, or below zero, continues around the
     /// circle, as the game's angle arithmetic wraps.
     /// </summary>
-    /// <param name="units">The computed angle in table units, which may lie outside one turn.</param>
+    /// <param name="units">The computed angle in steps, which may lie outside one turn.</param>
     public static TrigonometryAngle Wrapped(int units) => new(unchecked((byte)units));
 
     /// <summary>No turn: right.</summary>
@@ -35,10 +35,10 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     public static TrigonometryAngle HalfTurn { get; } = new(0x80);
 
     /// <summary>
-    /// The index this angle reads in a 128-entry half-wave table: the angle folded onto the first half of the turn, as
-    /// the game's sine lookups fold it before restoring the sign from <see cref="IsInSecondHalf"/>.
+    /// The steps this angle lies past the start of its half of the turn, 0 through 127: the angle folded onto the first
+    /// half of the turn, as the game's sine folds it before restoring the sign from <see cref="IsInSecondHalf"/>.
     /// </summary>
-    public int HalfWaveIndex => RawValue % HalfTurn.RawValue;
+    public int StepsIntoHalfTurn => RawValue % HalfTurn.RawValue;
 
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;

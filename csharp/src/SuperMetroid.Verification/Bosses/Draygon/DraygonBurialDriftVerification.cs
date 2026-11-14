@@ -14,7 +14,7 @@ internal static class DraygonBurialDriftVerification
     {
         static TrigonometryAngle Quartered(int x, int y) => EnemyMath.CalculateBearing(new(
             CoordinateAxis.Difference(64, x >> 2),
-            CoordinateAxis.Difference(120, y >> 2))).ToTableAngle();
+            CoordinateAxis.Difference(120, y >> 2))).ToTrigonometryAngle();
 
         int mismatches = 0;
         foreach (int fixedCoordinate in new[] { 0, 255, 256, 257, 479, 480, 481, ushort.MaxValue })

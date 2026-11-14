@@ -1,16 +1,15 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The game's sine and cosine samples over trigonometry angles and the multiplications that use them (#1422): the signed
-/// 1/256-step sine wave and the one peaking at 32767, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
-/// projectile and screen effect samples them. These are engine math definitions, not editable presentation assets.
+/// The game's sine and cosine over trigonometry angles, counted in 256ths of a turn, and the multiplications that use
+/// them (#1422): the signed sine in 256ths of its peak and the fine one peaking at 32767, their coarse and unsigned
+/// half-waves and the negative-cosine view, exactly as every enemy, boss, projectile and screen effect computes them. These are engine math definitions, not editable presentation assets.
 /// </summary>
 public static class Trigonometry
 {
-    /// <summary>The game's sine table peaking at 32767 and its three
-    /// quadrant continuations. These signed samples peak at +/-32767, unlike
-    /// the signed 1/256-step table. The positive half equals the stored unsigned
-    /// half-wave halved; sign is restored only after that truncation.</summary>
+    /// <summary>The game's fine signed sine over the whole turn, peaking at +/-32767, unlike
+    /// <see cref="SignedSine"/>. The positive half equals the unsigned half-wave
+    /// (<see cref="UnsignedHalfWave"/>) halved; sign is restored only after that truncation.</summary>
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
     /// negated only when a &gt;= 128. All 256 values match the game's table
@@ -22,7 +21,7 @@ public static class Trigonometry
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {
-        int magnitude = UnsignedHalfWave(angle.HalfWaveIndex) >> 1;
+        int magnitude = UnsignedHalfWave(angle.StepsIntoHalfTurn) >> 1;
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
@@ -46,57 +45,57 @@ public static class Trigonometry
         return sample < 0 ? -product : product;
     }
 
-    /// <summary>The game's signed 1/256-step sine table and
-    /// its three quadrant continuations. Unlike the small table, peaks are +/-256.</summary>
+    /// <summary>The game's signed sine in 256ths of its peak over the whole turn.
+    /// Unlike the coarse half-wave (<see cref="CoarseHalfWave"/>), peaks are +/-256.</summary>
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the game's values. Treat the
-    /// quarter-turn magnitude as exactly 256; the small table saturates it to 255.
+    /// quarter-turn magnitude as exactly 256; the coarse half-wave saturates it to 255.
     /// The #1165 research also checked the entire 320-entry negative-cosine prefix/full
     /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
     /// these same samples.
     /// Individual investigation: #625 / #910.</remarks>
     public static int SignedSine(TrigonometryAngle angle)
     {
-        int halfWaveIndex = angle.HalfWaveIndex;
-        int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave(halfWaveIndex);
+        int steps = angle.StepsIntoHalfTurn;
+        int magnitude = steps == 64 ? 256 : CoarseHalfWave(steps);
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>The game's small sine table and cosine continuation:
-    /// min(255, floor(256*sin(index*pi/128))) for index 0..127.</summary>
+    /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:
+    /// min(255, floor(256*sin(step*pi/128))) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
     /// Independently checked for #1165 against all 128 of the game's values.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
-    /// Invalid indices throw ArgumentOutOfRangeException.
+    /// A step outside the half turn throws ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation stay in callers.
     /// </remarks>
-    public static int EightBitHalfWave(int index)
+    public static int CoarseHalfWave(int step)
     {
-        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
-        return Math.Min(255, (int)(256 * UnitHalfWave(index)));
+        if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));
+        return Math.Min(255, (int)(256 * UnitHalfWave(step)));
     }
 
-    /// <summary>The game's unsigned sine table:
-    /// floor(65535*sin(index*pi/128)) for index 0..127.</summary>
+    /// <summary>The game's unsigned half-wave, the sine in 65535ths of its peak over the first half turn:
+    /// floor(65535*sin(step*pi/128)) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
     /// Independently checked for #1165 against all 128 of the game's values.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before <see cref="FineSignedSine"/>'s halving and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.
-    /// Invalid indices throw ArgumentOutOfRangeException.
+    /// A step outside the half turn throws ArgumentOutOfRangeException.
     /// </remarks>
-    public static int UnsignedHalfWave(int index)
+    public static int UnsignedHalfWave(int step)
     {
-        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
-        return (int)(65535 * UnitHalfWave(index));
+        if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));
+        return (int)(65535 * UnitHalfWave(step));
     }
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
     /// <remarks>The omitted term is below 5.2e-21; the reviewed 1e-19 margin covers rounding and the 28-place pi constant. Full-domain comparisons with the game's tables establish the integer outputs without libm or correction tables.</remarks>
-    internal static decimal UnitHalfWave(int index)
+    internal static decimal UnitHalfWave(int step)
     {
-        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
-        int phase = Math.Min(index, 128 - index);
+        if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));
+        int phase = Math.Min(step, 128 - step);
         if (phase == 0) return 0;
         if (phase == 64) return 1;
         decimal x = phase * 3.1415926535897932384626433833m / 128;

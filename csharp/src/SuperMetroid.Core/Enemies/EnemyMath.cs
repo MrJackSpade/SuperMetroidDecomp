@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Stateless enemy arithmetic shared by the species: trigonometry angles, whole-pixel velocity
-/// steps and sine/cosine products by short radii (<see cref="ShortCircleProduct"/>).
+/// Stateless enemy arithmetic shared by the species: bearings, whole-pixel velocity steps, points on circles of short
+/// radius (<see cref="ShortCircleProduct"/>) and the parts of a speed along an angle's sine and cosine.
 /// </summary>
 internal static class EnemyMath
 {
@@ -70,8 +70,11 @@ internal static class EnemyMath
         });
     }
 
-    /// <summary>Adds one signed 1/256-pixel velocity to a wrapped 1/65536-pixel position.</summary>
-    internal static FixedCoordinate AddEightBitVelocity(FixedCoordinate position, SignedEightEight velocity) =>
+    /// <summary>
+    /// <paramref name="position"/> moved by one update's <paramref name="velocity"/>, a signed speed in 256ths of a pixel,
+    /// wrapping around the room's coordinate span.
+    /// </summary>
+    internal static FixedCoordinate AddVelocity(FixedCoordinate position, SignedEightEight velocity) =>
         velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
 
     /// <summary>
@@ -85,69 +88,71 @@ internal static class EnemyMath
         CoordinateAxis.Distance(firstCoordinate, secondCoordinate) < limit;
 
     /// <summary>
-    /// The whole pixels of the short sine product (<see cref="ReadEightBitSineFixedProduct"/>): in the turn's second half
-    /// the reversed whole pixels of the first half's product, as <see cref="ShortCircleProduct.Reversed"/> leaves them, so
-    /// <c>Math.Sin</c> or a true fixed-point reversal would disagree by one pixel.
+    /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>
+    /// (<see cref="CircleSine"/>): in the turn's second half the reversed whole pixels of the first half's distance, as
+    /// <see cref="ShortCircleProduct.Reversed"/> leaves them, so <c>Math.Sin</c> or a true fixed-point reversal would
+    /// disagree by one pixel.
     /// </summary>
-    internal static int ReadEightBitSineProduct(TrigonometryAngle angle, int radius) =>
-        ReadEightBitSineFixedProduct(angle, radius).WholePixels;
+    internal static int CircleSinePixels(TrigonometryAngle angle, int radius) =>
+        CircleSine(angle, radius).WholePixels;
 
-    /// <summary>Computes the short cosine multiplication.</summary>
-    internal static int ReadEightBitCosineProduct(TrigonometryAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
+    /// <summary>The whole pixels of the point's cosine distance: <see cref="CircleSinePixels"/> a quarter turn ahead.</summary>
+    internal static int CircleCosinePixels(TrigonometryAngle angle, int radius) =>
+        CircleSinePixels(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
 
-    /// <summary>Computes the short negative sine multiplication.</summary>
-    internal static int ReadEightBitNegativeSineProduct(TrigonometryAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
+    /// <summary>The whole pixels of the point's negative sine distance: <see cref="CircleSinePixels"/> a half turn ahead.</summary>
+    internal static int CircleNegativeSinePixels(TrigonometryAngle angle, int radius) =>
+        CircleSinePixels(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
-    /// The point on a circle at a trigonometry angle: the cosine product as X and the negative-sine
-    /// product as Y, each wrapped to 0 through 65535.
+    /// The point on a circle at a trigonometry angle: the cosine distance in pixels as X and the negative sine distance
+    /// as Y, each wrapped to 0 through 65535.
     /// </summary>
     internal static Offset16<RoomPixels> CircleOffset(TrigonometryAngle angle, int radius) => Offset16<RoomPixels>.Wrapped(
-        ReadEightBitCosineProduct(angle, radius),
-        ReadEightBitNegativeSineProduct(angle, radius));
+        CircleCosinePixels(angle, radius),
+        CircleNegativeSinePixels(angle, radius));
 
     /// <summary>
-    /// The point at <paramref name="radius"/> pixels along <paramref name="angle"/>'s sine, in whole pixels and fraction:
-    /// a half-wave sample of 0 through 255 times the radius the short circle product uses, in 256ths of a pixel, reversed
-    /// in the turn's second half as <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's
-    /// motion; callers that only need pixels use the helpers above.
+    /// The sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>, in whole pixels and
+    /// fraction: the coarse half-wave (<see cref="Trigonometry.CoarseHalfWave"/>), 0 through 255, times the radius the
+    /// short circle product uses, in 256ths of a pixel, reversed in the turn's second half as
+    /// <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; callers that only need
+    /// pixels use the helpers above.
     /// </summary>
-    internal static SignedSixteenSixteen ReadEightBitSineFixedProduct(
+    internal static SignedSixteenSixteen CircleSine(
         TrigonometryAngle angle,
         int radius)
     {
-        // A half-wave sample below 256 times a radius below 256 is below 65,536, so the product needs no wrap.
-        int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
+        // A half-wave value below 256 times a radius below 256 is below 65,536, so the product needs no wrap.
+        int sample = Trigonometry.CoarseHalfWave(angle.StepsIntoHalfTurn);
         SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(
             sample * ShortCircleProduct.RadiusInUse(radius));
         return angle.IsInSecondHalf ? ShortCircleProduct.Reversed(product) : product;
     }
 
-    /// <summary>Rotates the fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
-    internal static SignedSixteenSixteen ReadEightBitCosineFixedProduct(
+    /// <summary>The point's cosine distance: <see cref="CircleSine"/> a quarter turn ahead, keeping its second-half reversal.</summary>
+    internal static SignedSixteenSixteen CircleCosine(
         TrigonometryAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
+        CircleSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn), radius);
 
-    /// <summary>Rotates the fixed sine multiplication by a half turn to obtain negative sine.</summary>
-    internal static SignedSixteenSixteen ReadEightBitNegativeSineFixedProduct(
+    /// <summary>The point's negative sine distance: <see cref="CircleSine"/> a half turn ahead.</summary>
+    internal static SignedSixteenSixteen CircleNegativeSine(
         TrigonometryAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
+        CircleSine(angle.TurnedBy(TrigonometryAngle.HalfTurn), radius);
 
     /// <summary>
     /// The share of a speed of <paramref name="wholePixels"/> whole pixels per update that <paramref name="angle"/>'s
-    /// unsigned half-wave sample gives, regardless of direction: the sample, 0 through 65535 in 65536ths of the whole
+    /// unsigned half-wave gives, regardless of direction: the half-wave, 0 through 65535 in 65536ths of the whole
     /// speed (its peak of 65535 standing for all of it), times the speed, in pixels per update with the fraction in
-    /// 65536ths. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Keeping sample
-    /// generation deterministic avoids floating-point rounding, so each speed is exactly the game's product.
+    /// 65536ths. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Computing the
+    /// half-wave deterministically avoids floating-point rounding, so each speed is exactly the game's product.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     /// <exception cref="OverflowException">The product does not fit a 1/65536-pixel speed.</exception>
     internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
-        UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.HalfWaveIndex));
+        UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn));
 
     /// <summary>
     /// The horizontal part of a speed of <paramref name="wholePixels"/> whole pixels per update along
@@ -163,17 +168,17 @@ internal static class EnemyMath
     internal static UnsignedSixteenSixteen AbsoluteSineSpeed(TrigonometryAngle angle, int wholePixels) =>
         UnsignedSineSpeed(angle.TurnedBy(TrigonometryAngle.HalfTurn), wholePixels);
 
-    /// <summary>Whether a table angle's cosine component is negative: the angle a quarter turn on lies in the turn's second half.</summary>
+    /// <summary>Whether an angle's cosine component is negative: the angle a quarter turn on lies in the turn's second half.</summary>
     internal static bool CosineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.QuarterTurn).IsInSecondHalf;
 
-    /// <summary>Whether a table angle's sine component is negative: the angle a half turn on lies in the turn's second half.</summary>
+    /// <summary>Whether an angle's sine component is negative: the angle a half turn on lies in the turn's second half.</summary>
     internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
 
     /// <summary>
     /// The velocity of <paramref name="wholePixels"/> whole pixels per update, 0 through 127, along
-    /// <paramref name="angle"/>'s sine: the signed sine sample, which peaks at one pixel per update, times the whole
-    /// speed. The product of a whole speed loses nothing, so it is the sample scaled exactly; the behaviours that read the
-    /// sample itself as a velocity take one pixel.
+    /// <paramref name="angle"/>'s sine: the signed sine, which peaks at one pixel per update, times the whole speed. The
+    /// product of a whole speed loses nothing, so it is the sine scaled exactly; the behaviours that read the sine itself
+    /// as a velocity take one pixel.
     /// </summary>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
         Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, FastestSineSpeed, wholePixels)), angle);
@@ -185,7 +190,10 @@ internal static class EnemyMath
     /// </summary>
     private const int FastestSineSpeed = 127;
 
-    /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
-    internal static SignedEightEight MultiplySineSample(SignedEightEight speed, TrigonometryAngle angle) =>
+    /// <summary>
+    /// The part of <paramref name="speed"/> along <paramref name="angle"/>'s sine, rounding toward zero as the game does
+    /// (<see cref="Trigonometry.MultiplySignedSine"/>); a quarter turn ahead gives the cosine part.
+    /// </summary>
+    internal static SignedEightEight SineSpeed(SignedEightEight speed, TrigonometryAngle angle) =>
         Trigonometry.MultiplySignedSine(speed, angle);
 }

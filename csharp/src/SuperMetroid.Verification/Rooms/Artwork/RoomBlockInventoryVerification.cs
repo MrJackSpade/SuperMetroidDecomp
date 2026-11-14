@@ -93,7 +93,7 @@ internal static class RoomBlockInventoryVerification
         TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
         for (int entry = 0; entry < 6; entry++)
         {
-            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(0x80 | entry)));
+            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x80 | entry)));
             InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(entry)));
             AssertEqual(entry < 2, area.HoldsSamusEaterPlants, $"Brinstar special-air area reaction {entry} holds a plant exactly when it is a plant");
             AssertEqual(entry >= 2, area.HoldsSpeedBoosterBlocks, $"Brinstar special-air area reaction {entry} holds a Speed Booster block exactly when it is one");

@@ -186,7 +186,7 @@ internal static class GModeGateGlitchVerification
         EnterDirectGMode(samus);
 
         RoomTerrainBlock[] words = Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray();
-        RoomBlockBehavior[] behavior = Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray();
+        RoomBlockBehavior[] behavior = Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80), 16).ToArray();
         RoomLevelData level = CreateRoom(new(4, 4), words, behavior);
         var roomObjects = RoomObjectFixtures.Unbound();
 

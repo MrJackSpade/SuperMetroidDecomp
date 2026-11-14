@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -488,8 +488,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             (uint)blockY < level.Size.Y)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
-            int slopeShape = block.Behavior.Slope.Shape;
-            if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
+            SlopeShape slopeShape = block.Behavior.Slope.Shape;
+            if (block.CollisionType == RoomCollisionType.Slope && !slopeShape.IsSquare)
             {
                 return CrawlerSlopes.Scale(velocity.X, slopeShape);
             }

@@ -431,8 +431,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(behavior),
-                area,
+                RoomBlockBehaviorCodec.Decode(area, behavior),
                 projectileType);
 
         /// <summary>

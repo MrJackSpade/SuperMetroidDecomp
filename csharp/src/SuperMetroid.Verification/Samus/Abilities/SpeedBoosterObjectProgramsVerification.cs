@@ -75,12 +75,14 @@ internal static class SpeedBoosterObjectProgramsVerification
         for (int area = 0; area <= byte.MaxValue; area++)
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
+            AreaId retail = RetailArea(area);
+            if (retail == UnknownArea)
+                continue;
             int tableAddress = 0;
             foreach (var entry in entries)
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
-            bool found = SpeedBoosterBlocks.TryResolve(RoomBlockBehaviorCodec.Decode((byte)bts),
-                RetailArea(area),out BlockReactionChange? crumble);
+            bool found = SpeedBoosterBlocks.TryResolve(RoomBlockBehaviorCodec.Decode(retail, bts), out BlockReactionChange? crumble);
             AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
             if (!found)
             {
@@ -109,9 +111,9 @@ internal static class SpeedBoosterObjectProgramsVerification
         {
             new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria, true),
             new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x0f), AreaId.Crateria, false),
-            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x82), AreaId.Brinstar, true),
-            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x83), AreaId.Brinstar, false),
-            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x84), AreaId.Brinstar, true),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82), AreaId.Brinstar, true),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x83), AreaId.Brinstar, false),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x84), AreaId.Brinstar, true),
         };
         foreach ((RoomBlockBehavior bts, AreaId area, bool respawns) in cases)
         {
@@ -136,11 +138,11 @@ internal static class SpeedBoosterObjectProgramsVerification
 
         (TestAddressSpace bombBus, RoomLevelData bombLevel,
             RoomObjectSystem bombObjects, int bombBlock) =
-            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x82),
+            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82),
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterObjectReadGuard(bombBus);
         AssertTrue(bombObjects.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombLevel.BlockAt(bombBlock),
-                RoomBlockBehaviorCodec.Decode(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
+                RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82), SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombObjects.Step(bombLevel);
         AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),

@@ -56,7 +56,6 @@ public sealed class SamusKinematicsState
         probe.Radius = Radius;
         probe.YSpeed = YSpeed;
         probe.YDirection = YDirection;
-        probe.SandCollisionArea = SandCollisionArea;
         probe.YAcceleration = YAcceleration;
         probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
         // Probes still call the solid-enemy detector before blocks. The
@@ -124,9 +123,6 @@ public sealed class SamusKinematicsState
     /// in the vertical move and the jump-release test.
     /// </summary>
     public SamusVerticalDirection YDirection { get; set; }
-
-    /// <summary>Area-table selector used by sand reactions; refreshed before movement.</summary>
-    public AreaId SandCollisionArea { get; set; }
 
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }

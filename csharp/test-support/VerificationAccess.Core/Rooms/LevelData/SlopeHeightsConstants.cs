@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Cartridge values of <see cref="SlopeHeights"/> that only verification reads.</summary>
+/// <summary>Cartridge values of the slope shapes' heights (<see cref="SlopeShape.HeightAt"/>) that only verification reads.</summary>
 internal static class SlopeHeightsConstants
 {
     /// <summary>
@@ -11,7 +11,7 @@ internal static class SlopeHeightsConstants
     public const int ReferenceAddress = 0x948b2b;
 
     /// <summary>Provides the native slope-height reference address for block geometry comparisons.</summary>
-    extension(SlopeHeights)
+    extension(SlopeShape)
     {
         /// <inheritdoc cref="SlopeHeightsConstants.ReferenceAddress"/>
         internal static int ReferenceAddress => SlopeHeightsConstants.ReferenceAddress;

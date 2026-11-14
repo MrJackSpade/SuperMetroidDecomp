@@ -24,7 +24,6 @@ internal sealed class ChainsawPowerBombFrameBehavior
     /// <summary>Runs the Power Bomb fuse over the shot, then the Power Bomb boundary reactions.</summary>
     internal void RunPowerBombFrameBehavior(
         RoomLevelData level,
-        SamusState samus,
         SamusProjectile slot,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
@@ -54,7 +53,6 @@ internal sealed class ChainsawPowerBombFrameBehavior
             sharedProjectiles.PowerBombExplosion.ExplosionRadius,
             reactions,
             roomObjects,
-            samus.LiquidPhysics.Area,
             slot.Type);
     }
 }

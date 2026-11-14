@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using System.Text.Json;
@@ -32,9 +33,10 @@ public static class XrayRevealVisualFiles
     /// the reaction its collision kind reads, and a kind that reads none by no reaction, and names unrevealed air (#1722);
     /// revision 8 lists each rule's blocks as its shape copies them instead of four corners with zero for the unused ones,
     /// and names the tanks' reveal blocks <c>tanks</c> (#1756); revision 9 drops the block an extension chain leaving the
-    /// room showed, since a chain leaving the room reveals nothing (#1792).
+    /// room showed, since a chain leaving the room reveals nothing (#1792); revision 10 names the reactions as the room's area
+    /// resolves them, so Brinstar's own Speed Booster blocks are named for themselves alone (#1805).
     /// </summary>
-    private const int FormatVersion = 9;
+    private const int FormatVersion = 10;
 
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -69,12 +71,16 @@ public static class XrayRevealVisualFiles
         var grouped = new Dictionary<XrayRevealVisualKeyDocument, XrayRevealGroupKey?>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
+        foreach (AreaId area in AreaIds.All)
         {
-            XrayRevealDefinition? native = ReadNative(bus, type, value);
-            RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(value);
+            // The Brinstar-only copy reveals nothing in another area, whose table the import resolves to plain solid blocks
+            // at the entries Brinstar gives its own Speed Booster blocks (#1805).
+            XrayRevealDefinition? native = ReadNative(bus, type, value) is { } read &&
+                (read.Shape != XrayRevealShape.CopyBrinstar || area == AreaId.Brinstar) ? read : null;
+            RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
             if (native?.Shape != XrayRevealTable.Find(type, behavior))
                 throw new InvalidDataException(
-                    $"Compiled X-ray command {type}/behaviour ${value:X2} differs from the cartridge.");
+                    $"Compiled X-ray command {type}/behaviour ${value:X2} in {area} differs from the cartridge.");
             // Every behaviour holding the same reaction for the kind must reveal the same blocks: the installation names the
             // reaction, not the behaviour.
             Enum? reaction = behavior.ReactionUnder(type);

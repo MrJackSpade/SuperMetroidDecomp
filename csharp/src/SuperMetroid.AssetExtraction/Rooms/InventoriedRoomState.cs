@@ -101,16 +101,16 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         block.Collision == RoomCollisionType.SpecialBlock && block.Behavior.TryGetContactCrumble(out _));
 
     /// <summary>
-    /// Whether the state's terrain holds a Speed Booster block: a special block whose reaction selects one in the state's
-    /// area, or that a bomb reveals as one, or a special-air block whose area reaction's collision reaction is one.
+    /// Whether the state's terrain holds a Speed Booster block: a special block whose reaction selects one, or that a bomb
+    /// reveals as one, or a special-air block whose collision reaction is one.
     /// </summary>
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
-            (SpeedBoosterBlocks.TryResolve(block.Behavior, Area, out _) ||
+            (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
                 (block.Behavior.Special is not null &&
-                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special, Area) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
         (IsReactingSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(Area, block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
+            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
                 or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
                 or SpecialAirCollisionReaction.PermanentSpeedBlock));
 
@@ -138,15 +138,14 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsEscapeAnimalWall =>
         Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
-    /// <summary>Whether the state's terrain holds a special-air block whose area reaction's inside reaction is a Brinstar plant that bites Samus.</summary>
+    /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(Area, block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
+        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
             or SpecialAirInsideReaction.BrinstarCeilingPlant);
 
     /// <summary>
-    /// Whether <paramref name="block"/> is a special-air block with a reaction, which its area gives its meaning: a
-    /// reaction that is the same in every area (the conveyors, the scroll trigger, passing through) means nothing to the
-    /// area's reactions.
+    /// Whether <paramref name="block"/> is a special-air block with a reaction: a reaction that is the same in every area
+    /// (the conveyors, the scroll trigger, passing through) means nothing to the area's own reactions.
     /// </summary>
     private static bool IsReactingSpecialAir(RoomTerrainReaction block) =>
         block.Collision == RoomCollisionType.SpecialAir && block.Behavior.SpecialAir is not null;
@@ -215,7 +214,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         }
         var reactions = new HashSet<RoomTerrainReaction>();
         for (int index = 0; index < terrain.Foreground.Length; index++)
-            reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index]));
+            reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index].In(room.Area)));
         var headers = new HashSet<RoomObjectKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
             headers.Add(placement.Kind);

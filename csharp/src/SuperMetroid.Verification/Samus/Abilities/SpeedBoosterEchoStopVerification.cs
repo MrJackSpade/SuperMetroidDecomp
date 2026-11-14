@@ -126,7 +126,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
         speed.EchoSoundPlaying = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertTrue(!speed.EchoSoundPlaying, "quicksand silently ends the echo sound");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);

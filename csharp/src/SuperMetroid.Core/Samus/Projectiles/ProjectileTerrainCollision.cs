@@ -294,7 +294,7 @@ internal sealed class ProjectileTerrainCollision
 
             int x = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
             int y = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
-            bool hit = SlopeHeights.Read(block.Behavior.Slope.Shape, x) <= y;
+            bool hit = block.Behavior.Slope.Shape.HeightAt(x) <= y;
             // A surface hit clears both scan counters. This overrides
             // earlier air rows and ends the span; Wave still discards whether the hit stops it.
             endSpan = hit;

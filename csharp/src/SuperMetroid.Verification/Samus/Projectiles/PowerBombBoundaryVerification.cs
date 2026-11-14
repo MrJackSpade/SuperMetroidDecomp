@@ -25,7 +25,7 @@ internal static class PowerBombBoundaryVerification
             {
                 var visited = new List<BombBlockReaction>();
                 SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), PowerBombRadius.FromWholePixels(radiusPixels),
-                    visited, null, AreaId.Crateria, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+                    visited, null, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
                 // A visit into this inert air room leaves no state besides its reaction entry,
                 // so only the inclusive visit count (corner revisits included) is observable.
                 AssertEqual(expected.Length, visited.Count, "inclusive Power Bomb edge visit count");

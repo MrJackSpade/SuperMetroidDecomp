@@ -460,7 +460,7 @@ internal static void VerifyTypedNativeWords()
     var reflectedSlopeOrAreaReaction = RoomBlockBehaviorCodec.Decode(0xff);
     AssertEqual(-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
         "BTS signed extension offset");
-    AssertEqual(0x1f, reflectedSlopeOrAreaReaction.Slope.Shape,
+    AssertEqual(RoomBlockBehaviorCodec.SlopeShapeOf(0x1f), reflectedSlopeOrAreaReaction.Slope.Shape,
         "BTS slope shape field");
     AssertTrue(reflectedSlopeOrAreaReaction.Slope.IsNonSquare &&
         reflectedSlopeOrAreaReaction.Slope.FlipsHorizontally &&

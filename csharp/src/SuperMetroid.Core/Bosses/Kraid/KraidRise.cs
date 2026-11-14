@@ -313,7 +313,7 @@ internal sealed class KraidRise
         KraidEnemyState state,
         SamusState? samus)
     {
-        KraidPhase phase = state.BodyState.Phase;
+        KraidPhase? phase = state.BodyState.Phase;
         switch (phase)
         {
             case KraidPhase.RestrictSamusToFirstScreen:

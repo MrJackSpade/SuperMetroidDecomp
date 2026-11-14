@@ -32,13 +32,13 @@ internal static class PauseSnapshotTestsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 768)),
         };
         var system = new SharedGameState(new SharedRandom());
-        system.SetAreaMapAcquired((byte)AreaId.Maridia);
-        system.MarkExploredMapTile((byte)AreaId.Maridia, new(30, 5));
+        system.SetAreaMapAcquired(AreaId.Maridia);
+        system.MarkExploredMapTile(AreaId.Maridia, new(30, 5));
         // Retain a drawn HUD rather than testing only the cleared menu background (#1466).
         var gameplayHud = new HudState();
         gameplayHud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.CeresDebug);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayHud = gameplayHud.Shown() });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayHud = gameplayHud.Shown() });
         var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)

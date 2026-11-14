@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -38,7 +39,7 @@ internal static class LookupAnimatedAreasVerification
                     // A bit no record of the area sets selects no object of the game (#1686): the cartridge's word there is
                     // its empty object, or Crateria's unused lava.
                     if (area < 7)
-                        AssertEqual(expected, AreaBlockAnimations.Read((AreaId)area, bit) is { } selected
+                        AssertEqual(expected, AreaBlockAnimations.Read(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), bit) is { } selected
                                 ? FxNativeWords.AnimatedTileObjects.Word(selected)
                                 : FxNativeWords.UnselectedAnimatedTileObject(area, bit),
                             "Retail view shares original selection");
@@ -52,7 +53,7 @@ internal static class LookupAnimatedAreasVerification
                 if (area >= 7 || bit >= 8)
                 {
                     var failure = AssertThrows<ArgumentOutOfRangeException>(
-                        () => AreaBlockAnimations.Read((AreaId)area, bit), "Retail selection rejects");
+                        () => AreaBlockAnimations.Read(RetailArea(area), bit), "Retail selection rejects");
                     AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
                 }
             }

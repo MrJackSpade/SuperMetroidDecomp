@@ -141,7 +141,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         SamusEater = new SamusEaterObjects(services.Samus, SlotTable);
         EscapeAnimals = new EscapeAnimalObjects(services.Events, SlotTable, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
-        ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
+        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
@@ -151,10 +151,10 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
-        GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);
+        GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, SlotTable);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
-        BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable, Drawing);
+        BlockReactions = new BlockReactionObjects(room.Area, EscapeAnimals, SlotTable, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
     }
 

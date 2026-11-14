@@ -24,7 +24,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     public int RoomIndex => Definition.RoomIndex;
 
     /// <summary>The room's validated retail world area.</summary>
-    public AreaId AreaIndex => Definition.AreaIndex;
+    public AreaId Area => Definition.Area;
 
     /// <summary>The room's top-left position on its area map.</summary>
     public Position16<MapTiles> MapPosition => Definition.MapPosition;
@@ -45,7 +45,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
 
     /// <summary>Logical area/room pair.</summary>
-    public RoomIdentity Identity => new(AreaIndex, RoomIndex);
+    public RoomIdentity Identity => new(Area, RoomIndex);
 
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
     public static SelectedRoom LoadUsingCompiledSelection(

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 /// <param name="Name">The room's name.</param>
 /// <param name="RoomIndex">The room's index within its area, 0 through 255.</param>
-/// <param name="AreaIndex">The room's area.</param>
+/// <param name="Area">The room's area.</param>
 /// <param name="MapPosition">The room's top-left map tile.</param>
 /// <param name="Size">The room's size in scroll screens.</param>
 /// <param name="UpScroller">The camera's vertical target offset while Samus moves down, in pixels, 0 through 255.</param>
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record RoomDefinition(
     string Name,
     int RoomIndex,
-    AreaId AreaIndex,
+    AreaId Area,
     Position16<MapTiles> MapPosition,
     Extent16<RoomScreens> Size,
     int UpScroller,

@@ -70,7 +70,7 @@ internal static class PauseReserveTankAssetsVerification
         }
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentation content)
         {
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             return pause;
         }

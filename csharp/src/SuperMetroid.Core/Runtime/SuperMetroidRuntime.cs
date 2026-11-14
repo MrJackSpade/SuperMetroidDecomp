@@ -625,7 +625,7 @@ internal sealed class SuperMetroidRuntime
             Player.Samus?.Xray.AreColourEffectsSuspended != true)
         {
             Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasDefeatedAnyOf(paletteRoom.AreaIndex, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
+                    System.HasDefeatedAnyOf(paletteRoom.Area, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
@@ -866,7 +866,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal movement phase; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.Area) });
         }
     }
 

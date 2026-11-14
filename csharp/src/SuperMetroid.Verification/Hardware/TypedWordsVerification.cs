@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Video;
@@ -650,7 +651,7 @@ internal static void VerifyTypedNativeWords()
         () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, "typed-area test"),
         "non-retail cartridge area rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode((AreaId)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count),
+        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(UnknownArea),
         "forged non-retail area rejected before table access");
 
     var crateriaRoom = new RoomIdentity(AreaId.Crateria, 0x1c);
@@ -662,7 +663,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual("Crateria room 28", crateriaRoom.ToString(),
         "room identity diagnostic format");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => new RoomIdentity((AreaId)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, 0),
+        () => new RoomIdentity(UnknownArea, 0),
         "room identity rejects forged area enum");
     // A room's index is any index within its area (#1627).
     AssertEqual(300, new RoomIdentity(AreaId.Crateria, 300).RoomIndex, "room identity keeps an index past 255");

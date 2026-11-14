@@ -70,7 +70,7 @@ public static class MapPresentationExtractor
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             cancellationToken.ThrowIfCancellationRequested();
             using var buffer = new MemoryStream();

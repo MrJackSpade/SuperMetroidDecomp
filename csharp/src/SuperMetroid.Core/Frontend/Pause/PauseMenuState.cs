@@ -123,8 +123,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         this.audio = entry.Audio;
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
         mapHighlight.Bind(entry.MapPresentation.HighlightCycle);
-        area = entry.AreaIndex;
-        _ = AreaIds.Require(entry.AreaIndex);
+        area = entry.Area;
+        _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
         this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
             ? entry.MapRevealMode

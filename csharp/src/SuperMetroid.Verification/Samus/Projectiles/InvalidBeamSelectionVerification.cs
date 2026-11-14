@@ -26,7 +26,7 @@ internal static class InvalidBeamSelectionVerification
         {
             var navigationSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
                 EquippedBeams = SamusBeamFlags.Spazer, EquippedItems = SamusEquipmentFlags.HiJumpBoots };
-            var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+            var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, ControllerButton.Down);
@@ -40,7 +40,7 @@ internal static class InvalidBeamSelectionVerification
         // before the tested press; this isolates the Boots-handler Left+A ordering.
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster),
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedBeams = SamusBeamFlags.Spazer };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.HiJump, pause.SelectedControl, "fixture starts on Hi-Jump Boots");

@@ -49,7 +49,7 @@ internal static class HudAtlasVerification
         void Initialize(SuperMetroidRuntime runtime)
         {
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
         // The top rows of the BG3 plane the frame latches, its characters as their bound artwork composes them, drawn added
         // over the black backdrop: the plane no longer holds the HUD, which is its own layer (#1466), so the band shows

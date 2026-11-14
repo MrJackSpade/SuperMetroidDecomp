@@ -22,7 +22,7 @@ internal static class RoomDefinitionsVerification
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         Suite(nameof(VerifyRoomDefinitionIdentities), () => VerifyRoomDefinitionIdentities(rooms));
         Suite(nameof(VerifyRoomDefinitionRoomIndex), () => VerifyRoomDefinitionRoomIndex(rom, rooms));
-        Suite(nameof(VerifyRoomDefinitionAreaIndex), () => VerifyRoomDefinitionAreaIndex(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionArea), () => VerifyRoomDefinitionArea(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionMapX), () => VerifyRoomDefinitionMapX(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionMapY), () => VerifyRoomDefinitionMapY(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionWidthInScreens), () => VerifyRoomDefinitionWidthInScreens(rom, rooms));
@@ -61,7 +61,7 @@ internal static class RoomDefinitionsVerification
     /// <summary>Checks the room index stored at header byte zero.</summary>
     private static void VerifyRoomDefinitionRoomIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 0, header => header.RoomIndex);
     /// <summary>Checks the area byte and its production area lookup.</summary>
-    private static void VerifyRoomDefinitionAreaIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 1, header => (int)header.AreaIndex);
+    private static void VerifyRoomDefinitionArea(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 1, header => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(header.Area));
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>
     private static void VerifyRoomDefinitionMapX(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 2, header => header.MapPosition.X);
     /// <summary>Checks each room's vertical map coordinate against header byte three.</summary>
@@ -108,7 +108,7 @@ internal static class RoomDefinitionsVerification
             AssertEqual(expected, field(RoomDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, (int)SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer)).AreaIndex, "Production area view");
+                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer)).Area), "Production area view");
         }
     }
 

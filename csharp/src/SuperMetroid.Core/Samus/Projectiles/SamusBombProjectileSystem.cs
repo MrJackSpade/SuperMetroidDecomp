@@ -240,7 +240,7 @@ public sealed class SamusBombProjectileSystem
                 slot,
                 blockReactions,
                 terrain.RoomObjects,
-                samus.LiquidPhysics.AreaIndex,
+                samus.LiquidPhysics.Area,
                 samus.Kinematics);
             explosionStarted |= slotExplosionStarted;
             if (slotExplosionStarted && wasNormalBomb)
@@ -603,7 +603,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
         ISamusRoomObjects? roomObjects,
-        AreaId areaIndex,
+        AreaId area,
         SamusKinematicsState samusKinematics)
     {
         // A bomb that struck an enemy is cleared before its fuse runs.
@@ -669,7 +669,7 @@ public sealed class SamusBombProjectileSystem
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
             slot.HasReactedToTerrain = true;
-            CollectBlockExplosionReactions(level, slot, blockReactions, roomObjects, areaIndex);
+            CollectBlockExplosionReactions(level, slot, blockReactions, roomObjects, area);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
@@ -683,7 +683,7 @@ public sealed class SamusBombProjectileSystem
                     PowerBombExplosion.ExplosionRadius,
                     blockReactions,
                     roomObjects,
-                    areaIndex,
+                    area,
                     slot.Type);
             }
 
@@ -785,7 +785,7 @@ public sealed class SamusBombProjectileSystem
         PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
         ISamusRoomObjects? roomObjects,
-        AreaId areaIndex,
+        AreaId area,
         SamusProjectileType projectileType)
     {
         int horizontalRadius = explosionRadius.WholePixels;
@@ -806,13 +806,13 @@ public sealed class SamusBombProjectileSystem
         // intentionally visited twice; synchronous room-object terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomObjects, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomObjects, area, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomObjects, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomObjects, area, projectileType);
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomObjects, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomObjects, area, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomObjects, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomObjects, area, projectileType);
     }
 
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
@@ -821,7 +821,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> reactions,
         ISamusRoomObjects? roomObjects,
-        AreaId areaIndex)
+        AreaId area)
     {
         int centerX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
         int centerY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
@@ -847,7 +847,7 @@ public sealed class SamusBombProjectileSystem
                 new Position16<RoomBlocks>(x, y),
                 reactions,
                 roomObjects,
-                areaIndex,
+                area,
                 slot.Type);
         }
     }
@@ -858,7 +858,7 @@ public sealed class SamusBombProjectileSystem
         Position16<RoomBlocks> bombedBlock,
         List<BombBlockReaction> reactions,
         ISamusRoomObjects? roomObjects,
-        AreaId areaIndex,
+        AreaId area,
         SamusProjectileType projectileType)
     {
         int x = bombedBlock.X;
@@ -1035,7 +1035,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.At,
                 block.Behavior,
-                areaIndex,
+                area,
                 projectileType);
             return;
         }

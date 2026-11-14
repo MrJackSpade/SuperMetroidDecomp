@@ -14,7 +14,7 @@ public static class MapStationLayoutFile
 
     /// <summary>Every compiled station marker in missile, energy, then map order: the complete marker set an editable layout must hold.</summary>
     internal static IEnumerable<MapStationDiscoveryRule> Markers =>
-        KindOrder.SelectMany(kind => Enum.GetValues<AreaId>().SelectMany(area => MapStationDiscoveryRules.Get(area, kind)));
+        KindOrder.SelectMany(kind => AreaIds.All.SelectMany(area => MapStationDiscoveryRules.Get(area, kind)));
 
     /// <summary>Loads and validates the editable drawing layout for every known map-station marker.</summary>
     /// <param name="json">The caller-owned stream containing the layout document.</param>

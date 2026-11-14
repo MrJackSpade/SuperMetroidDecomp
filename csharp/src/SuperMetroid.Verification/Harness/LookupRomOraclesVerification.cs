@@ -18,10 +18,15 @@ internal static class LookupRomOraclesVerification
         AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
         byte[] narrationJson = IntroNarrationExtractor.Extract(rom);
         var narration = IntroNarrationFile.Read(new MemoryStream(narrationJson, writable: false));
+        IntroNarrationPageId[] storyOrder =
+        [
+            IntroNarrationPageId.Page1, IntroNarrationPageId.Page2, IntroNarrationPageId.Page3,
+            IntroNarrationPageId.Page4, IntroNarrationPageId.Page5, IntroNarrationPageId.Page6,
+        ];
         for (int page = 0; page < narrationSources.Length; page++)
         {
             IntroNarrationScriptPage source = narrationSources[page];
-            AssertEqual((IntroNarrationPageId)(page + 1), source.Id, "narration native registry order");
+            AssertEqual(storyOrder[page], source.Id, "narration native registry order");
             int address = 0x8c0000 | source.InstructionPointer;
             AssertEqual(source.BeginOpcode, (int)rom.ReadCartridgeWord(address), "narration native begin callback");
             AssertTrue(narration.Compile(source.Id).Length > 0, "native narration extracts and compiles every page through finish callback");
@@ -54,9 +59,9 @@ internal static class LookupRomOraclesVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             VerifyIntroNarrationNativePages(rom);
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page(0), "narration registry lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)7), "narration registry upper bound");
-        Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
+            // A value no page identity holds stands for an unknown page.
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)(-1)), "narration registry rejects an unknown page");
+        Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and unknown-page rejection pass.");
         return 0;
     }
 

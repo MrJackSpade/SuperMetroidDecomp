@@ -122,7 +122,7 @@ internal static class LookupTourianProgramVerification
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
-                    AssertEqual(definition.BossArea, (AreaId)LittleEndianBytes.HighByte(operand), $"{at}: boss area");
+                    AssertEqual(definition.BossArea, AreaNumberCodec.Decode(LittleEndianBytes.HighByte(operand), at), $"{at}: boss area");
                     AssertEqual(definition.DefeatedBosses, BossMaskCodec.Decode(LittleEndianBytes.LowByte(operand), at), $"{at}: boss bits");
                     steps.Add(Cue(TourianStatueBlockCueKind.GoToIfBossDefeated,
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));

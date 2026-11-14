@@ -189,7 +189,7 @@ internal sealed class EnemyRoomEffects
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainDefeatRecordRequested)
-                _system.RecordBossesDefeated(_room.LoadedRoom.AreaIndex, DefeatedBosses.AreaMiniBoss);
+                _system.RecordBossesDefeated(_room.LoadedRoom.Area, DefeatedBosses.AreaMiniBoss);
             if (death.ZebesTimebombEventRequested)
                 _system.SetEvent(StoryEvent.ZebesTimebombSet);
         }

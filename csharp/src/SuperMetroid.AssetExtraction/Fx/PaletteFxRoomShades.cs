@@ -71,7 +71,7 @@ internal static class PaletteFxRoomShades
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
                 objects.UnionWith(record.PaletteEffects);
-            if (room.AreaIndex == AreaId.Tourian)
+            if (room.Area == AreaId.Tourian)
                 objects.UnionWith(StatueGreyOuts);
         }
         return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))

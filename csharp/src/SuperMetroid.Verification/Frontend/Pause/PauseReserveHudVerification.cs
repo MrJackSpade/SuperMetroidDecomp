@@ -39,7 +39,7 @@ internal static class PauseReserveHudVerification
         samus.CollectedBeams = SamusBeamFlags.Charge;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = ReserveTankMode.Auto });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayHud = runtime.AcceptedHud });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);
         pause.Step(0, ControllerButton.Up);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);

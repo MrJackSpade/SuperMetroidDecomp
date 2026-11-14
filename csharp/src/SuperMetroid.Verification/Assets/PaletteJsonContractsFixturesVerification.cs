@@ -47,7 +47,7 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("map static", PaletteContractDocument(new MapStaticPalettesDocument
         {
             Version = MapStaticPalettesFormat.Version, Pause = PaletteContractColors(SnesCgram.ColorCount),
-            FileSelect = PaletteContractColors(SnesCgram.ColorCount), World = Enum.GetValues<AreaId>()
+            FileSelect = PaletteContractColors(SnesCgram.ColorCount), World = AreaIds.All
                 .Where(area => area != AreaId.Ceres).ToDictionary(area => area.ToString(), _ => PaletteContractColors(SnesCgram.ColorCount)),
         }), json => _ = MapStaticPalettesFile.Read(json));
         yield return new("map cycle", PaletteContractDocument(new MapPaletteCycleDocument

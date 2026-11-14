@@ -43,7 +43,7 @@ internal static class ChainsawFiringVerification
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = (SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));

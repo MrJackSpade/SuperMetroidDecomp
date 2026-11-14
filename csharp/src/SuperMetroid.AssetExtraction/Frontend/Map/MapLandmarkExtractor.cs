@@ -19,7 +19,7 @@ public static class MapLandmarkExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             int boss = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.BossLists), area);
             var markers = MapLandmarks.BossMarkers(area);

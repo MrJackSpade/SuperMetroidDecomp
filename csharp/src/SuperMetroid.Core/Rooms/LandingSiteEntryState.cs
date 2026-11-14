@@ -20,5 +20,5 @@ public sealed record LandingSiteEntryState(
     public int DownScroller { get; } = Ensure.AtLeastZero(DownScroller);
 
     /// <summary>Validated area projected from the logical room identity.</summary>
-    public AreaId AreaIndex => RoomIdentity.Area;
+    public AreaId Area => RoomIdentity.Area;
 }

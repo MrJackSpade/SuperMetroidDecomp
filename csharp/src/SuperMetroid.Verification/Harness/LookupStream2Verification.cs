@@ -370,7 +370,7 @@ internal static class LookupStream2Verification
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
         // The backdrops hold placed tiles, not tilemap words: each native word is decoded to the tile it places and the
         // tiles are compared by tile, colour variant, mirroring and priority.
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             var native = new BackgroundTile[1024];

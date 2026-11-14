@@ -95,7 +95,7 @@ internal static class RoomBlockUploads
         var tilesets = new Dictionary<TilesetDefinition, TilesetUploads>();
         foreach (RoomDefinition room in RetailRooms.All)
         {
-            bool ceres = room.AreaIndex == AreaId.Ceres;
+            bool ceres = room.Area == AreaId.Ceres;
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {
                 TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);

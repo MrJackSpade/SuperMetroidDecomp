@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Whether and where the intro shows Samus. The cinematic step runs Samus's state handlers only while it is
-/// nonzero, and the cinematic draw orders Samus against the cinematic objects by whether it is negative.
+/// Whether and how the intro shows Samus. The cinematic step runs Samus's state handlers only while she is shown, and
+/// the cinematic draw layers Samus and the cinematic objects by how she is shown.
 /// </summary>
 internal enum IntroSamusDisplay
 {
-    /// <summary>Zero: Samus is neither processed nor drawn.</summary>
-    Hidden = 0,
+    /// <summary>Samus is neither processed nor drawn.</summary>
+    Hidden,
 
-    /// <summary>Positive (1): cinematic objects draw before Samus.</summary>
-    ObjectsFirst = 1,
+    /// <summary>Samus is shown under the cinematic objects, which draw first and so over her.</summary>
+    ObjectsFirst,
 
-    /// <summary>Negative: Samus and her projectiles draw first.</summary>
-    SamusFirst = -1,
+    /// <summary>Samus is shown over the cinematic objects: she and her projectiles draw first.</summary>
+    SamusFirst,
 }

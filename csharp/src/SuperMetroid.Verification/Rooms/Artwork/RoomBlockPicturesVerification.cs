@@ -81,7 +81,7 @@ internal static class RoomBlockPicturesVerification
         Check(RoomDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateLists.GetStates(RoomDefinitions.WreckedShipMainShaft)
                 .Single(state => state.Fx?.Effects.Any(record => !record.BlockAnimations.IsEmpty) == true),
-            runtime => runtime.System.RecordBossesDefeated((int)AreaId.WreckedShip, DefeatedBosses.AreaBoss));
+            runtime => runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss));
     }
 
     /// <summary>
@@ -716,7 +716,7 @@ internal static class RoomBlockPicturesVerification
             ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Shown(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
-        bool ceres = scope.Room.AreaIndex == AreaId.Ceres;
+        bool ceres = scope.Room.Area == AreaId.Ceres;
         ushort[] stock = BackgroundTileWordBytes.Words(InstalledFixtures.StockBlockTiles(scope.Assets.Tileset, ceres));
         int pictures = 0, uploaded = 0;
         for (int block = 0; block < table.Blocks; block++)

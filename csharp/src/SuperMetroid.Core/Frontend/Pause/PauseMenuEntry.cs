@@ -16,8 +16,8 @@ internal sealed record PauseMenuEntry
     /// <summary>System.</summary>
     public required SharedGameState System { get; init; }
 
-    /// <summary>Area index.</summary>
-    public required AreaId AreaIndex { get; init; }
+    /// <summary>The area Samus is in.</summary>
+    public required AreaId Area { get; init; }
 
     /// <summary>Room map position.</summary>
     public required Position16<MapTiles> RoomMapPosition { get; init; }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public enum IntroNarrationPageId
 {
     /// <summary>First story page, recalling the Zebes battle and Mother Brain's plans.</summary>
-    Page1 = 1,
+    Page1,
     /// <summary>Second story page, recalling SR388 and the surviving larva.</summary>
     Page2,
     /// <summary>Third story page, describing the larva's delivery to Ceres for research.</summary>

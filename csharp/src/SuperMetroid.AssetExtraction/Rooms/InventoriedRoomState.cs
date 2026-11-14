@@ -226,7 +226,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var enemies = new HashSet<EnemyDefinitionId>();
         foreach (RoomEnemyPlacement record in state.EnemyPopulation.Placements.Span)
             enemies.Add(record.DefinitionId);
-        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.AreaIndex, placed, reactions, straddledShots, headers, enemies,
+        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.Area, placed, reactions, straddledShots, headers, enemies,
             state.SetupBehavior, state.MainBehavior, entrances.ToHashSet(), state.XrayOverlay);
     }
 }

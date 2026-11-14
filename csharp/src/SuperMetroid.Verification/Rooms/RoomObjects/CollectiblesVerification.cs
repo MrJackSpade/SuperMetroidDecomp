@@ -121,7 +121,7 @@ internal static class CollectiblesVerification
                     fixture.Level,
                     fixture.Block,
                     behavior: 8,
-                    areaIndex: AreaId.Crateria,
+                    area: AreaId.Crateria,
                     projectileType: SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
                 $"{kind} freed PLM slot can be reused by a bomb-special actor");
             AssertEqual(0, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,

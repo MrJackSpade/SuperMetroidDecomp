@@ -98,5 +98,5 @@ public static class SceneColourFiles
     }
 
     /// <summary>The six Zebes areas, whose world maps each have a backdrop.</summary>
-    private static IEnumerable<AreaId> ZebesAreas() => Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres);
+    private static IEnumerable<AreaId> ZebesAreas() => AreaIds.Zebes;
 }

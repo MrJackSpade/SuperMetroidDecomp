@@ -33,10 +33,10 @@ internal static class RoomFxSelectionAreas
             {
                 if (state.Fx is not { } fx)
                     continue;
-                if (!areas.TryAdd(fx, room.AreaIndex) && areas[fx] != room.AreaIndex)
+                if (!areas.TryAdd(fx, room.Area) && areas[fx] != room.Area)
                 {
                     throw new InvalidDataException(
-                        $"Room FX {fx.Name} is loaded by rooms of {areas[fx]} and {room.AreaIndex}; its records' effects would differ.");
+                        $"Room FX {fx.Name} is loaded by rooms of {areas[fx]} and {room.Area}; its records' effects would differ.");
                 }
             }
         }

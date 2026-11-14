@@ -75,7 +75,7 @@ internal static class HudImageSheet
 
     /// <summary>Every installed area map, in area order, whose cells the minimap can show.</summary>
     internal static IEnumerable<IAreaMapView> Maps(AreaMapPresentation maps) =>
-        Enum.GetValues<AreaId>().Select(Ensure.NotNull(maps).Get);
+        AreaIds.All.Select(Ensure.NotNull(maps).Get);
 
     /// <summary>
     /// Lays every one of <paramref name="hud"/>'s images out on shelves across the HUD's width, each image left of the next

@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>The five rows of the primary options page, valued by their cursor index.</summary>
+/// <summary>The five rows of the primary options page; <see cref="GameOptionsLayout"/> places them from the top.</summary>
 public enum GameOptionsPrimaryRow
 {
-    /// <summary>Primary row zero: begins options fade-out and the following start-game transition.</summary>
-    StartGame = 0,
-    /// <summary>Primary row one: selects English text, toggling the language.</summary>
-    EnglishText = 1,
-    /// <summary>Primary row two: selects Japanese text, toggling the language.</summary>
-    JapaneseText = 2,
-    /// <summary>Primary row three: dissolves to the controller-assignment page.</summary>
-    ControllerSettings = 3,
-    /// <summary>Primary row four: dissolves to the Icon Cancel/Moonwalk special-settings page.</summary>
-    SpecialSettings = 4,
+    /// <summary>Begins the options fade-out and the following start-game transition.</summary>
+    StartGame,
+    /// <summary>Selects English text, toggling the language.</summary>
+    EnglishText,
+    /// <summary>Selects Japanese text, toggling the language.</summary>
+    JapaneseText,
+    /// <summary>Dissolves to the controller-assignment page.</summary>
+    ControllerSettings,
+    /// <summary>Dissolves to the Icon Cancel/Moonwalk special-settings page.</summary>
+    SpecialSettings,
 }

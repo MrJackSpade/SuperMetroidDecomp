@@ -117,7 +117,7 @@ public sealed class HudState
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
         if (frame.PresentationMap is null)
             throw new InvalidOperationException("Minimap updates require an installed area-map definition.");
-        if (frame.PresentationMap.Area != frame.AreaIndex)
+        if (frame.PresentationMap.Area != frame.Area)
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(frame.PresentationMap));
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
@@ -138,8 +138,8 @@ public sealed class HudState
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY)));
-        bool hasAreaMap = system.HasAreaMap(frame.AreaIndex);
+        system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY)));
+        bool hasAreaMap = system.HasAreaMap(frame.Area);
         int columns = GameplayHudPresentation.MinimapSize.X;
         var cells = new MinimapCell[MinimapCellCount];
 
@@ -157,7 +157,7 @@ public sealed class HudState
                 }
 
                 var cell = new Position16<MapTiles>(CoordinateAxis.Wrap(mapX), CoordinateAxis.Wrap(mapY));
-                bool explored = system.IsMapTileExplored(frame.AreaIndex, cell);
+                bool explored = system.IsMapTileExplored(frame.Area, cell);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
@@ -176,7 +176,7 @@ public sealed class HudState
                 // shade on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
                     frame.PresentationMap.RevealsCellAbove(cell))
-                    system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY - 1)));
+                    system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY - 1)));
             }
         }
 

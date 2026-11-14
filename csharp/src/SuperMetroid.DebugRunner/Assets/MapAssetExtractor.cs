@@ -21,7 +21,7 @@ internal static class MapAssetExtractor
         string areasDirectory = Path.Combine(outputDirectory, "areas");
         Directory.CreateDirectory(areasDirectory);
         int areas = 0;
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             string stem = Path.Combine(areasDirectory, FileStem(area));

@@ -73,17 +73,17 @@ internal sealed class RoomMainRoutines
         room.SandBlockAnimations.Step(room.ArtworkFrames);
         room.SpikeBlockAnimations.Step(room.ArtworkFrames);
         if (_room.ActiveRoom is not null)
-            room.TreadmillBlockAnimations.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss), room.ArtworkFrames);
+            room.TreadmillBlockAnimations.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
         room.TourianStatues.StepBlockAnimations();
 
         // The Wrecked Ship treadmill door code creates an ordinary block animation. Its
         // handler shows one treadmill frame a pass only after Phantoon is defeated.
         if (room.WreckedShipTreadmill.IsActive)
         {
-            AreaId areaIndex = _room.ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
+            AreaId area = _room.ActiveRoom?.Area ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active room.");
             room.WreckedShipTreadmill.Step(
-                _system.HasDefeatedAnyOf(areaIndex, DefeatedBosses.AreaBoss),
+                _system.HasDefeatedAnyOf(area, DefeatedBosses.AreaBoss),
                 room.ArtworkFrames);
         }
     }

@@ -18,7 +18,7 @@ public static class PauseBackdropExtractor
     {
         byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseFrameTilemap, PauseBackdropDefinitions.ByteCount);
         var areas = new Dictionary<string, PauseBackdropCell[]>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             byte[] image = frame.ToArray();
             int label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseAreaLabelPointers.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));

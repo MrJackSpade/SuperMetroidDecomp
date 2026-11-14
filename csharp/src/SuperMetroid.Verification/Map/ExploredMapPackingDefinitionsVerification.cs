@@ -65,7 +65,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         // Every third cell of every area explored: a save keeps exactly the cells of the Zebes runs the stock map occupies.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
         var explored = new PersistentProgress();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             for (int index = 0; index < AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles; index += 3)
                 explored.SetExplored(area, AreaMapSize.Extent.CellAtRowMajorIndex(index), explored: true);
@@ -73,7 +73,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Progress = explored });
         SuperMetroidSaveSlot restored = saveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Compiled explored-map save failed checksums.");
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             Position16<MapTiles>[] expected = [.. explored.ExploredCells(area).Where(cell => AreaIds.IsZebes(area) &&
                 SavedMapExplorationRuns.IsKept(RetailPresentationFixture().Get(area).IsDiscoverable, cell))];

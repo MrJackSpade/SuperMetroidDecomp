@@ -1,30 +1,30 @@
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>The seven mutually exclusive retail world-area indices.</summary>
+/// <summary>The seven areas of the game world: the six regions of Zebes and the Ceres research station.</summary>
 /// <remarks>
-/// The order is the fixed area numbering used by room definitions, load-station tables, maps, and
-/// area-dependent gameplay tables. It is not a flags field.
+/// An area names a region; it is not a number and not a flags field. <see cref="AreaIds.All"/> lists the areas in the
+/// game's order; imported data and save files number the areas, and that numbering is their codecs' own.
 /// </remarks>
 public enum AreaId
 {
-    /// <summary>The planetary surface and adjoining caverns, encoded as retail area index 0.</summary>
-    Crateria = 0,
+    /// <summary>The planetary surface and adjoining caverns, where Samus lands.</summary>
+    Crateria,
 
-    /// <summary>The upper and lower Brinstar region, encoded as retail area index 1.</summary>
-    Brinstar = 1,
+    /// <summary>The upper and lower Brinstar region.</summary>
+    Brinstar,
 
-    /// <summary>The upper and lower Norfair region, encoded as retail area index 2.</summary>
-    Norfair = 2,
+    /// <summary>The upper and lower Norfair region.</summary>
+    Norfair,
 
-    /// <summary>The derelict spacecraft region, encoded as retail area index 3.</summary>
-    WreckedShip = 3,
+    /// <summary>The derelict spacecraft region.</summary>
+    WreckedShip,
 
-    /// <summary>The flooded Maridia region, encoded as retail area index 4.</summary>
-    Maridia = 4,
+    /// <summary>The flooded Maridia region.</summary>
+    Maridia,
 
-    /// <summary>The final Tourian region, encoded as retail area index 5.</summary>
-    Tourian = 5,
+    /// <summary>The final Tourian region.</summary>
+    Tourian,
 
-    /// <summary>The Ceres research station prologue, encoded as retail area index 6.</summary>
-    Ceres = 6,
+    /// <summary>The Ceres research station prologue.</summary>
+    Ceres,
 }

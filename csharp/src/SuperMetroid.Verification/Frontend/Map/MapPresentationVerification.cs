@@ -121,7 +121,7 @@ internal static class MapPresentationVerification
         if (File.Exists("Super Metroid.smc"))
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            foreach (AreaId area in Enum.GetValues<AreaId>())
+            foreach (AreaId area in AreaIds.All)
             {
                 var stock = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
                 using var json = new MemoryStream();
@@ -269,9 +269,9 @@ internal static class MapPresentationVerification
         var bus = fixture.Bus;
         string stock = fixture.Stock;
         AreaMapPresentation original = fixture.Original;
-        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
+        var rules = AreaIds.All.ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
         AreaMapPresentation reopened = fixture.Reopened;
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
@@ -643,7 +643,7 @@ internal static class MapPresentationVerification
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole) + 1);
         AssertTrue(runtime.Hud.Minimap[SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation.MinimapSize.X + 2] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");

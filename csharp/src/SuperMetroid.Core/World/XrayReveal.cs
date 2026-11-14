@@ -44,7 +44,7 @@ internal sealed class XrayReveal
         InstalledXrayReveals visuals = XrayRevealVisuals
             ?? throw new InvalidOperationException("The X-ray reveals a room with no installed reveal pictures bound.");
         Position16<RoomPixels> foregroundPosition = _backgroundScroll.ForegroundPosition;
-        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, room.AreaIndex, visuals);
+        RevealedBlock?[] blocks = XrayRevealMap.Build(level, foregroundPosition, room.Area, visuals);
         XrayRevealOverlays.Apply(blocks, roomObjects.CollectibleObjects.Collectibles, _system,
             room.State.XrayOverlay, foregroundPosition, visuals);
         return new(XrayRevealMap.OriginOf(foregroundPosition), [.. blocks]);

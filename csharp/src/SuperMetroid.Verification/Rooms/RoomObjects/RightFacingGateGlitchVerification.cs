@@ -82,7 +82,7 @@ internal static class RightFacingGateGlitchVerification
         // The authored population is an immutable import record, read from the cartridge once for every position.
         RoomObjectPopulation population = RoomObjectPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.RoomObjectPointer);
         RoomObjectSystem unboundObjects = RoomObjectFixtures.Unbound();
-        var areaIndex = runtime.Room.LoadedRoom.AreaIndex;
+        var area = runtime.Room.LoadedRoom.Area;
         // The gate and its activations read only terrain and behaviour, so every position's level shows a blank background.
         var background = new RoomBlockAppearance[original.Size.X * original.Size.Y];
         int firstX = gateX - 192;
@@ -127,7 +127,7 @@ internal static class RightFacingGateGlitchVerification
                 // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
                 RoomObjectSystem roomObjects = unboundObjects;
                 gameState.ClearEvent(StoryEvent.ZebesAwake);
-                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, gameState, areaIndex), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, gameState, area), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
                 for (int warm = 0; warm < 2; warm++)
                     roomObjects.Step(level);
                 roomObjects.Gates.TakeDownwardGateProjectileRequests();

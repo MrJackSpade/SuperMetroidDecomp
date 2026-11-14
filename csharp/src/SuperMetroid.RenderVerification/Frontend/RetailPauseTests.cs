@@ -21,7 +21,7 @@ internal static class RetailPauseTests
         system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0),
+            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 0),
             MapPresentation = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets,
         });
         void Compare(string page)

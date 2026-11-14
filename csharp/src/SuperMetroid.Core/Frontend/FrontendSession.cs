@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Intro;
@@ -42,7 +43,7 @@ internal sealed class FrontendSession
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.
         earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
-        bootDemoSetCount = saves.DetermineNumberOfDemoSets();
+        DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
     }
 
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
@@ -68,8 +69,6 @@ internal sealed class FrontendSession
     internal readonly SaveSlotStore saves;
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay; fixed for the session.</summary>
     internal readonly PowerOnEarthquakeSoundDelay earthquakeSoundDelay;
-    /// <summary>Boot-time number of demo sets; fixed for the session.</summary>
-    internal readonly int bootDemoSetCount;
     /// <summary>The music queue and the sound libraries' request queues, shared across menus and gameplay.</summary>
     internal readonly AudioQueues audio;
     /// <summary>
@@ -488,8 +487,8 @@ internal sealed class FrontendSession
     }
     /// <summary>Where the attract demos are.</summary>
     internal AttractDemoSchedule Demo { get; } = new();
-    /// <summary>Unlocks the fourth demo set only after a valid completed-game save exists.</summary>
-    internal int AvailableDemoSetCount() => bootDemoSetCount;
+    /// <summary>The demo sets the title cycles through, fixed at boot: the completion set plays only after a valid completed-game save exists.</summary>
+    internal IReadOnlyList<AttractDemoSet> DemoPlaylist { get; }
     /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
     /// <summary>

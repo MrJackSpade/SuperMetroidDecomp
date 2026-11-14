@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public static partial class LibraryBackgroundDefinitions
 {
     /// <summary>The ScrollingSkyLandingSite library background.</summary>
-    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntrance0, CrateriaDoorDefinitions.Parlor1, CrateriaDoorDefinitions.CrateriaPowerBombs0, CrateriaDoorDefinitions.CrateriaTube0, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.DemoSet3024]);
+    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntrance0, CrateriaDoorDefinitions.Parlor1, CrateriaDoorDefinitions.CrateriaPowerBombs0, CrateriaDoorDefinitions.CrateriaTube0, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
 
     /// <summary>The ScrollingSkyWreckedShipEntrance library background.</summary>
     public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new(nameof(ScrollingSkyWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPath0, CrateriaDoorDefinitions.Moat1, WreckedShipDoorDefinitions.BowlingAlley0, WreckedShipDoorDefinitions.WreckedShipEntrance0, WreckedShipDoorDefinitions.Attic2, WreckedShipDoorDefinitions.GravitySuit0]);

@@ -25,7 +25,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 if (session.Demo.AwaitsScene)
                 {
                     AttractDemoScene scene = session.Demo.NextScene
-                        ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
+                        ?? throw new InvalidDataException("The demo loader ran past the end of its set.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
                     session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
@@ -74,7 +74,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 break;
 
             case SuperMetroidGameState.UnloadingDemo:
-                session.Demo.AdvanceAfterScene(session.AvailableDemoSetCount());
+                session.Demo.AdvanceAfterScene(session.DemoPlaylist);
                 session.ReleaseRuntime();
                 session.display.PublishBlack();
                 session.GameState = SuperMetroidGameState.RoutingAfterDemo;

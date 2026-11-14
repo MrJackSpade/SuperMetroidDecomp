@@ -113,7 +113,7 @@ internal static class AttractCaptureTestsVerification
                 foreach (var game in new[] { legacy, captured })
                 {
                     game.Session.Demo.FramesRemaining = 16;
-                    game.Session.Demo.Scene = 6;
+                    game.Session.Demo.ScenesBegun = game.Session.Demo.Set.Scenes.Count;
                 }
                 bounded = true;
             }

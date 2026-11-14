@@ -61,43 +61,39 @@ public static class StockAttractDemoScenes
         CrystalFlash,
     }
 
-    /// <summary>Returns a staged demonstration or its exact end-of-set marker.</summary>
-    public static AttractDemoScene? Get(int set, int scene)
-    {
-        if ((uint)set >= DemoSetUnlockDefinitions.SetCount) throw new ArgumentOutOfRangeException(nameof(set));
-        int sceneCount = set == 3 ? 5 : 6;
-        if ((uint)scene > sceneCount) throw new ArgumentOutOfRangeException(nameof(scene));
-        if (scene == sceneCount) return null;
-        Demonstration demonstration = new AttractDemoSceneKey(set, scene) switch
-        {
-            (0, 0) => Demonstration.LandingSite,
-            (0, 1) => Demonstration.MissileDoor,
-            (0, 2) => Demonstration.PreSporeSpawnHall,
-            (0, 3) => Demonstration.SpeedBooster,
-            (0, 4) => Demonstration.GrappleBeam,
-            (0, 5) => Demonstration.PseudoScrewAttack,
-            (1, 0) => Demonstration.IceBeam,
-            (1, 1) => Demonstration.FirefleaRoom,
-            (1, 2) => Demonstration.BrinstarDiagonalRoom,
-            (1, 3) => Demonstration.LowerNorfairEntrance,
-            (1, 4) => Demonstration.ScrewAttack,
-            (1, 5) => Demonstration.Dachora,
-            (2, 0) => Demonstration.PrePhantoonHall,
-            (2, 1) => Demonstration.DiagonalShinespark,
-            (2, 2) => Demonstration.EyeDoor,
-            (2, 3) => Demonstration.RedBrinstarElevator,
-            (2, 4) => Demonstration.Kraid,
-            (2, 5) => Demonstration.TourianEntrance,
-            (3, 0) => Demonstration.GauntletEntrance,
-            (3, 1) => Demonstration.AdvancedGrappleBeam,
-            (3, 2) => Demonstration.InfiniteBombJump,
-            (3, 3) => Demonstration.SpecialBeamAttack,
-            (3, 4) => Demonstration.CrystalFlash,
-            _ => throw new InvalidOperationException("Validated attract playlist position has no demonstration."),
-        };
-        return Stage(demonstration);
-    }
+    /// <summary>The set the title plays first after power-on or a soft reset.</summary>
+    public static AttractDemoSet FirstSet { get; } = Set(nameof(FirstSet),
+        Demonstration.LandingSite, Demonstration.MissileDoor, Demonstration.PreSporeSpawnHall,
+        Demonstration.SpeedBooster, Demonstration.GrappleBeam, Demonstration.PseudoScrewAttack);
 
+    /// <summary>The set the title plays after <see cref="FirstSet"/>.</summary>
+    public static AttractDemoSet SecondSet { get; } = Set(nameof(SecondSet),
+        Demonstration.IceBeam, Demonstration.FirefleaRoom, Demonstration.BrinstarDiagonalRoom,
+        Demonstration.LowerNorfairEntrance, Demonstration.ScrewAttack, Demonstration.Dachora);
+
+    /// <summary>The set the title plays after <see cref="SecondSet"/>.</summary>
+    public static AttractDemoSet ThirdSet { get; } = Set(nameof(ThirdSet),
+        Demonstration.PrePhantoonHall, Demonstration.DiagonalShinespark, Demonstration.EyeDoor,
+        Demonstration.RedBrinstarElevator, Demonstration.Kraid, Demonstration.TourianEntrance);
+
+    /// <summary>The advanced techniques the title plays after <see cref="ThirdSet"/> once a save records a completed game.</summary>
+    public static AttractDemoSet CompletionSet { get; } = Set(nameof(CompletionSet),
+        Demonstration.GauntletEntrance, Demonstration.AdvancedGrappleBeam, Demonstration.InfiniteBombJump,
+        Demonstration.SpecialBeamAttack, Demonstration.CrystalFlash);
+
+    /// <summary>The sets the title cycles through, in order, while no save records a completed game.</summary>
+    public static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
+
+    /// <summary>The sets the title cycles through, in order, once a save records a completed game.</summary>
+    public static IReadOnlyList<AttractDemoSet> CompletedGamePlaylist { get; } = [FirstSet, SecondSet, ThirdSet, CompletionSet];
+
+    /// <summary>The playlist the title cycles through: the completion set joins it only when the game was completed.</summary>
+    public static IReadOnlyList<AttractDemoSet> Playlist(bool completionSetUnlocked) =>
+        completionSetUnlocked ? CompletedGamePlaylist : OrdinaryPlaylist;
+
+    /// <summary>The set named <paramref name="name"/>, staging <paramref name="demonstrations"/> in playing order.</summary>
+    private static AttractDemoSet Set(string name, params Demonstration[] demonstrations) =>
+        new(name, [.. demonstrations.Select(Stage)]);
     /// <summary>
     /// The chosen staging of each demonstration. Screen origins, upgrade capacities,
     /// and composable equipment flags calculate from their domain units; choosing each scene's
@@ -395,7 +391,7 @@ public static class StockAttractDemoScenes
             Input: AttractDemoInputDefinitions.AttractTourianEntrance),
         Demonstration.GauntletEntrance => new(
             Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.DemoSet3024,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(48, 128),
             Duration: 256,
@@ -427,7 +423,7 @@ public static class StockAttractDemoScenes
             Input: AttractDemoInputDefinitions.AttractAdvancedGrappleBeam),
         Demonstration.InfiniteBombJump => new(
             Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.DemoSet3024,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(32, 123),
             Duration: 389,
@@ -459,7 +455,7 @@ public static class StockAttractDemoScenes
             Input: AttractDemoInputDefinitions.AttractSpecialBeamAttack),
         Demonstration.CrystalFlash => new(
             Room: RoomDefinitions.LandingSite,
-            Door: DoorDefinitions.DemoSet3024,
+            Door: DoorDefinitions.LandingSiteDemoEntry,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(4, GroundedY(10, demonstration)),
             Duration: 512,

@@ -137,22 +137,21 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// Boot's <c>DetermineNumberOfDemoSets</c>, called once. When all three slots are invalid
-    /// it overwrites the completion marker with the corrupt-saves signature and
-    /// enables three demo sets; otherwise the completion signature enables the fourth. The game never re-evaluates
-    /// the count before reset.
+    /// Decides at boot, once, whether the title's attract demos include the completion set. When all three slots are
+    /// invalid it overwrites the completion marker with the corrupt-saves signature and leaves the completion set out;
+    /// otherwise the completion signature unlocks it. The game never decides again before reset.
     /// </summary>
-    /// <returns>The attract-demo set count fixed for the session.</returns>
-    public int DetermineNumberOfDemoSets()
+    /// <returns>Whether the completion demo set plays for the session.</returns>
+    public bool DetermineCompletionDemoSetUnlocked()
     {
         if (!AnySlotValid)
         {
             HasCompletedGame = false;
             CorruptMarkerWritten = true;
             MarkerRewritten();
-            return DemoSetUnlockDefinitions.SetsBeforeCompletion;
+            return false;
         }
-        return HasCompletedGame ? DemoSetUnlockDefinitions.SetCount : DemoSetUnlockDefinitions.SetsBeforeCompletion;
+        return HasCompletedGame;
     }
 
     /// <summary>Rejects slot numbers outside A, B and C.</summary>

@@ -14,7 +14,7 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, CrateriaDoorDefinitions.CrateriaPowerBombs0),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.CrateriaTube0),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.LandingSiteLandingCutscene),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, DoorDefinitions.DemoSet3024),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, DoorDefinitions.LandingSiteDemoEntry),
     ]);
 
     /// <summary>The ScrollingSkyWreckedShipEntrance library-background program.</summary>

@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Runtime.Attract.AttractInputFixtureVerifi
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
@@ -74,59 +75,61 @@ internal static class AttractDemoSceneVerification
             input.Script.FrameBehaviorPointer != (ushort)NativeDemoFrameBehavior.AttractCheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
-        // $80:8261 fixes NumberOfDemoSets once at boot, so each eligibility case boots a session.
+        // Boot decides once whether the completion set plays, so each eligibility case boots a session.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         saveRam.SetGameCompleted(true);
-        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
-            throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+            throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(true);
-        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 4)
-            throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
+            throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");
         saveRam.SetGameCompleted(false);
-        if (new SuperMetroidGame(saveRam).Session.AvailableDemoSetCount() != 3)
-            throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
+        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
+            throw new InvalidDataException("Incomplete-game save incorrectly unlocked the completion set.");
     }
 
-    /// <summary>Matches all four compiled demo sets and their sentinels to retail scene records.</summary>
+    /// <summary>
+    /// Matches all four compiled demo sets, in the order the completed-game playlist plays them, to the retail scene
+    /// records, each set ending where the cartridge's does; the ordinary playlist is the same without the completion set.
+    /// </summary>
     internal static void VerifyStockAttractScenes()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int[] counts = [6, 6, 6, 5];
+        IReadOnlyList<AttractDemoSet> sets = StockAttractDemoScenes.CompletedGamePlaylist;
+        AssertSequenceEqual(sets.Where(set => set != StockAttractDemoScenes.CompletionSet).ToArray(),
+            StockAttractDemoScenes.OrdinaryPlaylist, "the ordinary playlist plays every set but the completion set");
+        AssertEqual(StockAttractDemoScenes.CompletionSet, sets[^1], "the completion set plays after the ordinary sets");
         int total = 0;
-        for (int set = 0; set < counts.Length; set++)
+        for (int set = 0; set < sets.Count; set++)
         {
-            for (int scene = 0; scene < counts[set]; scene++)
+            IReadOnlyList<AttractDemoScene> scenes = sets[set].Scenes;
+            for (int scene = 0; scene < scenes.Count; scene++)
             {
-                AssertEqual(SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
-                    $"compiled scene {set}/{scene} matches every cartridge setup field");
+                AssertEqual(SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, scene), scenes[scene],
+                    $"compiled scene {sets[set]}/{scene} matches every cartridge setup field");
                 total++;
-                VerifyCompiledAttractInput(retail, (StockAttractDemoScenes.Get(set, scene) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, scene).")));
+                VerifyCompiledAttractInput(retail, scenes[scene]);
             }
-            AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
-                SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, counts[set]) is null, "stock set sentinel");
-            AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(set, counts[set] + 1),
-                "reject scene beyond compiled set");
+            AssertTrue(SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, scenes.Count) is null,
+                $"{sets[set]} ends where the cartridge's set ends");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
-        AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
-        Suite(nameof(VerifyAttractPlayback), () => VerifyAttractPlayback(counts));
-        Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
+        Suite(nameof(VerifyAttractPlayback), () => VerifyAttractPlayback(sets));
+        Console.WriteLine($"Compiled attract scenes: {total} records in {sets.Count} sets match cartridge data and end with it.");
     }
 
     /// <summary>Runs each scene's production input owner for its displayed duration; <c>--demo-input-programs</c> checks the programs.</summary>
-    private static void VerifyAttractPlayback(int[] sceneCounts)
+    private static void VerifyAttractPlayback(IReadOnlyList<AttractDemoSet> sets)
     {
-        for (int set = 0; set < sceneCounts.Length; set++)
+        foreach (AttractDemoSet set in sets)
         {
-            for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
+            foreach (AttractDemoScene scene in set.Scenes)
             {
-                AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
                 // The production input owner has no address-space capability. Room and
                 // presentation initialization are separate from this dispatch contract.
-                var input = new AttractDemoInput((scene));
+                var input = new AttractDemoInput(scene);
                 for (int frame = 0; frame < scene.Duration; frame++)
                     input.StepStock(SuperMetroidGameState.PlayingDemo,
                         frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing);

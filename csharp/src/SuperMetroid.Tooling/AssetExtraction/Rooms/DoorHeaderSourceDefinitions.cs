@@ -9,7 +9,7 @@ internal static class DoorHeaderSourceDefinitions
     internal static IReadOnlyDictionary<ushort, DoorDefinition> ByPointer { get; } = new Dictionary<ushort, DoorDefinition>
     {
         [0x88fe] = CrateriaDoorDefinitions.LandingSiteLandingCutscene,
-        [0x890a] = DoorDefinitions.DemoSet3024,
+        [0x890a] = DoorDefinitions.LandingSiteDemoEntry,
         [0x8916] = CrateriaDoorDefinitions.LandingSite0,
         [0x8922] = CrateriaDoorDefinitions.LandingSite1,
         [0x892e] = CrateriaDoorDefinitions.LandingSite2,

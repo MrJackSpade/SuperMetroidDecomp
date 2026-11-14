@@ -5,9 +5,8 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
-/// One title-demo scene joined across the room, equipment, and Samus setup definitions.
-/// The room loader increments the global scene index after placement; these records all
-/// refer to the same pre-increment index, not the following scene's equipment.
+/// One title-demo scene joined across the room, equipment, and Samus setup definitions: the room, staging and
+/// equipment of one demonstration of an <see cref="AttractDemoSet"/>.
 /// </summary>
 /// <remarks>
 /// <c>Duration</c> is the number of demo frames the scene plays before the attract sequence moves on.

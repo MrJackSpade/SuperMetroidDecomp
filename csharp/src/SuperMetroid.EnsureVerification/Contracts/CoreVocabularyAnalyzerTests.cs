@@ -283,6 +283,21 @@ internal static class CoreVocabularyAnalyzerTests
         // routine, a handler, the responses and lifecycle phases that replaced the fields.
         Expect("class P { int AiState; int Routine; int Handler; int RoutineAi; int HandlerAi; int AiRoutinely; int AidHandler; }");
         Expect("class P { int GrappleResponse; int HurtResponse; int EnemyHurtHandler; void RunMainAi() { } void Initialize() { } }");
+        // The enemy record's interaction routine fields (#1759), in each kind of declaration the removed definition lookups,
+        // contact contexts, hurt participation and slot hurt duration used them in: a method, a positional field, a local, a
+        // parameter, an interface and its file, and a property.
+        const string reactionAi = "names the enemy record's interaction routine field";
+        Expect("class P { static int ShotAi(int slot) => slot; }", $"'ShotAi' {reactionAi} ('ShotAi')");
+        Expect("class P { static int TouchAi(int slot) => slot; }", $"'TouchAi' {reactionAi} ('TouchAi')");
+        Expect("record EnemyBombContext(int SelectedShotAi);", $"'SelectedShotAi' {reactionAi} ('ShotAi')");
+        Expect("class P { void Run() { int hitboxTouchAi = 0; _ = hitboxTouchAi; } }", $"'hitboxTouchAi' {reactionAi} ('TouchAi')");
+        Expect("class P { void Run(int selectedShotAi) { } }", $"'selectedShotAi' {reactionAi} ('ShotAi')");
+        Expect("class P { int HurtAiTime { get; set; } }", $"'HurtAiTime' {reactionAi} ('HurtAi')");
+        ExpectFile("interface IEnemyHurtAi { }", "IEnemyHurtAi.cs",
+            $"'IEnemyHurtAi' {reactionAi} ('HurtAi')", $"'IEnemyHurtAi' {reactionAi} ('HurtAi')");
+        // The words alone, apart or sharing only their letters are the game's own: a shot, a touch, a hurt, the reactions
+        // and responses that replaced the fields, a frozen or main AI, and Crocomire's shot aiming.
+        Expect("class P { int ShotReaction; int TouchReaction; int HurtReaction; int HurtDuration; int FrozenAi; int MainAi; int CrocomireShotAiming; int AiShot; }");
         // The cartridge's record (#1745), in each kind of declaration the renamed populations, route, touch rectangles and
         // step tables used it in: a plural field, property, method, parameter and local, a count and an index of records,
         // and a type named for the record it is.

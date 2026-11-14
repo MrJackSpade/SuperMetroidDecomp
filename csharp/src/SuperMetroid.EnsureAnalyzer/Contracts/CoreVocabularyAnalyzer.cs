@@ -136,6 +136,18 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The enemy record's interaction routine fields (#1759), two-word names matched like <see cref="HardwarePhrases"/>:
+    /// the cartridge's enemy record held its touch, shot and hurt behaviour as AI routine pointers, and a Core name that
+    /// says <c>ShotAi</c>, <c>TouchAi</c> or <c>HurtAi</c> (a <c>ShotAi</c> lookup, a <c>selectedShotAi</c> local, an
+    /// <c>IEnemyHurtAi</c> interface, a <c>HurtAiTime</c> property) names that pointer field instead of the reaction a
+    /// definition names or a species' entity runs. Each word alone stays the game's own: a shot, a touch, a hurt, an AI.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> ReactionAiPhrases =
+    [
+        ["Shot", "Ai"], ["Touch", "Ai"], ["Hurt", "Ai"],
+    ];
+
+    /// <summary>
     /// The cartridge's record (#1745), names matched like <see cref="HardwarePhrases"/>: the original kept a room's enemy
     /// and object populations, the Baby Metroid's route, a corpse's touch rectangles and its timing and step tables as runs
     /// of fixed-size records, and a Core name that says <c>Records</c> (<c>TouchHitboxRecords</c>, <c>FromRecords</c>, a
@@ -447,6 +459,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         if (ContainedPhrase(identifier, AiRoutinePhrases) is { } aiRoutine)
             return $"names the enemy record's AI routine field ('{aiRoutine}')";
+        if (ContainedPhrase(identifier, ReactionAiPhrases) is { } reactionAi)
+            return $"names the enemy record's interaction routine field ('{reactionAi}')";
         if (ContainedPhrase(identifier, RecordPhrases) is { } record)
             return $"names the cartridge's record ('{record}')";
         if (HexCode(identifier) is { } code)

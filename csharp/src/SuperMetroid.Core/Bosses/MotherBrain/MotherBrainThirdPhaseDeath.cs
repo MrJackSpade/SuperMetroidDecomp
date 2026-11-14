@@ -308,10 +308,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.PhaseTimer < 0)
         {
             _state.PhaseTimer = 16;
-            int paletteIndex = _state.GreyTransitionCounter;
+            int fadeStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested |= paletteIndex < 16;
-            if (paletteIndex >= 16)
+            requests.ColoursRequested |= fadeStep < 16;
+            if (fadeStep >= 16)
             {
                 BodyClearRequested = true;
                 BodyPresence = BodyPresence.With(EnemyPresence.Hidden);
@@ -419,10 +419,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (--_state.PhaseTimer < 0)
         {
-            int paletteIndex = _state.GreyTransitionCounter;
+            int greyStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested = paletteIndex < 8;
-            if (paletteIndex < 8)
+            requests.ColoursRequested = greyStep < 8;
+            if (greyStep < 8)
             {
                 _state.PhaseTimer = 16;
             }

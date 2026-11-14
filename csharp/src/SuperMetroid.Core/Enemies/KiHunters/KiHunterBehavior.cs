@@ -210,7 +210,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterAction.RecoveringFromSwoop:
             case KiHunterAction.FallingAfterWingLoss:
             case KiHunterAction.StartGroundJump:
-            case KiHunterAction.NoOp:
+            case KiHunterAction.AnimatingOnGround:
             case KiHunterAction.GroundJump:
             case KiHunterAction.GroundWait:
             case KiHunterAction.SelectAcidSpit:

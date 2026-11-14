@@ -1,55 +1,48 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
-/// <summary>Dragon's animation phases: their segments and the same phase or phase pair with another facing.</summary>
+/// <summary>Dragon's animations turned to a side: the same animation, or the body's attack or idle, facing left or right.</summary>
 internal static class DragonPhases
 {
-    /// <summary>The segment of an animation.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="selector"/> is outside the six.</exception>
-    internal static DragonSegment Animation(DragonAnimationSelector selector) =>
-        DragonAnimationDefinitions.Animations.TryGetValue(selector, out DragonSegment segment)
-            ? segment
-            : throw NotLive(selector);
-
-    /// <summary>Preserves the phase pair while selecting its left or right member.</summary>
-    internal static DragonAnimationSelector WithFacing(
-        DragonAnimationSelector selector,
-        bool facingLeft) => selector switch
+    /// <summary>The same animation as <paramref name="animation"/>, facing left or right.</summary>
+    internal static DragonSegment WithFacing(
+        DragonSegment animation,
+        bool facingLeft) => animation switch
     {
-        DragonAnimationSelector.IdleFacingLeft or DragonAnimationSelector.IdleFacingRight => facingLeft
-            ? DragonAnimationSelector.IdleFacingLeft
-            : DragonAnimationSelector.IdleFacingRight,
-        DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight => facingLeft
-            ? DragonAnimationSelector.WingsFacingLeft
-            : DragonAnimationSelector.WingsFacingRight,
-        DragonAnimationSelector.AttackingFacingLeft or DragonAnimationSelector.AttackingFacingRight => facingLeft
-            ? DragonAnimationSelector.AttackingFacingLeft
-            : DragonAnimationSelector.AttackingFacingRight,
-        _ => throw NotLive(selector),
+        DragonSegment.IdleFacingLeft or DragonSegment.IdleFacingRight => facingLeft
+            ? DragonSegment.IdleFacingLeft
+            : DragonSegment.IdleFacingRight,
+        DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight => facingLeft
+            ? DragonSegment.WingsFacingLeft
+            : DragonSegment.WingsFacingRight,
+        DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight => facingLeft
+            ? DragonSegment.AttackingFacingLeft
+            : DragonSegment.AttackingFacingRight,
+        _ => throw NotLive(animation),
     };
 
-    /// <summary>Returns the attacking-body selector with the source selector's facing.</summary>
-    internal static DragonAnimationSelector AttackingWithSameFacing(
-        DragonAnimationSelector selector) => FacesLeft(selector)
-        ? DragonAnimationSelector.AttackingFacingLeft
-        : DragonAnimationSelector.AttackingFacingRight;
+    /// <summary>The body's attack, facing the way <paramref name="animation"/> faces.</summary>
+    internal static DragonSegment AttackingWithSameFacing(
+        DragonSegment animation) => FacesLeft(animation)
+        ? DragonSegment.AttackingFacingLeft
+        : DragonSegment.AttackingFacingRight;
 
-    /// <summary>Returns the idle-body selector with the source selector's facing.</summary>
-    internal static DragonAnimationSelector IdleWithSameFacing(
-        DragonAnimationSelector selector) => FacesLeft(selector)
-        ? DragonAnimationSelector.IdleFacingLeft
-        : DragonAnimationSelector.IdleFacingRight;
+    /// <summary>The body's idle pose, facing the way <paramref name="animation"/> faces.</summary>
+    internal static DragonSegment IdleWithSameFacing(
+        DragonSegment animation) => FacesLeft(animation)
+        ? DragonSegment.IdleFacingLeft
+        : DragonSegment.IdleFacingRight;
 
-    /// <summary>Whether an animation faces left; rejects any selector outside the six.</summary>
-    private static bool FacesLeft(DragonAnimationSelector selector) => selector switch
+    /// <summary>Whether an animation faces left.</summary>
+    private static bool FacesLeft(DragonSegment animation) => animation switch
     {
-        DragonAnimationSelector.IdleFacingLeft or DragonAnimationSelector.WingsFacingLeft or
-            DragonAnimationSelector.AttackingFacingLeft => true,
-        DragonAnimationSelector.IdleFacingRight or DragonAnimationSelector.WingsFacingRight or
-            DragonAnimationSelector.AttackingFacingRight => false,
-        _ => throw NotLive(selector),
+        DragonSegment.IdleFacingLeft or DragonSegment.WingsFacingLeft or
+            DragonSegment.AttackingFacingLeft => true,
+        DragonSegment.IdleFacingRight or DragonSegment.WingsFacingRight or
+            DragonSegment.AttackingFacingRight => false,
+        _ => throw NotLive(animation),
     };
 
-    /// <summary>The failure for a selector that is not one of Dragon's six animations.</summary>
-    private static InvalidDataException NotLive(DragonAnimationSelector selector) =>
-        new($"Dragon animation selector {selector} is not one of its six animations.");
+    /// <summary>The failure for a value that is not one of Dragon's six animations.</summary>
+    private static InvalidDataException NotLive(DragonSegment animation) =>
+        new($"Dragon animation {animation} is not one of its six animations.");
 }

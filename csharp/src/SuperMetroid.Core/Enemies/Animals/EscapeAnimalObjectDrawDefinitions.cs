@@ -11,9 +11,9 @@ internal static class EscapeAnimalObjectDrawDefinitions
     /// <summary>How every cell of each of the four rescue-wall draws collides, repeated down its three-cell column.</summary>
     internal static readonly Dictionary<EscapeAnimalDraw, RoomCollisionType> Collisions = new()
     {
-        [EscapeAnimalDraw.Frame0] = RoomCollisionType.SolidBlock,
-        [EscapeAnimalDraw.Frame1] = RoomCollisionType.SolidBlock,
-        [EscapeAnimalDraw.Frame2] = RoomCollisionType.SolidBlock,
+        [EscapeAnimalDraw.Cracking] = RoomCollisionType.SolidBlock,
+        [EscapeAnimalDraw.Breaking] = RoomCollisionType.SolidBlock,
+        [EscapeAnimalDraw.Crumbling] = RoomCollisionType.SolidBlock,
         [EscapeAnimalDraw.Blank] = RoomCollisionType.SolidBlock,
     };
 

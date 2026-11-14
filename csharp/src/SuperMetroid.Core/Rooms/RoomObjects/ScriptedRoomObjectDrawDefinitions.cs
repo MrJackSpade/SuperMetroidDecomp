@@ -8,9 +8,9 @@ internal static class ScriptedRoomObjectDrawDefinitions
     {
         [ScriptedRoomObjectFrame.MaridiaElevatube] = MaridiaElevatubeObjectDefinitions.BlockDraw,
         [ScriptedRoomObjectFrame.OldTourianWallOpen] = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw,
-        [ScriptedRoomObjectFrame.EscapeAnimal0] = RoomObjectDraw.Of(EscapeAnimalDraw.Frame0),
-        [ScriptedRoomObjectFrame.EscapeAnimal1] = RoomObjectDraw.Of(EscapeAnimalDraw.Frame1),
-        [ScriptedRoomObjectFrame.EscapeAnimal2] = RoomObjectDraw.Of(EscapeAnimalDraw.Frame2),
+        [ScriptedRoomObjectFrame.EscapeAnimal0] = RoomObjectDraw.Of(EscapeAnimalDraw.Cracking),
+        [ScriptedRoomObjectFrame.EscapeAnimal1] = RoomObjectDraw.Of(EscapeAnimalDraw.Breaking),
+        [ScriptedRoomObjectFrame.EscapeAnimal2] = RoomObjectDraw.Of(EscapeAnimalDraw.Crumbling),
         [ScriptedRoomObjectFrame.EscapeAnimal3] = RoomObjectDraw.Of(EscapeAnimalDraw.Blank),
         [ScriptedRoomObjectFrame.CrateriaPassage] = CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw,
         [ScriptedRoomObjectFrame.SingleBreakup0] = ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0),

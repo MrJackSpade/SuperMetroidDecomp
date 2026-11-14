@@ -20,17 +20,17 @@ internal static class DragonNativeWords
     });
 
     /// <summary>
-    /// The cartridge's animation-table ordinal naming each <see cref="DragonAnimationSelector"/>: even ordinals face
+    /// The cartridge's animation-table ordinal naming each <see cref="DragonSegment"/>: even ordinals face
     /// left, odd ordinals face right. The cartridge's all-ones installed ordinal is Core's
     /// <see cref="DragonEnemyState.ReinstallRequested"/>, not an animation.
     /// </summary>
-    internal static readonly NativeWordIdentities<DragonAnimationSelector> AnimationSelectors = new(new Dictionary<DragonAnimationSelector, ushort>
+    internal static readonly NativeWordIdentities<DragonSegment> Animations = new(new Dictionary<DragonSegment, ushort>
     {
-        [DragonAnimationSelector.IdleFacingLeft] = 0,
-        [DragonAnimationSelector.IdleFacingRight] = 1,
-        [DragonAnimationSelector.WingsFacingLeft] = 2,
-        [DragonAnimationSelector.WingsFacingRight] = 3,
-        [DragonAnimationSelector.AttackingFacingLeft] = 4,
-        [DragonAnimationSelector.AttackingFacingRight] = 5,
+        [DragonSegment.IdleFacingLeft] = 0,
+        [DragonSegment.IdleFacingRight] = 1,
+        [DragonSegment.WingsFacingLeft] = 2,
+        [DragonSegment.WingsFacingRight] = 3,
+        [DragonSegment.AttackingFacingLeft] = 4,
+        [DragonSegment.AttackingFacingRight] = 5,
     });
 }

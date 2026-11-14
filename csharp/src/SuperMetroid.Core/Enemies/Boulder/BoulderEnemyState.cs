@@ -51,8 +51,15 @@ public sealed class BoulderEnemyState
         return value;
     }
 
-    /// <summary>The bounces left; the impact that takes it from zero to minus one ends the bounce phase.</summary>
-    public int BounceCounter { get; internal set; }
+    /// <summary>
+    /// The ground impacts so far, zero through <see cref="BoulderBounces.ImpactCount"/>; the last impact ends the bounce
+    /// phase.
+    /// </summary>
+    public int ImpactsSoFar
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, BoulderBounces.ImpactCount, value);
+    }
 
     /// <summary>How the boulder rolls, as its population entry names it.</summary>
     public BoulderRoll Roll { get; internal set; }

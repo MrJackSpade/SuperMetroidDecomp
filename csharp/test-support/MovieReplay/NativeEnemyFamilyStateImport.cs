@@ -462,7 +462,8 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.Action = words.A == 0 ? null : BoulderNativeWords.BoulderActions.Decode(words.A, "recorded BoulderAction");
             boulderRecord.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
             boulderRecord.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
-            boulderRecord.BounceCounter = unchecked((short)words.D);
+            // The record counts the bounces left, two before the first impact and minus one once rolling.
+            boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             boulderRecord.Roll = words.E switch
             {
                 0 => BoulderRoll.Right,

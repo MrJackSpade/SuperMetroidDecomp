@@ -19,9 +19,9 @@ internal static class DragonAnimationDefinitionsVerification
         for (int index = 0; index < 6; index++)
         {
             // The cartridge pairs its six ordinals as facing left (even) and right (odd) within each phase.
-            DragonAnimationSelector selector = Selector(index);
+            DragonSegment selector = Selector(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Animation(selector)),
+                NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, selector),
                 $"Dragon animation selector {selector}");
             AssertEqual(Selector(index & ~1),
                 DragonPhases.WithFacing(selector, facingLeft: true),
@@ -47,8 +47,8 @@ internal static class DragonAnimationDefinitionsVerification
     }
 
     /// <summary>The animation the cartridge's table ordinal <paramref name="index"/> names.</summary>
-    private static DragonAnimationSelector Selector(int index) =>
-        DragonNativeWords.AnimationSelectors.Decode(index, "Dragon animation ordinal");
+    private static DragonSegment Selector(int index) =>
+        DragonNativeWords.Animations.Decode(index, "Dragon animation ordinal");
 
     /// <summary>
     /// A request for the installed animation installs nothing, unless a reinstall was requested: then the animation
@@ -58,14 +58,14 @@ internal static class DragonAnimationDefinitionsVerification
     {
         RoomEnemySlot slot = NewDragonAnimationSlot(0);
         DragonEnemyState state = NewDragonAnimationState();
-        state.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
-        state.InstalledAnimation = DragonAnimationSelector.AttackingFacingLeft;
+        state.RequestedAnimation = DragonSegment.AttackingFacingLeft;
+        state.InstalledAnimation = DragonSegment.AttackingFacingLeft;
         DragonBehavior.StartDragonAnimation(slot, state);
         AssertEqual(0x2222, slot.AnimationClock.Hold.RawValue, "Dragon installs nothing for the installed animation");
 
         state.ReinstallRequested = true;
         DragonBehavior.StartDragonAnimation(slot, state);
-        AssertDragonAnimationHandoff(slot, state, DragonAnimationSelector.AttackingFacingLeft, "Dragon reinstall request");
+        AssertDragonAnimationHandoff(slot, state, DragonSegment.AttackingFacingLeft, "Dragon reinstall request");
         AssertEqual(false, state.ReinstallRequested, "Dragon reinstall request is spent by the install");
     }
 
@@ -74,7 +74,7 @@ internal static class DragonAnimationDefinitionsVerification
     {
         for (int index = 0; index < 6; index++)
         {
-            DragonAnimationSelector requested = Selector(index);
+            DragonSegment requested = Selector(index);
             var slot = NewDragonAnimationSlot(0);
             DragonEnemyState state = NewDragonAnimationState();
             state.RequestedAnimation = requested;
@@ -110,12 +110,12 @@ internal static class DragonAnimationDefinitionsVerification
         };
 
         enemies.DragonBehavior.RunDragonWaitToRise(body, (bodyState), samus);
-        DragonAnimationSelector idle = facingLeft
-            ? DragonAnimationSelector.IdleFacingLeft
-            : DragonAnimationSelector.IdleFacingRight;
-        DragonAnimationSelector wings = facingLeft
-            ? DragonAnimationSelector.WingsFacingLeft
-            : DragonAnimationSelector.WingsFacingRight;
+        DragonSegment idle = facingLeft
+            ? DragonSegment.IdleFacingLeft
+            : DragonSegment.IdleFacingRight;
+        DragonSegment wings = facingLeft
+            ? DragonSegment.WingsFacingLeft
+            : DragonSegment.WingsFacingRight;
         AssertDragonAnimationHandoff(
             body,
             bodyState,
@@ -132,9 +132,9 @@ internal static class DragonAnimationDefinitionsVerification
         bodyState.ActionTimer = 0;
         enemies.DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
-        DragonAnimationSelector attacking = facingLeft
-            ? DragonAnimationSelector.AttackingFacingLeft
-            : DragonAnimationSelector.AttackingFacingRight;
+        DragonSegment attacking = facingLeft
+            ? DragonSegment.AttackingFacingLeft
+            : DragonSegment.AttackingFacingRight;
         AssertDragonAnimationHandoff(
             body,
             bodyState,
@@ -153,7 +153,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void AssertDragonAnimationHandoff(
         RoomEnemySlot slot,
         DragonEnemyState state,
-        DragonAnimationSelector expected,
+        DragonSegment expected,
         string context,
         ushort expectedFrameHold = 1)
     {
@@ -161,7 +161,7 @@ internal static class DragonAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.InstalledAnimation,
             $"{context} installed selector");
-        AssertEqual(new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(DragonPhases.Animation(expected)), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
         AssertEqual(expectedFrameHold, slot.AnimationClock.Hold.RawValue,

@@ -11,20 +11,19 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 public static class CeresFloorAnimation
 {
-    /// <summary>
-    /// The capsule frames in reflected phase order 0, 1, 2, 1; <paramref name="phase"/> must already be bounded to 0..3.
-    /// </summary>
-    internal static CeresFloorAnimationFrame BabyFrameForPhase(int phase)
-    {
-        if ((uint)phase >= CeresFloorAnimationDefinitions.BabyPhaseCount) throw new ArgumentOutOfRangeException(nameof(phase));
-        int reflectedPhase = Math.Min(phase, CeresFloorAnimationDefinitions.BabyPhaseCount - phase);
-        return CeresFloorAnimationDefinitions.BabyFrames[reflectedPhase];
-    }
+    /// <summary>The capsule's frame at phase <paramref name="phase"/> of its four-phase cycle.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside the cycle.</exception>
+    internal static CeresFloorAnimationFrame BabyFrameForPhase(int phase) => CycleFrame(CeresFloorAnimationDefinitions.CapsuleCycle, phase);
 
-    /// <summary>The elevator platform's light (0) or dark (1) strip.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is neither.</exception>
-    internal static CeresFloorAnimationFrame EnemyFrameId(int frame) =>
-        (uint)frame < (uint)CeresFloorAnimationDefinitions.PlatformFrames.Length
-            ? CeresFloorAnimationDefinitions.PlatformFrames[frame]
-            : throw new ArgumentOutOfRangeException(nameof(frame));
+    /// <summary>The elevator platform's strip at phase <paramref name="phase"/> of its two-phase cycle.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside the cycle.</exception>
+    internal static CeresFloorAnimationFrame ElevatorPlatformFrameForPhase(int phase) => CycleFrame(CeresFloorAnimationDefinitions.ElevatorPlatformCycle, phase);
+
+    /// <summary>The wings' frame at beat <paramref name="phase"/> of their two-beat cycle.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside the cycle.</exception>
+    internal static CeresFloorAnimationFrame WingFrameForPhase(int phase) => CycleFrame(CeresFloorAnimationDefinitions.WingCycle, phase);
+
+    /// <summary>The frame at <paramref name="phase"/> of <paramref name="cycle"/>.</summary>
+    private static CeresFloorAnimationFrame CycleFrame(CeresFloorAnimationFrame[] cycle, int phase) =>
+        (uint)phase < (uint)cycle.Length ? cycle[phase] : throw new ArgumentOutOfRangeException(nameof(phase));
 }

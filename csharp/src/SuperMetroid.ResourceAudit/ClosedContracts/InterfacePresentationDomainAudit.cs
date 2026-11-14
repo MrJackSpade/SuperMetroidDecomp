@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -44,23 +45,22 @@ internal static class InterfacePresentationDomainAudit
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(IIntroCinematicSpritePresentation).FullName ||
             operation.TargetMethod.Name != "Draw") return null;
-        if (operation.Arguments.Single(argument => argument.Parameter?.Name == "pose").Value is not IObjectCreationOperation creation ||
-            creation.Arguments.Length != 1 ||
-            creation.Arguments[0].Value.ConstantValue is not { HasValue: true, Value: not null } value) return null;
-        int pose = Convert.ToInt32(value.Value);
-        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            IntroCaretSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            IntroNextPageArrowSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            CeresDestructionSpriteDefinitions.Poses.Any(candidate => candidate.Index == pose) ||
-            EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            EndingCompletionTextSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            EndingExplosionSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            EndingLogoSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
-            EndingRewardSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose);
+        // A pose named in the source is an enum constant: its member or an undefined value cast to the pose.
+        if (operation.Arguments.Single(argument => argument.Parameter?.Name == "pose").Value.ConstantValue is not { HasValue: true, Value: not null } value) return null;
+        var pose = (CinematicSpritePose)Convert.ToInt32(value.Value, System.Globalization.CultureInfo.InvariantCulture);
+        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            IntroCaretSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            IntroNextPageArrowSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            CeresDestructionSpriteDefinitions.Poses.Any(candidate => candidate == pose) ||
+            EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            EndingCompletionTextSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            EndingExplosionSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            EndingLogoSpriteDefinitions.Frames.Any(frame => frame.Pose == pose) ||
+            EndingRewardSpriteDefinitions.Frames.Any(frame => frame.Pose == pose);
         return owned ? null : $"Known cinematic pose {pose} belongs to no reviewed interface implementation.";
     }
 }

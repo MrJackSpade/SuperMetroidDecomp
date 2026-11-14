@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -26,6 +26,29 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
     internal const ushort Uncrouching = 0xa28c;
     /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
     internal const ushort DeathBeamStart = 0xa384;
+    /// <summary>Every body frame in the order of its cartridge root.</summary>
+    internal static readonly MotherBrainBodyFrame[] CartridgeOrder =
+    [
+        MotherBrainBodyFrame.Standing,
+        MotherBrainBodyFrame.WalkingFirst,
+        MotherBrainBodyFrame.WalkingSecond,
+        MotherBrainBodyFrame.WalkingThird,
+        MotherBrainBodyFrame.WalkingFourth,
+        MotherBrainBodyFrame.WalkingFifth,
+        MotherBrainBodyFrame.WalkingSixth,
+        MotherBrainBodyFrame.WalkingSeventh,
+        MotherBrainBodyFrame.WalkingEighth,
+        MotherBrainBodyFrame.Crouched,
+        MotherBrainBodyFrame.Uncrouching,
+        MotherBrainBodyFrame.LeaningDown,
+        MotherBrainBodyFrame.InitialDummy,
+        MotherBrainBodyFrame.HandBeamSecond,
+        MotherBrainBodyFrame.HandBeamThird,
+        MotherBrainBodyFrame.HandBeamFourth,
+        MotherBrainBodyFrame.HandBeamFifth,
+    ];
+    /// <summary>The published OAM identity of <paramref name="frame"/>.</summary>
+    internal static NativeEnemySpritemapDefinition Frame(MotherBrainBodyFrame frame) => Frame(Array.IndexOf(CartridgeOrder, frame));
     /// <summary>Calculates the published OAM identity. Native record strides are
     /// two header bytes plus eight bytes per component; explicit run boundaries
     /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>

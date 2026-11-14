@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroNextPageArrowVerification
 {
     /// <summary>The poses the arrow's loop ($8B:CC0F) shows, in order: $8C:8CCF, $8C:8CDB, $8C:8CE7 and $8C:8CDB.</summary>
-    private static readonly CinematicSpritePose[] LoopPoses = [new(27), new(28), new(29), new(28)];
+    private static readonly CinematicSpritePose[] LoopPoses = [CinematicSpritePose.NextPageArrow1, CinematicSpritePose.NextPageArrow2, CinematicSpritePose.NextPageArrow3, CinematicSpritePose.NextPageArrow2];
 
     /// <summary>The updates each frame of the arrow's loop shows for ($8B:CC0F's durations).</summary>
     private const int LoopFrameUpdates = 10;

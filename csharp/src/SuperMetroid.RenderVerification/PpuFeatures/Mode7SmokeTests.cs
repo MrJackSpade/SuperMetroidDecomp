@@ -67,8 +67,8 @@ internal static class Mode7SmokeTests
         FloorMemory floorMemory = AffineFloorConstants.Split(vram);
         var ceres = new RoomFloor(AffineFloorConstants.CeresRoom(floorMemory.Map, floorMemory.Pixels, palette));
         ceres.Show(CeresFloorAnimationFrame.ElevatorDark);
-        ceres.Show(CeresFloorAnimationFrame.WingFrame1);
-        ceres.Show(CeresFloorAnimationFrame.BabyFrame2);
+        ceres.Show(CeresFloorAnimationFrame.WingsLowered);
+        ceres.Show(CeresFloorAnimationFrame.BabyHorizontal);
         foreach (AffineFloor shown in new[] { map, ceres.Publish() })
         foreach (int hud in new[] { 0, 32 })
         foreach (double scale in new[] { 1, 0.5, 2 })

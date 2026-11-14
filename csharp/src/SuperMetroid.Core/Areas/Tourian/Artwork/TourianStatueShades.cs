@@ -13,14 +13,29 @@ public static class TourianStatueShades
     /// <summary>The statue scene's own colours, which its initialization installs.</summary>
     public static PictureShade Entrance { get; } = new("tourian-statue-entrance", 0);
 
-    /// <summary>The effect name of the eye glow a released boss's statue lights.</summary>
-    public const string EyeGlowEffect = "tourian-statue-eye-glow";
+    /// <summary>The eye glow Phantoon's statue lights once released.</summary>
+    public static PictureShade PhantoonEyeGlow { get; } = new("tourian-statue-phantoon-eye-glow", 0);
 
-    /// <summary>The eye glows, in Phantoon, Ridley, Draygon, Kraid order.</summary>
-    public const int EyeGlows = 4;
+    /// <summary>The eye glow Ridley's statue lights once released.</summary>
+    public static PictureShade RidleyEyeGlow { get; } = new("tourian-statue-ridley-eye-glow", 0);
 
-    /// <summary>The eye glow of boss <paramref name="glow"/>, in Phantoon, Ridley, Draygon, Kraid order.</summary>
-    public static PictureShade EyeGlow(int glow) => new(EyeGlowEffect, Ensure.BetweenInclusive(0, EyeGlows - 1, glow));
+    /// <summary>The eye glow Draygon's statue lights once released.</summary>
+    public static PictureShade DraygonEyeGlow { get; } = new("tourian-statue-draygon-eye-glow", 0);
+
+    /// <summary>The eye glow Kraid's statue lights once released.</summary>
+    public static PictureShade KraidEyeGlow { get; } = new("tourian-statue-kraid-eye-glow", 0);
+
+    /// <summary>The eye glow <paramref name="statue"/> lights once released (#1747).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="statue"/> is not one boss's statue.</exception>
+    public static PictureShade EyeGlow(TourianGreyStatues statue) => statue switch
+    {
+        TourianGreyStatues.Phantoon => PhantoonEyeGlow,
+        TourianGreyStatues.Ridley => RidleyEyeGlow,
+        TourianGreyStatues.Draygon => DraygonEyeGlow,
+        TourianGreyStatues.Kraid => KraidEyeGlow,
+        TourianGreyStatues.None => throw new ArgumentOutOfRangeException(nameof(statue), statue, "No statue lights an eye glow."),
+        _ => throw new ArgumentOutOfRangeException(nameof(statue), statue, "Only one boss's statue lights an eye glow."),
+    };
 
     /// <summary>Phantoon's statue with its eyes blacked out.</summary>
     public static PictureShade PhantoonCleared { get; } = new("tourian-statue-phantoon-cleared", 0);

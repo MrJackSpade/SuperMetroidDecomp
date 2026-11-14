@@ -10,14 +10,14 @@ public enum CeresFloorAnimationFrame
     ElevatorLight = 1,
     /// <summary>The elevator landing platform's dark frame.</summary>
     ElevatorDark,
-    /// <summary>The Baby capsule's frame zero.</summary>
-    BabyFrame0,
-    /// <summary>The Baby capsule's frame one, also shown as its fourth phase.</summary>
-    BabyFrame1,
-    /// <summary>The Baby capsule's frame two.</summary>
-    BabyFrame2,
-    /// <summary>Ridley's wings' frame zero.</summary>
-    WingFrame0,
-    /// <summary>Ridley's wings' frame one.</summary>
-    WingFrame1,
+    /// <summary>The Baby in its capsule, squished vertically.</summary>
+    BabyVertical,
+    /// <summary>The Baby in its capsule, round.</summary>
+    BabyRound,
+    /// <summary>The Baby in its capsule, squished horizontally.</summary>
+    BabyHorizontal,
+    /// <summary>Ridley's wings raised.</summary>
+    WingsRaised,
+    /// <summary>Ridley's wings lowered.</summary>
+    WingsLowered,
 }

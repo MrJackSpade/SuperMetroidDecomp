@@ -42,12 +42,11 @@ internal static class ChargeFlareDefinitionsVerification
                 position++;
             }
             int continuesAt = entry == NativeRestart ? 0 : position - Delay(program, position + 1);
-            IReadOnlyList<AnimationBeat<ChargeFlarePhase, NoAnimationCue>> beats = ChargeFlareAnimationDefinitions.Segments.Beats(component);
+            IReadOnlyList<AnimationBeat<ChargeFlarePicture, NoAnimationCue>> beats = ChargeFlareAnimationDefinitions.Segments.Beats(component);
             AssertEqual(waits.Count, beats.Count, $"{component} shows the original program's pictures");
             for (int picture = 0; picture < beats.Count; picture++)
             {
-                var beat = (AnimationBeat<ChargeFlarePhase, NoAnimationCue>.Frame)beats[picture];
-                AssertEqual(new ChargeFlarePhase(picture), beat.Shown, $"{component} picture {picture} is its program's place");
+                var beat = (AnimationBeat<ChargeFlarePicture, NoAnimationCue>.Frame)beats[picture];
                 AssertEqual(waits[picture] + 1, beat.Duration, $"{component} picture {picture} shows for its wait and one update");
             }
             Animation<ChargeFlareComponent> animation = ChargeFlareAnimationDefinitions.Animations[component];

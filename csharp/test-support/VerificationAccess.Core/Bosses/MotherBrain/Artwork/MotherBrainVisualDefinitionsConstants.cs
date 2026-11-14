@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -30,6 +30,24 @@ internal static class MotherBrainVisualDefinitionsConstants
     internal const ushort UpperTubesStart = 0xae33;
     /// <summary>Each ordinary OAM record has a two-byte count and five bytes per character.</summary>
     internal static int RecordBytes(int characters) => 2 + characters * 5;
+    /// <summary>Each brain frame's place in the cartridge's composition catalog.</summary>
+    internal static readonly IReadOnlyDictionary<MotherBrainHeadFrame, int> HeadCatalogPlaces = new Dictionary<MotherBrainHeadFrame, int>
+    {
+        [MotherBrainHeadFrame.Initial] = 0,
+        [MotherBrainHeadFrame.NeutralPhaseTwoSecond] = 1,
+        [MotherBrainHeadFrame.StretchingPhaseTwoFirst] = 2,
+        [MotherBrainHeadFrame.StretchingPhaseTwoSecond] = 3,
+        [MotherBrainHeadFrame.StretchingPhaseTwoThird] = 4,
+        [MotherBrainHeadFrame.DecapitatedLoop] = 6,
+        [MotherBrainHeadFrame.DecapitatedSecond] = 7,
+        [MotherBrainHeadFrame.StretchingPhaseThreeFirst] = 8,
+        [MotherBrainHeadFrame.StretchingPhaseThreeSecond] = 9,
+        [MotherBrainHeadFrame.StretchingPhaseThreeThird] = 10,
+        [MotherBrainHeadFrame.CorpseFourth] = 11,
+        [MotherBrainHeadFrame.CorpseLoop] = 12,
+    };
+    /// <summary>The native OAM identity of brain frame <paramref name="frame"/>.</summary>
+    internal static NativeEnemySpritemapDefinition Frame(MotherBrainHeadFrame frame) => Frame(HeadCatalogPlaces[frame]);
     /// <summary>Calculates a bounded native OAM pointer from each composition family's record size.</summary>
     internal static NativeEnemySpritemapDefinition Frame(int index)
     {

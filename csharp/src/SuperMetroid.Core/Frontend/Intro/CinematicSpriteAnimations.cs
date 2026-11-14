@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Frontend.Intro.CinematicSpriteCueKind;
 using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteSegment;
+using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -17,10 +18,10 @@ internal static class CinematicSpriteAnimations
     {
         [P.IntroMotherBrain] =
         [
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 16),
-            Show(1, 16),
+            Show(S.MotherBrainFrame0, 16),
+            Show(S.MotherBrainFrame1, 16),
+            Show(S.MotherBrainFrame2, 16),
+            Show(S.MotherBrainFrame1, 16),
         ],
         [P.IntroMotherBrainStartPage2] =
         [
@@ -29,299 +30,299 @@ internal static class CinematicSpriteAnimations
         ],
         [P.IntroMotherBrainPageTwo] =
         [
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 16),
-            Show(1, 16),
+            Show(S.MotherBrainFrame0, 16),
+            Show(S.MotherBrainFrame1, 16),
+            Show(S.MotherBrainFrame2, 16),
+            Show(S.MotherBrainFrame1, 16),
         ],
         [P.MetroidEgg] =
         [
-            Show(3, 5),
+            Show(S.EggIntact, 5),
         ],
         [P.MetroidEggHatching] =
         [
-            Show(3, 32),
+            Show(S.EggIntact, 32),
         ],
         [P.MetroidEggShaking] =
         [
-            Show(3, 5),
-            Show(4, 5),
-            Show(3, 5),
-            Show(5, 5),
-            Show(3, 10),
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(10, 10),
-            Show(11, 80),
+            Show(S.EggIntact, 5),
+            Show(S.EggCrack1, 5),
+            Show(S.EggIntact, 5),
+            Show(S.EggCrack2, 5),
+            Show(S.EggIntact, 10),
+            Show(S.EggCrack3, 10),
+            Show(S.EggCrack4, 10),
+            Show(S.EggCrack5, 10),
+            Show(S.EggCrack6, 10),
+            Show(S.EggCrack7, 10),
+            Show(S.EggHatched, 80),
             Cue(new(K.SpawnParticles)),
-            Show(12, 10),
+            Show(S.EggRemnant1, 10),
         ],
         [P.MetroidEggHatchedFrame2] =
         [
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
-            Show(16, 10),
-            Show(17, 10),
-            Show(18, 320),
+            Show(S.EggRemnant2, 10),
+            Show(S.EggRemnant3, 10),
+            Show(S.EggRemnant4, 10),
+            Show(S.EggRemnant5, 10),
+            Show(S.EggRemnant6, 10),
+            Show(S.EggRemnant7, 320),
             Cue(new(K.StartIntroPage3)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade)),
         ],
         [P.MetroidEggHatched] =
         [
-            Show(18, 80),
+            Show(S.EggRemnant7, 80),
         ],
         [P.BabyMetroidBeingDelivered] =
         [
         ],
         [P.BabyMetroidBeingDeliveredLoop] =
         [
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(20, 10),
+            Show(S.DeliveredBaby1, 10),
+            Show(S.DeliveredBaby2, 10),
+            Show(S.DeliveredBaby3, 10),
+            Show(S.DeliveredBaby2, 10),
             Cue(new(K.StartIntroPage4)),
         ],
         [P.BabyMetroidDelivered] =
         [
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(20, 10),
+            Show(S.DeliveredBaby1, 10),
+            Show(S.DeliveredBaby2, 10),
+            Show(S.DeliveredBaby3, 10),
+            Show(S.DeliveredBaby2, 10),
         ],
         [P.BabyMetroidBeingExamined] =
         [
         ],
         [P.BabyMetroidBeingExaminedLoop] =
         [
-            Show(22, 10),
-            Show(23, 10),
-            Show(24, 10),
-            Show(23, 10),
+            Show(S.ExaminedBaby1, 10),
+            Show(S.ExaminedBaby2, 10),
+            Show(S.ExaminedBaby3, 10),
+            Show(S.ExaminedBaby2, 10),
             Cue(new(K.StartIntroPage5)),
         ],
         [P.BabyMetroidExamined] =
         [
-            Show(22, 10),
-            Show(23, 10),
-            Show(24, 10),
-            Show(23, 10),
+            Show(S.ExaminedBaby1, 10),
+            Show(S.ExaminedBaby2, 10),
+            Show(S.ExaminedBaby3, 10),
+            Show(S.ExaminedBaby2, 10),
         ],
         [P.IntroTextCaret] =
         [
-            Show(25, 5),
+            Show(S.CaretVisible, 5),
         ],
         [P.IntroTextCaretBlink] =
         [
-            Show(25, 5),
-            Show(26, 5),
+            Show(S.CaretVisible, 5),
+            Show(S.Blank, 5),
         ],
         [P.IntroNextPageArrow] =
         [
-            Show(27, 10),
-            Show(28, 10),
-            Show(29, 10),
-            Show(28, 10),
+            Show(S.NextPageArrow1, 10),
+            Show(S.NextPageArrow2, 10),
+            Show(S.NextPageArrow3, 10),
+            Show(S.NextPageArrow2, 10),
         ],
         [P.IntroNextPageArrowDelayed] =
         [
-            Show(26, 60),
+            Show(S.Blank, 60),
         ],
         [P.ConfusedBabyMetroid] =
         [
-            Show(30, 10),
-            Show(31, 10),
-            Show(32, 10),
-            Show(31, 10),
+            Show(S.ConfusedBaby1, 10),
+            Show(S.ConfusedBaby2, 10),
+            Show(S.ConfusedBaby3, 10),
+            Show(S.ConfusedBaby2, 10),
         ],
         [P.CeresDestructionLargeAsteroid] =
         [
-            Show(33, 10),
+            Show(S.StationUnderAttackLargeAsteroid, 10),
         ],
         [P.CeresUnderAttack] =
         [
-            Show(34, 10),
+            Show(S.StationUnderAttack, 10),
         ],
         [P.CeresSmallAsteroid] =
         [
-            Show(35, 10),
+            Show(S.SmallAsteroid, 10),
         ],
         [P.CeresVortex] =
         [
-            Show(36, 1),
-            Show(37, 1),
+            Show(S.VortexEven, 1),
+            Show(S.VortexOdd, 1),
         ],
         [P.ZebesPlanet] =
         [
-            Show(38, 10),
+            Show(S.PlanetZebes, 10),
         ],
         [P.ZebesTitle] =
         [
-            Show(26, 64),
+            Show(S.Blank, 64),
             Cue(new(K.FadeInZebesText)),
-            Show(39, 32),
+            Show(S.PlanetZebesTitle, 32),
             Cue(new(K.SpawnJapaneseZebesTextIfNeeded)),
-            Show(39, 192),
+            Show(S.PlanetZebesTitle, 192),
             Cue(new(K.FadeOutZebesText)),
-            Show(39, 96),
+            Show(S.PlanetZebesTitle, 96),
             Cue(new(K.StartFlyingToZebes)),
         ],
         [P.ZebesJapaneseTitle] =
         [
-            Show(40, 192),
+            Show(S.ZebesJapaneseTitle, 192),
         ],
         [P.CeresSmallExplosion] =
         [
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 3),
-            Show(44, 3),
-            Show(45, 3),
-            Show(46, 3),
+            Show(S.SmallExplosion0, 3),
+            Show(S.SmallExplosion1, 3),
+            Show(S.SmallExplosion2, 3),
+            Show(S.SmallExplosion3, 3),
+            Show(S.SmallExplosion4, 3),
+            Show(S.SmallExplosion5, 3),
         ],
         [P.CeresRepeatingSmallExplosion] =
         [
         ],
         [P.CeresRepeatingSmallExplosionLoop] =
         [
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 3),
-            Show(44, 3),
-            Show(45, 3),
-            Show(46, 3),
-            Show(26, 16),
+            Show(S.SmallExplosion0, 3),
+            Show(S.SmallExplosion1, 3),
+            Show(S.SmallExplosion2, 3),
+            Show(S.SmallExplosion3, 3),
+            Show(S.SmallExplosion4, 3),
+            Show(S.SmallExplosion5, 3),
+            Show(S.Blank, 16),
         ],
         [P.CeresLargeExplosion] =
         [
         ],
         [P.CeresLargeExplosionLoop] =
         [
-            Show(47, 5),
-            Show(48, 5),
-            Show(49, 5),
-            Show(50, 5),
-            Show(26, 8),
+            Show(S.LargeBlast0, 5),
+            Show(S.LargeBlast1, 5),
+            Show(S.LargeBlast2, 5),
+            Show(S.LargeBlast3, 5),
+            Show(S.Blank, 8),
         ],
         [P.MetroidEggParticle1] =
         [
-            Show(51, 1),
+            Show(S.EggFragment0, 1),
         ],
         [P.MetroidEggParticle2] =
         [
-            Show(52, 1),
+            Show(S.EggFragment1, 1),
         ],
         [P.MetroidEggParticle3] =
         [
-            Show(53, 1),
+            Show(S.EggFragment2, 1),
         ],
         [P.MetroidEggParticle4] =
         [
-            Show(54, 1),
+            Show(S.EggFragment3, 1),
         ],
         [P.MetroidEggParticle5] =
         [
-            Show(55, 1),
+            Show(S.EggFragment4, 1),
         ],
         [P.MetroidEggParticle6] =
         [
-            Show(56, 1),
+            Show(S.EggFragment5, 1),
         ],
         [P.MetroidEggParticle7] =
         [
-            Show(57, 1),
+            Show(S.SlimeMoving, 1),
         ],
         [P.MetroidEggParticleHitGround] =
         [
-            Show(58, 10),
-            Show(59, 10),
-            Show(60, 10),
-            Show(61, 10),
+            Show(S.SlimeImpact0, 10),
+            Show(S.SlimeImpact1, 10),
+            Show(S.SlimeImpact2, 10),
+            Show(S.SlimeImpact3, 10),
         ],
         [P.ZebesStarSheet0] =
         [
-            Show(62, 10),
+            Show(S.ZebesStarsUpperLeft, 10),
         ],
         [P.ZebesStarSheet1] =
         [
-            Show(63, 10),
+            Show(S.ZebesStarsUpperRight, 10),
         ],
         [P.ZebesStarSheet2] =
         [
-            Show(64, 10),
+            Show(S.ZebesStarsLowerLeft, 10),
         ],
         [P.ZebesStarSheet3] =
         [
-            Show(65, 10),
+            Show(S.ZebesStarsLowerRight, 10),
         ],
         [P.CeresStars] =
         [
-            Show(66, 10),
+            Show(S.FlightStars, 10),
         ],
         [P.IntroMotherBrainExplosionBig] =
         [
-            Show(67, 6),
-            Show(68, 6),
-            Show(69, 6),
-            Show(70, 6),
-            Show(71, 6),
-            Show(72, 6),
-            Show(26, 16),
+            Show(S.BigExplosion0, 6),
+            Show(S.BigExplosion1, 6),
+            Show(S.BigExplosion2, 6),
+            Show(S.BigExplosion3, 6),
+            Show(S.BigExplosion4, 6),
+            Show(S.BigExplosion5, 6),
+            Show(S.Blank, 16),
         ],
         [P.IntroMotherBrainExplosionSmall] =
         [
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 3),
-            Show(44, 3),
-            Show(45, 3),
-            Show(46, 3),
-            Show(26, 16),
+            Show(S.SmallExplosion0, 3),
+            Show(S.SmallExplosion1, 3),
+            Show(S.SmallExplosion2, 3),
+            Show(S.SmallExplosion3, 3),
+            Show(S.SmallExplosion4, 3),
+            Show(S.SmallExplosion5, 3),
+            Show(S.Blank, 16),
         ],
         [P.IntroRinka] =
         [
-            Show(73, 10),
-            Show(74, 10),
-            Show(75, 10),
+            Show(S.Rinka0, 10),
+            Show(S.Rinka1, 10),
+            Show(S.Rinka2, 10),
             Cue(new(K.StartRinkaMoving)),
         ],
         [P.IntroRinkaMoving] =
         [
-            Show(74, 10),
-            Show(73, 10),
-            Show(74, 10),
-            Show(75, 10),
+            Show(S.Rinka1, 10),
+            Show(S.Rinka0, 10),
+            Show(S.Rinka1, 10),
+            Show(S.Rinka2, 10),
         ],
         [P.IntroRinkaSpawner] =
         [
-            Show(26, 74),
+            Show(S.Blank, 74),
             Cue(new(K.SpawnRinkas0And1)),
-            Show(26, 128),
+            Show(S.Blank, 128),
             Cue(new(K.SpawnRinkas2And3)),
         ],
         [P.CeresStationBlast] =
         [
-            Show(76, 5),
-            Show(77, 5),
-            Show(78, 5),
-            Show(79, 5),
-            Show(80, 5),
-            Show(81, 5),
+            Show(S.StationBlast0, 5),
+            Show(S.StationBlast1, 5),
+            Show(S.StationBlast2, 5),
+            Show(S.StationBlast3, 5),
+            Show(S.StationBlast4, 5),
+            Show(S.StationBlast5, 5),
         ],
         [P.CeresExplosionSpawner] =
         [
-            Show(26, 128),
+            Show(S.Blank, 128),
             Cue(new(K.SpawnInitialExplosionWave)),
-            Show(26, 80),
+            Show(S.Blank, 80),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating)),
-            Show(26, 64),
+            Show(S.Blank, 64),
             Cue(new(K.SpawnFinalExplosionWave)),
         ],
         [P.CeresLargeAsteroid] =
         [
-            Show(82, 10),
+            Show(S.LargeAsteroid, 10),
         ],
         [P.Delete] =
         [
@@ -331,374 +332,374 @@ internal static class CinematicSpriteAnimations
         ],
         [P.ZebesExplosionPlanetLoop] =
         [
-            Show(83, 13),
-            Show(84, 13),
-            Show(85, 13),
-            Show(86, 13),
+            Show(S.PlanetDamage0, 13),
+            Show(S.PlanetDamage1, 13),
+            Show(S.PlanetDamage2, 13),
+            Show(S.PlanetDamage3, 13),
             Cue(new(K.FadeExplosionPalette)),
-            Show(87, 32),
-            Show(88, 32),
-            Show(89, 32),
-            Show(90, 32),
+            Show(S.PlanetFlash0, 32),
+            Show(S.PlanetFlash1, 32),
+            Show(S.PlanetFlash2, 32),
+            Show(S.PlanetFlash3, 32),
             Cue(new(K.SpawnExplosionSilhouette)),
         ],
         [P.ZebesExplosionGlow] =
         [
-            Show(91, 16),
-            Show(92, 16),
-            Show(93, 16),
-            Show(92, 16),
+            Show(S.PlanetGlow0, 16),
+            Show(S.PlanetGlow1, 16),
+            Show(S.PlanetGlow2, 16),
+            Show(S.PlanetGlow1, 16),
         ],
         [P.ZebesExplosionStars] =
         [
-            Show(94, 16),
+            Show(S.EndingStarfield, 16),
         ],
         [P.ZebesExplosionLava] =
         [
-            Show(26, 156),
+            Show(S.Blank, 156),
         ],
         [P.ZebesExplosionLavaLoop] =
         [
-            Show(95, 10),
-            Show(96, 10),
+            Show(S.PlanetLava0, 10),
+            Show(S.PlanetLava1, 10),
         ],
         [P.ZebesExplosionSilhouette] =
         [
-            Show(97, 8),
+            Show(S.PlanetSilhouette, 8),
             Cue(new(K.StartZebesExplosion)),
         ],
         [P.ZebesExplosionRightStars] =
         [
-            Show(94, 144),
+            Show(S.EndingStarfield, 144),
             Cue(new(K.ExplosionFinale)),
-            Show(94, 332),
+            Show(S.EndingStarfield, 332),
             Cue(new(K.EndZebesExplosion)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway)),
         ],
         [P.ZebesExplosionLeftStars] =
         [
-            Show(94, 16),
+            Show(S.EndingStarfield, 16),
         ],
         [P.ZebesExplosionAfterglow] =
         [
-            Show(98, 16),
+            Show(S.PlanetAfterglow, 16),
         ],
         [P.OperationWasText] =
         [
-            Show(99, 8),
-            Show(100, 8),
-            Show(101, 15),
-            Show(102, 8),
-            Show(103, 8),
-            Show(104, 8),
-            Show(105, 8),
-            Show(106, 8),
-            Show(107, 8),
-            Show(108, 8),
-            Show(109, 8),
-            Show(110, 15),
-            Show(111, 8),
-            Show(112, 8),
-            Show(113, 15),
+            Show(S.OperationText00, 8),
+            Show(S.OperationText01, 8),
+            Show(S.OperationText02, 15),
+            Show(S.OperationText03, 8),
+            Show(S.OperationText04, 8),
+            Show(S.OperationText05, 8),
+            Show(S.OperationText06, 8),
+            Show(S.OperationText07, 8),
+            Show(S.OperationText08, 8),
+            Show(S.OperationText09, 8),
+            Show(S.OperationText10, 8),
+            Show(S.OperationText11, 15),
+            Show(S.OperationText12, 8),
+            Show(S.OperationText13, 8),
+            Show(S.OperationText14, 15),
             Cue(new(K.SpawnCompletedText)),
         ],
         [P.OperationWasTextHold] =
         [
-            Show(113, 15),
+            Show(S.OperationText14, 15),
         ],
         [P.CompletedSuccessfullyText] =
         [
-            Show(114, 8),
-            Show(115, 8),
-            Show(116, 8),
-            Show(117, 8),
-            Show(118, 8),
-            Show(119, 8),
-            Show(120, 8),
-            Show(121, 8),
-            Show(122, 15),
-            Show(123, 8),
-            Show(124, 8),
-            Show(125, 8),
-            Show(126, 8),
-            Show(127, 8),
-            Show(128, 8),
-            Show(129, 8),
-            Show(130, 8),
-            Show(131, 8),
-            Show(132, 8),
-            Show(133, 8),
-            Show(134, 15),
+            Show(S.CompletedText00, 8),
+            Show(S.CompletedText01, 8),
+            Show(S.CompletedText02, 8),
+            Show(S.CompletedText03, 8),
+            Show(S.CompletedText04, 8),
+            Show(S.CompletedText05, 8),
+            Show(S.CompletedText06, 8),
+            Show(S.CompletedText07, 8),
+            Show(S.CompletedText08, 15),
+            Show(S.CompletedText09, 8),
+            Show(S.CompletedText10, 8),
+            Show(S.CompletedText11, 8),
+            Show(S.CompletedText12, 8),
+            Show(S.CompletedText13, 8),
+            Show(S.CompletedText14, 8),
+            Show(S.CompletedText15, 8),
+            Show(S.CompletedText16, 8),
+            Show(S.CompletedText17, 8),
+            Show(S.CompletedText18, 8),
+            Show(S.CompletedText19, 8),
+            Show(S.CompletedText20, 15),
             Cue(new(K.SpawnClearTime)),
         ],
         [P.CompletedSuccessfullyTextHold] =
         [
-            Show(134, 8),
+            Show(S.CompletedText20, 8),
         ],
         [P.ClearTimeText] =
         [
-            Show(135, 8),
-            Show(136, 8),
-            Show(137, 8),
-            Show(138, 8),
-            Show(139, 15),
-            Show(140, 8),
-            Show(141, 8),
-            Show(142, 8),
-            Show(143, 15),
+            Show(S.ClearTimeText00, 8),
+            Show(S.ClearTimeText01, 8),
+            Show(S.ClearTimeText02, 8),
+            Show(S.ClearTimeText03, 8),
+            Show(S.ClearTimeText04, 15),
+            Show(S.ClearTimeText05, 8),
+            Show(S.ClearTimeText06, 8),
+            Show(S.ClearTimeText07, 8),
+            Show(S.ClearTimeText08, 15),
             Cue(new(K.SpawnHoursTens)),
-            Show(143, 8),
+            Show(S.ClearTimeText08, 8),
             Cue(new(K.SpawnHoursUnits)),
-            Show(143, 8),
+            Show(S.ClearTimeText08, 8),
             Cue(new(K.SpawnColon)),
-            Show(143, 8),
+            Show(S.ClearTimeText08, 8),
             Cue(new(K.SpawnMinutesTens)),
-            Show(143, 8),
+            Show(S.ClearTimeText08, 8),
             Cue(new(K.SpawnMinutesUnits)),
-            Show(143, 128),
+            Show(S.ClearTimeText08, 128),
             Cue(new(K.TransitionToCredits)),
         ],
         [P.ClearTimeTextHold] =
         [
-            Show(143, 15),
+            Show(S.ClearTimeText08, 15),
         ],
         [P.ClearTimeDigit0] =
         [
-            Show(144, 8),
+            Show(S.ClearTimeDigit0, 8),
         ],
         [P.ClearTimeDigit1] =
         [
-            Show(145, 8),
+            Show(S.ClearTimeDigit1, 8),
         ],
         [P.ClearTimeDigit2] =
         [
-            Show(146, 8),
+            Show(S.ClearTimeDigit2, 8),
         ],
         [P.ClearTimeDigit3] =
         [
-            Show(147, 8),
+            Show(S.ClearTimeDigit3, 8),
         ],
         [P.ClearTimeDigit4] =
         [
-            Show(148, 8),
+            Show(S.ClearTimeDigit4, 8),
         ],
         [P.ClearTimeDigit5] =
         [
-            Show(149, 8),
+            Show(S.ClearTimeDigit5, 8),
         ],
         [P.ClearTimeDigit6] =
         [
-            Show(150, 8),
+            Show(S.ClearTimeDigit6, 8),
         ],
         [P.ClearTimeDigit7] =
         [
-            Show(151, 8),
+            Show(S.ClearTimeDigit7, 8),
         ],
         [P.ClearTimeDigit8] =
         [
-            Show(152, 8),
+            Show(S.ClearTimeDigit8, 8),
         ],
         [P.ClearTimeDigit9] =
         [
-            Show(153, 8),
+            Show(S.ClearTimeDigit9, 8),
         ],
         [P.ClearTimeColon] =
         [
-            Show(154, 8),
+            Show(S.ClearTimeColon, 8),
         ],
         [P.EndingAnimalEscape] =
         [
-            Show(155, 1),
-            Show(156, 1),
-            Show(157, 1),
-            Show(158, 1),
+            Show(S.EscapePod0, 1),
+            Show(S.EscapePod1, 1),
+            Show(S.EscapePod2, 1),
+            Show(S.EscapePod3, 1),
         ],
         [P.EndingCloud0] =
         [
-            Show(159, 1),
+            Show(S.CloudSceneBUpperA, 1),
         ],
         [P.EndingCloud1] =
         [
-            Show(160, 1),
+            Show(S.CloudSceneBUpperB, 1),
         ],
         [P.EndingCloud2] =
         [
-            Show(161, 1),
+            Show(S.CloudSceneBLowerA, 1),
         ],
         [P.EndingCloud3] =
         [
-            Show(162, 1),
+            Show(S.CloudSceneBLowerB, 1),
         ],
         [P.EndingCloud4] =
         [
-            Show(163, 1),
+            Show(S.CloudSceneARight, 1),
         ],
         [P.EndingCloud5] =
         [
-            Show(164, 1),
+            Show(S.CloudSceneALeft, 1),
         ],
         [P.SuitlessIdle] =
         [
-            Show(165, 128),
+            Show(S.SuitlessIdleUpper, 128),
         ],
         [P.SuitlessLegsIdle] =
         [
-            Show(166, 128),
+            Show(S.SuitlessLower, 128),
         ],
         [P.HairRelease] =
         [
-            Show(165, 90),
-            Show(167, 8),
-            Show(168, 10),
-            Show(169, 10),
-            Show(170, 32),
-            Show(171, 10),
-            Show(172, 9),
-            Show(173, 16),
-            Show(174, 10),
-            Show(175, 48),
+            Show(S.SuitlessIdleUpper, 90),
+            Show(S.SuitlessHair1, 8),
+            Show(S.SuitlessHair2, 10),
+            Show(S.SuitlessHair3, 10),
+            Show(S.SuitlessHair4, 32),
+            Show(S.SuitlessHair5, 10),
+            Show(S.SuitlessHair6, 9),
+            Show(S.SuitlessHair7, 16),
+            Show(S.SuitlessHair8, 10),
+            Show(S.SuitlessStanding, 48),
             Cue(new(K.SpawnSuitlessJump)),
         ],
         [P.HairReleaseLegs] =
         [
-            Show(166, 90),
-            Show(166, 8),
-            Show(166, 10),
-            Show(166, 10),
-            Show(166, 32),
-            Show(166, 10),
-            Show(166, 9),
-            Show(166, 16),
-            Show(166, 10),
+            Show(S.SuitlessLower, 90),
+            Show(S.SuitlessLower, 8),
+            Show(S.SuitlessLower, 10),
+            Show(S.SuitlessLower, 10),
+            Show(S.SuitlessLower, 32),
+            Show(S.SuitlessLower, 10),
+            Show(S.SuitlessLower, 9),
+            Show(S.SuitlessLower, 16),
+            Show(S.SuitlessLower, 10),
         ],
         [P.SuitlessJump] =
         [
-            Show(175, 48),
-            Show(176, 10),
+            Show(S.SuitlessStanding, 48),
+            Show(S.SuitlessPrepareJump, 10),
             Cue(new(K.Launch)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
         ],
         [P.SuitlessJumpFlight] =
         [
-            Show(177, 48),
+            Show(S.SuitlessJumping, 48),
         ],
         [P.Falling] =
         [
-            Show(178, 10),
+            Show(S.SamusFalling, 10),
         ],
         [P.Landing] =
         [
-            Show(179, 10),
-            Show(180, 16),
-            Show(181, 48),
+            Show(S.SamusLanding, 10),
+            Show(S.SamusLanded, 16),
+            Show(S.SamusShooting, 48),
             Cue(new(K.Shoot)),
-            Show(181, 128),
+            Show(S.SamusShooting, 128),
         ],
         [P.SuitedIdle] =
         [
-            Show(182, 10),
+            Show(S.SuitedIdleBody, 10),
         ],
         [P.HelmetIdle] =
         [
-            Show(183, 10),
+            Show(S.SuitedHelmetHead, 10),
         ],
         [P.HeadIdle] =
         [
-            Show(184, 10),
+            Show(S.HelmetlessHead1, 10),
         ],
         [P.GestureBody] =
         [
-            Show(182, 64),
-            Show(185, 264),
+            Show(S.SuitedIdleBody, 64),
+            Show(S.SuitedHeadlessBody, 264),
         ],
         [P.GestureArm] =
         [
-            Show(26, 64),
-            Show(186, 8),
-            Show(187, 8),
-            Show(188, 5),
-            Show(189, 4),
-            Show(190, 3),
-            Show(191, 32),
-            Show(192, 8),
-            Show(193, 64),
-            Show(191, 5),
-            Show(190, 5),
-            Show(189, 5),
-            Show(188, 5),
-            Show(187, 112),
+            Show(S.Blank, 64),
+            Show(S.SuitedArm1, 8),
+            Show(S.SuitedArm2, 8),
+            Show(S.SuitedArm3, 5),
+            Show(S.SuitedArm4, 4),
+            Show(S.SuitedArm5, 3),
+            Show(S.SuitedArm6, 32),
+            Show(S.SuitedArm7, 8),
+            Show(S.SuitedArm8, 64),
+            Show(S.SuitedArm6, 5),
+            Show(S.SuitedArm5, 5),
+            Show(S.SuitedArm4, 5),
+            Show(S.SuitedArm3, 5),
+            Show(S.SuitedArm2, 112),
             Cue(new(K.SpawnSuitedJump)),
         ],
         [P.GestureHelmet] =
         [
-            Show(183, 328),
+            Show(S.SuitedHelmetHead, 328),
         ],
         [P.GestureHead] =
         [
-            Show(184, 128),
-            Show(194, 5),
-            Show(195, 5),
-            Show(196, 190),
+            Show(S.HelmetlessHead1, 128),
+            Show(S.HelmetlessHead2, 5),
+            Show(S.HelmetlessHead3, 5),
+            Show(S.HelmetlessHead4, 190),
         ],
         [P.SuitedJump] =
         [
             Cue(new(K.PrepareHead)),
-            Show(197, 10),
+            Show(S.SuitedPrepareJump, 10),
             Cue(new(K.LaunchHead)),
             Cue(new(K.Launch)),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
         ],
         [P.SuitedJumpFlight] =
         [
-            Show(198, 5),
+            Show(S.SuitedJumping, 5),
         ],
         [P.HelmetJump] =
         [
-            Show(199, 10),
+            Show(S.SuitedHelmetJumpHead1, 10),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
         ],
         [P.HelmetFlight] =
         [
-            Show(200, 5),
+            Show(S.SuitedHelmetJumpHead2, 5),
         ],
         [P.HeadJump] =
         [
-            Show(201, 10),
+            Show(S.HelmetlessJumpHead, 10),
             Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
         ],
         [P.HeadFlight] =
         [
-            Show(201, 5),
+            Show(S.HelmetlessJumpHead, 5),
         ],
         [P.LogoUpperS] =
         [
-            Show(202, 10),
+            Show(S.LogoSUpper, 10),
         ],
         [P.LogoLowerS] =
         [
-            Show(203, 10),
+            Show(S.LogoSLower, 10),
         ],
         [P.LogoUpperCircle] =
         [
-            Show(26, 96),
-            Show(204, 5),
-            Show(205, 5),
-            Show(206, 64),
+            Show(S.Blank, 96),
+            Show(S.LogoCircleRight1, 5),
+            Show(S.LogoCircleRight2, 5),
+            Show(S.LogoCircleRight3, 64),
             Cue(new(K.GreyOut)),
         ],
         [P.LogoUpperCircleLoop] =
         [
-            Show(206, 5),
+            Show(S.LogoCircleRight3, 5),
         ],
         [P.LogoLowerCircle] =
         [
-            Show(26, 96),
-            Show(207, 5),
-            Show(208, 5),
+            Show(S.Blank, 96),
+            Show(S.LogoCircleLeft1, 5),
+            Show(S.LogoCircleLeft2, 5),
         ],
         [P.LogoLowerCircleLoop] =
         [
-            Show(209, 5),
+            Show(S.LogoCircleLeft3, 5),
         ],
     });
 
@@ -845,7 +846,7 @@ internal static class CinematicSpriteAnimations
     };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(int pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(new(pose), duration);
+    private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(CinematicSpritePose pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(pose, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Cue(CinematicSpriteCue cue) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event(cue);

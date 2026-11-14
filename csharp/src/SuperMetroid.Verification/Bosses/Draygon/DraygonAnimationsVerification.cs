@@ -43,7 +43,7 @@ internal static class DraygonAnimationsVerification
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
         AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
         for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
-            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(index))), $"Draygon catalog frame {index} is drawn by a native list");
+            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(DraygonFrameToolingDefinitions.CartridgeOrder[index])), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
         VerifyDying(cartridge);
@@ -200,7 +200,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
-        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
+        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(DraygonFrame.BodyFacingRightReset), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeAction?>(DraygonEyeAction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Action, "the reset gives the eye its tracking function");
     }
 

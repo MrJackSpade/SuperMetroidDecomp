@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -71,8 +71,8 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.ClearRoaringFlag }:
                 state.Roaring = false;
                 return null;
-            case RidleyBodyCue.SetFeetDistance setFeetDistance:
-                state.FeetDistanceIndex = setFeetDistance.FeetDistanceIndex;
+            case RidleyBodyCue.SetClawHeight setClawHeight:
+                state.ClawHeight = setClawHeight.Height;
                 return null;
             case RidleyBodyCue.Move move:
                 slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Displacement.X);

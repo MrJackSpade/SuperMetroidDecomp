@@ -83,9 +83,9 @@ internal static class RidleyNativeProgramOracle
                         case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
                             VerificationAssertions.AssertEqual(BodyProgramAt(operand), goToIfCeresAndSamusLowEnergy.Target, $"{at}: goto target");
                             break;
-                        case RidleyBodyCue.SetFeetDistance setFeetDistance:
-                            // The native operand is the pose's byte offset into the word-sized claw-height table.
-                            VerificationAssertions.AssertEqual(operand, setFeetDistance.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
+                        case RidleyBodyCue.SetClawHeight setClawHeight:
+                            // The native operand is the height's byte offset into the word-sized claw-height table.
+                            VerificationAssertions.AssertEqual(operand, RidleyClawHeightPlaces.ByteOffset(setClawHeight.Height), $"{at}: claw height");
                             break;
                         case RidleyBodyCue.Move move:
                             VerificationAssertions.AssertEqual(unchecked((short)operand), move.Displacement.X, $"{at}: X move");

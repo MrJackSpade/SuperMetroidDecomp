@@ -43,7 +43,7 @@ internal static class CeresRidleyBodyPublicationVerification
         ridley.GetawayBabyFrame = 0;
         ridley.GetawayWingFrame = 0;
         RotationAngle? previousAngle = null;
-        foreach ((int nmiFrame, CeresFloorAnimationFrame wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorAnimationFrame.WingFrame1), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorAnimationFrame.WingFrame0) })
+        foreach ((int nmiFrame, CeresFloorAnimationFrame wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorAnimationFrame.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorAnimationFrame.WingsRaised) })
         {
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(ridley, null, nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);

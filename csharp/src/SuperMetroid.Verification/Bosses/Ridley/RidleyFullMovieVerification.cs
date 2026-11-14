@@ -150,7 +150,7 @@ internal static class RidleyFullMovieVerification
         body.Position = body.Position.WithWhole(new(211, 346));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Phase = RidleyPhase.NorfairFireballAttack;
-        state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
+        state.GrabState = RidleyGrabState.Released; state.ClawHeight = RidleyClawHeight.Standing;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttack(body, state, samus, runtime.Room.LevelData);
@@ -172,7 +172,7 @@ internal static class RidleyFullMovieVerification
         body.Position = new(new(172, 0x6300), new(345, 0x0a00));
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x3cd));
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
-        state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
+        state.GrabState = RidleyGrabState.Released; state.ClawHeight = RidleyClawHeight.Standing;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach(body, state, samus);

@@ -225,7 +225,7 @@ internal static class AuditContractChecks
         // Confirms only the two identified metadata gaps. No AI, room, frame,
         // palette effect or gameplay callback is executed.
         // The typed Baby programs (#641) name their three pulse poses directly; each must be installed artwork.
-        for (int pose = 0; pose < 3; pose++)
+        foreach (SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidFrame pose in Enum.GetValues<SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidFrame>())
         {
             ushort spritemap = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualToolingDefinitions.Spritemap(pose);
             Require(SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDefinitions.Frames.Any(frame =>

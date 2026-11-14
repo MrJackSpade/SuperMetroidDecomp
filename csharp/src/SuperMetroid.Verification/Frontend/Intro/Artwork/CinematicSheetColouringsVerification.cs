@@ -56,11 +56,11 @@ internal static class CinematicSheetColouringsVerification
         foreach ((SpriteSheetId id, Func<IEnumerable<CeresDrawnProgram>> actors) in CeresSheets)
         {
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
-            Dictionary<int, HashSet<int>> drawn = CeresPoseSets(actors());
+            Dictionary<CinematicSpritePose, HashSet<int>> drawn = CeresPoseSets(actors());
             foreach (string name in sheet.frames.Keys.Order(StringComparer.Ordinal))
             {
                 frames++;
-                if (!drawn.ContainsKey(PoseIndex(name)))
+                if (!drawn.ContainsKey(PoseOf(name)))
                     findings.Add($"{id} frame {name} is drawn by no actor of its scene");
             }
         }
@@ -77,7 +77,7 @@ internal static class CinematicSheetColouringsVerification
         foreach (SpriteSheetId id in CeresSheets.Keys.Append(SpriteSheetId.IntroSprites))
         {
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
-            Dictionary<int, HashSet<int>> ceres = CeresSheets.TryGetValue(id, out Func<IEnumerable<CeresDrawnProgram>>? actors)
+            Dictionary<CinematicSpritePose, HashSet<int>> ceres = CeresSheets.TryGetValue(id, out Func<IEnumerable<CeresDrawnProgram>>? actors)
                 ? CeresPoseSets(actors()) : new();
             RgbaPixel[] pixels = sheet.Image.Pixels.ToArray();
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -101,8 +101,8 @@ internal static class CinematicSheetColouringsVerification
     private static HashSet<int> IntroSets(string name) => [IntroSheetInks.SpriteSet(IntroFamilies[FamilyOf(name)])];
 
     /// <summary>The sprite sets a Ceres scene draws its frame <paramref name="name"/> in, of <paramref name="poses"/>; none for a pose it never draws.</summary>
-    private static HashSet<int> CeresSets(Dictionary<int, HashSet<int>> poses, string name) =>
-        poses.TryGetValue(PoseIndex(name), out HashSet<int>? drawn) ? drawn : [];
+    private static HashSet<int> CeresSets(Dictionary<CinematicSpritePose, HashSet<int>> poses, string name) =>
+        poses.TryGetValue(PoseOf(name), out HashSet<int>? drawn) ? drawn : [];
 
     /// <summary>The Ceres scenes' sheets, each with the actors its scene draws from it.</summary>
     private static readonly Dictionary<SpriteSheetId, Func<IEnumerable<CeresDrawnProgram>>> CeresSheets = new()
@@ -113,22 +113,22 @@ internal static class CinematicSheetColouringsVerification
     };
 
     /// <summary>
-    /// The sprite sets each pose a Ceres scene shows is drawn in, by pose index: the sets of the colourings of every actor of
+    /// The sprite sets each pose a Ceres scene shows is drawn in, by pose: the sets of the colourings of every actor of
     /// <paramref name="actors"/> whose program shows it.
     /// </summary>
-    private static Dictionary<int, HashSet<int>> CeresPoseSets(IEnumerable<CeresDrawnProgram> actors)
+    private static Dictionary<CinematicSpritePose, HashSet<int>> CeresPoseSets(IEnumerable<CeresDrawnProgram> actors)
     {
-        var sets = new Dictionary<int, HashSet<int>>();
+        var sets = new Dictionary<CinematicSpritePose, HashSet<int>>();
         foreach (CeresDrawnProgram actor in actors)
         {
             foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(actor.Program)))
             {
                 if (pose == CinematicSpritePose.Blank)
                     continue;
-                if (!sets.TryGetValue(pose.Index, out HashSet<int>? poseSets))
+                if (!sets.TryGetValue(pose, out HashSet<int>? poseSets))
                 {
                     poseSets = [];
-                    sets.Add(pose.Index, poseSets);
+                    sets.Add(pose, poseSets);
                 }
                 poseSets.Add(CeresSheetInks.SpriteSet(actor.Colouring));
             }
@@ -208,11 +208,11 @@ internal static class CinematicSheetColouringsVerification
 
     /// <summary>The pose index a cinematic sheet frame's name gives: the part after its family.</summary>
     /// <exception cref="InvalidDataException">The name is not a cinematic frame name.</exception>
-    private static int PoseIndex(string name)
+    private static CinematicSpritePose PoseOf(string name)
     {
         int dot = name.LastIndexOf('.');
-        return dot > 0 && int.TryParse(name.AsSpan(dot + 1), System.Globalization.NumberStyles.None,
-            System.Globalization.CultureInfo.InvariantCulture, out int index) ? index
+        return dot > 0 && Enum.TryParse(name.AsSpan(dot + 1), ignoreCase: false, out CinematicSpritePose pose) && Enum.IsDefined(pose)
+            && !char.IsAsciiDigit(name[dot + 1]) ? pose
             : throw new InvalidDataException($"Sheet frame {name} is not a cinematic family's frame.");
     }
 

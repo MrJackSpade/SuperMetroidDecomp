@@ -42,7 +42,7 @@ internal static class RoomPicturePresentationContractChecks
                     artwork.Sky(ScrollingSkyChunkTable.Land, tileset);
                     artwork.Sky((ScrollingSkyChunkTable)99, tileset);
                     floor.Picture(frame);
-                    floor.Picture(CeresFloorAnimationFrame.WingFrame1);
+                    floor.Picture(CeresFloorAnimationFrame.WingsLowered);
                     floor.Picture((CeresFloorAnimationFrame)99);
                     messages.Picture(shown);
                     messages.Picture(new ShownMessage(GameplayMessageId.EnergyTank, null, null));

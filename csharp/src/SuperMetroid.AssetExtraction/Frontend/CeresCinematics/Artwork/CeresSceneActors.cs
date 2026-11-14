@@ -78,7 +78,7 @@ internal static class CeresSceneActors
             if (poses.TryGetValue(pose, out CeresSpriteColouring drawn))
             {
                 if (CeresSheetInks.SpriteSet(drawn) != CeresSheetInks.SpriteSet(colouring))
-                    throw new InvalidDataException($"{scene} draws pose {pose.Index} in both {drawn} and {colouring}, which one picture cannot show.");
+                    throw new InvalidDataException($"{scene} draws pose {pose} in both {drawn} and {colouring}, which one picture cannot show.");
                 continue;
             }
             poses.Add(pose, colouring);

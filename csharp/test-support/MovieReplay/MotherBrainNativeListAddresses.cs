@@ -351,27 +351,27 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares every typed body segment and animation with its native list; returns each body segment's native list.</summary>
     internal static Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> CompareBody(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.BodySegments, MotherBrainAnimations.BodyStartingAt, BodyEntries,
-            frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame.Index).Pointer, BodyNativeOps);
+            frame => MotherBrainBodyVisualDefinitionsConstants.Frame(frame).Pointer, BodyNativeOps);
 
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame.Index).Pointer, HeadNativeOps);
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps);
 
     /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
     internal static void CompareBaby(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Segments, MotherBrainBabyAnimations.StartingAt, BabyEntries,
-            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), BabyNativeOps);
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), BabyNativeOps);
 
     /// <summary>Compares the Shitroid's typed segments and animations with their native lists.</summary>
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, ShitroidAnimations.Segments, ShitroidAnimations.StartingAt, ShitroidEntries,
-            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame.Index), ShitroidNativeOps);
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidNativeOps);
 
     /// <summary>Compares the Zebetites' typed health segments and animations with their native lists.</summary>
     internal static void CompareZebetites(IImportCartridgeSource cartridge) =>
         Lists(cartridge, ZebetiteBank, ZebetiteAnimations.Segments, ZebetiteAnimations.StartingAt, ZebetiteEntries,
-            frame => ZebetiteVisualToolingDefinitions.Spritemap(frame.Index), new Dictionary<ushort, NativeListOp<ZebetiteSegment, NoAnimationCue>>());
+            frame => ZebetiteVisualToolingDefinitions.Spritemap(frame), new Dictionary<ushort, NativeListOp<ZebetiteSegment, NoAnimationCue>>());
 
     /// <summary>Compares the falling tubes' typed segments and animations with their native lists; returns each piece's native list.</summary>
     internal static Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>

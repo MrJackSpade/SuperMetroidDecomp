@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -103,9 +104,9 @@ internal static class EndingSpriteSheetComposer
         foreach (CinematicSpritePose pose in poses)
         {
             if (!composed.Contains(pose))
-                throw new InvalidDataException($"The scene of {sheet} shows pose {pose.Index}, which none of its families composes.");
+                throw new InvalidDataException($"The scene of {sheet} shows pose {pose}, which none of its families composes.");
         }
-        return composed.Where(poses.Contains).OrderBy(pose => pose.Index);
+        return composed.Where(poses.Contains).OrderBy(CinematicSpritemapSources.CartridgeOrder);
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ internal static class EndingSpriteSheetComposer
         EndingSheetDraws draws, SpriteArtwork characters, ScreenObjectSizes sizes)
     {
         Dictionary<CinematicSpritePose, List<EndingSpriteColouring>> poses = draws.Poses(family.Family);
-        foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames.OrderBy(pair => pair.Key.Index))
+        foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)))
         {
             if (family.Family == EndingTypedTexts.Family && EndingTypedTexts.Texts.Find(pose) is not null)
                 continue;

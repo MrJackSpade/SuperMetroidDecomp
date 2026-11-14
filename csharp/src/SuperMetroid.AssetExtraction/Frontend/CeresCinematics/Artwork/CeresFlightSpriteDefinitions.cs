@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
@@ -9,11 +10,11 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>The stars, large asteroid, station under attack, small asteroid and the two vortex drawings.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("stars", new(66), 25),
-        new("large-asteroid", new(82), 19),
-        new("station-under-attack", new(34), 41),
-        new("small-asteroid", new(35), 16),
-        new("vortex-even", new(36), 36),
-        new("vortex-odd", new(37), 33),
+        new("stars", CinematicSpritePose.FlightStars, 25),
+        new("large-asteroid", CinematicSpritePose.LargeAsteroid, 19),
+        new("station-under-attack", CinematicSpritePose.StationUnderAttack, 41),
+        new("small-asteroid", CinematicSpritePose.SmallAsteroid, 16),
+        new("vortex-even", CinematicSpritePose.VortexEven, 36),
+        new("vortex-odd", CinematicSpritePose.VortexOdd, 33),
     ];
 }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -9,6 +9,22 @@ internal static class ZebetiteVisualToolingDefinitions
     internal const byte Bank = 0xa6;
     /// <summary>Ten barrier health-tier compositions at $A6:FE08..FEB0.</summary>
     internal const int FrameCount = 10;
+    /// <summary>The health poses in the order of their cartridge compositions: the large tiers, then the split tiers.</summary>
+    internal static readonly ZebetiteFrame[] CartridgeOrder =
+    [
+        ZebetiteFrame.LargeAtLeast800,
+        ZebetiteFrame.LargeAtLeast600,
+        ZebetiteFrame.LargeAtLeast400,
+        ZebetiteFrame.LargeAtLeast200,
+        ZebetiteFrame.LargeBelow200,
+        ZebetiteFrame.SplitAtLeast800,
+        ZebetiteFrame.SplitAtLeast600,
+        ZebetiteFrame.SplitAtLeast400,
+        ZebetiteFrame.SplitAtLeast200,
+        ZebetiteFrame.SplitBelow200,
+    ];
+    /// <summary>The spritemap of health pose <paramref name="frame"/>.</summary>
+    internal static ushort Spritemap(ZebetiteFrame frame) => Spritemap(Array.IndexOf(CartridgeOrder, frame));
     /// <summary>The health pose spritemap at position <paramref name="index"/>: large tiers 0 to 4, split tiers 5 to 9.</summary>
     internal static ushort Spritemap(int index) => index switch
     {
@@ -28,5 +44,5 @@ internal static class ZebetiteVisualToolingDefinitions
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ZebetiteSegment>()
         .SelectMany(program => ZebetiteAnimations.Segments.Beats(program))
         .OfType<AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame>()
-        .Select(beat => ZebetiteVisualToolingDefinitions.Spritemap(beat.Shown.Index))];
+        .Select(beat => ZebetiteVisualToolingDefinitions.Spritemap(beat.Shown))];
 }

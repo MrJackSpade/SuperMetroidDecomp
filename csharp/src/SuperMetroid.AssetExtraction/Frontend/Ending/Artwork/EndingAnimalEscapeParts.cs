@@ -20,10 +20,10 @@ internal sealed class EndingAnimalEscapeParts : ICinematicSpriteFrames
     /// </summary>
     private static readonly Dictionary<CinematicSpritePose, SpriteComposition> frames = new()
     {
-        [new(155)] = Pod(CharacterSheetGrid.Cell(30, 0)),
-        [new(156)] = Pod(CharacterSheetGrid.Cell(30, 1)),
-        [new(157)] = Pod(CharacterSheetGrid.Cell(30, 2)),
-        [new(158)] = Pod(CharacterSheetGrid.Cell(30, 3)),
+        [CinematicSpritePose.EscapePod0] = Pod(CharacterSheetGrid.Cell(30, 0)),
+        [CinematicSpritePose.EscapePod1] = Pod(CharacterSheetGrid.Cell(30, 1)),
+        [CinematicSpritePose.EscapePod2] = Pod(CharacterSheetGrid.Cell(30, 2)),
+        [CinematicSpritePose.EscapePod3] = Pod(CharacterSheetGrid.Cell(30, 3)),
     };
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingAnimalEscape;

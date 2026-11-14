@@ -23,13 +23,6 @@ internal static class RidleyAnimations
     /// <summary>Each lift-off pose after the jump.</summary>
     private const int LiftoffPoseDuration = 17;
 
-    /// <summary>The claw-height pose for standing legs.</summary>
-    private const int FeetStanding = 0;
-    /// <summary>The claw-height pose for half-extended legs.</summary>
-    private const int FeetHalfExtended = 1;
-    /// <summary>The claw-height pose for extended legs.</summary>
-    private const int FeetExtended = 2;
-
     /// <summary>Every body segment's beats; each sleeps after its last, but the fireballing segments, which run on into their ends.</summary>
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
@@ -109,20 +102,20 @@ internal static class RidleyAnimations
     /// <summary>Extends the legs, holding the full extension <paramref name="extendedDuration"/> updates.</summary>
     private static IEnumerable<AnimationBeat<F, RidleyBodyCue>> Lunge(Side side, int extendedDuration)
     {
-        yield return Feet(FeetStanding);
+        yield return Feet(RidleyClawHeight.Standing);
         yield return Show(side.Standing, 4);
-        yield return Feet(FeetHalfExtended);
+        yield return Feet(RidleyClawHeight.LegsHalfExtended);
         yield return Show(side.LegsHalfExtended, 6);
-        yield return Feet(FeetExtended);
+        yield return Feet(RidleyClawHeight.LegsExtended);
         yield return Show(side.LegsExtended, extendedDuration);
     }
 
     /// <summary>Draws the legs back in after a lunge, through half-extended to standing.</summary>
     private static IEnumerable<AnimationBeat<F, RidleyBodyCue>> Settle(Side side)
     {
-        yield return Feet(FeetHalfExtended);
+        yield return Feet(RidleyClawHeight.LegsHalfExtended);
         yield return Show(side.LegsHalfExtended, 6);
-        yield return Feet(FeetStanding);
+        yield return Feet(RidleyClawHeight.Standing);
         yield return Show(side.Standing, 4);
     }
 
@@ -216,9 +209,9 @@ internal static class RidleyAnimations
     private static AnimationBeat<F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodySegment target) =>
         Cue(new RidleyBodyCue.GoToIfCeresAndSamusLowEnergy(Target: target));
 
-    /// <summary>Selects the claw-height pose <paramref name="index"/>.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> Feet(int index) =>
-        Cue(new RidleyBodyCue.SetFeetDistance(FeetDistanceIndex: index));
+    /// <summary>Selects claw height <paramref name="height"/>.</summary>
+    private static AnimationBeat<F, RidleyBodyCue> Feet(RidleyClawHeight height) =>
+        Cue(new RidleyBodyCue.SetClawHeight(height));
 
     /// <summary>Publishes a cue of <paramref name="kind"/> that carries no values.</summary>
     private static AnimationBeat<F, RidleyBodyCue> Cue(RidleyBodyCueKind kind) => Cue(new RidleyBodyCue.Signal(kind));

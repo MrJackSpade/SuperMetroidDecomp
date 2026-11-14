@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual compositions selected by the scientist delivery and examination lists.</summary>
@@ -11,11 +12,11 @@ internal static class IntroScientistSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("delivered-baby-1", new(19), 6),
-        new("delivered-baby-2", new(20), 6),
-        new("delivered-baby-3", new(21), 6),
-        new("examined-baby-1", new(22), 1),
-        new("examined-baby-2", new(23), 1),
-        new("examined-baby-3", new(24), 1),
+        new("delivered-baby-1", CinematicSpritePose.DeliveredBaby1, 6),
+        new("delivered-baby-2", CinematicSpritePose.DeliveredBaby2, 6),
+        new("delivered-baby-3", CinematicSpritePose.DeliveredBaby3, 6),
+        new("examined-baby-1", CinematicSpritePose.ExaminedBaby1, 1),
+        new("examined-baby-2", CinematicSpritePose.ExaminedBaby2, 1),
+        new("examined-baby-3", CinematicSpritePose.ExaminedBaby3, 1),
     ];
 }

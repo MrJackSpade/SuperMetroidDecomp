@@ -161,9 +161,7 @@ internal sealed class CeresRidleyGetaway
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
-            CeresFloorAnimationFrame wing = state.GetawayWingFrame == 0
-                ? CeresFloorAnimationFrame.WingFrame0
-                : CeresFloorAnimationFrame.WingFrame1;
+            CeresFloorAnimationFrame wing = CeresFloorAnimation.WingFrameForPhase(state.GetawayWingFrame);
             _room.Services.ShowFloorFrame(wing);
             CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
                 "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");

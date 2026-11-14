@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
@@ -11,11 +12,11 @@ public static class EndingCloudSpriteDefinitions
     /// </summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("scene-b-upper-a", new(159), 16),
-        new("scene-b-upper-b", new(160), 16),
-        new("scene-b-lower-a", new(161), 16),
-        new("scene-b-lower-b", new(162), 16),
-        new("scene-a-right", new(163), 32),
-        new("scene-a-left", new(164), 32),
+        new("scene-b-upper-a", CinematicSpritePose.CloudSceneBUpperA, 16),
+        new("scene-b-upper-b", CinematicSpritePose.CloudSceneBUpperB, 16),
+        new("scene-b-lower-a", CinematicSpritePose.CloudSceneBLowerA, 16),
+        new("scene-b-lower-b", CinematicSpritePose.CloudSceneBLowerB, 16),
+        new("scene-a-right", CinematicSpritePose.CloudSceneARight, 32),
+        new("scene-a-left", CinematicSpritePose.CloudSceneALeft, 32),
     ];
 }

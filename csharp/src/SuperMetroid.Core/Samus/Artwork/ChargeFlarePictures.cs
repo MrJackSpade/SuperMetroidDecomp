@@ -14,10 +14,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </remarks>
 public static class ChargeFlarePictures
 {
-    /// <summary>The main flare's compositions, by picture.</summary>
-    private static readonly ProjectileSpriteId[] MainFlare =
-        [.. MainFlarePictures.Select(main => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, main))];
-
     /// <summary>
     /// The composition <paramref name="component"/> shows at picture <paramref name="phase"/> facing left or right, or
     /// null when the place is none of the component's pictures.
@@ -25,10 +21,19 @@ public static class ChargeFlarePictures
     /// <param name="component">The component.</param>
     /// <param name="facingLeft">Whether Samus faces left.</param>
     /// <param name="phase">The component's picture, 0 through 65535.</param>
-    public static ProjectileSpriteId? Of(ChargeFlareComponent component, bool facingLeft, int phase)
+    public static ProjectileSpriteId? Of(ChargeFlareComponent component, bool facingLeft, int phase) =>
+        ChargeFlareAnimations.PictureAt(component, Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, phase)) is { } picture
+            ? Of(component, facingLeft, picture)
+            : null;
+
+    /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>
+    public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, ChargeFlarePicture picture)
     {
-        ProjectileSpriteId[] pictures = PicturesOf(component, facingLeft);
-        return Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, phase) < pictures.Length ? pictures[phase] : null;
+        IReadOnlyDictionary<ChargeFlarePicture, int> places = component == ChargeFlareComponent.MainFlare ? MainFlareCompositions : SparkCompositions;
+        return places.TryGetValue(picture, out int place)
+            ? CompositionsOf(component, facingLeft)[place]
+            : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
     }
 
     /// <summary>The sprite source instance that tells the flare's three components' draws apart.</summary>
@@ -40,16 +45,16 @@ public static class ChargeFlarePictures
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
     };
 
-    /// <summary><paramref name="component"/>'s compositions for the facing, by picture.</summary>
-    private static ProjectileSpriteId[] PicturesOf(ChargeFlareComponent component, bool facingLeft) => component switch
+    /// <summary><paramref name="component"/>'s compositions for the facing, in family order.</summary>
+    private static ProjectileSpriteId[] CompositionsOf(ChargeFlareComponent component, bool facingLeft) => Families[component switch
     {
-        ChargeFlareComponent.MainFlare => MainFlare,
-        ChargeFlareComponent.SlowSparks => Sparks[facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight],
-        ChargeFlareComponent.FastSparks => Sparks[facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight],
+        ChargeFlareComponent.MainFlare => ProjectileSpriteGroup.FlareMain,
+        ChargeFlareComponent.SlowSparks => facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight,
+        ChargeFlareComponent.FastSparks => facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight,
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    };
+    }];
 
-    /// <summary>Each spark family's compositions, by picture.</summary>
-    private static readonly Dictionary<ProjectileSpriteGroup, ProjectileSpriteId[]> Sparks =
-        Groups.Where(sparks => sparks.Group != ProjectileSpriteGroup.FlareMain).ToDictionary(sparks => sparks.Group, sparks => sparks.Members.ToArray());
+    /// <summary>Each flare family's compositions, in family order.</summary>
+    private static readonly Dictionary<ProjectileSpriteGroup, ProjectileSpriteId[]> Families =
+        Groups.ToDictionary(family => family.Group, family => family.Members.ToArray());
 }

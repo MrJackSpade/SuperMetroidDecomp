@@ -292,7 +292,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         // actor keeps alternating the turning floor's platform frames forever. Omitting this
         // queue made the moving sprite pad flash correctly, then left the landed floor platform
         // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
-        _room.Services.ShowFloorFrame(CeresFloorAnimation.EnemyFrameId(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
+        _room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
         // A new step of six colours every eight updates.
         ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);

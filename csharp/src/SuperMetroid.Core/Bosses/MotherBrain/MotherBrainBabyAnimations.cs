@@ -9,9 +9,9 @@ internal static class MotherBrainBabyAnimations
     internal static AnimationSegments<MotherBrainBabySegment, BabyMetroidFrame, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MotherBrainBabySegment, AnimationBeat<BabyMetroidFrame, NoAnimationCue>[]>
     {
-        [MotherBrainBabySegment.Initial] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
-        [MotherBrainBabySegment.DrainingMotherBrain] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
-        [MotherBrainBabySegment.TakingFatalBlow] = [Show(2, 128)],
+        [MotherBrainBabySegment.Initial] = [Show(BabyMetroidFrame.Closed, 16), Show(BabyMetroidFrame.HalfOpen, 16), Show(BabyMetroidFrame.WideOpen, 16), Show(BabyMetroidFrame.HalfOpen, 16)],
+        [MotherBrainBabySegment.DrainingMotherBrain] = [Show(BabyMetroidFrame.Closed, 8), Show(BabyMetroidFrame.HalfOpen, 8), Show(BabyMetroidFrame.WideOpen, 5), Show(BabyMetroidFrame.HalfOpen, 2)],
+        [MotherBrainBabySegment.TakingFatalBlow] = [Show(BabyMetroidFrame.WideOpen, 128)],
     });
 
     /// <summary>The animation that starts at each segment: the pulses cycle for good, and the fatal blow holds its pose.</summary>
@@ -29,7 +29,7 @@ internal static class MotherBrainBabyAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<MotherBrainBabySegment> Whole(MotherBrainBabySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Shows pose <paramref name="index"/>.</summary>
-    private static AnimationBeat<BabyMetroidFrame, NoAnimationCue> Show(int index, int duration) =>
-        new AnimationBeat<BabyMetroidFrame, NoAnimationCue>.Frame(new BabyMetroidFrame(index), duration);
+    /// <summary>Shows pose <paramref name="pose"/>.</summary>
+    private static AnimationBeat<BabyMetroidFrame, NoAnimationCue> Show(BabyMetroidFrame pose, int duration) =>
+        new AnimationBeat<BabyMetroidFrame, NoAnimationCue>.Frame(pose, duration);
 }

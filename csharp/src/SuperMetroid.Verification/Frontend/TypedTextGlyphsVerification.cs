@@ -48,7 +48,7 @@ internal static class TypedTextGlyphsVerification
             foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
             {
                 if (pose != CinematicSpritePose.Blank)
-                    typed.Add(new(SpriteSheetId.EndingExplosionSprites, $"{CinematicSpriteFamily.EndingCompletionText}.{pose.Index}"));
+                    typed.Add(new(SpriteSheetId.EndingExplosionSprites, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingCompletionText, pose)));
             }
         }
         foreach (TypedStepFrame step in typed.Distinct())

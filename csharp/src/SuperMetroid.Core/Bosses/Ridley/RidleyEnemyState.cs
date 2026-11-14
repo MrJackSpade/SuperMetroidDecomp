@@ -102,8 +102,8 @@ public sealed class RidleyEnemyState
     /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
     internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; } =
         new(RidleyAnimations.StartingWith(RidleyBodySegment.Initial), AnimationPlace.StartOfAnimation);
-    /// <summary>Gets the claw-height pose Ridley's body animation last selected: zero standing, one legs half extended, two legs extended.</summary>
-    public int FeetDistanceIndex { get; internal set; }
+    /// <summary>Gets the claw height Ridley's body animation last selected; he starts standing.</summary>
+    public RidleyClawHeight ClawHeight { get; internal set; } = RidleyClawHeight.Standing;
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
     /// <summary>Gets the signed 1/256-pixel velocity computed from the clamped fireball aim angle.</summary>

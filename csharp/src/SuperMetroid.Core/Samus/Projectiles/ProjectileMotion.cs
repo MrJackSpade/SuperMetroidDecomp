@@ -353,8 +353,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectile owner)
     {
-        int place = _slotTable.FindFreeSlotIndex();
-        if (place < 0)
+        if (_slotTable.FindFreePlace() is not { } place)
             return;
 
         SamusProjectile link = _slotTable.OccupyAtRest(place);

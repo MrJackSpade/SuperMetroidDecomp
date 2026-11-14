@@ -86,10 +86,10 @@ public sealed class SamusHorizontalSpeedState
     /// The speed echo cursor. Ordinary active Speed Booster echoes alternate between the first and second slots;
     /// cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
-    public SpeedEchoCursor SpeedEchoIndex { get; private set; }
+    public SpeedEchoCursor SpeedEchoCursor { get; private set; }
 
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
-    public bool SpeedEchoesDeparting => SpeedEchoIndex.IsDeparting;
+    public bool SpeedEchoesDeparting => SpeedEchoCursor.IsDeparting;
 
     /// <summary>Where the first Speed Booster echo stands, or none while its slot holds no echo.</summary>
     public Position16<RoomPixels>? FirstSpeedEchoPosition { get; private set; }
@@ -468,12 +468,12 @@ public sealed class SamusHorizontalSpeedState
             return false;
         }
 
-        if (SpeedEchoIndex.CapturesFirstSlot)
+        if (SpeedEchoCursor.CapturesFirstSlot)
             FirstSpeedEchoPosition = position;
         else
             SecondSpeedEchoPosition = position;
 
-        SpeedEchoIndex = SpeedEchoIndex.AfterCapture();
+        SpeedEchoCursor = SpeedEchoCursor.AfterCapture();
         return true;
     }
 
@@ -483,7 +483,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ClearSpeedEchoes()
     {
-        SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
+        SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = null;
@@ -524,7 +524,7 @@ public sealed class SamusHorizontalSpeedState
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
-            SpeedEchoIndex = SpeedEchoCursor.Departing;
+            SpeedEchoCursor = SpeedEchoCursor.Departing;
             Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? -8 : 8, 0);
             FirstSpeedEchoVelocity = velocity;
             SecondSpeedEchoVelocity = velocity;
@@ -554,7 +554,7 @@ public sealed class SamusHorizontalSpeedState
         SpecialPaletteTimer = 0;
         CyclePaletteStep = 0;
         SpeedBoostCounter = default;
-        SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
+        SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
@@ -669,7 +669,7 @@ public sealed class SamusHorizontalSpeedState
             FirstSpeedEchoPosition is null &&
             SecondSpeedEchoPosition is null)
         {
-            SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
+            SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
         }
     }
 

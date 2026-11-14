@@ -241,11 +241,10 @@ internal sealed class BeamFiring
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
 
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
+        // the fifth place holds. With every place held the shot is refused and the count is taken back.
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
         {
-            // Consistent state cannot arrive here. Match the producer's defensive rollback
-            // so an inconsistent count does not stay permanently above five.
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
@@ -356,8 +355,7 @@ internal sealed class BeamFiring
 
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
         {
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
@@ -446,8 +444,7 @@ internal sealed class BeamFiring
         if (ammo == 0)
             return new BeamShot(null, null);
 
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
             return new BeamShot(null, null);
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)

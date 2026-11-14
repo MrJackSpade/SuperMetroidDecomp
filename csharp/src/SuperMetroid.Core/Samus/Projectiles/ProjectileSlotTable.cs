@@ -26,8 +26,8 @@ internal sealed class ProjectileSlotTable
 
     /// <summary>The projectile now holding the place <paramref name="projectile"/> took: itself, or one that replaced it.</summary>
     internal SamusProjectile HolderOfPlaceOf(SamusProjectile projectile) => _places[Ensure.NotNull(projectile).Place];
-    /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or -1 when all are held.</summary>
-    internal int FindFreeSlotIndex() => Array.FindIndex(_places, projectile => !projectile.IsOccupied);
+    /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or null when all are held.</summary>
+    internal int? FindFreePlace() => _places.FirstOrDefault(projectile => !projectile.IsOccupied)?.Place;
 
     /// <summary>
     /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with

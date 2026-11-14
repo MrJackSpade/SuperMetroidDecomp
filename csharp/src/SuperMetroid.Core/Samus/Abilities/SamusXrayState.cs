@@ -73,7 +73,7 @@ public sealed class SamusXrayState
     /// </summary>
     public XrayWarmUp WarmUp { get; internal set; }
 
-    /// <summary>Values zero through five index the beam dispatcher.</summary>
+    /// <summary>Values zero through five are the beam's six phases.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
 
     /// <summary>Right-facing angles occupy 0-127, left 128-255.</summary>
@@ -482,7 +482,7 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
-            // A handler that reports the palette unhandled asks the outer dispatcher to load the
+            // A handler that reports the palette unhandled asks the outer game-state loop to load the
             // complete normal suit palette, then clears every X-ray palette value.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             SpecialPaletteKind = SamusSpecialPaletteType.None;

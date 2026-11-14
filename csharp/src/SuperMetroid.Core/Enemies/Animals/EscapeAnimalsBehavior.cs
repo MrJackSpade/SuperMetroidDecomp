@@ -39,9 +39,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EscapeDachoraPixelsPerCue = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
-    /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
+    /// <summary>One unit of 1/65536-pixel downward acceleration applied during Etecoon's exit.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
-    /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
+    /// <summary>Signed 1/65536-pixel horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
 
     /// <summary>Initializes the escape Etecoon.</summary>
@@ -136,8 +136,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Escape Etecoon walking requires room collision data.");
 
-        // The stored speed is signed 8.8; the slope-ignoring horizontal mover receives signed
-        // 16.16, hence the exact scaling by 256. The event test is inside the collision
+        // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
+        // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))

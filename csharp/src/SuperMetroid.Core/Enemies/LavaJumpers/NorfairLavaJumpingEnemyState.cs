@@ -20,7 +20,7 @@ public sealed class NorfairLavaJumpingEnemyState
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 8.8 vertical velocity. Gravity adds to it, and the jump compares it unsigned with the animation
+    /// Signed 1/256-pixel vertical velocity. Gravity adds to it, and the jump compares it unsigned with the animation
     /// switch velocity (<see cref="ApplyGravity"/>), and the follower shows only while it is negative.
     /// </summary>
     public SignedEightEight YVelocity { get; internal set; }
@@ -35,6 +35,6 @@ public sealed class NorfairLavaJumpingEnemyState
     public bool IsFollower { get; internal set; }
 
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>
-    /// <param name="gravity">The 8.8 gravity step.</param>
+    /// <param name="gravity">The 1/256-pixel gravity step.</param>
     internal void ApplyGravity(SignedEightEight gravity) => YVelocity += gravity;
 }

@@ -388,7 +388,7 @@ internal sealed class BeamCombos
             InitializeComboData(slot, BeamComboData.Echo);
         }
     }
-    /// <summary>Runs the Wave combo's homing oscillator, preserving 8.8 acceleration and 16.16 position overflow.</summary>
+    /// <summary>Runs the Wave combo's homing oscillator, preserving 1/256-pixel acceleration and 1/65536-pixel position overflow.</summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectile slot, SamusBombProjectileSystem shared)
     {
@@ -427,7 +427,7 @@ internal sealed class BeamCombos
 
     /// <summary>
     /// Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound. The speed
-    /// stays within one acceleration of the bound either way, far inside the 8.8 range.
+    /// stays within one acceleration of the bound either way, far inside the 1/256-pixel range.
     /// </summary>
     private static SignedEightEight AccelerateWaveAxis(SignedEightEight speed, int targetDelta)
     {

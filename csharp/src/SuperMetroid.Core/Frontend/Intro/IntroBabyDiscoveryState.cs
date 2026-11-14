@@ -96,7 +96,7 @@ internal sealed class IntroBabyDiscoveryState
     /// </summary>
     public void Step(int frameCounter, int introCrossfadeTimer)
     {
-        // The cinematic dispatcher runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
+        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
         {
             // The demo pose-input handler runs the demo input object inside Samus's
@@ -379,7 +379,7 @@ internal sealed class IntroBabyDiscoveryState
                 priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
-        // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 8.8.
+        // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
         int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 32);
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
@@ -449,7 +449,7 @@ internal sealed class IntroBabyDiscoveryState
     private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>
-    /// Adjusts an 8.8 velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
+    /// Adjusts a 1/256-pixel velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
     /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range.
     /// </summary>
     private static SignedEightEight AccelerateToward(
@@ -461,7 +461,7 @@ internal sealed class IntroBabyDiscoveryState
             ? SignedEightEight.Min(limit, current + BabyAcceleration)
             : SignedEightEight.Max(-limit, current - BabyAcceleration);
 
-    /// <summary>Integrates one 8.8 velocity component into the actor's subpixel position.</summary>
+    /// <summary>Integrates one 1/256-pixel velocity component into the actor's subpixel position.</summary>
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
         Axis axis,

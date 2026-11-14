@@ -92,7 +92,7 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Scales a signed 8.8 trigonometric component, preserving exact positive and negative unit endpoints.</summary>
+    /// <summary>Scales a signed 1/256-step trigonometric component, preserving exact positive and negative unit endpoints.</summary>
     private static int ScaleCoordinate(int sine, int length) => sine switch
     {
         -256 => -length,
@@ -503,7 +503,7 @@ public static class SamusGrappleSwing
         {
             switch (block.CollisionType)
             {
-                // The swing dispatcher intentionally treats shootable/bombable air as air;
+                // The swing step intentionally treats shootable/bombable air as air;
                 // unlike a firing endpoint, body contact does not spawn their room objects.
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpecialAir:
@@ -521,7 +521,7 @@ public static class SamusGrappleSwing
                     ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
                     return false;
 
-                // Slopes are unconditional collision in this grapple-specific dispatcher.
+                // Slopes are unconditional collision in this grapple-specific step.
                 case RoomCollisionType.Slope:
                 case RoomCollisionType.SolidBlock:
                 case RoomCollisionType.DoorBlock:
@@ -555,13 +555,13 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Rechecks the stored endpoint through the firing dispatcher and retains the connection while the block there stops the beam.</summary>
+    /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
     {
-        // The anchor validation calls the firing block dispatcher again at the stored endpoint and tests
+        // The anchor validation calls the firing block check again at the stored endpoint and tests
         // only whether the block stops the beam. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(

@@ -162,7 +162,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             }
             else if (session.Assists.SkipOpeningCinematic)
             {
-                // This is the same dispatcher boundary reached by the intro's end after
+                // This is the same game-state boundary reached by the intro's end after
                 // the SPACE COLONY fade. Do not fake Start presses or build a separately
                 // authored Ceres room: the following frame will execute the ordinary
                 // new-game loader, elevator arrival, and movement-unlock sequence.
@@ -200,7 +200,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         else if (gameOver.ContinueRequested)
         {
             // Menu index six publishes its state after the fully black
-            // frame. Keep that dispatcher boundary separate from save reload.
+            // frame. Keep that game-state boundary separate from save reload.
             session.Close<GameOverMenuState>();
             session.GameState = SuperMetroidGameState.FileSelectMap;
             session.display.PublishBlack();

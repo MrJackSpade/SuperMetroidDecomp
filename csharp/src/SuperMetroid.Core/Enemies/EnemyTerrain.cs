@@ -164,7 +164,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Implements the downward, geometry-only attachment probe used by Skree/Metaree. Unlike the common
-    /// collision dispatcher, this probe deliberately tests only whether each block stops attachment.
+    /// collision check, this probe deliberately tests only whether each block stops attachment.
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
@@ -328,7 +328,7 @@ internal sealed class EnemyTerrain
     /// Reads a block for the movers, which never bound the block their scan reaches to the authored
     /// room: past the room plane they read the blocks beyond the room (see
     /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
-    /// as the reaction dispatcher repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
+    /// as the reaction step repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
     /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="startBlock">The block the scan reached, in the room's columns (<see cref="BlockScanCycle"/>).</param>
@@ -356,7 +356,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// The columns a horizontal extension or the rows a vertical one leads an enemy's lookup on by, as the reaction
-    /// dispatcher repeats them; none for an extension that ends its chain or a block of any other kind.
+    /// step repeats them; none for an extension that ends its chain or a block of any other kind.
     /// </summary>
     private static Offset16<RoomBlocks>? ExtensionLink(RoomCollisionBlock block) => block.CollisionType switch
     {
@@ -393,7 +393,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Resolves signed extension links exactly as the dispatcher repeats them: each link leads on in the room's reading
+    /// Resolves signed extension links exactly as the step repeats them: each link leads on in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
     /// A guard converts corrupt cyclic room data into a useful exception instead of a runaway
     /// recursion failure; valid chains always terminate well before the room allocation size.

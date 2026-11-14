@@ -141,7 +141,7 @@ internal sealed class ProjectileMotion
         SamusProjectileDirection direction = slot.Direction;
         Accelerate(slot, SamusProjectileAccelerations.For(direction).Beam);
 
-        // Wave's block collisions advance the same 16.16 positions and scan every block touched by
+        // Wave's block collisions advance the same 1/65536-pixel positions and scan every block touched by
         // the projectile radii, but deliberately never report a collision. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scanners below now publish ordinary shootable-block
@@ -503,7 +503,7 @@ internal sealed class ProjectileMotion
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
-        // Extension blocks return to the dispatcher's caller with a repeat result, causing the same
+        // Extension blocks return to the step's caller with a repeat result, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
         // extension is transparent. Reuse the level resolver so missiles
         // and the broad Samus body scans cannot disagree about chained extensions.

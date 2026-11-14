@@ -31,7 +31,7 @@ internal sealed class RidleyProjectiles
     }
     /// <summary>Sprite colour set used for fireballs and every afterburn stage.</summary>
     private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
-    /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
+    /// <summary>The fireball's 1/256-pixel speed: five pixels per update.</summary>
     private static readonly SignedEightEight FireballSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>The start of the arc a left-facing Ridley aims his fireballs within.</summary>
@@ -84,7 +84,7 @@ internal sealed class RidleyProjectiles
         // velocities. Callers add a quarter turn themselves when they want cosine. Its multiply
         // takes the absolute table value,
         // divides by 256, then reapplies the sign. Speed 1280 therefore remains a
-        // signed 8.8 velocity whose magnitude never exceeds 1280.
+        // signed 1/256-pixel velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(FireballSpeed, angle),
             EnemyMath.MultiplySineSample(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
@@ -235,7 +235,7 @@ internal sealed class RidleyProjectiles
 
         table.AddFrameBehavior(context =>
         {
-            // The horizontal afterburn first uses the raw 8.8 horizontal adder, not the room-collision
+            // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
             // helper. Only the perpendicular vertical move may end this afterburn.
             context.Projectile.Position = context.Projectile.Position.AdvanceX(context.Projectile.Velocity.X.ToSixteenSixteenDelta());
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))

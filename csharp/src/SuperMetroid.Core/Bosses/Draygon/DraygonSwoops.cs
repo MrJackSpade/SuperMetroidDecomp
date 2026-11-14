@@ -72,7 +72,7 @@ internal sealed class DraygonSwoops
         state.SwoopPath = new DraygonSwoopPath(heights.ToImmutable(), state.Body.Position.Y.Whole);
 
         // The unsigned division divides the absolute whole-pixel distance promoted to
-        // 16.16 by the number of path entries. Split the quotient into the same swoop-speed
+        // 1/65536 pixels, by the number of path entries. Split the quotient into the same swoop-speed
         // whole and subpixel parts the descent adds to the position.
         int distance = CoordinateAxis.Distance(
             state.LeftSideReset.X, samus.Position.X.Whole);
@@ -218,7 +218,7 @@ internal sealed class DraygonSwoops
         state.SwoopPath ?? throw new InvalidOperationException("Draygon flies a swoop he has not planned.");
 
     /// <summary>
-    /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
+    /// Sets the swoop's 1/65536-pixel horizontal velocity: the whole-pixel distance promoted to 1/65536 pixels and divided by the path's
     /// frame count, the quotient split into the swoop speed's whole and subpixel parts.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>

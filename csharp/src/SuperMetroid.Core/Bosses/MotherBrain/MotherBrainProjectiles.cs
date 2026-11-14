@@ -555,7 +555,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Runs the falling drool's frame behaviour. The actor uses signed 8.8 velocity, adds twelve
+    /// Runs the falling drool's frame behaviour. The actor uses signed 1/256-pixel velocity, adds twelve
     /// units of gravity per frame, and switches to its four-map splash at world Y 215.
     /// </summary>
     internal static void RunMotherBrainFallingDroolFrameBehavior(
@@ -805,7 +805,7 @@ internal sealed class MotherBrainProjectiles
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
     }
 
-    /// <summary>Runs the bullet property flicker, 8.8 movement, and point collision.</summary>
+    /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>
     internal static void RunMotherBrainTurretBulletFrameBehavior(
         EnemyProjectile bullet,
         RoomLevelData level)

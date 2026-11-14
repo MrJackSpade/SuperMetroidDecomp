@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The phases Mother Brain's body dispatcher runs; unrelated phases are not interchangeable.
+/// The phases Mother Brain's body runs; unrelated phases are not interchangeable.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 public enum MotherBrainBodyPhase
@@ -62,7 +62,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseStretchingFinish,
     /// <summary>Zero head health starts the rainbow sequence; otherwise standing pose, health, and the current RNG choose walking, ordinary attacks, or the red hand beam.</summary>
     SecondPhaseThinking,
-    /// <summary>Runs the choose/cooldown/end sub-dispatcher, selecting a head animation or a bomb/laser body state from Samus movement and sampled RNG.</summary>
+    /// <summary>Runs the choose/cooldown/end sequence, selecting a head animation or a bomb/laser body state from Samus movement and sampled RNG.</summary>
     SecondPhaseTryAttack,
     /// <summary>Samples an optional backward target, then advances RNG for the independent crouch-or-fire choice.</summary>
     SecondPhaseBombDecideWalking,
@@ -78,9 +78,9 @@ public enum MotherBrainBodyPhase
     SecondPhaseLaserPositionHeadQuickly,
     /// <summary>When the timer passes zero, slows neck rotation, installs the laser head animation, and seeds a 16-count recovery wait.</summary>
     SecondPhaseLaserPositionHeadSlowlyAndFire,
-    /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sub-dispatcher's end phase.</summary>
+    /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sequence's end phase.</summary>
     SecondPhaseLaserFinishAttack,
-    /// <summary>Owns the ordinary red hand-beam attack sub-dispatcher, separate from the health-zero rainbow cutscene.</summary>
+    /// <summary>Owns the ordinary red hand-beam attack sequence, separate from the health-zero rainbow cutscene.</summary>
     SecondPhaseHandBeam,
     /// <summary>Sets the initial extended neck geometry and installs the 256-count charging-start pause.</summary>
     SecondPhaseRainbowExtendNeck,

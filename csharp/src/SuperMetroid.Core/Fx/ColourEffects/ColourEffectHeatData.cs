@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 public static class ColourEffectHeatData
 {
-    /// <summary>Fractional 16.16 damage the heat condition adds on every unprotected frame.</summary>
+    /// <summary>Fractional damage, in 1/65536ths of a unit, the heat condition adds on every unprotected frame.</summary>
     public const int SubdamagePerFrame = 16384;
 
     /// <summary>

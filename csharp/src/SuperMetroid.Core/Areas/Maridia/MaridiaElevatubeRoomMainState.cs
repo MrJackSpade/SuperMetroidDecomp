@@ -26,10 +26,10 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>The fraction of the tracked position's Y, 0 through 65535.</summary>
     public int TrackedFraction { get; private set; }
 
-    /// <summary>The tube's signed 8.8 vertical velocity in room pixels per update.</summary>
+    /// <summary>The tube's signed 1/256-pixel vertical velocity in room pixels per update.</summary>
     public SignedEightEight Velocity { get; private set; }
 
-    /// <summary>The tube's signed 8.8 vertical acceleration in room pixels per update per update.</summary>
+    /// <summary>The tube's signed 1/256-pixel vertical acceleration in room pixels per update per update.</summary>
     public SignedEightEight Acceleration { get; private set; }
 
     /// <summary>
@@ -80,9 +80,9 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Runs the elevatube once: pin X to 128, integrate signed 8.8 velocity into both
-    /// the tracked position and Samus's 16.16 position through Samus's ordinary
-    /// vertical collision dispatcher, then apply the game's bounded acceleration.
+    /// Runs the elevatube once: pin X to 128, integrate signed 1/256-pixel velocity into both
+    /// the tracked position and Samus's 1/65536-pixel position through Samus's ordinary
+    /// vertical collision check, then apply the game's bounded acceleration.
     /// </summary>
     internal BlockMoveResult? Step(
 

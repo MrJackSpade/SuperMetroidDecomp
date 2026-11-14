@@ -18,7 +18,7 @@ public readonly record struct RoomIdentity
     public RoomIdentity(AreaId area, int roomIndex)
     {
         // Enum casts can manufacture arbitrary values. Validate at construction so a room
-        // identity can safely cross table and dispatcher boundaries without another guard.
+        // identity can safely cross table and game-state boundaries without another guard.
         _ = AreaIds.Require(area);
         Area = area;
         RoomIndex = Ensure.AtLeastZero(roomIndex);

@@ -8,12 +8,12 @@ public sealed class OwtchEnemyState
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }
 
     /// <summary>
-    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table.
+    /// The signed 1/65536-pixel rightward patrol speed in pixels per update, taken from the shared linear-speed table.
     /// </summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
+    /// The signed 1/65536-pixel leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 

@@ -436,7 +436,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         _player.LastShinesparkMovement = null;
         _player.LastCrystalFlashMovement = null;
         // X-ray publishes its pose-input and beam results above because both run
-        // outside the normal movement-type dispatcher. Its movement result is the
+        // outside the normal movement-type step. Its movement result is the
         // directly inspectable frame returned by `StepMovement` below.
         _player.LastDrainedSamusMovement = null;
         _player.LastDraygonEscape = null;
@@ -513,14 +513,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             }
         }
         // The real grabbed route uses the explicit empty handler installed at the grab,
-        // not the otherwise reachable Draygon-held movement type's normal dispatcher. Keep
-        // the latter in the pose switch below for direct/diagnostic dispatcher use.
+        // not the otherwise reachable Draygon-held movement type's normal step. Keep
+        // the latter in the pose switch below for direct/diagnostic step use.
         else if (samus.DraygonGrabbed.OwnsMovement)
         {
             // Deliberately empty: Draygon's actor owns coordinates.
         }
         // X-ray's activation pose installs the X-ray movement handler instead of the
-        // normal movement-type dispatcher. Stable X-ray bodies select one of five
+        // normal movement-type step. Stable X-ray bodies select one of five
         // angle frames; turning on the ground deliberately performs no movement.
         else if (samus.Xray.OwnsSamusControl)
         {
@@ -561,7 +561,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _clock.Counter);
         }
         // Knockback's handler takes precedence over the normal movement-
-        // type dispatcher. Unlike bomb jump, normal pose input remains active so
+        // type step. Unlike bomb jump, normal pose input remains active so
         // the knockback poses can still select the retail damage-boost escape chord.
         else if (samus.KnockbackActive)
         {
@@ -951,7 +951,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.DraygonGrabbedAimDownRightPose:
             case SamusPoseId.DraygonGrabbedMovingRightPose:
             case SamusPoseId.DraygonHeldBallLeftPose:
-                // This is the normal dispatcher, which only clears
+                // This is the normal step, which only clears
                 // the vertical solid-collision result. The actual boss grab above
                 // runs its separately installed empty handler instead. The Draygon-held
                 // ball the Hyper Beam freeze installs (#1535) has no Draygon, so it stays put.
@@ -1028,7 +1028,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 // the pose no longer agrees with the game-backed producer
                 // set; it is corrupt state, not a recoverable movement family.
                 throw new InvalidDataException(
-                    $"Runtime movement dispatcher received invalid pose {samus.Pose}.");
+                    $"Runtime movement step received invalid pose {samus.Pose}.");
         }
     }
 
@@ -1063,7 +1063,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         // The movement table dispatches strictly through the pose definition's
         // movement type. Y direction is data consumed by the selected
-        // handler, never a replacement dispatcher. In particular, crouched
+        // handler, never a replacement step. In particular, crouched
         // left-to-right turn can retain downward direction while its type remains
         // turning on the ground; treating it as turning while jumping sent it into the aerial turn's handler
         // and produced the live replay crash from issue 58.
@@ -1195,7 +1195,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _controller1.Current);
         }
 
-        // The posture-transition movement type's input dispatcher is empty. Transition
+        // The posture-transition movement type's input step is empty. Transition
         // poses can still have table entries, but reading them here prematurely
         // interrupts crouch/morph animations before their animation cue wins.
         frame.SamplePoseInputLocks(samus,

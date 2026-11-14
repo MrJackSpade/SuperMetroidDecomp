@@ -17,10 +17,10 @@ public sealed class PlatformEnemyState
     /// </summary>
     public Position16<RoomPixels> RestingHeight { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling right: the spawn settings' speed.</summary>
+    /// <summary>Signed 1/65536-room-pixel displacement per horizontal actor update while patrolling right: the spawn settings' speed.</summary>
     public SignedSixteenSixteen RightSpeed { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling left: the spawn settings' speed, negated.</summary>
+    /// <summary>Signed 1/65536-room-pixel displacement per horizontal actor update while patrolling left: the spawn settings' speed, negated.</summary>
     public SignedSixteenSixteen LeftSpeed { get; internal set; }
 
     /// <summary>

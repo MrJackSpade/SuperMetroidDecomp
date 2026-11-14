@@ -94,7 +94,7 @@ internal sealed class ActiveRoomState
 
 
     /// <summary>
-    /// Active room's decompressed foreground, block behaviours and background. Rendering and collision must
+    /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level stream has been loaded yet.
     /// </summary>
     public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);

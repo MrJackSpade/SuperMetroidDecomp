@@ -366,7 +366,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathRealizeDecapitation()
     {
         // The body starts the decapitated animation and a separate brain-slot draw
-        // setup, clears its 8.8 falling velocity, then falls through immediately.
+        // setup, clears its 1/256-pixel falling velocity, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
         _state.PhaseTimer = 0;
@@ -380,7 +380,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The fall treats PhaseTimer as unsigned 8.8 velocity: add 32, use only
+        // The fall treats PhaseTimer as unsigned 1/256-pixel velocity: add 32, use only
         // its whole pixels as this frame's displacement, and accumulate Y.
         // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
         _state.PhaseTimer += 32;

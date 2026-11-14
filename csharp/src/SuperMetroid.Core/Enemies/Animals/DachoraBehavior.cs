@@ -212,7 +212,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SetGlowCycle(frame: 0, ticks: 1);
     }
 
-    /// <summary>Runs left. Leftward speed is the exact two's complement of the whole and fractional speed.</summary>
+    /// <summary>Runs left. Leftward speed is the whole and fractional speed exactly negated.</summary>
     private void RunDachoraLeft(
         RoomEnemySlot slot,
         DachoraEnemyState state,

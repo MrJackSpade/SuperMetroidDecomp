@@ -58,7 +58,7 @@ public sealed class SamusGrappleState
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
-    /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
+    /// <summary>Gets or sets the signed 1/256-pixel endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
@@ -71,7 +71,7 @@ public sealed class SamusGrappleState
     public Offset16<RoomPixels> OriginOffset { get; set; }
     /// <summary>Gets or sets the drawn flare's offset from Samus.</summary>
     public Offset16<RoomPixels> FlareOffset { get; set; }
-    /// <summary>Gets or sets the endpoint's signed 16.16 offset from the rope origin.</summary>
+    /// <summary>Gets or sets the endpoint's signed 1/65536-pixel offset from the rope origin.</summary>
     public FixedVector<RoomPixels> EndpointOffset { get; set; }
     /// <summary>Gets or sets the grapple angle.</summary>
     public RotationAngle Angle { get; set; }
@@ -132,7 +132,7 @@ public sealed class SamusGrappleState
     /// </summary>
     public bool ReleasedMovementActive { get; set; }
     /// <summary>
-    /// True only when the anchor came from the room block dispatcher. A beam started
+    /// True only when the anchor came from the room block check. A beam started
     /// already connected leaves this false, because its anchor need not be a grapple block
     /// of the room.
     /// </summary>

@@ -109,7 +109,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The proximity test computes a wrapped signed difference, takes its signed
-        // absolute value, and performs an unsigned compare. It notably does *not* check that
+        // absolute value, and compares it as a distance that is never negative. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
             CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole));

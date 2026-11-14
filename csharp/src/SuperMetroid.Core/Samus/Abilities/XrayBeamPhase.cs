@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Exact values used by the six-entry X-ray dispatcher.</summary>
+/// <summary>The six phases of the X-ray beam.</summary>
 public enum XrayBeamPhase
 {
     /// <summary>State zero, no beam yet; after setup, held dash starts widening and released dash starts restoration.</summary>
     NoBeam = 0,
-    /// <summary>State one, the beam widening; accelerates the 16.16 angular half-width until it clamps to ten of the 256 angle units per turn.</summary>
+    /// <summary>State one, the beam widening; accelerates the 1/65536-step angular half-width until it clamps to ten of the 256 angle units per turn.</summary>
     Widening = 1,
     /// <summary>State two, the full beam; held dash permits aiming, with Up taking priority over Down, and releasing dash starts restoration.</summary>
     Full = 2,

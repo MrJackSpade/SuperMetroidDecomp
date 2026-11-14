@@ -21,7 +21,7 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Claims the single release turn by setting the release-in-progress flag.</summary>
     ClaimRelease,
 
-    /// <summary>Blacks out the three colours that start at the statue's cleared colour index.</summary>
+    /// <summary>Blacks out the statue's three cleared colours.</summary>
     ClearThreeColors,
 
     /// <summary>Spawns the statue's eye glow.</summary>
@@ -39,6 +39,6 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Clears the release-in-progress flag together with the statue's own animating flag.</summary>
     FinishRelease,
 
-    /// <summary>Installs the eight common grey colours at the statue's grey colour index.</summary>
+    /// <summary>Gives the statue's eight greying colours the common grey colours.</summary>
     ApplyGreyColors,
 }

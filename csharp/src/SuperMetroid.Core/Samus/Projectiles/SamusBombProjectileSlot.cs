@@ -17,7 +17,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
     public int Index { get; }
 
-    /// <summary>Room-pixel 16.16 position.</summary>
+    /// <summary>Room position in 1/65536 pixels.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>
@@ -65,10 +65,10 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The spread bomb's horizontal travel; a wall reverses its direction.</summary>
     public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
 
-    /// <summary>The spread bomb's signed 16.16 vertical velocity; Samus's gravity accelerates it every frame.</summary>
+    /// <summary>The spread bomb's signed 1/65536-pixel vertical velocity; Samus's gravity accelerates it every frame.</summary>
     public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
 
-    /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
+    /// <summary>The upward launch velocity, signed and in 1/65536 pixels, that a floor bounce restores.</summary>
     public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
 
     /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>

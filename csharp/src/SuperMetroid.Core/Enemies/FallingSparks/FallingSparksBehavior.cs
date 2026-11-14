@@ -69,7 +69,7 @@ internal sealed class FallingSparksBehavior
         int frameCycle)
     {
         // A falling spark first moves through the generic collision helper. The helper's accepted movement is
-        // *additional* to the spark's own 16.16 movement below; omitting it shifts the floor-contact frame.
+        // *additional* to the spark's own 1/65536-pixel movement below; omitting it shifts the floor-contact frame.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         if (spark.VerticalSpeed.WholePixels >= 0)
         {

@@ -26,7 +26,7 @@ public sealed class GrowingShutterEnemyState
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
-    /// The dispatcher behaviour; initialization selects a wait action and activation replaces it with a growth
+    /// The current behaviour; initialization selects a wait action and activation replaces it with a growth
     /// action.
     /// </summary>
     public GrowingShutterAction? Action { get; internal set; }
@@ -60,7 +60,7 @@ public sealed class GrowingShutterEnemyState
         internal set => field = Ensure.BetweenInclusive(0, SectionCount, value);
     }
 
-    /// <summary>Positive 16.16 growth speed in pixels per update; upward growth applies its exact negation.</summary>
+    /// <summary>Positive 1/65536-pixel growth speed in pixels per update; upward growth applies its exact negation.</summary>
     public SignedSixteenSixteen GrowthSpeed { get; internal set; }
 
     /// <summary>The shutter's whole-pixel position immediately before its current upward move, used to derive Samus's carry.</summary>

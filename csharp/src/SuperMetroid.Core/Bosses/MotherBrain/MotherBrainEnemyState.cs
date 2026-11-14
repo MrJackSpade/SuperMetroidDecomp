@@ -128,11 +128,11 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
 
-    /// <summary>Lower-neck angle; the neck dispatchers add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
+    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
     public RotationAngle LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its table index places joints 3 and 4.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
-    /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most 2304.</summary>
+    /// <summary>Neck angular speed in 256ths of an angle unit, added or subtracted by both neck motion steps each enabled update; every producer writes a positive speed of at most 2304.</summary>
     public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
@@ -246,12 +246,12 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Shared cursor used by the hand-beam projectile chain. Every fired child
-    /// starts from this exact 16.16 position, advances the cursor by the aimed velocity,
+    /// starts from this exact 1/65536-pixel position, advances the cursor by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
     /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
-    /// <summary>Signed 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
+    /// <summary>Signed 1/256-pixel aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Aim angle, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }

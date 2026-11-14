@@ -20,7 +20,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         {
             // The intro's end writes the Ceres game state, area six, and load-station zero only
             // after the SPACE COLONY fade has gone fully black. Preserve the
-            // intervening dispatcher state instead of constructing a debug room
+            // intervening game state instead of constructing a debug room
             // directly from cinematic code.
             session.GameState = SuperMetroidGameState.SetUpNewGame;
             session.display.PublishBlack();

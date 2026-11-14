@@ -10,7 +10,7 @@ internal static class SamusVerticalMotionDefinitions
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
     /// <summary>The bomb jump's initial vertical speeds: bomb launch is weakened equally in both liquids,
-    /// as unsigned 16.16 speeds by medium.</summary>
+    /// as unsigned 1/65536-pixel speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> BombJumpSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
@@ -20,7 +20,7 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>The knockback's initial vertical speeds: hurt launch ignores jump equipment and dash speed,
-    /// as unsigned 16.16 speeds by medium.</summary>
+    /// as unsigned 1/65536-pixel speeds by medium.</summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> KnockbackSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
@@ -31,7 +31,7 @@ internal static class SamusVerticalMotionDefinitions
 
     /// <summary>
     /// The initial Y speeds: the launch magnitude with High Jump equipped by medium and
-    /// whether Samus kicks away from a wall, as unsigned 16.16 speeds. In lava or acid High Jump outweighs the wall kick.
+    /// whether Samus kicks away from a wall, as unsigned 1/65536-pixel speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> HighJumpLaunchSpeeds =
         new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>
@@ -46,7 +46,7 @@ internal static class SamusVerticalMotionDefinitions
 
     /// <summary>
     /// The initial Y speeds: the launch magnitude without High Jump by medium and whether
-    /// Samus kicks away from a wall, as unsigned 16.16 speeds.
+    /// Samus kicks away from a wall, as unsigned 1/65536-pixel speeds.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> UnassistedLaunchSpeeds =
         new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>

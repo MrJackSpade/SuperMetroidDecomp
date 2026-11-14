@@ -51,7 +51,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>
     /// Runs Norfair Ridley's per-frame behaviour and the area-two half of the shared reveal
-    /// dispatcher. Composition is advanced after the selected phase, so a velocity change affects the same rendered
+    /// phases. Composition is advanced after the selected phase, so a velocity change affects the same rendered
     /// frame.
     /// </summary>
     private void RunNorfairRidleyMain(

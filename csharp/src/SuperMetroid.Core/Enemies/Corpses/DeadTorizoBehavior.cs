@@ -207,7 +207,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Applies shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
+    /// Applies shared signed 1/256-pixel enemy velocity pair. Dead Torizo and Shitroid
     /// both call the same shared helper; retaining one implementation also makes explicit that
     /// the step moves the subposition only in 256ths of a pixel.
     /// </summary>
@@ -256,7 +256,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTorizoEnemyState state = DeadTorizo ??
             throw new InvalidDataException("Dead Torizo has no initialized extended state.");
         if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("A non-Dead-Torizo slot entered its dispatcher.");
+            throw new InvalidDataException("A non-Dead-Torizo slot entered its behaviour.");
         return state;
     }
 

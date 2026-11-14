@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's room-block movement scans.
 /// </summary>
 /// <remarks>
-/// Supported dispatcher categories are deliberately explicit: air, non-square slopes, and the ordinary solid,
+/// Supported block categories are deliberately explicit: air, non-square slopes, and the ordinary solid,
 /// shootable and grapple types. Other types have room-object,
 /// damage, door, extension, or square-slope behavior and throw instead of being flattened
 /// </remarks>
@@ -32,7 +32,7 @@ public static class SamusBlockCollision
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
 
-        // Reusing the horizontal dispatcher also preserves square-slope and
+        // Reusing the horizontal step also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
         // but collision side effects are not observational: touching a scroll
         // trigger still wakes its owner. Pass that shared owner through rather
@@ -86,7 +86,7 @@ public static class SamusBlockCollision
         if ((!acceptedDisplacement.IsZero || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
             // Presents enemy collision with an unsigned magnitude even though the
-            // managed block mover receives signed 16.16 displacement. Preserve both halves:
+            // managed block mover receives signed 1/65536-pixel displacement. Preserve both halves:
             // enemy clipping clears the fractional half only when it actually collides.
             UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
             // The sign of the requested distance selects the entry: zero is not negative and enters right.
@@ -211,7 +211,7 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging reaction clears vertical speed/gravity even
-                        // when reached through the horizontal dispatcher.
+                        // when reached through the horizontal step.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         if (collided) collisionBlock = block;
@@ -334,7 +334,7 @@ public static class SamusBlockCollision
                     default:
                         throw new InvalidDataException(
                             $"Block {block.Position} type {block.CollisionType} escaped the " +
-                            "complete horizontal collision dispatcher.");
+                            "complete horizontal collision check.");
                 }
 
                 if (collided)
@@ -397,7 +397,7 @@ public static class SamusBlockCollision
         // impossible to verify.
         // A zero-speed bounce apex still enters the downward solid-enemy probe.
         // Exact platform tangency can therefore finish the bounce this frame;
-        // only the later terrain dispatcher skips a zero displacement.
+        // only the later terrain check skips a zero displacement.
         if (move.IncludeSolidEnemies && state.InteractiveEnemies.Count != 0)
         {
             // Uses the same unsigned whole-and-fraction distance magnitude contract as X.
@@ -415,7 +415,7 @@ public static class SamusBlockCollision
 
             if (probe.Collided)
             {
-                // Solid-enemy success bypasses the block dispatcher and moves only to the
+                // Solid-enemy success bypasses the block check and moves only to the
                 // current enemy boundary. This is also how the game's vertical-collision flags
                 // distinguish an enemy stop from an unobstructed terrain move. An accepted gap is 0 through 32767
                 // pixels: the probe skips any gap that reads as negative.
@@ -545,7 +545,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.DoorBlock:
                     // Is the vertical twin of the handler above. Preserve
                     // its collision result here; the room-level owner publishes the same
-                    // door entry for the frontend dispatcher to consume.
+                    // door entry for the frontend game-state loop to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
                         block.Behavior,
                         state.CollisionPose.ForRoomCollision(),
@@ -623,7 +623,7 @@ public static class SamusBlockCollision
                             block.At, chozoSamus,
                             state.CollisionPose, movingDown: acceptedDisplacement.IsPositive &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
-                    // The vertical special-solid dispatcher shares the speed-block setup
+                    // The vertical special-solid check shares the speed-block setup
                     // with horizontal collision. Accepted boost contact becomes air
                     // before clipping; rejected/non-speed special blocks remain solid.
                     if (owner is { } speedBoostingSamus &&
@@ -715,7 +715,7 @@ public static class SamusBlockCollision
                 default:
                     throw new InvalidDataException(
                         $"Block {block.Position} type {block.CollisionType} escaped the " +
-                        "complete vertical collision dispatcher.");
+                        "complete vertical collision check.");
             }
 
             if (collided)
@@ -733,7 +733,7 @@ public static class SamusBlockCollision
     /// <param name="level">The room's collision blocks.</param>
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
-    /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
+    /// <param name="displacement">Signed 1/65536-pixel distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
     /// <param name="roomObjects">The room's room-object owner for special and bombable blocks.</param>
     internal static BlockMoveResult ProbeChangedPoseVertical(
@@ -785,7 +785,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// Resolves a non-square slope against Samus's leading vertical boundary and retains
-    /// the clipped 16.16 distance when the slope intercepts the requested travel.
+    /// the clipped 1/65536-pixel distance when the slope intercepts the requested travel.
     /// </summary>
     private static SlopeClip ClipVerticalToNonSquareSlope(
         SamusKinematicsState state,
@@ -1118,7 +1118,7 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// The collision check after a grapple, using the vertical dispatcher.
+    /// The collision check after a grapple, using the vertical step.
     /// Call before replacing the connected pose and its collision radius.
     /// </summary>
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
@@ -1154,7 +1154,7 @@ public static class SamusBlockCollision
             RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(boundary >> 4)));
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
-            // following behaviour. Ordinary movement's dispatcher is not interchangeable.
+            // following behaviour. Ordinary movement's step is not interchangeable.
             if (block.CollisionType.IsSolidKind())
                 depth = boundary & 15;
             else if (block.CollisionType != RoomCollisionType.Slope)

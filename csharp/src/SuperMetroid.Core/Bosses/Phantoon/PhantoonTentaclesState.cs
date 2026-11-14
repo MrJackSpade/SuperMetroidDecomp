@@ -16,7 +16,7 @@ public sealed class PhantoonTentaclesState
     /// <summary>The damage the tentacles have taken during the current exposure.</summary>
     public int RoundDamage { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
+    /// <summary>The tentacles' signed 1/256-pixel swoop velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> SwoopVelocity { get; internal set; }
 
     /// <summary>

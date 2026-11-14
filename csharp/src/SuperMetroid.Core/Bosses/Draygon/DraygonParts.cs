@@ -107,13 +107,13 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Runs the no-op tail/arms main AI and the active eye dispatcher.</summary>
+    /// <summary>Runs the no-op tail/arms main AI and the active eye step.</summary>
     internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
         if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
         if (part.DefinitionId != EnemyDefinitionId.DraygonEye)
-            throw new InvalidDataException("Draygon part dispatcher received another family.");
+            throw new InvalidDataException("Draygon part step received another family.");
 
         DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action
             ?? throw new InvalidDataException("Draygon's eye has no action.");

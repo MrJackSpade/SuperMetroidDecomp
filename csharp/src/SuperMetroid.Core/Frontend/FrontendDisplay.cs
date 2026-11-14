@@ -63,7 +63,7 @@ internal sealed class FrontendDisplay
     }
 
     /// <summary>
-    /// The captured display for this update. A dispatcher state may deliberately retain its prior display; that
+    /// The captured display for this update. A game state may deliberately retain its prior display; that
     /// immutable content takes this update's frame number without recapturing a scene that has already advanced into
     /// the next state.
     /// </summary>

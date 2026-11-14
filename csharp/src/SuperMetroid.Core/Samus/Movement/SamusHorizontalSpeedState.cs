@@ -495,7 +495,7 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoPosition = null;
     }
 
-    /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional parts.</summary>
+    /// <summary>Adds the 1/65536-pixel extra-run increment while retaining separate whole and fractional parts.</summary>
     private void AddExtraRunAcceleration() => ExtraRunSpeed += SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration;
 
     /// <summary>Enables Speed Booster contact damage only at the counter's fully charged stage.</summary>
@@ -691,7 +691,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the horizontal base speed and returns its unsigned
-    /// 16.16 result. It updates Samus's base speed exactly once.
+    /// 1/65536-pixel result. It updates Samus's base speed exactly once.
     /// </summary>
     public UnsignedSixteenSixteen CalculateBaseSpeed(SamusMovementType movementType)
     {

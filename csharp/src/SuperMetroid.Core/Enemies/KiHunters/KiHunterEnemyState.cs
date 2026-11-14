@@ -10,7 +10,7 @@ public sealed class KiHunterEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
-    /// <summary>Main-AI dispatcher.</summary>
+    /// <summary>Main-AI step.</summary>
     public KiHunterAction? Action { get; internal set; }
 
     /// <summary>
@@ -74,12 +74,12 @@ public sealed class KiHunterEnemyState
     /// <summary>The wings' secondary behaviour, alternating between non-colliding and collision-bearing detached arcs.</summary>
     public KiHunterWingMovement WingMovement { get; internal set; }
     /// <summary>
-    /// A body's signed 16.16 angular velocity in table units per update: zero when a swoop begins, accelerated each
+    /// A body's signed 1/65536-step angular velocity in table units per update: zero when a swoop begins, accelerated each
     /// update with the fraction carrying into the whole part, and capped on its whole part. Its whole part steps the
     /// swoop angle.
     /// </summary>
     public SignedSixteenSixteen AngularVelocity { get; internal set; }
-    /// <summary>A body's signed 16.16 angular acceleration: plus one eighth of a table unit per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
+    /// <summary>A body's signed 1/65536-step angular acceleration: plus one eighth of a table unit per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
     public SignedSixteenSixteen AngularAcceleration { get; internal set; }
     /// <summary>A body's upper patrol boundary, sixteen pixels above its spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }
@@ -101,7 +101,7 @@ public sealed class KiHunterEnemyState
     public bool SwoopAnimationChanged { get; internal set; }
     /// <summary>The body's whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
-    /// <summary>The body's signed 16.16 velocity in pixels per gameplay frame; positive Y is downward and gravity accumulates through the Y fraction.</summary>
+    /// <summary>The body's signed 1/65536-pixel velocity in pixels per gameplay frame; positive Y is downward and gravity accumulates through the Y fraction.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>The wings' signed pixel correction for the non-colliding arc, calculated seven eighths of a turn round and at radius 48.</summary>
     public Offset16<RoomPixels> OrbitOffset { get; internal set; }

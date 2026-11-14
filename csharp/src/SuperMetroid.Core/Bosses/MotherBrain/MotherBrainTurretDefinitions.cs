@@ -25,7 +25,7 @@ internal static class MotherBrainTurretDefinitions
     internal const int FirstBayX = 920;
     /// <summary>The placement rows repeat three mounting positions every twelve blocks.</summary>
     internal const int BaySpacing = 192;
-    /// <summary>The bullet uses a 2.75-pixel 8.8 speed, rounded in diagonal octants.</summary>
+    /// <summary>The bullet uses a 2.75-pixel speed, in 1/256 pixels, rounded in diagonal octants.</summary>
     internal const int BulletSpeed = 704;
     /// <summary>The muzzle samples a seventeen-pixel horizontal radius.</summary>
     internal const int MuzzleRadius = 17;

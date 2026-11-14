@@ -12,16 +12,16 @@ internal static class SamusProjectileMotionDefinitions
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024);
     /// <summary>The diagonal speed every retail beam combination launches at, in 256ths of a pixel per update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
-    /// <summary>The 8.8 base speed a fired missile ignites at: one pixel per update.</summary>
+    /// <summary>The 1/256-pixel base speed a fired missile ignites at: one pixel per update.</summary>
     internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
     /// <summary>
-    /// The 8.8 base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
+    /// The 1/256-pixel base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
     /// reflection leaves.
     /// </summary>
     internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(496);
 
     /// <summary>
-    /// What each of the ten firing directions adds to a projectile's 8.8 velocity on every update, in 256ths of a pixel
+    /// What each of the ten firing directions adds to a projectile's 1/256-pixel velocity on every update, in 256ths of a pixel
     /// per update per update. A beam (and a missile, before its own acceleration) gains sixteen on each axis it moves
     /// along; an ignited missile gains 64 along a cardinal direction and 54 on each axis of a diagonal; an ignited Super
     /// Missile gains 256 and 182. Both vertical directions of a side accelerate alike.

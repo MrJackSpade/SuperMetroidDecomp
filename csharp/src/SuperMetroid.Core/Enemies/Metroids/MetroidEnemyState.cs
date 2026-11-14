@@ -20,13 +20,13 @@ public sealed class MetroidEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MetroidSegment> Playback { get; set; }
 
-    /// <summary>Signed 16.16 velocity in pixels per movement update, positive right and down.</summary>
+    /// <summary>Signed 1/65536-pixel velocity in pixels per movement update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Four-frame escape timer and frozen-shake countdown.</summary>
     public int EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement dispatcher index 0..3, not an AI behaviour.</summary>
+    /// <summary>Zero-based movement phase 0..3, not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }
 
     /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>

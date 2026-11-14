@@ -81,7 +81,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Reads a prospective pose's movement type without mutating Samus.
-    /// Values beyond the complete retail dispatcher are corrupt pose metadata and
+    /// Values beyond the retail pose list are corrupt pose metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
@@ -387,7 +387,7 @@ internal static class SamusPoseMetadata
     public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
 
     /// <summary>
-    /// True when the ordinary grounded input dispatcher may interrupt a landing stream
+    /// True when the ordinary grounded input step may interrupt a landing stream
     /// with any same-facing normal-jump transition, neutral or aimed.
     /// </summary>
     /// <remarks>
@@ -534,7 +534,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// True for all six stable spin-jumping bodies. The transition tables use
     /// the ordinary spin jump as generic outputs; the spin-jump initializer can then substitute Space Jump or Screw
-    /// Attack without changing the movement dispatcher.
+    /// Attack without changing the movement step.
     /// </summary>
     public static bool IsSpinJumpPose(SamusPoseId pose) => pose is
         SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose or
@@ -560,7 +560,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True only for the admitted posture-transition crouch/stand animation records.
-    /// Morph/unmorph records share that dispatcher but are intentionally not hidden here.
+    /// Morph/unmorph records share that step but are intentionally not hidden here.
     /// </summary>
     public static bool IsCrouchStandTransitionPose(SamusPoseId pose) => pose is
         SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or

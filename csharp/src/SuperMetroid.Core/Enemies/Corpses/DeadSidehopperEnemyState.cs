@@ -71,7 +71,7 @@ public sealed class DeadSidehopperEnemyState
         { } stage => PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage - 2)),
     };
 
-    /// <summary>Signed 8.8 hop velocity, horizontal and vertical.</summary>
+    /// <summary>Signed 1/256-pixel hop velocity, horizontal and vertical.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

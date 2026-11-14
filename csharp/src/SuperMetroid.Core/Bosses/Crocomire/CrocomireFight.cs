@@ -451,10 +451,10 @@ internal sealed class CrocomireFight
             : null;
     }
 
-    /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 16.16 displacement.</summary>
+    /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>
     private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
-        // The cues pass a whole ±4 pixels in 16.16 into the ordinary ignore-slopes
-        // enemy mover; retaining 16.16 here preserves collision-edge alignment.
+        // The cues pass a whole ±4 pixels as a 1/65536-pixel displacement into the ordinary ignore-slopes
+        // enemy mover; retaining that precision here preserves collision-edge alignment.
         slot.DefinitionId == EnemyDefinitionId.Crocomire &&
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(pixels));
 

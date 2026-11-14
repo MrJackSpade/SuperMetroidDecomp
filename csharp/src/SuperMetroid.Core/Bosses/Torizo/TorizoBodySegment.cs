@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal enum TorizoBodySegment
 {
-    /// <summary>Torizo animation: special callable, blow up Bomb torizos gut.</summary>
+    /// <summary>Torizo animation: the Bomb Torizo's gut blows up, started by its movement.</summary>
     SpecialCallableBlowUpBombTorizosGut,
-    /// <summary>Torizo animation: callable, blow up Bomb torizos face.</summary>
+    /// <summary>Torizo animation: the Bomb Torizo's face blows up, started by its movement.</summary>
     CallableBlowUpBombTorizosFace,
     /// <summary>Torizo animation: death sequence, part 0.</summary>
     DeathSequence0,

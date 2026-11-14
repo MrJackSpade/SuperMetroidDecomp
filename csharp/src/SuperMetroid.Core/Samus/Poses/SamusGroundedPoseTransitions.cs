@@ -43,7 +43,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Exact wrapping 16.16 add shared by the grounded, aerial, and spin-turn
+    /// Exact wrapping 1/65536-pixel add shared by the grounded, aerial, and spin-turn
     /// initializers. It deliberately permits overflow past the whole range, matching the game's arithmetic.
     /// </summary>
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
@@ -579,7 +579,7 @@ internal static class SamusGroundedPoseTransitions
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Folds the run-button/speed-booster component into base speed
-        // with two independent additions, the fraction's overflow reaching the whole. Use one wrapping 16.16 add to
+        // with two independent additions, the fraction's overflow reaching the whole. Use one wrapping 1/65536-pixel add to
         // preserve exactly that pair of operations, including overflow past the whole pixels.
         speed.BaseSpeed += speed.ExtraRunSpeed;
 

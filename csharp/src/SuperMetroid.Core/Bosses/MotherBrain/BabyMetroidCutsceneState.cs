@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// movement helpers.
 /// </summary>
 /// <remarks>
-/// The entrance uses no floating point, spline or physics engine. It holds an 8.8 velocity, adds
+/// The entrance uses no floating point, spline or physics engine. It holds a 1/256-pixel velocity, adds
 /// its fraction to the upper half of each enemy subpixel position only, and lets that addition's
 /// overflow enter the whole-pixel position. The curved entrance
 /// also reads the game's signed sine table. Keeping those details
@@ -64,12 +64,12 @@ public sealed class BabyMetroidCutsceneState
     public int FrameHold { get; private set; }
 
     /// <summary>
-    /// Room position. This actor's 8.8 mover moves it in 256ths of a pixel; its precision finer
+    /// Room position. This actor's 1/256-pixel mover moves it in 256ths of a pixel; its precision finer
     /// than a 256th of a pixel is deliberately kept unchanged.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity.</summary>
+    /// <summary>Signed 1/256-pixel velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Speed magnitude in 256ths of a pixel an update used by the curved entrance, 0 through 3584.</summary>
@@ -488,7 +488,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.ReleaseSamus:
-                // The next step is a one-call cross-actor dispatcher. The speed it gives
+                // The next step acts on both actors in one call. The speed it gives
                 // Mother Brain's brain is presentation state; the meaningful body change
                 // starts Mother Brain's fast retreat while this same call falls through to
                 // the first flight update.
@@ -835,7 +835,7 @@ public sealed class BabyMetroidCutsceneState
         FrameHold = 1;
     }
 
-    /// <summary>Clamps speed and angle toward their targets before deriving 8.8 X/Y velocity from sine values.</summary>
+    /// <summary>Clamps speed and angle toward their targets before deriving 1/256-pixel X/Y velocity from sine values.</summary>
     private void UpdateSpeedAndAngle(
         int angleDelta,
         RotationAngle targetAngle,
@@ -884,12 +884,12 @@ public sealed class BabyMetroidCutsceneState
         return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
-    /// <summary>Advances 16.16 position from 8.8 velocity while leaving the lower half of the subpixel position untouched.</summary>
+    /// <summary>Advances 1/65536-pixel position from 1/256-pixel velocity while leaving the lower half of the subpixel position untouched.</summary>
     private void MoveAccordingToVelocity()
     {
         // The velocity's fraction is added to the upper half of the subpixel position and its
-        // whole part to the whole pixels, with the fraction's overflow. That is exactly a 16.16
-        // add of the 8.8 velocity: the lower half of the subpixel position is unchanged.
+        // whole part to the whole pixels, with the fraction's overflow. That is exactly a 1/65536-pixel
+        // add of the 1/256-pixel velocity: the lower half of the subpixel position is unchanged.
         Position = Position.Advance(Velocity.ToSixteenSixteen());
     }
 

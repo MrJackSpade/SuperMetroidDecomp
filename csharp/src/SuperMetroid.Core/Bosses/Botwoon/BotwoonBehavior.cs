@@ -130,7 +130,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // freshly constructed state's arrays are that cleared state.
     }
 
-    /// <summary>Runs Botwoon's per-frame behaviour and its movement-phase dispatcher.</summary>
+    /// <summary>Runs Botwoon's per-frame behaviour and its movement-phase step.</summary>
     private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState? samus)
     {
         if (samus is null)

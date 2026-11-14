@@ -273,7 +273,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }
 
-    /// <summary>Runs the signed 16.16 oscillation and 120-frame visible lifetime.</summary>
+    /// <summary>Runs the signed 1/65536-pixel oscillation and 120-frame visible lifetime.</summary>
     private static void RunWreckedShipGhostBobbing(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)

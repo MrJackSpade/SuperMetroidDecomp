@@ -70,7 +70,7 @@ public sealed class SuperMetroidGame
 
     /// <summary>
     /// Creates a reset-state session, reading the selected save slot and fixing the power-on save check's outcome
-    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any dispatcher frame runs.
+    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs.
     /// </summary>
     /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
@@ -82,7 +82,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Creates the dispatcher with host-supplied timing and display policies, which verification hosts use to
+    /// Creates the game-state loop with host-supplied timing and display policies, which verification hosts use to
     /// replay recorded evidence or to retain the display while they inspect game state.
     /// </summary>
     /// <remarks>
@@ -432,7 +432,7 @@ public sealed class SuperMetroidGame
         ]);
 
     /// <summary>
-    /// Reads the current status without advancing the dispatcher. No update ran, so it publishes no audio; an update's
+    /// Reads the current status without advancing the game-state loop. No update ran, so it publishes no audio; an update's
     /// audio events come only with the frame <see cref="Step"/> returns.
     /// </summary>
     public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber, new AudioFrameEvents([]));

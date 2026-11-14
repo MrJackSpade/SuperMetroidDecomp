@@ -323,7 +323,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
 
-    /// <summary>Adds both signed 16.16 custom velocities to the actor position.</summary>
+    /// <summary>Adds both signed 1/65536-pixel custom velocities to the actor position.</summary>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
         SignedSixteenSixteen xVelocity,
@@ -335,7 +335,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// A forward speed as the displacement it moves the Sbug by, along its axis or, when <paramref name="against"/>,
-    /// against it; a speed of 32768 pixels or more reads as the other way, as the game's 16.16 addition does.
+    /// against it; a speed of 32768 pixels or more reads as the other way, as the game's 1/65536-pixel addition does.
     /// </summary>
     private static SignedSixteenSixteen ForwardDisplacement(UnsignedSixteenSixteen speed, bool against)
     {

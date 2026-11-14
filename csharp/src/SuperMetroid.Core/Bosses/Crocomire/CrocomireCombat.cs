@@ -300,7 +300,7 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into signed 8.8 X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
+    /// <summary>Projects a projectile angle into signed 1/256-pixel X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
         // A negative sine scales exactly as a positive one does. The
@@ -341,7 +341,7 @@ internal sealed class CrocomireCombat
             .MovedBy(xVelocity);
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-        // The fall is ordinary signed 16.16 motion, with three sixteenths of a pixel of gravity per update.
+        // The fall is ordinary signed 1/65536-pixel motion, with three sixteenths of a pixel of gravity per update.
         piece.FallSpeed += SpikeWallPieceGravity;
         projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 

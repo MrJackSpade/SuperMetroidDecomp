@@ -26,7 +26,7 @@ internal sealed class EscapeExplosionsBehavior
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {
         int choice = ZebesEscapeDefinitions.ExplosionChoice.Of(random);
-        // Preserve the game's unchanged-X branch, not the upstream C rewrite's bugfix.
+        // A choice past the explosion list leaves X unchanged, as the retail game does; it is not corrected.
         if (choice < ZebesEscapeExplosionDefinitions.Choices.Length)
         {
             inheritedX = choice;

@@ -62,7 +62,7 @@ public sealed class YappingMawEnemyState
     public Offset16<RoomPixels> Baseline { get; internal set; }
 
     /// <summary>
-    /// The signed 16.16 curl amount, in angle units. It accelerates out to the +128 turn-around clamp, where its
+    /// The signed 1/65536-step curl amount, in angle units. It accelerates out to the +128 turn-around clamp, where its
     /// fraction is cleared, then decelerates back; the update whose addition carries its whole part below zero is the
     /// one on which the retracting tongue has completed its full curve. Every addition carries the fraction into the
     /// whole part and wraps at 32 bits.

@@ -46,7 +46,7 @@ internal sealed class MotherBrainEncounterAccess
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidDataException("Mother Brain record has no shared encounter state.");
         if (!ReferenceEquals(slot, state.Body) && !ReferenceEquals(slot, state.Head))
-            throw new InvalidDataException("A non-Mother-Brain slot entered the Mother Brain dispatcher.");
+            throw new InvalidDataException("A non-Mother-Brain slot entered the Mother Brain behaviour.");
         return state;
     }
 

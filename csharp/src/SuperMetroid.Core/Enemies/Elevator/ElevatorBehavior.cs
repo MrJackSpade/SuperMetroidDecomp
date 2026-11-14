@@ -146,7 +146,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         }
     }
 
-    /// <summary>Runs the elevator's main behaviour and its four-entry dispatcher.</summary>
+    /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
     private void RunElevatorMain(
         RoomEnemySlot slot,
         ElevatorEnemyState state,
@@ -189,7 +189,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
             default:
                 throw new InvalidDataException(
-                    $"Elevator status {ElevatorStatus} is outside the elevator's dispatcher.");
+                    $"Elevator status {ElevatorStatus} is outside the elevator's phases.");
         }
     }
 
@@ -272,7 +272,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }
 
-    /// <summary>The direct 16.16 addition used by both travel directions.</summary>
+    /// <summary>The direct 1/65536-pixel addition used by both travel directions.</summary>
     private static void AddElevatorYVelocity(RoomEnemySlot slot, SignedSixteenSixteen velocity)
     {
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(velocity));

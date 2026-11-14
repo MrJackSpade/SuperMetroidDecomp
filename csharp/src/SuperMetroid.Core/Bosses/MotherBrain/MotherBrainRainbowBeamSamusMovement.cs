@@ -7,20 +7,20 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// used by Mother Brain's phase-two rainbow beam.
 /// </summary>
 /// <remarks>
-/// This state belongs to Mother Brain, not to Samus's movement-type dispatcher. Pose type
+/// This state belongs to Mother Brain, not to Samus's movement-type step. Pose type
 /// 27, the locked pose type, deliberately returns without moving; the enemy AI calls
 /// these helpers separately after it has locked Samus. Keeping that ownership explicit
 /// prevents a future runtime from accidentally applying both ordinary and forced movement.
 ///
-/// The helpers add a peculiar 8.8 velocity to only the coarse half of Samus's
+/// The helpers add a peculiar 1/256-pixel velocity to only the coarse half of Samus's
 /// sub-pixel position, in 256ths of a pixel. The finer part is untouched, the addition's overflow
 /// enters the whole-pixel addition, and both current and previous positions are overwritten
 /// with the result. This implementation spells out those steps instead of using
-/// floating point or the ordinary 16.16 movement helpers.
+/// floating point or the ordinary 1/65536-pixel movement helpers.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
-    /// <summary>Samus's forced signed 8.8 velocity.</summary>
+    /// <summary>Samus's forced signed 1/256-pixel velocity.</summary>
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         if (!reachedWall)
         {
             // The sine multiply adds a quarter turn before indexing the sine table. Its multiplication returns
-            // product divided by 256, a signed 8.8 component for the supplied 8.8 speed.
+            // product divided by 256, a signed 1/256-pixel component for the supplied 1/256-pixel speed.
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: RainbowBeamPushSpeed, RainbowBeamAngle));
 
             // The wall step reports only whether Samus reached the wall; the vertical clamp
@@ -129,7 +129,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>The speed the rainbow beam pushes Samus along its angle at: sixteen pixels an update.</summary>
     private static readonly SignedEightEight RainbowBeamPushSpeed = SignedEightEight.FromPixels(16);
 
-    /// <summary>Projects an 8.8 beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
+    /// <summary>Projects a 1/256-pixel beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
     /// <param name="speed">The beam's speed, read unsigned.</param>
     /// <param name="angle">The live beam angle.</param>
     internal static SignedEightEight CalculateYVelocity(
@@ -142,7 +142,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
 
-    /// <summary>Applies 8.8 Y movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
+    /// <summary>Applies 1/256-pixel Y movement, copies the result into the previous position, and clamps to arena Y=48..192.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         RainbowBeamCameraCheckpoint cameraCheckpoint,
@@ -173,7 +173,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Applies 8.8 X movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
+    /// <summary>Applies 1/256-pixel X movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
     {
         FixedCoordinate moved = AddVelocityToHighSubpixel(

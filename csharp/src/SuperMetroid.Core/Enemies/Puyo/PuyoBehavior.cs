@@ -155,7 +155,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
         // The game exchanges the height's two halves; every authored height is below 256 pixels, so that
-        // makes the height the whole part of an 8.8 distance.
+        // makes the height the whole part of a 1/256-pixel distance.
         int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
 
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
@@ -163,7 +163,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator).Row;
 
-            // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
+            // Summing each row's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
             // find the initial curve row.
             distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
@@ -186,7 +186,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The definition of the hop <paramref name="state"/> is making.</summary>
     private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
-    /// <summary>Runs the indirect airborne dispatcher.</summary>
+    /// <summary>Runs the airborne step.</summary>
     private void RunAirbornePuyo(
         RoomEnemySlot slot,
         PuyoEnemyState state,
@@ -324,7 +324,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepAirborneIndex(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Hop(state).YIndexDelta));
 
-        // X speed is authored as 8.8, but NTSC movement moves by the whole pixels only
+        // X speed is authored as 1/256 pixels, but NTSC movement moves by the whole pixels only
         // and zeroes the subspeed; only the PAL build uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;

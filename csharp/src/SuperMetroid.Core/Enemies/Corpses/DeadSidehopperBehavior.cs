@@ -264,7 +264,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             verticalDisplacement);
     }
 
-    /// <summary>Applies signed 8.8 scripted motion to one 16.16 axis before terrain collision takes over.</summary>
+    /// <summary>Applies signed 1/256-pixel scripted motion to one 1/65536-pixel axis before terrain collision takes over.</summary>
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
         Axis axis,
@@ -365,7 +365,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
 
         // Before the corpse is ready, the private power-bomb reaction literally invokes
-        // the actor's main dispatcher once. Use the last scheduled room context because the
+        // the actor's main step once. Use the last scheduled room context because the
         // outer power-bomb pass does not carry level/camera arguments.
         RunDeadSidehopperState(
             slot,

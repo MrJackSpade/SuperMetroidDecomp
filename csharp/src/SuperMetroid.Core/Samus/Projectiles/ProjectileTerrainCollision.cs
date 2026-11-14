@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 internal sealed class ProjectileTerrainCollision
 {
-    /// <summary>Clears projectile slots when the kill dispatcher rejects an already converted family.</summary>
+    /// <summary>Clears projectile slots when the kill step rejects an already converted family.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Publishes the shared quake requested by a Super Missile impact.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
@@ -32,7 +32,7 @@ internal sealed class ProjectileTerrainCollision
         _straddledTerrain = Ensure.NotNull(straddledTerrain);
     }
 
-    /// <summary>Advances a shot by its signed 8.8 X velocity and scans its leading edge for block reactions and collision.</summary>
+    /// <summary>Advances a shot by its signed 1/256-pixel X velocity and scans its leading edge for block reactions and collision.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectile slot,
@@ -43,7 +43,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Advances a Wave or Hyper shot by its signed 8.8 X velocity and scans its leading edge for block reactions, which
+    /// Advances a Wave or Hyper shot by its signed 1/256-pixel X velocity and scans its leading edge for block reactions, which
     /// never report a collision.
     /// </summary>
     internal void MoveWaveShotHorizontally(
@@ -64,7 +64,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects? roomObjects,
         bool waveBeam)
     {
-        // The producer explicitly sets both 8.8 speeds to zero. Firing left is
+        // The producer explicitly sets both 1/256-pixel speeds to zero. Firing left is
         // the sole exception: its firing setup writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the game's counterintuitive right-edge initial horizontal probe.
@@ -122,7 +122,7 @@ internal sealed class ProjectileTerrainCollision
         return false;
     }
 
-    /// <summary>Advances a shot by its signed 8.8 Y velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
+    /// <summary>Advances a shot by its signed 1/256-pixel Y velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectile slot,
@@ -518,7 +518,7 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectile slot,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        // The kill dispatcher clears families beyond missiles immediately. A Super
+        // The kill step clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
         // restarting its animation here would extend both its lifetime and damage.
         if (slot.Type.Family.IsBombOrExplosion)
@@ -528,7 +528,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Missile point collisions already supply the impact coordinate. Only the beam
-        // branch of the dispatcher applies a leading-edge radius adjustment.
+        // branch of the step applies a leading-edge radius adjustment.
 
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
@@ -623,7 +623,7 @@ internal sealed class ProjectileTerrainCollision
         // The row lookup takes the target row within the scan cycle. X is deliberately not clipped to the
         // room width: right-edge spans reach the following row; a span left
         // of the room's edge starts 4095 blocks forward while the center remains inside the room.
-        // The block reaction dispatcher bounds the resulting allocation
+        // The block reaction step bounds the resulting allocation
         // offset, not the horizontal extent of this individual block span.
         var firstBlock = Position16<RoomBlocks>.Of(left >> 4, targetY >> 4);
         for (int step = 0; step <= span; step++)

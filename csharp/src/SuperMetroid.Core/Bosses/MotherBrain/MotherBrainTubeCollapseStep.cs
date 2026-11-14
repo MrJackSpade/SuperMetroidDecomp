@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The steps the head record's secondary Mother Brain dispatcher runs.
+/// The steps of Mother Brain's secondary sequence, run beside the head's own.
 /// During fake death this independent state machine serializes the physical tube actors,
 /// ceiling projectiles, and one-frame room mutations.
 /// </summary>

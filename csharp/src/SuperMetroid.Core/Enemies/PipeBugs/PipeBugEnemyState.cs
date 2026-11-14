@@ -73,7 +73,7 @@ public sealed class PipeBugEnemyState
     public int StaggerTarget { get; internal set; }
     /// <summary>Gets the action selected for this Norfair member after rising.</summary>
     public PipeBugAction NorfairPostRiseAction { get; internal set; }
-    /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
+    /// <summary>A yellow Pipe Bug's signed 1/65536-pixel rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
     public SignedSixteenSixteen PositiveVelocity { get; internal set; }
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>
     public SignedSixteenSixteen NegativeVelocity { get; internal set; }

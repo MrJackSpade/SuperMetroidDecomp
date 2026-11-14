@@ -56,7 +56,7 @@ internal sealed class EnemyFramePhase
         {
             // Samus's collision phase follows the enemy pass. A pseudo-door contact
             // published last frame therefore arms the elevator immediately before this
-            // frame's elevator actor dispatcher, preserving the producer order.
+            // frame's elevator actor step, preserving the producer order.
             if (_room.LevelData?.ConsumeElevatorDoorContact() == true)
                 room.Enemies.Elevator.PublishElevatorDoorContact();
             if (_player.Samus is not null)

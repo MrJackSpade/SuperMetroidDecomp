@@ -391,7 +391,7 @@ public sealed class SamusCrystalFlashState
         }
 
         // Every active call reports the palette handled, including frames on which neither timer
-        // expires. The outer palette dispatcher must therefore suppress its normal copy.
+        // expires. The outer palette step must therefore suppress its normal copy.
         return true;
     }
 }

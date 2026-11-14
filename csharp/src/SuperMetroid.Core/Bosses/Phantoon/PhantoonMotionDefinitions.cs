@@ -31,7 +31,7 @@ public static class PhantoonMotionDefinitions
     /// about -6 pixels per update; PAL differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
-    /// <summary>The figure-eight's slow-stage sub-pixel acceleration, shared by its reverse, fractional 16.16 acceleration.</summary>
+    /// <summary>The figure-eight's slow-stage sub-pixel acceleration, shared by its reverse, fractional 1/65536-pixel acceleration.</summary>
     public const int SlowFraction = 1536;
     /// <summary>Slow-stage whole acceleration, zero in both directions.</summary>
     public const int SlowWhole = 0;

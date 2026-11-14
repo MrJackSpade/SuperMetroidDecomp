@@ -12,7 +12,7 @@ internal enum EnemyProjectileFrameBehavior
     /// </summary>
     Stationary,
 
-    /// <summary>Slides the downward gate by its signed 8.8 vertical velocity.</summary>
+    /// <summary>Slides the downward gate by its signed 1/256-pixel vertical velocity.</summary>
     DownwardGateDescent,
 
     /// <summary>
@@ -21,7 +21,7 @@ internal enum EnemyProjectileFrameBehavior
     /// </summary>
     EyeDoorShotFlight,
 
-    /// <summary>Drops an eye-door sweat drop, accelerating twelve 8.8 units per pass, and splashes on the floor.</summary>
+    /// <summary>Drops an eye-door sweat drop, accelerating twelve 256ths of a pixel per pass, and splashes on the floor.</summary>
     EyeDoorSweatFall,
 
     /// <summary>Drops a Bomb Torizo statue fragment until it reaches the room's floor.</summary>
@@ -36,7 +36,7 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Flickers and flies a turret bullet until it strikes a solid block.</summary>
     MotherBrainTurretBulletFlight,
 
-    /// <summary>Flies a shard of Mother Brain's glass in 8.8 steps under gravity, trailing sparkles.</summary>
+    /// <summary>Flies a shard of Mother Brain's glass in 1/256-pixel steps under gravity, trailing sparkles.</summary>
     MotherBrainGlassShardFlight,
 
     /// <summary>Raises dust once, then drops a ceiling tube, accelerating.</summary>
@@ -87,7 +87,7 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Orients a Botwoon body segment, shows its hurt colours, and runs its death sequence.</summary>
     BotwoonBodySegment,
 
-    /// <summary>Flies Botwoon's spit by its 16.16 vector until it leaves the camera.</summary>
+    /// <summary>Flies Botwoon's spit by its 1/65536-pixel vector until it leaves the camera.</summary>
     BotwoonSpitFlight,
 
     /// <summary>Drops a Bomb Torizo orb under gravity until it strikes the room.</summary>
@@ -135,7 +135,7 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Removes dust or an explosion once it leaves the camera.</summary>
     DustCameraCull,
 
-    /// <summary>Flies a Dragon fireball in a signed 8.8 arc under gravity, removing it below the screen.</summary>
+    /// <summary>Flies a Dragon fireball in a signed 1/256-pixel arc under gravity, removing it below the screen.</summary>
     DragonFireballArc,
 
     /// <summary>Flies a Ridley fireball.</summary>
@@ -159,13 +159,13 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Moves a released-air bubble vertically.</summary>
     NoobTubeBubbleFlying,
 
-    /// <summary>Flies one of Ridley's horizontal afterburns by its 8.8 velocity.</summary>
+    /// <summary>Flies one of Ridley's horizontal afterburns by its 1/256-pixel velocity.</summary>
     HorizontalAfterburnFlight,
 
-    /// <summary>Flies one of Ridley's vertical afterburns by its 8.8 velocity.</summary>
+    /// <summary>Flies one of Ridley's vertical afterburns by its 1/256-pixel velocity.</summary>
     VerticalAfterburnFlight,
 
-    /// <summary>Flies a Skree particle in signed 8.8 steps under gravity, removing it outside the camera.</summary>
+    /// <summary>Flies a Skree particle in signed 1/256-pixel steps under gravity, removing it outside the camera.</summary>
     SkreeParticleFlight,
 
     /// <summary>Moves Crocomire's shot once, then derives its fired vector.</summary>
@@ -252,7 +252,7 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Drops a Kago bug until it lands.</summary>
     KagoBugFall,
 
-    /// <summary>Drops a falling spark in 16.16 steps under gravity, bouncing on the floor and leaving a trail.</summary>
+    /// <summary>Drops a falling spark in 1/65536-pixel steps under gravity, bouncing on the floor and leaving a trail.</summary>
     FallingSparkBounce,
 
     /// <summary>Drops a Ceres tile, accelerating, and raises dust where it lands.</summary>

@@ -98,7 +98,7 @@ public sealed class SamusLiquidPhysicsState
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
 
     /// <summary>
-    /// Exclusive FX dispatcher identity. Values two and four
+    /// Exclusive liquid effect identity. Values two and four
     /// are lava/acid, six is water, and zero is the no-FX handler.
     /// </summary>
     public RoomFxType FxType { get; set; }
@@ -175,7 +175,7 @@ public sealed class SamusLiquidPhysicsState
     public void ConfigureWater(int? surfaceY, bool ignoresSurface = false, RoomFxType type = RoomFxType.Water)
     {
         if (!RoomFxTypes.UsesWater(type))
-            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water FX dispatcher.");
+            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water effect.");
         FxType = type;
         WaterSurfaceY = surfaceY;
         LavaAcidSurfaceY = null;
@@ -642,10 +642,10 @@ public sealed class SamusLiquidPhysicsState
     private const int LargestPeriodicWholeDamage = 32767;
 
     /// <summary>
-    /// Adds one 16.16 periodic-damage contribution to the periodic damage.
+    /// Adds one fractional periodic-damage contribution to the periodic damage.
     /// </summary>
     /// <remarks>
-    /// Liquid, block and enemy damage all accumulate here as one 16.16 amount, so no producer drops a fraction that
+    /// Liquid, block and enemy damage all accumulate here as one amount in 1/65536ths of a unit, so no producer drops a fraction that
     /// passes a whole point of energy: it moves the whole damage by one. The fractional damage is 0 through 65535
     /// 65536ths of energy and the whole damage zero or more; one update's contributions stay far below the largest damage
     /// <see cref="ApplyPeriodicDamage"/> applies.

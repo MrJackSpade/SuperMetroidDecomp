@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// The state of a Bull. Speed and acceleration are wrapping 8.8 speeds, because a deceleration that overshoots leaves a
+/// The state of a Bull. Speed and acceleration are wrapping 1/256-pixel speeds, because a deceleration that overshoots leaves a
 /// value past zero that the next update reads as below zero; they change only through <see cref="Accelerate"/> and
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
 /// slot (<see cref="SlotInheritance{TOccupant}"/>).

@@ -20,9 +20,9 @@ public sealed class AtomicEnemyState
     /// </summary>
     public AtomicHorizontalMovement? HorizontalMovement { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel speed per AI update for down and right movement, the speed its spawn settings give.</summary>
+    /// <summary>Signed 1/65536-room-pixel speed per AI update for down and right movement, the speed its spawn settings give.</summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel speed per AI update for up and left movement, the negation of <see cref="Speed"/>.</summary>
+    /// <summary>Signed 1/65536-room-pixel speed per AI update for up and left movement, the negation of <see cref="Speed"/>.</summary>
     public SignedSixteenSixteen NegativeSpeed { get; internal set; }
 }

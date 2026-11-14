@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Bounded transitions of the hand-beam attack dispatcher.</summary>
+/// <summary>Bounded transitions of the hand-beam attack sequence.</summary>
 public static class MotherBrainHandBeamPhases
 {
     /// <summary>The phase the body's increment-death-beam-attack-phase cue advances to.</summary>

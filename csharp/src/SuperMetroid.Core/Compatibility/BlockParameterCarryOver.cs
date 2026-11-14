@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// Evidence: the original game stores one behaviour byte beside each block's level word and keeps it when a block's level
-/// word is rewritten. Its reaction dispatchers test the byte's sign to choose the area's table and index with the low seven
+/// word is rewritten. Its reactions test the byte's sign to choose the area's table and index with the low seven
 /// bits; the slope handlers read the low five bits as the shape and bits six and seven as the reflections; the extension
 /// handlers read the byte sign-extended; and the door handler indexes the door list with the low seven bits. The kept
 /// behaviours are the import codec's decoding of every byte under every kind, in the byte's order, so the first holding a

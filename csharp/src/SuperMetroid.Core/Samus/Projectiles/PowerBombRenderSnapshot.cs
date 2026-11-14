@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Position">Room-pixel centre of the explosion.</param>
 /// <param name="RenderedPhase">Phase whose per-line window the current update produced.</param>
 /// <param name="RenderedShape">Pre-scaled shape the current window was built from, or null when it used none.</param>
-/// <param name="RenderedPreExplosionRadius">Pre-explosion 8.8 radius the current window was built from.</param>
-/// <param name="RenderedExplosionRadius">Explosion 8.8 radius the current window was built from.</param>
+/// <param name="RenderedPreExplosionRadius">Pre-explosion 1/256-pixel radius the current window was built from.</param>
+/// <param name="RenderedExplosionRadius">Explosion 1/256-pixel radius the current window was built from.</param>
 /// <param name="GlowColor">The colour the glow adds to the scene inside the window.</param>
 public readonly record struct PowerBombRenderSnapshot(
     bool IsActive,

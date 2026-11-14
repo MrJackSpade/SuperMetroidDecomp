@@ -470,7 +470,7 @@ internal sealed class KraidProjectiles
         }
 
         // Checks support after moving and even on the frame that hides the lint.
-        // Publish carry for Samus's later movement dispatcher, rather than teleporting
+        // Publish carry for Samus's later movement step, rather than teleporting
         // her here. The clamp changes only the whole pixels; the subpixels keep what the subtraction left.
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
         {

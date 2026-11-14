@@ -827,7 +827,7 @@ internal sealed class TorizoAttacks
             EnemyProjectileFrameBehavior.Stationary;
     }
     /// <summary>
-    /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below
+    /// Whether a falling projectile has run away: its raw 1/256-pixel speed is at least sixteen pixels per frame and below
     /// thirty-two.
     /// </summary>
     private static bool IsRunaway(SignedEightEight speed) =>

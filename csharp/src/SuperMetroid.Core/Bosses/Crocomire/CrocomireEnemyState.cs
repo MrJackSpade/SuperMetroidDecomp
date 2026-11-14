@@ -124,7 +124,7 @@ public sealed class CrocomireEnemyState
     }
 
     /// <summary>
-    /// While the skeleton breaks out and collapses: its 16.16 horizontal speed in room pixels per frame, zero when the
+    /// While the skeleton breaks out and collapses: its 1/65536-pixel horizontal speed in room pixels per frame, zero when the
     /// skeleton breaks through the wall.
     /// </summary>
     internal SignedSixteenSixteen SkeletonVelocity { get; set; }

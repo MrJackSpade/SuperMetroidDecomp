@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the domain names the four reactions and the reveal. Lifetime: the process's, holding no state that changes.
 /// </para>
 /// <para>
-/// Evidence: the original bombed-special dispatcher indexes its table of the reactions every area shares with the block's
+/// Evidence: the original bombed-special response indexes its table of the reactions every area shares with the block's
 /// entry without bounding it to the shared table's sixteen reactions, and the area tables follow that table, eight
 /// reactions an area in the game's area order, so shared entries 26 through 29 read Brinstar's Speed Booster block
 /// entries; the bomb-special selection check compares every shared reaction's bombed reaction, in every area, with that

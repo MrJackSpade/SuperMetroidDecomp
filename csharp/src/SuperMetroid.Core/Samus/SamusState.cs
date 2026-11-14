@@ -50,7 +50,7 @@ public sealed class SamusState
             InitializedPose = value;
             // Block collision reads the global pose directly while resolving special
             // elevator doors. Mirror every pose write into the collision snapshot so the
-            // low-level dispatcher can reproduce that test without owning Samus state.
+            // low-level step can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
         }
     } = SamusPoseId.FacingRightNormalPose;
@@ -561,7 +561,7 @@ public sealed class SamusState
     /// </summary>
     public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
 
-    /// <summary>Samus's room-pixel 16.16 position, owned by <see cref="Kinematics"/>.</summary>
+    /// <summary>Samus's room position in 1/65536 pixels, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position
     {
         get => Kinematics.Position;

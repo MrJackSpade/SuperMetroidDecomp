@@ -69,13 +69,13 @@ public sealed class TorizoEnemyState : ILitTorizo
     public int SamusSpaceJumpFrames { get; internal set; }
 
     /// <summary>
-    /// Signed 8.8 velocity of the Torizo's jumps and falls. A walking step moves the Torizo by its own whole pixels and
+    /// Signed 1/256-pixel velocity of the Torizo's jumps and falls. A walking step moves the Torizo by its own whole pixels and
     /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Signed 8.8 acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
+    /// Signed 1/256-pixel acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
     /// meaningful; X stays zero, so adding the whole vector leaves the horizontal velocity unchanged.
     /// </summary>
     public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }

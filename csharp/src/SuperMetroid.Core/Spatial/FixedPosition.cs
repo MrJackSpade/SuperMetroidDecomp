@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>A two-dimensional unsigned 16.16 position: whole pixels and subpixels on each axis.</summary>
+/// <summary>A two-dimensional unsigned 1/65536-pixel position: whole pixels and subpixels on each axis.</summary>
 /// <typeparam name="TSpace">The coordinate space of the position.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y fixed-point axes.")]
 public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
@@ -65,13 +65,13 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     public static FixedPosition<TSpace> operator -(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
         position.WithWhole(position.Whole - offset);
 
-    /// <summary>Moves only the X axis by a signed 16.16 delta, the fraction's overflow passing on, wrapping in 16.16.</summary>
+    /// <summary>Moves only the X axis by a signed 1/65536-pixel delta, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
     public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(delta.AddTo(X.Whole, X.Fraction));
 
-    /// <summary>Moves only the Y axis by a signed 16.16 delta, the fraction's overflow passing on, wrapping in 16.16.</summary>
+    /// <summary>Moves only the Y axis by a signed 1/65536-pixel delta, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
     public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
 
-    /// <summary>Applies a displacement on each axis, the fraction's overflow passing on, wrapping in 16.16.</summary>
+    /// <summary>Applies a displacement on each axis, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
     public FixedPosition<TSpace> Advance(FixedVector<TSpace> displacement) =>
         new(displacement.X.AddTo(X.Whole, X.Fraction), displacement.Y.AddTo(Y.Whole, Y.Fraction));
 }

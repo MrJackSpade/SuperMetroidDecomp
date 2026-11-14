@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <remarks>
 /// This is the game's state machine, not a desktop “dash”
-/// controller. Timers wrap at 65536, movement retains split 16.16 values, and every
-/// palette is selected through the user's installed artwork. Block collision uses the shared dispatcher; solid
+/// controller. Timers wrap at 65536, movement retains split 1/65536-pixel values, and every
+/// palette is selected through the user's installed artwork. Block collision uses the shared step; solid
 /// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
@@ -26,7 +26,7 @@ public sealed class SamusShinesparkState
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
 
     /// <summary>
-    /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
+    /// The upward spark's 1/65536-pixel acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
     /// vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes. A suit pickup
     /// during a suspended windup replaces it with the light beam's progress.
     /// </summary>

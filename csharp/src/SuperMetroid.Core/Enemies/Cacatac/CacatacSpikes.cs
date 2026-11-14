@@ -11,7 +11,7 @@ internal static class CacatacSpikes
             : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
 
     /// <summary>
-    /// The launch speeds of a spike in <paramref name="direction"/>. The positive speed is the signed 8.8 magnitude and
+    /// The launch speeds of a spike in <paramref name="direction"/>. The positive speed is the signed 1/256-pixel magnitude and
     /// the negative speed is its negation.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>

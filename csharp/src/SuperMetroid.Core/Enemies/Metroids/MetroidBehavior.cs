@@ -131,7 +131,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionMetroidOuterBody(state.OuterBodyB, slot, SpriteGraphics.SpawnedBy(slot));
     }
 
-    /// <summary>Runs the Metroid's proportional 16.16 attraction toward Samus.</summary>
+    /// <summary>Runs the Metroid's proportional 1/65536-pixel attraction toward Samus.</summary>
     private void RunMetroidHoming(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -252,7 +252,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
             {
-                // The stores produce delta/4 in signed 16.16 form.
+                // The stores produce delta/4 in signed 1/65536-pixel form.
                 StoreMetroidXVelocity(
                     state,
                     SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole)));
@@ -323,7 +323,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the current
-        // collision slot. The stores encode delta/8 as signed 16.16.
+        // collision slot. The stores encode delta/8 as a signed value in 1/65536 pixels.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X)));

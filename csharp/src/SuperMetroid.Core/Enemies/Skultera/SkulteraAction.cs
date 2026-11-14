@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 public enum SkulteraAction
 {
-    /// <summary>Applies signed 16.16 leftward displacement and whole-pixel sine-offset changes; either axis collision starts a right turn.</summary>
+    /// <summary>Applies signed 1/65536-pixel leftward displacement and whole-pixel sine-offset changes; either axis collision starts a right turn.</summary>
     SwimmingLeft = 1,
     /// <summary>Mirrors leftward swimming with the rightward speed; unobstructed movement advances the angle, and either axis collision starts a left turn.</summary>
     SwimmingRight,

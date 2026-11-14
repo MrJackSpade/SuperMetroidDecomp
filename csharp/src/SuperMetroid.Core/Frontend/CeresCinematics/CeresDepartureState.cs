@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Outer game-state timing for the final Ceres elevator hold and blackout.
 /// </summary>
 /// <remarks>
-/// The Ceres room's main behaviour owns admission to this sequence, while the outer dispatcher
+/// The Ceres room's main behaviour owns admission to this sequence, while the outer game-state loop
 /// owns the subsequent elevator-hold and blackout states. Keeping this object outside the room state is
 /// intentional: the room continues running through both states, but it cannot restart the
 /// departure because its main-gameplay predicate no longer succeeds.

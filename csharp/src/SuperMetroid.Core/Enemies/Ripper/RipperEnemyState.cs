@@ -12,7 +12,7 @@ public sealed class RipperEnemyState
     /// <summary>The Ripper-family typed flying loop (#641), started by setup and restarted at each reversal.</summary>
     internal AnimationPlayback<RipperSegment> Playback { get; set; }
 
-    /// <summary>Signed 16.16 horizontal velocity per update, one of the selected linear-speed row's speeds.</summary>
+    /// <summary>Signed 1/65536-pixel horizontal velocity per update, one of the selected linear-speed row's speeds.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>The selected row of the shared linear speed table, set by initialization and read back when the velocity is loaded.</summary>

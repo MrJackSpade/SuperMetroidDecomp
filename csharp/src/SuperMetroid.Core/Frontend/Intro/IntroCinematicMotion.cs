@@ -10,7 +10,7 @@ internal static class IntroCinematicMotion
     public static FixedCoordinate AddFraction(FixedCoordinate position, SignedSixteenSixteen delta) =>
         position.MovedBy(SignedSixteenSixteen.FromParts(0, delta.Fraction));
 
-    /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
+    /// <summary>Adds a signed 1/256-pixel velocity to one axis.</summary>
     public static FixedCoordinate AddEightEight(
         FixedCoordinate position,
         SignedEightEight velocity) =>

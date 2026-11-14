@@ -42,7 +42,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const int RinkaHealth = 10;
-    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along its aim angle into flight velocity.</summary>
+    /// <summary>Flight speed in 1/256 pixels per update (1 + 32/256 pixels), resolved along its aim angle into flight velocity.</summary>
     private static readonly SignedEightEight RinkaSpeed = SignedEightEight.FromParts(1, 32);
     /// <summary>
     /// The spawn points Mother Brain's three special Rinkas compete for; a Rinka whose own point is off screen or held

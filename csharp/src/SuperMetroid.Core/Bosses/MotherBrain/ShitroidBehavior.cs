@@ -594,7 +594,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return xArrived && yArrived;
     }
 
-    /// <summary>Clamps signed 8.8 speed to 1280 and zeroes it on predicted target crossing.</summary>
+    /// <summary>Clamps signed 1/256-pixel speed to 1280 and zeroes it on predicted target crossing.</summary>
     private static ShitroidAxisStep AccelerateShitroidAxis(
         int current,
         int target,
@@ -642,7 +642,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
             // The push heading, a half turn less the source angle and then a half turn more, is simply the
-            // negated source angle. Magnitude 64 is added to the current 8.8 velocity.
+            // negated source angle. Magnitude 64 is added to the current 1/256-pixel velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
@@ -769,7 +769,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state = Shitroid ??
             throw new InvalidDataException("Shitroid has no initialized extended state.");
         if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("A non-Shitroid slot entered the Shitroid dispatcher.");
+            throw new InvalidDataException("A non-Shitroid slot entered the Shitroid behaviour.");
         return state;
     }
 

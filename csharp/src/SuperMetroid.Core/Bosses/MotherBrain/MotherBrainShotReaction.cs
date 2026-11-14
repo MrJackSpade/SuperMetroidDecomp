@@ -40,7 +40,7 @@ internal static class MotherBrainShotReaction
         }
 
         // The decrement turns reaction one into zero, sending either missile kind directly to the
-        // zero label; only that zero is tested. Reaction zero wraps to -1 and reaction
+        // no-reaction case; only that zero is tested. Reaction zero wraps to -1 and reaction
         // two outside form four leaves one: both nonzero cases subtract 256 and clamp
         // a result below zero to zero.
         if (reactionType == 1)

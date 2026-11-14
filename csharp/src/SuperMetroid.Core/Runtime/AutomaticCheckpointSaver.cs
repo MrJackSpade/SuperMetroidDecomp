@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// Owns gameplay events that write the game's ordinary save
-/// without presenting a save-station prompt. Keeping this out of the outer dispatcher makes
+/// without presenting a save-station prompt. Keeping this out of the outer game-state loop makes
 /// each automatic trigger independently testable while retaining one production save path.
 /// </summary>
 internal static class AutomaticCheckpointSaver

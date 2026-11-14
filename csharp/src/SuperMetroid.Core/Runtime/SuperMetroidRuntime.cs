@@ -307,11 +307,11 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Set when the escape countdown expired during this runtime's frame: the countdown
-    /// writes the time-up game state from inside gameplay. The frontend dispatcher consumes it.
+    /// writes the time-up game state from inside gameplay. The frontend game-state loop consumes it.
     /// </summary>
     public bool TimeUpRequested { get; private set; }
 
-    /// <summary>Takes the pending time-up publication; the dispatcher may still override it.</summary>
+    /// <summary>Takes the pending time-up publication; the game-state loop may still override it.</summary>
     public bool ConsumeTimeUpRequest()
     {
         bool requested = TimeUpRequested;
@@ -891,7 +891,7 @@ internal sealed class SuperMetroidRuntime
         if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
-            // dispatcher, whites the target palettes and disables colour effects.
+            // game-state loop, whites the target palettes and disables colour effects.
             TimeUpRequested = true;
             ColourEffectSession.DisableHandler();
         }
@@ -957,7 +957,7 @@ internal sealed class SuperMetroidRuntime
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres room main publishes a tilt for the following frame's presentation and may
-        // change the outer dispatcher to the Ceres elevator state only when its caller is main gameplay.
+        // change the outer game-state loop to the Ceres elevator state only when its caller is main gameplay.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,

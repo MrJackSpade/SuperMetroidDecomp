@@ -2,14 +2,14 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// The game's sine and cosine samples over trigonometry angles and the multiplications that use them (#1422): the signed
-/// 8.8 sine wave and the one peaking at 32767, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
+/// 1/256-step sine wave and the one peaking at 32767, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
 /// projectile and screen effect samples them. These are engine math definitions, not editable presentation assets.
 /// </summary>
 public static class Trigonometry
 {
     /// <summary>The game's sine table peaking at 32767 and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
-    /// the signed 8.8 table. The positive half equals the stored unsigned
+    /// the signed 1/256-step table. The positive half equals the stored unsigned
     /// half-wave halved; sign is restored only after that truncation.</summary>
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
@@ -28,14 +28,14 @@ public static class Trigonometry
 
     /// <summary>
     /// The sine or cosine product: <paramref name="speed"/>, read unsigned as the game's multiply reads it, scaled by
-    /// <paramref name="angle"/>'s signed 8.8 sine (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
+    /// <paramref name="angle"/>'s signed 1/256-step sine (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
     /// Callers add a quarter-turn themselves when selecting cosine.
     /// </summary>
     public static SignedEightEight MultiplySignedSine(SignedEightEight speed, TrigonometryAngle angle) =>
         SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
 
     /// <summary>
-    /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s signed 8.8 sine: the
+    /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s signed 1/256-step sine: the
     /// product of the magnitude and the sine's size with its 256ths dropped, then the sine's sign restored, so the result
     /// rounds toward zero in the magnitude's own unit.
     /// </summary>
@@ -46,7 +46,7 @@ public static class Trigonometry
         return sample < 0 ? -product : product;
     }
 
-    /// <summary>The game's signed 8.8 sine table and
+    /// <summary>The game's signed 1/256-step sine table and
     /// its three quadrant continuations. Unlike the small table, peaks are +/-256.</summary>
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the game's values. Treat the

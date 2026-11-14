@@ -58,7 +58,7 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> MovementMaximum { get; internal set; }
     /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's signed 8.8 velocity, each axis held unchanged.</summary>
+    /// <summary>Gets Ridley's signed 1/256-pixel velocity, each axis held unchanged.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer passes zero.</summary>
     public int WingFrame { get; internal set; }
@@ -106,14 +106,14 @@ public sealed class RidleyEnemyState
     public int FeetDistanceIndex { get; internal set; }
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
-    /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
+    /// <summary>Gets the signed 1/256-pixel velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
     /// <summary>Independent swoop phase countdown used by the swoop phases.</summary>
     public int SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
-    /// Gets the 8.8 swoop speed magnitude (zero through 1280, in 1/256 pixels per update), converged 32 at a time toward
+    /// Gets the 1/256-pixel swoop speed magnitude (zero through 1280, in 1/256 pixels per update), converged 32 at a time toward
     /// each phase's target before resolving axis velocities.
     /// </summary>
     public int SwoopSpeedMagnitude { get; internal set; }
@@ -166,7 +166,7 @@ public sealed class RidleyEnemyState
     /// </summary>
     public FixedPosition<RoomPixels> BabyPosition { get; internal set; }
     /// <summary>
-    /// Gets the Ceres Baby's 8.8 falling speed (1/256 pixels per update): zero until it is dropped, then eight more each
+    /// Gets the Ceres Baby's 1/256-pixel falling speed (1/256 pixels per update): zero until it is dropped, then eight more each
     /// falling update until it lands.
     /// </summary>
     public SignedEightEight BabyVerticalVelocity { get; internal set; }

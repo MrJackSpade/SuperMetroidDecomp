@@ -9,7 +9,7 @@ public sealed class YardEnemyState
     internal AnimationPlayback<YardSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 8.8 horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis
+    /// Signed 1/256-pixel horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis
     /// surface probe according to its movement.
     /// </summary>
     public EightEightVector<RoomPixels> CrawlingVelocity { get; internal set; }
@@ -36,13 +36,13 @@ public sealed class YardEnemyState
     }
 
     /// <summary>
-    /// movement dispatcher, which may lag a direction cue by one update and therefore owns dispatch
+    /// movement step, which may lag a direction cue by one update and therefore owns dispatch
     /// independently of <see cref="Direction"/>.
     /// </summary>
     public YardMovement? Movement { get; internal set; }
 
     /// <summary>
-    /// Extra values zero through three: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole,
+    /// Extra values zero through three: signed 1/65536-pixel airborne velocity in pixels per AI update (Y fraction/whole,
     /// then X fraction/whole). Gravity adds 0.125 to Y, horizontal speed decays by 0.0625 toward zero
     /// when not colliding, and collisions negate each part separately; downward collision lands when the Y whole part
     /// is 0..2.

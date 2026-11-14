@@ -137,7 +137,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
 
-    /// <summary>Moves the Owtch with the game's 16.16 additions.</summary>
+    /// <summary>Moves the Owtch with the game's 1/65536-pixel additions.</summary>
     private static void MoveOwtch(
         RoomEnemySlot slot,
         OwtchEnemyState state,

@@ -70,7 +70,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the locked input mode, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
     internal bool ActorLocksPoseInput { get; private set; }
 
-    /// <summary>Whether the posture-transition input dispatcher, an empty handler, skips pose input.</summary>
+    /// <summary>Whether the posture-transition input step, an empty handler, skips pose input.</summary>
     internal bool PostureTransitionSkipsPoseInput { get; private set; }
 
     /// <summary>Whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
@@ -112,7 +112,7 @@ internal sealed class SamusHandlerFrame
 
     /// <summary>
     /// Samples what locks pose input: Samus's bomb jump, the live input lock, <paramref name="otherActorLocks"/> (Shinespark,
-    /// Crystal Flash or the elevator), and the posture-transition dispatcher's empty handler.
+    /// Crystal Flash or the elevator), and the posture-transition step's empty handler.
     /// </summary>
     internal void SamplePoseInputLocks(SamusState samus, bool otherActorLocks)
     {

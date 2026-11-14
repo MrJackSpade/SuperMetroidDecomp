@@ -151,7 +151,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Counts consecutive Samus space-jump poses before running the shared statue dispatcher.</summary>
+    /// <summary>Counts consecutive Samus space-jump poses before running the shared statue step.</summary>
     private void RunGoldenTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,

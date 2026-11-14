@@ -97,7 +97,7 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     /// <summary>Initial-action latch forcing the first completed hole traversal into authored movement rather than consuming the normal spit-choice RNG.</summary>
     public bool InitialAction { get; internal set; }
-    /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action dispatcher.</summary>
+    /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action step.</summary>
     public bool PathComplete { get; internal set; }
     /// <summary>Flag set by the head animation's private spit cue; the five-projectile spit consumes and clears it on emission.</summary>
     public bool SpitFrameReached { get; internal set; }

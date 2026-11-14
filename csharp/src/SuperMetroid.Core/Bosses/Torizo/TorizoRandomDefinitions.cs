@@ -23,7 +23,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly TorizoRandomDecision ForwardLeap = TorizoRandomDecision.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
-    /// <summary>The initial drool's added fall speed, 0 through 31 in raw 8.8 units: the selection modulo 32.</summary>
+    /// <summary>The initial drool's added fall speed, 0 through 31 in raw 1/256 units: the selection modulo 32.</summary>
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>

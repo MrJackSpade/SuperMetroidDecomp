@@ -117,7 +117,7 @@ internal sealed class SamusPresentation
     /// Animates Samus, including movement-visible FX delay state.
     /// </summary>
     /// <remarks>
-    /// The FX dispatcher publishes water/lava delay buffering, remembered medium,
+    /// The liquid effect step publishes water/lava delay buffering, remembered medium,
     /// atmospheric slots, sound requests, and periodic damage before the timer
     /// decrement.
     /// </remarks>

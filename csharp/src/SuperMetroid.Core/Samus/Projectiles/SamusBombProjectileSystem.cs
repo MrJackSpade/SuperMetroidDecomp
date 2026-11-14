@@ -186,7 +186,7 @@ public sealed class SamusBombProjectileSystem
         // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
         // The stationary lock's input mode runs the projectile update directly, skipping the HUD
-        // dispatcher that owns cooldown and new bomb placement.
+        // step that owns cooldown and new bomb placement.
         if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
 
@@ -723,7 +723,7 @@ public sealed class SamusBombProjectileSystem
         int previousX = slot.Position.X.Whole;
         int previousXSub = slot.Position.X.Fraction;
         // Rightward travel adds the speed with the fraction carrying into the whole pixels; leftward travel subtracts
-        // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 16.16 value's wrapping addition.
+        // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 1/65536-pixel value's wrapping addition.
         slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
         if (!BombSpreadCollides(level, slot))
             return;
@@ -900,7 +900,7 @@ public sealed class SamusBombProjectileSystem
 
         // The shot-block table's entries 40..43 route the four ordinary blue-door cap orientations to
         // the blue door setup regardless of whether the collision came from the shot or bomb
-        // dispatcher. Normal bombs use the bomb projectile family and are accepted; the Power
+        // step. Normal bombs use the bomb projectile family and are accepted; the Power
         // Bomb family is rejected inside the shared setup. Treating these
         // private door behaviours as ordinary table indices both crashed on a blue door and lost
         // the game behavior that allows a bomb placed beside a blue door to open it.
@@ -1038,7 +1038,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Collision types are a four-bit field and every value 0..15 is handled above;
-        // type 5/D either resolves to its parent or returned before this dispatcher. Keep
+        // type 5/D either resolves to its parent or returned before this step. Keep
         // the guard for corrupted packed values, but do not label it missing behavior.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type {block.CollisionType}/" +

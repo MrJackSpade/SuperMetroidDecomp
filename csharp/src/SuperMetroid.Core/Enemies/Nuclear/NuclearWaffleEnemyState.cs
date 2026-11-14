@@ -49,7 +49,7 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The finish angle: 240 for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
     public int SweepEndAngle { get; internal set; }
     /// <summary>
-    /// Signed 16.16 angular speed in 1/256-turn units per AI update: the spawn settings' angular speed for a forward
+    /// Signed 1/65536-step angular speed in 1/256-turn units per AI update: the spawn settings' angular speed for a forward
     /// sweep and its negation for a backward one.
     /// </summary>
     public SignedSixteenSixteen AngularSpeed { get; internal set; }

@@ -12,7 +12,7 @@ public static class QuicksandReactions
     /// Gravity equipment selects one of two named scalar cases. Moving displacement is
     /// 2 pixels per frame for either suit, stationary displacement is 1.125/1, and the
     /// NTSC upward cap is 2.5/3.5 pixels per frame without/with Gravity. The game
-    /// stores them as unsigned 8.8 values; they are held here as the 16.16 values its
+    /// stores them as unsigned 1/256-pixel values; they are held here as the 1/65536-pixel values its
     /// consumers widen them to.
     /// </summary>
     public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// A gradual fade between the colour an ink shows and one fixed colour (#1512, #1544), as the game's shared gradual colour
 /// change moves colours: each step moves every fade level (<see cref="FadeLevelColour"/>) by its remaining distance over
-/// the steps left, in 8.8 fixed point, step zero changes nothing and the step after the last reaches the far colour
+/// the steps left, in 256ths, step zero changes nothing and the step after the last reaches the far colour
 /// exactly. Every colour between is the game's own step, the colour of the levels it reaches. The fade keeps the step
 /// counter's value at each step it took, as a fade that shares the counter with another sees the values that fade leaves it.
 /// </summary>
@@ -65,7 +65,7 @@ public sealed record GradualColourFade : ColourEffect
 
     /// <summary>
     /// Moves one fade level one step toward its goal: step zero keeps it, the step after the last reaches the goal, and
-    /// every other step moves it by its distance in 256ths over the steps left, truncated in 8.8 fixed point.
+    /// every other step moves it by its distance in 256ths over the steps left, truncated to whole 256ths.
     /// </summary>
     /// <param name="step">The step counter's value at this step.</param>
     /// <param name="current">The level before the step.</param>

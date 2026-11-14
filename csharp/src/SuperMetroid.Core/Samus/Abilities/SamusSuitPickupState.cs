@@ -71,7 +71,7 @@ public sealed class SamusSuitPickupState
     /// <summary>
     /// The speed, in screen pixels per update, at which the beam's edges move apart or its wipe advances. It starts at
     /// one pixel, accelerates during the curved widening, is halved at the reveal and decelerates to a one-pixel minimum
-    /// while the beam shrinks. It stays positive and far below the sign of its 8.8 form: the curved widening moves the
+    /// while the beam shrinks. It stays positive and far below the sign of its 1/256-pixel form: the curved widening moves the
     /// left edge from column 108 by at least one pixel an update, so it accelerates for at most 108 updates and the speed
     /// stays below 256 + 108 * 96 = 10624 256ths of a pixel.
     /// </summary>

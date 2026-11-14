@@ -39,7 +39,7 @@ internal sealed class IntroEggParticle
     /// <summary>The frames fallen count runs past 255 back to zero.</summary>
     private const int FramesFallenWrap = 256;
 
-    /// <summary>Applies 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
+    /// <summary>Applies 1/65536-pixel fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -51,7 +51,7 @@ internal sealed class IntroEggParticle
         }
 
         // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
-        // frames fallen. Each velocity is a signed 16.16 pair stored whole part first,
+        // frames fallen. Each velocity is a signed 1/65536-pixel pair stored whole part first,
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
         AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(framesFallen, fallPastCurve));

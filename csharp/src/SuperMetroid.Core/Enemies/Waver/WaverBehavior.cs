@@ -82,7 +82,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 horizontalDisplacement))
         {
             // The wall reversal negates the velocity's whole and fraction parts and stores them back
-            // together. For every initialized Waver this is exactly a signed 16.16
+            // together. For every initialized Waver this is exactly a signed 1/65536-pixel
             // negation; expressing that value directly preserves the game's ±1.5 px/frame.
             state.XVelocity = -horizontalDisplacement;
             // A wall turns Waver around and ends any spin.

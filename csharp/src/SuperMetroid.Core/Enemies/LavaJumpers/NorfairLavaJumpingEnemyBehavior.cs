@@ -195,7 +195,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Advances position by the parent's signed 8.8 vertical velocity.</summary>
+    /// <summary>Advances position by the parent's signed 1/256-pixel vertical velocity.</summary>
     private static void MoveNorfairLavaJumpingEnemyVertically(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)

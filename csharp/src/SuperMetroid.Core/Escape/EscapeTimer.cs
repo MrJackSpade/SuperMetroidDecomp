@@ -69,7 +69,7 @@ public sealed class EscapeTimer
             _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerPhase)} {Phase}."),
         };
 
-        // Apply the assist's floor before publishing expiration to the gameplay dispatcher.
+        // Apply the assist's floor before publishing expiration to the gameplay loop.
         // Startup delays and timer movement still run; inactive timers remain cleared.
         if (holdAtOneSecond && IsActive && RemainingCentiseconds < TimeoutFloor)
         {

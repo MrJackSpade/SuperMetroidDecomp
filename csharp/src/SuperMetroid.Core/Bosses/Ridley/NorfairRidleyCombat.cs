@@ -99,7 +99,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// The arena reveal advances an area-two-only fourteen-color fade every third dispatcher call.
+    /// The arena reveal advances an area-two-only fourteen-color fade every third update.
     /// The step after the last palette activates the shared tail/wing composition.
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)

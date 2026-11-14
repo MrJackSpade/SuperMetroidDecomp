@@ -84,7 +84,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// </summary>
     public bool IsWaitingOutDisplayFrame { get; internal set; }
 
-    /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
+    /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer game-state loop opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
 
     /// <summary>
@@ -93,7 +93,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// </summary>
     public bool CeresArrivalRequested { get; private set; }
 
-    /// <summary>Sticky request raised when the accepted No answer has faded fully to black; the outer dispatcher enters its soft-reset path toward the title.</summary>
+    /// <summary>Sticky request raised when the accepted No answer has faded fully to black; the outer game-state loop enters its soft-reset path toward the title.</summary>
     public bool TitleRequested { get; private set; }
 
     /// <summary>

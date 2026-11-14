@@ -119,7 +119,7 @@ internal sealed class GameplayActorDrawing
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
                 // A restored suit from the beam-charge palette step bypasses the entire special
-                // dispatcher on glow expiry. In particular, stored shine must not tick
+                // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredNormalPalette =
                     LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;

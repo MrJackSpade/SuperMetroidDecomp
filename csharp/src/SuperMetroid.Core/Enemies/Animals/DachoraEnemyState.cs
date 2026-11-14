@@ -18,8 +18,8 @@ public sealed class DachoraEnemyState
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }
 
     /// <summary>
-    /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and
-    /// vertical after the launch. It accumulates with the fraction's overflow into the whole part and 16.16 wraparound.
+    /// The signed 1/65536-pixel speed in pixels per update while running, falling or shinesparking, horizontal while running and
+    /// vertical after the launch. It accumulates with the fraction's overflow into the whole part and 1/65536-pixel wraparound.
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
@@ -30,8 +30,8 @@ public sealed class DachoraEnemyState
     public int EchoPositionTimer { get; internal set; }
 
     /// <summary>
-    /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
-    /// into with the fraction's overflow into the whole part and 16.16 wraparound.
+    /// On the body during the shinespark: the signed 1/65536-pixel vertical acceleration per update, which gravity accumulates
+    /// into with the fraction's overflow into the whole part and 1/65536-pixel wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
 

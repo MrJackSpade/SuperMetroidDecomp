@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Reads what the bomb-block dispatchers do with a bombable block's reaction (#1722).</summary>
+/// <summary>Reads what the bomb-block responses do with a bombable block's reaction (#1722).</summary>
 public static class BombableReactions
 {
     /// <summary>Whether <paramref name="reaction"/> is one of the eight bomb-block breaks; no reaction is none.</summary>

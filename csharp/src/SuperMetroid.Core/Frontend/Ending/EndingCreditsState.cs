@@ -113,7 +113,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         switch (Stage.Phase)
         {
             case EndingCreditsPhase.SetupEscapeFromZebes:
-                // Each wait ends the call inside the setup phase, before the dispatcher's
+                // Each wait ends the call inside the setup phase, before the phase's
                 // manual-return tail; the call after the last wait runs the scene setup.
                 if (setupFrameWaits < EndingSequenceDefinitions.SetupFrameWaits)
                 {

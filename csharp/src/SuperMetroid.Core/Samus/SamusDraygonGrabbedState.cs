@@ -189,7 +189,7 @@ public sealed class SamusDraygonGrabbedState
         samus.CrystalFlash.RelinquishMovementHandler();
 
         // Release clears pending input transitions, so commit here rather than
-        // relying on the normal pose dispatcher to observe the standing pose.
+        // relying on the normal pose step to observe the standing pose.
         samus.CommitPoseHistory();
 
         samus.HorizontalSpeed.BaseSpeed = default;

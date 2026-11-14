@@ -34,7 +34,7 @@ internal sealed class EndingFlyaway
     /// <summary>Position in the current planet-escape shake pattern, cycling through its entries.</summary>
     internal int PlanetMotionIndex { get; set; }
 
-    /// <summary>Planet-escape velocity: a signed 16.16 displacement that grows more negative every accelerating update.</summary>
+    /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
     /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>

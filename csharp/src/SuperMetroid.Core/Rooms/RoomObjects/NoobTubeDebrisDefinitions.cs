@@ -6,7 +6,7 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>Ten signed launch offsets for the released glass shards, one per shard.</summary>
     private static readonly Offset16<RoomPixels>[] ShardOffsetValues =
         [new(-56, 8), new(-64, -12), new(-20, -26), new(-40, -24), new(-64, -32), new(-48, 28), new(-24, 16), new(-40, -8), new(0, -24), new(-8, 16)];
-    /// <summary>Matching 8.8 launch vectors; the shard selects this and its offset together.</summary>
+    /// <summary>Matching 1/256-pixel launch vectors; the shard selects this and its offset together.</summary>
     private static readonly EightEightVector<RoomPixels>[] ShardVelocityValues =
         [
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-384, 320),
@@ -27,7 +27,7 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>Signed offsets from the tube crack, one per shard.</summary>
     public static ReadOnlySpan<Offset16<RoomPixels>> ShardOffsets => ShardOffsetValues;
 
-    /// <summary>Signed 8.8 initial velocities, one per shard.</summary>
+    /// <summary>Signed 1/256-pixel initial velocities, one per shard.</summary>
     public static ReadOnlySpan<EightEightVector<RoomPixels>> ShardVelocities => ShardVelocityValues;
 
     /// <summary>

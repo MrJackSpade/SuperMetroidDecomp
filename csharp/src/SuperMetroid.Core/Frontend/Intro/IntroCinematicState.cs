@@ -519,7 +519,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             }
         }
 
-        // The cinematic dispatcher runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
+        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
         if (CurrentFlashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             // The intro demo's input phase refreshes the live radius before projectiles and movement.
@@ -595,7 +595,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Objects.AcceptPageTurn();
 
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
-        // loaded by the initial artwork decompression; the room's block data below is gameplay
+        // loaded with the initial artwork; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
         CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge)
         {

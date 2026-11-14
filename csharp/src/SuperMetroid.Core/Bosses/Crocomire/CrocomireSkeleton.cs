@@ -258,7 +258,7 @@ internal sealed class CrocomireSkeleton
 
     /// <summary>
     /// Adds an acceleration of <paramref name="accelerationTwoFiftySixths"/>/256 pixel per frame per frame to the
-    /// skeleton's 16.16 speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
+    /// skeleton's 1/65536-pixel speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
     /// The speed starts at rest and only grows, so its whole pixels never leave the clamp's range.
     /// </summary>
     private static SignedSixteenSixteen AccelerateCrocomireSkeleton(

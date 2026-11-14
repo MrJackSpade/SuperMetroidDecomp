@@ -28,7 +28,7 @@ public sealed class AudioQueues
     /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
-    /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
+    /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests => SoundHandshakes.Requests;
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
@@ -101,7 +101,7 @@ public sealed class AudioQueues
         _pendingPowerOnRequests.Clear();
 
         // Starting the game installs the shared sounds, then stops the music and withdraws library
-        // two's request before the first ordinary dispatcher frame.
+        // two's request before the first ordinary update.
         _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));

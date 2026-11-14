@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus's grounded movement types from her ordinary movement dispatcher.
+/// Samus's grounded movement types from her ordinary movement step.
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
@@ -61,7 +61,7 @@ public static class SamusGroundedMovement
 
         // Is the only write in the ordinary no-elevator path. In particular,
         // stale base/extra X speed is retained; facing forward clears those speeds at
-        // setup time, not every frame in this movement dispatcher.
+        // setup time, not every frame in this movement step.
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return vertical;
     }
@@ -161,7 +161,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The horizontal speed calculation advances the split 16.16 base speed. The following
+        // The horizontal speed calculation advances the split 1/65536-pixel base speed. The following
         // direction selector is shared by every horizontal movement family:
         // modes zero and two obey the pose's facing, while every other nonzero
         // value reverses it. Mode one is therefore not an invalid running state; it is the
@@ -423,7 +423,7 @@ public static class SamusGroundedMovement
     /// <summary>
     /// Executes the knockback movement type's ordinary handler after a
     /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
-    /// normal dispatcher while leaving a knockback pose current. The game clears the
+    /// normal step while leaving a knockback pose current. The game clears the
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>

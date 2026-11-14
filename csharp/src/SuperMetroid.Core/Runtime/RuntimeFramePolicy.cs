@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Runtime;
 
-/// <summary>The outer dispatcher's policy for one frame: what the gameplay state permits (#633).</summary>
+/// <summary>The outer game-state loop's policy for one frame: what the gameplay state permits (#633).</summary>
 public sealed record RuntimeFramePolicy
 {
     /// <summary>Ordinary main gameplay.</summary>
     public static RuntimeFramePolicy Gameplay { get; } = new();
 
     /// <summary>
-    /// Allows the Ceres shaft room-main trigger to request departure; the outer dispatcher enables
+    /// Allows the Ceres shaft room-main trigger to request departure; the outer game-state loop enables
     /// this only in main gameplay, not the elevator-hold and blackout departure states. Shaft rotation still advances independently.
     /// </summary>
     public bool AllowCeresElevatorDeparture { get; init; } = true;

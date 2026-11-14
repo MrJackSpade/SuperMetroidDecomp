@@ -199,7 +199,7 @@ internal sealed class EyeDoorBehavior
             case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
             default:
                 throw new InvalidOperationException(
-                    $"Eye-door projectile kind {kind} escaped its initializer dispatcher.");
+                    $"Eye-door projectile kind {kind} escaped its initializer step.");
         }
     }
 

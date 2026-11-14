@@ -652,7 +652,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Extend(128);
     }
 
-    /// <summary>Moves an Etecoon horizontally by its signed 16.16 speed.</summary>
+    /// <summary>Moves an Etecoon horizontally by its signed 1/65536-pixel speed.</summary>
     private bool MoveEtecoonHorizontally(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -680,7 +680,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         return _terrain.MoveEnemyVertically(level, slot, displacement);
     }
 
-    /// <summary>Adds a signed 16.16 whole/fraction increment to the Etecoon's vertical speed.</summary>
+    /// <summary>Adds a signed 1/65536-pixel whole/fraction increment to the Etecoon's vertical speed.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
         int wholeIncrement,

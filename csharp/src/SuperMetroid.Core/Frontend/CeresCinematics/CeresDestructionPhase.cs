@@ -15,7 +15,7 @@ internal enum CeresDestructionPhase
     HoldAfterExplosion,
     /// <summary>Darkens Ceres before Zebes reveal or the game-over exit with Samus aboard.</summary>
     FadeOutCeres,
-    /// <summary>Shows the planet-reveal art on the following dispatcher call.</summary>
+    /// <summary>Shows the planet-reveal art on the following update.</summary>
     FlyToZebesInitial,
     /// <summary>Raises planet-scene brightness while reducing its mosaic.</summary>
     FadeInZebes,

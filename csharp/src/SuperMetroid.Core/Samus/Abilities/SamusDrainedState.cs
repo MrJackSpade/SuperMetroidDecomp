@@ -255,7 +255,7 @@ public sealed class SamusDrainedState
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCue;
-        // Letting her fall, standing her, crouching her and releasing her report themselves handled; their dispatcher
+        // Letting her fall, standing her, crouching her and releasing her report themselves handled; their step
         // then shifts history even when the pose is unchanged. Enabling the Hyper Beam does not.
         samus.CommitPoseHistory();
     }

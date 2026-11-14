@@ -896,7 +896,7 @@ internal sealed class EnemyCollision
     /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
     /// <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
     /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a definition's radius or
-    /// encounter-specific geometry. Keeping this predicate beside the dispatcher gives data-backed probes the same
+    /// encounter-specific geometry. Keeping this predicate beside the step gives data-backed probes the same
     /// boundary as gameplay.
     /// </summary>
     internal static bool UsesFrameHitboxesForProjectiles(RoomEnemySlot enemy) =>

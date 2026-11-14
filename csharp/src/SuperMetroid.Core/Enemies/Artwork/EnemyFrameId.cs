@@ -460,22 +460,22 @@ public enum EnemyFrameId
     MagdolliteRightSubmergeSecond,
     /// <summary>Magdollite: right submerge, third frame.</summary>
     MagdolliteRightSubmergeThird,
-    /// <summary>Magdollite: pillar phase, first frame.</summary>
-    MagdollitePillarPhaseFirst,
-    /// <summary>Magdollite: pillar phase, second frame.</summary>
-    MagdollitePillarPhaseSecond,
-    /// <summary>Magdollite: pillar phase, third frame.</summary>
-    MagdollitePillarPhaseThird,
-    /// <summary>Magdollite: pillar phase, fourth frame.</summary>
-    MagdollitePillarPhaseFourth,
-    /// <summary>Magdollite: pillar phase, fifth frame.</summary>
-    MagdollitePillarPhaseFifth,
-    /// <summary>Magdollite: pillar phase, sixth frame.</summary>
-    MagdollitePillarPhaseSixth,
-    /// <summary>Magdollite: pillar phase, seventh frame.</summary>
-    MagdollitePillarPhaseSeventh,
-    /// <summary>Magdollite: pillar phase, eighth frame.</summary>
-    MagdollitePillarPhaseEighth,
+    /// <summary>Magdollite: the pillar one segment high.</summary>
+    MagdolliteOneSegmentPillar,
+    /// <summary>Magdollite: the pillar two segments high.</summary>
+    MagdolliteTwoSegmentPillar,
+    /// <summary>Magdollite: the pillar three segments high.</summary>
+    MagdolliteThreeSegmentPillar,
+    /// <summary>Magdollite: the pillar four segments high.</summary>
+    MagdolliteFourSegmentPillar,
+    /// <summary>Magdollite: the pillar five segments high.</summary>
+    MagdolliteFiveSegmentPillar,
+    /// <summary>Magdollite: the pillar six segments high.</summary>
+    MagdolliteSixSegmentPillar,
+    /// <summary>Magdollite: the pillar seven segments high.</summary>
+    MagdolliteSevenSegmentPillar,
+    /// <summary>Magdollite: the pillar eight segments high.</summary>
+    MagdolliteEightSegmentPillar,
     /// <summary>The Ceres door: rotating overlay.</summary>
     CeresDoorRotatingOverlay,
     /// <summary>The Ceres door: left hold.</summary>
@@ -1548,14 +1548,14 @@ public enum EnemyFrameId
     TripperFrozenMovingLeft,
     /// <summary>Tripper: frozen moving right.</summary>
     TripperFrozenMovingRight,
-    /// <summary>Kamer: moving left loop, first frame.</summary>
-    KamerMovingLeftLoopFirst,
-    /// <summary>Kamer: moving left loop, second frame.</summary>
-    KamerMovingLeftLoopSecond,
-    /// <summary>Kamer: moving left loop, third frame.</summary>
-    KamerMovingLeftLoopThird,
-    /// <summary>Kamer: moving left loop, fourth frame.</summary>
-    KamerMovingLeftLoopFourth,
+    /// <summary>Kamer: its loop, first frame.</summary>
+    KamerLoopFirst,
+    /// <summary>Kamer: its loop, second frame.</summary>
+    KamerLoopSecond,
+    /// <summary>Kamer: its loop, third frame.</summary>
+    KamerLoopThird,
+    /// <summary>Kamer: its loop, fourth frame.</summary>
+    KamerLoopFourth,
     /// <summary>Dragon: body idle left.</summary>
     DragonBodyIdleLeft,
     /// <summary>Dragon: wings facing left, first frame.</summary>

@@ -48,7 +48,7 @@ public sealed class RoomSpriteObject
     public bool Holds { get; private set; }
 
     /// <summary>The frame the object shows.</summary>
-    internal RoomSpriteObjectFrame Frame { get; private set; }
+    internal RoomSpriteObjectPicture Frame { get; private set; }
 
     /// <summary>Suppresses animation updates but leaves drawing intact.</summary>
     public bool UpdatesDisabled { get; internal set; }
@@ -76,21 +76,21 @@ public sealed class RoomSpriteObject
         Animation<RoomSpriteObjectSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         WrappingCountdown repeats = default;
-        AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
+        AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectPicture> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
             ref animation, ref place, ref repeats,
             raised => throw new InvalidOperationException($"Sprite object {Kind}'s event-free animation raised {raised}."));
         switch (shown)
         {
-            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Frame frame:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectPicture>.Frame frame:
                 Playback = new(animation, place);
                 Frame = frame.Shown;
                 Timer = frame.Duration;
                 return;
-            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Held:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectPicture>.Held:
                 Playback = new(animation, place);
                 Holds = true;
                 return;
-            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Ended:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectPicture>.Ended:
                 End();
                 return;
             default:
@@ -110,7 +110,7 @@ public sealed class RoomSpriteObject
             throw new InvalidOperationException($"Sprite object {Kind} has ended and shows no frame.");
         if (Holds)
             throw new InvalidOperationException($"Sprite object {Kind} holds its frame and has no countdown to keep.");
-        if (RoomSpriteObjectAnimations.Segments.Beats(segment)[0] is not AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame first)
+        if (RoomSpriteObjectAnimations.Segments.Beats(segment)[0] is not AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame first)
             throw new InvalidOperationException($"Sprite object animation {segment} does not begin with a timed frame.");
         // The animation's first phase plays the segment from its first beat: past that beat is the phase's second.
         Playback = new(RoomSpriteObjectAnimations.StartingWith(segment), new AnimationPlace(0, 1));

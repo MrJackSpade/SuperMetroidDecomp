@@ -36,14 +36,14 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         MagdolliteSegment[] pillarPrograms =
         [
-            MagdolliteSegment.PillarPhase0,
-            MagdolliteSegment.PillarPhase1,
-            MagdolliteSegment.PillarPhase2,
-            MagdolliteSegment.PillarPhase3,
-            MagdolliteSegment.PillarPhase4,
-            MagdolliteSegment.PillarPhase5,
-            MagdolliteSegment.PillarPhase6,
-            MagdolliteSegment.PillarPhase7,
+            MagdolliteSegment.OneSegmentPillar,
+            MagdolliteSegment.TwoSegmentPillar,
+            MagdolliteSegment.ThreeSegmentPillar,
+            MagdolliteSegment.FourSegmentPillar,
+            MagdolliteSegment.FiveSegmentPillar,
+            MagdolliteSegment.SixSegmentPillar,
+            MagdolliteSegment.SevenSegmentPillar,
+            MagdolliteSegment.EightSegmentPillar,
         ];
         for (int phase = 0; phase < pillarPrograms.Length; phase++)
             VerifyStaticProgram(pillarPrograms[phase], MagdollitePart.RisingBody, $"pillar {phase}");

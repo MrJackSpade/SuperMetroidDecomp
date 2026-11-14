@@ -29,13 +29,16 @@ internal static class EnemyHitBurstVerification
     private static readonly Position16<RoomPixels> Place = new(256, 256);
 
     /// <summary>The frames the burst shows on each update from its spawn until it ends, two updates each.</summary>
-    private static readonly RoomSpriteObjectFrame[] BurstFrames =
+    private static readonly RoomSpriteObjectPicture[] BurstFrames =
     [
-        RoomSpriteObjectFrame.EnemyHit0, RoomSpriteObjectFrame.EnemyHit0,
-        RoomSpriteObjectFrame.EnemyHit1, RoomSpriteObjectFrame.EnemyHit1,
-        RoomSpriteObjectFrame.EnemyHit2, RoomSpriteObjectFrame.EnemyHit2,
-        RoomSpriteObjectFrame.EnemyHit3, RoomSpriteObjectFrame.EnemyHit3,
+        Burst(HitBurstSpriteDefinitions.Tight), Burst(HitBurstSpriteDefinitions.Tight),
+        Burst(HitBurstSpriteDefinitions.Opening), Burst(HitBurstSpriteDefinitions.Opening),
+        Burst(HitBurstSpriteDefinitions.Wide), Burst(HitBurstSpriteDefinitions.Wide),
+        Burst(HitBurstSpriteDefinitions.Scattered), Burst(HitBurstSpriteDefinitions.Scattered),
     ];
+
+    /// <summary>The picture of Samus's hit-burst sprite <paramref name="sprite"/>.</summary>
+    private static RoomSpriteObjectPicture Burst(ProjectileSpriteId sprite) => RoomSpriteObjectPicture.OfHitBurst(sprite);
 
     /// <summary>
     /// A beam on a Mellow through the ordinary shot reaction: a hit that hurts it shows one burst, spawned at the Mellow's

@@ -13,10 +13,10 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 internal static class RoomSpriteObjectAccess
 {
     /// <summary>The bytes a beat occupies in its native list: only timed frames, four bytes each.</summary>
-    private static int BeatBytes(AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue> beat) => beat switch
+    private static int BeatBytes(AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue> beat) => beat switch
     {
-        AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame => 4,
-        AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Pause or AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+        AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame => 4,
+        AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Pause or AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
         _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
@@ -76,11 +76,4 @@ internal static class RoomSpriteObjectAccess
         internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Animations[kind]];
     }
 
-    /// <summary>Frames by spritemap.</summary>
-    extension(RoomSpriteObjectVisualDefinitions)
-    {
-        /// <summary>The frame whose spritemap is <paramref name="spritemap"/>.</summary>
-        internal static RoomSpriteObjectFrame FrameOf(ushort spritemap) =>
-            Enum.GetValues<RoomSpriteObjectFrame>().Single(frame => RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame) == spritemap);
-    }
 }

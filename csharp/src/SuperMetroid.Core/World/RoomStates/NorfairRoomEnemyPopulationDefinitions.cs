@@ -110,12 +110,12 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.FastRipper),
         [
-            new(EnemyDefinitionId.Ripper2, new(472, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper2, new(472, 88), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper2, new(616, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper2, new(616, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper2, new(616, 72), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper2, new(344, 152), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(472, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(472, 88), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(616, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(616, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(616, 72), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(344, 152), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), Direction: HorizontalDirection.Left)),
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.WaveBeam),
         [
@@ -484,7 +484,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.BubbleMountain),
         [
-            new(EnemyDefinitionId.Ripper2, new(376, 880), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(376, 880), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), Direction: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Sova, new(280, 896), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Sova, new(337, 730), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Sova, new(72, 809), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(192), SurfaceFamily: CrawlerAnimationFamily.Shared)),
@@ -504,7 +504,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Boyon, new(120, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 64)),
             new(EnemyDefinitionId.Boyon, new(168, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 64)),
             new(EnemyDefinitionId.Boyon, new(216, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 20480, TriggerDistance: 64)),
-            new(EnemyDefinitionId.Ripper2, new(344, 168), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), Direction: HorizontalDirection.Left)),
+            new(EnemyDefinitionId.RipperII, new(344, 168), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), Direction: HorizontalDirection.Left)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.PostCrocMissile),
         [

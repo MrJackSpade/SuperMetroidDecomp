@@ -34,10 +34,10 @@ internal static class FrozenMetroidShellVerification
         // The shell segment's second beat, the native alternating empty shell frame.
         var shellBeats = RoomSpriteObjectAnimations.Segments.Beats(RoomSpriteObjectSegment.MetroidShell);
         // The shell plays its first beat out, which brings it onto the second with that beat's whole duration.
-        var first = AssertIs<AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
+        var first = AssertIs<AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
         for (int update = 0; update < first.Duration; update++)
             shell.Step();
-        var shown = AssertIs<AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
+        var shown = AssertIs<AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
         Require(shell.Frame == shown.Shown && shell.Timer == shown.Duration, "The shell must reach its second record with that record's whole duration.");
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         OamBuffer actual = ShellOam();

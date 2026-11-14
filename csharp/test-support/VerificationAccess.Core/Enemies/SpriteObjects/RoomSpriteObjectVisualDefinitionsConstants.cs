@@ -1,139 +1,41 @@
-﻿
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>Cartridge values and helpers of <see cref="RoomSpriteObjectVisualDefinitions"/> that only verification reads.</summary>
+/// <summary>
+/// The native bank-$B4 spritemap each room sprite-object picture draws, which only verification reads (#1817): an
+/// enemy-sheet frame's is the record the extraction reads it from, and a hit burst's is the burst's own record.
+/// </summary>
 internal static class RoomSpriteObjectVisualDefinitionsConstants
 {
-    /// <summary>The bank-$B4 spritemap <paramref name="frame"/> draws.</summary>
-    internal static ushort Spritemap(RoomSpriteObjectFrame frame) => frame switch
+    /// <summary>The bank of the room sprite objects' records.</summary>
+    private const byte Bank = 0xb4;
+
+    /// <summary>The bank-$B4 spritemap of each of Samus's hit-burst sprites the burst shows.</summary>
+    private static readonly Dictionary<ProjectileSpriteId, ushort> HitBurstSpritemaps = new Dictionary<ProjectileSpriteId, ushort>
     {
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth0 => 0xdd51,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth1 => 0xdd58,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth2 => 0xdd5f,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth3 => 0xdd66,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth4 => 0xdd6d,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth5 => 0xdd74,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth6 => 0xdd7b,
-        RoomSpriteObjectFrame.DraygonFoamingAtTheMouth7 => 0xdd82,
-        RoomSpriteObjectFrame.SmallExplosion0 => 0xcbc0,
-        RoomSpriteObjectFrame.SmallExplosion1 => 0xcbc7,
-        RoomSpriteObjectFrame.SmallExplosion2 => 0xcbdd,
-        RoomSpriteObjectFrame.SmallExplosion3 => 0xcbf3,
-        RoomSpriteObjectFrame.SmallExplosion4 => 0xcc09,
-        RoomSpriteObjectFrame.SmallExplosion5 => 0xcc1f,
-        RoomSpriteObjectFrame.DudShot0 => 0xccf1,
-        RoomSpriteObjectFrame.DudShot1 => 0xccf8,
-        RoomSpriteObjectFrame.DudShot2 => 0xccff,
-        RoomSpriteObjectFrame.DudShot3 => 0xcd15,
-        RoomSpriteObjectFrame.DudShot4 => 0xcd2b,
-        RoomSpriteObjectFrame.DudShot5 => 0xcd41,
-        RoomSpriteObjectFrame.PirateLandingDustCloud0 => 0xcdb5,
-        RoomSpriteObjectFrame.SmallDustCloud0 => 0xcd99,
-        RoomSpriteObjectFrame.SmallDustCloud1 => 0xcda0,
-        RoomSpriteObjectFrame.SmallDustCloud2 => 0xcda7,
-        RoomSpriteObjectFrame.SmallDustCloud3 => 0xcdae,
-        RoomSpriteObjectFrame.PirateLandingDustCloud1 => 0xcdbc,
-        RoomSpriteObjectFrame.PirateLandingDustCloud2 => 0xcdc3,
-        RoomSpriteObjectFrame.PirateLandingDustCloud3 => 0xcdca,
-        RoomSpriteObjectFrame.Smoke0 => 0xcded,
-        RoomSpriteObjectFrame.Smoke1 => 0xcdf4,
-        RoomSpriteObjectFrame.Smoke2 => 0xcdfb,
-        RoomSpriteObjectFrame.Smoke3 => 0xce02,
-        RoomSpriteObjectFrame.BigExplosion0 => 0xcfa3,
-        RoomSpriteObjectFrame.BigExplosion1 => 0xcfb9,
-        RoomSpriteObjectFrame.BigExplosion2 => 0xcfcf,
-        RoomSpriteObjectFrame.BigExplosion3 => 0xcfe5,
-        RoomSpriteObjectFrame.BigExplosion4 => 0xd023,
-        RoomSpriteObjectFrame.BigExplosion5 => 0xd04d,
-        RoomSpriteObjectFrame.BigDustCloud0 => 0xc838,
-        RoomSpriteObjectFrame.BigDustCloud1 => 0xc83f,
-        RoomSpriteObjectFrame.BigDustCloud2 => 0xc84b,
-        RoomSpriteObjectFrame.BigDustCloud3 => 0xc85c,
-        RoomSpriteObjectFrame.BigDustCloud4 => 0xc872,
-        RoomSpriteObjectFrame.BigDustCloud5 => 0xc888,
-        RoomSpriteObjectFrame.BigDustCloud6 => 0xc899,
-        RoomSpriteObjectFrame.BigDustCloud7 => 0xc8a5,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles0 => 0xc920,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles1 => 0xc927,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles2 => 0xc938,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles3 => 0xc949,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles4 => 0xc95a,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles5 => 0xc96b,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles6 => 0xc97c,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles7 => 0xc98d,
-        RoomSpriteObjectFrame.ShortDraygonBreathBubbles8 => 0xc999,
-        RoomSpriteObjectFrame.Puromi0 => 0xd4be,
-        RoomSpriteObjectFrame.Puromi1 => 0xd4c5,
-        RoomSpriteObjectFrame.Puromi4 => 0xd4da,
-        RoomSpriteObjectFrame.Puromi2 => 0xd4cc,
-        RoomSpriteObjectFrame.Puromi3 => 0xd4d3,
-        RoomSpriteObjectFrame.Puromi5 => 0xd4e1,
-        RoomSpriteObjectFrame.Puromi6 => 0xd4e8,
-        RoomSpriteObjectFrame.Puromi7 => 0xd4ef,
-        RoomSpriteObjectFrame.PuromiRightExplosion0 => 0xd4f6,
-        RoomSpriteObjectFrame.PuromiRightExplosion1 => 0xd4fd,
-        RoomSpriteObjectFrame.PuromiRightExplosion2 => 0xd504,
-        RoomSpriteObjectFrame.PuromiRightExplosion3 => 0xd50b,
-        RoomSpriteObjectFrame.PuromiRightExplosion4 => 0xd512,
-        RoomSpriteObjectFrame.PuromiRightExplosion5 => 0xd519,
-        RoomSpriteObjectFrame.PuromiRightExplosion6 => 0xd520,
-        RoomSpriteObjectFrame.PuromiLeftExplosion0 => 0xd527,
-        RoomSpriteObjectFrame.PuromiLeftExplosion1 => 0xd52e,
-        RoomSpriteObjectFrame.PuromiLeftExplosion2 => 0xd535,
-        RoomSpriteObjectFrame.PuromiLeftExplosion3 => 0xd53c,
-        RoomSpriteObjectFrame.PuromiLeftExplosion4 => 0xd543,
-        RoomSpriteObjectFrame.PuromiLeftExplosion5 => 0xd54a,
-        RoomSpriteObjectFrame.PuromiLeftExplosion6 => 0xd551,
-        RoomSpriteObjectFrame.PuromiSplash0 => 0xd558,
-        RoomSpriteObjectFrame.PuromiSplash1 => 0xd564,
-        RoomSpriteObjectFrame.PuromiSplash2 => 0xd570,
-        RoomSpriteObjectFrame.PuromiSplash4 => 0xd588,
-        RoomSpriteObjectFrame.FallingSparkTrail0 => 0xd59b,
-        RoomSpriteObjectFrame.FallingSparkTrail1 => 0xd5a2,
-        RoomSpriteObjectFrame.FallingSparkTrail2 => 0xd5a9,
-        RoomSpriteObjectFrame.FallingSparkTrail3 => 0xd5b0,
-        RoomSpriteObjectFrame.MetroidElectricity0 => 0xd6f1,
-        RoomSpriteObjectFrame.MetroidElectricity1 => 0xd702,
-        RoomSpriteObjectFrame.MetroidElectricity2 => 0xd713,
-        RoomSpriteObjectFrame.Nothing => 0xbda6,
-        RoomSpriteObjectFrame.MetroidElectricity3 => 0xd724,
-        RoomSpriteObjectFrame.MetroidElectricity4 => 0xd73a,
-        RoomSpriteObjectFrame.MetroidElectricity5 => 0xd750,
-        RoomSpriteObjectFrame.MetroidElectricity12 => 0xd7db,
-        RoomSpriteObjectFrame.MetroidElectricity13 => 0xd7e7,
-        RoomSpriteObjectFrame.MetroidElectricity14 => 0xd7ee,
-        RoomSpriteObjectFrame.MetroidElectricity9 => 0xd799,
-        RoomSpriteObjectFrame.MetroidElectricity10 => 0xd7af,
-        RoomSpriteObjectFrame.MetroidElectricity11 => 0xd7c5,
-        RoomSpriteObjectFrame.MetroidElectricity15 => 0xd7fa,
-        RoomSpriteObjectFrame.MetroidElectricity16 => 0xd806,
-        RoomSpriteObjectFrame.MetroidElectricity17 => 0xd812,
-        RoomSpriteObjectFrame.MetroidElectricity18 => 0xd81e,
-        RoomSpriteObjectFrame.MetroidElectricity19 => 0xd82a,
-        RoomSpriteObjectFrame.MetroidElectricity20 => 0xd836,
-        RoomSpriteObjectFrame.MetroidElectricity6 => 0xd766,
-        RoomSpriteObjectFrame.MetroidElectricity7 => 0xd777,
-        RoomSpriteObjectFrame.MetroidElectricity8 => 0xd788,
-        RoomSpriteObjectFrame.MetroidElectricity21 => 0xd842,
-        RoomSpriteObjectFrame.MetroidElectricity22 => 0xd849,
-        RoomSpriteObjectFrame.MetroidElectricity23 => 0xd850,
-        RoomSpriteObjectFrame.MetroidShell0 => 0xd5b7,
-        RoomSpriteObjectFrame.MetroidShell1 => 0xd5eb,
-        RoomSpriteObjectFrame.MetroidShell2 => 0xd61f,
-        RoomSpriteObjectFrame.YappingMawBaseFacingDown => 0xd8af,
-        RoomSpriteObjectFrame.YappingMawBaseFacingUp => 0xd8b6,
-        RoomSpriteObjectFrame.EvirFacingLeft0 => 0xdb42,
-        RoomSpriteObjectFrame.EvirFacingLeft1 => 0xdb80,
-        RoomSpriteObjectFrame.EvirFacingLeft2 => 0xdbbe,
-        RoomSpriteObjectFrame.EvirFacingLeft3 => 0xdbfc,
-        RoomSpriteObjectFrame.EvirFacingRight0 => 0xdc3f,
-        RoomSpriteObjectFrame.EvirFacingRight1 => 0xdc7d,
-        RoomSpriteObjectFrame.EvirFacingRight2 => 0xdcbb,
-        RoomSpriteObjectFrame.EvirFacingRight3 => 0xdcf9,
-        RoomSpriteObjectFrame.EnemyHit0 => 0xd857,
-        RoomSpriteObjectFrame.EnemyHit1 => 0xd86d,
-        RoomSpriteObjectFrame.EnemyHit2 => 0xd883,
-        RoomSpriteObjectFrame.EnemyHit3 => 0xd899,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a room sprite-object frame."),
+        [HitBurstSpriteDefinitions.Tight] = 0xd857,
+        [HitBurstSpriteDefinitions.Opening] = 0xd86d,
+        [HitBurstSpriteDefinitions.Wide] = 0xd883,
+        [HitBurstSpriteDefinitions.Scattered] = 0xd899,
     };
+
+    /// <summary>The bank-$B4 spritemap <paramref name="picture"/> draws.</summary>
+    /// <exception cref="InvalidOperationException">The picture's record is not one of the room sprite objects'.</exception>
+    internal static ushort Spritemap(RoomSpriteObjectPicture picture)
+    {
+        if (picture.HitBurst is { } burst)
+            return HitBurstSpritemaps[burst];
+        SnesAddress location = EnemyFrameCartridgeLocationDefinitions.Locations[picture.RequireEnemyFrame()];
+        return location.Bank == Bank
+            ? location.Offset
+            : throw new InvalidOperationException($"Room sprite-object picture {picture} is read from bank ${location.Bank:X2}, not ${Bank:X2}.");
+    }
+
+    /// <summary>Every picture the room sprite objects' animations show, each once.</summary>
+    internal static IReadOnlySet<RoomSpriteObjectPicture> Pictures { get; } =
+        RoomSpriteObjectAnimations.Segments.Frames.ToHashSet();
 }

@@ -717,7 +717,7 @@ internal static class NativeEnemyFamilyStateImport
             funeNamihe.ShowsActiveAnimation = active;
             funeNamihe.FacingRight = right;
         }
-        if (slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.Ripper2 &&
+        if (slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.RipperII &&
             slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);

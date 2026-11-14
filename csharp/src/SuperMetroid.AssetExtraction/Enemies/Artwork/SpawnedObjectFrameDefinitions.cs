@@ -545,8 +545,8 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] YappingMawSpriteObjects =
     [
-        RoomSpriteObjectKind.YappingMawRootFacingUp,
         RoomSpriteObjectKind.YappingMawRootFacingDown,
+        RoomSpriteObjectKind.YappingMawRootFacingUp,
     ];
 
     /// <summary>The projectile frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>

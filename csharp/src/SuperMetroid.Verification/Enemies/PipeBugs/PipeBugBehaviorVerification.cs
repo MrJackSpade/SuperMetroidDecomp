@@ -161,7 +161,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Oum:
             case EnemyDefinitionId.Choot:
             case EnemyDefinitionId.GRipper:
-            case EnemyDefinitionId.Ripper2:
+            case EnemyDefinitionId.RipperII:
             case EnemyDefinitionId.Ripper:
             case EnemyDefinitionId.Dragon:
             case EnemyDefinitionId.ShutterGrowing:

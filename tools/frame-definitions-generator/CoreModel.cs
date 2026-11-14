@@ -29,6 +29,9 @@ internal sealed class CoreModel
         "EnemyProjectileDefinitionCatalog",
         "RoomSpriteObjectVisualDefinitions",
         "RoomSpriteObjectDefinitions",
+        // The sprite objects' animations name their enemy-sheet frames outright (#1817); a sprite object's frames reach
+        // its spawner's sheet through its kind, as the spawn analysis reads it.
+        "RoomSpriteObjectAnimations",
         "EnemyFrameNameDefinitions",
     ];
 

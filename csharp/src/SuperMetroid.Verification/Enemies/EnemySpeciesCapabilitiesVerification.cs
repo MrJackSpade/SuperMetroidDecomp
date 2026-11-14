@@ -84,7 +84,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.Rinka] = leftToSpecies,
             [EnemyDefinitionId.Oum] = [MaridiaLargeSnailReactions.Shot],
             [EnemyDefinitionId.GRipper] = leftToSpecies,
-            [EnemyDefinitionId.Ripper2] = leftToSpecies,
+            [EnemyDefinitionId.RipperII] = leftToSpecies,
             [EnemyDefinitionId.Dragon] = leftToSpecies,
             [EnemyDefinitionId.ShutterShootable] = leftToSpecies,
             [EnemyDefinitionId.Kamer] = leftToSpecies,

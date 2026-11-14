@@ -15,8 +15,8 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
             case RipperPart.GRipper:
                 RipperBehavior.InitializeGRipper(Slot);
                 break;
-            case RipperPart.Ripper2:
-                RipperBehavior.InitializeRipper2(Slot);
+            case RipperPart.RipperII:
+                RipperBehavior.InitializeRipperII(Slot);
                 break;
             case RipperPart.Ripper:
                 RipperBehavior.InitializeRipper(Slot);
@@ -34,8 +34,8 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
             case RipperPart.GRipper:
                 species.RunGRipperMainAi(Slot, frame);
                 break;
-            case RipperPart.Ripper2:
-                species.RunRipper2MainAi(Slot, frame);
+            case RipperPart.RipperII:
+                species.RunRipperIIMainAi(Slot, frame);
                 break;
             case RipperPart.Ripper:
                 species.RunRipperMainAi(Slot, frame);

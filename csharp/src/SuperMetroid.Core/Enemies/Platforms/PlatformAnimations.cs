@@ -15,49 +15,20 @@ internal static class PlatformAnimations
     internal static AnimationSegments<PlatformSegment, EnemyFrameId, PlatformCue> Segments { get; } = new(
         new Dictionary<PlatformSegment, AnimationBeat<EnemyFrameId, PlatformCue>[]>
     {
-        [P.KamerMovingLeft] =
+        [P.KamerHeadingLeft] =
         [
             Cue(new(K.MoveLeft)),
         ],
-        [P.KamerMovingLeftLoop] =
+        [P.KamerLoop] =
         [
-            Show(EnemyFrameId.KamerMovingLeftLoopFirst, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopSecond, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopThird, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopFourth, 10),
+            Show(EnemyFrameId.KamerLoopFirst, 10),
+            Show(EnemyFrameId.KamerLoopSecond, 10),
+            Show(EnemyFrameId.KamerLoopThird, 10),
+            Show(EnemyFrameId.KamerLoopFourth, 10),
         ],
-        [P.KamerMovingRight] =
+        [P.KamerHeadingRight] =
         [
             Cue(new(K.MoveRight)),
-        ],
-        [P.KamerMovingRightLoop] =
-        [
-            Show(EnemyFrameId.KamerMovingLeftLoopFirst, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopSecond, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopThird, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopFourth, 10),
-        ],
-        [P.KamerStillLeft] =
-        [
-            Cue(new(K.MoveLeft)),
-        ],
-        [P.KamerStillLeftLoop] =
-        [
-            Show(EnemyFrameId.KamerMovingLeftLoopFirst, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopSecond, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopThird, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopFourth, 10),
-        ],
-        [P.KamerStillRight] =
-        [
-            Cue(new(K.MoveRight)),
-        ],
-        [P.KamerStillRightLoop] =
-        [
-            Show(EnemyFrameId.KamerMovingLeftLoopFirst, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopSecond, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopThird, 10),
-            Show(EnemyFrameId.KamerMovingLeftLoopFourth, 10),
         ],
         [P.TripperMovingLeft] =
         [
@@ -108,14 +79,9 @@ internal static class PlatformAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
-        [P.KamerMovingLeft] = new([new(P.KamerMovingLeft, 0, 1, 1), new(P.KamerMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.KamerMovingLeftLoop] = new([new(P.KamerMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.KamerMovingRight] = new([new(P.KamerMovingRight, 0, 1, 1), new(P.KamerMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.KamerMovingRightLoop] = new([new(P.KamerMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.KamerStillLeft] = new([new(P.KamerStillLeft, 0, 1, 1), new(P.KamerStillLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.KamerStillLeftLoop] = new([new(P.KamerStillLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.KamerStillRight] = new([new(P.KamerStillRight, 0, 1, 1), new(P.KamerStillRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.KamerStillRightLoop] = new([new(P.KamerStillRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.KamerHeadingLeft] = new([new(P.KamerHeadingLeft, 0, 1, 1), new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.KamerLoop] = new([new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.KamerHeadingRight] = new([new(P.KamerHeadingRight, 0, 1, 1), new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.TripperMovingLeft] = new([new(P.TripperMovingLeft, 0, 1, 1), new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.TripperMovingLeftLoop] = new([new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TripperMovingRight] = new([new(P.TripperMovingRight, 0, 1, 1), new(P.TripperMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),

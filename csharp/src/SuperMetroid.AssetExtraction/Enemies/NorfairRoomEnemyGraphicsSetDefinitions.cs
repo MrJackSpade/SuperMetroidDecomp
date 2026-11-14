@@ -38,7 +38,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.KihunterRed),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FastRipper), [
-            new(EnemyDefinitionId.Ripper2),
+            new(EnemyDefinitionId.RipperII),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WaveBeam), [
         ]),
@@ -192,7 +192,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountain), [
             new(EnemyDefinitionId.Waver),
-            new(EnemyDefinitionId.Ripper2),
+            new(EnemyDefinitionId.RipperII),
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Sova),
         ]),
@@ -201,7 +201,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamTutorial), [
             new(EnemyDefinitionId.Boyon),
-            new(EnemyDefinitionId.Ripper2),
+            new(EnemyDefinitionId.RipperII),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocMissile), [
             new(EnemyDefinitionId.Metaree),

@@ -322,14 +322,14 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(Enum.GetValues<RoomSpriteObjectFrame>().Select(RoomSpriteObjectVisualDefinitionsConstants.Spritemap).ToHashSet()
+        AssertTrue(RoomSpriteObjectVisualDefinitionsConstants.Pictures.Select(RoomSpriteObjectVisualDefinitionsConstants.Spritemap).ToHashSet()
                 .SetEquals(SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom)),
-            "the room sprite-object frames are exactly the spritemaps the native lists show");
-        foreach (RoomSpriteObjectFrame frame in Enum.GetValues<RoomSpriteObjectFrame>())
+            "the room sprite-object pictures are exactly the spritemaps the native lists show");
+        foreach (RoomSpriteObjectPicture picture in RoomSpriteObjectVisualDefinitionsConstants.Pictures)
         {
-            bool samusHitBurst = RoomSpriteObjectVisualDefinitions.HitBurstPictures.ContainsKey(frame);
-            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame)),
-                $"room sprite-object frame {frame} has installed enemy art unless it is Samus's hit burst");
+            bool samusHitBurst = picture.HitBurst is not null;
+            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(picture)),
+                $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst");
         }
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||

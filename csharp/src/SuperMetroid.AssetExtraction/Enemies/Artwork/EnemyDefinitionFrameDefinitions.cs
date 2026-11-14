@@ -1591,14 +1591,14 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MagdolliteRightRaisePillar,
         EnemyFrameId.MagdolliteRightSubmergeSecond,
         EnemyFrameId.MagdolliteRightSubmergeThird,
-        EnemyFrameId.MagdollitePillarPhaseFirst,
-        EnemyFrameId.MagdollitePillarPhaseSecond,
-        EnemyFrameId.MagdollitePillarPhaseThird,
-        EnemyFrameId.MagdollitePillarPhaseFourth,
-        EnemyFrameId.MagdollitePillarPhaseFifth,
-        EnemyFrameId.MagdollitePillarPhaseSixth,
-        EnemyFrameId.MagdollitePillarPhaseSeventh,
-        EnemyFrameId.MagdollitePillarPhaseEighth,
+        EnemyFrameId.MagdolliteOneSegmentPillar,
+        EnemyFrameId.MagdolliteTwoSegmentPillar,
+        EnemyFrameId.MagdolliteThreeSegmentPillar,
+        EnemyFrameId.MagdolliteFourSegmentPillar,
+        EnemyFrameId.MagdolliteFiveSegmentPillar,
+        EnemyFrameId.MagdolliteSixSegmentPillar,
+        EnemyFrameId.MagdolliteSevenSegmentPillar,
+        EnemyFrameId.MagdolliteEightSegmentPillar,
     ];
 
     /// <summary>The frames <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> shows for <c>BabyTurtle</c>.</summary>
@@ -1820,10 +1820,10 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Kamer2</c>.</summary>
     private static readonly EnemyFrameId[] Kamer2Frames =
     [
-        EnemyFrameId.KamerMovingLeftLoopFirst,
-        EnemyFrameId.KamerMovingLeftLoopSecond,
-        EnemyFrameId.KamerMovingLeftLoopThird,
-        EnemyFrameId.KamerMovingLeftLoopFourth,
+        EnemyFrameId.KamerLoopFirst,
+        EnemyFrameId.KamerLoopSecond,
+        EnemyFrameId.KamerLoopThird,
+        EnemyFrameId.KamerLoopFourth,
     ];
 
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Tripper</c>.</summary>
@@ -1936,7 +1936,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RioSwoopingPartTwoFirst,
     ];
 
-    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>GRipper</c>, <c>Ripper2</c>.</summary>
+    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>GRipper</c>, <c>RipperII</c>.</summary>
     private static readonly EnemyFrameId[] GRipperFrames =
     [
         EnemyFrameId.GRipperMovingLeftFirst,
@@ -2565,7 +2565,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Rio] = Rio,
             [EnemyDefinitionId.GRipper] = GRipperFrames,
             [EnemyDefinitionId.Ripper] = RipperFrames,
-            [EnemyDefinitionId.Ripper2] = GRipperFrames,
+            [EnemyDefinitionId.RipperII] = GRipperFrames,
             [EnemyDefinitionId.Sbug] = Sbug,
             [EnemyDefinitionId.Shaktool] = Shaktool,
             [EnemyDefinitionId.Kamer] = KamerFrames,

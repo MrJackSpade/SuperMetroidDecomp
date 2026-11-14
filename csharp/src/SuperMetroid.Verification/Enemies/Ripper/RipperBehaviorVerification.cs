@@ -23,7 +23,7 @@ internal static class RipperBehaviorVerification
         foreach ((int record, EnemyDefinitionId definition) in new[]
                  {
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.GRipperPopulationRecord, EnemyDefinitionId.GRipper),
-                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.Ripper2),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.RipperII),
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
@@ -72,10 +72,10 @@ internal static class RipperBehaviorVerification
         void VerifyRipper2(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper2);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.RipperII);
             slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipper2(slot);
+            RipperBehavior.InitializeRipperII(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 

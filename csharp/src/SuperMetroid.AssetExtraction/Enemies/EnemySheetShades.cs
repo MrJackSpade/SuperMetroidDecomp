@@ -389,7 +389,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
                 or EnemyDefinitionId.Menu or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
                 or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
-                or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper
+                or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.RipperII or EnemyDefinitionId.Ripper
                 or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
                 or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
                 or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser

@@ -139,7 +139,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMainShaft), [
             new(EnemyDefinitionId.Etecoon),
             new(EnemyDefinitionId.Zeela),
-            new(EnemyDefinitionId.Ripper2),
+            new(EnemyDefinitionId.RipperII),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawnSuper), [
             new(EnemyDefinitionId.Zeb),

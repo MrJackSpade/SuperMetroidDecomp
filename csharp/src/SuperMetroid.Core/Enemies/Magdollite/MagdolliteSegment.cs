@@ -30,22 +30,22 @@ internal enum MagdolliteSegment
     RightEmerge,
     /// <summary>The right lower pillar animation.</summary>
     RightLowerPillar,
-    /// <summary>The pillar phase 0 animation.</summary>
-    PillarPhase0,
-    /// <summary>The pillar phase 1 animation.</summary>
-    PillarPhase1,
-    /// <summary>The pillar phase 2 animation.</summary>
-    PillarPhase2,
-    /// <summary>The pillar phase 3 animation.</summary>
-    PillarPhase3,
-    /// <summary>The pillar phase 4 animation.</summary>
-    PillarPhase4,
-    /// <summary>The pillar phase 5 animation.</summary>
-    PillarPhase5,
-    /// <summary>The pillar phase 6 animation.</summary>
-    PillarPhase6,
-    /// <summary>The pillar phase 7 animation.</summary>
-    PillarPhase7,
+    /// <summary>The pillar one segment high.</summary>
+    OneSegmentPillar,
+    /// <summary>The pillar two segments high.</summary>
+    TwoSegmentPillar,
+    /// <summary>The pillar three segments high.</summary>
+    ThreeSegmentPillar,
+    /// <summary>The pillar four segments high.</summary>
+    FourSegmentPillar,
+    /// <summary>The pillar five segments high.</summary>
+    FiveSegmentPillar,
+    /// <summary>The pillar six segments high.</summary>
+    SixSegmentPillar,
+    /// <summary>The pillar seven segments high.</summary>
+    SevenSegmentPillar,
+    /// <summary>The pillar eight segments high.</summary>
+    EightSegmentPillar,
     /// <summary>The pillar cap animation.</summary>
     PillarCap,
 }

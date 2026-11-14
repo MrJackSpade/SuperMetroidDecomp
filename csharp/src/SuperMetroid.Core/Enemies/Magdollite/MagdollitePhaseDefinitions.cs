@@ -16,14 +16,14 @@ internal static class MagdollitePhaseDefinitions
     /// </summary>
     internal static readonly MagdollitePhaseDefinition[] Phases =
     [
-        new(0, MagdolliteSegment.PillarPhase0, 12),
-        new(16, MagdolliteSegment.PillarPhase0, 12),
-        new(32, MagdolliteSegment.PillarPhase1, 20),
-        new(48, MagdolliteSegment.PillarPhase2, 28),
-        new(64, MagdolliteSegment.PillarPhase3, 36),
-        new(80, MagdolliteSegment.PillarPhase4, 44),
-        new(96, MagdolliteSegment.PillarPhase5, 52),
-        new(112, MagdolliteSegment.PillarPhase6, 60),
-        new(128, MagdolliteSegment.PillarPhase7, 68),
+        new(0, MagdolliteSegment.OneSegmentPillar, 12),
+        new(16, MagdolliteSegment.OneSegmentPillar, 12),
+        new(32, MagdolliteSegment.TwoSegmentPillar, 20),
+        new(48, MagdolliteSegment.ThreeSegmentPillar, 28),
+        new(64, MagdolliteSegment.FourSegmentPillar, 36),
+        new(80, MagdolliteSegment.FiveSegmentPillar, 44),
+        new(96, MagdolliteSegment.SixSegmentPillar, 52),
+        new(112, MagdolliteSegment.SevenSegmentPillar, 60),
+        new(128, MagdolliteSegment.EightSegmentPillar, 68),
     ];
 }

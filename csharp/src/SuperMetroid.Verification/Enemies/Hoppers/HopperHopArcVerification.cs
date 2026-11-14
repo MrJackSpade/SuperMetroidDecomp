@@ -42,7 +42,7 @@ internal static class HopperHopArcVerification
                 Action = HopperAction.JumpingUpsideUpForward,
                 Falling = falling,
                 XVelocity = 0,
-                YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(start),
+                YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
                 YSpeedCurvePlaceDelta = step,
             };
             slot.SetSpeciesState(state);
@@ -50,7 +50,7 @@ internal static class HopperHopArcVerification
             enemies.HoppersBehavior.RunHoppersMainAi(slot, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
-            AssertEqual(EnemyQuadraticSpeedIndex.FromRows(expected), state.YSpeedCurvePlace, context);
+            AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);
             AssertEqual(expectedFalling, state.Falling, $"{context}: direction");
         }
         Console.WriteLine("  Hopper hop arc: the record clamps to zero past the apex and caps at 64 on the way back.");

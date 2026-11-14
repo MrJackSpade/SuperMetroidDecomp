@@ -18,7 +18,7 @@ public sealed class CacatacEnemyState
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>The patrol direction; zero is left, one is right, two initially stops.</summary>
+    /// <summary>The way it patrols: left, right, or, placed to stop at first, still until its first idle step.</summary>
     public CacatacDirection Direction { get; internal set; }
 
     /// <summary>The current behaviour.</summary>

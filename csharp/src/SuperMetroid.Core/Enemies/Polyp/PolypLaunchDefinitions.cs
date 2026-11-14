@@ -12,8 +12,8 @@ public static class PolypLaunchDefinitions
     /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
     internal static readonly int[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
 
-    /// <summary>The quadratic speed index the first launch selector chooses; each following selector chooses the next.</summary>
-    internal const int FirstInitialYIndex = 28;
+    /// <summary>The speed-curve place the first launch selector chooses; each following selector chooses the next.</summary>
+    internal const int FirstInitialYMark = 28;
 
     /// <summary>
     /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by

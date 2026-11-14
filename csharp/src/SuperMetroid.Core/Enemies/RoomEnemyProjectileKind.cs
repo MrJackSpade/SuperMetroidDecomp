@@ -1,254 +1,254 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// What an enemy projectile is. The values are arbitrary (#1452).
+/// What an enemy projectile is.
 /// </summary>
 public enum RoomEnemyProjectileKind
 {
     /// <summary>No projectile: the projectile is gone or has freed its place, and the place is free for a spawn.</summary>
-    None = 0,
+    None,
     /// <summary>The pre-Phantoon room's background-offset keeper, spawned by the room's setup.</summary>
-    PrePhantoonRoom = 1,
+    PrePhantoonRoom,
     /// <summary>The Maw's projectile-backed body.</summary>
-    YappingMawBody = 2,
+    YappingMawBody,
     /// <summary>Skree's downward-right burst particle.</summary>
-    SkreeParticleDownRight = 3,
+    SkreeParticleDownRight,
     /// <summary>Skree's upward-right burst particle.</summary>
-    SkreeParticleUpRight = 4,
+    SkreeParticleUpRight,
     /// <summary>Skree's downward-left burst particle.</summary>
-    SkreeParticleDownLeft = 5,
+    SkreeParticleDownLeft,
     /// <summary>Skree's upward-left burst particle.</summary>
-    SkreeParticleUpLeft = 6,
+    SkreeParticleUpLeft,
     /// <summary>Metaree's downward-right metal particle.</summary>
-    MetareeParticleDownRight = 7,
+    MetareeParticleDownRight,
     /// <summary>Metaree's upward-right metal particle.</summary>
-    MetareeParticleUpRight = 8,
+    MetareeParticleUpRight,
     /// <summary>Metaree's downward-left metal particle.</summary>
-    MetareeParticleDownLeft = 9,
+    MetareeParticleDownLeft,
     /// <summary>Metaree's upward-left metal particle.</summary>
-    MetareeParticleUpLeft = 10,
+    MetareeParticleUpLeft,
     /// <summary>Crocomire's fired attack projectile.</summary>
-    CrocomireProjectile = 11,
+    CrocomireProjectile,
     /// <summary>The collapsing bridge's debris actor.</summary>
-    CrocomireBridgeCrumbling = 12,
+    CrocomireBridgeCrumbling,
     /// <summary>Fragments of Crocomire's spike wall.</summary>
-    CrocomireSpikeWallPieces = 13,
+    CrocomireSpikeWallPieces,
     /// <summary>The rock emitted by Kraid's spit attack.</summary>
-    KraidSpitRock = 14,
+    KraidSpitRock,
     /// <summary>Falling ceiling debris in Kraid's room.</summary>
-    KraidCeilingRock = 15,
+    KraidCeilingRock,
     /// <summary>The left member of Kraid's rising floor-rock pair.</summary>
-    KraidRisingRockLeft = 16,
+    KraidRisingRockLeft,
     /// <summary>The right member of Kraid's rising floor-rock pair.</summary>
-    KraidRisingRockRight = 17,
+    KraidRisingRockRight,
     /// <summary>Phantoon's destructible flame actor.</summary>
-    PhantoonDestroyableFlame = 18,
+    PhantoonDestroyableFlame,
     /// <summary>Phantoon's opening flame actor.</summary>
-    PhantoonStartingFlame = 19,
+    PhantoonStartingFlame,
     /// <summary>Draygon's goop attack.</summary>
-    DraygonGoop = 20,
+    DraygonGoop,
     /// <summary>The projectile-backed turret in Draygon's room.</summary>
-    DraygonWallTurret = 21,
+    DraygonWallTurret,
     /// <summary>A Mother Brain room turret actor.</summary>
-    MotherBrainRoomTurret = 22,
+    MotherBrainRoomTurret,
     /// <summary>A bullet fired by a Mother Brain room turret.</summary>
-    MotherBrainRoomTurretBullet = 23,
+    MotherBrainRoomTurretBullet,
     /// <summary>A shard from Mother Brain's broken glass.</summary>
-    MotherBrainGlassShard = 24,
+    MotherBrainGlassShard,
     /// <summary>A glass-shattering sparkle actor.</summary>
-    MotherBrainGlassSparkle = 25,
+    MotherBrainGlassSparkle,
     /// <summary>Mother Brain's ring-shaped attack.</summary>
-    MotherBrainOnionRing = 26,
+    MotherBrainOnionRing,
     /// <summary>The explosion of the Climb's escape-shaft fake wall.</summary>
-    OldTourianEscapeShaftFakeWallExplosion = 27,
+    OldTourianEscapeShaftFakeWallExplosion,
     /// <summary>Mother Brain's bomb attack.</summary>
-    MotherBrainBomb = 28,
+    MotherBrainBomb,
     /// <summary>The charging phase of Mother Brain's hand beam.</summary>
-    MotherBrainHandBeamCharging = 29,
+    MotherBrainHandBeamCharging,
     /// <summary>The fired phase of Mother Brain's hand beam.</summary>
-    MotherBrainHandBeamFired = 30,
+    MotherBrainHandBeamFired,
     /// <summary>The rainbow beam's charging actor.</summary>
-    MotherBrainRainbowBeamCharging = 31,
+    MotherBrainRainbowBeamCharging,
     /// <summary>Mother Brain's large purple breath projectile.</summary>
-    MotherBrainPurpleBreathBig = 32,
+    MotherBrainPurpleBreathBig,
     /// <summary>Mother Brain's small purple breath projectile.</summary>
-    MotherBrainPurpleBreathSmall = 33,
+    MotherBrainPurpleBreathSmall,
     /// <summary>Drool emitted during Mother Brain's encounter.</summary>
-    MotherBrainDrool = 34,
+    MotherBrainDrool,
     /// <summary>Drool emitted during Mother Brain's death.</summary>
-    MotherBrainDyingDrool = 35,
+    MotherBrainDyingDrool,
     /// <summary>A rainbow-beam explosion actor.</summary>
-    MotherBrainRainbowBeamExplosion = 36,
+    MotherBrainRainbowBeamExplosion,
     /// <summary>Mother Brain's body-relative death explosions, which follow the moving body.</summary>
-    MotherBrainDeathExplosion = 37,
+    MotherBrainDeathExplosion,
     /// <summary>A fragment of the opened escape door.</summary>
-    MotherBrainEscapeDoorFragment = 38,
+    MotherBrainEscapeDoorFragment,
     /// <summary>The optional Japanese timebomb subtitle.</summary>
-    MotherBrainEscapeSubtitle = 39,
+    MotherBrainEscapeSubtitle,
     /// <summary>Mother Brain's falling top-right tube.</summary>
-    MotherBrainTopRightTube = 40,
+    MotherBrainTopRightTube,
     /// <summary>Mother Brain's falling top-left tube.</summary>
-    MotherBrainTopLeftTube = 41,
+    MotherBrainTopLeftTube,
     /// <summary>Mother Brain's falling middle-left upper tube.</summary>
-    MotherBrainTopMiddleLeftTube = 42,
+    MotherBrainTopMiddleLeftTube,
     /// <summary>Mother Brain's falling middle-right upper tube.</summary>
-    MotherBrainTopMiddleRightTube = 43,
+    MotherBrainTopMiddleRightTube,
     /// <summary>Ridley's aimed fireball, shared by Ceres and Zebes.</summary>
-    CeresRidleyFireball = 44,
+    CeresRidleyFireball,
     /// <summary>The stationary center that spawns horizontal afterburns.</summary>
-    CeresRidleyHorizontalAfterburnCenter = 45,
+    CeresRidleyHorizontalAfterburnCenter,
     /// <summary>The stationary center that spawns vertical afterburns.</summary>
-    CeresRidleyVerticalAfterburnCenter = 46,
+    CeresRidleyVerticalAfterburnCenter,
     /// <summary>A rightward afterburn and its continuation chain.</summary>
-    CeresRidleyHorizontalAfterburnRight = 47,
+    CeresRidleyHorizontalAfterburnRight,
     /// <summary>A leftward afterburn and its continuation chain.</summary>
-    CeresRidleyHorizontalAfterburnLeft = 48,
+    CeresRidleyHorizontalAfterburnLeft,
     /// <summary>An upward afterburn and its continuation chain.</summary>
-    CeresRidleyVerticalAfterburnUp = 49,
+    CeresRidleyVerticalAfterburnUp,
     /// <summary>A downward afterburn and its continuation chain.</summary>
-    CeresRidleyVerticalAfterburnDown = 50,
+    CeresRidleyVerticalAfterburnDown,
     /// <summary>The light variant of Ceres falling debris.</summary>
-    CeresFallingDebrisLight = 51,
+    CeresFallingDebrisLight,
     /// <summary>The dark variant of Ceres falling debris.</summary>
-    CeresFallingDebrisDark = 52,
+    CeresFallingDebrisDark,
     /// <summary>Dust emitted during gunship liftoff.</summary>
-    GunshipLiftoffDustCloud = 53,
+    GunshipLiftoffDustCloud,
     /// <summary>Alcoon's fireball attack.</summary>
-    AlcoonFireball = 54,
+    AlcoonFireball,
     /// <summary>The spike actor emitted by Powamp.</summary>
-    PowampSpike = 55,
+    PowampSpike,
     /// <summary>A Work Robot laser directed upward and left.</summary>
-    WorkRobotLaserUpLeft = 56,
+    WorkRobotLaserUpLeft,
     /// <summary>The Work Robot's horizontal laser definition.</summary>
-    WorkRobotLaserHorizontal = 57,
+    WorkRobotLaserHorizontal,
     /// <summary>A Work Robot laser directed downward and left.</summary>
-    WorkRobotLaserDownLeft = 58,
+    WorkRobotLaserDownLeft,
     /// <summary>A Work Robot laser directed upward and right.</summary>
-    WorkRobotLaserUpRight = 59,
+    WorkRobotLaserUpRight,
     /// <summary>A Work Robot laser directed downward and right.</summary>
-    WorkRobotLaserDownRight = 60,
+    WorkRobotLaserDownRight,
     /// <summary>A falling spark actor.</summary>
-    FallingSpark = 61,
+    FallingSpark,
     /// <summary>A persistent projectile-backed Nuclear Waffle body link.</summary>
-    NuclearWaffleBody = 62,
+    NuclearWaffleBody,
     /// <summary>Fake Kraid's spit projectile.</summary>
-    FakeKraidSpit = 63,
+    FakeKraidSpit,
     /// <summary>Fake Kraid's left spike projectile.</summary>
-    FakeKraidSpikeLeft = 64,
+    FakeKraidSpikeLeft,
     /// <summary>Fake Kraid's right spike projectile.</summary>
-    FakeKraidSpikeRight = 65,
+    FakeKraidSpikeRight,
     /// <summary>The left-facing Ki-Hunter acid-spit definition.</summary>
-    KiHunterAcidSpitLeft = 66,
+    KiHunterAcidSpitLeft,
     /// <summary>The right-facing Ki-Hunter acid-spit definition.</summary>
-    KiHunterAcidSpitRight = 67,
+    KiHunterAcidSpitRight,
     /// <summary>The Space Pirate laser used in Mother Brain's room.</summary>
-    PirateMotherBrainLaser = 68,
+    PirateMotherBrainLaser,
     /// <summary>A Space Pirate claw projectile.</summary>
-    PirateClaw = 69,
+    PirateClaw,
     /// <summary>The rock actor emitted by Polyp.</summary>
-    PolypRock = 70,
+    PolypRock,
     /// <summary>A Cacatac's directional spike.</summary>
-    CacatacSpike = 71,
+    CacatacSpike,
     /// <summary>Namihe's fireball definition.</summary>
-    NamiheFireball = 73,
+    NamiheFireball,
     /// <summary>Fune's fireball definition.</summary>
-    FuneFireball = 74,
+    FuneFireball,
     /// <summary>Lava thrown by Magdollite.</summary>
-    LavaThrownByMagdollite = 75,
+    LavaThrownByMagdollite,
     /// <summary>Dragon's fireball attack.</summary>
-    DragonFireball = 76,
+    DragonFireball,
     /// <summary>The Eye Door's aimed projectile.</summary>
-    EyeDoorProjectile = 77,
+    EyeDoorProjectile,
     /// <summary>The Eye Door's sweat actor.</summary>
-    EyeDoorSweat = 78,
+    EyeDoorSweat,
     /// <summary>The room-object-spawned smoke actor used by Eye Doors.</summary>
-    EyeDoorSmoke = 79,
+    EyeDoorSmoke,
     /// <summary>A parameter-selected dust or explosion effect.</summary>
-    MiscDustExplosion = 80,
+    MiscDustExplosion,
     /// <summary>An enemy drop with its pickup animation and collection behavior.</summary>
-    EnemyDeathPickup = 81,
+    EnemyDeathPickup,
     /// <summary>An enemy-death explosion that can publish drops or rebuild an enemy slot.</summary>
-    EnemyDeathExplosion = 82,
+    EnemyDeathExplosion,
     /// <summary>A destructible bug released by Kago.</summary>
-    KagoBug = 83,
+    KagoBug,
     /// <summary>A body segment following Botwoon's stored trajectory.</summary>
-    BotwoonBody = 84,
+    BotwoonBody,
     /// <summary>Botwoon's angled spit projectile.</summary>
-    BotwoonSpit = 85,
+    BotwoonSpit,
     /// <summary>Continuous drool from low-health Bomb Torizo.</summary>
-    BombTorizoLowHealthDrool = 86,
+    BombTorizoLowHealthDrool,
     /// <summary>Bomb Torizo's initial drool actor.</summary>
-    BombTorizoInitialDrool = 87,
+    BombTorizoInitialDrool,
     /// <summary>The projectile actor for Bomb Torizo's explosive swipe.</summary>
-    BombTorizoExplosiveSwipe = 88,
+    BombTorizoExplosiveSwipe,
     /// <summary>A low-health Bomb Torizo explosion.</summary>
-    BombTorizoLowHealthExplosion = 89,
+    BombTorizoLowHealthExplosion,
     /// <summary>An explosion during Bomb Torizo's death sequence.</summary>
-    BombTorizoDeathExplosion = 90,
+    BombTorizoDeathExplosion,
     /// <summary>A fragment effect from Bomb Torizo's breaking statue.</summary>
-    BombTorizoStatueBreaking = 91,
+    BombTorizoStatueBreaking,
     /// <summary>A Chozo orb fired by Bomb Torizo.</summary>
-    BombTorizoChozoOrb = 92,
+    BombTorizoChozoOrb,
     /// <summary>Bomb Torizo's sonic-boom projectile.</summary>
-    BombTorizoSonicBoom = 93,
+    BombTorizoSonicBoom,
     /// <summary>A Chozo orb fired by Golden Torizo.</summary>
-    GoldenTorizoChozoOrb = 94,
+    GoldenTorizoChozoOrb,
     /// <summary>Golden Torizo's sonic-boom projectile.</summary>
-    GoldenTorizoSonicBoom = 95,
+    GoldenTorizoSonicBoom,
     /// <summary>Dust from Torizo's right-foot landing.</summary>
-    BombTorizoRightFootDust = 96,
+    BombTorizoRightFootDust,
     /// <summary>Dust from Torizo's left-foot landing.</summary>
-    BombTorizoLeftFootDust = 97,
+    BombTorizoLeftFootDust,
     /// <summary>Golden Torizo's egg projectile.</summary>
-    GoldenTorizoEgg = 98,
+    GoldenTorizoEgg,
     /// <summary>Golden Torizo's Super Missile projectile.</summary>
-    GoldenTorizoSuperMissile = 99,
+    GoldenTorizoSuperMissile,
     /// <summary>Golden Torizo's eye beam.</summary>
-    GoldenTorizoEyeBeam = 100,
+    GoldenTorizoEyeBeam,
     /// <summary>A water splash during the Tourian statue sequence.</summary>
-    TourianStatueSplash = 101,
+    TourianStatueSplash,
     /// <summary>A statue eye's unlocking glow.</summary>
-    TourianStatueEyeGlow = 102,
+    TourianStatueEyeGlow,
     /// <summary>An unlocking particle from a Tourian statue.</summary>
-    TourianStatueParticle = 103,
+    TourianStatueParticle,
     /// <summary>The trail behind a statue unlocking particle.</summary>
-    TourianStatueTail = 104,
+    TourianStatueTail,
     /// <summary>A soul actor in the statue-unlocking sequence.</summary>
-    TourianStatueSoul = 105,
+    TourianStatueSoul,
     /// <summary>The projectile-backed Ridley statue actor.</summary>
-    TourianStatueRidley = 106,
+    TourianStatueRidley,
     /// <summary>The projectile-backed Phantoon statue actor.</summary>
-    TourianStatuePhantoon = 107,
+    TourianStatuePhantoon,
     /// <summary>Decoration at the statue base.</summary>
-    TourianStatueBaseDecoration = 108,
+    TourianStatueBaseDecoration,
     /// <summary>A spike-clearing footstep effect.</summary>
-    WreckedShipChozoSpikeFootstep = 109,
+    WreckedShipChozoSpikeFootstep,
     /// <summary>The alternate unused spike-clearing explosion definition.</summary>
-    WreckedShipChozoSpikeFootstepAlternate = 110,
+    WreckedShipChozoSpikeFootstepAlternate,
     /// <summary>Dust emitted during the Tourian statue's descent.</summary>
-    TourianStatueDescentDust = 111,
+    TourianStatueDescentDust,
     /// <summary>The front circle of Shaktool's attack.</summary>
-    ShaktoolAttackFrontCircle = 112,
+    ShaktoolAttackFrontCircle,
     /// <summary>The middle circle of Shaktool's attack.</summary>
-    ShaktoolAttackMiddleCircle = 113,
+    ShaktoolAttackMiddleCircle,
     /// <summary>The back circle of Shaktool's attack.</summary>
-    ShaktoolAttackBackCircle = 114,
+    ShaktoolAttackBackCircle,
     /// <summary>A projectile-backed stalk segment.</summary>
-    SporeSpawnStalk = 115,
+    SporeSpawnStalk,
     /// <summary>A falling Spore Spawn spore.</summary>
-    SporeSpawnSpore = 116,
+    SporeSpawnSpore,
     /// <summary>The actor that schedules new spores.</summary>
-    SporeSpawnSpawner = 117,
+    SporeSpawnSpawner,
     /// <summary>Electricity anchored to the current save-station room object.</summary>
-    SaveStationElectricity = 118,
+    SaveStationElectricity,
     /// <summary>Gate actor spawned when a downward gate begins closing.</summary>
-    DownwardGateMoving = 119,
+    DownwardGateMoving,
     /// <summary>Gate actor parked at the bottom when a room initially loads.</summary>
-    DownwardGateClosed = 120,
+    DownwardGateClosed,
     /// <summary>The tube crack that flickers and falls during its destruction.</summary>
-    NoobTubeCrack = 121,
+    NoobTubeCrack,
     /// <summary>A flying shard from the broken Maridia tube.</summary>
-    NoobTubeShard = 122,
+    NoobTubeShard,
     /// <summary>An air bubble released by the broken Maridia tube.</summary>
-    NoobTubeReleasedAirBubble = 123,
+    NoobTubeReleasedAirBubble,
 }

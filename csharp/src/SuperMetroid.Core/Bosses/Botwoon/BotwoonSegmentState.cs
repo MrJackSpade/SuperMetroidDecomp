@@ -30,5 +30,5 @@ internal sealed class BotwoonSegmentState(BotwoonBodyAnimationSegment pose) : En
     /// The falling segment's place along the quadratic speed table: its whole rows choose the speed it falls at, and it
     /// starts at the first row and moves on each update the segment has not yet landed.
     /// </summary>
-    internal EnemyQuadraticSpeedIndex FallPlace { get; set; }
+    internal QuadraticSpeedCurvePlace FallPlace { get; set; }
 }

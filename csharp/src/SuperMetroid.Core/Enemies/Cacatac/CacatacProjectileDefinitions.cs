@@ -37,8 +37,8 @@ internal static class CacatacProjectileDefinitions
     };
 
     /// <summary>
-    /// Each spike direction's launch speeds. The initializer compares its even direction selector to 12:
-    /// directions 0..10 are cardinal, two pixels per update; 12..18 are diagonal, one and a half.
+    /// Each spike direction's launch speeds: the sideways and straight spikes are cardinal, two pixels per update, and
+    /// the four diagonal spikes move one and a half on each axis.
     /// </summary>
     internal static readonly Dictionary<CacatacSpikeDirection, CacatacSpikeSpeedPair> Speeds = new()
     {

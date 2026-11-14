@@ -33,8 +33,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
-    private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
+    /// <summary>The dust a Boulder breaks into at its terminal impact.</summary>
+    private const MiscDustAnimation BoulderDust = MiscDustAnimation.RockParticles;
 
     /// <summary>The enemy-library sound queued when a falling or rolling boulder hits terrain.</summary>
     private static readonly SoundEffectId BoulderImpactSound =
@@ -44,23 +44,23 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId BoulderBreakSound =
         EnemySoundEffectDefinitions.BoulderBreakSound;
 
-    /// <summary>Bounce-clock place the first rebound starts from: quadratic-speed record 32.</summary>
-    private static readonly EnemyQuadraticSpeedIndex FirstReboundBounceSpeed = EnemyQuadraticSpeedIndex.FromRows(32);
+    /// <summary>Bounce-clock place the first rebound starts from: mark 32 of the curve.</summary>
+    private static readonly QuadraticSpeedCurvePlace FirstReboundBounceSpeed = QuadraticSpeedCurvePlace.FromMarks(32);
 
-    /// <summary>Change in the bounce clock per falling or rebounding update: one quadratic-speed record.</summary>
-    private static readonly EnemyQuadraticSpeedIndex BounceSpeedStep = EnemyQuadraticSpeedIndex.FromRows(1);
+    /// <summary>Change in the bounce clock per falling or rebounding update: one curve mark.</summary>
+    private static readonly QuadraticSpeedCurvePlace BounceSpeedStep = QuadraticSpeedCurvePlace.OneMark;
 
-    /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: quadratic-speed record 80.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumBouncingSpeed = EnemyQuadraticSpeedIndex.FromRows(80);
+    /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: mark 80 of the curve.</summary>
+    private static readonly QuadraticSpeedCurvePlace MaximumBouncingSpeed = QuadraticSpeedCurvePlace.FromMarks(80);
 
-    /// <summary>Change in the travel clock per bouncing update, an eighth of a record.</summary>
-    private static readonly EnemyQuadraticSpeedIndex BouncingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(32);
+    /// <summary>Change in the travel clock per bouncing update, an eighth of a mark.</summary>
+    private static readonly QuadraticSpeedCurvePlace BouncingTravelSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(32);
 
-    /// <summary>Change in the travel clock per rolling update, a quarter of a record.</summary>
-    private static readonly EnemyQuadraticSpeedIndex RollingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(64);
+    /// <summary>Change in the travel clock per rolling update, a quarter of a mark.</summary>
+    private static readonly QuadraticSpeedCurvePlace RollingTravelSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(64);
 
-    /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumRollingTravelSpeed = EnemyQuadraticSpeedIndex.FromRows(64);
+    /// <summary>Largest travel clock while rolling: mark 64 of the curve.</summary>
+    private static readonly QuadraticSpeedCurvePlace MaximumRollingTravelSpeed = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>Reads both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
@@ -68,8 +68,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState();
         slot.SetSpeciesState(state);
 
-        state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
-        state.TravelSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
+        state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
+        state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.BounceCounter = 2;
         state.Action = BoulderAction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
@@ -189,12 +189,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
-        // The game subtracts one record and checks whether the result is negative, storing zero in place of a
+        // The game subtracts one mark and checks whether the result is negative, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
-        EnemyQuadraticSpeedIndex slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
+        QuadraticSpeedCurvePlace slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
         if (slowed.IsNegative)
         {
-            state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
+            state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
             state.Action = BoulderAction.Falling;
             return;
         }
@@ -207,10 +207,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             MaximumBouncingSpeed);
     }
 
-    /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while a boulder that breaks on impact breaks at the first.</summary>
+    /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
-        SignedSixteenSixteen verticalDisplacement = state.BounceSpeedAccumulator.Row.Positive;
+        SignedSixteenSixteen verticalDisplacement = state.BounceSpeedAccumulator.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -219,7 +219,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
-                    BoulderDustAnimationIndex);
+                    BoulderDust);
                 _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);
                 return;
             }
@@ -228,7 +228,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The third impact still installs the leading zero sample before the counter
             // goes below zero. Preserve that write even though this impact enters rolling.
-            state.BounceSpeedAccumulator = BoulderBounces.SpeedIndex(state.BounceCounter);
+            state.BounceSpeedAccumulator = BoulderBounces.StartingPlace(state.BounceCounter);
             if (--state.BounceCounter < 0)
             {
                 state.PreviousY = slot.Position.Y;
@@ -237,8 +237,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The falling clock is not capped: its next read selects the following quadratic record, and the table
-        // rejects record 95 before the clock could approach the limit of its range.
+        // The falling clock is not capped: its next read selects the following curve mark, and the curve
+        // rejects the place past its last mark before the clock could approach the limit of its range.
         state.BounceSpeedAccumulator += BounceSpeedStep;
         AddBoulderHorizontalVelocity(slot, state);
         state.TravelSpeedAccumulator = AddAndCap(
@@ -251,7 +251,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement =
-            state.TravelSpeedAccumulator.Row.Positive +
+            state.TravelSpeedAccumulator.Speed.Positive +
             SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation.Y);
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
@@ -266,7 +266,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,
-                BoulderDustAnimationIndex);
+                BoulderDust);
             _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);
         }
         else
@@ -288,12 +288,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
-        state.TravelSpeedAccumulator.Row.Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        state.TravelSpeedAccumulator.Speed.Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
-    /// <summary>Moves the actor vertically by a quadratic table speed toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
-    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, EnemyQuadraticSpeedIndex accumulator, VerticalDirection direction)
+    /// <summary>Moves the actor vertically by a speed of the quadratic speed curve toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
+    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)
     {
-        SignedSixteenSixteen displacement = accumulator.Row.Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen displacement = accumulator.Speed.Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(displacement));
     }
 
@@ -301,9 +301,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances an acceleration clock and caps it. The game compares the sum with the cap by whether their
     /// difference is negative; both stay within 0 through 24576 here, so that is the ordinary comparison.
     /// </summary>
-    private static EnemyQuadraticSpeedIndex AddAndCap(
-        EnemyQuadraticSpeedIndex value, EnemyQuadraticSpeedIndex increment, EnemyQuadraticSpeedIndex maximum) =>
-        EnemyQuadraticSpeedIndex.Min(value + increment, maximum);
+    private static QuadraticSpeedCurvePlace AddAndCap(
+        QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace increment, QuadraticSpeedCurvePlace maximum) =>
+        QuadraticSpeedCurvePlace.Min(value + increment, maximum);
 
     /// <summary>Advances Boulder's typed animation.</summary>
     internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

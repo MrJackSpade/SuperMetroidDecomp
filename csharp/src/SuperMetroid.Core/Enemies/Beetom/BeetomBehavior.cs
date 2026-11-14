@@ -91,9 +91,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         Action<int> setRandomNumber = _room.Random.Seed;
         setRandomNumber(23);
 
-        state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 4);
-        state.InitialLongLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(16384, 5);
-        state.InitialLungeYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 3);
+        state.InitialShortLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(12288, 4);
+        state.InitialLongLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(16384, 5);
+        state.InitialLungeYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(12288, 3);
 
         // Samus's side picks the facing: a negative Samus-minus-enemy delta
         // selects the left-facing animation; nonnegative selects the right-facing animation.
@@ -136,16 +136,16 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomCrawling(slot, state, direction: HorizontalDirection.Right);
                 return;
             case BeetomAction.StartShortHopLeft:
-                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, direction: HorizontalDirection.Left, BeetomHopLength.Short);
+                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedCurvePlace, direction: HorizontalDirection.Left, BeetomHopLength.Short);
                 return;
             case BeetomAction.StartShortHopRight:
-                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, direction: HorizontalDirection.Right, BeetomHopLength.Short);
+                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedCurvePlace, direction: HorizontalDirection.Right, BeetomHopLength.Short);
                 return;
             case BeetomAction.StartLongHopLeft:
-                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, direction: HorizontalDirection.Left, BeetomHopLength.Long);
+                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedCurvePlace, direction: HorizontalDirection.Left, BeetomHopLength.Long);
                 return;
             case BeetomAction.StartLongHopRight:
-                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, direction: HorizontalDirection.Right, BeetomHopLength.Long);
+                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedCurvePlace, direction: HorizontalDirection.Right, BeetomHopLength.Long);
                 return;
             case BeetomAction.DecideActionSamusInProximity:
                 RequireBeetomSamus(samus);
@@ -161,7 +161,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomDrop(slot, state);
                 return;
             case BeetomAction.StartBeingFlung:
-                state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
@@ -250,15 +250,15 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.CrawlingRight);
     }
 
-    /// <summary>Arms a short or long arc from its precomputed initial speed index.</summary>
+    /// <summary>Arms a short or long arc from its precomputed initial speed-curve place.</summary>
     internal static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        EnemyQuadraticSpeedIndex initialYSpeedIndex,
+        QuadraticSpeedCurvePlace initialYSpeedCurvePlace,
         HorizontalDirection direction,
         BeetomHopLength length)
     {
-        state.YSpeedCurvePlace = initialYSpeedIndex;
+        state.YSpeedCurvePlace = initialYSpeedCurvePlace;
         state.Action = new BeetomHop(direction, length) switch
         {
             (HorizontalDirection.Left, BeetomHopLength.Short) => BeetomAction.ShortHopLeft,
@@ -280,7 +280,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
         bool left = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        state.YSpeedCurvePlace = state.InitialLungeYSpeedIndex;
+        state.YSpeedCurvePlace = state.InitialLungeYSpeedCurvePlace;
         state.FacingRight = !left;
         state.Action = state.FacingRight ? BeetomAction.LungeRight : BeetomAction.LungeLeft;
         state.Falling = false;
@@ -370,7 +370,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.StartDropping;
     }
 
-    /// <summary>Advances quadratic ascent/descent indices and switches state at ceiling or ground contact.</summary>
+    /// <summary>Advances the ascent's or descent's place along the speed curve and switches state at ceiling or ground contact.</summary>
     private void RunBeetomVerticalArc(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -380,7 +380,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.Falling)
         {
-            if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Negative))
+            if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Speed.Negative))
             {
                 state.Action = BeetomAction.StartDropping;
                 return;
@@ -390,7 +390,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Speed.Positive))
         {
             state.Action = BeetomAction.DecideAction;
             return;
@@ -446,7 +446,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
     private void RunFlungBeetom(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
-        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Row.Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedCurvePlace.Speed.Positive))
             state.Action = BeetomAction.DecideAction;
         else
             state.StepFallingSpeed(1);
@@ -460,20 +460,20 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.StartDropping;
     }
 
-    /// <summary>Sums the quadratic table's coarse speeds until a jump height is reached.</summary>
-    internal static EnemyQuadraticSpeedIndex CalculateInitialBeetomYSpeedIndex(int targetHeight, int curvePlaceStep)
+    /// <summary>Sums the quadratic speed curve's coarse speeds until a jump height is reached.</summary>
+    internal static QuadraticSpeedCurvePlace CalculateInitialBeetomYSpeedCurvePlace(int targetHeight, int curvePlaceStep)
     {
-        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
+        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
         int accumulatedHeight = 0;
-        // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
-        // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
+        // Each pass moves the place on by the delta, so the height is reached within the curve's marks or never: past them
+        // reading the speed rejects the climb before the place could grow further, and a delta of zero sums the start's
         // speed of zero only (#1627).
-        for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
+        for (int iteration = 0; iteration < QuadraticSpeedCurveDefinitions.MarkCount; iteration++)
         {
-            curvePlace += EnemyQuadraticSpeedIndex.FromRows(curvePlaceStep);
-            // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
+            curvePlace += QuadraticSpeedCurvePlace.FromMarks(curvePlaceStep);
+            // The height sums each mark's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
             accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
-                curvePlace.Row.CoarseToward(EnemySpeedSign.Positive));
+                curvePlace.Speed.CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return curvePlace;
         }

@@ -42,17 +42,17 @@ public enum BeetomAction
     CrawlingLeft,
     /// <summary>Moves right one quarter pixel per frame, reversing at a wall or failed eight-pixel-ahead ledge probe.</summary>
     CrawlingRight,
-    /// <summary>Moves left one quarter pixel per frame while the quadratic vertical index decreases or increases by four.</summary>
+    /// <summary>Moves left one quarter pixel per frame while the vertical speed-curve place decreases or increases by four.</summary>
     ShortHopLeft,
-    /// <summary>Moves right one quarter pixel per frame while the quadratic vertical index decreases or increases by four.</summary>
+    /// <summary>Moves right one quarter pixel per frame while the vertical speed-curve place decreases or increases by four.</summary>
     ShortHopRight,
-    /// <summary>Moves left one quarter pixel per frame while the quadratic vertical index decreases or increases by five.</summary>
+    /// <summary>Moves left one quarter pixel per frame while the vertical speed-curve place decreases or increases by five.</summary>
     LongHopLeft,
-    /// <summary>Moves right one quarter pixel per frame while the quadratic vertical index decreases or increases by five.</summary>
+    /// <summary>Moves right one quarter pixel per frame while the vertical speed-curve place decreases or increases by five.</summary>
     LongHopRight,
-    /// <summary>Lunges left three pixels per frame with vertical-index steps of minus five rising and plus three falling.</summary>
+    /// <summary>Lunges left three pixels per frame with curve-place steps of minus five rising and plus three falling.</summary>
     LungeLeft,
-    /// <summary>Lunges right three pixels per frame with vertical-index steps of minus five rising and plus three falling.</summary>
+    /// <summary>Lunges right three pixels per frame with curve-place steps of minus five rising and plus three falling.</summary>
     LungeRight,
     /// <summary>Follows Samus until the input-change counter reaches zero, then throws the Beetom right unless blocked.</summary>
     DrainingLeft,
@@ -60,6 +60,6 @@ public enum BeetomAction
     DrainingRight,
     /// <summary>Falls straight down three pixels per frame until collision selects crawling in the stored direction.</summary>
     Dropping,
-    /// <summary>Falls with an increasing quadratic speed index while moving two pixels per frame opposite its pre-escape facing.</summary>
+    /// <summary>Falls with an increasing speed-curve place while moving two pixels per frame opposite its pre-escape facing.</summary>
     BeingFlung,
 }

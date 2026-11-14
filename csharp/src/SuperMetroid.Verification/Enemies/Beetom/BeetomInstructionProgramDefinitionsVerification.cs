@@ -58,7 +58,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
 
         foreach ((bool left, BeetomSegment hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomSegment.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomSegment.HopRight) })
         {
-            BeetomBehavior.StartBeetomHop(slot, state, EnemyQuadraticSpeedIndex.Start, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
+            BeetomBehavior.StartBeetomHop(slot, state, QuadraticSpeedCurvePlace.Start, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
             AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(hop), AnimationPlace.StartOfAnimation), state.Playback, $"{hop} is installed");
             RunBeetomCalls(processArguments, slot, 5);
             AnimationPlayback<BeetomSegment> held = state.Playback;

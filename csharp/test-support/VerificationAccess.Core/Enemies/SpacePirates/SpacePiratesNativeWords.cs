@@ -36,6 +36,13 @@ internal static class SpacePiratesNativeWords
         [WalkingSpacePirateAction.AnimationOwnedNoOperation] = 0xfe4a,
     });
 
+    /// <summary>The climb-direction word naming each <see cref="WallSpacePirateClimbDirection"/>.</summary>
+    internal static readonly NativeWordIdentities<WallSpacePirateClimbDirection> WallClimbDirections = new(new Dictionary<WallSpacePirateClimbDirection, ushort>
+    {
+        [WallSpacePirateClimbDirection.Down] = 0,
+        [WallSpacePirateClimbDirection.Up] = 1,
+    });
+
     /// <summary>The routine word naming each <see cref="WallSpacePirateAction"/>.</summary>
     internal static readonly NativeWordIdentities<WallSpacePirateAction> WallSpacePirateActions = new(new Dictionary<WallSpacePirateAction, ushort>
     {

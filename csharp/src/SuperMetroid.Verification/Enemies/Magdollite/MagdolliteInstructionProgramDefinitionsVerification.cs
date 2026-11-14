@@ -141,8 +141,10 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 initialize(member, null);
             }
 
-            RoomEnemySlot selected = enemies.SlotTable.Slots[(int)selectedPart];
-            return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[(int)selectedPart] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
+            // Each placement spawned as the part its parameter names; the selected part is the one whose state says so.
+            int position = Enumerable.Range(0, 3).Single(index => enemies.MagdolliteStates[index]?.Part == selectedPart);
+            RoomEnemySlot selected = enemies.SlotTable.Slots[position];
+            return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[position] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
         }
 
         static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteSegment program)

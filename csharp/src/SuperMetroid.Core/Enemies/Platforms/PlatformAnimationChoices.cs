@@ -4,11 +4,9 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 internal static class PlatformAnimationChoices
 {
     /// <summary>
-    /// The animation for the zero/nonzero direction branches: vertical motion selects the moving
-    /// animations, and every nonzero direction value selects the right-moving animation.
+    /// The animation for the platform's motion and direction: vertical motion selects the moving animations, horizontal
+    /// motion the still ones, each facing the way the platform moves.
     /// </summary>
     internal static PlatformSegment SelectAnimation(bool isKamer, Axis axis, PlatformHorizontalMovement direction) =>
-        // The test is zero against nonzero: any direction value other than left's moves right.
-        PlatformAnimationDefinitions.Animations[new PlatformPose(isKamer, axis,
-            direction == PlatformHorizontalMovement.Left ? PlatformHorizontalMovement.Left : PlatformHorizontalMovement.Right)];
+        PlatformAnimationDefinitions.Animations[new PlatformPose(isKamer, axis, direction)];
 }

@@ -97,7 +97,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
-        int initialYSpeed = PolypLaunches.InitialYIndex(_room.Random.Generate());
+        int initialYSpeed = PolypLaunches.InitialYMark(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Action = PolypAction.Cooldown;
@@ -134,10 +134,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Projectile frame behaviour installed on each launched rock.</summary>
     private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
         EnemyProjectileFrameBehavior.PolypRockFlight;
-    /// <summary>Each rock frame moves its place along the quadratic speed table by two rows.</summary>
-    private static readonly EnemyQuadraticSpeedIndex PolypRockGravityStep = EnemyQuadraticSpeedIndex.FromRows(2);
-    /// <summary>Falling rocks stop accelerating at row 64.</summary>
-    private static readonly EnemyQuadraticSpeedIndex PolypRockTerminalSpeedIndex = EnemyQuadraticSpeedIndex.FromRows(64);
+    /// <summary>Each rock frame moves its place along the quadratic speed curve by two marks.</summary>
+    private static readonly QuadraticSpeedCurvePlace PolypRockGravityStep = QuadraticSpeedCurvePlace.FromMarks(2);
+    /// <summary>Falling rocks stop accelerating at mark 64.</summary>
+    private static readonly QuadraticSpeedCurvePlace PolypRockTerminalCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
@@ -159,7 +159,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;
-        projectile.State = new PolypRockState(EnemyQuadraticSpeedIndex.FromRows(initialYSpeed));
+        projectile.State = new PolypRockState(QuadraticSpeedCurvePlace.FromMarks(initialYSpeed));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;
     }
@@ -190,21 +190,21 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StepRisingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
-        rock.SpeedIndex -= PolypRockGravityStep;
-        if (rock.SpeedIndex.IsNegative)
+        rock.SpeedCurvePlace -= PolypRockGravityStep;
+        if (rock.SpeedCurvePlace.IsNegative)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            rock.SpeedIndex = EnemyQuadraticSpeedIndex.Start;
+            rock.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             rock.Phase = PolypRockMovement.Falling;
             return;
         }
 
         // The rock integrates two adjacent quadratic samples per frame, first
-        // the row after its speed's and then its speed's own. This is why the speed row changes by two
+        // the mark after its speed's and then its speed's own. This is why the place moves by two marks
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + EnemyQuadraticSpeedIndex.OneRow, sign: EnemySpeedSign.Negative);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace + QuadraticSpeedCurvePlace.OneMark, sign: EnemySpeedSign.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, sign: EnemySpeedSign.Negative);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -212,26 +212,26 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StepFallingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
-        rock.SpeedIndex += PolypRockGravityStep;
-        if (rock.SpeedIndex >= PolypRockTerminalSpeedIndex)
-            rock.SpeedIndex = PolypRockTerminalSpeedIndex;
+        rock.SpeedCurvePlace += PolypRockGravityStep;
+        if (rock.SpeedCurvePlace >= PolypRockTerminalCurvePlace)
+            rock.SpeedCurvePlace = PolypRockTerminalCurvePlace;
 
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - EnemyQuadraticSpeedIndex.OneRow, sign: EnemySpeedSign.Positive);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace - QuadraticSpeedCurvePlace.OneMark, sign: EnemySpeedSign.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, sign: EnemySpeedSign.Positive);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>
-    /// Adds one quadratic row's speed in the direction <paramref name="sign"/> names, the fraction first and then the
+    /// Adds one curve mark's speed in the direction <paramref name="sign"/> names, the fraction first and then the
     /// whole pixels.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
-        EnemyQuadraticSpeedIndex speedIndex,
+        QuadraticSpeedCurvePlace place,
         EnemySpeedSign sign)
     {
         // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
-        SignedSixteenSixteen speed = speedIndex.Row.Toward(sign);
+        SignedSixteenSixteen speed = place.Speed.Toward(sign);
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 

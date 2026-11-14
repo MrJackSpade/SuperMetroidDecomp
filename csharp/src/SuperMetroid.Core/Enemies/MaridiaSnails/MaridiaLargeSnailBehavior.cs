@@ -42,12 +42,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private const int MaridiaLargeSnailInitialAttackCooldown = 128;
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const int MaridiaLargeSnailInitialBounceCount = 3;
-    /// <summary>Per-frame index change, in 256ths, in the quadratic vertical speed table.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailBounceAcceleration = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(384);
+    /// <summary>Per-frame change of the vertical place along the quadratic speed curve, in 256ths of a mark.</summary>
+    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailBounceAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
     /// <summary>Maximum falling speed-curve place before the next impact.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailMaximumFallIndex = EnemyQuadraticSpeedIndex.FromRows(64);
+    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailMaximumFallCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
     /// <summary>Speed-curve place removed at each floor impact.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailImpactIndexLoss = EnemyQuadraticSpeedIndex.FromRows(16);
+    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailImpactCurveLoss = QuadraticSpeedCurvePlace.FromMarks(16);
 
     /// <summary>Enemy-library sound queued by Oum's attack splash.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
@@ -70,7 +70,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
             Action = MaridiaLargeSnailAction.Idle,
-            YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start,
+            YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
@@ -169,7 +169,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             // No floor one pixel below means Oum walked off a ledge. Retail restarts the
             // complete three-impact settling sequence without skipping horizontal work.
-            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
             state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
         }
@@ -218,7 +218,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
-    /// <summary>Alternates quadratic-speed fall and rise phases, reducing the index after each impact.</summary>
+    /// <summary>Alternates quadratic-speed fall and rise phases, moving the place back after each impact.</summary>
     private void RunMaridiaLargeSnailBounce(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -227,23 +227,23 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BouncePhase)
         {
             case MaridiaLargeSnailBouncePhase.Falling:
-                // The record stays within 3712 256ths of a record below the start through record 64, so the game's
+                // The place stays within 3712 256ths of a mark below the start through mark 64, so the game's
                 // signed comparisons are ordinary comparisons.
-                state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(
+                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + MaridiaLargeSnailBounceAcceleration,
-                    MaridiaLargeSnailMaximumFallIndex);
+                    MaridiaLargeSnailMaximumFallCurvePlace);
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        state.YSpeedCurvePlace.Row.Positive))
+                        state.YSpeedCurvePlace.Speed.Positive))
                 {
                     return;
                 }
 
                 state.RemainingBounces--;
-                // An impact that leaves the record below zero ends the bounces; the negative record is kept.
-                state.YSpeedCurvePlace -= MaridiaLargeSnailImpactIndexLoss;
+                // An impact that leaves the place below the start ends the bounces; the negative place is kept.
+                state.YSpeedCurvePlace -= MaridiaLargeSnailImpactCurveLoss;
                 if (state.YSpeedCurvePlace.IsNegative)
                     state.RemainingBounces = 0;
                 state.BouncePhase = MaridiaLargeSnailBouncePhase.Rising;
@@ -253,17 +253,17 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.YSpeedCurvePlace -= MaridiaLargeSnailBounceAcceleration;
                 if (state.YSpeedCurvePlace.IsNegative)
                 {
-                    state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+                    state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
                     state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
                     return;
                 }
 
-                // The rising half reads the negative member of the same quadratic row. The record is not
-                // negative here, so its whole records are the row the game selects by the speed's magnitude.
+                // The rising half reads the negative member of the same curve mark. The place is not
+                // negative here, so its whole marks are the mark the game selects by the speed's magnitude.
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
-                    state.YSpeedCurvePlace.Row.Negative);
+                    state.YSpeedCurvePlace.Speed.Negative);
                 return;
 
             default:

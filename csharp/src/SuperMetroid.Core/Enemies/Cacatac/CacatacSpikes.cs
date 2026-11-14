@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal static class CacatacSpikes
 {
     /// <summary>The named animation of a spike launched in <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
     internal static CacatacProjectileSegment Animation(CacatacSpikeDirection direction) =>
         CacatacProjectileDefinitions.Animations.TryGetValue(direction, out CacatacProjectileSegment segment)
             ? segment
@@ -14,7 +14,7 @@ internal static class CacatacSpikes
     /// The launch speeds of a spike in <paramref name="direction"/>. The positive speed is the signed 1/256-pixel magnitude and
     /// the negative speed is its negation.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
     internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction) =>
         CacatacProjectileDefinitions.Speeds.TryGetValue(direction, out CacatacSpikeSpeedPair speeds)
             ? speeds
@@ -24,7 +24,7 @@ internal static class CacatacSpikes
     /// The velocity a spike launched in <paramref name="direction"/> flies at: its launch speed toward the side or sides
     /// its direction names, and none on an axis it does not move along.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
     internal static EightEightVector<RoomPixels> Velocity(CacatacSpikeDirection direction)
     {
         CacatacSpikeSpeedPair speeds = SpeedPair(direction);

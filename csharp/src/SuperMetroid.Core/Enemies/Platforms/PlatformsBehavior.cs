@@ -74,8 +74,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
-        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
-        state.MaximumYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(settings.VerticalAccelerationUpdates);
+        state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+        state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
 
     /// <summary>Runs the Tripper and Kamer's main AI.</summary>
@@ -106,7 +106,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
         // can use quadratic entry one now, then begins from entry zero on its next frame.
         if (state.YMovement != state.PreviousYMovement)
-            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.PreviousYMovement = state.YMovement;
     }
 
@@ -201,18 +201,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // from their depressed position to one pixel below their original spawn center.
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {
-            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
             return;
         }
 
         SetPlatformVerticallyMovingAnimation(slot, state);
         IncrementAndClampPlatformYSpeed(state);
-        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Row.Negative;
+        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
-        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+        state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         SetPlatformVerticallyStillAnimation(slot, state);
     }
 
@@ -239,10 +239,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
-        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Row.Positive;
+        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
-            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
         }
 
@@ -253,13 +253,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Steps the place along the quadratic speed table one row on without crossing its variant-specific cap. The place
-    /// stays within the first row through the cap (at most row 255) and one step can only reach row 256, so the game's
+    /// Steps the place along the quadratic speed curve one mark on without crossing its variant-specific cap. The place
+    /// stays within the curve's start through the cap (at most mark 255) and one step can only reach mark 256, so the game's
     /// signed comparison is an ordinary one.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
-        state.YSpeedCurvePlace += EnemyQuadraticSpeedIndex.OneRow;
+        state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
         if (state.YSpeedCurvePlace >= state.MaximumYSpeedCurvePlace)
             state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
     }

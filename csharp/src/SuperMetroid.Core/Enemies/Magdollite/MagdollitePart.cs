@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The part a Magdollite placement spawns as. Retail always allocates these
-/// records consecutively as head, rising body, then tracking overlay. The names describe
-/// ownership; they do not collapse the three listed enemies into one actor.
+/// The part a Magdollite placement spawns as. A Magdollite is always placed as a head followed by its rising body and
+/// then its tracking overlay. The names describe what each part does; they do not collapse the three placed enemies into
+/// one actor.
 /// </summary>
 public enum MagdollitePart
 {
-    /// <summary>The collision-enabled head/master that chooses facing and initiates the three-slot attack.</summary>
-    Head = 0,
-    /// <summary>The following arm/slave-1 slot, which grows and shrinks the vertical pillar.</summary>
-    RisingBody = 1,
-    /// <summary>The hand/slave-2 slot, which follows the pillar cap, animates the throw, and spawns lava projectiles.</summary>
-    TrackingOverlay = 2,
+    /// <summary>The head, the part Samus collides with, which chooses the facing and starts the three parts' attack.</summary>
+    Head,
+    /// <summary>The rising body, which grows and shrinks the lava pillar under the head.</summary>
+    RisingBody,
+    /// <summary>The tracking overlay, the hand that follows the pillar's top, animates the throw and spawns the lava projectiles.</summary>
+    TrackingOverlay,
 }

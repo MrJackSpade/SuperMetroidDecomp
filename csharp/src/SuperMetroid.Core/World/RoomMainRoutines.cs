@@ -50,9 +50,9 @@ internal sealed class RoomMainRoutines
     /// <summary>
     /// Reconstructs the one side effect still owned by the door-transition caller.
     /// Gameplay resumes immediately after loading the destination, so the arriving
-    /// downward actor can cross its pseudo-door while statuses two/three are visible to
+    /// downward actor can cross its pseudo-door while the arrival statuses are visible to
     /// main gameplay. Retain its moving movement mode, but permit its door-block handler to
-    /// publish a real transition or elevator flag only for status one; otherwise a
+    /// publish a real transition or elevator flag only while departing; otherwise a
     /// collapsed transition can immediately depart again.
     /// </summary>
     internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(

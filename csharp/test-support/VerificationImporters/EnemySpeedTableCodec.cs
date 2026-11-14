@@ -41,10 +41,10 @@ internal static class EnemySpeedTableCodec
     }
 
     /// <summary>Quadratic row <paramref name="row"/> of the table at <paramref name="table"/>.</summary>
-    public static EnemyQuadraticSpeedRow QuadraticRow(IImportCartridgeSource cartridge, int table, int row)
+    public static QuadraticCurveSpeed QuadraticRow(IImportCartridgeSource cartridge, int table, int row)
     {
         int start = table + row * RowBytes;
-        return new EnemyQuadraticSpeedRow(QuadraticSpeed(cartridge, start), QuadraticSpeed(cartridge, start + NegativeOffset));
+        return new QuadraticCurveSpeed(QuadraticSpeed(cartridge, start), QuadraticSpeed(cartridge, start + NegativeOffset));
     }
 
     /// <summary>The linear row whose speeds start <paramref name="byteOffset"/> bytes into the table, as native enemy state records it.</summary>

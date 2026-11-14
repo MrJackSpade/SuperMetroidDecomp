@@ -16,10 +16,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int ChootActivationDistance = 80;
 
     /// <summary>
-    /// How far the ascent moves back along the quadratic speed table each jumping update, two whole rows; the starting
+    /// How far the ascent moves back along the quadratic speed curve each jumping update, two whole marks; the starting
     /// place is found by moving on by the same step.
     /// </summary>
-    private static readonly EnemyQuadraticSpeedIndex ChootRowsPerUpdate = EnemyQuadraticSpeedIndex.FromRows(2);
+    private static readonly QuadraticSpeedCurvePlace ChootAscentStep = QuadraticSpeedCurvePlace.FromMarks(2);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
@@ -102,12 +102,12 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
     internal static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        // Choot applies the table's separately stored negative pair, including its fractional
+        // Choot applies the curve's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Row.Negative;
+        SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(upwardDisplacement));
 
-        state.YSpeedCurvePlace -= ChootRowsPerUpdate;
+        state.YSpeedCurvePlace -= ChootAscentStep;
         if (!state.YSpeedCurvePlace.IsNegative)
             return;
 
@@ -151,16 +151,16 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
-    /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
+    /// they cover the requested height. The curve ends at its last mark, 94, so the result is an even mark from 2 through 94.
     /// </summary>
-    private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
+    private static QuadraticSpeedCurvePlace CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
-        EnemyQuadraticSpeedIndex curvePlace = EnemyQuadraticSpeedIndex.Start;
+        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
         FixedCoordinate accumulatedDistance = default;
         for (int iteration = 0; iteration < 128; iteration++)
         {
-            curvePlace += ChootRowsPerUpdate;
-            accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Row.Positive);
+            curvePlace += ChootAscentStep;
+            accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Speed.Positive);
             int wholeDistance = accumulatedDistance.Whole;
             if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
                 return curvePlace;

@@ -77,7 +77,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     /// Fall acceleration the dying head and each falling body segment add each airborne update: three quarters of a
     /// quadratic-speed record.
     /// </summary>
-    private static readonly EnemyQuadraticSpeedIndex BotwoonDeathFallAcceleration = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(192);
+    private static readonly QuadraticSpeedCurvePlace BotwoonDeathFallAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192);
     /// <summary>Updates the wall-explosion phase lasts before the boss is removed.</summary>
     private const int BotwoonWallExplosionDuration = 192;
     /// <summary>Wall-explosion update from which the explosion timers run.</summary>
@@ -673,7 +673,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        SignedSixteenSixteen displacement = state.DeathFallAccumulator.Row.Positive;
+        SignedSixteenSixteen displacement = state.DeathFallAccumulator.Speed.Positive;
         head.Position = head.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(head.Position.Y.Whole, 200) < 0)
         {
@@ -976,7 +976,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         int randomEnemyCounter)
     {
         BotwoonSegmentState falling = segment.StateOf<BotwoonSegmentState>();
-        segment.Position = segment.Position.AdvanceY(falling.FallPlace.Row.Positive);
+        segment.Position = segment.Position.AdvanceY(falling.FallPlace.Speed.Positive);
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
             // A place past the table's last row fails when its row is read, long before the place could grow large.

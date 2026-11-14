@@ -24,11 +24,11 @@ public sealed class PlatformEnemyState
     public SignedSixteenSixteen LeftSpeed { get; internal set; }
 
     /// <summary>
-    /// Whole-row place along the shared quadratically increasing enemy speeds, from the first row to
-    /// <see cref="MaximumYSpeedCurvePlace"/>: it starts at the first row, moves on one row per accelerating update and is clamped
+    /// Whole-mark place along the shared quadratically increasing enemy speeds, from the curve's start to
+    /// <see cref="MaximumYSpeedCurvePlace"/>: it starts at the curve's start, moves on one mark per accelerating update and is clamped
     /// at the maximum, so it never leaves that range.
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
+    public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>The rider-selected vertical movement, recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement { get; internal set; }
@@ -42,8 +42,8 @@ public sealed class PlatformEnemyState
     /// <summary>Whether vertically-still art has been installed for the current vertical phase.</summary>
     public bool VerticallyStillArtInstalled { get; internal set; }
 
-    /// <summary>The inclusive cap on <see cref="YSpeedCurvePlace"/>: as many rows on as the spawn settings' vertical acceleration updates.</summary>
-    public EnemyQuadraticSpeedIndex MaximumYSpeedCurvePlace { get; internal set; }
+    /// <summary>The inclusive cap on <see cref="YSpeedCurvePlace"/>: as many marks on as the spawn settings' vertical acceleration updates.</summary>
+    public QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace { get; internal set; }
 
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>
     public PlatformVerticalMovement PreviousYMovement { get; internal set; }

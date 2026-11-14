@@ -16,4 +16,16 @@ internal static class SkreeNativeWords
         [SkreeAction.Diving] = 0xc716,
         [SkreeAction.Burrowing] = 0xc77f,
     });
+
+    /// <summary>
+    /// The animation-phase number naming each <see cref="SkreeMetareeAnimationPhase"/>, shared by Skree and Metaree: the
+    /// requested and installed phase words, and the position of each phase's animation in the two phase tables.
+    /// </summary>
+    internal static readonly NativeWordIdentities<SkreeMetareeAnimationPhase> AnimationPhases = new(new Dictionary<SkreeMetareeAnimationPhase, ushort>
+    {
+        [SkreeMetareeAnimationPhase.Idling] = 0,
+        [SkreeMetareeAnimationPhase.PreparingAttack] = 1,
+        [SkreeMetareeAnimationPhase.Diving] = 2,
+        [SkreeMetareeAnimationPhase.StopAnimating] = 3,
+    });
 }

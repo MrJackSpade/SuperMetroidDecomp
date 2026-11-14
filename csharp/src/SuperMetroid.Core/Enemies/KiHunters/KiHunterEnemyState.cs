@@ -24,11 +24,11 @@ public sealed class KiHunterEnemyState
     }
 
     /// <summary>
-    /// A detached wing's place along the shared quadratic speed table: reset to <see cref="DetachedSpeedReset"/> at each
-    /// arc and lowered by a record and a half per update, landing on record one when the step would go below the start,
-    /// so it stays within the table.
+    /// A detached wing's place along the shared quadratic speed curve: reset to <see cref="DetachedSpeedReset"/> at each
+    /// arc and lowered by a mark and a half per update, landing on mark one when the step would go below the start,
+    /// so it stays on the curve.
     /// </summary>
-    public EnemyQuadraticSpeedIndex DetachedSpeedIndex { get; internal set; }
+    public QuadraticSpeedCurvePlace DetachedSpeedCurvePlace { get; internal set; }
 
     /// <summary>
     /// A body's swoop origin: its room position when the swoop begins, from which the dive's ellipse hangs. Only the Y
@@ -65,7 +65,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>
     /// A detached wing's arc angle, which wraps over the whole turn: seeded below zero for each arc and advanced by an
-    /// unaligned quadratic-table read. The arc changes when the angle crosses a quarter turn.
+    /// unaligned quadratic speed curve read. The arc changes when the angle crosses a quarter turn.
     /// </summary>
     public RotationAngle WingArcAngle { get; internal set; }
 
@@ -84,10 +84,10 @@ public sealed class KiHunterEnemyState
     /// <summary>A body's upper patrol boundary, sixteen pixels above its spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }
     /// <summary>
-    /// A detached wing's speed-index reset, computed at detachment by stepping a record and a half at a time until the
-    /// quadratic speed sum reaches its threshold, and reapplied at each arc change; within the table.
+    /// A detached wing's reset place along the speed curve, computed at detachment by stepping a mark and a half at a time until the
+    /// quadratic speed sum reaches its threshold, and reapplied at each arc change; on the curve.
     /// </summary>
-    public EnemyQuadraticSpeedIndex DetachedSpeedReset { get; internal set; }
+    public QuadraticSpeedCurvePlace DetachedSpeedReset { get; internal set; }
     /// <summary>
     /// A body's lower patrol boundary, sixteen pixels below its spawn Y; wing detachment reads the wing's own boundary,
     /// which its initializer never sets. Only the Y axis is stored and meaningful.
@@ -114,6 +114,6 @@ public sealed class KiHunterEnemyState
     /// <summary>The body's wingless latch, set by a wingless spawn or by health reaching the following wings' detach health.</summary>
     public bool HasLostWings { get; internal set; }
 
-    /// <summary>Adds one quadratic-table speed to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's counter does.</summary>
+    /// <summary>Adds one speed of the quadratic speed curve to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's counter does.</summary>
     internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddCount(DetachedSpeedAccumulator, step);
 }

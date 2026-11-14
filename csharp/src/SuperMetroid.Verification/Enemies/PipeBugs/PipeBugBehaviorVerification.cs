@@ -94,14 +94,14 @@ internal static class PipeBugBehaviorVerification
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Action = PipeBugAction.YellowArcRight;
             state.ArcRising = true;
-            state.ArcCounter = EnemyQuadraticSpeedIndex.FromRows(1);
+            state.ArcCounter = QuadraticSpeedCurvePlace.FromMarks(1);
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
                 enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
                 AssertEqual(FixedCoordinate.FromRaw(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
-                AssertEqual(EnemyQuadraticSpeedIndex.FromRows(expected[update].Counter), state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
+                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)
                     AssertEqual(expected[update].Rising, state.ArcRising, $"yellow Pipe Bug arc phase after update {update}");
             }

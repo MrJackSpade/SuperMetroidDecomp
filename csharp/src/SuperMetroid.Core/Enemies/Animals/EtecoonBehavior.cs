@@ -563,8 +563,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool fewerThanFourTeachingJumps = state.TeachingHops < EtecoonEnemyState.TeachingHopsPerLesson;
         if (!fewerThanFourTeachingJumps)
         {
-            // The route counter is cleared once complete before testing route two.
-            // Route two therefore loops in groups of four rather than overflowing forever.
+            // The hop count is cleared once complete before testing for the teach-at-once route,
+            // which therefore loops in groups of four rather than counting on forever.
             state.TeachingHops = 0;
         }
         if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)

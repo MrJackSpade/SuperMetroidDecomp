@@ -20,10 +20,10 @@ internal static class PlatformOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Tripper, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Tripper, (ushort)PlatformHorizontalMovement.Left);
         const int speedRecord = 5;
         const int accelerationCap = 3;
         slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
+        slot.SetSpawnSettings(slot.SpawnSettings<PlatformSpawnSettings>() with { Movement = PlatformHorizontalMovement.Left });
         slot.Position = slot.Position.WithWholeY(ushort.MaxValue);
         PlatformsBehavior.InitializePlatform(slot);
         PlatformEnemyState state = enemies.PlatformStates[0]
@@ -33,13 +33,13 @@ internal static class PlatformOwnedStateVerification
         AssertEqual(speeds.Positive, state.RightSpeed, "rightward speed is the row's positive speed");
         AssertEqual(speeds.Negative, state.LeftSpeed, "leftward speed is the row's negative speed");
         AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");
-        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(accelerationCap), state.MaximumYSpeedCurvePlace, "the acceleration cap is parameter two's high byte");
+        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(accelerationCap), state.MaximumYSpeedCurvePlace, "the acceleration cap is parameter two's high byte");
 
         int[] expectedIndexes = [1, 2, 3, 3, 3];
         foreach (int expected in expectedIndexes)
         {
             PlatformsBehavior.IncrementAndClampPlatformYSpeed(state);
-            AssertEqual(EnemyQuadraticSpeedIndex.FromRows(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
+            AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
         }
         Console.WriteLine("Platform owned state: speeds, wrapped resting height and clamped acceleration match.");
     }

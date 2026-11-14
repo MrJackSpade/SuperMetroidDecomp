@@ -1,16 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The way a Cacatac starts. The idle animation treats either nonzero
-/// value as right, but the initializer's three-entry table distinguishes the shipped
-/// value two as an initial stop.
+/// The way a Cacatac starts. The restore-patrol cue that begins its idle animation sends every direction but left to the
+/// right, so a Cacatac placed to stop at first patrols right from its first idle step.
 /// </summary>
 public enum CacatacDirection
 {
-    /// <summary>Population and direction value zero: leftward patrol, restored by the restore-patrol animation cue after an attack.</summary>
-    Left = 0,
-    /// <summary>Population and direction value one: rightward patrol; the restore cue also treats the separate initial stop as rightward.</summary>
-    Right = 1,
-    /// <summary>The population's initial stop. It stays until an attack; the restore cue then treats it as rightward.</summary>
-    InitialStop = 2,
+    /// <summary>Patrols left, and returns to patrolling left whenever the restore-patrol cue runs, as after an attack.</summary>
+    Left,
+    /// <summary>Patrols right, and returns to patrolling right whenever the restore-patrol cue runs, as after an attack.</summary>
+    Right,
+    /// <summary>Placed to stop at first: it stands still until the restore-patrol cue sends it right.</summary>
+    InitialStop,
 }

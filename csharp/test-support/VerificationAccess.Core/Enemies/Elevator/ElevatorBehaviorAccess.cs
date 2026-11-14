@@ -7,16 +7,14 @@ internal static class ElevatorBehaviorAccess
     extension(ElevatorBehavior self)
     {
         /// <summary>
-        /// Debugger/test seam for the already-public runtime WRAM word. Production changes are
-        /// still made by collision, actor AI, and room loading rather than arbitrary callers.
+        /// Debugger/test seam that puts the ride in <paramref name="status"/>; ending the ride also clears its journey
+        /// flags. Production changes are still made by collision, actor AI, and room loading rather than arbitrary callers.
         /// </summary>
-        public void SetElevatorStatusForDebugging(ushort status)
+        public void SetElevatorStatusForDebugging(ElevatorActorStatus status)
         {
-            if (status > (ushort)ElevatorActorStatus.ReturningToRest)
-                throw new ArgumentOutOfRangeException(nameof(status));
-            self.ElevatorStatus = (ElevatorActorStatus)status;
+            self.ElevatorStatus = status;
             if (self.ElevatorStatus == ElevatorActorStatus.Inactive)
-                self.ElevatorFlags = 0;
+                self.ElevatorFlags = ElevatorJourneyFlag.None;
         }
     }
 }

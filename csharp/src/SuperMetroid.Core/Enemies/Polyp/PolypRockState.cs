@@ -4,17 +4,17 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
 /// What a Polyp's rock keeps: whether it is still rising or has passed the top of its arc, and where on the shared
-/// quadratic speed table its vertical speed stands.
+/// quadratic speed curve its vertical speed stands.
 /// </summary>
-/// <param name="speedIndex">The rock's starting vertical speed, as a position on the quadratic speed table.</param>
-internal sealed class PolypRockState(EnemyQuadraticSpeedIndex speedIndex) : EnemyProjectileState
+/// <param name="speedCurvePlace">The rock's starting vertical speed, as a place on the quadratic speed curve.</param>
+internal sealed class PolypRockState(QuadraticSpeedCurvePlace speedCurvePlace) : EnemyProjectileState
 {
     /// <summary>The part of its arc the rock is in; it starts rising.</summary>
     internal PolypRockMovement Phase { get; set; } = PolypRockMovement.Rising;
 
     /// <summary>
-    /// The rock's vertical speed as a whole-row place on the quadratic speed table: it moves back two rows each update
-    /// while the rock rises and on two rows, up to a cap, while it falls.
+    /// The rock's vertical speed as a whole-mark place on the quadratic speed curve: it moves back two marks each update
+    /// while the rock rises and on two marks, up to a cap, while it falls.
     /// </summary>
-    internal EnemyQuadraticSpeedIndex SpeedIndex { get; set; } = speedIndex;
+    internal QuadraticSpeedCurvePlace SpeedCurvePlace { get; set; } = speedCurvePlace;
 }

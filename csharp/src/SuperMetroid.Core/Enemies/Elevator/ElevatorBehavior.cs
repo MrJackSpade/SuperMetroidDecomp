@@ -102,7 +102,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
-    /// actor's initializer recognizes status two and starts at its arrival height.
+    /// elevator's initializer recognizes the beginning of an arrival and starts at its arrival height.
     /// </summary>
     public void PrepareElevatorArrival(ElevatorJourneyFlag doorFlags = ElevatorJourneyFlag.DoorLoad)
     {
@@ -134,8 +134,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             ElevatorStatus = ElevatorActorStatus.Inactive;
         }
 
-        // The 32-bit OR test is true for status two even if a malformed caller lost
-        // the door flag. Preserve that behavior and reject only the impossible missing Samus.
+        // The game treats a ride as arriving when either its status or its journey flags are set, so a beginning
+        // arrival counts even if a malformed caller lost the door flag. Preserve that behavior and reject only the
+        // impossible missing Samus.
         if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != ElevatorJourneyFlag.None)
         {
             if (samus is null)

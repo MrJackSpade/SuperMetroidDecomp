@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 public enum PlatformHorizontalMovement
 {
     /// <summary>Moves left (negative X); a wall collision switches to right and installs right-facing artwork.</summary>
-    Left = 0,
+    Left,
     /// <summary>Moves right (positive X); a wall collision switches to left and installs left-facing artwork.</summary>
-    Right = 1,
+    Right,
 }

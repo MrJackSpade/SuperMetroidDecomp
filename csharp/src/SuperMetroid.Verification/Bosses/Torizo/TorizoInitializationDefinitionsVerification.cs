@@ -55,8 +55,8 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
                 TorizoEnemyState started = enemies.BombTorizoBehavior.Access.TorizoState
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
-                AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.SegmentOf(started.BodyPlayback)), "Real Torizo initial program selection");
-                AssertEqual(TorizoAnimations.Start(TorizoAnimations.SegmentOf(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
+                AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
+                AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
                 EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);
                 AssertEqual(initialized.Contact, actor.Contact, "All population contact preserved by native OR");
                 AssertEqual(initialized.Processing, actor.Processing, "All population processing preserved by native OR");

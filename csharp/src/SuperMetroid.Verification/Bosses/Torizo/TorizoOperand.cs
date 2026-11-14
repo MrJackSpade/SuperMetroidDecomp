@@ -13,4 +13,6 @@ internal enum TorizoOperand
     Target,
     /// <summary>A second list pointer: the cue's alternate program.</summary>
     Alternate,
+    /// <summary>A list pointer: the list a replay cue's run of steps begins at, which it plays again (#1788).</summary>
+    ReplayedRun,
 }

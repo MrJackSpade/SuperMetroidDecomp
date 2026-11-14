@@ -119,7 +119,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.Playing(state.BodyPlayback))));
                 return;
 
             case TorizoPhase.Active:
@@ -131,7 +131,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
                 {
-                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
+                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.Playing(state.BodyPlayback))));
                 }
                 return;
 
@@ -225,7 +225,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!torizo.AnimationClock.Expire())
             return;
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
-        AnimationPlayback<TorizoBodySegment> playback = state.BodyPlayback;
+        AnimationPlayback<TorizoAnimation> playback = state.BodyPlayback;
         // The death and wake repeats count the body's frame timer, as the animations' counted loops do.
         EnemyAnimationPlayback.Play(torizo, TorizoAnimations.Segments, ref playback,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
@@ -245,12 +245,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// cue: the return point a call saves. <see cref="TorizoCueInputs.FrameCounter"/> is the frame
     /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
-    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
+    internal AnimationContinuation<TorizoAnimation>? ApplyTorizoCue(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         TorizoCueInputs inputs,
         TorizoCue cue,
-        AnimationPlayback<TorizoBodySegment> continuation)
+        AnimationPlayback<TorizoAnimation> continuation)
     {
         switch (cue)
         {
@@ -392,13 +392,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodySegment.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodySegment.FacingRightTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodySegment.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodySegment.FacingRightFacelessTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfRising } branch:
-                return state.Velocity.Y.IsNegative ? TorizoAnimations.ContinueWith(branch.Target) : null;
+            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
+                return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.CallIfSamusCloseBehind } branch:
                 return Choices.SelectBombTorizoCloseBehindBranch(
@@ -451,8 +451,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayTorizoSound(EnemySound.ChozoFootsteps);
                 return null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfAirborne } branch:
-                return torizo.Position.Y.Whole == 375 ? null : TorizoAnimations.ContinueWith(branch.Target);
+            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileAirborne }:
+                return torizo.Position.Y.Whole == 375 ? null : TorizoAnimations.ReplayPhase(continuation);
 
             case TorizoCue.Signal { Kind: TorizoCueKind.LoadGoldenTorizoPalettes }:
                 SetTorizoPaletteTarget(state, TorizoLookKind.Golden);
@@ -472,10 +472,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnGoldenTorizoEgg(torizo);
                 return null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfEyeBeamActive } branch:
+            case TorizoCue.Replay { Kind: TorizoReplayKind.WhileEggsRemain }:
                 return _projectiles.EnemyProjectiles.Any(projectile =>
                         projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
-                    ? TorizoAnimations.ContinueWith(branch.Target)
+                    ? TorizoAnimations.ReplayPhase(continuation)
                     : null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:

@@ -255,22 +255,22 @@ internal static class EnemySheetOwnFramesVerification
     /// </summary>
     private static EnemySheetOwnFrameFamily TorizosFamily()
     {
-        TorizoBodySegment bomb = TorizoInitializationDefinitions.Bomb.Animation;
-        TorizoBodySegment golden = TorizoInitializationDefinitions.Golden.Animation;
-        TorizoBodySegment[] bombStarts =
+        TorizoAnimation bomb = TorizoInitializationDefinitions.Bomb.Animation;
+        TorizoAnimation golden = TorizoInitializationDefinitions.Golden.Animation;
+        TorizoAnimation[] bombStarts =
         [
-            bomb, TorizoAnimations.AfterSleep(bomb), TorizoBodySegment.SpecialCallableBlowUpBombTorizosGut, TorizoBodySegment.CallableBlowUpBombTorizosFace,
-            TorizoBodySegment.FacingLeftFacelessTurningLeft, TorizoBodySegment.FacingRightFacelessTurningRight, TorizoBodySegment.FacingLeftTurningLeft,
-            TorizoBodySegment.FacingRightTurningRight, TorizoBodySegment.FacingLeftFalling0, TorizoBodySegment.FacingRightFalling0,
-            TorizoBodySegment.DeathSequence0,
+            bomb, TorizoAnimations.AfterSleep(bomb), TorizoAnimation.BombTorizoGutBlowingUp, TorizoAnimation.BombTorizoFaceBlowingUp,
+            TorizoAnimation.FacelessTurningLeft, TorizoAnimation.FacelessTurningRight, TorizoAnimation.TurningLeft,
+            TorizoAnimation.TurningRight, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,
+            TorizoAnimation.Dying,
         ];
-        TorizoBodySegment[] goldenStarts =
+        TorizoAnimation[] goldenStarts =
         [
-            golden, TorizoAnimations.AfterSleep(golden), TorizoBodySegment.GoldenTurningLeft, TorizoBodySegment.GoldenTurningRight,
-            TorizoBodySegment.GoldenDodgeTurningLeft, TorizoBodySegment.GoldenDodgeTurningRight, TorizoBodySegment.GoldenCaughtSuperFacingLeftLeftLegFwd,
-            TorizoBodySegment.GoldenCaughtSuperFacingLeftRightLegFwd, TorizoBodySegment.GoldenCaughtSuperFacingRightLeftLegFwd,
-            TorizoBodySegment.GoldenCaughtSuperFacingRightRightLegFwd, TorizoBodySegment.FacingLeftFalling0, TorizoBodySegment.FacingRightFalling0,
-            TorizoBodySegment.DeathSequence0,
+            golden, TorizoAnimations.AfterSleep(golden), TorizoAnimation.GoldenTurningLeft, TorizoAnimation.GoldenTurningRight,
+            TorizoAnimation.GoldenDodgeTurningLeft, TorizoAnimation.GoldenDodgeTurningRight, TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward,
+            TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward, TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward,
+            TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,
+            TorizoAnimation.Dying,
         ];
         return new("Torizo", TorizoAnimations.Segments.Frames.ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
@@ -280,8 +280,8 @@ internal static class EnemySheetOwnFramesVerification
             });
     }
 
-    /// <summary>The body programs a Torizo cue branches, calls or links to.</summary>
-    private static IEnumerable<TorizoBodySegment> TorizoCueTargets(TorizoCue cue) => cue switch
+    /// <summary>The body animations a Torizo cue branches, calls or links to.</summary>
+    private static IEnumerable<TorizoAnimation> TorizoCueTargets(TorizoCue cue) => cue switch
     {
         TorizoCue.Branch branch => [branch.Target],
         TorizoCue.Choice choice => [choice.Target, choice.Alternate],

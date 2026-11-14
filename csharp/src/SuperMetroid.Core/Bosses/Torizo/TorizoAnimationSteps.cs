@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The beats Torizo's body segments are written in.</summary>
+/// <summary>The steps Torizo's body animations are written in.</summary>
 internal static class TorizoAnimationSteps
 {
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

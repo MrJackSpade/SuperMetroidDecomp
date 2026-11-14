@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame animations (#641), in authored order.</summary>
+/// <summary>Phantoon's typed flame animations (#641, #1788): one for each animation a flame's spawn or reaction starts, in authored order.</summary>
 internal enum PhantoonFlameSegment
 {
     /// <summary>The destroyable flame's three-pose idle loop.</summary>
@@ -15,18 +15,8 @@ internal enum PhantoonFlameSegment
     Dying,
     /// <summary>A rain flame's impact pose, then <see cref="Dying"/>.</summary>
     RainImpact,
-    /// <summary>A casual flame's first falling phase: loads the repeat counter.</summary>
-    CasualFalling0,
-    /// <summary>The first falling phase's two poses, repeated while counting.</summary>
-    CasualFalling0Loop,
-    /// <summary>The second falling phase: loads the repeat counter.</summary>
-    CasualFalling1,
-    /// <summary>The second falling phase's two poses, repeated while counting.</summary>
-    CasualFalling1Loop,
-    /// <summary>The third falling phase: loads the repeat counter.</summary>
-    CasualFalling2,
-    /// <summary>The third falling phase's two poses, repeated while counting, then the first phase again.</summary>
-    CasualFalling2Loop,
+    /// <summary>A casual flame's fall: each of its three falling phases' two poses four times, the phases in turn for good.</summary>
+    CasualFalling,
     /// <summary>A starting flame's three-pose loop.</summary>
     StartingFlame,
     /// <summary>Deletes the flame.</summary>

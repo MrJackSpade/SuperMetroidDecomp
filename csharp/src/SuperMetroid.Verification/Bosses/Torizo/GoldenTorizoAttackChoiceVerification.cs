@@ -31,15 +31,15 @@ internal static class GoldenTorizoAttackChoiceVerification
         samus.Missiles = 187;
         TorizoEnemyState state = runtime.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo
             ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
-        state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.ProgramAt(landedFacingLeft)
-            ?? throw new InvalidOperationException("No Torizo program starts at the landing list."));
+        state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.AnimationAt(landedFacingLeft)
+            ?? throw new InvalidOperationException("No Torizo animation starts at the landing list."));
         torizo.AnimationClock.StepOnNextUpdate();
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = 0x2d, FrameCounter = 0xefd8 });
-        TorizoBodySegment runningSegment = TorizoAnimations.SegmentOf(state.BodyPlayback);
-        ushort running = TorizoNativeListAddresses.Entry(runningSegment);
+        TorizoAnimation runningAnimation = TorizoAnimations.Playing(state.BodyPlayback);
+        ushort running = TorizoNativeListAddresses.Entry(runningAnimation);
         AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +
-            $"segment {runningSegment} at ${running:X4}");
+            $"animation {runningAnimation} at ${running:X4}");
         Console.WriteLine("Golden Torizo attack choice: the landing chooser adds NMI_FrameCounter, not the 8-bit counter.");
     }
 

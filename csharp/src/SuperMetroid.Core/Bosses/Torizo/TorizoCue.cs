@@ -10,14 +10,21 @@ internal abstract record TorizoCue
 
     /// <summary>A branch, call or link to another body animation.</summary>
     /// <param name="Kind">What the branch tests or does.</param>
-    /// <param name="Target">The segment a branch, call or link cue continues at or saves.</param>
-    internal sealed record Branch(TorizoBranchKind Kind, TorizoBodySegment Target) : TorizoCue;
+    /// <param name="Target">The animation a branch or call continues in from its start, or a link saves as the return point.</param>
+    internal sealed record Branch(TorizoBranchKind Kind, TorizoAnimation Target) : TorizoCue;
 
     /// <summary>A two-way branch or call between two body animations.</summary>
     /// <param name="Kind">What the choice tests.</param>
-    /// <param name="Target">The segment a branch, call or link cue continues at or saves.</param>
-    /// <param name="Alternate">The segment a two-way branch or call continues at otherwise.</param>
-    internal sealed record Choice(TorizoChoiceKind Kind, TorizoBodySegment Target, TorizoBodySegment Alternate) : TorizoCue;
+    /// <param name="Target">The animation the choice continues in from its start when its test passes.</param>
+    /// <param name="Alternate">The animation a two-way branch or call continues in otherwise.</param>
+    internal sealed record Choice(TorizoChoiceKind Kind, TorizoAnimation Target, TorizoAnimation Alternate) : TorizoCue;
+
+    /// <summary>
+    /// Plays the run of steps the cue is in again, from that run's first step, while its condition holds (#1788): a jump's
+    /// rising pose while it rises, Golden Torizo's drop while it is airborne, its open chest while its eggs remain.
+    /// </summary>
+    /// <param name="Kind">The condition the replay tests.</param>
+    internal sealed record Replay(TorizoReplayKind Kind) : TorizoCue;
 
     /// <summary>Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
     /// <param name="Kind">Which way the posture changes.</param>

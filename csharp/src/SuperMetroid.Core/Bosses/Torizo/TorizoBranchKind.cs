@@ -5,16 +5,10 @@ internal enum TorizoBranchKind
 {
     /// <summary>Saves the target as the return point.</summary>
     Link,
-    /// <summary>Continues at the target while rising.</summary>
-    GoToIfRising,
     /// <summary>Calls the target when Samus is close behind.</summary>
     CallIfSamusCloseBehind,
     /// <summary>Jumps back to the target when Samus is close in front.</summary>
     JumpBackIfSamusCloseInFront,
-    /// <summary>Continues at the target until the body reaches the ground.</summary>
-    GoToIfAirborne,
-    /// <summary>Continues at the target while an eye beam is active.</summary>
-    GoToIfEyeBeamActive,
     /// <summary>Continues at the target when Samus is morphed behind the body.</summary>
     GoToIfSamusMorphedBehind,
     /// <summary>Calls the target, at random, when Samus is morphed in front.</summary>

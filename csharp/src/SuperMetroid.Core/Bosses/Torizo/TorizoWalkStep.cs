@@ -7,8 +7,8 @@ internal sealed record TorizoWalkStep
     public required int Step { get; init; }
 
     /// <summary>The animation a wall collision turns into while facing right.</summary>
-    public required TorizoBodySegment CollisionFacingRight { get; init; }
+    public required TorizoAnimation CollisionFacingRight { get; init; }
 
     /// <summary>The animation a wall collision turns into while facing left.</summary>
-    public required TorizoBodySegment CollisionFacingLeft { get; init; }
+    public required TorizoAnimation CollisionFacingLeft { get; init; }
 }

@@ -10,11 +10,11 @@ internal static class TorizoInitializationDefinitions
     /// First entries select Bomb Torizo, including its first initial body animation.
     /// The processing flags are added to the population's existing processing.
     /// </summary>
-    internal static TorizoInitializationDefinition Bomb => new(new(219, 179), TorizoBodySegment.BombTorizoInitial0, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 48));
+    internal static TorizoInitializationDefinition Bomb => new(new(219, 179), TorizoAnimation.BombTorizoDormant, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 48));
 
     /// <summary>
     /// The second initialization entries select Golden Torizo, including
     /// its first initial body animation. Its shorter Y radius is authored data.
     /// </summary>
-    internal static TorizoInitializationDefinition Golden => new(new(424, 144), TorizoBodySegment.GoldenInitial0, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 41));
+    internal static TorizoInitializationDefinition Golden => new(new(424, 144), TorizoAnimation.GoldenTorizoDormant, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 41));
 }

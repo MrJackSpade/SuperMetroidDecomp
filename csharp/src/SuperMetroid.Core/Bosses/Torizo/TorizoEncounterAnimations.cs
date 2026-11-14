@@ -1,19 +1,20 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
+using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
+using S = SuperMetroid.Core.Bosses.Torizo.TorizoSharedSteps;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The encounter animations both Torizos share: the gut and face blow-ups, the death sequence and the opening.</summary>
+/// <summary>The encounter animations both Torizos share: the gut and face blow-ups, the death, the stun and the Bomb Torizo's wake.</summary>
 internal static class TorizoEncounterAnimations
 {
-    /// <summary>Each segment and its beats.</summary>
-    internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
+    /// <summary>Each animation's steps, in the order it plays them.</summary>
+    internal static Dictionary<TorizoAnimation, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
     {
-        [P.SpecialCallableBlowUpBombTorizosGut] =
+        [A.BombTorizoGutBlowingUp] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
@@ -28,7 +29,7 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.ResumeInterrupted)),
         ],
-        [P.CallableBlowUpBombTorizosFace] =
+        [A.BombTorizoFaceBlowingUp] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
@@ -49,20 +50,14 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
-        [P.DeathSequence0] =
+        [A.Dying] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
-        ],
-        [P.DeathSequence1] =
-        [
             Cue(new TorizoCue.Signal(K.SpawnDeathExplosion)),
             Wait(1),
             Wait(6),
             Cue(new TorizoCue.Signal(K.FadeToBlack)),
-        ],
-        [P.DeathSequence2] =
-        [
             Cue(new TorizoCue.Signal(K.SpawnDeathExplosion)),
             Wait(1),
             Cue(new TorizoCue.Signal(K.MakeVisible)),
@@ -87,14 +82,14 @@ internal static class TorizoEncounterAnimations
             Wait(64),
             Cue(new TorizoCue.Signal(K.FinishDeath)),
         ],
-        [P.BombTorizoInitial0] =
+        [A.BombTorizoDormant] =
         [
             Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Show(EnemyFrameId.BombTorizoDormant, 1),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.WaitForHandTrigger)),
         ],
-        [P.BombTorizoInitial0Resumed] =
+        [A.BombTorizoAwakening] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 48),
@@ -106,9 +101,6 @@ internal static class TorizoEncounterAnimations
             Show(EnemyFrameId.TorizoFacingLeftSeated, 8),
             ShowArtwork(L.EyesLightingUp4),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
-        ],
-        [P.BombTorizoInitial1] =
-        [
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
             ShowArtwork(L.EyesLightingAgain1),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
@@ -130,24 +122,20 @@ internal static class TorizoEncounterAnimations
             Show(EnemyFrameId.TorizoFacingLeftStandingUpFifth, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 5)),
             Cue(new TorizoCue.Signal(K.FadeToNormalColors)),
-        ],
-        [P.BombTorizoInitial2] =
-        [
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 4),
             Cue(new TorizoCue.Signal(K.AdvanceColourFade)),
             Cue(new TorizoCue.Signal(K.NoOperation)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.StartBombTorizoFight)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 16),
+            .. S.FacingLeftLeftLegStep,
+            .. S.FacingLeftRightLegStep,
         ],
-        [P.Stunned0] =
+        [A.Stunned] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Wait(24),
-        ],
-        [P.Stunned1] =
-        [
             Wait(3),
             ShowArtwork(L.EyesLightingAfterStun1),
             Wait(3),

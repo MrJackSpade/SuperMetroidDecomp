@@ -307,27 +307,26 @@ internal sealed record PartFrameConfiguration(
                 ["RobotNoPower"] = ["NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Each Torizo starts in its initial program and resumes after its sleep; its AI, shot reactions and falls start
-        // the rest. Bomb Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo
-        // turns, dodges and catches Super Missiles; both fall and die. Every branch and choice a program names is followed,
-        // so Golden Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's programs show.
-        // Bomb Torizo's faceless trailing step, which only the sleep's resumption names, is its own.
+        // Each Torizo starts dormant and wakes after its sleep; its AI, shot reactions and falls start the rest. Bomb
+        // Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo turns, dodges and
+        // catches Super Missiles; both fall and die. Every branch and choice an animation names is followed, so Golden
+        // Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's animations show. The facing-right
+        // dormant Bomb Torizo, which only its wake names, is Bomb Torizo's own.
         new("BombTorizoBehavior", null, null, "TorizoAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["BombTorizo"] =
                 [
-                    "BombTorizoInitial0", "BombTorizoInitial0Resumed", "FacingLeftFacelessWalkingLeftLegMovingTrailing",
-                    "FacingLeftFacelessWalkingLeftLegMovingTrailingResumed", "SpecialCallableBlowUpBombTorizosGut",
-                    "CallableBlowUpBombTorizosFace", "FacingLeftFacelessTurningLeft", "FacingRightFacelessTurningRight",
-                    "FacingLeftTurningLeft", "FacingRightTurningRight", "FacingLeftFalling0", "FacingRightFalling0", "DeathSequence0",
+                    "BombTorizoDormant", "BombTorizoAwakening", "BombTorizoDormantFacingRight", "BombTorizoAwakeningFacingRight",
+                    "BombTorizoGutBlowingUp", "BombTorizoFaceBlowingUp", "FacelessTurningLeft", "FacelessTurningRight",
+                    "TurningLeft", "TurningRight", "FacingLeftFalling", "FacingRightFalling", "Dying",
                 ],
                 ["GoldenTorizo"] =
                 [
-                    "GoldenInitial0", "GoldenInitial0Resumed", "GoldenTurningLeft", "GoldenTurningRight", "GoldenDodgeTurningLeft",
-                    "GoldenDodgeTurningRight", "GoldenCaughtSuperFacingLeftLeftLegFwd", "GoldenCaughtSuperFacingLeftRightLegFwd",
-                    "GoldenCaughtSuperFacingRightLeftLegFwd", "GoldenCaughtSuperFacingRightRightLegFwd", "FacingLeftFalling0",
-                    "FacingRightFalling0", "DeathSequence0",
+                    "GoldenTorizoDormant", "GoldenTorizoAwakening", "GoldenTurningLeft", "GoldenTurningRight", "GoldenDodgeTurningLeft",
+                    "GoldenDodgeTurningRight", "GoldenFacingLeftCatchingSuperMissileLeftLegForward",
+                    "GoldenFacingLeftCatchingSuperMissileRightLegForward", "GoldenFacingRightCatchingSuperMissileLeftLegForward",
+                    "GoldenFacingRightCatchingSuperMissileRightLegForward", "FacingLeftFalling", "FacingRightFalling", "Dying",
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
@@ -669,9 +668,56 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         return (programs, programType);
     }
 
-    /// <summary>The initializer of the configured <c>Segments</c>, followed by those of the tables it spreads in.</summary>
-    private List<ExpressionSyntax> SegmentInitializers() =>
-        model.InitializersWithSpreads(model.Member(configuration.AnimationsType!, "Segments"));
+    /// <summary>
+    /// The initializer of the configured <c>Segments</c>, followed by those of the tables it spreads in and of the runs of
+    /// steps their segments spread in (#1788), which several segments share.
+    /// </summary>
+    private List<ExpressionSyntax> SegmentInitializers()
+    {
+        List<ExpressionSyntax> initializers = model.InitializersWithSpreads(model.Member(configuration.AnimationsType!, "Segments"));
+        for (int index = 0; index < initializers.Count; index++)
+        {
+            foreach (ISymbol run in SpreadRuns(initializers[index]))
+            {
+                ExpressionSyntax initializer = CoreModel.InitializerOf(run);
+                if (!initializers.Contains(initializer))
+                    initializers.Add(initializer);
+            }
+        }
+        return initializers;
+    }
+
+    /// <summary>The array members <paramref name="initializer"/> spreads into a segment's beats: the runs of steps segments share.</summary>
+    private IEnumerable<ISymbol> SpreadRuns(ExpressionSyntax initializer)
+    {
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        foreach (SpreadElementSyntax spread in initializer.DescendantNodes().OfType<SpreadElementSyntax>())
+        {
+            if (semantic.GetTypeInfo(spread.Expression).Type is IArrayTypeSymbol
+                && semantic.GetSymbolInfo(spread.Expression).Symbol is (IFieldSymbol or IPropertySymbol) and var run)
+                yield return run.OriginalDefinition;
+        }
+    }
+
+    /// <summary>
+    /// The beats of a segment's collection, each with the semantic model of its tree: its own beats, and the beats of each run
+    /// of shared steps it spreads in, in order.
+    /// </summary>
+    private IEnumerable<(SemanticModel Semantic, CollectionElementSyntax Beat)> BeatsOf(SemanticModel semantic, CollectionExpressionSyntax beats)
+    {
+        foreach (CollectionElementSyntax element in beats.Elements)
+        {
+            if (element is SpreadElementSyntax { Expression: var spread } && semantic.GetTypeInfo(spread).Type is IArrayTypeSymbol
+                && semantic.GetSymbolInfo(spread).Symbol is (IFieldSymbol or IPropertySymbol) and var run
+                && CoreModel.InitializerOf(run.OriginalDefinition) is CollectionExpressionSyntax shared)
+            {
+                foreach ((SemanticModel, CollectionElementSyntax) inner in BeatsOf(model.ModelOf(shared.SyntaxTree), shared))
+                    yield return inner;
+                continue;
+            }
+            yield return (semantic, element);
+        }
+    }
 
     /// <summary>The initializer of the configured <c>StartingAt</c>.</summary>
     private ExpressionSyntax StartingAtInitializer() => Initializer(configuration.AnimationsType!, "StartingAt");
@@ -694,14 +740,14 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                 continue;
             programType ??= identity.ContainingType;
             var program = new PartProgram(new HashSet<string>(StringComparer.Ordinal), [], []);
-            foreach (CollectionElementSyntax element in beats.Elements)
+            foreach ((SemanticModel beatSemantic, CollectionElementSyntax element) in BeatsOf(semantic, beats))
             {
                 if (element is not ExpressionElementSyntax { Expression: var beat })
                 {
                     problems.Add($"segment {identity.Name} has a beat this generator cannot read: {element}");
                     continue;
                 }
-                ReadBeat(semantic, beat, identity.ContainingType, program, problems);
+                ReadBeat(beatSemantic, beat, identity.ContainingType, program, problems);
             }
             if (!programs.TryAdd(AnimationNode.Segment(identity.Name), program))
                 problems.Add($"segment {identity.Name} is listed twice");

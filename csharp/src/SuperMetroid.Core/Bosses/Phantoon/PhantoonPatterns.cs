@@ -706,7 +706,7 @@ internal sealed class PhantoonPatterns
             return false;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling0));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling));
         flame.FrameBehavior =
             EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
 

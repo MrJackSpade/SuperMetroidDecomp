@@ -32,7 +32,7 @@ internal static class TorizoPaletteShakeVerification
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(
                     actor, state, new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
-                    new TorizoCue.Signal(kind), TorizoAnimations.Start(TorizoBodySegment.BombTorizoInitial0Resumed)) is null,
+                    new TorizoCue.Signal(kind), TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
                 "Torizo palette cue runs on");
         enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(4), 32);
         // The native awakening loop invokes B271 every four frames. It must not extend a pending landing quake.

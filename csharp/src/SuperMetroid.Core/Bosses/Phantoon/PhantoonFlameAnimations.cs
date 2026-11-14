@@ -15,6 +15,8 @@ internal static class PhantoonFlameAnimations
     internal const int DyingPoseCount = 4;
     /// <summary>Poses in each falling phase.</summary>
     internal const int FallingPoseCount = 2;
+    /// <summary>Phases of a casual flame's fall.</summary>
+    internal const int FallingPhaseCount = 3;
     /// <summary>Poses a shot flame shows while bursting.</summary>
     internal const int ShotPoseCount = 4;
 
@@ -26,8 +28,7 @@ internal static class PhantoonFlameAnimations
     private const int FallingRepeatCount = 4;
 
     /// <summary>
-    /// Every flame segment. The three falling starts show nothing of their own: each only loads the loop counter for the
-    /// falling phase it runs on into.
+    /// Every flame animation's steps (#1788): a falling flame's are its three falling phases' two poses each, in turn.
     /// </summary>
     internal static AnimationSegments<PhantoonFlameSegment, PhantoonFlameFrame, PhantoonFlameCue> Segments { get; } = new(
         new Dictionary<PhantoonFlameSegment, AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[]>
@@ -42,12 +43,7 @@ internal static class PhantoonFlameAnimations
             Cue(PhantoonFlameCue.Delete),
         ],
         [P.RainImpact] = [Show(new(F.RainImpact, 0), RainImpactDuration)],
-        [P.CasualFalling0] = [],
-        [P.CasualFalling0Loop] = FallingPhase(0),
-        [P.CasualFalling1] = [],
-        [P.CasualFalling1Loop] = FallingPhase(1),
-        [P.CasualFalling2] = [],
-        [P.CasualFalling2Loop] = FallingPhase(2),
+        [P.CasualFalling] = FallingPoses(),
         [P.StartingFlame] = Poses(F.StartingFlame, LoopPoseCount),
         [P.Delete] = [Cue(PhantoonFlameCue.Delete)],
         [P.DestroyableShot] =
@@ -59,9 +55,8 @@ internal static class PhantoonFlameAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start: the loops cycle for good, a resting or impacting
-    /// flame runs on into dying, and a falling flame plays each falling phase's poses four times, the three phases in turn
-    /// for good. The falling phases' own runs are counted bodies and start no animation.
+    /// How each flame animation plays its steps: the loops cycle for good, a resting or impacting flame runs on into dying,
+    /// and a falling flame plays each falling phase's poses four times, the three phases in turn for good.
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
@@ -71,9 +66,7 @@ internal static class PhantoonFlameAnimations
         [P.CasualResting] = new([Whole(P.CasualResting), Whole(P.Dying)], AnimationEnd.Holds),
         [P.Dying] = new([Whole(P.Dying)], AnimationEnd.Holds),
         [P.RainImpact] = new([Whole(P.RainImpact), Whole(P.Dying)], AnimationEnd.Holds),
-        [P.CasualFalling0] = new([Falling(P.CasualFalling0Loop), Falling(P.CasualFalling1Loop), Falling(P.CasualFalling2Loop)], AnimationEnd.LoopsFrom(0)),
-        [P.CasualFalling1] = new([Falling(P.CasualFalling1Loop), Falling(P.CasualFalling2Loop), Falling(P.CasualFalling0Loop)], AnimationEnd.LoopsFrom(0)),
-        [P.CasualFalling2] = new([Falling(P.CasualFalling2Loop), Falling(P.CasualFalling0Loop), Falling(P.CasualFalling1Loop)], AnimationEnd.LoopsFrom(0)),
+        [P.CasualFalling] = new([Falling(0), Falling(1), Falling(2)], AnimationEnd.LoopsFrom(0)),
         [P.StartingFlame] = new([Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),
         [P.Delete] = new([Whole(P.Delete)], AnimationEnd.Holds),
         [P.DestroyableShot] = new([Whole(P.DestroyableShot)], AnimationEnd.Holds),
@@ -85,19 +78,16 @@ internal static class PhantoonFlameAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<PhantoonFlameSegment> Whole(PhantoonFlameSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>A falling phase's two poses, played four times on the flame's loop counter.</summary>
-    private static AnimationPhase<PhantoonFlameSegment> Falling(PhantoonFlameSegment loop) => new(loop, 0, FallingPoseCount, FallingRepeatCount);
+    /// <summary>Falling phase <paramref name="phase"/>'s two poses, played four times on the flame's loop counter.</summary>
+    private static AnimationPhase<PhantoonFlameSegment> Falling(int phase) => new(P.CasualFalling, phase * FallingPoseCount, FallingPoseCount, FallingRepeatCount);
 
     /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>, each lasting the flame dwell.</summary>
     private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] Poses(F kind, int count) =>
         [.. Enumerable.Range(0, count).Select(phase => Show(new(kind, phase), PoseDuration))];
 
-    /// <summary>One falling phase's two one-update poses.</summary>
-    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] FallingPhase(int phase) =>
-    [
-        Show(new(F.CasualFalling, phase * FallingPoseCount), 1),
-        Show(new(F.CasualFalling, phase * FallingPoseCount + 1), 1),
-    ];
+    /// <summary>The three falling phases' two one-update poses each, in turn.</summary>
+    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] FallingPoses() =>
+        [.. Enumerable.Range(0, FallingPhaseCount * FallingPoseCount).Select(pose => Show(new(F.CasualFalling, pose), 1))];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue> Show(PhantoonFlameFrame frame, int duration) =>

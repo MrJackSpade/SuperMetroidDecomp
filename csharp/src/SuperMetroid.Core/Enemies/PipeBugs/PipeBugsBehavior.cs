@@ -73,7 +73,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether the Brinstar Pipe Bug in <paramref name="slot"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
     private static bool IsStrong(RoomEnemySlot slot) =>
         slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong;
-    }
 
     /// <summary>Initializes the Norfair Pipe Bug.</summary>
     internal void InitializeNorfairPipeBug(RoomEnemySlot slot)

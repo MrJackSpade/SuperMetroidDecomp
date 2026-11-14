@@ -19,7 +19,7 @@ internal static class ZoaAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             ZoaSegment selector = ZoaNativeWords.AnimationSelectorOf(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitionsConstants.ReferenceAddress + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(ZoaNativeListAddresses.Entries, selector),
                 $"Zoa animation selector {selector}");
         }

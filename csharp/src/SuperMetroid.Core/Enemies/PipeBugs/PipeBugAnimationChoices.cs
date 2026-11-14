@@ -4,12 +4,10 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal static class PipeBugAnimationChoices
 {
     /// <summary>The rising animation of a normal Zeb or strong Zebbo facing <paramref name="facing"/>.</summary>
-    internal static PipeBugSegment Rising(bool strong, HorizontalDirection facing) => (strong, facing) switch
+    internal static PipeBugSegment Rising(bool strong, HorizontalDirection facing) => facing switch
     {
-        (false, HorizontalDirection.Left) => PipeBugSegment.ZebRisingLeft,
-        (false, HorizontalDirection.Right) => PipeBugSegment.ZebRisingRight,
-        (true, HorizontalDirection.Left) => PipeBugSegment.ZebboRisingLeft,
-        (true, HorizontalDirection.Right) => PipeBugSegment.ZebboRisingRight,
+        HorizontalDirection.Left => strong ? PipeBugSegment.ZebboRisingLeft : PipeBugSegment.ZebRisingLeft,
+        HorizontalDirection.Right => strong ? PipeBugSegment.ZebboRisingRight : PipeBugSegment.ZebRisingRight,
         _ => throw new InvalidDataException($"Pipe Bug facing {facing} is not a horizontal direction."),
     };
 
@@ -21,6 +19,8 @@ internal static class PipeBugAnimationChoices
         PipeBugSegment.ZebRisingRight or PipeBugSegment.ZebShootingRight => PipeBugSegment.ZebShootingRight,
         PipeBugSegment.ZebboRisingLeft or PipeBugSegment.ZebboShootingLeft => PipeBugSegment.ZebboShootingLeft,
         PipeBugSegment.ZebboRisingRight or PipeBugSegment.ZebboShootingRight => PipeBugSegment.ZebboShootingRight,
-        _ => throw new InvalidDataException($"Pipe Bug animation {animation} is not a Zeb or Zebbo animation."),
+        PipeBugSegment.GametRisingLeft or PipeBugSegment.GametFlyingLeft or PipeBugSegment.GametRisingRight or
+            PipeBugSegment.GametFlyingRight or PipeBugSegment.GeegaFlyingLeft or PipeBugSegment.GeegaArcingLeft or
+            PipeBugSegment.GeegaFlyingRight or PipeBugSegment.GeegaArcingRight or _ => throw new InvalidDataException($"Pipe Bug animation {animation} is not a Zeb or Zebbo animation."),
     };
 }

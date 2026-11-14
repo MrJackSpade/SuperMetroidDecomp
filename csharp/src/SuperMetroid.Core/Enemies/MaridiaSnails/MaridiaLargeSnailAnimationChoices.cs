@@ -24,14 +24,12 @@ internal static class MaridiaLargeSnailAnimationChoices
 
     /// <summary>The forward roll a finished attack resumes, with <paramref name="attack"/>'s facing.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="attack"/> is not an attack.</exception>
-    internal static A RollingAfter(A attack) => attack switch
-    {
-        A.FacingRightAttacking => A.FacingRightRollingForwards,
-        A.FacingLeftAttacking => A.FacingLeftRollingForwards,
-        A.FacingRightIdle or A.FacingLeftIdle or A.FacingRightRollingForwards or A.FacingLeftRollingForwards or
-            A.FacingRightRollingBackwards or A.FacingLeftRollingBackwards or _ =>
-            throw new InvalidOperationException($"Oum resumes rolling only after an attack, not {attack}."),
-    };
+    internal static A RollingAfter(A attack) => attack is A.FacingLeftAttacking or A.FacingRightAttacking
+        ? RollingForwards(facingLeft: attack == A.FacingLeftAttacking)
+        : throw new InvalidOperationException($"Oum resumes rolling only after an attack, not {attack}.");
+
+    /// <summary>The forward roll facing left or right.</summary>
+    private static A RollingForwards(bool facingLeft) => facingLeft ? A.FacingLeftRollingForwards : A.FacingRightRollingForwards;
 
     /// <summary>
     /// The roll in the other direction with <paramref name="roll"/>'s facing, as a roll that meets a wall reverses: a

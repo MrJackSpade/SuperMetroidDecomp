@@ -163,7 +163,9 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // A family whose Present names its frame outright, with no table, shows only the frames its code names.
         Dictionary<string, string> entries = table is null ? new Dictionary<string, string>(StringComparer.Ordinal)
             : TableEntries(family, table, frameType, precise);
-        HashSet<string> tableFrames = direct ? ProjectileFramesNamed(segmentInitializers) : new HashSet<string>(entries.Values, StringComparer.Ordinal);
+        HashSet<string> tableFrames = direct
+            ? ProjectileFramesNamed([.. segmentInitializers, .. SharedRunsIn(segmentInitializers)])
+            : new HashSet<string>(entries.Values, StringComparer.Ordinal);
         if (!precise)
             return new FamilyProgramSet(entries, tableFrames, [], new HashSet<string>(StringComparer.Ordinal), Precise: false);
         var nodes = new Dictionary<AnimationNode, List<ProgramItem>>();
@@ -174,8 +176,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             Add(AnimationNode.Start(KeyOf(entry)), entry);
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
         // whatever its cue handlers start is among the programs every start of the family runs. The family's frame table
-        // names segments only as parts of the poses it looks up (Kraid's rocks), which starts nothing.
+        // names segments only as parts of the poses it looks up (Kraid's rocks), which starts nothing. The runs of steps
+        // segments share are part of the segments.
         var excluded = new List<SyntaxNode>(segmentInitializers) { startInitializer };
+        excluded.AddRange(SharedRunsIn(segmentInitializers));
         if (table is not null)
             excluded.Add(CoreModel.InitializerOf(table));
         HashSet<string> starts = [.. nodes.Keys.Where(node => node.IsStart).Select(node => node.Name)];
@@ -250,6 +254,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                      && SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, frameType):
                 items.Add(new ProgramItem(ProgramItemKind.ShowPose, PoseOf(semantic, creation, constructor, bindings)));
                 return;
+            // A run of steps several animations share, spread into a segment's beats, is read where it is declared (#1788).
+            case SpreadElementSyntax { Expression: var spread } when SharedRunOf(semantic, spread) is { } shared:
+                Visit(shared, model.ModelOf(shared.SyntaxTree), bindings, items, segmentType, frameType, direct, helpers, depth);
+                return;
             case InvocationExpressionSyntax invocation
                 when semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol helper
                      && IsBeatHelper(helper, helpers):
@@ -262,8 +270,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     IParameterSymbol? parameter = argument.NameColon is { } named
                         ? helper.Parameters.FirstOrDefault(candidate => candidate.Name == named.Name.Identifier.Text)
                         : index < helper.Parameters.Length ? helper.Parameters[index] : null;
-                    // A segment handed to a helper is read where the helper's body uses it: as part of the pose it shows
-                    // (Torizo's Show(P.X, phase, duration)), which continues nowhere, or in a cue naming where play goes on.
+                    // A segment handed to a helper is read where the helper's body uses it: as part of the pose it shows,
+                    // which continues nowhere, or in a cue naming where play goes on.
                     if (parameter is null || !SymbolEqualityComparer.Default.Equals(parameter.Type, segmentType))
                         Visit(argument, semantic, bindings, items, segmentType, frameType, direct, helpers, depth);
                     if (parameter is not null)
@@ -298,6 +306,37 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         }
         foreach (SyntaxNode child in node.ChildNodes())
             Visit(child, semantic, bindings, items, segmentType, frameType, direct, helpers, depth);
+    }
+
+    /// <summary>
+    /// The initializer of the run of shared steps <paramref name="spread"/> names: an array field or property Core declares,
+    /// which several segments spread into their beats (#1788); null when it names none.
+    /// </summary>
+    private ExpressionSyntax? SharedRunOf(SemanticModel semantic, ExpressionSyntax spread) =>
+        semantic.GetTypeInfo(spread).Type is IArrayTypeSymbol
+        && semantic.GetSymbolInfo(spread).Symbol is (IFieldSymbol or IPropertySymbol) and var run
+        && model.IsSource(run)
+            ? CoreModel.InitializerOf(run.OriginalDefinition)
+            : null;
+
+    /// <summary>The initializers of the runs of shared steps <paramref name="initializers"/> spread in, and of those they spread in.</summary>
+    private List<ExpressionSyntax> SharedRunsIn(IEnumerable<ExpressionSyntax> initializers)
+    {
+        var runs = new List<ExpressionSyntax>();
+        var pending = new Queue<ExpressionSyntax>(initializers);
+        while (pending.TryDequeue(out ExpressionSyntax? initializer))
+        {
+            SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+            foreach (SpreadElementSyntax spread in initializer.DescendantNodes().OfType<SpreadElementSyntax>())
+            {
+                if (SharedRunOf(semantic, spread.Expression) is { } run && !runs.Contains(run))
+                {
+                    runs.Add(run);
+                    pending.Enqueue(run);
+                }
+            }
+        }
+        return runs;
     }
 
     /// <summary>Visits beat helper <paramref name="helper"/>'s body with its parameters bound as <paramref name="bound"/> says.</summary>

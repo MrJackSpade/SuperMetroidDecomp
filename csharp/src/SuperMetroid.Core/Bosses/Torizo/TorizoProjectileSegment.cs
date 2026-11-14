@@ -1,134 +1,111 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile animations (#641): one segment per animation a spawn, frame behaviour, branch
-/// or resumed sleep enters, in authored order. Generated from the verified animations; see
-/// <see cref="TorizoProjectileAnimations"/>.
+/// Bomb and Golden Torizo's projectile animations (#641, #1788): one for each animation a spawn, a frame behaviour, a
+/// reaction, a sleeping egg's wake or another animation's cue starts, named for what it shows. Each is its steps, the
+/// phases it plays them in and how it ends (<see cref="TorizoProjectileAnimations"/>).
 /// </summary>
 internal enum TorizoProjectileSegment
 {
-    /// <summary>Where the animation starts.</summary>
-    ExplosionLowHealthInitial,
-    /// <summary>The animation's repeating part.</summary>
-    ExplosionLowHealthInitialLoop,
-    /// <summary>Where the animation starts.</summary>
-    ExplosionDeathInitial,
-    /// <summary>The animation's repeating part.</summary>
-    ExplosionDeathInitialLoop,
-    /// <summary>Where the animation starts.</summary>
-    ExplosionDeathSmokeSetup,
-    /// <summary>The animation's repeating part.</summary>
-    ExplosionDeathSmokeSetupLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A low-health explosion: it moves in front of Samus, harmless, then three times returns to its origin, scatters and plays its five poses, then is deleted.</summary>
+    LowHealthExplosion,
+    /// <summary>A death explosion: one time in four it puffs into <see cref="DeathSmoke"/> instead; otherwise it twice returns to its origin, scatters and plays its six poses, then is deleted.</summary>
+    DeathExplosion,
+    /// <summary>A death explosion's smoke puff: it twice returns to its origin, scatters and plays its four poses, then is deleted.</summary>
+    DeathSmoke,
+    /// <summary>Bomb Torizo's drool, forming for four updates: the drop's forming poses, then <see cref="DroolNoDelay"/>'s release and fall.</summary>
     DroolFourFrameDelay,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>Bomb Torizo's drool, forming for two updates: the drop's last forming pose, then <see cref="DroolNoDelay"/>'s release and fall.</summary>
     DroolTwoFrameDelay,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>Bomb Torizo's drool released at once: it starts falling, harmless, then shows its falling pose for good.</summary>
     DroolNoDelay,
-    /// <summary>Where the animation starts.</summary>
-    DroolFallingLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A drool drop reaching a wall: it stops and is deleted.</summary>
     DroolWallImpact,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A drool drop splashing on the floor: it stops, plays its three splash poses, then is deleted.</summary>
     DroolFloorImpact,
-    /// <summary>Where the animation starts.</summary>
-    SwipeInitial,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment0,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment1,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment2,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment3,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment4,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment5,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment6,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment7,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment8,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment9,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment10,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment11,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment12,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment13,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment14,
-    /// <summary>Where the animation starts.</summary>
-    StatueFragment15,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>Torizo's explosive swipe: its sound and five poses, then deletion.</summary>
+    ExplosiveSwipe,
+    /// <summary>The breaking statue hand's first fragment: it rests 128 updates, cracks and falls, then is deleted.</summary>
+    FirstStatueFragment,
+    /// <summary>The second fragment: it rests 120 updates, cracks and falls, then is deleted.</summary>
+    SecondStatueFragment,
+    /// <summary>The third fragment: it rests 112 updates, cracks and falls, then is deleted.</summary>
+    ThirdStatueFragment,
+    /// <summary>The fourth fragment: it rests 104 updates, cracks and falls, then is deleted.</summary>
+    FourthStatueFragment,
+    /// <summary>The fifth fragment: it rests 96 updates, cracks and falls, then is deleted.</summary>
+    FifthStatueFragment,
+    /// <summary>The sixth fragment: it rests 88 updates, cracks and falls, then is deleted.</summary>
+    SixthStatueFragment,
+    /// <summary>The seventh fragment: it rests 80 updates, cracks and falls, then is deleted.</summary>
+    SeventhStatueFragment,
+    /// <summary>The eighth fragment: it rests 72 updates, cracks and falls, then is deleted.</summary>
+    EighthStatueFragment,
+    /// <summary>The ninth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    NinthStatueFragment,
+    /// <summary>The tenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    TenthStatueFragment,
+    /// <summary>The eleventh fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    EleventhStatueFragment,
+    /// <summary>The twelfth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    TwelfthStatueFragment,
+    /// <summary>The thirteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    ThirteenthStatueFragment,
+    /// <summary>The fourteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    FourteenthStatueFragment,
+    /// <summary>The fifteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    FifteenthStatueFragment,
+    /// <summary>The sixteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
+    SixteenthStatueFragment,
+    /// <summary>A Chozo orb flying left, for good.</summary>
     ChozoOrbMovingLeft,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A Chozo orb flying right, for good.</summary>
     ChozoOrbMovingRight,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A Chozo orb bursting on a wall: it stops, plays its five poses, then is deleted.</summary>
     ChozoOrbWallImpact,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A Chozo orb bursting on the floor: it stops, turns harmful, plays its impact sound and six poses, then is deleted.</summary>
     ChozoOrbFloorImpact,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A shot Chozo orb bursting: it stops, plays its five poses, drops its pickup, then is deleted.</summary>
     ChozoOrbShot,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A sonic boom thrown left: its sound and two firing poses, then its flying pose for good.</summary>
     SonicBoomFiredLeft,
-    /// <summary>Where the animation starts.</summary>
-    SonicBoomMovingLeft,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A sonic boom thrown right: its sound and two firing poses, then its flying pose for good.</summary>
     SonicBoomFiredRight,
-    /// <summary>Where the animation starts.</summary>
-    SonicBoomMovingRight,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A sonic boom bursting on a wall: it stops, turns harmless and moves in front, then five times returns to its origin, scatters and plays its five poses, then is deleted.</summary>
     SonicBoomWallImpact,
-    /// <summary>Where the animation starts.</summary>
-    SonicBoomWallImpactLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>The dust Torizo's right foot raises on landing: its four poses, rising, then deletion.</summary>
     LandingDustRightFoot,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>The dust Torizo's left foot raises on landing: its four poses, rising, then deletion.</summary>
     LandingDustLeftFoot,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>An egg bouncing left until its hatch timer wakes it into <see cref="EggHatchingLeft"/>.</summary>
     EggBouncingLeft,
-    /// <summary>Where the animation starts.</summary>
-    EggBouncingLeftHatching,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>An egg hatching facing left: it stops, cracks open, turns harmful and shot-blocking, then hatches into <see cref="EggHatchedLeft"/>.</summary>
+    EggHatchingLeft,
+    /// <summary>An egg bouncing right until its hatch timer wakes it into <see cref="EggHatchingRight"/>.</summary>
     EggBouncingRight,
-    /// <summary>Where the animation starts.</summary>
-    EggBouncingRightHatching,
-    /// <summary>Where the animation starts.</summary>
-    EggHatch,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>An egg hatching facing right: it stops, cracks open, turns harmful and shot-blocking, then hatches into <see cref="EggHatchedRight"/>.</summary>
+    EggHatchingRight,
+    /// <summary>A hatched egg's creature charging left: its sound, then its four poses for good.</summary>
     EggHatchedLeft,
-    /// <summary>The animation's repeating part.</summary>
-    EggHatchedLeftLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A hatched egg's creature charging right: its sound, then its four poses for good.</summary>
     EggHatchedRight,
-    /// <summary>The animation's repeating part.</summary>
-    EggHatchedRightLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A shot egg breaking facing left: it stops, plays its five poses, then is deleted.</summary>
     EggBreakLeft,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A shot egg breaking facing right: it stops, plays its five poses, then is deleted.</summary>
     EggBreakRight,
-    /// <summary>Where the animation starts.</summary>
-    SuperMissileRightInitial,
-    /// <summary>Where the animation starts.</summary>
-    SuperMissileRightLoop,
-    /// <summary>Where the animation starts.</summary>
-    SuperMissileLeftInitial,
-    /// <summary>Where the animation starts.</summary>
-    SuperMissileLeftLoop,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>A caught super missile thrown right: held, then aimed at Samus and thrown, spinning for good.</summary>
+    SuperMissileRight,
+    /// <summary>A caught super missile thrown left: held, then aimed away from Samus and thrown, spinning for good.</summary>
+    SuperMissileLeft,
+    /// <summary>A thrown super missile exploding: it widens, stops, turns harmful, plays its sound and six poses, then is deleted.</summary>
     SuperMissileImpact,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>The eye beam bursting on a wall: it stops, plays its five poses, then is deleted.</summary>
     EyeBeamWallImpact,
-    /// <summary>Where the animation starts.</summary>
+    /// <summary>
+    /// The eye beam reaching the floor: it stops and sparks, sparking again while Golden Torizo's eye-beam explosions are
+    /// disabled, then explodes and is deleted.
+    /// </summary>
     EyeBeamFloorImpact,
-    /// <summary>Where the animation starts.</summary>
-    EyeBeamFloorImpactLoop,
-    /// <summary>Where the animation starts.</summary>
-    EyeBeamNormal,
+    /// <summary>The eye beam in flight: its five poses, for good.</summary>
+    EyeBeam,
 }

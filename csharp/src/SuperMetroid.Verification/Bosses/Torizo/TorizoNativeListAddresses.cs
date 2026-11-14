@@ -215,72 +215,75 @@ internal static class TorizoNativeListAddresses
     internal static BodyWordKind ClassifyBodyWord(ushort word) =>
         BodyWords.TryGetValue(word, out BodyWordKind kind) ? kind : BodyWordKind.Shared;
 
-    /// <summary>Each typed projectile program's native entry point in bank $86, in authored order.</summary>
-    internal static readonly TorizoNativeListAddressesProjectileEntry[] ProjectileEntries =
+    /// <summary>
+    /// The entry of every native Torizo projectile list in bank $86, in bank order: the lists the projectile animations play
+    /// runs of, each ending where the next begins.
+    /// </summary>
+    internal static readonly ushort[] ProjectileLists =
     [
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionLowHealthInitial, 0xa3cb),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionLowHealthInitialLoop, 0xa3d5),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionDeathInitial, 0xa3fa),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionDeathInitialLoop, 0xa408),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionDeathSmokeSetup, 0xa431),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ExplosionDeathSmokeSetupLoop, 0xa435),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolFourFrameDelay, 0xa46a),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolTwoFrameDelay, 0xa46e),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolNoDelay, 0xa472),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolFallingLoop, 0xa482),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolWallImpact, 0xa48a),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.DroolFloorImpact, 0xa48e),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SwipeInitial, 0xa4aa),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment0, 0xa4c3),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment1, 0xa4d4),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment2, 0xa4e5),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment3, 0xa4f6),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment4, 0xa507),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment5, 0xa518),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment6, 0xa529),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment7, 0xa53a),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment8, 0xa54b),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment9, 0xa55c),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment10, 0xa56d),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment11, 0xa57e),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment12, 0xa58f),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment13, 0xa5a0),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment14, 0xa5b1),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.StatueFragment15, 0xa5c2),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ChozoOrbMovingLeft, 0xab15),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ChozoOrbMovingRight, 0xab1d),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ChozoOrbWallImpact, 0xab25),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ChozoOrbFloorImpact, 0xab41),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.ChozoOrbShot, 0xab68),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomFiredLeft, 0xadbf),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomMovingLeft, 0xadca),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomFiredRight, 0xadd2),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomMovingRight, 0xaddd),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomWallImpact, 0xade5),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SonicBoomWallImpactLoop, 0xadf1),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.LandingDustRightFoot, 0xaf9d),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.LandingDustLeftFoot, 0xafb5),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBouncingLeft, 0xb104),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBouncingLeftHatching, 0xb10a),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBouncingRight, 0xb11c),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBouncingRightHatching, 0xb122),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggHatch, 0xb134),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggHatchedLeft, 0xb14b),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggHatchedLeftLoop, 0xb152),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggHatchedRight, 0xb166),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggHatchedRightLoop, 0xb16d),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBreakLeft, 0xb190),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EggBreakRight, 0xb1a8),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SuperMissileRightInitial, 0xb293),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SuperMissileRightLoop, 0xb29d),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SuperMissileLeftInitial, 0xb2c1),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SuperMissileLeftLoop, 0xb2cb),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.SuperMissileImpact, 0xb2ef),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EyeBeamWallImpact, 0xb3cd),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EyeBeamFloorImpact, 0xb3e5),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EyeBeamFloorImpactLoop, 0xb3e7),
-        new TorizoNativeListAddressesProjectileEntry(TorizoProjectileSegment.EyeBeamNormal, 0xb410),
+        0xa3cb, 0xa3d5, 0xa3fa, 0xa408, 0xa431, 0xa435, 0xa46a, 0xa46e,
+        0xa472, 0xa482, 0xa48a, 0xa48e, 0xa4aa, 0xa4c3, 0xa4d4, 0xa4e5,
+        0xa4f6, 0xa507, 0xa518, 0xa529, 0xa53a, 0xa54b, 0xa55c, 0xa56d,
+        0xa57e, 0xa58f, 0xa5a0, 0xa5b1, 0xa5c2, 0xab15, 0xab1d, 0xab25,
+        0xab41, 0xab68, 0xadbf, 0xadca, 0xadd2, 0xaddd, 0xade5, 0xadf1,
+        0xaf9d, 0xafb5, 0xb104, 0xb10a, 0xb11c, 0xb122, 0xb134, 0xb14b,
+        0xb152, 0xb166, 0xb16d, 0xb190, 0xb1a8, 0xb293, 0xb29d, 0xb2c1,
+        0xb2cb, 0xb2ef, 0xb3cd, 0xb3e5, 0xb3e7, 0xb410,
     ];
+
+    /// <summary>The native list each projectile animation starts at (#1788).</summary>
+    internal static readonly IReadOnlyDictionary<TorizoProjectileSegment, ushort> ProjectileAnimationEntries = new Dictionary<TorizoProjectileSegment, ushort>
+    {
+        [TorizoProjectileSegment.LowHealthExplosion] = 0xa3cb,
+        [TorizoProjectileSegment.DeathExplosion] = 0xa3fa,
+        [TorizoProjectileSegment.DeathSmoke] = 0xa431,
+        [TorizoProjectileSegment.DroolFourFrameDelay] = 0xa46a,
+        [TorizoProjectileSegment.DroolTwoFrameDelay] = 0xa46e,
+        [TorizoProjectileSegment.DroolNoDelay] = 0xa472,
+        [TorizoProjectileSegment.DroolWallImpact] = 0xa48a,
+        [TorizoProjectileSegment.DroolFloorImpact] = 0xa48e,
+        [TorizoProjectileSegment.ExplosiveSwipe] = 0xa4aa,
+        [TorizoProjectileSegment.FirstStatueFragment] = 0xa4c3,
+        [TorizoProjectileSegment.SecondStatueFragment] = 0xa4d4,
+        [TorizoProjectileSegment.ThirdStatueFragment] = 0xa4e5,
+        [TorizoProjectileSegment.FourthStatueFragment] = 0xa4f6,
+        [TorizoProjectileSegment.FifthStatueFragment] = 0xa507,
+        [TorizoProjectileSegment.SixthStatueFragment] = 0xa518,
+        [TorizoProjectileSegment.SeventhStatueFragment] = 0xa529,
+        [TorizoProjectileSegment.EighthStatueFragment] = 0xa53a,
+        [TorizoProjectileSegment.NinthStatueFragment] = 0xa54b,
+        [TorizoProjectileSegment.TenthStatueFragment] = 0xa55c,
+        [TorizoProjectileSegment.EleventhStatueFragment] = 0xa56d,
+        [TorizoProjectileSegment.TwelfthStatueFragment] = 0xa57e,
+        [TorizoProjectileSegment.ThirteenthStatueFragment] = 0xa58f,
+        [TorizoProjectileSegment.FourteenthStatueFragment] = 0xa5a0,
+        [TorizoProjectileSegment.FifteenthStatueFragment] = 0xa5b1,
+        [TorizoProjectileSegment.SixteenthStatueFragment] = 0xa5c2,
+        [TorizoProjectileSegment.ChozoOrbMovingLeft] = 0xab15,
+        [TorizoProjectileSegment.ChozoOrbMovingRight] = 0xab1d,
+        [TorizoProjectileSegment.ChozoOrbWallImpact] = 0xab25,
+        [TorizoProjectileSegment.ChozoOrbFloorImpact] = 0xab41,
+        [TorizoProjectileSegment.ChozoOrbShot] = 0xab68,
+        [TorizoProjectileSegment.SonicBoomFiredLeft] = 0xadbf,
+        [TorizoProjectileSegment.SonicBoomFiredRight] = 0xadd2,
+        [TorizoProjectileSegment.SonicBoomWallImpact] = 0xade5,
+        [TorizoProjectileSegment.LandingDustRightFoot] = 0xaf9d,
+        [TorizoProjectileSegment.LandingDustLeftFoot] = 0xafb5,
+        [TorizoProjectileSegment.EggBouncingLeft] = 0xb104,
+        [TorizoProjectileSegment.EggHatchingLeft] = 0xb10a,
+        [TorizoProjectileSegment.EggBouncingRight] = 0xb11c,
+        [TorizoProjectileSegment.EggHatchingRight] = 0xb122,
+        [TorizoProjectileSegment.EggHatchedLeft] = 0xb14b,
+        [TorizoProjectileSegment.EggHatchedRight] = 0xb166,
+        [TorizoProjectileSegment.EggBreakLeft] = 0xb190,
+        [TorizoProjectileSegment.EggBreakRight] = 0xb1a8,
+        [TorizoProjectileSegment.SuperMissileRight] = 0xb293,
+        [TorizoProjectileSegment.SuperMissileLeft] = 0xb2c1,
+        [TorizoProjectileSegment.SuperMissileImpact] = 0xb2ef,
+        [TorizoProjectileSegment.EyeBeamWallImpact] = 0xb3cd,
+        [TorizoProjectileSegment.EyeBeamFloorImpact] = 0xb3e5,
+        [TorizoProjectileSegment.EyeBeam] = 0xb410,
+    };
 
     /// <summary>The native list <paramref name="animation"/> starts at.</summary>
     internal static ushort Entry(TorizoAnimation animation) =>
@@ -288,15 +291,15 @@ internal static class TorizoNativeListAddresses
             ? entry
             : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No native Torizo list starts this animation.");
 
-    /// <summary>The native entry point of projectile program <paramref name="program"/>.</summary>
-    internal static ushort ProjectileEntry(TorizoProjectileSegment program) =>
-        Array.Find(ProjectileEntries, entry => entry.Program == program) is { Entry: not 0 } found
-            ? found.Entry
-            : throw new ArgumentOutOfRangeException(nameof(program), program, "No native Torizo list starts this projectile program.");
+    /// <summary>The native list projectile animation <paramref name="animation"/> starts at.</summary>
+    internal static ushort ProjectileEntry(TorizoProjectileSegment animation) =>
+        ProjectileAnimationEntries.TryGetValue(animation, out ushort entry)
+            ? entry
+            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No native Torizo list starts this projectile animation.");
 
-    /// <summary>The projectile program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static TorizoProjectileSegment? ProjectileProgramAt(ushort address) =>
-        Array.Find(ProjectileEntries, entry => entry.Entry == address) is { Entry: not 0 } found ? found.Program : null;
+    /// <summary>The projectile animation that starts at the native list at <paramref name="address"/>, if one does.</summary>
+    internal static TorizoProjectileSegment? ProjectileAnimationAt(ushort address) =>
+        ProjectileAnimationEntries.Where(pair => pair.Value == address).Select(pair => (TorizoProjectileSegment?)pair.Key).SingleOrDefault();
 
     /// <summary>The body animation that starts at the native list at <paramref name="address"/>, if one does.</summary>
     internal static TorizoAnimation? AnimationAt(ushort address) =>

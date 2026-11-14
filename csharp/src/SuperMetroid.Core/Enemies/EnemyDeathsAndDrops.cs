@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -594,8 +595,11 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
-    public EnemyDeathProjectileSegment? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue) =>
-        ApplyEnemyDeathProjectileCue(context.Projectile, cue);
+    public AnimationContinuation<EnemyDeathProjectileSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue,
+        AnimationPlayback<EnemyDeathProjectileSegment> pastCue) =>
+        ApplyEnemyDeathProjectileCue(context.Projectile, cue) is { } converted
+            ? new(EnemyDeathProjectileAnimations.StartingWith(converted), AnimationPlace.StartOfAnimation)
+            : null;
 
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);

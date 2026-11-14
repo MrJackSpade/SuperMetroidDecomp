@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
 /// (#1607), events, counted phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
 /// carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
-/// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play in the animation
-/// starting at another segment, as a conditional jump does; the engine carries out the shared
+/// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play elsewhere, as a
+/// conditional jump into another animation or a conditional replay of the cue's run does; the engine carries out the shared
 /// <see cref="EnemyProjectileCommonCue"/> events. Counted phases count the projectile's
 /// <see cref="EnemyProjectile.LoopCountdown"/>.
 /// </summary>
@@ -49,15 +49,13 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         EnemyProjectile projectile = context.Projectile;
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        WrappingCountdown repeats = projectile.LoopCountdown;
+        var repeats = new HeldRepeats(projectile.LoopCountdown);
         AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place, ref repeats,
-            raised => RunCue(context, projectiles, raised) is { } target
-                ? new AnimationContinuation<TSegment>(StartingAt[target], AnimationPlace.StartOfAnimation)
-                : null);
+            (raised, pastCue) => RunCue(context, projectiles, raised, pastCue));
         Playback = new AnimationPlayback<TSegment>(animation, place);
         // A projectile an event deleted keeps its cleared countdown.
         if (projectile.Animation == this)
-            projectile.LoopCountdown = repeats;
+            projectile.LoopCountdown = repeats.Repeats;
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
@@ -75,10 +73,12 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
 
     /// <summary>
     /// Carries out <paramref name="cue"/>: a shared cue in the engine, any other in the behaviour bound to the projectile.
-    /// Returns the segment a branching cue continues the animation at, or null to run on.
+    /// Returns where a branching cue continues the play from <paramref name="pastCue"/>, the place just past the cue, or null
+    /// to run on.
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile's behaviour does not handle the family's cues.</exception>
-    private static TSegment? RunCue(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles, TEvent cue)
+    private static AnimationContinuation<TSegment>? RunCue(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles, TEvent cue,
+        AnimationPlayback<TSegment> pastCue)
     {
         if (cue is EnemyProjectileCommonCue common)
         {
@@ -88,7 +88,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         switch (context.Projectile.Behavior)
         {
             case IEnemyProjectileBranchingCues<TSegment, TEvent> branching:
-                return branching.RunCue(context, cue);
+                return branching.RunCue(context, cue, pastCue);
             case IEnemyProjectileCues<TEvent> plain:
                 plain.RunCue(context, cue);
                 return null;

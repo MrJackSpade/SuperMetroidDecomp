@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// The behaviour a Powamp body's main AI runs. The balloon half uses <see cref="BalloonNoOp"/> and never
-/// owns vertical movement.
+/// The behaviour a Powamp body's main AI runs. The balloon half has none: its body moves it.
 /// Its values are arbitrary.
 /// </summary>
 public enum PowampAction
@@ -25,8 +24,6 @@ public enum PowampAction
     Deflating,
     /// <summary>Sinks with terrain collision handling until the body reaches the balloon's spawn Y, then restores slow animation and the rest countdown.</summary>
     DeflatedSinking,
-    /// <summary>No-operation main AI for the balloon half, whose position is maintained by its following body.</summary>
-    BalloonNoOp,
     /// <summary>Adjusts the balloon's inflation animation and initializes the 32-update death delay after a fatal shot.</summary>
     FatalDamage,
     /// <summary>Maintains balloon alignment during the countdown, then deletes both halves and fires spikes in eight directions.</summary>

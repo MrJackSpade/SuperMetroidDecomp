@@ -120,7 +120,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Action = WalkingSpacePirateAction.NoOperation;
+        state.Action = WalkingSpacePirateAction.FollowingAnimation;
 
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
@@ -139,8 +139,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (state.Action)
         {
-            case WalkingSpacePirateAction.NoOperation:
-            case WalkingSpacePirateAction.AnimationOwnedNoOperation:
+            case WalkingSpacePirateAction.FollowingAnimation:
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:

@@ -82,7 +82,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BalloonSpawn = slot.Position.Whole;
-        state.Action = PowampAction.BalloonNoOp;
         SetPowampAnimation(slot, state, PowampSegment.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
@@ -129,7 +128,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             case PowampAction.DeathSequence:
                 RunPowampDeathSequence(slot, state, balloon);
                 return;
-            case PowampAction.BalloonNoOp:
             default:
                 throw new InvalidDataException(
                     $"Powamp body has no behaviour for action {state.Action?.ToString() ?? "none"}.");

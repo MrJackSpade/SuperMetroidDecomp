@@ -105,7 +105,7 @@ internal static class MagdolliteApexThresholdVerification
 
             rise(body, state, null);
             string context = $"Magdollite body in slot {body.SlotIndex}";
-            AssertEqual(MagdolliteAction.NoOpAtApex, state.Action, $"{context} reaches its apex");
+            AssertEqual(MagdolliteAction.HoldingAtApex, state.Action, $"{context} reaches its apex");
             AssertEqual(grows ? 8 : 7, state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }

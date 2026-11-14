@@ -616,7 +616,14 @@ internal static class NativeEnemyFamilyStateImport
                 powamp.WiggleTimer = unchecked((short)words.D);
                 powamp.ActionTimer = unchecked((short)words.E);
             }
-            powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
+            if (powamp.IsBalloon)
+            {
+                if (words.F != PowampNativeWords.BalloonIdleWord)
+                    throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
+                powamp.Action = null;
+            }
+            else
+                powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (slot.DefinitionId == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {

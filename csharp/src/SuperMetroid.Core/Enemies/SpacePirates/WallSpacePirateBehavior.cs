@@ -109,10 +109,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 return;
 
-            case WallSpacePirateAction.AttackAnimationOnLeftWall:
-            case WallSpacePirateAction.AttackAnimationOnRightWall:
-                // These behaviours do nothing. Actor presentation and timing are owned
-                // entirely by the currently-running animation.
+            case WallSpacePirateAction.Attacking:
+                // The attack animation moves and times the pirate; its cues ready the jump.
                 return;
 
             case WallSpacePirateAction.WallJumpingRight:

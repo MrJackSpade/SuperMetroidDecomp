@@ -186,7 +186,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteAction.BodyRising:
                 RunMagdolliteBodyRising(slot, state, samus);
                 return;
-            case MagdolliteAction.NoOpAtApex:
+            case MagdolliteAction.HoldingAtApex:
                 return;
             case MagdolliteAction.BodyFalling:
                 RunMagdolliteBodyFalling(slot, state);
@@ -331,7 +331,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (roseMaximum || rosePastSamus)
         {
-            state.Action = MagdolliteAction.NoOpAtApex;
+            state.Action = MagdolliteAction.HoldingAtApex;
             state.BodyReachedApex = true;
             if (!growsAPhase)
                 return;

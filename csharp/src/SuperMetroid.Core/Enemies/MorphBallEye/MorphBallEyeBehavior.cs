@@ -71,7 +71,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
-        state.Action = MorphBallEyeAction.MountNoOp;
+        state.Action = MorphBallEyeAction.ShowingMount;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
@@ -101,7 +101,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.Action)
         {
-            case MorphBallEyeAction.MountNoOp:
+            case MorphBallEyeAction.ShowingMount:
                 return;
             case MorphBallEyeAction.WaitForSamus:
                 WaitForSamusNearMorphBallEye(slot, state, samus);

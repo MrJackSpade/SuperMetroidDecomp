@@ -17,7 +17,7 @@ internal static class WallSpacePirateAnimations
     {
         [P.FireAndJumpLeft] =
         [
-            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.AttackAnimationOnRightWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.Attacking)),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftFirst, 9),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftSecond, 15),
             Cue(new WallSpacePirateCue.Signal(K.FireLaserLeft)),
@@ -81,7 +81,7 @@ internal static class WallSpacePirateAnimations
         ],
         [P.FireAndJumpRight] =
         [
-            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.AttackAnimationOnLeftWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.Attacking)),
             Show(EnemyFrameId.WallPirateFireAndJumpRightFirst, 9),
             Show(EnemyFrameId.WallPirateFireAndJumpRightSecond, 1),
             Cue(new WallSpacePirateCue.Signal(K.FireLaserRight)),

@@ -25,7 +25,7 @@ internal static class DraygonEyeEffectsVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
             var eye = (runtime.Enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon.")).Eye;
             eye.Position = eye.Position.WithWhole(new(128, 128));
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
             foreach (ushort frame in new ushort[] { 127, 128, 129 })
             {
                 eye.FrameCounter = frame;

@@ -137,7 +137,7 @@ internal static class ResumeChargingSoundCancelVerification
         /// <summary>Places Samus in <paramref name="pose"/> at <paramref name="position"/> with <paramref name="beams"/> equipped.</summary>
         internal Fixture(SamusPoseId pose, FixedPosition<RoomPixels> position, SamusBeamFlags beams)
         {
-            Samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge)
+            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge)
             {
                 Pose = pose,
                 Position = position,

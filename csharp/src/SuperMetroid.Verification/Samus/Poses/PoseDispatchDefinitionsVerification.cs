@@ -21,7 +21,7 @@ internal static class PoseDispatchDefinitionsVerification
     internal static void VerifyPoseDispatchDefinitions(CartridgeImportAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {

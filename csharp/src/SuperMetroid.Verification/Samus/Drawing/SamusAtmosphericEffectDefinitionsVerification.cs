@@ -87,7 +87,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
@@ -107,7 +107,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         for (ushort frame = 0; frame < 10; frame++)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
@@ -133,7 +133,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, room));
             bool wet = policy != CrateriaAtmosphericEffectFlags.None;
 
-            var runner = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var runner = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
@@ -148,7 +148,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
                 $"production Crateria running policy ${room:X2}");
 
-            var landing = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var landing = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),

@@ -34,7 +34,7 @@ internal static class BeetomOwnedStateVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
+        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
         BeetomEnemyState state = enemies.BeetomStates[0]
             ?? throw new InvalidOperationException("The initialized Beetom has no state.");
         state.FacingRight = true;
@@ -43,13 +43,13 @@ internal static class BeetomOwnedStateVerification
 
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
+        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
         BeetomEnemyState successor = Ensure.NotNull(enemies.BeetomStates[0]);
         AssertTrue(!ReferenceEquals(state, successor), "re-initialization sets up a new Beetom");
         AssertTrue(successor.FacingRight, "a new Beetom inherits the facing the slot's previous Beetom left");
         RoomEnemySlot otherSlot = enemies.SlotTable.Slots[1];
         otherSlot.Bind(EnemyDefinitionId.Beetom, otherSlot.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(otherSlot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
+        enemies.BeetomBehavior.InitializeBeetom(otherSlot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), 0);
         BeetomEnemyState first = enemies.BeetomStates[1]
             ?? throw new InvalidOperationException("The other slot's Beetom has no state.");
         AssertTrue(!first.FacingRight, "a slot's first Beetom faces left");

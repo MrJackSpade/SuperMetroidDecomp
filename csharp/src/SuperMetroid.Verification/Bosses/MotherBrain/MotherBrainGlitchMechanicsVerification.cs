@@ -22,7 +22,7 @@ internal static class MotherBrainGlitchMechanicsVerification
     {
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
-        var spinning = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
+        var spinning = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
         SamusPoseMetadata.RefreshCollisionRadii(spinning);
         SamusPresentation.InitializeAnimation(spinning);
         spinning.Drained.PutStanding(spinning);
@@ -39,7 +39,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 
         // $90:F3FB returns carry set; Run_Samus_Command then cancels the pending transition.
-        var frozen = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose };
+        var frozen = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose };
         SamusDrainedState.FreezeForHyperBeamAcquisition(frozen);
         AssertTrue(frozen.PendingPoseTransitionCancelled, "Samus command $19 cancels the pending pose transition");
 
@@ -47,7 +47,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         // invincible Samus, and uses the Baby's position before this frame's main AI moves it.
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = WrappingCountdown.Start(invincibility) };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = WrappingCountdown.Start(invincibility) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);

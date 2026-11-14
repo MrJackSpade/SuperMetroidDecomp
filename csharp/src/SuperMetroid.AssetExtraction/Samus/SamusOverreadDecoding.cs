@@ -34,7 +34,7 @@ internal static class SamusOverreadDecoding
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         return new SamusOverreadDocument(
             SamusOverreadFormat.Version,
-            AnimationContinuations(cartridge),
+            AnimationSuccessors(cartridge),
             SamusAnimationCueValueDecoding.CueValueSteps(cartridge),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
@@ -49,14 +49,14 @@ internal static class SamusOverreadDecoding
     /// frame lies nearest after its own, named by its lowest-numbered pose, and the distance between their starts.
     /// </summary>
     /// <exception cref="InvalidDataException">Two poses of one program start apart, or two programs start together.</exception>
-    private static Dictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations(IImportCartridgeSource cartridge)
+    private static Dictionary<string, SamusOverreadDocument.Successor?> AnimationSuccessors(IImportCartridgeSource cartridge)
     {
         SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var successors = new Dictionary<SamusPoseAnimation, SamusOverreadDocument.Continuation?>();
+        var successors = new Dictionary<SamusPoseAnimation, SamusOverreadDocument.Successor?>();
         for (int index = 0; index < laidOut.Length; index++)
         {
             successors.Add(laidOut[index].Program, index + 1 < laidOut.Length
-                ? new SamusOverreadDocument.Continuation(laidOut[index + 1].NamedBy.ToString(), laidOut[index + 1].Start - laidOut[index].Start)
+                ? new SamusOverreadDocument.Successor(laidOut[index + 1].NamedBy.ToString(), laidOut[index + 1].Start - laidOut[index].Start)
                 : null);
         }
         return SamusAnimationProgramLayout.PosesWithRecords()

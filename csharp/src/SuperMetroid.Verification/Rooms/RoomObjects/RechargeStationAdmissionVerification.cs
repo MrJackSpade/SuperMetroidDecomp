@@ -32,7 +32,7 @@ internal static class RechargeStationAdmissionVerification
             RoomObjectKind header = missile ? RoomObjectKind.MissileStation : RoomObjectKind.EnergyStation;
             SeedRoomObjectPopulation(bus, 0x9000, [(byte)RoomObjectNativeWords.Word(header), LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(header)), 8, 8, 0, 0, 0, 0]);
             var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;

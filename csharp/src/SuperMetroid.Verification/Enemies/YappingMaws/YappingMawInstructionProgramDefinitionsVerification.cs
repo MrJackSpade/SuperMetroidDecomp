@@ -122,7 +122,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         foreach ((int activationDistance, bool attacks) in new[] { new VerifyYappingMawTargetingCase(301, true), new VerifyYappingMawTargetingCase(300, false), new VerifyYappingMawTargetingCase(40000, false) })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";

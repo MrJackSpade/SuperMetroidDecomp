@@ -127,9 +127,9 @@ internal static class BotwoonWallObjectsVerification
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {
-                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(0),
+                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(0, 0)),
                         "Botwoon crumble opens first scroll cell");
-                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(1),
+                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(1, 0)),
                         "Botwoon crumble opens second scroll cell");
                 }
             }

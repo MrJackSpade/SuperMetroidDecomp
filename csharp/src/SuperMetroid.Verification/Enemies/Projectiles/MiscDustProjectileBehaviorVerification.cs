@@ -29,7 +29,7 @@ internal static class MiscDustProjectileBehaviorVerification
     internal static void VerifyMiscDustProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();

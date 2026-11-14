@@ -45,7 +45,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new RoomTerrainBlock[64], new RoomBlockBehavior[64], new RoomBlockAppearance[64]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(roomObjects.PopulationSlots.Select(slot => slot.ProcessingPosition).SequenceEqual(ReusedPopulationSlots),
             "extension deletion lets the next record reuse the first slot in processing order, in authored order");
@@ -56,7 +56,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.Closed);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(3, 3)), "typed trigger wakes at its placement");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.Open, scrolls.ReadState(1), "decoded pairs mutate the intended live scroll cell");
+        AssertEqual(RoomScrollState.Open, scrolls.ReadScreen(new(1, 0)), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].Block), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",

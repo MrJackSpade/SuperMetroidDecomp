@@ -51,45 +51,45 @@ internal static class SamusOverreadServicesReader
                 Require(document.UnauthoredBeamCooldowns, nameof(document.UnauthoredBeamCooldowns))),
             DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
         return new SamusOverreadServices(
-            AnimationContinuation(document),
+            FramesBeyondAnimationOf(document),
             projectiles,
             straddledTerrain);
     }
 
     /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
-    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete continuation.</exception>
-    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> ReadAnimationContinuation(SamusOverreadDocument document)
+    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete animation successor.</exception>
+    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> ReadFramesBeyondAnimation(SamusOverreadDocument document)
     {
         Ensure.NotNull(document);
         if (document.Version != SamusOverreadFormat.Version)
             throw new InvalidDataException("Samus overread file has an unsupported version.");
-        return AnimationContinuation(document);
+        return FramesBeyondAnimationOf(document);
     }
 
     /// <summary>
     /// Every pose with an animation program, its program's successor and the steps its program's cue-value places read
     /// (#1535).
     /// </summary>
-    private static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation(SamusOverreadDocument document)
+    private static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimationOf(SamusOverreadDocument document)
     {
-        IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations =
-            Require(document.AnimationContinuations, nameof(document.AnimationContinuations));
+        IReadOnlyDictionary<string, SamusOverreadDocument.Successor?> documentSuccessors =
+            Require(document.AnimationSuccessors, nameof(document.AnimationSuccessors));
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> cueValueSteps =
             Require(document.AnimationCueValueSteps, nameof(document.AnimationCueValueSteps));
         SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord)];
         if (cueValueSteps.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} poses, not {poses.Length}.");
-        if (continuations.Count != poses.Length)
-            throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
+        if (documentSuccessors.Count != poses.Length)
+            throw new InvalidDataException($"Samus overread file holds {documentSuccessors.Count} animation successors, not {poses.Length}.");
         var successors = new Dictionary<SamusPoseId, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
         var cueValues = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
         foreach (SamusPoseId pose in poses)
         {
-            if (!continuations.TryGetValue(pose.ToString(), out SamusOverreadDocument.Continuation? continuation))
-                throw new InvalidDataException($"Samus overread file has no animation continuation for {pose}.");
-            successors.Add(pose, continuation is null
+            if (!documentSuccessors.TryGetValue(pose.ToString(), out SamusOverreadDocument.Successor? successor))
+                throw new InvalidDataException($"Samus overread file has no animation successor for {pose}.");
+            successors.Add(pose, successor is null
                 ? null
-                : new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
+                : new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(successor.Pose, "animation successor"), successor.Shift));
             if (!cueValueSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
                 throw new InvalidDataException($"Samus overread file has no cue-value steps for {pose}.");
             cueValues.Add(pose, Require(steps, $"cue-value steps for {pose}").ToDictionary(

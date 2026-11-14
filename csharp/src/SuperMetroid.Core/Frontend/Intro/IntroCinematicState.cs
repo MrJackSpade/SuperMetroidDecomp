@@ -597,7 +597,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded with the initial artwork; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
-        CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge)
+        CurrentFlashbackSamus = new SamusState(samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),

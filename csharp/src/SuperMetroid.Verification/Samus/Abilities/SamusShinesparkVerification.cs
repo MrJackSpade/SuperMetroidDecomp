@@ -78,7 +78,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
 
-    var shine = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var shine = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -159,7 +159,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             ShinesparkPhase.Diagonal, true, true),
     })
     {
-        var directional = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var directional = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = windupPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -200,7 +200,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     // positive external Y value can therefore reverse an upward shinespark. Native then
     // skips its 15-pixel upward-only clamp because the temporary magnitude is negative.
     // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
-    var externallyReversedSpark = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var externallyReversedSpark = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -249,7 +249,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     })
     foreach (ushort energy in new ushort[] { 1, 2, 29, 30 })
     {
-        var invincible = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var invincible = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -273,7 +273,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     // Use a fresh state so horizontal arithmetic begins from exactly CFFA's writes.
     var horizontalCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
-    var horizontal = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), horizontalCompatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var horizontal = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), horizontalCompatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -432,7 +432,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     {
         var fixtureShots = Shots();
         fixtureShots.SlotTable.ProjectileCounter = projectileCounter;
-        var fixture = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var fixture = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -484,7 +484,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
         var compatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),

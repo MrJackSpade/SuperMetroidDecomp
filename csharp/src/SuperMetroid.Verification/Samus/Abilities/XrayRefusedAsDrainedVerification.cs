@@ -70,7 +70,7 @@ internal static class XrayRefusedAsDrainedVerification
     /// <summary>A standing, right-facing Samus whose X-ray every other admission test admits.</summary>
     private static SamusState StandingSamus()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
             new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.FacingRightNormalPose,

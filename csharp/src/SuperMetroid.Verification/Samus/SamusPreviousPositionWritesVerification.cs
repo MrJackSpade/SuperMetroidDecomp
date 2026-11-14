@@ -45,7 +45,7 @@ internal static class SamusPreviousPositionWritesVerification
 
     /// <summary>A Samus with no writes recorded.</summary>
     private static SamusState NewSamus() =>
-        new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        new(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
 
     /// <summary>Dispatches the previous-position write checks.</summary>

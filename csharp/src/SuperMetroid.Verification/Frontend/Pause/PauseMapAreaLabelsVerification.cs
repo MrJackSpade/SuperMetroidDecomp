@@ -41,7 +41,7 @@ internal static class PauseMapAreaLabelsVerification
             gated.FinishFrame();
             AssertEqual(0, gated.LastFinalizedSpriteCount, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
             // The map is scrolled so every label lies on the screen's lines, the topmost LabelTopLine lines down: a label's
             // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).

@@ -127,7 +127,7 @@ internal static void VerifyHudState()
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");
 
-    var damagedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 94, MaxHealth = 99 };
+    var damagedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 94, MaxHealth = 99 };
     var hudAudio = new GameplayAudioRequests();
     hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "live HUD damage tens digit");
@@ -418,9 +418,9 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableAndFollowingHeader,
         new Extent16<RoomScreens>(4, 2));
-    AssertEqual(RoomScrollState.Open, shortTableGrid.ReadState(4),
+    AssertEqual(RoomScrollState.Open, shortTableGrid.ReadScreen(new(0, 1)),
         "short explicit scroll table preserves following room-header byte as a green cell");
-    AssertEqual(RoomScrollState.Open, shortTableGrid.ReadState(7),
+    AssertEqual(RoomScrollState.Open, shortTableGrid.ReadScreen(new(3, 1)),
         "short explicit scroll table preserves complete logical overread row");
 
     var camera = new ScrollBoundaryCamera(grid);
@@ -465,23 +465,24 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     constructionZone.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
     constructionZone.SetLogicalState(new(0, 1), RoomScrollState.Closed);
     DoorSetupDefinitions.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned.ChangeScreens(constructionZone);
-    AssertEqual(RoomScrollState.Open, constructionZone.ReadState(0),
-        "$8F:BE25 opens Construction Zone screen zero");
-    AssertEqual(RoomScrollState.OpenAlignedToTop, constructionZone.ReadState(1),
-        "$8F:BE25 opens Construction Zone screen one, aligned to its top");
+    AssertEqual(RoomScrollState.Open, constructionZone.ReadScreen(new(0, 0)),
+        "$8F:BE25 opens Construction Zone screen (0, 0)");
+    AssertEqual(RoomScrollState.OpenAlignedToTop, constructionZone.ReadScreen(new(0, 1)),
+        "$8F:BE25 opens Construction Zone screen (0, 1), aligned to its top");
     RoomScrollGrid parlor = LoadExplicitScrollFixture(source, RoomDefinitions.Parlor.Size);
-    parlor.SetCell(6, RoomScrollState.Closed);
+    parlor.SetLogicalState(new(1, 1), RoomScrollState.Closed);
     DoorSetupDefinitions.ParlorOpensScreen1x1.ChangeScreens(parlor);
-    AssertEqual(RoomScrollState.Open, parlor.ReadState(6),
-        "$8F:B981 opens early-route screen six, the Parlor's (1, 1)");
+    AssertEqual(RoomScrollState.Open, parlor.ReadScreen(new(1, 1)),
+        "$8F:B981 opens the Parlor's screen (1, 1)");
 
     // Door $83:AB4C leaves the Ceres Mode-7 shaft through `$8F:E513`. That routine
     // restores ordinary PPU state but performs no writes to the destination scroll array.
     // Its setup changes no screens, so an otherwise valid grid is left as it was;
     // its room event ends the turning floor.
-    grid.SetCell(7, RoomScrollState.OpenAlignedToTop);
+    grid.SetScreen(new(1, 2), RoomScrollState.OpenAlignedToTop);
+    RoomScrollState[] keptBefore = grid.KeptStates;
     DoorSetupDefinitions.FallingTileEndsTurningFloor.ChangeScreens(grid);
-    AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadState(7),
+    AssertTrue(grid.KeptStates.SequenceEqual(keptBefore),
         "$8F:E513 preserves the destination scroll cells");
 
     Console.WriteLine("  Scrolls: fifty-cell load and four directional boundary handlers agree.");

@@ -60,7 +60,7 @@ internal static class BoulderBehaviorVerification
             state.Action = BoulderAction.Rebound;
             state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(start);
             var frame = new ClockedEnemyAiFrame(
-                RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) },
+                RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) },
                 new FrameCounters(0));
 
             enemies.BoulderBehavior.RunBoulderMainAi(slot, frame);

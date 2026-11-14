@@ -134,9 +134,9 @@ internal static class NativeSnapshotImport
         runtime.ColourEffectSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
-        // Each recorded scroll byte becomes the cell the camera reads it as.
-        for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
-            runtime.Room.LoadedCamera.Scrolls.SetCell(cell, RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]));
+        // Each recorded scroll byte becomes the kept cell the camera reads it as.
+        runtime.Room.LoadedCamera.Scrolls.KeptCells.LoadAll(
+            RoomScrollStates.FromStorageBytes(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.KeptCellCount)));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         // The current area's exploration lives in its live plane; every other area's in the saved planes.
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)

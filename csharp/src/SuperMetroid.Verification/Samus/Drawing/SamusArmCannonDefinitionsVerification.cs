@@ -25,7 +25,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SamusArmCannonOpening.Opens(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
@@ -57,7 +57,7 @@ internal static class SamusArmCannonDefinitionsVerification
 
         // The cartridge stores at most two (INC, then 2 once it reaches 3), so a stable selection holds the count there and
         // the closed Beam selection starts no transition.
-        var holding = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        var holding = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
         PrepareRetailSamusFixture(holding);
         holding.ArmCannon.Artwork = artwork;
         holding.ArmCannon.StableSelectionUpdates = 2;

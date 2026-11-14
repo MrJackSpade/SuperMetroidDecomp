@@ -398,8 +398,8 @@ public sealed class SamusBombProjectileSystem
         out bool rejectedPlacementClearedCharge)
     {
         rejectedPlacementClearedCharge = false;
-        // The outer morph-ball handler test uses held Shoot. Both item branches eventually call
-        // helper two, which separately insists on the newly-pressed bit.
+        // Placement starts while Shoot is held; reserving the bomb, for either kind, then
+        // also needs Shoot newly pressed.
         const ControllerButton shoot = ControllerButton.X;
         if ((controllerInput & shoot) == ControllerButton.None)
             return null;
@@ -408,25 +408,25 @@ public sealed class SamusBombProjectileSystem
         if (placingPowerBomb && PowerBombExplosion.IsArmed)
             return null;
 
-        // Normal bombs require the Bomb item. The game's selected-power-bomb branch
-        // deliberately bypasses this equipment check and calls helper two directly.
+        // Normal bombs require the Bomb item. A selected Power Bomb skips this equipment
+        // check and goes straight to the reservation.
         if (!placingPowerBomb && !samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             return null;
 
         if (!TryReserveBombSlot(controllerNewInput, shoot))
         {
-            // Helper two also owns charge cancellation when it rejects placement
-            // (no new Shoot edge, active-slot limit or cooldown). Merely returning
-            // no bomb leaves a carried partial charge alive beyond its lifetime.
-            // Earlier equipment/power-bomb guards do not execute helper two and must
-            // preserve charge. Publish through the existing runtime palette/SFX bridge.
+            // A rejected reservation (no new Shoot press, every bomb slot in use, or the
+            // cooldown running) also cancels the beam charge, so a partial charge carried
+            // into the ball does not outlive it. The equipment and armed-Power-Bomb checks
+            // reject before the reservation and keep the charge. The runtime publishes the
+            // cancellation's palette and sound.
             rejectedPlacementClearedCharge = samus.BeamCharge.IsCharging;
             return null;
         }
 
         // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
-        // game's ordering nonetheless: helper two has already incremented the aggregate
-        // counter if Power Bombs are selected with none left.
+        // game's ordering nonetheless: the reservation has already counted the bomb when
+        // Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
             return null;
 
@@ -546,8 +546,9 @@ public sealed class SamusBombProjectileSystem
             return false;
         }
 
-        // Helper two increments both values before the caller searches for storage. The
-        // caller immediately replaces cooldown with table entry five (16) after init.
+        // Reserving a bomb counts it and lengthens the cooldown by one update before a free
+        // slot is chosen; once the bomb starts, placement replaces the cooldown with the
+        // bomb's own.
         CooldownTimer = CooldownTimer.AddFrames(1);
         BombCounter++;
 

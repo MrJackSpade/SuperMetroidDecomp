@@ -54,17 +54,22 @@ internal static class ShitroidScrollPairVerification
         Console.WriteLine("  Shitroid scroll pair: the second and fourth screens of the Big Boy room are its second and fourth cells.");
     }
 
-    /// <summary>Sets the room's first kept cells, in order, to <paramref name="states"/>.</summary>
+    /// <summary>
+    /// Sets each of the room's screens, in order, to the matching one of <paramref name="states"/>, and the screen below the
+    /// first, the kept cell after the room's own, to the last.
+    /// </summary>
     private static void Seed(RoomScrollGrid scrolls, RoomScrollState[] states)
     {
-        for (int cell = 0; cell < states.Length; cell++)
-            scrolls.SetCell(cell, states[cell]);
+        foreach ((Position16<RoomScreens> screen, RoomScrollState state) in scrolls.Screens.Zip(states))
+            scrolls.SetLogicalState(screen, state);
+        scrolls.SetScreen(new(0, scrolls.Size.Y), states[^1]);
     }
 
     /// <summary>Requires the room's first kept cells, in order, to hold <paramref name="states"/>.</summary>
     private static void Expect(RoomScrollGrid scrolls, RoomScrollState[] states, string change)
     {
+        RoomScrollState[] kept = scrolls.KeptStates;
         for (int cell = 0; cell < states.Length; cell++)
-            AssertEqual(states[cell], scrolls.ReadState(cell), $"{change} leaves cell {cell} {states[cell]}");
+            AssertEqual(states[cell], kept[cell], $"{change} leaves cell {cell} {states[cell]}");
     }
 }

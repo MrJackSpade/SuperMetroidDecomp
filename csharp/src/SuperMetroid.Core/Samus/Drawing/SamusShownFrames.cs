@@ -50,7 +50,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </remarks>
 internal sealed class SamusShownFrames
 {
-    /// <summary>The frames computed for each continuation an animation reads past its animations with.</summary>
+    /// <summary>The frames computed for each reading of the frames past Samus's animations, by that reading.</summary>
     private static readonly ConditionalWeakTable<FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>, SamusShownFrames> computed = new();
 
     /// <summary>
@@ -63,7 +63,7 @@ internal sealed class SamusShownFrames
         [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>What a frame past an animation's end reads.</summary>
-    private readonly FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation;
+    private readonly FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation;
 
     /// <summary>The frames each pose can show.</summary>
     private readonly Dictionary<SamusPoseId, SortedSet<int>> shown = [];
@@ -85,9 +85,9 @@ internal sealed class SamusShownFrames
     /// frames, then the unauthored paths, until no further frame shows; and maps every shown frame to its picture frame.
     /// </summary>
     /// <exception cref="InvalidDataException">A shown frame has no picture frame of its pose at or before it.</exception>
-    private SamusShownFrames(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation)
+    private SamusShownFrames(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation)
     {
-        this.continuation = continuation;
+        this.framesBeyondAnimation = framesBeyondAnimation;
         var pending = new Queue<SamusPoseFrame>();
         foreach (SamusPoseId pose in Poses)
             shown.Add(pose, []);
@@ -108,9 +108,9 @@ internal sealed class SamusShownFrames
         }
     }
 
-    /// <summary>The frames Samus's body can show, for the animations <paramref name="continuation"/> reads past.</summary>
-    internal static SamusShownFrames Of(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
-        computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
+    /// <summary>The frames Samus's body can show, for the animations <paramref name="framesBeyondAnimation"/> reads past.</summary>
+    internal static SamusShownFrames Of(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
+        computed.GetValue(Ensure.NotNull(framesBeyondAnimation), static key => new SamusShownFrames(key));
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
     internal static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
@@ -204,7 +204,7 @@ internal sealed class SamusShownFrames
     /// <exception cref="InvalidDataException">An animation holds a step its playback has no handler for.</exception>
     private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
     {
-        SamusPoseAnimationStep? step = SamusAnimationDelays.TryStepFor(pose, frame, continuation);
+        SamusPoseAnimationStep? step = SamusAnimationDelays.TryStepFor(pose, frame, framesBeyondAnimation);
         if (step is SamusAnimationDelay)
             return [frame];
         if (reach == FrameReach.Selection || step is null)

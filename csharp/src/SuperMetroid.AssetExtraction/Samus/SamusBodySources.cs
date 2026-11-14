@@ -201,10 +201,10 @@ public sealed class SamusBodySources
     /// What the installation holds of this body for the game (#1638): each pose's art origin, every body frame the body sheet
     /// pictures with where it places the body, her death steps and the arm cannon's placement at every frame each pose shows.
     /// </summary>
-    /// <param name="continuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
-    internal InstalledSamusBody InstalledBody(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
+    /// <param name="framesBeyondAnimation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
+    internal InstalledSamusBody InstalledBody(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
         new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-            SheetFrames(originRises, Spritemaps, Ensure.NotNull(continuation)), DeathSteps, ArmCannon.Installed(continuation));
+            SheetFrames(originRises, Spritemaps, Ensure.NotNull(framesBeyondAnimation)), DeathSteps, ArmCannon.Installed(framesBeyondAnimation));
 
     /// <summary>
     /// Every whole picture the body sheet holds, in the cartridge's pose order and frame order: each frame
@@ -223,14 +223,14 @@ public sealed class SamusBodySources
 
     /// <summary>
     /// The body frames the body sheet pictures (#1513, #1585, #1638), and where each places the body: each picture frame of
-    /// each pose some path gives Samus, as her own animation shows it with <paramref name="continuation"/>, whose half
+    /// each pose some path gives Samus, as her own animation shows it with <paramref name="framesBeyondAnimation"/>, whose half
     /// pictures and placement are installed and whose halves' animation frames the pose-half table holds. A body whose
     /// halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
     private static Dictionary<SamusPoseId, IReadOnlyDictionary<int, int>> SheetFrames(Dictionary<SamusPoseId, IReadOnlyList<int?>> installed,
-        SamusSpritemapSources spritemaps, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation)
+        SamusSpritemapSources spritemaps, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation)
     {
-        SamusShownFrames shown = SamusShownFrames.Of(continuation);
+        SamusShownFrames shown = SamusShownFrames.Of(framesBeyondAnimation);
         Dictionary<SamusPoseId, Dictionary<int, int>> pictured = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => new Dictionary<int, int>());
         foreach (SamusPoseId pose in SamusShownFrames.Poses)
         {

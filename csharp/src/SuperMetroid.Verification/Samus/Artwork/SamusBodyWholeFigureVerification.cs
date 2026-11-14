@@ -55,7 +55,7 @@ internal static class SamusBodyWholeFigureVerification
         SamusSpritemapSources spritemaps = body.Spritemaps;
         var drawers = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var findings = new List<string>();
-        foreach (SamusShownBody shown in SamusShownFrames.Of(InstalledFixtures.AnimationContinuation).Bodies(body))
+        foreach (SamusShownBody shown in SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation).Bodies(body))
         {
             SamusBodyComposition drawn = shown.Composition;
             if (spritemaps.PictureKey(drawn, shown.Pictures) is not { } key)

@@ -58,7 +58,7 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = room.LoadedCamera, "room camera requires a loaded room");
         var player = new SamusFrameState();
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
-        player.Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        player.Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
         var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");

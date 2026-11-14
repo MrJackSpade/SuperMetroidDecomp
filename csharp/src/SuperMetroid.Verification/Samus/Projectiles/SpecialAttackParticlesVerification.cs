@@ -464,7 +464,7 @@ internal static class SpecialAttackParticlesVerification
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var shared = new SamusBombProjectileSystem();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState())
         {
             Pose = SamusPoseId.FacingRightNormalPose,

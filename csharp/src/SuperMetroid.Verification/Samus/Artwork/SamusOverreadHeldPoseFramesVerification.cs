@@ -39,7 +39,7 @@ internal static class SamusOverreadHeldPoseFramesVerification
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SamusBodySources body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Spritemaps;
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
+        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
         SamusShownBody[] bodies = [.. shown.Bodies(body)];
         int resolved = 0;
         foreach (SamusPoseId pose in OverreadHeldPoses)
@@ -65,7 +65,7 @@ internal static class SamusOverreadHeldPoseFramesVerification
 
         // The Draygon-held ball has the Draygon-held movement type, whose normal entry only clears the vertical collision
         // result, so without Draygon placing her she does not move.
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.DraygonHeldBallLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

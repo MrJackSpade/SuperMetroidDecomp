@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// cartridge and keyed by the game situation that reaches it, never by a cartridge place.
 /// </summary>
 /// <param name="Version">The schema revision, <see cref="SamusOverreadFormat.Version"/>.</param>
-/// <param name="AnimationContinuations">
+/// <param name="AnimationSuccessors">
 /// For every pose with an animation program, the program laid out after its own, named by a pose that animates by it,
 /// and the frame shift; null for the last program laid out.
 /// </param>
@@ -28,7 +28,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
 internal sealed record SamusOverreadDocument(
     int Version,
-    IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
+    IReadOnlyDictionary<string, SamusOverreadDocument.Successor?> AnimationSuccessors,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> AnimationCueValueSteps,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
@@ -40,7 +40,7 @@ internal sealed record SamusOverreadDocument(
     /// <summary>The program laid out after another, named by a pose that animates by it.</summary>
     /// <param name="Pose">The name of a pose that animates by the later program.</param>
     /// <param name="Shift">How many frames after the earlier program it starts.</param>
-    internal sealed record Continuation(string Pose, int Shift);
+    internal sealed record Successor(string Pose, int Shift);
 
     /// <summary>The step the animation reads at a cue value's place: what the game does on reaching that frame (#1535).</summary>
     /// <param name="Kind">What the step does.</param>

@@ -26,7 +26,7 @@ internal static class BabyMetroidDeathCryVerification
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 79;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         apply(baby.Step(samus, sequence, HeadOf(sequence)));
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");

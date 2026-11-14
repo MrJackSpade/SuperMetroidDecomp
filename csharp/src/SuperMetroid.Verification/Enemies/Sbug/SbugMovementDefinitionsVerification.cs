@@ -70,7 +70,7 @@ internal static class SbugMovementDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(slot, 21), $"Sbug facing loop {selector}");
         }
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
@@ -115,7 +115,7 @@ internal static class SbugMovementDefinitionsVerification
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         state.FaceCustomHeading(RotationAngle.FromSteps(240));
         state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");

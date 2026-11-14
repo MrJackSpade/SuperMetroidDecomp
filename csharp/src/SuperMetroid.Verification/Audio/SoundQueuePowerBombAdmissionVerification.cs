@@ -92,7 +92,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
     /// <summary>A standing-ready Samus in <paramref name="pose"/>, her sounds joining <paramref name="requests"/>.</summary>
     private static SamusState SamusAt(SamusPoseId pose, GameplayAudioRequests requests)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState())
         {
             Pose = pose,

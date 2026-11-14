@@ -49,7 +49,7 @@ internal static class SamusCueValuePlaceReadsVerification
     private static void VerifyChain(IImportCartridgeSource cartridge, SamusPoseId pose, string writer, Action<SamusState> write,
         SamusPoseId reported)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

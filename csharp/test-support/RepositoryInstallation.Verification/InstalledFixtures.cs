@@ -56,9 +56,9 @@ internal static class InstalledFixtures
     /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
 
-    /// <summary>The installation's continuation of a Samus animation frame past its pose's program, which every Samus takes.</summary>
-    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> AnimationContinuation =>
-        SamusOverreads.AnimationContinuation;
+    /// <summary>What the installation reads at a Samus animation frame past her pose's program, which every Samus takes.</summary>
+    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
+        SamusOverreads.FramesBeyondAnimation;
 
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = Shared<RoomAssetCatalogs>("room asset catalogs", () => new RoomAssetCatalogs(
@@ -407,7 +407,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
+    internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
     /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, ImportIntroCinematicArtwork? artwork = null) =>

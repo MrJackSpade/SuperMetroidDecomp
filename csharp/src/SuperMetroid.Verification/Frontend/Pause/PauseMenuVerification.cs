@@ -102,7 +102,7 @@ internal static class PauseMenuVerification
         gameplayHud.BindPresentation(presentation.Game.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.CeresDebug);
         ShownHud retainedHud = gameplayHud.Shown();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
@@ -258,7 +258,7 @@ internal static class PauseMenuVerification
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
         var restoredRevealSystem = new SharedGameState(new SharedRandom());
-        restoredRevealSlot.ApplyTo(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), restoredRevealSystem);
+        restoredRevealSlot.ApplyTo(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), restoredRevealSystem);
         var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = MapRevealMode.None, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");

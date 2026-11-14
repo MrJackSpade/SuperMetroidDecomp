@@ -27,7 +27,7 @@ internal static class PhantoonPositionVerification
         capEnemies.PhantoonBehavior.Combat.Phantoon = capState;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.TentaclesState.SwoopVelocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
-        PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
+        PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
         AssertEqual((ushort)0xf800, capState.TentaclesState.SwoopVelocity.X.RawValue, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capState.TentaclesState.SwoopVelocity.Y.RawValue, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");

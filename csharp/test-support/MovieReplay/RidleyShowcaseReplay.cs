@@ -262,12 +262,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     mismatches.Add($"Cannon draw order: native={recordedDrawOrder} port={samus.ArmCannon.DrawOrder}");
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 // The recorded scroll bytes are compared as the cells the camera reads them as.
-                for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
+                RoomScrollState[] keptCells = runtime.Room.LoadedCamera.Scrolls.KeptStates;
+                for (int cell = 0; cell < keptCells.Length; cell++)
                 {
                     RoomScrollState recorded = RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]);
-                    RoomScrollState kept = runtime.Room.LoadedCamera.Scrolls.ReadState(cell);
-                    if (kept != recorded)
-                        mismatches.Add($"Room scroll cell {cell}: native={recorded} port={kept}");
+                    if (keptCells[cell] != recorded)
+                        mismatches.Add($"Room scroll cell {cell}: native={recorded} port={keptCells[cell]}");
                 }
                 for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
                 {

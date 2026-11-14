@@ -58,8 +58,9 @@ internal static class KraidCameraMappingsVerification
     /// <summary>Requires the room's first cells to hold the states the original's operands store to them, in order.</summary>
     private static void ExpectCells(ISnesAddressSpace rom, int[] operandAddresses, RoomScrollGrid scrolls, string change)
     {
+        RoomScrollState[] kept = scrolls.KeptStates;
         for (int cell = 0; cell < operandAddresses.Length; cell++)
-            AssertEqual(rom.ReadCartridgeByte(operandAddresses[cell]), scrolls.ReadState(cell).ToStorageByte(),
+            AssertEqual(rom.ReadCartridgeByte(operandAddresses[cell]), kept[cell].ToStorageByte(),
                 $"{change} leaves cell {cell} as the original stores it");
     }
 

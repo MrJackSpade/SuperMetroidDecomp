@@ -35,8 +35,9 @@ internal static class ImplicitScrollResidueVerification
         AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(ushort.MaxValue),
             "the last index a 16-bit register selects lies past every stored map");
         AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadCameraState(3), "the bottom row is blue");
+        RoomScrollState[] kept = grid.KeptStates;
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.KeptCellCount; index++)
-            AssertEqual(previousTail[index], grid.ReadState(index), $"scroll cell {index} keeps the previous room's value");
+            AssertEqual(previousTail[index], kept[index], $"scroll cell {index} keeps the previous room's value");
         AssertEqual(RoomScrollState.OpenAlignedToTop, grid.ReadCameraState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");

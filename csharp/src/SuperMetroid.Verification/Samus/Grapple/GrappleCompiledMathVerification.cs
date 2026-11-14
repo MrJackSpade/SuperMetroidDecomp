@@ -25,7 +25,7 @@ internal static class GrappleCompiledMathVerification
         // accidental ROM dependency a failing contract, not merely equal output.
         var point = new Func<SamusGrappleState, byte, int, GrappleCollisionPoint>((grapple, angle, distance) => SamusGrappleSwing.CalculateCollisionPoint(grapple, new TrigonometryAngle(angle), distance));
         var release = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PropelSamusFromSwing);
-        var state = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var state = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         MotherBrainRinkaDoorSpawnExpected[] anchors = [new MotherBrainRinkaDoorSpawnExpected(0, 0), new MotherBrainRinkaDoorSpawnExpected(7, 8), new MotherBrainRinkaDoorSpawnExpected(128, 255), new MotherBrainRinkaDoorSpawnExpected(4095, 4096), new MotherBrainRinkaDoorSpawnExpected(65520, 65535), new MotherBrainRinkaDoorSpawnExpected(65535, 0)];
         int pointCount = 0;
         foreach (var anchor in anchors)

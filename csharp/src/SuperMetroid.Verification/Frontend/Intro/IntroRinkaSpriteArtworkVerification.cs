@@ -75,7 +75,7 @@ internal static class IntroRinkaSpriteArtworkVerification
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroRinkas);
         var rinkas = new IntroRinkaSystem();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
             rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,

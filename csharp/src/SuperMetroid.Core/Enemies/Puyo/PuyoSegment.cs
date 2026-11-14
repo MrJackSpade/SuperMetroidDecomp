@@ -12,14 +12,14 @@ internal enum PuyoSegment
     GroundedMedium,
     /// <summary>The grounded slow animation.</summary>
     GroundedSlow,
-    /// <summary>The right frame 0 left frame 4 animation.</summary>
-    RightFrame0LeftFrame4,
-    /// <summary>The right frame 1 left frame 3 animation.</summary>
-    RightFrame1LeftFrame3,
-    /// <summary>The frame 2 animation.</summary>
-    Frame2,
-    /// <summary>The right frame 3 left frame 1 animation.</summary>
-    RightFrame3LeftFrame1,
-    /// <summary>The right frame 4 left frame 0 animation.</summary>
-    RightFrame4LeftFrame0,
+    /// <summary>The airborne pose tilted furthest right: early in a rise to the right, late in a fall to the left.</summary>
+    TiltedFarRight,
+    /// <summary>The airborne pose tilted right: midway through a rise to the right or a fall to the left.</summary>
+    TiltedRight,
+    /// <summary>The upright airborne pose at the top of a hop.</summary>
+    Upright,
+    /// <summary>The airborne pose tilted left: midway through a rise to the left or a fall to the right.</summary>
+    TiltedLeft,
+    /// <summary>The airborne pose tilted furthest left: early in a rise to the left, late in a fall to the right.</summary>
+    TiltedFarLeft,
 }

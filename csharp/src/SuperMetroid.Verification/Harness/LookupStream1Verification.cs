@@ -224,7 +224,7 @@ internal static class LookupStream1Verification
             {
                 0xc163 => PowampSegment.BodyFast,
                 0xc173 => PowampSegment.BodySlow,
-                0xc183 => PowampSegment.BalloonInflate0,
+                0xc183 => PowampSegment.BalloonInflatingFromDeflated,
                 _ => PowampSegment.BalloonStartSinking,
             }), AnimationPlace.StartOfAnimation);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());

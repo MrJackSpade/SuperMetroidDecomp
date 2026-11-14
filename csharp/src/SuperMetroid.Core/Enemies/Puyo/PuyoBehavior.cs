@@ -355,36 +355,36 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 segment = state.YSpeedCurvePlace >=
                         state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame0LeftFrame4
+                    ? PuyoSegment.TiltedFarRight
                     : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.RightFrame1LeftFrame3
-                        : PuyoSegment.Frame2;
+                        ? PuyoSegment.TiltedRight
+                        : PuyoSegment.Upright;
             }
             else
             {
                 segment = state.YSpeedCurvePlace >=
                         state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame4LeftFrame0
+                    ? PuyoSegment.TiltedFarLeft
                     : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.RightFrame3LeftFrame1
-                        : PuyoSegment.Frame2;
+                        ? PuyoSegment.TiltedLeft
+                        : PuyoSegment.Upright;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
             segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Frame2
+                ? PuyoSegment.Upright
                 : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame3LeftFrame1
-                    : PuyoSegment.RightFrame4LeftFrame0;
+                    ? PuyoSegment.TiltedLeft
+                    : PuyoSegment.TiltedFarLeft;
         }
         else
         {
             segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Frame2
+                ? PuyoSegment.Upright
                 : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.RightFrame1LeftFrame3
-                    : PuyoSegment.RightFrame0LeftFrame4;
+                    ? PuyoSegment.TiltedRight
+                    : PuyoSegment.TiltedFarRight;
         }
 
         SetPuyoAnimation(slot, state, segment);

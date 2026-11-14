@@ -17,8 +17,8 @@ internal static class PowampNativeListAddresses
     [
         new NativeProgramEntry<PowampSegment>(PowampSegment.BodyFast, 0xc163),
         new NativeProgramEntry<PowampSegment>(PowampSegment.BodySlow, 0xc173),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflate0, 0xc183),
-        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflate1, 0xc187),
+        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflatingFromDeflated, 0xc183),
+        new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonInflatingFromHalfway, 0xc187),
         new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonStartSinking, 0xc191),
         new NativeProgramEntry<PowampSegment>(PowampSegment.BalloonDeflated, 0xc199),
     ];

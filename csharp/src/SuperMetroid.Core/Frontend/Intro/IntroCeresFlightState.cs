@@ -189,7 +189,7 @@ internal sealed class IntroCeresFlightState
             stars.Step();
 
         // The cinematic's game state runs the colour effects after its sprite objects, including on the update that
-        // starts one; their records are shades the import pre-colours the flight's sheet in (#1733).
+        // starts one; their frames are shades the import pre-colours the flight's sheet in (#1733).
         ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
     }
 
@@ -230,7 +230,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>
-    /// The shading of the turning floor (#1733): the shade of the record the gunship engine's flicker shows once the rear
+    /// The shading of the turning floor (#1733): the shade of the frame the gunship engine's flicker shows once the rear
     /// view has started it, or the floor's standard colours before; the floor fades with the display's brightness (#1512).
     /// </summary>
     internal PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
@@ -251,7 +251,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>
-    /// An actor's shading (#1733): <paramref name="drawn"/>, with the record a colour effect animating its colouring last
+    /// An actor's shading (#1733): <paramref name="drawn"/>, with the frame a colour effect animating its colouring last
     /// showed laid over it: the station's navigation lights over the station's colours.
     /// </summary>
     private PictureShading ActorShading(PictureShade drawn)

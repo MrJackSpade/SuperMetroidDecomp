@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>Saved-station marker and its animation timer.</summary>
 public sealed class FileSelectStationMarker
 {
-    /// <summary>Current phase of the four-frame station indicator pulse.</summary>
+    /// <summary>The marker's step in its pulse (<see cref="PauseMapIndicatorAnimation.Pulse"/>).</summary>
     private int frame;
     /// <summary>Remaining menu ticks in the current animation phase.</summary>
     private int timer;
@@ -33,7 +33,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>
     public Position16<MapPixels> MapPosition { get; private set; }
     /// <summary>Current marker frame identity, following its pulse; querying does not advance the timer.</summary>
-    public MapSpriteId SpriteId => PauseMapIndicatorAnimation.SpriteId(frame);
+    public MapSpriteId SpriteId => PauseMapIndicatorAnimation.Pulse[frame].Sprite;
     /// <summary>Whether the marker's backing frame is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
     public bool ShowBacking { get; private set; } = true;
 
@@ -43,13 +43,13 @@ public sealed class FileSelectStationMarker
         if (timer == 0)
         {
             frame++;
-            if (frame == PauseMapIndicatorAnimation.FrameCount)
+            if (frame == PauseMapIndicatorAnimation.Pulse.Count)
             {
                 frame = 0;
                 // Only the parity of completed pulses is observable, so each pulse toggles the backing.
                 ShowBacking = !ShowBacking;
             }
-            timer = PauseMapIndicatorAnimation.FrameDelay(frame);
+            timer = PauseMapIndicatorAnimation.Pulse[frame].Duration;
         }
         timer--;
     }

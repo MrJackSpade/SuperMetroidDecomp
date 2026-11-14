@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// What the running ending scene's colours show (#1512, #1544, #1597), derived from the scene's current colour state: the
 /// scene's own colours, the loads within it that restore some of them, each fade at its current level, the flashes the
-/// scene shows, the logo crossfade's step, and the record each of the ending's running or settled palette effects shows.
+/// scene shows, the logo crossfade's step, and the frame each of the ending's running or settled colour effects shows.
 /// A scene's colours are its own: a scene starts in its whole screen of colours, and nothing an earlier scene showed shows
 /// in it. Each background picture and floor the ending draws is shaded in those authored for it, and an actor's pictures
 /// in those authored for it under its colouring (#1544). Which colours each covers is the import's.
 /// </summary>
 /// <remarks>
 /// The shades lie in a fixed order, the order the ending's scenes bring them in: the scene's colours, the loads that
-/// restore some of them, the fades, the flashes, the logo crossfade and the palette effects. A load that restores colours
+/// restore some of them, the fades, the flashes, the logo crossfade and the colour effects. A load that restores colours
 /// ends the effects whose colours it restores (<see cref="EndingColourOwnerDefinitions.Restores"/>), so no shade depends
 /// on which was shown last.
 /// </remarks>
@@ -33,7 +33,7 @@ internal sealed class EndingColours
     /// <summary>The loads within the running scene that restore some of its colours.</summary>
     private readonly HashSet<EndingColourLoad> restored = [];
 
-    /// <summary>The palette-effect colours whose settled look a load within the running scene replaced.</summary>
+    /// <summary>The colour-effect colours whose settled look a load within the running scene replaced.</summary>
     private readonly HashSet<ColourEffectColours> restoredColourEffects = [];
 
     /// <summary>Each fade the running scene shows, at its current level.</summary>
@@ -45,7 +45,7 @@ internal sealed class EndingColours
     /// <summary>The logo crossfade's current step, or none before the crossfade.</summary>
     private int? logoCrossfadeStep;
 
-    /// <summary>The ending's palette effects, which each scene boundary clears.</summary>
+    /// <summary>The ending's colour effects, which each scene boundary clears.</summary>
     internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
 
     /// <summary>
@@ -54,7 +54,7 @@ internal sealed class EndingColours
     /// some of its colours and ends the effects in them.
     /// </summary>
     /// <exception cref="ArgumentException">A scene's load names no backdrop, or a load within a scene names one.</exception>
-    /// <exception cref="InvalidOperationException">A load within a scene restores colours a running palette effect still animates.</exception>
+    /// <exception cref="InvalidOperationException">A load within a scene restores colours a running colour effect still animates.</exception>
     internal void Load(EndingColourLoad load, RgbColor? backdrop)
     {
         if (StartsScene(load))
@@ -78,7 +78,7 @@ internal sealed class EndingColours
         foreach (ColourEffectColours colours in restores.ColourEffects)
         {
             if (ColourEffects.Animates(colours))
-                throw new InvalidOperationException($"The ending's {load} load restores {colours}, which a running palette effect still animates.");
+                throw new InvalidOperationException($"The ending's {load} load restores {colours}, which a running colour effect still animates.");
             restoredColourEffects.Add(colours);
         }
         restored.Add(load);
@@ -98,7 +98,7 @@ internal sealed class EndingColours
         logoCrossfadeStep = Ensure.BetweenInclusive(0, EndingShades.LogoCrossfadeSteps - 1, step);
 
     /// <summary>
-    /// Clears the palette effects at a scene boundary (#1544): every effect ends, so the records they showed stop showing.
+    /// Clears the colour effects at a scene boundary (#1544): every effect ends, so the frames they showed stop showing.
     /// </summary>
     internal void ResetColourEffects() => ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
 

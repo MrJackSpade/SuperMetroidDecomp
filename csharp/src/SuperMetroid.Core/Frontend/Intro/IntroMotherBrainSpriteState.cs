@@ -146,7 +146,7 @@ internal sealed class IntroMotherBrainSpriteState
     public void Step() => actor.Step(cue =>
     {
         if (cue != CinematicSpriteCueKind.StartIntroPage2)
-            throw new InvalidOperationException($"The intro Mother Brain programs publish no {cue} cue.");
+            throw new InvalidOperationException($"The intro Mother Brain's animations publish no {cue} cue.");
         PageTwoRequested = true;
     });
 

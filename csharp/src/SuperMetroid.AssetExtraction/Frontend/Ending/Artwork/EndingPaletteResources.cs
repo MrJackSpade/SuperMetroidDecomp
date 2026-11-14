@@ -27,7 +27,7 @@ public static class EndingPaletteResources
     {
         Ensure.NotNull(colours);
         var ordered = new List<RgbColor>(EndingLogoCrossfadeImage.ColourCount);
-        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
+        for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
             foreach (EndingLogoLayer layer in (EndingLogoLayer[])[EndingLogoLayer.Background, EndingLogoLayer.Sprites])
                 for (int colour = 0; colour < EndingLogoCrossfadeColours.ColoursPerLayer; colour++)
                     ordered.Add(colours.Colour(step, layer, colour));

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// The colour effects' colour groups that recolour Samus's suit in gameplay (#1512): her glow in a heated room and her suit
-/// materializing as she loads. She lays the shade of each record they show over her suit; which of her colours each
+/// materializing as she loads. She lays the shade of each frame they show over her suit; which of her colours each
 /// recolours is the import's.
 /// </summary>
 internal static class ColourEffectSamusColourDefinitions

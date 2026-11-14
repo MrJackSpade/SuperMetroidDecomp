@@ -242,7 +242,7 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:
@@ -367,10 +367,8 @@ internal sealed class IntroBabyDiscoveryState
         // reaches this row once. Four init parameters select four distinct arcs.
         if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
-            for (int index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
-            {
-                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, index));
-            }
+            foreach (IntroEggSlimeLaunch launch in IntroEggMotionDefinitions.SlimeLaunches)
+                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, launch));
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio?.QueueSound(

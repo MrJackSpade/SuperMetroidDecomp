@@ -5,15 +5,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresExplosionDefinitions
 {
 
-    /// <summary>Number of actors spawned by the first wave.</summary>
-    public const int InitialExplosionCount = 5;
-
-    /// <summary>Number of cyclic offsets consumed by the repeating wave's frame behaviour.</summary>
-    public const int RepeatingExplosionCount = 8;
-
-    /// <summary>Number of actors spawned by the final wave.</summary>
-    public const int FinalExplosionCount = 4;
-
     /// <summary>Invisible wait before the first wave.</summary>
     public const int InitialWaitFrames = 128;
 
@@ -58,29 +49,45 @@ internal static class CeresExplosionDefinitions
     public static CinematicActorDefinition StationBlastActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresStationBlast);
 
-    /// <summary>The repeating burst's eight chosen screen-space positions.</summary>
-    /// <remarks>
-    /// Retained under #1165's drawing/choreography exception. Each ordinal creates the
-    /// same small blast, then advances modulo eight even if allocation fails. These
-    /// points describe the particular scattered sequence around the station, not sampled
-    /// motion, actor dispatch, or hull attachment points: the offsets stay in screen space
-    /// while the underlying turning-floor image changes scale. A per-index switch or fitted curve
-    /// would just encode this same layout. The initial square/center layout, final X rule,
-    /// animation delays and shared actor motion are calculated separately.
-    /// </remarks>
-    internal static readonly Offset16<SpritePixels>[] RepeatingBurstLayout =
+    /// <summary>
+    /// The first wave's five small blasts, in the order they appear: one at each corner of a square around the turning
+    /// floor's centre, one after another, then one at the centre. Each offset is from the floor's centre on screen.
+    /// </summary>
+    internal static IReadOnlyList<CeresExplosionPlacement> InitialWave { get; } =
     [
-        new Offset16<SpritePixels>(14, -8), new Offset16<SpritePixels>(8, 12), new Offset16<SpritePixels>(-16, 12), new Offset16<SpritePixels>(-8, -14),
-        new Offset16<SpritePixels>(0, 0), new Offset16<SpritePixels>(16, 14), new Offset16<SpritePixels>(-12, 4), new Offset16<SpritePixels>(-8, -16),
+        new(new(16, -16), 1),
+        new(new(-16, 16), 16),
+        new(new(16, 16), 32),
+        new(new(-16, -16), 48),
+        new(new(0, 0), 64),
     ];
 
-    /// <summary>Chosen heights of the four final large bursts.</summary>
-    /// <remarks>
-    /// Retained as the final burst's spatial choreography under #1165. These are absolute
-    /// offsets from the scrolling anchor, not successive displacements or a velocity curve.
-    /// The alternating upper/lower placements have individually chosen heights; turning
-    /// their ordinal-to-height list into cases would merely recite the layout. Only this
-    /// Y content is retained: the independent X and delay fields remain calculated.
-    /// </remarks>
-    internal static ReadOnlySpan<short> FinalBurstHeights => [-4, 8, -10, 12];
+    /// <summary>
+    /// The repeating small blasts' eight places around the station, in the order they appear; after the eighth the next
+    /// blast appears at the first again. Each appears on the update after it is spawned. The places stay on screen while
+    /// the turning floor's picture shrinks beneath them.
+    /// </summary>
+    internal static IReadOnlyList<CeresExplosionPlacement> RepeatingBlasts { get; } =
+    [
+        new(new(14, -8), 1),
+        new(new(8, 12), 1),
+        new(new(-16, 12), 1),
+        new(new(-8, -14), 1),
+        new(new(0, 0), 1),
+        new(new(16, 14), 1),
+        new(new(-12, 4), 1),
+        new(new(-8, -16), 1),
+    ];
+
+    /// <summary>
+    /// The final wave's four large blasts, in the order they appear: two to the right of the floor's centre, then two to
+    /// its left, each pair one above and one below.
+    /// </summary>
+    internal static IReadOnlyList<CeresExplosionPlacement> FinalWave { get; } =
+    [
+        new(new(8, -4), 1),
+        new(new(12, 8), 4),
+        new(new(-8, -10), 8),
+        new(new(-12, 12), 16),
+    ];
 }

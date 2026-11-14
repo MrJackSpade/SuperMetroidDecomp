@@ -10,14 +10,14 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 internal sealed class GameOverBabyPaint
 {
     /// <summary>The colours the Baby shows in each phase.</summary>
-    private readonly Dictionary<GameOverBabyPalette, RgbColor[]> palettes;
+    private readonly Dictionary<GameOverBabyColouring, RgbColor[]> palettes;
 
     /// <summary>Retains the four installed phases the presentation loader validated.</summary>
     /// <exception cref="InvalidDataException">A phase is missing or does not hold sixteen colours.</exception>
-    internal GameOverBabyPaint(IReadOnlyDictionary<GameOverBabyPalette, RgbColor[]> palettes)
+    internal GameOverBabyPaint(IReadOnlyDictionary<GameOverBabyColouring, RgbColor[]> palettes)
     {
         this.palettes = [];
-        foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
+        foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
         {
             if (!palettes.TryGetValue(palette, out RgbColor[]? colours) || colours is not { Length: 16 })
                 throw new InvalidDataException($"The game-over Baby's {palette} colours require sixteen colours.");
@@ -27,7 +27,7 @@ internal sealed class GameOverBabyPaint
 
     /// <summary>The sixteen colours the Baby shows in <paramref name="palette"/>, which the import pre-colours its shade in (#1512).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    internal RgbColor[] Colours(GameOverBabyPalette palette)
+    internal RgbColor[] Colours(GameOverBabyColouring palette)
     {
         var colours = new RgbColor[16];
         for (int colour = 0; colour < colours.Length; colour++)
@@ -37,7 +37,7 @@ internal sealed class GameOverBabyPaint
 
     /// <summary>The installed colour <paramref name="color"/> of phase <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase or colour is outside the Baby's colours.</exception>
-    internal RgbColor Read(GameOverBabyPalette palette, int color)
+    internal RgbColor Read(GameOverBabyColouring palette, int color)
     {
         if (!palettes.TryGetValue(palette, out RgbColor[]? colours)) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));

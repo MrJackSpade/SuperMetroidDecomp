@@ -79,7 +79,7 @@ internal static class IntroCinematicRomDataVerification
             .Select(field => field.RequiredConstant<ushort>())
             .Concat(Enum.GetValues<CinematicSpriteInstruction>().Cast<object>().Select(Convert.ToUInt16))
             .Concat(new[] { IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction })
-            .Concat(Enum.GetValues<TitleSequenceScriptStep>().Select(TitleNativeWords.Instructions.Word))
+            .Concat(Enum.GetValues<TitleCardCue>().Select(TitleNativeWords.Instructions.Word))
             .Concat(CinematicSpriteFrameBehavior.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
             .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)

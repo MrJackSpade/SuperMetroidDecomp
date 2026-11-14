@@ -22,7 +22,7 @@ internal enum EndingCreditsPhase
     /// <summary>Reveals the explosion while object and background colors crossfade.</summary>
     FadeInZebesExplosion,
     /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>
-    ZebesExplosionPaletteCrossfade,
+    ZebesExplosionCrossfade,
     /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
     /// <summary>Lets the explosion actor's private animation control the finale.</summary>

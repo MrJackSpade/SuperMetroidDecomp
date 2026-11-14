@@ -32,7 +32,7 @@ internal static class EndingLogoDefinitions
     /// <summary>The lower S half stops at world (382,383).</summary>
     public static Position16<ScreenPixels> BottomLanding => new(382, 383);
     /// <summary>The logo's colour cycle completes after sixteen colour pairs.</summary>
-    public const int PaletteSteps = 16;
+    public const int CrossfadeSteps = 16;
     /// <summary>The upper S spawns the logo's glare colour effect at landing.</summary>
     public const ColourEffectId LandingColourEffect = ColourEffectId.PostCreditsSuperMetroidIcon;
 }

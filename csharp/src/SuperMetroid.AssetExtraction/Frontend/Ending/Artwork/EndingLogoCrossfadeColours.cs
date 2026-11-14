@@ -15,17 +15,17 @@ internal sealed class EndingLogoCrossfadeColours
     internal const int ColoursPerLayer = 16;
 
     /// <summary>The background's colours, step after step.</summary>
-    private readonly RgbColor[] background = new RgbColor[EndingLogoDefinitions.PaletteSteps * ColoursPerLayer];
+    private readonly RgbColor[] background = new RgbColor[EndingLogoDefinitions.CrossfadeSteps * ColoursPerLayer];
 
     /// <summary>The sprites' colours, step after step.</summary>
-    private readonly RgbColor[] sprites = new RgbColor[EndingLogoDefinitions.PaletteSteps * ColoursPerLayer];
+    private readonly RgbColor[] sprites = new RgbColor[EndingLogoDefinitions.CrossfadeSteps * ColoursPerLayer];
 
     /// <summary>Takes each step's colours of both layers from <paramref name="colour"/>.</summary>
     /// <param name="colour">The colour of a layer's colour at a step.</param>
     internal EndingLogoCrossfadeColours(Func<int, EndingLogoLayer, int, RgbColor> colour)
     {
         Ensure.NotNull(colour);
-        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
+        for (int step = 0; step < EndingLogoDefinitions.CrossfadeSteps; step++)
         for (int index = 0; index < ColoursPerLayer; index++)
         {
             background[Cell(step, index)] = colour(step, EndingLogoLayer.Background, index);
@@ -44,6 +44,6 @@ internal sealed class EndingLogoCrossfadeColours
 
     /// <summary>Where one layer's array holds colour <paramref name="colour"/> of step <paramref name="step"/>.</summary>
     private static int Cell(int step, int colour) =>
-        Ensure.BetweenInclusive(0, EndingLogoDefinitions.PaletteSteps - 1, step) * ColoursPerLayer +
+        Ensure.BetweenInclusive(0, EndingLogoDefinitions.CrossfadeSteps - 1, step) * ColoursPerLayer +
         Ensure.BetweenInclusive(0, ColoursPerLayer - 1, colour);
 }

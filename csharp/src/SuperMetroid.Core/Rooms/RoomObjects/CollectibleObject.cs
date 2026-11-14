@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -35,9 +36,11 @@ internal sealed class CollectibleObject(
     public CollectiblePhase Phase { get; set; } = phase;
     /// <summary>Updates remaining before the item's next image.</summary>
     public int Timer { get; set; }
-    /// <summary>Current visible or respawn animation frame index.</summary>
+    /// <summary>The item's current visible, reveal, burst or respawn image, counted in its phase's own order.</summary>
     [IntegerQuantity("animation frame index")]
     public int AnimationIndex { get; set; }
+    /// <summary>Where a Chozo orb's shell animation stands (<see cref="CollectibleOrbAnimation"/>).</summary>
+    internal AnimationPlace OrbPlace { get; set; } = AnimationPlace.StartOfAnimation;
     /// <summary>Remaining paired visible frames before a revealed item is concealed again.</summary>
     public int VisibleFramePairsRemaining { get; set; }
     /// <summary>Contact or projectile reaction pending for the item's next update.</summary>
@@ -110,9 +113,7 @@ internal sealed class CollectibleObject(
                     Timer = CollectibleTimingDefinitions.OrbBurstImageUpdates;
                     return;
                 }
-                context.Draw(place, CollectibleObjectDraws.OrbFrame(AnimationIndex));
-                Timer = CollectibleTimingDefinitions.OrbImageUpdates[AnimationIndex];
-                AnimationIndex = (AnimationIndex + 1) % CollectibleTimingDefinitions.OrbImageUpdates.Count;
+                ShowNextOrbImage(place, context);
                 return;
 
             case CollectiblePhase.ChozoOrbBurst:
@@ -258,6 +259,21 @@ internal sealed class CollectibleObject(
         }
         AnimationIndex ^= 1;
         Timer = CollectibleTimingDefinitions.VisibleImageUpdates;
+    }
+
+    /// <summary>Plays the orb's shell animation on to its next image, draws it and holds it for its updates.</summary>
+    /// <exception cref="InvalidOperationException">The animation showed no image, which a looping animation of images never does.</exception>
+    private void ShowNextOrbImage(RoomObjectSlot place, RoomObjectStepContext context)
+    {
+        AnimationPlace orbPlace = OrbPlace;
+        WrappingCountdown repeats = default;
+        AnimationShown<CollectibleOrbSegment, CollectibleDraw> shown = CollectibleOrbAnimation.Segments.PlayToNextFrame(
+            CollectibleOrbAnimation.Pulsing, ref orbPlace, ref repeats, static _ => { });
+        if (shown is not AnimationShown<CollectibleOrbSegment, CollectibleDraw>.Frame image)
+            throw new InvalidOperationException($"The Chozo orb's animation showed {shown} instead of its next image.");
+        OrbPlace = orbPlace;
+        context.Draw(place, RoomObjectDraw.Of(image.Shown));
+        Timer = image.Duration;
     }
 
     /// <summary>

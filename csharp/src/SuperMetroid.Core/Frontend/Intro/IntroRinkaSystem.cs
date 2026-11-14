@@ -69,25 +69,23 @@ internal sealed class IntroRinkaSystem
             rinka.Sprite.Draw(objects, installedArt: installedArt);
     }
 
-    /// <summary>Handles the two spawner cues, allocating Rinkas zero and one or two and three.</summary>
+    /// <summary>Handles the two spawner cues, launching the striking pair or the missing pair.</summary>
     private void HandleSpawnerCue(CinematicSpriteCueKind cue)
     {
         switch (cue)
         {
             case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
-                Spawn(0);
-                Spawn(1);
+                Spawn(IntroRinkaDefinitions.StrikingPair);
                 return;
 
             case CinematicSpriteCueKind.SpawnMissingRinkaPair:
-                Spawn(2);
-                Spawn(3);
+                Spawn(IntroRinkaDefinitions.MissingPair);
                 return;
 
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:
@@ -118,7 +116,7 @@ internal sealed class IntroRinkaSystem
             case CinematicSpriteCueKind.StartZebesExplosion:
             case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The Rinka spawner program publishes no {cue} cue.");
+                throw new InvalidOperationException($"The Rinka spawner's animation publishes no {cue} cue.");
         }
     }
 
@@ -128,16 +126,13 @@ internal sealed class IntroRinkaSystem
         CinematicSpriteCueKind cue)
     {
         if (cue != CinematicSpriteCueKind.StartRinkaMoving)
-            throw new InvalidOperationException($"The Rinka program publishes no {cue} cue.");
+            throw new InvalidOperationException($"The Rinka's animation publishes no {cue} cue.");
 
-        rinka.Sprite.InstallFrameBehavior(
-            rinka.HitsSamus
-                ? CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus
-                : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus);
+        rinka.Sprite.InstallFrameBehavior(rinka.Flight);
     }
 
-    /// <summary>Spawns the Rinka of <paramref name="launch"/> after the Rinkas already live.</summary>
-    private void Spawn(int launch)
+    /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
+    private void Spawn(IReadOnlyList<IntroRinkaLaunch> pair)
     {
         if (spawnsForbidden)
         {
@@ -145,7 +140,8 @@ internal sealed class IntroRinkaSystem
                 "The intro Rinka spawner spawned a Rinka after Mother Brain's explosions started.");
         }
 
-        rinkas.Add(new IntroRinka(launch));
+        foreach (IntroRinkaLaunch launch in pair)
+            rinkas.Add(new IntroRinka(launch));
     }
 
     /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>
@@ -162,8 +158,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
-                MoveHalfPixelX(sprite, rinka.XWholeVelocity);
-                MoveHalfPixelY(sprite);
+                Drift(sprite, rinka.Drift);
 
                 // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding step.
@@ -182,8 +177,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
-                MoveHalfPixelX(sprite, rinka.XWholeVelocity);
-                MoveHalfPixelY(sprite);
+                Drift(sprite, rinka.Drift);
                 int y = CoordinateAxis.AsSigned(sprite.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)
                     sprite.Delete();
@@ -228,20 +222,14 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>
-    /// Moves the Rinka horizontally by its whole velocity plus half a pixel, as one 1/65536-pixel displacement: every second
-    /// update the half pixels add up to one more whole pixel, and the position wraps at its width.
+    /// Moves the Rinka sideways by <paramref name="sideways"/> and down by half a pixel: every second update the half
+    /// pixels add up to one more whole pixel, and the position wraps at its width.
     /// </summary>
-    private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
+    private static void Drift(IntroDiscoverySprite rinka, SignedSixteenSixteen sideways)
     {
         FixedCoordinate x = rinka.Position.X;
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(wholeDelta, 0) + IntroRinkaDefinitions.HalfPixel;
-        rinka.Position = rinka.Position.WithX(displacement.AddTo(x.Whole, x.Fraction));
-    }
-
-    /// <summary>Moves the Rinka down half a pixel: every second update the half pixels add up to one whole pixel.</summary>
-    private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
-    {
+        rinka.Position = rinka.Position.WithX(sideways.AddTo(x.Whole, x.Fraction));
         FixedCoordinate y = rinka.Position.Y;
-        rinka.Position = rinka.Position.WithY(IntroRinkaDefinitions.HalfPixel.AddTo(y.Whole, y.Fraction));
+        rinka.Position = rinka.Position.WithY(IntroRinkaDefinitions.DownwardDrift.AddTo(y.Whole, y.Fraction));
     }
 }

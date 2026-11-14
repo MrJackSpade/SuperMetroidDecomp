@@ -3,10 +3,11 @@ using SuperMetroid.AssetExtraction.Frontend;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 
-/// <summary>Checks game-over Baby animation steps, cry commands, and step domain against native data.</summary>
+/// <summary>Checks the game-over Baby's animation, its looks, durations, cries and loop against native data.</summary>
 internal static class GameOverBabyAnimationVerification
 {
     /// <summary>Traverses the serialized stream independently and compares 60 frame records and library-three sound handoffs.</summary>
@@ -38,36 +39,38 @@ internal static class GameOverBabyAnimationVerification
         }
         AssertEqual(60, original.Count, "original Baby frame record count");
         AssertEqual(original.Count, GameOverBabyAnimationDefinitions.InstructionCount, "Baby count contract");
-        AssertEqual(original.Count, GameOverBabyAnimation.StepCount, "Baby step count");
         AssertEqual(original[0].Pointer, GameOverBabyAnimationDefinitions.FirstPointer, "extraction walk starts at the first native record");
+        IReadOnlyList<AnimationBeat<GameOverBabyLook, GameOverBabySound>> beats = GameOverBabyAnimation.Segments.Beats(GameOverBabySegment.Crying);
+        int beat = 0;
         for (int index = 0; index < original.Count; index++)
         {
             var expected = original[index];
-            // The native stream's record order is the step identity: record N of the walk is step N.
-            GameOverBabyScriptStep actual = GameOverBabyAnimation.Get(index);
-            AssertEqual(index, actual.Step, "Baby step identity follows native record order");
-            AssertEqual(expected.Duration, actual.Duration, "Baby duration field");
-            AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(actual.Frame), "Baby frame field");
-            AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.NativePalettePointer(actual.Palette), "Baby palette field");
-            AssertEqual(original.FindIndex(row => row.Pointer == expected.Next), actual.NextStep, "Baby successor step");
-            AssertEqual(expected.Restart, actual.RestartAfter, "Baby restart field");
+            // The native stream's record order is the animation's order: each record is the next look, then its cry.
+            AssertEqual(index == original.Count - 1 ? original[0].Pointer : original[index + 1].Pointer, expected.Next, "Baby records play in stream order");
+            var look = AssertIs<AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame>(beats[beat++], $"Baby record {index} is a look");
+            AssertEqual(expected.Duration, look.Duration, "Baby duration field");
+            AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(look.Shown.Frame), "Baby frame field");
+            AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.NativePalettePointer(look.Shown.Colours), "Baby palette field");
             if (expected.Sound == 0)
-                AssertEqual(GameOverBabySound.None, actual.SoundAfter, "Baby silent handoff");
-            else
             {
-                AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.NativeSoundOpcode(actual.SoundAfter), "Baby sound handoff");
-                SoundEffectId sound = GameOverBabyCries.ResolveCry(expected.Sound);
-                AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
-                AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
-                    "the import decodes the native Baby cry effect to the cry");
-                AssertEqual(SoundEffectLibrary.Room, sound.Library, "Baby cry library");
-                AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");
-                AssertEqual((ushort)0x914d, ReadVerificationWord(rom, 0x820004 + expected.Sound), "native library3 queue address");
-                AssertEqual((byte)0x80, GameOverBabyAnimationRomByte(rom, 0x820006 + expected.Sound), "native library3 queue bank");
+                AssertTrue(beat == beats.Count || beats[beat] is AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame, "Baby silent handoff");
+                continue;
             }
+            var cry = AssertIs<AnimationBeat<GameOverBabyLook, GameOverBabySound>.Event>(beats[beat++], $"Baby record {index} is followed by its cry");
+            AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.NativeSoundOpcode(cry.Raised), "Baby sound handoff");
+            SoundEffectId sound = GameOverBabyCries.ResolveCry(expected.Sound);
+            AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
+            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
+                "the import decodes the native Baby cry effect to the cry");
+            AssertEqual(SoundEffectLibrary.Room, sound.Library, "Baby cry library");
+            AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");
+            AssertEqual((ushort)0x914d, ReadVerificationWord(rom, 0x820004 + expected.Sound), "native library3 queue address");
+            AssertEqual((byte)0x80, GameOverBabyAnimationRomByte(rom, 0x820006 + expected.Sound), "native library3 queue bank");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, original.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOverBabyAnimation.Get(invalid), "unsupported Baby step");
+        AssertEqual(beats.Count, beat, "every beat of the Baby's animation is a native record or its cry");
+        AssertTrue(original[^1].Restart, "the native stream ends with its restart marker");
+        AssertEqual(AnimationEnd.LoopsFrom(0), GameOverBabyAnimation.Playing.End, "the Baby's animation starts again after its last look, as the native restart does");
+        AssertEqual(1, GameOverBabyAnimation.Playing.Phases.Count, "the Baby's animation plays its looks once through before starting again");
     }
 
     /// <summary>Reads one native animation byte solely as the game-over Baby oracle.</summary>

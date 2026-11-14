@@ -34,7 +34,7 @@ internal static class EndingPaletteSources
     /// </summary>
     public static SnesAddress LogoCrossfadeSource(int step, int palette)
     {
-        if ((uint)step >= EndingLogoDefinitions.PaletteSteps)
+        if ((uint)step >= EndingLogoDefinitions.CrossfadeSteps)
             throw new ArgumentOutOfRangeException(nameof(step));
         return palette switch
         {

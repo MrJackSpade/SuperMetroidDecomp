@@ -3,31 +3,32 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The downward shot gate's moving and closed animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified animations; see <see cref="DownwardGateProjectileAnimations"/>.
+/// The downward shot gate's animations (#641, #1826): a moving gate moves down a block at a time and stops closed; a closed
+/// gate, woken, rises a block at a time and vanishes. Each block the gate travels plays the animation of its next place,
+/// which shows the gate's picture there; see <see cref="DownwardGateProjectileAnimations"/>.
 /// </summary>
 internal enum DownwardGateProjectileSegment
 {
-    /// <summary>Enemy projectile animation: shot gate, spawned downwards.</summary>
+    /// <summary>A moving gate as it spawns: it starts moving down and shows its first picture.</summary>
     Moving,
-    /// <summary>The animation's repeating part.</summary>
-    MovingStep2,
-    /// <summary>The animation's repeating part.</summary>
-    MovingStep3,
-    /// <summary>The animation's repeating part.</summary>
-    MovingStep4,
-    /// <summary>The animation's repeating part.</summary>
-    MovingStep5,
-    /// <summary>Enemy projectile animation: shot gate, initial closed downwards.</summary>
+    /// <summary>The moving gate one block down.</summary>
+    MovedOneBlock,
+    /// <summary>The moving gate two blocks down.</summary>
+    MovedTwoBlocks,
+    /// <summary>The moving gate three blocks down.</summary>
+    MovedThreeBlocks,
+    /// <summary>The moving gate four blocks down: it stops and shows itself closed, as <see cref="Closed"/> does.</summary>
+    Stopping,
+    /// <summary>A closed gate: it shows itself closed, ready to rise once woken.</summary>
     Closed,
-    /// <summary>The animation's repeating part.</summary>
-    ClosedStep2,
-    /// <summary>The animation's repeating part.</summary>
-    ClosedStep3,
-    /// <summary>The animation's repeating part.</summary>
-    ClosedStep4,
-    /// <summary>The animation's repeating part.</summary>
-    ClosedStep5,
-    /// <summary>The animation's repeating part.</summary>
-    ClosedStep6,
+    /// <summary>The woken closed gate: it starts rising and shows its first rising picture.</summary>
+    Rising,
+    /// <summary>The rising gate one block up.</summary>
+    RisenOneBlock,
+    /// <summary>The rising gate two blocks up.</summary>
+    RisenTwoBlocks,
+    /// <summary>The rising gate three blocks up.</summary>
+    RisenThreeBlocks,
+    /// <summary>The rising gate four blocks up: it vanishes.</summary>
+    Vanishing,
 }

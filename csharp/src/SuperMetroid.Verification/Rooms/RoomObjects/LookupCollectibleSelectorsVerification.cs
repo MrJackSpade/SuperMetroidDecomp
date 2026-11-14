@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleVisualsVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
@@ -11,14 +12,18 @@ internal static class LookupCollectibleSelectorsVerification
     /// <summary>Every block pair a tank's draw is checked against, and none: a tank's frames are its kind's own blocks.</summary>
     private static readonly CollectibleBlockPairs.Pair?[] TankBlockPairs = [null, .. CollectibleBlockPairs.InTurn];
 
-    /// <summary>Checks the four orb animation phases and rejects invalid phase indices.</summary>
+    /// <summary>Checks the orb animation's four images, in order, against the native orb draws.</summary>
     internal static void VerifyCollectibleOrbSelector(CartridgeImportAddressSpace rom)
     {
-        for (int phase = 0; phase < 4; phase++)
+        IReadOnlyList<AnimationBeat<CollectibleDraw, NoAnimationCue>> images = CollectibleOrbAnimation.Segments.Beats(CollectibleOrbSegment.Pulsing);
+        AssertEqual(4, images.Count, "the orb's animation shows four images");
+        for (int phase = 0; phase < images.Count; phase++)
+        {
+            var image = AssertIs<AnimationBeat<CollectibleDraw, NoAnimationCue>.Frame>(images[phase], $"orb image {phase}");
             AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
-                RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.OrbFrame(phase)), "Collectible native orb phase draw");
-        foreach (int bad in new[] {int.MinValue,-1,4,5,int.MaxValue})
-            AssertThrows<InvalidDataException>(() => CollectibleObjectDraws.OrbFrame(bad), "Collectible orb phase bounds");
+                RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image.Shown)), "Collectible native orb phase draw");
+        }
+        AssertEqual(AnimationEnd.LoopsFrom(0), CollectibleOrbAnimation.Pulsing.End, "the orb's animation starts again after its fourth image");
     }
 
     /// <summary>Checks reveal and reverse conceal frames for shot collectibles.</summary>

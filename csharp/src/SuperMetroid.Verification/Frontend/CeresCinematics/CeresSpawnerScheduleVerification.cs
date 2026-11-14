@@ -52,7 +52,7 @@ internal static class CeresSpawnerScheduleVerification
                         CinematicSpriteCueKind.SetFrameBehavior or
                             CinematicSpriteCueKind.EndZebesExplosion or
                             CinematicSpriteCueKind.ExplosionFinale or
-                            CinematicSpriteCueKind.FadeExplosionPalette or
+                            CinematicSpriteCueKind.FadeExplosionColours or
                             CinematicSpriteCueKind.FadeInZebesText or
                             CinematicSpriteCueKind.FadeOutZebesText or
                             CinematicSpriteCueKind.GreyOut or

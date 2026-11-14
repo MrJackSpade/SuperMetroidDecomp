@@ -336,7 +336,7 @@ internal static class CinematicSpriteAnimations
             Show(S.PlanetDamage1, 13),
             Show(S.PlanetDamage2, 13),
             Show(S.PlanetDamage3, 13),
-            Cue(new(K.FadeExplosionPalette)),
+            Cue(new(K.FadeExplosionColours)),
             Show(S.PlanetFlash0, 32),
             Show(S.PlanetFlash1, 32),
             Show(S.PlanetFlash2, 32),

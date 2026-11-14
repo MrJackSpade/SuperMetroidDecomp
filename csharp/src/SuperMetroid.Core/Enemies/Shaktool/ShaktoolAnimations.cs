@@ -83,7 +83,6 @@ internal static class ShaktoolAnimations
         [
             Wait(128),
             Cue(new(K.LowerAwayFromCenter)),
-            Cue(new(K.Nothing)),
             Wait(128),
             Cue(new(K.RaiseTowardCenter)),
             Wait(320),
@@ -146,7 +145,7 @@ internal static class ShaktoolAnimations
         [P.ArmPieceHeadBobBack] = new([new(P.ArmPieceHeadBobBack, 0, 3, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ArmPieceHeadBobFront] = new([new(P.ArmPieceHeadBobFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ArmPieceNormal] = new([new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAttack] = new([new(P.HeadAttack, 0, 7, 1), new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HeadAttack] = new([new(P.HeadAttack, 0, 6, 1), new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
         [P.HeadHeadBob] = new([new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HeadAimingLeft] = new([new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HeadAimingUpLeft] = new([new(P.HeadAimingUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),

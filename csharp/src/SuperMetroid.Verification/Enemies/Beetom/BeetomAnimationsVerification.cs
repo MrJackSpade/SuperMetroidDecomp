@@ -15,13 +15,14 @@ internal static class BeetomAnimationsVerification
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BeetomAnimations.Segments, BeetomAnimations.StartingAt, BeetomFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<BeetomCue>(
-                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : OmittedInstructions.Contains(word) ? 0 : null,
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                Omitted: OmittedInstructions.Contains));
         Console.WriteLine($"  Beetom animations: {Entries.Length} segments ({beats} beats) and {BeetomAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

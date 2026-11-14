@@ -313,7 +313,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.FrameBehavior = words.F == 0 ? null : ChozoNativeWords.ChozoStatueFrameBehaviors.Decode(words.F, "recorded ChozoStatueFrameBehavior");
+            chozoStatueRecord.FrameBehavior = ChozoNativeWords.FrameBehaviorAt(words.F);
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -585,7 +585,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             escape.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(words.A), default);
-            escape.FrameBehavior = words.F == 0 ? null : AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Decode(words.F, "recorded EscapeEtecoonFrameBehavior");
+            escape.FrameBehavior = AnimalsNativeWords.EscapeEtecoonFrameBehaviorAt(words.F);
         }
         if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {

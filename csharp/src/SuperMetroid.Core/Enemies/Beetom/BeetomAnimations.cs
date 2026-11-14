@@ -40,7 +40,6 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomDrainingLeftSecond, 5),
             Show(EnemyFrameId.BeetomDrainingLeftThird, 5),
             Show(EnemyFrameId.BeetomDrainingLeftSecond, 48),
-            Cue(new(K.Nothing)),
         ],
         [P.DrainingLeftLoop] =
         [
@@ -74,7 +73,6 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomDrainingRightSecond, 5),
             Show(EnemyFrameId.BeetomDrainingRightThird, 5),
             Show(EnemyFrameId.BeetomDrainingRightSecond, 48),
-            Cue(new(K.Nothing)),
         ],
         [P.DrainingRightLoop] =
         [
@@ -91,12 +89,12 @@ internal static class BeetomAnimations
         [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.CrawlingLeftLoop] = new([new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HopLeft] = new([new(P.HopLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 5, 1), new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 4, 1), new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.DrainingLeftLoop] = new([new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 1, 1), new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.CrawlingRightLoop] = new([new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HopRight] = new([new(P.HopRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingRight] = new([new(P.DrainingRight, 0, 5, 1), new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DrainingRight] = new([new(P.DrainingRight, 0, 4, 1), new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.DrainingRightLoop] = new([new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };
 

@@ -15,13 +15,14 @@ internal static class ShaktoolAnimationsVerification
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ShaktoolAnimations.Segments, ShaktoolAnimations.StartingAt, ShaktoolFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<ShaktoolCue>(
-                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : OmittedInstructions.Contains(word) ? 0 : null,
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                Omitted: OmittedInstructions.Contains));
         Console.WriteLine($"  Shaktool animations: {Entries.Length} segments ({beats} beats) and {ShaktoolAnimations.StartingAt.Count} animations match bank $AA.");
     }
 }

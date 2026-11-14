@@ -32,8 +32,8 @@ public sealed class NorfairPipeBugState
     /// </summary>
     internal bool HasReachedStaggerTarget => FormationCounter >= StaggerTarget;
 
-    /// <summary>The speed, and its negation, the bug flies at: the spawn settings' speed.</summary>
-    public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
+    /// <summary>The speed the bug flies at, the spawn settings' speed: added flying one way and negated flying the other.</summary>
+    public EnemyLinearSpeed FlightSpeeds { get; internal set; }
 
     /// <summary>The point at which the member's rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
     public Position16<RoomPixels> RiseEnd { get; internal set; }

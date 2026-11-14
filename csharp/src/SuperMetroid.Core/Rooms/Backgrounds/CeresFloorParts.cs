@@ -8,9 +8,9 @@ public static class CeresFloorParts
     public static CeresFloorPart Of(CeresFloorAnimationFrame frame) => frame switch
     {
         CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark => CeresFloorPart.ElevatorPlatform,
-        CeresFloorAnimationFrame.BabyFrame0 or CeresFloorAnimationFrame.BabyFrame1 or CeresFloorAnimationFrame.BabyFrame2 =>
+        CeresFloorAnimationFrame.BabyVertical or CeresFloorAnimationFrame.BabyRound or CeresFloorAnimationFrame.BabyHorizontal =>
             CeresFloorPart.BabyCapsule,
-        CeresFloorAnimationFrame.WingFrame0 or CeresFloorAnimationFrame.WingFrame1 => CeresFloorPart.RidleyWings,
+        CeresFloorAnimationFrame.WingsRaised or CeresFloorAnimationFrame.WingsLowered => CeresFloorPart.RidleyWings,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a floor animation frame."),
     };
 }

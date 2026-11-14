@@ -32,10 +32,10 @@ internal static class CeresNativeWords
     {
         [CeresFloorAnimationFrame.ElevatorLight] = 0xf904,
         [CeresFloorAnimationFrame.ElevatorDark] = 0xf90e,
-        [CeresFloorAnimationFrame.BabyFrame0] = 0xace2,
-        [CeresFloorAnimationFrame.BabyFrame1] = 0xacf5,
-        [CeresFloorAnimationFrame.BabyFrame2] = 0xad08,
-        [CeresFloorAnimationFrame.WingFrame0] = 0xad49,
-        [CeresFloorAnimationFrame.WingFrame1] = 0xad80,
+        [CeresFloorAnimationFrame.BabyVertical] = 0xace2,
+        [CeresFloorAnimationFrame.BabyRound] = 0xacf5,
+        [CeresFloorAnimationFrame.BabyHorizontal] = 0xad08,
+        [CeresFloorAnimationFrame.WingsRaised] = 0xad49,
+        [CeresFloorAnimationFrame.WingsLowered] = 0xad80,
     });
 }

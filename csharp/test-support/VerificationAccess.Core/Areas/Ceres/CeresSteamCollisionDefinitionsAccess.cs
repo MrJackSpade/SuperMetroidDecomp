@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Areas.Ceres;
@@ -9,9 +10,38 @@ internal static class CeresSteamCollisionDefinitionsAccess
     /// <summary>$A6:F25A, the shared empty list that starts the contiguous hitbox lists.</summary>
     private const ushort FirstList = 0xf25a;
 
+    /// <summary>The frames whose plume rectangles make up the native lists after the shared empty one, in native order.</summary>
+    private static readonly EnemyFrameId[] PlumeFrames =
+    [
+        EnemyFrameId.CeresSteamUp,
+        EnemyFrameId.CeresSteamUpSecond,
+        EnemyFrameId.CeresSteamUpThird,
+        EnemyFrameId.CeresSteamUpFourth,
+        EnemyFrameId.CeresSteamUpFifth,
+        EnemyFrameId.CeresSteamLeft,
+        EnemyFrameId.CeresSteamLeftSecond,
+        EnemyFrameId.CeresSteamLeftThird,
+        EnemyFrameId.CeresSteamLeftFourth,
+        EnemyFrameId.CeresSteamLeftFifth,
+        EnemyFrameId.CeresSteamDown,
+        EnemyFrameId.CeresSteamDownSecond,
+        EnemyFrameId.CeresSteamDownThird,
+        EnemyFrameId.CeresSteamDownFourth,
+        EnemyFrameId.CeresSteamDownFifth,
+        EnemyFrameId.CeresSteamRight,
+        EnemyFrameId.CeresSteamRightSecond,
+        EnemyFrameId.CeresSteamRightThird,
+        EnemyFrameId.CeresSteamRightFourth,
+        EnemyFrameId.CeresSteamRightFifth,
+    ];
+
+    /// <summary>The 21 native hitbox lists: the shared empty list the hidden poses select, then each plume frame's.</summary>
+    private static readonly EnemyHitboxRectangle[][] Lists =
+        [[], .. PlumeFrames.Select(frame => CeresSteamCollisionDefinitions.Frames.Of(frame).Single().Hitboxes.ToArray())];
+
     /// <summary>The hitbox lists laid over their native run.</summary>
     private static readonly CollisionRecordRuns<EnemyHitboxRectangle> NativeLists =
-        CollisionRecordRuns<EnemyHitboxRectangle>.HitboxLists(new CollisionRecordRun<EnemyHitboxRectangle>(FirstList, CeresSteamCollisionDefinitions.Lists));
+        CollisionRecordRuns<EnemyHitboxRectangle>.HitboxLists(new CollisionRecordRun<EnemyHitboxRectangle>(FirstList, Lists));
 
     /// <summary>Native views of the catalog.</summary>
     extension(CeresSteamCollisionDefinitions)
@@ -40,6 +70,6 @@ internal static class CeresSteamCollisionDefinitionsAccess
     {
         /// <summary>The native address of the component's hitbox list.</summary>
         internal ushort HitboxPointer =>
-            NativeLists.PointerAt(Array.FindIndex(CeresSteamCollisionDefinitions.Lists, list => ReferenceEquals(list, self.Hitboxes)));
+            NativeLists.PointerAt(Array.FindIndex(Lists, list => list.SequenceEqual(self.Hitboxes)));
     }
 }

@@ -55,7 +55,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 0);
-        byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.WingFrame1);
+        byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsLowered);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
@@ -65,7 +65,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
         enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 8);
         AssertStageFive(cadence, stageFiveQueueOffset,
-            NativeQueueImage(bus, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.WingFrame0),
+            NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsRaised),
             "after the getaway queues wing frame zero");
         Console.WriteLine("  Speed Booster stage five: takes the delays the Ceres getaway's wings leave at $0303 and keeps them across capsule-only frames.");
     }

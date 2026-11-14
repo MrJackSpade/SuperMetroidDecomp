@@ -146,8 +146,14 @@ internal static class MovieDesyncComparison
         Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, MovieDesyncMemory.SamusYFraction);
         Check("Samus health", SamusCountWords.Encode(samus.Health), MovieDesyncMemory.Health);
         Check("Samus max health", SamusCountWords.Encode(samus.MaxHealth), MovieDesyncMemory.MaxHealth);
-        Check("Equipped items", samus.EquippedItems.ToEquipmentWord(), MovieDesyncMemory.EquippedItems);
-        Check("Collected items", samus.CollectedItems.ToEquipmentWord(), MovieDesyncMemory.CollectedItems);
+        // The native item words keep a bit no item uses; the import's codec drops it, so the words compare as decoded.
+        void CheckItems(string name, SamusEquipmentFlags actual, int address)
+        {
+            ushort expected = SamusEquipmentWordCodec.FromEquipmentWord(Word(memory, address)).ToEquipmentWord();
+            if (actual.ToEquipmentWord() != expected) mismatches.Add($"{name}: native={expected:X4} port={actual.ToEquipmentWord():X4}");
+        }
+        CheckItems("Equipped items", samus.EquippedItems, MovieDesyncMemory.EquippedItems);
+        CheckItems("Collected items", samus.CollectedItems, MovieDesyncMemory.CollectedItems);
         Check("Equipped beams", samus.EquippedBeams.ToEquipmentWord(), MovieDesyncMemory.EquippedBeams);
         Check("Collected beams", samus.CollectedBeams.ToEquipmentWord(), MovieDesyncMemory.CollectedBeams);
         Check("Missiles", SamusCountWords.Encode(samus.Missiles), MovieDesyncMemory.Missiles);

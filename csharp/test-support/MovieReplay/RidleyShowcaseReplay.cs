@@ -431,8 +431,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.SavedNumber(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusCountWords.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
-            Check("Samus equipped items", samus.EquippedItems.ToEquipmentWord(), NativeSnapshotMemory.Items);
-            Check("Samus collected items", samus.CollectedItems.ToEquipmentWord(), NativeSnapshotMemory.CollectedItems);
+            // The native item words keep a bit no item uses; the import's codec drops it, so the words compare as decoded.
+            CheckValue("Samus equipped items", samus.EquippedItems.ToEquipmentWord(),
+                SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.Items)).ToEquipmentWord());
+            CheckValue("Samus collected items", samus.CollectedItems.ToEquipmentWord(),
+                SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)).ToEquipmentWord());
             Check("Samus equipped beams", samus.EquippedBeams.ToEquipmentWord(), NativeSnapshotMemory.Beams);
             Check("Samus collected beams", samus.CollectedBeams.ToEquipmentWord(), NativeSnapshotMemory.CollectedBeams);
             Check("Samus missiles", SamusCountWords.Encode(samus.Missiles), NativeSnapshotMemory.Missiles);

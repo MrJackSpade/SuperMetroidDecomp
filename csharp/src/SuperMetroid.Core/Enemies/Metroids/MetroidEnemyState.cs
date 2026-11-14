@@ -26,7 +26,7 @@ public sealed class MetroidEnemyState
     /// <summary>Four-frame escape timer and frozen-shake countdown.</summary>
     public int EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement phase 0..3, not an AI behaviour.</summary>
+    /// <summary>The step of the Metroid's movement it is in, one of four; not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }
 
     /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>

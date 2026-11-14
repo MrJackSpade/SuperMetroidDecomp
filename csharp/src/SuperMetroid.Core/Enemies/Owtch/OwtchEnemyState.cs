@@ -12,7 +12,7 @@ public sealed class OwtchEnemyState
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>The patrol state, which also indexes the state table.</summary>
+    /// <summary>The patrol state: walking either way, sinking, underground or rising.</summary>
     public OwtchBehaviorState Behavior { get; internal set; }
 
     /// <summary>

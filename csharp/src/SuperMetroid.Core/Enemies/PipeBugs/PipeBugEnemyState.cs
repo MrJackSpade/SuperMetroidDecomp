@@ -75,7 +75,7 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public int EmergenceDelay { get; internal set; }
     /// <summary>
-    /// The whole-mark place along the quadratic speed curve a yellow Pipe Bug's arc reads, from the curve's start through the
+    /// The whole-mark place along the speed curve a yellow Pipe Bug's arc reads, from the curve's start through the
     /// curve's last mark. The rising phase moves it back from mark 40 and ends when it would pass the curve's start; the returning
     /// phase moves it back on.
     /// </summary>

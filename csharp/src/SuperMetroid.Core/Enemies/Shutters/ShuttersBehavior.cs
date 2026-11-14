@@ -628,7 +628,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Counts down an endpoint rest before reversing, or before waiting for renewed proximity when trigger mode one would
+    /// Counts down an endpoint rest before reversing, or before waiting for renewed proximity when a proximity shutter would
     /// reverse into the population's primary direction.
     /// </summary>
     private void RunVerticalShutterStopped(

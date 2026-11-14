@@ -303,7 +303,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
-    /// <summary>Handles non-frozen recoil/ice accumulation after accepts a shot.</summary>
+    /// <summary>Handles an unfrozen Metroid's recoil and ice build-up after it takes a shot.</summary>
     internal void ResolveMetroidNonFrozenShot(
         RoomEnemySlot slot,
         SamusProjectileType collisionProjectileType,
@@ -475,8 +475,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
-                // Frozen Metroid rejects every beam and bomb family. has already accepted the overlap, so
-                // non-plasma shots retain only the collision mark and never enter normal damage AI.
+                // A frozen Metroid rejects every beam and bomb. The shot has already met it, so a non-plasma shot
+                // keeps only its collision mark and never deals ordinary damage.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }

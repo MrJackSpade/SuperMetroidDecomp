@@ -110,7 +110,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
     private void InitiatePuyoHop(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
-        // Normal follow-up hops are promoted from type zero to type one when Samus is
+        // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
@@ -131,7 +131,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = direction;
         state.InvertDirection = false;
 
-        // Types three and above ignore this sample but still advance the seed, an observable
+        // The giant hop, the drop and the dropped bounces ignore this sample but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
         int sample = _room.Random.Generate();
         if (IsNormalHop(state.HopType))
@@ -252,8 +252,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
-        // A normal landing returns giant hops to type zero. A wall/ceiling collision takes
-        // the branch around these two writes, leaving type four's dropping recovery.
+        // A normal landing returns a giant hop to the small hop. A wall or ceiling collision takes
+        // the branch around these two writes, leaving the drop's recovery.
         if (!state.InvertDirection)
         {
             state.HopType = PuyoHopType.NormalSmall;

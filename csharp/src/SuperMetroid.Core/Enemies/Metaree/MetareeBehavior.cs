@@ -56,7 +56,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The initializer starts the idle animation directly rather than going through the change detector,
-        // because both requested and installed indexes intentionally start at zero.
+        // because the requested and the started animation both begin as idling.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 

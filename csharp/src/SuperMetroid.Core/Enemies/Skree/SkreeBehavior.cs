@@ -101,7 +101,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
+        // The Japanese and North American release reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
         state.BurrowTimer = 21;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
@@ -172,9 +172,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
     };
 
-    /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
+    /// <summary>Handles lethal bombs with Skree's particle burst and its ordinary death after the shared hit path.</summary>
     /// <remarks>Skree's shot reaction owns its four-piece burst and death animation because it calls the normal enemy shot
-    /// AI that skips the death animation. A normal bomb selects death variant zero (only missiles select two).</remarks>
+    /// AI that skips the death animation. A normal bomb gives the ordinary death; only missiles give another.</remarks>
     internal EnemyBombReaction SkreeBombReaction => field ??= new()
     {
         RunsGenericDeath = false,

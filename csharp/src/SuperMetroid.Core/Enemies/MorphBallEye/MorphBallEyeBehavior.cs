@@ -33,7 +33,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
 
-    /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
     private const int EyeActivateXDistance = 128;
     /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>

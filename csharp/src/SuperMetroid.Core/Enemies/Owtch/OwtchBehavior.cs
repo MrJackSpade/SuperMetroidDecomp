@@ -55,8 +55,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
         SetOwtchAnimation(slot, state, InitialAnimation(settings.InitialBehavior));
 
-        // State two is the game's special initially-buried form. It moves only the
-        // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
+        // An Owtch placed underground starts buried: it moves down by whole pixels only and records the same
+        // sixteen-pixel depth sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
             state.BurialDepth = OwtchMaximumBurialDepth;
@@ -100,9 +100,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
-                    // The underground wait samples the current random number without advancing the RNG. The
-                    // gameplay runtime supplies that read seam; isolated callers without it
-                    // retain the established advancing fallback used by other AI.
+                    // Surfacing reads the current random number without advancing it.
                     int random = _room.Random.Read();
                     state.Behavior = OwtchMovementDefinitions.MoveRightChoice.IsSetIn(random)
                         ? OwtchBehaviorState.MovingRight
@@ -183,8 +181,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, OwtchAnimations.StartingWith(segment));
     }
 
-    /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    /// <remarks>Owtch's shell accepts common damage only during its vulnerable state zero.</remarks>
+    /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
     internal static EnemyBombReaction OwtchBombReaction { get; } = new()
     {
         Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
@@ -207,7 +204,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    /// <remarks>Owtch's private shot reaction returns before common shot AI unless signed(state - 1) is negative. The
+    /// <remarks>Owtch's private shot reaction returns before common shot AI unless it is walking left. The
     /// collision prelude has already marked ordinary non-plasma shots as collided at this point, but it has not
     /// converted them into an impact animation. Preserve that split so the shell is genuinely immune while moving
     /// right, sinking, buried, or rising.</remarks>

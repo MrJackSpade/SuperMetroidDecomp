@@ -3,9 +3,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>The shaking Mochtroid's four displacements, stepped through by its shake timer.</summary>
 internal static class MochtroidShakeDefinitions
 {
-    /// <summary>The shake velocity table's two-pixel shake amplitude.
-    /// Axis and sign derive from the timer; the amplitude is an authored scalar (see the residual scalar inputs
-    /// review).</summary>
+    /// <summary>How far a shaking Mochtroid moves each update, two pixels; the timer chooses the axis and the way.</summary>
     internal const int Amplitude = 2;
 
     /// <summary>

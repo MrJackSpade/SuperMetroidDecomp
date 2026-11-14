@@ -145,10 +145,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
             // Spawning installs the link's definition before
-            // its initializer runs. That definition owns the twelve-map animation, the link's
+            // its initializer runs. That definition owns the twelve-frame animation, the link's
             // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
             // initializer below only copies the live owner coordinates, associates this
-            // projectile with one articulated link, and selects collision option one.
+            // projectile with one articulated link, and makes it an indestructible dud.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
@@ -156,7 +156,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.GraphicsAttributes);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
             segment.Position = owner.Position.WithWhole(state.InitialHead);
-            // The initializer writes collision option one for these four links. Their
+            // The initializer makes these four links indestructible duds. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot animation.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;

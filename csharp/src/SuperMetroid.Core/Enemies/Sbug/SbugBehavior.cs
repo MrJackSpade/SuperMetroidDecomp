@@ -177,7 +177,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The angle of Samus from the enemy uses zero-up/clockwise units. Subtracting it from
         // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
-        // adding 128 selects the exact opposite direction for behavior six.
+        // adding 128 selects the exact opposite direction for moving away from Samus.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
         state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());

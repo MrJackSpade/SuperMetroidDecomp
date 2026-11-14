@@ -9,7 +9,7 @@ internal static class PirateHitboxShotActions
     /// <summary>
     /// Dispatches the common and Pirate-specific shot reactions of hitboxes. Only the
     /// gold Ninja gives the two Ninja body reactions special meaning; every other Pirate deliberately falls
-    /// through to normal shot AI even when it displays one of the shared Ninja maps.
+    /// through to normal shot AI even when it shows one of the frames it shares with the Ninja.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
         RoomEnemySlot enemy,

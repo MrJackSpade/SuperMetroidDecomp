@@ -300,8 +300,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             MamaTurtleSegment.MamaLeaveShellLeft);
 
-        // The game's store at this point does not reach the enemy, so nothing is stored here; no enemy field is
-        // invented for it.
+        // Leaving the shell changes nothing else about Mama.
         state.Action = MamaTurtleAction.Idle;
     }
 
@@ -590,7 +589,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null || level is null)
         {
             throw new InvalidOperationException(
-                "Baby Turtle crawl bytecode requires Samus and active room collision data.");
+                "A crawling Baby Turtle requires Samus and active room collision data.");
         }
 
         bool carryingSamus = PlatformsBehavior.IsSamusRidingPlatform(baby, samus);
@@ -661,7 +660,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         if (samus is null)
-            throw new InvalidOperationException("Baby Turtle shell bytecode requires Samus.");
+            throw new InvalidOperationException("A Baby Turtle on Mama's shell requires Samus.");
         if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
             return null;
         return state.Velocity.X < 0
@@ -676,7 +675,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         if (samus is null)
-            throw new InvalidOperationException("Baby Turtle shell bytecode requires Samus.");
+            throw new InvalidOperationException("A Baby Turtle on Mama's shell requires Samus.");
         state.Action = PlatformsBehavior.IsSamusRidingPlatform(baby, samus)
             ? BabyTurtleAction.CrawlingCarryingSamus
             : BabyTurtleAction.CrawlingNotCarryingSamus;

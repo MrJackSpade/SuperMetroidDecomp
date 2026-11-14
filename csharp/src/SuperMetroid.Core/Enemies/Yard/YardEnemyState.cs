@@ -36,8 +36,8 @@ public sealed class YardEnemyState
     }
 
     /// <summary>
-    /// movement step, which may lag a direction cue by one update and therefore owns dispatch
-    /// independently of <see cref="Direction"/>.
+    /// The Yard's movement step, which may lag a direction cue by one update and so is chosen independently of
+    /// <see cref="Direction"/>.
     /// </summary>
     public YardMovement? Movement { get; internal set; }
 
@@ -63,6 +63,6 @@ public sealed class YardEnemyState
     /// landing.
     /// </summary>
     internal CrawlerSurfaceOrientation BlockSide { get; set; }
-    /// <summary>Mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
+    /// <summary>Whether the Yard crawls normally or aggressively, hides, has been dropped, kicked or launched by a beam, which decides how it watches Samus, whether it is solid, how it meets her and how it flies.</summary>
     public YardBehavior Behavior { get; internal set; }
 }

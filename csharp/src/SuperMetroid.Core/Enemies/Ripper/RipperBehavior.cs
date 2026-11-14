@@ -151,7 +151,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the common post-shot tail. Normal shot AI owns health, death,
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
-    /// two-piece frozen map when the accepted projectile actually froze the actor.
+    /// frozen frame when the projectile that hit it actually froze it.
     /// </summary>
     private static void ResolveGRipperRipper2ShotAfterCommon(RoomEnemySlot slot)
     {

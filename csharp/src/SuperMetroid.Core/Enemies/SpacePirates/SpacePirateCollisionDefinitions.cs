@@ -4,18 +4,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Fixed walking/wall/ninja-Pirate collision data, separate from editable sprite art.</summary>
 /// <remarks>
-/// Reviewed for #1165. The 132 frames' collision lies in 8 contiguous runs. Each component references its hitbox list
-/// directly; where the 147 lists lie
-/// in the game is known only to the verification oracle. Component placements and list rectangles are authored
-/// per drawing and retained: no hitbox list is a facing mirror of another, and the 105 lists that repeat another
-/// list's rectangles stay separate lists.
+/// Reviewed for #1165. Each of the Pirates' 132 frames names its hitboxes directly. Component placements and hitbox
+/// rectangles are drawn per frame: no frame's hitboxes mirror another's facing, and frames whose hitboxes repeat
+/// another's keep their own.
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
     /// <summary>
-    /// The 147 authored hitbox lists in authored order; components reference them directly, and the
-    /// verification oracle owns where each list lies in the game. Lists that repeat another list's
-    /// rectangles stay separate lists, as authored.
+    /// The Pirates' hitbox sets, which components name directly; a set that repeats another's rectangles stays its
+    /// own.
     /// </summary>
     internal static readonly EnemyCollisionHitbox[][] HitboxLists =
     [

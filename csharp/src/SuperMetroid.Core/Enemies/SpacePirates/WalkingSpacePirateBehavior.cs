@@ -421,7 +421,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : SpacePirateProjectileSegment.LaserLeft));
 
         // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
-        // muzzle maps are stationary until the animation installs the flight and runs it at once.
+        // muzzle frames are stationary until the animation installs the flight and runs it at once.
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
@@ -617,7 +617,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)
     {
-        // Space Pirate extended maps currently use the shared Pirate touch
+        // Every Space Pirate frame's hitboxes use the shared Pirate touch
         // reaction in every retail hitbox. Keep the reaction check explicit: silently
         // treating a later family-specific attack box as ordinary body contact would
         // recreate the exact radius-flattening bug this path is intended to remove.

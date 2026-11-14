@@ -264,10 +264,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
     }
 
-    /// <summary>Runs the constant-speed collision fall.</summary>
+    /// <summary>
+    /// Runs the constant-speed fall: at the drop speed of the hop the Puyo last launched, which a wall or ceiling cut short
+    /// (#1820).
+    /// </summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        if (!_terrain.MoveEnemyVertically(level, slot, PuyoHopDefinitions.DropSpeed))
+        if (!_terrain.MoveEnemyVertically(level, slot, Hop(state).DropSpeed))
             return;
 
         // The bounce picks one of the two dropped bounce heights from the same advanced hop roll.

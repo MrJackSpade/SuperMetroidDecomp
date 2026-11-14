@@ -591,10 +591,11 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Carries out a cue of the death and drop animations (sprite spawns, sounds, drop conversion and respawn), returning
-    /// the segment a converted explosion continues at, or null to run on.
+    /// where a converted explosion continues (the start of the drop's animation), or null to run on.
     /// </summary>
     /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
+    /// <param name="pastCue">The place just past the cue; a converted explosion starts its drop's animation instead.</param>
     public AnimationContinuation<EnemyDeathProjectileSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue,
         AnimationPlayback<EnemyDeathProjectileSegment> pastCue) =>
         ApplyEnemyDeathProjectileCue(context.Projectile, cue) is { } converted

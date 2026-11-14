@@ -582,7 +582,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
         // does not. Both body and arms therefore dispatch the shared tail and its intentionally physical next-slot follow-up
         // aliases.
-        AfterCommon = (enemy, _) => ResolveEvirCombatAfterCommon(enemy),
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>

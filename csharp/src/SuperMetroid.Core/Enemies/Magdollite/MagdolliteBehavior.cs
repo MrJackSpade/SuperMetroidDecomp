@@ -756,7 +756,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()
     {
-        AfterCommon = (enemy, _) => ResolveMagdolliteCombatAfterCommon(enemy),
+        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>

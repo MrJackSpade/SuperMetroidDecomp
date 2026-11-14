@@ -176,7 +176,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
     internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
     {
-        ReplacesCommon = (enemy, _) => ResolveDeadTourianCorpsePowerBomb(enemy),
+        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
     };
 
     /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>

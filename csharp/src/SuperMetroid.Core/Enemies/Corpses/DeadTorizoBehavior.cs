@@ -284,7 +284,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
     internal EnemyPowerBombReaction DeadTorizoPowerBombReaction => field ??= new()
     {
-        ReplacesCommon = (enemy, _) => TriggerDeadTorizoPowerBomb(enemy),
+        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy),
     };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>

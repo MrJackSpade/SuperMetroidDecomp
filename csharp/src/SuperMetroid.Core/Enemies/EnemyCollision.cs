@@ -648,9 +648,16 @@ internal sealed class EnemyCollision
     /// sample. The caller supplies the live power-bomb radius in whole pixels; the game
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
+    /// <param name="explosionCenter">The explosion's centre.</param>
+    /// <param name="explosionRadius">The explosion's horizontal radius in whole pixels; zero reaches nothing.</param>
+    /// <param name="level">The room's terrain this update, which a species reaction that runs its main behaviour reads.</param>
+    /// <param name="camera">The camera's position as the pass runs, which a species reaction that runs its main behaviour reads.</param>
+    /// <param name="samus">Samus, when the update has one.</param>
     public int ResolveOrdinaryPowerBombHits(
         Position16<RoomPixels> explosionCenter,
         int explosionRadius,
+        RoomLevelData level,
+        Position16<RoomPixels> camera,
         SamusState? samus = null)
     {
         _room.EnsureLoaded();
@@ -696,12 +703,13 @@ internal sealed class EnemyCollision
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
+            var context = new EnemyPowerBombContext(enemy, samus, level, camera);
 
             // Private reactions replace common power-bomb damage, but still receive the
             // process-off-screen bit after a qualifying ellipse overlap.
             if (reaction?.ReplacesCommon is { } privateReaction)
             {
-                privateReaction(enemy, samus);
+                privateReaction(context);
                 enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
                 reactionCount++;
                 continue;
@@ -717,14 +725,14 @@ internal sealed class EnemyCollision
                 : enemy.Health - damage;
             if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
             {
-                reaction?.BeforeGenericDeath?.Invoke(enemy, samus);
+                reaction?.BeforeGenericDeath?.Invoke(context);
                 if (reaction?.ReplacesGenericDeath is { } replaceDeath)
-                    replaceDeath(enemy, samus);
+                    replaceDeath(context);
                 else
                     _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
             }
 
-            reaction?.AfterCommon?.Invoke(enemy, samus);
+            reaction?.AfterCommon?.Invoke(context);
 
             enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
             reactionCount++;

@@ -57,7 +57,7 @@ internal sealed class DraygonCombat
     internal EnemyPowerBombReaction DraygonPowerBombReaction => field ??= new()
     {
         ExemptFromGenericDeath = true,
-        AfterCommon = (enemy, samus) => ResolveDraygonReaction(enemy, samus),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
     };
 
     /// <summary>Runs the body's contact against Samus.</summary>

@@ -22,7 +22,7 @@ internal static class QuicksandVerification
     /// <summary>Checks suit- and direction-dependent sinking, surface contact, and sandfall side effects.</summary>
     internal static void VerifyQuicksand()
     {
-        RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(bts), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, bts), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         var level = Room(0x80);
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
@@ -83,7 +83,7 @@ internal static class QuicksandVerification
         Suite(nameof(VerifyQuicksandUpwardLimit), () => VerifyQuicksandUpwardLimit(rom));
 
         var guarded = NewQuicksandDefinitionReadGuard(rom);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
@@ -123,7 +123,6 @@ internal static class QuicksandVerification
         {
             var body = new SamusKinematicsState
             {
-                SandCollisionArea = AreaId.Maridia,
                 YDirection = SamusVerticalDirection.Down,
                 YSpeed = new UnsignedSixteenSixteen(4, 0),
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
@@ -132,7 +131,7 @@ internal static class QuicksandVerification
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
+                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact);
@@ -250,14 +249,13 @@ internal static class QuicksandVerification
             int expected = middle > 0x30 ? (probe & unchecked((int)0xff0000ff)) | 0x3000 : probe;
             var body = new SamusKinematicsState
             {
-                SandCollisionArea = AreaId.Maridia,
                 YDirection = SamusVerticalDirection.None,
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
+                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact,
@@ -288,55 +286,54 @@ internal static class QuicksandVerification
             SpecialAirReactionNativeWords.CollisionHeaders, SpecialAirReactionNativeWords.CollisionSetups, SpecialAirCollisionReaction.Nothing, 0x9492d9, true));
 
     /// <summary>
-    /// Follows the native area tables: for every retail area and each of its first sixteen area reactions, the named
-    /// reaction's header and setup are the ones the cartridge's table selects; a common reaction gives no area reaction
-    /// (the no-op), every later area reaction is no special-air reaction at all and is rejected, and every other area is
-    /// rejected first.
+    /// Follows the native area tables: for every retail area and each of its first sixteen area reactions, the reaction the
+    /// import resolves in the area (#1805) names the header and setup the cartridge's table selects; a common reaction gives
+    /// no area reaction (the no-op), and every later area reaction is no special-air reaction at all and is rejected.
     /// </summary>
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
-        Func<AreaId, SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        Func<SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : struct, Enum
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
-        for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
-            AreaId area = RetailArea(rawArea);
-            SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(value).SpecialAir;
-            AssertEqual((value & 0x80) != 0 && (value & 0x7f) >= 16, reaction is null,
-                $"special-air BTS ${value:X2} has a reaction exactly within the tables");
-            if (rawArea < 7 && (value & 0x80) == 0)
-            {
-                AssertEqual(nothing, resolve(area, reaction), $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
+            if (RetailArea(rawArea) is var area && area == UnknownArea)
                 continue;
-            }
-            if (rawArea >= 7 || (value & 0x7f) >= 16)
+            for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
             {
-                try
+                SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(area, value).SpecialAir;
+                AssertEqual((value & 0x80) != 0 && (value & 0x7f) >= 16, reaction is null,
+                    $"special-air BTS ${value:X2} has a reaction exactly within the tables");
+                if ((value & 0x80) == 0)
                 {
-                    resolve(area, reaction);
-                    throw new InvalidOperationException("Special-air selector accepted an unsupported area or reaction.");
+                    AssertEqual(nothing, resolve(reaction), $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
+                    continue;
                 }
-                catch (ArgumentOutOfRangeException exception)
+                if ((value & 0x7f) >= 16)
                 {
-                    AssertEqual(rawArea >= 7 ? "area" : "reaction", exception.ParamName,
-                        "special-air bounds and validation order");
+                    AssertThrows<ArgumentOutOfRangeException>(() => resolve(reaction),
+                        $"special-air BTS ${value:X2} past the area tables is rejected");
+                    continue;
                 }
-                continue;
+                VerifySpecialAirEntry(rom, resolve(reaction), headers, setups, nothing, nativePointers, setup, rawArea, value & 0x7f);
             }
-
-            // Follow the original area pointer and header, independently of the production cases.
-            int index = value & 0x7f;
-            ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
-            ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
-            ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
-            TReaction actual = resolve(area, reaction);
-            AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
-            // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
-            // one no-op reaction, so an entry resolving to it is compared by the setup its native header names alone.
-            if (!setup && !EqualityComparer<TReaction>.Default.Equals(actual, nothing))
-                AssertEqual(header, headers[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} header");
         }
+    }
+
+    /// <summary>Compares one area entry's resolved reaction with the header and setup the cartridge's area table selects.</summary>
+    private static void VerifySpecialAirEntry<TReaction>(CartridgeImportAddressSpace rom, TReaction actual,
+        IReadOnlyDictionary<TReaction, ushort> headers, IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing,
+        int nativePointers, bool setup, int rawArea, int index)
+        where TReaction : struct, Enum
+    {        // Follow the original area pointer and header, independently of the production cases.
+        ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
+        ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
+        ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
+        AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
+        // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
+        // one no-op reaction, so an entry resolving to it is compared by the setup its native header names alone.
+        if (!setup && !EqualityComparer<TReaction>.Default.Equals(actual, nothing))
+            AssertEqual(header, headers[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} header");
     }
 
     /// <summary>Rejects production reads of the migrated special-air, quicksand, and PLM definition bytes.</summary>

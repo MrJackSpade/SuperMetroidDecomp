@@ -39,8 +39,8 @@ internal static class XrayRevealDefinitions
         [SpecialBlockReaction.PermanentCrumble2x2] = XrayRevealShape.CopySquare,
         [SpecialBlockReaction.RespawningSpeedBlock] = XrayRevealShape.CopyOne,
         [SpecialBlockReaction.PermanentSpeedBlock] = XrayRevealShape.CopyOne,
-        [SpecialBlockReaction.BrinstarSlowRespawningSpeedBlock] = XrayRevealShape.CopyBrinstar,
-        [SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand] = XrayRevealShape.CopyBrinstar,
+        [SpecialBlockReaction.SlowRespawningSpeedBlock] = XrayRevealShape.CopyBrinstar,
+        [SpecialBlockReaction.SlowPermanentSpeedBlock] = XrayRevealShape.CopyBrinstar,
         [SpecialBlockReaction.BrinstarRespawningSpeedBlock] = XrayRevealShape.CopyBrinstar,
         [SpecialBlockReaction.BrinstarPermanentSpeedBlock] = XrayRevealShape.CopyBrinstar,
     };

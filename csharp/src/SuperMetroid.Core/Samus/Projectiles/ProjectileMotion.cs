@@ -573,8 +573,8 @@ internal sealed class ProjectileMotion
         RoomCollisionBlock block,
         SamusProjectile slot)
     {
-        int slopeShape = block.Behavior.Slope.Shape;
-        if (slopeShape >= 5)
+        SlopeShape slopeShape = block.Behavior.Slope.Shape;
+        if (!slopeShape.IsSquare)
         {
             // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
             // the game table: the behaviour's flips mirror X and Y. A table height at or
@@ -583,7 +583,7 @@ internal sealed class ProjectileMotion
             int xInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
             int yInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
 
-            int height = SlopeHeights.Read(slopeShape, xInBlock);
+            int height = slopeShape.HeightAt(xInBlock);
             return height <= yInBlock;
         }
 

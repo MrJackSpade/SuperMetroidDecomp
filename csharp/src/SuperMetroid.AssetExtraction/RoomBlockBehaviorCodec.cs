@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction;
@@ -10,8 +11,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <list type="bullet">
 /// <item>a reaction: bit seven selects the area's table over the common one, and the low seven bits are the entry, which
 /// each reacting kind's dispatch tables give their own meaning; an entry past a kind's tables is no reaction of that kind,
-/// which no retail block of the kind holds (<see cref="HoldsReaction"/>, #1742);</item>
-/// <item>a slope: the low five bits are the shape, bit six mirrors it left to right and bit seven top to bottom;</item>
+/// which no retail block of the kind holds (<see cref="HoldsReaction"/>, #1742). The special-block and special-air area
+/// tables give an entry what the room's area makes of it, which the codec resolves into that meaning's own reaction
+/// (#1805): <see cref="ReadingsOf(AreaId, int)"/> reads a byte in an area, and <see cref="ReadingsOf(int)"/> leaves both
+/// readings out of a byte whose meaning the areas give differently;</item>
+/// <item>a slope: the low five bits number the shape (<see cref="SlopeShapeOf"/>), bit six mirrors it left to right and bit
+/// seven top to bottom;</item>
 /// <item>an extension: the whole byte, two's complement, is the signed offset;</item>
 /// <item>a door: the low seven bits are the door-list entry.</item>
 /// </list>
@@ -37,14 +42,66 @@ public static class RoomBlockBehaviorCodec
     /// <summary>The bits naming a slope's shape.</summary>
     private const int SlopeShapeMask = 0x1F;
 
-    /// <summary>The byte each kept behaviour's first holder is, for <see cref="Encode"/>.</summary>
-    private static readonly Lazy<Dictionary<RoomBlockBehavior, int>> Bytes = new(() =>
-        Enumerable.Range(0, ByteCount).ToDictionary(Decode, value => value));
+    /// <summary>The slope shape each value of a slope's shape bits numbers, in that order.</summary>
+    private static readonly IReadOnlyList<SlopeShape> SlopeShapes =
+    [
+        SlopeShapeDefinitions.SquareBottomHalf, SlopeShapeDefinitions.SquareRightHalf, SlopeShapeDefinitions.SquareBottomRightQuarter,
+        SlopeShapeDefinitions.SquareAllButTopLeft, SlopeShapeDefinitions.SquareFull, SlopeShapeDefinitions.LowPeak,
+        SlopeShapeDefinitions.HighPeak, SlopeShapeDefinitions.HalfHeight, SlopeShapeDefinitions.UnusedSolid1,
+        SlopeShapeDefinitions.UnusedSolid2, SlopeShapeDefinitions.UnusedSolid3, SlopeShapeDefinitions.UnusedSolid4,
+        SlopeShapeDefinitions.UnusedSolid5, SlopeShapeDefinitions.UnusedSolid6, SlopeShapeDefinitions.FourPixelStairs,
+        SlopeShapeDefinitions.TwoPixelStairs, SlopeShapeDefinitions.Open, SlopeShapeDefinitions.Overhang,
+        SlopeShapeDefinitions.UnitRise, SlopeShapeDefinitions.Solid, SlopeShapeDefinitions.UnitRiseLower,
+        SlopeShapeDefinitions.UnitRiseUpper, SlopeShapeDefinitions.HalfRiseLower, SlopeShapeDefinitions.HalfRiseUpper,
+        SlopeShapeDefinitions.ThirdRiseLower, SlopeShapeDefinitions.ThirdRiseMiddle, SlopeShapeDefinitions.ThirdRiseUpper,
+        SlopeShapeDefinitions.DoubleRiseLower, SlopeShapeDefinitions.DoubleRiseUpper, SlopeShapeDefinitions.TripleRiseLower,
+        SlopeShapeDefinitions.TripleRiseMiddle, SlopeShapeDefinitions.TripleRiseUpper,
+    ];
 
-    /// <summary>Decodes a behaviour byte into the kept behaviour holding every reading the block's collision kinds take of it.</summary>
+    /// <summary>Each byte's behaviour in any area, decoded once.</summary>
+    private static readonly Lazy<RoomBlockBehavior[]> AnyArea = new(() =>
+        [.. Enumerable.Range(0, ByteCount).Select(value => RoomBlockBehavior.Holding(ReadingsOf(value)))]);
+
+    /// <summary>Each byte's behaviour in each area, decoded once.</summary>
+    private static readonly Lazy<Dictionary<AreaId, RoomBlockBehavior[]>> InAreas = new(() => AreaIds.All.ToDictionary(
+        area => area, area => (RoomBlockBehavior[])[.. Enumerable.Range(0, ByteCount).Select(value => RoomBlockBehavior.Holding(ReadingsOf(area, value)))]));
+
+    /// <summary>
+    /// The byte each kept behaviour's first holder is, for <see cref="Encode"/>: each byte's unresolved behaviour and its
+    /// resolution in every area.
+    /// </summary>
+    private static readonly Lazy<Dictionary<RoomBlockBehavior, int>> Bytes = new(() =>
+    {
+        var bytes = new Dictionary<RoomBlockBehavior, int>();
+        for (int value = 0; value < ByteCount; value++)
+        {
+            bytes.Add(Decode(value), value);
+            foreach (AreaId area in AreaIds.All)
+                bytes.TryAdd(Decode(area, value), value);
+        }
+        return bytes;
+    });
+
+    /// <summary>
+    /// Decodes a behaviour byte into the kept behaviour holding every reading the block's collision kinds take of it in any
+    /// area: a byte whose meaning to special blocks and special air the areas give differently holds neither reading
+    /// (<see cref="RoomBlockBehavior.In"/> resolves it in a room).
+    /// </summary>
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
-    public static RoomBlockBehavior Decode(int value) => RoomBlockBehavior.Holding(ReadingsOf(value));
+    public static RoomBlockBehavior Decode(int value) => AnyArea.Value[Ensure.BetweenInclusive(0, byte.MaxValue, value)];
+
+    /// <summary>Decodes a behaviour byte into the kept behaviour holding every reading the block's collision kinds take of it in <paramref name="area"/>.</summary>
+    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, <paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
+    public static RoomBlockBehavior Decode(AreaId area, int value) =>
+        InAreas.Value[AreaIds.Require(area)][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
+
+    /// <summary>The slope shape a slope's shape bits number.</summary>
+    /// <param name="number">The shape bits, 0 through 31.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> numbers no slope shape.</exception>
+    public static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
 
     /// <summary>Encodes a behaviour as its byte.</summary>
     /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
@@ -58,19 +115,35 @@ public static class RoomBlockBehaviorCodec
     public static bool HoldsReaction(RoomCollisionType kind, RoomBlockBehavior behavior) =>
         BlockReactionFamilies.Of(kind) is not { } family || behavior.ReactionIn(family) is not null;
 
-    /// <summary>Decodes a behaviour byte into every reading the block's collision kinds take of it.</summary>
+    /// <summary>
+    /// Decodes a behaviour byte into every reading the block's collision kinds take of it in any area: when the areas make
+    /// different things of it to special blocks and special air, it holds neither of those readings.
+    /// </summary>
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(int value)
     {
-        Ensure.BetweenInclusive(0, byte.MaxValue, value);
-        bool area = (value & HighBit) != 0;
+        List<RoomBlockReadings> inAreas = [.. AreaIds.All.Select(area => ReadingsOf(area, value)).Distinct()];
+        return inAreas.Count == 1 ? inAreas[0] : inAreas[0] with { Special = null, SpecialAir = null };
+    }
+
+    /// <summary>Decodes a behaviour byte into every reading the block's collision kinds take of it in <paramref name="area"/>.</summary>
+    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or <paramref name="value"/> is not a byte.</exception>
+    public static RoomBlockReadings ReadingsOf(AreaId area, int value)
+    {
+        _ = AreaIds.Require(area);
+        _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        bool areaTable = (value & HighBit) != 0;
         int entry = value & EntryMask;
         BlockMirroring mirroring = ((value & SlopeHorizontalBit) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
-            (area ? BlockMirroring.Vertical : BlockMirroring.None);
+            (areaTable ? BlockMirroring.Vertical : BlockMirroring.None);
         return new RoomBlockReadings(
-            ShootableOf(area, entry), BombableOf(area, entry), SpecialOf(area, entry), SpecialAirOf(area, entry),
-            SpikeOf(area, entry), GrappleOf(area, entry), new SlopeGeometry(value & SlopeShapeMask, mirroring),
+            ShootableOf(areaTable, entry), BombableOf(areaTable, entry),
+            areaTable ? AreaSpecialOf(area, entry) : SpecialOf(entry),
+            areaTable ? AreaSpecialAirOf(area, entry) : SpecialAirOf(entry),
+            SpikeOf(areaTable, entry), GrappleOf(areaTable, entry), new SlopeGeometry(SlopeShapeOf(value & SlopeShapeMask), mirroring),
             unchecked((sbyte)value), entry);
     }
 
@@ -130,61 +203,91 @@ public static class RoomBlockBehaviorCodec
     };
 
     /// <summary>
-    /// The special-block dispatchers' entry for a special block, or none past their tables. The bombed-special table's
-    /// common entries run on past the reactions every area shares into the area tables, so entries 26 through 29 read
-    /// Brinstar's Speed Booster blocks (<see cref="SpecialBlockReaction.BombRevealsSpeedBlock"/>).
+    /// The special-block dispatchers' common entry for a special block, or none past their tables. The bombed-special
+    /// table's common entries run on past the reactions every area shares into the area tables, so entries 26 through 29
+    /// read Brinstar's Speed Booster blocks (<see cref="SpecialBlockReaction.BombRevealsSpeedBlock"/>).
     /// </summary>
-    private static SpecialBlockReaction? SpecialOf(bool area, int entry) => new TableEntry(area, entry) switch
+    private static SpecialBlockReaction? SpecialOf(int entry) => entry switch
     {
-        (true, 0) => SpecialBlockReaction.WreckedShipChozoHand,
-        (true, 2) => SpecialBlockReaction.BrinstarSlowRespawningSpeedBlock,
-        (true, 3) => SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand,
-        (true, 4) => SpecialBlockReaction.BrinstarRespawningSpeedBlock,
-        (true, 5) => SpecialBlockReaction.BrinstarPermanentSpeedBlock,
-        (true, < 8) => SpecialBlockReaction.SolidInEveryArea,
-        (true, _) => null,
-        (false, 0) => SpecialBlockReaction.RespawningCrumble1x1,
-        (false, 1) => SpecialBlockReaction.RespawningCrumble2x1,
-        (false, 2) => SpecialBlockReaction.RespawningCrumble1x2,
-        (false, 3) => SpecialBlockReaction.RespawningCrumble2x2,
-        (false, 4) => SpecialBlockReaction.PermanentCrumble1x1,
-        (false, 5) => SpecialBlockReaction.PermanentCrumble2x1,
-        (false, 6) => SpecialBlockReaction.PermanentCrumble1x2,
-        (false, 7) => SpecialBlockReaction.PermanentCrumble2x2,
-        (false, < 14) => SpecialBlockReaction.XrayRevealedSolid,
-        (false, 14) => SpecialBlockReaction.RespawningSpeedBlock,
-        (false, 15) => SpecialBlockReaction.PermanentSpeedBlock,
-        (false, >= 26 and <= 29) => SpecialBlockReaction.BombRevealsSpeedBlock,
-        (false, 69) => SpecialBlockReaction.CollectibleTrigger,
-        (false, 71) => SpecialBlockReaction.MapStationRight,
-        (false, 72) => SpecialBlockReaction.MapStationLeft,
-        (false, 73) => SpecialBlockReaction.EnergyStationRight,
-        (false, 74) => SpecialBlockReaction.EnergyStationLeft,
-        (false, 75) => SpecialBlockReaction.MissileStationRight,
-        (false, 76) => SpecialBlockReaction.MissileStationLeft,
-        (false, 77) => SpecialBlockReaction.SaveStationFloor,
-        (false, < 80) => SpecialBlockReaction.Solid,
-        (false, _) => null,
+        0 => SpecialBlockReaction.RespawningCrumble1x1,
+        1 => SpecialBlockReaction.RespawningCrumble2x1,
+        2 => SpecialBlockReaction.RespawningCrumble1x2,
+        3 => SpecialBlockReaction.RespawningCrumble2x2,
+        4 => SpecialBlockReaction.PermanentCrumble1x1,
+        5 => SpecialBlockReaction.PermanentCrumble2x1,
+        6 => SpecialBlockReaction.PermanentCrumble1x2,
+        7 => SpecialBlockReaction.PermanentCrumble2x2,
+        < 14 => SpecialBlockReaction.XrayRevealedSolid,
+        14 => SpecialBlockReaction.RespawningSpeedBlock,
+        15 => SpecialBlockReaction.PermanentSpeedBlock,
+        >= 26 and <= 29 => SpecialBlockReaction.BombRevealsSpeedBlock,
+        69 => SpecialBlockReaction.CollectibleTrigger,
+        71 => SpecialBlockReaction.MapStationRight,
+        72 => SpecialBlockReaction.MapStationLeft,
+        73 => SpecialBlockReaction.EnergyStationRight,
+        74 => SpecialBlockReaction.EnergyStationLeft,
+        75 => SpecialBlockReaction.MissileStationRight,
+        76 => SpecialBlockReaction.MissileStationLeft,
+        77 => SpecialBlockReaction.SaveStationFloor,
+        < 80 => SpecialBlockReaction.Solid,
+        _ => null,
     };
 
-    /// <summary>The special-air dispatchers' entry for a special-air block, or none past the area tables.</summary>
-    private static SpecialAirReaction? SpecialAirOf(bool area, int entry) => new TableEntry(area, entry) switch
+    /// <summary>
+    /// What <paramref name="area"/>'s special-block table makes of its entry, or none past the table: Wrecked Ship's and Lower
+    /// Norfair's Chozo hands, Brinstar's own Speed Booster blocks, and a plain solid block for every other entry.
+    /// </summary>
+    private static SpecialBlockReaction? AreaSpecialOf(AreaId area, int entry) => new AreaEntry(area, entry) switch
     {
-        (true, 0) => SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface,
-        (true, 1) => SpecialAirReaction.CeilingPlantOrQuicksandSurface,
-        (true, 2) => SpecialAirReaction.SlowRespawningSpeedBlockOrQuicksandSurface,
-        (true, 3) => SpecialAirReaction.SlowPermanentSpeedBlockChozoHandOrSubmergingQuicksand,
-        (true, 4) => SpecialAirReaction.RespawningSpeedBlockOrSlowSandfall,
-        (true, 5) => SpecialAirReaction.PermanentSpeedBlockOrFastSandfall,
-        (true, < 16) => SpecialAirReaction.PassesThroughInEveryArea,
-        (true, _) => null,
-        (false, 8) => SpecialAirReaction.RightwardConveyorOnFoot,
-        (false, 9) => SpecialAirReaction.LeftwardConveyorOnFoot,
-        (false, 10) => SpecialAirReaction.RightwardConveyor,
-        (false, 11) => SpecialAirReaction.LeftwardConveyor,
-        (false, 70) => SpecialAirReaction.ScrollTrigger,
-        (false, _) => SpecialAirReaction.PassesThrough,
+        (AreaId.WreckedShip, 0) => SpecialBlockReaction.WreckedShipChozoHand,
+        (AreaId.Brinstar, 2) => SpecialBlockReaction.SlowRespawningSpeedBlock,
+        (AreaId.Brinstar, 3) => SpecialBlockReaction.SlowPermanentSpeedBlock,
+        (AreaId.Norfair, 3) => SpecialBlockReaction.LowerNorfairChozoHand,
+        (AreaId.Brinstar, 4) => SpecialBlockReaction.BrinstarRespawningSpeedBlock,
+        (AreaId.Brinstar, 5) => SpecialBlockReaction.BrinstarPermanentSpeedBlock,
+        (_, < 8) => SpecialBlockReaction.Solid,
+        _ => null,
     };
+
+    /// <summary>The special-air dispatchers' common entry for a special-air block.</summary>
+    private static SpecialAirReaction SpecialAirOf(int entry) => entry switch
+    {
+        8 => SpecialAirReaction.RightwardConveyorOnFoot,
+        9 => SpecialAirReaction.LeftwardConveyorOnFoot,
+        10 => SpecialAirReaction.RightwardConveyor,
+        11 => SpecialAirReaction.LeftwardConveyor,
+        70 => SpecialAirReaction.ScrollTrigger,
+        _ => SpecialAirReaction.PassesThrough,
+    };
+
+    /// <summary>
+    /// What <paramref name="area"/>'s special-air table makes of its entry, or none past the table: Crateria's ice,
+    /// Brinstar's plants and Speed Booster blocks, the Chozo hands' triggers, Maridia's quicksand and sandfalls, and passing
+    /// through for every other entry.
+    /// </summary>
+    private static SpecialAirReaction? AreaSpecialAirOf(AreaId area, int entry) => new AreaEntry(area, entry) switch
+    {
+        (AreaId.Crateria, 0) => SpecialAirReaction.Ice,
+        (AreaId.Brinstar, 0) => SpecialAirReaction.FloorPlant,
+        (AreaId.Brinstar, 1) => SpecialAirReaction.CeilingPlant,
+        (AreaId.Brinstar, 2) => SpecialAirReaction.SlowRespawningSpeedBlock,
+        (AreaId.Brinstar, 3) => SpecialAirReaction.SlowPermanentSpeedBlock,
+        (AreaId.Brinstar, 4) => SpecialAirReaction.DachoraRespawningSpeedBlock,
+        (AreaId.Brinstar, 5) => SpecialAirReaction.PermanentSpeedBlock,
+        (AreaId.Norfair, 3) => SpecialAirReaction.LowerNorfairChozoHand,
+        (AreaId.WreckedShip, 0) => SpecialAirReaction.WreckedShipChozoHand,
+        (AreaId.Maridia, 0 or 1 or 2) => SpecialAirReaction.QuicksandSurface,
+        (AreaId.Maridia, 3) => SpecialAirReaction.SubmergingQuicksand,
+        (AreaId.Maridia, 4) => SpecialAirReaction.SlowSandfall,
+        (AreaId.Maridia, 5) => SpecialAirReaction.FastSandfall,
+        (_, < 16) => SpecialAirReaction.PassesThrough,
+        _ => null,
+    };
+
+    /// <summary>One entry of an area's own dispatch table.</summary>
+    /// <param name="Area">The room's area.</param>
+    /// <param name="Index">The entry, 0 through 127.</param>
+    private readonly record struct AreaEntry(AreaId Area, int Index);
 
     /// <summary>
     /// The spike dispatchers' entry for a spike block or spike air, or none past the enemy's spike table, which reads both

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Verification.Rooms.LevelData;
@@ -42,33 +43,47 @@ internal static class BlockParameterCarryOverVerification
         AssertEqual(decoded[0], RoomBlockBehavior.None, "the empty behaviour is the zero byte's");
         AssertEqual(decoded[0], default, "a block's default behaviour is the empty one");
 
+        int pairs = WrittenReadingPairs("in any area", value => decoded[value], behavior => behavior);
+        foreach (AreaId area in AreaIds.All)
+            pairs += WrittenReadingPairs($"in {area}", value => RoomBlockBehaviorCodec.Decode(area, value), behavior => behavior.In(area));
+
+        // Every reaction a family names is held by some behaviour in some area, so the installation can name each one.
+        RoomBlockBehavior[] everyArea =
+            [.. decoded, .. AreaIds.All.SelectMany(area => decoded.Select((_, value) => RoomBlockBehaviorCodec.Decode(area, value)))];
+        foreach (BlockReactionFamily family in Enum.GetValues<BlockReactionFamily>())
+        foreach (Enum reaction in BlockReactionFamilies.Reactions(family))
+            AssertTrue(everyArea.Any(behavior => reaction.Equals(behavior.ReactionIn(family))),
+                $"{family} reaction {reaction} is held by a byte");
+        Console.WriteLine($"Block-parameter carry-over: {decoded.Length} kept behaviours; {pairs} written-reading and read-reading pairs match the codec in every area.");
+    }
+
+    /// <summary>
+    /// Writes every reading the game writes as the first byte holding it, under <paramref name="decode"/>'s reading of the
+    /// bytes, holds the write as a room does (<paramref name="hold"/>), and compares every reading with that byte's.
+    /// </summary>
+    /// <returns>The written-reading and read-reading pairs compared.</returns>
+    private static int WrittenReadingPairs(string where, Func<int, RoomBlockBehavior> decode, Func<RoomBlockBehavior, RoomBlockBehavior> hold)
+    {
         int pairs = 0;
         foreach ((string writtenName, Func<RoomBlockBehavior, object?> written, Func<object, RoomBlockBehavior> write) in Readings)
         {
             // The game writes each reading as the first byte holding it; no reaction is never written.
             var firsts = new Dictionary<object, int>();
-            for (int value = 0; value < decoded.Length; value++)
-                if (written(decoded[value]) is { } reading)
+            for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
+                if (written(decode(value)) is { } reading)
                     firsts.TryAdd(reading, value);
             foreach ((object reading, int first) in firsts)
             {
-                RoomBlockBehavior carried = write(reading);
+                RoomBlockBehavior carried = hold(write(reading));
                 foreach ((string readName, Func<RoomBlockBehavior, object?> read, _) in Readings)
                 {
-                    AssertEqual(read(decoded[first]), read(carried),
-                        $"{writtenName} {reading} written, read as {readName}: the byte ${first:X2}'s reading");
+                    AssertEqual(read(decode(first)), read(carried),
+                        $"{writtenName} {reading} written {where}, read as {readName}: the byte ${first:X2}'s reading");
                     pairs++;
                 }
-                AssertEqual(decoded[first], carried, $"{writtenName} {reading} keeps the byte ${first:X2}");
+                AssertEqual(decode(first), carried, $"{writtenName} {reading} written {where} keeps the byte ${first:X2}");
             }
         }
-
-        // Every reaction a family names is held by some behaviour, so the installation can name each one.
-        foreach (BlockReactionFamily family in Enum.GetValues<BlockReactionFamily>())
-        foreach (Enum reaction in BlockReactionFamilies.Reactions(family))
-            AssertTrue(decoded.Any(behavior => reaction.Equals(behavior.ReactionIn(family))),
-                $"{family} reaction {reaction} is held by a byte");
-
-        Console.WriteLine($"Block-parameter carry-over: {decoded.Length} kept behaviours; {pairs} written-reading and read-reading pairs match the codec.");
+        return pairs;
     }
 }

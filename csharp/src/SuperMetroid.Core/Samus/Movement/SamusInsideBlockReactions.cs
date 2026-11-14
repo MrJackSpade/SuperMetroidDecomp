@@ -16,7 +16,6 @@ public static class SamusInsideBlockReactions
         AreaId area, bool areaBossDefeated = false, ISamusRoomObjects? roomObjects = null)
     {
         var body = samus.Kinematics;
-        body.SandCollisionArea = area;
         SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
             Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
 
@@ -40,7 +39,7 @@ public static class SamusInsideBlockReactions
                 ApplyConveyor(conveyed);
                 return;
             }
-            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(area, block.Behavior.SpecialAir);
+            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
                 !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
@@ -156,7 +155,7 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects? roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(body.SandCollisionArea, block.Behavior.SpecialAir);
+        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))

@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -9,8 +10,10 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal static class XrayRevealVerification
 {
     /// <summary>
-    /// Compares the reveal shape of every collision type and BTS byte, including wildcard and explicit entries. The blocks each
-    /// copy shows are installed pictures (#1596), which the installation verification compares with the same tables.
+    /// Compares the reveal shape of every collision type and BTS byte in every area, including wildcard and explicit entries:
+    /// the Brinstar-only copy reveals nothing outside Brinstar, whose table the import resolves to plain solid blocks there
+    /// (#1805). The blocks each copy shows are installed pictures (#1596), which the installation verification compares with
+    /// the same tables.
     /// </summary>
     internal static void VerifyXrayRevealTable()
     {
@@ -22,9 +25,14 @@ internal static class XrayRevealVerification
         {
             XrayRevealDefinition? expected = ReadNativeXrayRevealDefinition(
                 bus, type, unchecked((byte)bts));
-            XrayRevealShape? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
-            AssertEqual(expected?.Shape, found, $"retail reveal shape {type}/BTS {bts:X2}");
-            if (found is { } shape) { matches++; shapes.Add(shape); }
+            foreach (AreaId area in AreaIds.All)
+            {
+                XrayRevealShape? expectedInArea = expected?.Shape is XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar
+                    ? null : expected?.Shape;
+                XrayRevealShape? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(area, bts));
+                AssertEqual(expectedInArea, found, $"retail reveal shape {type}/BTS {bts:X2} in {area}");
+                if (area == AreaId.Brinstar && found is { } shape) { matches++; shapes.Add(shape); }
+            }
         }
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
         AssertEqual(7, shapes.Count, "all seven reveal shapes are decoded");

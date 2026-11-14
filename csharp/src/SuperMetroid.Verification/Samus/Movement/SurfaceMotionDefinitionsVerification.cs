@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -13,13 +15,14 @@ internal static class SurfaceMotionDefinitionsVerification
         for (int shape = 0; shape < 32; shape++)
         {
             ushort multiplier = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e931 + shape * 4));
-            AssertEqual(multiplier, CrawlerSlopes.Multiplier(shape), "Crawler native slope multiplier");
+            SlopeShape slope = RoomBlockBehaviorCodec.SlopeShapeOf(shape);
+            AssertEqual(multiplier, slope.CrawlerTangentFactor, "Crawler native slope multiplier");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 int speed = unchecked((short)raw);
                 int magnitude = Math.Abs(speed) * multiplier;
                 AssertEqual(speed < 0 ? -magnitude : magnitude,
-                    CrawlerSlopes.Scale(new SignedEightEight(raw), shape).RawValue, "Crawler signed slope displacement");
+                    CrawlerSlopes.Scale(new SignedEightEight(raw), slope).RawValue, "Crawler signed slope displacement");
             }
         }
         for (int speed = 0; speed <= ushort.MaxValue; speed++)
@@ -29,7 +32,6 @@ internal static class SurfaceMotionDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), actual.Fraction, "Yard native capped kick fraction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), actual.UnsignedWholePixels, "Yard native capped kick whole");
         }
-        AssertThrows<InvalidDataException>(() => CrawlerSlopes.Multiplier(32), "Crawler invalid slope");
         Console.WriteLine("Surface motion definitions: 32 native slope multipliers, 2097152 signed displacements and 65536 Yard kick selectors match.");
     }
 }

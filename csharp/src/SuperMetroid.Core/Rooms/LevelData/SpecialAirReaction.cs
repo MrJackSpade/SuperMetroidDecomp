@@ -1,14 +1,16 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// What a special-air block does with its behaviour (#1722, #1742): a conveyor or the scroll trigger, the same in every
-/// area, or one of the reactions whose meaning depends on the room's area. Its values are
-/// arbitrary; a behaviour written for another collision kind is read as one of these through
-/// <see cref="RoomBlockBehavior"/>, or as none when special air has no reaction for it.
+/// What a special-air block does with its behaviour (#1722, #1742, #1805): a conveyor or the scroll trigger, the same in
+/// every area, or one of the reactions an area's own table gives (ice, the plants, quicksand and sandfalls, Speed Booster
+/// blocks and the Chozo hands). The import resolves what the room's area makes of the area's own reactions into these, so
+/// each names one thing (<see cref="SpecialAirReactions"/>). Its values are arbitrary; a behaviour written for another
+/// collision kind is read as one of these through <see cref="RoomBlockBehavior"/>, or as none when special air has no
+/// reaction for it.
 /// </summary>
 public enum SpecialAirReaction
 {
-    /// <summary>Samus passes with no reaction, in every area.</summary>
+    /// <summary>Samus passes with no reaction.</summary>
     PassesThrough,
 
     /// <summary>A conveyor carrying Samus rightward while she stands on it, unless the area's power is off.</summary>
@@ -26,33 +28,42 @@ public enum SpecialAirReaction
     /// <summary>The trigger a scroll room object gives its block; the X-ray scope reveals it.</summary>
     ScrollTrigger,
 
-    /// <summary>
-    /// The reaction that is Crateria's ice, Brinstar's floor plant, Wrecked Ship's Chozo hand and Maridia's quicksand
-    /// surface.
-    /// </summary>
-    IceFloorPlantChozoHandOrQuicksandSurface,
+    /// <summary>Crateria's ice floor.</summary>
+    Ice,
 
-    /// <summary>The reaction that is Brinstar's ceiling plant and Maridia's quicksand surface.</summary>
-    CeilingPlantOrQuicksandSurface,
+    /// <summary>The Brinstar plant that bites Samus from the floor.</summary>
+    FloorPlant,
 
-    /// <summary>The reaction that is Brinstar's slowly crumbling Speed Booster block that grows back and Maridia's quicksand surface.</summary>
-    SlowRespawningSpeedBlockOrQuicksandSurface,
+    /// <summary>The Brinstar plant that bites Samus from the ceiling.</summary>
+    CeilingPlant,
 
-    /// <summary>
-    /// The reaction that is Brinstar's slowly crumbling Speed Booster block that breaks for good, Lower Norfair's Chozo
-    /// hand and Maridia's submerging quicksand.
-    /// </summary>
-    SlowPermanentSpeedBlockChozoHandOrSubmergingQuicksand,
+    /// <summary>Maridia's quicksand surface.</summary>
+    QuicksandSurface,
 
-    /// <summary>The reaction that is Brinstar's Speed Booster block that grows back and Maridia's slow sandfall.</summary>
-    RespawningSpeedBlockOrSlowSandfall,
+    /// <summary>Maridia's submerging quicksand.</summary>
+    SubmergingQuicksand,
 
-    /// <summary>The reaction that is Brinstar's Speed Booster block that breaks for good and Maridia's fast sandfall.</summary>
-    PermanentSpeedBlockOrFastSandfall,
+    /// <summary>Maridia's slow sandfall.</summary>
+    SlowSandfall,
 
-    /// <summary>
-    /// Samus passes with no reaction in every area, as <see cref="PassesThrough"/>; the block's other collision kinds read
-    /// its behaviour otherwise.
-    /// </summary>
-    PassesThroughInEveryArea,
+    /// <summary>Maridia's fast sandfall.</summary>
+    FastSandfall,
+
+    /// <summary>Brinstar's slowly crumbling Speed Booster block that grows back.</summary>
+    SlowRespawningSpeedBlock,
+
+    /// <summary>Brinstar's slowly crumbling Speed Booster block that breaks for good.</summary>
+    SlowPermanentSpeedBlock,
+
+    /// <summary>The Dachora room's Speed Booster block that grows back.</summary>
+    DachoraRespawningSpeedBlock,
+
+    /// <summary>Brinstar's Speed Booster block that breaks for good.</summary>
+    PermanentSpeedBlock,
+
+    /// <summary>The Wrecked Ship Chozo statue hand's trigger.</summary>
+    WreckedShipChozoHand,
+
+    /// <summary>The Lower Norfair Chozo statue hand's trigger.</summary>
+    LowerNorfairChozoHand,
 }

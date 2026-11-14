@@ -1,9 +1,11 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// What a special block does with its behaviour (#1722): the crumble block, Speed Booster block, station access, collectible
-/// or Chozo hand Samus's contact and a bomb select. Its values are arbitrary; a behaviour written for another collision kind
-/// is read as one of these through <see cref="RoomBlockBehavior"/>, or as none when special blocks have no reaction for it.
+/// What a special block does with its behaviour (#1722, #1805): the crumble block, Speed Booster block, station access,
+/// collectible or Chozo hand Samus's contact and a bomb select. The import resolves what the room's area makes of the
+/// area's own reactions into these, so each names one thing in the areas that have it. Its values are arbitrary; a
+/// behaviour written for another collision kind is read as one of these through <see cref="RoomBlockBehavior"/>, or as
+/// none when special blocks have no reaction for it.
 /// </summary>
 public enum SpecialBlockReaction
 {
@@ -73,27 +75,21 @@ public enum SpecialBlockReaction
     /// <summary>A plain solid block: a bomb sets off a one-update object.</summary>
     Solid,
 
-    /// <summary>The reaction Wrecked Ship's Chozo statue gives its hand; elsewhere a plain solid block.</summary>
+    /// <summary>The Wrecked Ship Chozo statue's hand, which a morphed Samus's landing hands to the statue.</summary>
     WreckedShipChozoHand,
 
-    /// <summary>
-    /// A plain solid block in every area, as <see cref="Solid"/>; the block's other collision kinds read its behaviour
-    /// otherwise.
-    /// </summary>
-    SolidInEveryArea,
+    /// <summary>The Lower Norfair Chozo statue's hand, which a morphed Samus's landing hands to the statue.</summary>
+    LowerNorfairChozoHand,
 
-    /// <summary>Brinstar's slowly crumbling Speed Booster block that grows back; elsewhere a plain solid block.</summary>
-    BrinstarSlowRespawningSpeedBlock,
+    /// <summary>Brinstar's slowly crumbling Speed Booster block that grows back.</summary>
+    SlowRespawningSpeedBlock,
 
-    /// <summary>
-    /// Brinstar's slowly crumbling Speed Booster block that breaks for good, and the reaction Lower Norfair's Chozo statue
-    /// gives its hand; elsewhere a plain solid block.
-    /// </summary>
-    BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand,
+    /// <summary>Brinstar's slowly crumbling Speed Booster block that breaks for good.</summary>
+    SlowPermanentSpeedBlock,
 
-    /// <summary>Brinstar's Speed Booster block that grows back (the Dachora room's); elsewhere a plain solid block.</summary>
+    /// <summary>Brinstar's own Speed Booster block that grows back (the Dachora room's), which the X-ray scope shows as Brinstar's.</summary>
     BrinstarRespawningSpeedBlock,
 
-    /// <summary>Brinstar's Speed Booster block that breaks for good; elsewhere a plain solid block.</summary>
+    /// <summary>Brinstar's own Speed Booster block that breaks for good, which the X-ray scope shows as Brinstar's.</summary>
     BrinstarPermanentSpeedBlock,
 }

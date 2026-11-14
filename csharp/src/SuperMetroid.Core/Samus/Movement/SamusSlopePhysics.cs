@@ -32,7 +32,7 @@ public static class SamusSlopePhysics
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.Slope.Shape);
+        int multiplier = behavior.Slope.Shape.GroundedSpeedShare;
 
         // The lowest eight fractional bits are discarded before scaling, rounding toward negative
         // infinity, so a leftward displacement scales by the same rule as a rightward one.
@@ -50,7 +50,7 @@ public static class SamusSlopePhysics
         int column = behavior.Slope.FlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(xPosition)
             : RoomGridConversions.OffsetWithinBlock(xPosition);
-        return SlopeHeights.Read(behavior.Slope.Shape, column);
+        return behavior.Slope.Shape.HeightAt(column);
     }
 
     /// <summary>

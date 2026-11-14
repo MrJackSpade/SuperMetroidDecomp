@@ -92,9 +92,11 @@ public sealed class LoadedRoomAssets
                 $"Room {room.Definition.Name}'s installed {level.Size.X}x{level.Size.Y}-block level cannot contain its " +
                 $"{room.Size.X}x{room.Size.Y} visible screens.");
         }
-        // The level gets its own terrain beyond the grid, so writes there last exactly the room's lifetime.
+        // The level gets its own terrain beyond the grid, so writes there last exactly the room's lifetime. The room's area
+        // resolves what the area's own reactions mean to its special blocks and special air (#1805).
+        RoomBlockBehavior[] behaviors = [.. level.Behaviors.Select(behavior => behavior.In(room.Area))];
         return new RoomLevelData(level.Size,
-            new RoomLevelPlanes(level.Foreground.AsSpan(), level.Behaviors.AsSpan(), level.Background.AsSpan()),
+            new RoomLevelPlanes(level.Foreground.AsSpan(), behaviors, level.Background.AsSpan()),
             new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
                 RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None),
             room.Doors, visualLayout);

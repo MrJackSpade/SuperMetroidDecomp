@@ -150,7 +150,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         foreach ((byte bts, BlockReactionChange expected) in cases)
         {
             (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
-                CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(bts), AreaId.Brinstar);
+                CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
             BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
 

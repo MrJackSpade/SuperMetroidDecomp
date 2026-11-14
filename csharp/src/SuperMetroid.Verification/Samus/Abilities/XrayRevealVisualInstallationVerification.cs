@@ -35,7 +35,9 @@ internal static class XrayRevealVisualInstallationVerification
             XrayRevealDefinition? native = XrayRevealVerification.ReadNativeXrayRevealDefinition(nativeBus, type, unchecked((byte)bts));
             if (native is not { } definition ||
                 !InstalledXrayReveals.IsDrawable(definition.Shape)) continue;
-            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(bts)),
+            // Brinstar resolves every entry a drawable rule covers to the reaction the rule reveals, its own Speed Booster blocks
+            // among them (#1805).
+            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }

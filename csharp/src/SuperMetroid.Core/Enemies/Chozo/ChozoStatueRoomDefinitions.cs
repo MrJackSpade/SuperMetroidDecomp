@@ -14,17 +14,17 @@ internal static class ChozoStatueRoomDefinitions
     /// </summary>
     public static readonly Position16<RoomBlocks> FirstSlopeBlock = new(36, 29);
 
-    /// <summary>The slope shape written at the first slope block.</summary>
-    public static readonly RoomBlockBehavior FirstSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(18, BlockMirroring.None));
+    /// <summary>The slope written at the first slope block: a slope rising one pixel a column.</summary>
+    public static readonly RoomBlockBehavior FirstSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(SlopeShapeDefinitions.UnitRise, BlockMirroring.None));
 
-    /// <summary>The slope shape written at the adjacent slope block.</summary>
-    public static readonly RoomBlockBehavior SecondSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(19, BlockMirroring.None));
+    /// <summary>The slope written at the adjacent slope block: a flat surface at the block's top.</summary>
+    public static readonly RoomBlockBehavior SecondSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(SlopeShapeDefinitions.Solid, BlockMirroring.None));
 
-    /// <summary>The special-solid behaviour of the Wrecked Ship hand's block in that area's behaviour table.</summary>
+    /// <summary>The behaviour of the Wrecked Ship hand's special block: the Wrecked Ship Chozo hand.</summary>
     public static readonly RoomBlockBehavior WreckedShipHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.WreckedShipChozoHand);
 
-    /// <summary>The special-solid behaviour of the Lower Norfair hand's block in Norfair's behaviour table.</summary>
-    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand);
+    /// <summary>The behaviour of the Lower Norfair hand's special block: the Lower Norfair Chozo hand.</summary>
+    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.LowerNorfairChozoHand);
 
     /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
     public const int LowerNorfairTriggerX = 4;

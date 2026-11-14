@@ -509,7 +509,6 @@ public sealed class SamusProjectileSystem
             {
                 Chainsaw.RunPowerBombFrameBehavior(
                     terrain.Level,
-                    samus,
                     slot,
                     sharedProjectiles,
                     terrain.RoomObjects);

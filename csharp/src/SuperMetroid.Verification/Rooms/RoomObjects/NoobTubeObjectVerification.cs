@@ -137,7 +137,6 @@ internal static class NoobTubeObjectVerification
             new(blockX, blockY),
             reactions,
             roomObjects,
-            AreaId.Maridia,
             SamusBombProjectileSystem.PowerBombType);
         AssertEqual(1, reactions.Count,
             "Power Bomb boundary visits the live n00b-tube origin");

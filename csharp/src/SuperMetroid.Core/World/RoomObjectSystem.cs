@@ -154,7 +154,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, SlotTable);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
-        BlockReactions = new BlockReactionObjects(room.Area, EscapeAnimals, SlotTable, Drawing);
+        BlockReactions = new BlockReactionObjects(EscapeAnimals, SlotTable, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
     }
 

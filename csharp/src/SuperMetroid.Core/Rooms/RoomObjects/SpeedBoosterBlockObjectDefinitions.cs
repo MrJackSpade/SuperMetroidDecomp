@@ -95,8 +95,8 @@ internal static class SpeedBoosterBlockObjectDefinitions
     public static readonly IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> BrinstarBlocks =
         new Dictionary<SpecialBlockReaction, BlockReactionChange>
         {
-            [SpecialBlockReaction.BrinstarSlowRespawningSpeedBlock] = SlowRespawningCrumble,
-            [SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand] = SlowPermanentCrumble,
+            [SpecialBlockReaction.SlowRespawningSpeedBlock] = SlowRespawningCrumble,
+            [SpecialBlockReaction.SlowPermanentSpeedBlock] = SlowPermanentCrumble,
             [SpecialBlockReaction.BrinstarRespawningSpeedBlock] = RespawningCrumble,
             [SpecialBlockReaction.BrinstarPermanentSpeedBlock] = PermanentCrumble,
         };

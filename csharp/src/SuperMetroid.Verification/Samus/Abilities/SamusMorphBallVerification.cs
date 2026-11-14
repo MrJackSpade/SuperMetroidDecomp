@@ -1478,7 +1478,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var tableObjects = RoomObjectFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
-            new(2, 2), new(), tableObjects, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+            new(2, 2), new(), tableObjects, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         tableObjects.Step(tableLevel);
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock) : RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock),
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).Terrain,

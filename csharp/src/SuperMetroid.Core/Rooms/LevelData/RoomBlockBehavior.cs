@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -15,6 +16,12 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// behaviour is one of the kept behaviours, each holding every reading (<see cref="RoomBlockReadingDefinitions"/>). A
 /// behaviour is written as the reading it is meant for and carries the others through
 /// <see cref="BlockParameterCarryOver{TBehavior, TReading}"/>. The default behaviour is <see cref="None"/>.
+/// <para>
+/// A few behaviours mean what the room's area makes of them to special blocks and special air (#1805): the import resolves
+/// each area's meaning into its own reaction, and such a behaviour is kept once unresolved, holding neither reading, and
+/// once for each meaning the areas give it (<see cref="RoomBlockReadingDefinitions.InAreas"/>). A room holds its behaviours
+/// as its area resolves them (<see cref="In"/>).
+/// </para>
 /// </remarks>
 public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
@@ -26,6 +33,22 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>The last entry of a room's door list a door block selects.</summary>
     public const int LastDoorLink = 127;
+
+    /// <summary>
+    /// Every kept behaviour in the order the game numbers them, each one the areas resolve followed by its resolutions in the
+    /// game's area order, so a write of a reading keeps the unresolved behaviour before any area's.
+    /// </summary>
+    private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
+
+    /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
+    private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
+        Kept.ToDictionary(readings => readings);
+
+    /// <summary>The unresolved behaviour each behaviour the areas resolve is, keyed by itself and by each of its resolutions.</summary>
+    private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> UnresolvedOf = [];
+
+    /// <summary>Each unresolved behaviour's resolution in each area.</summary>
+    private static readonly Dictionary<AreaResolution, RoomBlockReadings> ResolvedIn = ResolutionsByArea();
 
     /// <summary>Writes behaviours as shootable reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, ShootableReaction> ShootableWrites =
@@ -53,19 +76,15 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Writes behaviours as slopes.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry> SlopeWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Slope);
+        new(Kept, static readings => readings.Slope);
 
     /// <summary>Writes behaviours as extension offsets.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> ExtensionWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.ExtensionOffset);
+        new(Kept, static readings => readings.ExtensionOffset);
 
     /// <summary>Writes behaviours as door links.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> DoorWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.DoorLink);
-
-    /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
-    private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
-        RoomBlockReadingDefinitions.Kept.ToDictionary(readings => readings);
+        new(Kept, static readings => readings.DoorLink);
 
     /// <summary>
     /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
@@ -73,8 +92,51 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// </summary>
     private static BlockParameterCarryOver<RoomBlockReadings, TReaction> ReactionWrites<TReaction>(Func<RoomBlockReadings, TReaction?> read)
         where TReaction : struct, Enum =>
-        new(RoomBlockReadingDefinitions.Kept.Where(readings => read(readings) is not null),
+        new(Kept.Where(readings => read(readings) is not null),
             readings => read(readings) ?? throw new InvalidOperationException("A kept behaviour lost its reaction."));
+
+    /// <summary>The kept behaviours in order: each of the catalog's, followed by its resolutions in the areas.</summary>
+    private static List<RoomBlockReadings> KeptInOrder()
+    {
+        ILookup<RoomBlockReadings, RoomBlockReadings> resolutions = RoomBlockReadingDefinitions.InAreas.ToLookup(
+            static resolution => Unresolved(resolution.Readings), static resolution => resolution.Readings);
+        return [.. RoomBlockReadingDefinitions.Kept.SelectMany(kept => resolutions[kept].Prepend(kept))];
+    }
+
+    /// <summary>
+    /// Indexes each resolution by its unresolved behaviour and area, and each resolution and unresolved behaviour by the
+    /// unresolved one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A resolution resolves no kept behaviour, or an area resolves one twice or not at all.</exception>
+    private static Dictionary<AreaResolution, RoomBlockReadings> ResolutionsByArea()
+    {
+        var byArea = new Dictionary<AreaResolution, RoomBlockReadings>();
+        foreach (AreaBlockReadings resolution in RoomBlockReadingDefinitions.InAreas)
+        {
+            RoomBlockReadings unresolved = KeptByReadings.TryGetValue(Unresolved(resolution.Readings), out RoomBlockReadings? kept)
+                ? kept
+                : throw new InvalidOperationException($"The area resolution {resolution.Readings} resolves no kept behaviour.");
+            UnresolvedOf[unresolved] = unresolved;
+            UnresolvedOf.Add(resolution.Readings, unresolved);
+            foreach (AreaId area in resolution.Areas)
+                byArea.Add(new AreaResolution(unresolved, area), resolution.Readings);
+        }
+        foreach (RoomBlockReadings unresolved in UnresolvedOf.Values.Distinct())
+        {
+            if (AreaIds.All.Any(area => !byArea.ContainsKey(new AreaResolution(unresolved, area))))
+                throw new InvalidOperationException($"An area leaves the behaviour {unresolved} unresolved.");
+        }
+        return byArea;
+    }
+
+    /// <summary>An unresolved behaviour in one area, which resolves it.</summary>
+    /// <param name="Unresolved">The behaviour holding neither the special-block nor the special-air reading.</param>
+    /// <param name="Area">The area resolving it.</param>
+    private readonly record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
+
+    /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
+    private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>
+        resolution with { Special = null, SpecialAir = null };
 
     /// <summary>The empty behaviour's readings: the kept behaviour whose extension ends its chain.</summary>
     private static readonly RoomBlockReadings EmptyReadings = ExtensionWrites.Carrying(0);
@@ -152,6 +214,27 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <param name="doorLink">The entry of the room's door list the door selects, 0 through <see cref="LastDoorLink"/>.</param>
     public static RoomBlockBehavior LinkingDoor(int doorLink) =>
         new(DoorWrites.Carrying(Ensure.BetweenInclusive(0, LastDoorLink, doorLink)));
+
+    /// <summary>
+    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
+    /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
+    /// the room objects' writes hold such a behaviour unresolved, and a room's load resolves it.
+    /// </summary>
+    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The area is not a retail area, or the behaviour holds what another area makes of it.
+    /// </exception>
+    public RoomBlockBehavior In(AreaId area)
+    {
+        _ = AreaIds.Require(area);
+        RoomBlockReadings readings = Readings;
+        if (!UnresolvedOf.TryGetValue(readings, out RoomBlockReadings? unresolved))
+            return this;
+        RoomBlockReadings resolved = ResolvedIn[new AreaResolution(unresolved, area)];
+        return ReferenceEquals(readings, unresolved) || ReferenceEquals(readings, resolved)
+            ? new RoomBlockBehavior(resolved)
+            : throw new ArgumentOutOfRangeException(nameof(area), area, $"The behaviour ({this}) holds what another area makes of it.");
+    }
 
     /// <summary>The reaction shootable blocks and shootable air read, or null when they have none for this behaviour.</summary>
     public ShootableReaction? Shootable => Readings.Shootable;

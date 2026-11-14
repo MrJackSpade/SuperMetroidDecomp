@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -579,7 +579,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
-        SlopeHeights.Read(behavior.Slope.Shape, xWithinBlock);
+        behavior.Slope.Shape.HeightAt(xWithinBlock);
     /// <summary>
     /// The active frame's room-object owner for enemy-breakable blocks. This synchronous call
     /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.

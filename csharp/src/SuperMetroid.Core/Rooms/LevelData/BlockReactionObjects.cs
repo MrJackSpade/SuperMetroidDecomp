@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 [RoomLifetime]
 internal sealed class BlockReactionObjects
 {
-    /// <summary>The room's area.</summary>
-    private readonly AreaId _area;
     /// <summary>Handles the animal-escape reaction reserved among the shot-block behaviours.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>Allocates reaction room objects in descending slot order.</summary>
@@ -23,9 +21,8 @@ internal sealed class BlockReactionObjects
     private readonly IRoomObjectDrawing _drawing;
 
     /// <summary>Connects block reactions to the active room, escape-animal branch, shared room-object pool and installed pictures.</summary>
-    internal BlockReactionObjects(AreaId area, ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
+    internal BlockReactionObjects(ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
     {
-        _area = area;
         _escapeAnimals = escapeAnimals;
         _slotTable = slotTable;
         _drawing = Ensure.NotNull(drawing);
@@ -126,8 +123,8 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>
-    /// Runs the Speed Booster block setup for a special block selected by either the area-independent Speed Booster
-    /// behaviours or Brinstar's area-specific ones.
+    /// Runs the Speed Booster block setup for a special block selected by either the Speed Booster blocks every area has or
+    /// Brinstar's own.
     /// </summary>
     /// <remarks>
     /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
@@ -145,10 +142,7 @@ internal sealed class BlockReactionObjects
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-        if (!SpeedBoosterBlocks.TryResolve(
-                behavior,
-                _area,
-                out BlockReactionChange? crumble))
+        if (!SpeedBoosterBlocks.TryResolve(behavior, out BlockReactionChange? crumble))
         {
             return false;
         }
@@ -342,16 +336,14 @@ internal sealed class BlockReactionObjects
         }
     }
 
-    /// <summary>Dispatches normal-bomb special blocks by their reaction and the room's area.</summary>
+    /// <summary>Dispatches normal-bomb special blocks by their reaction.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        AreaId area,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        _ = AreaIds.Require(area);
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
         if (projectileType.Family != SamusProjectileFamily.Bomb)
@@ -363,7 +355,7 @@ internal sealed class BlockReactionObjects
 
         if (behavior.Special is null)
             throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special, area);
+        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;

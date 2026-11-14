@@ -190,7 +190,6 @@ internal static class ChainsawFiringVerification
             PowerBombRadius.FromWholePixels(16),
             interferenceReactions,
             interferenceObjects,
-            AreaId.Crateria,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
@@ -198,7 +197,6 @@ internal static class ChainsawFiringVerification
             PowerBombRadius.FromWholePixels(16),
             interferenceReactions,
             interferenceObjects,
-            AreaId.Crateria,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         interferenceObjects.Step(interferenceLevel);
         ColoredDoorObjectSnapshot suppressedDoor = interferenceObjects.ColoredDoors.Single();
@@ -219,7 +217,6 @@ internal static class ChainsawFiringVerification
             PowerBombRadius.FromWholePixels(16),
             breakingReactions,
             breakingObjects,
-            AreaId.Crateria,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
@@ -227,7 +224,6 @@ internal static class ChainsawFiringVerification
             PowerBombRadius.FromWholePixels(16),
             breakingReactions,
             breakingObjects,
-            AreaId.Crateria,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,

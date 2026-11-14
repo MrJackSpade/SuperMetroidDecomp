@@ -140,25 +140,38 @@ internal static class BlockReactionSelectorsVerification
     /// Checks what a normal bomb sets off at every special block whose reaction every area shares, in every area, against
     /// the cartridge's bombed-special table read on past its sixteen shared reactions into the area tables that follow it
     /// (the run-on that shows four plain solid blocks as Brinstar's Speed Booster blocks, <c>SpecialBlockBombRunOn</c>), and
-    /// that the shared bytes past that read give a special block no reaction, which a bomb rejects (#1742).
+    /// that the shared bytes past that read give a special block no reaction, which a bomb rejects (#1742). Each area's own
+    /// eight entries, which the import resolves in the area (#1805), are checked against that area's table.
     /// </summary>
     internal static void VerifyBombSpecialInstructionSelection(CartridgeImportAddressSpace rom)
     {
         const int sharedRead = 80;
-        foreach (AreaId area in AreaIds.All)
+        const int sharedReactions = 16;
+        const int areaReactions = 8;
+        const int areaTableBehavior = 0x80;
         for (int index = 0; index < sharedRead; index++)
         {
             // Independent cartridge header indirection, not the replacement's reaction cases.
             ushort header = ReadRomWord(rom, 0x949da4 + index * 2);
             ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
-            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special, area)),
-                $"bomb special: native instruction at BTS {index:X2} in {area}");
+            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special)),
+                $"bomb special: native instruction at BTS {index:X2}");
+        }
+        for (int areaIndex = 0; areaIndex < AreaIds.All.Count; areaIndex++)
+        for (int entry = 0; entry < areaReactions; entry++)
+        {
+            AreaId area = AreaIds.All[areaIndex];
+            ushort header = ReadRomWord(rom, 0x949da4 + (sharedReactions + areaReactions * areaIndex + entry) * 2);
+            ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
+            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(
+                    RoomBlockBehaviorCodec.Decode(area, areaTableBehavior | entry).Special)),
+                $"bomb special: native instruction at {area}'s entry {entry}");
         }
         for (int index = sharedRead; index < 0x80; index++)
         {
             SpecialBlockReaction? reaction = RoomBlockBehaviorCodec.Decode(index).Special;
             AssertTrue(reaction is null, $"bomb special: BTS {index:X2} gives a special block no reaction");
-            AssertThrows<ArgumentOutOfRangeException>(() => BombSpecialBlockReactions.ChangeFor(reaction, AreaId.Brinstar),
+            AssertThrows<ArgumentOutOfRangeException>(() => BombSpecialBlockReactions.ChangeFor(reaction),
                 $"bomb special: rejects BTS {index:X2}, which has no reaction");
         }
     }

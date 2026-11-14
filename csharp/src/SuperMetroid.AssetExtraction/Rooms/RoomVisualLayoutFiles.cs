@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -54,6 +55,21 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>Distinct levels selected by retail room states and their row strides.</summary>
     public static IReadOnlyDictionary<RoomLevelId, int> RetailLevels { get; } = BuildRetailLevels();
+
+    /// <summary>
+    /// The areas of the retail rooms using each distinct level, in the game's area order: a save or map room's level is
+    /// shared by rooms of several areas, which give the area tables' reactions their meaning (#1805).
+    /// </summary>
+    public static IReadOnlyDictionary<RoomLevelId, IReadOnlyList<AreaId>> RetailLevelAreas { get; } =
+        RetailRooms.All
+            .SelectMany(header => RoomStateLists.GetStates(header).Select(state => new LevelUse(state.Level, header.Area)))
+            .GroupBy(use => use.Level, use => use.Area)
+            .ToDictionary(group => group.Key, group => (IReadOnlyList<AreaId>)[.. AreaIds.All.Where(group.Contains)]);
+
+    /// <summary>A retail room state's level and its room's area.</summary>
+    /// <param name="Level">The level the state uses.</param>
+    /// <param name="Area">The area of the state's room.</param>
+    private sealed record LevelUse(RoomLevelId Level, AreaId Area);
 
     /// <summary>Formats the stable per-level installed JSON filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it; membership validation occurs during loading.</param>
@@ -167,7 +183,7 @@ public static class RoomVisualLayoutFiles
         RoomLevelId level, int widthInBlocks)
     {
         byte[] stream = RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomLevelSourceDefinitions.Addresses[level]);
-        InstalledRoomLevel decoded = RoomLevelStreamDecoder.Decode(level, stream, widthInBlocks);
+        InstalledRoomLevel decoded = RoomLevelStreamDecoder.Decode(level, stream, widthInBlocks, RetailLevelAreas[level]);
         return new RoomVisualLayoutDocument(FormatVersion, level.Name, widthInBlocks, decoded.Size.Y,
             WritePlane([.. decoded.Foreground.Select(block => block.Appearance)]), WritePlane([.. decoded.Background]));
     }

@@ -25,6 +25,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
@@ -551,11 +552,10 @@ internal sealed class EnemySheetShades
         yield return new SheetShade(TourianStatueShades.Entrance,
             [.. Enumerable.Range(body, 16), .. Enumerable.Range(decoration, 16)],
             [.. Frame(16, statue.StatueColor), .. Frame(16, statue.BaseColor)]);
-        for (int glow = 0; glow < TourianStatueShades.EyeGlows; glow++)
+        foreach ((TourianGreyStatues boss, int row) in TourianStatueColorDefinitions.EyeGlowRows)
         {
-            int boss = glow;
             yield return SheetShade.Run(TourianStatueShades.EyeGlow(boss), decoration + 9,
-                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(boss, colour)));
+                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(row, colour)));
         }
         yield return SheetShade.Run(TourianStatueShades.PhantoonCleared, body + 12, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.PhantoonGrey, body, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));

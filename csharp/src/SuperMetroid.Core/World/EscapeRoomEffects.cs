@@ -31,7 +31,7 @@ internal sealed class EscapeRoomEffects
     /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two switchers.</summary>
     internal void SetupEscapeRoomEffects(RoomSetupBehavior setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
     {
-        // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
+        // The two rooms whose mains switch between quakes clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupBehavior.SetLightHorizontalRoomShaking or
             RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid)
@@ -68,7 +68,7 @@ internal sealed class EscapeRoomEffects
         EscapeDiagonalQuakeState diagonalQuake = room.EscapeDiagonalQuake;
         if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
         RoomMainBehavior main = _room.ActiveRoom.State.MainBehavior;
-        bool nonblank = main is RoomMainBehavior.ScrollingSkyLandZebesTimebombSet or
+        bool outdoors = main is RoomMainBehavior.ScrollingSkyLandZebesTimebombSet or
             RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions;
         bool light = main == RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal;
         bool medium = main == RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal;
@@ -89,7 +89,7 @@ internal sealed class EscapeRoomEffects
                 enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal);
             }
         }
-        UpdateCadence explosionCadence = nonblank
+        UpdateCadence explosionCadence = outdoors
             ? ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate
             : ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate;
         if (!_freeze.TimeIsFrozen && explosionCadence.IsDue(_clock.Counter))
@@ -101,11 +101,11 @@ internal sealed class EscapeRoomEffects
             Position16<RoomBlocks> block = explosion.ToRoomBlock();
             // Outdoors an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the kind
             // its block's column phase gives it; indoors such an explosion is a small explosion.
-            if (!nonblank || !_room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
-                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank
+            if (!outdoors || !_room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
+                enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), outdoors
                     ? ZebesEscapeExplosions.OutdoorKindLeftOpen(block)
                     : ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen);
         }
-        if (nonblank) enemies.Earthquake.KeepShaking();
+        if (outdoors) enemies.Earthquake.KeepShaking();
     }
 }

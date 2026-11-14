@@ -10,14 +10,13 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The Samus side of the drained controller and its
-/// installed falling handler.
+/// The Samus side of Mother Brain's drain: the drained poses and the drained fall, while the drain holds her movement
+/// (<see cref="SamusMovementOwner.Drained"/>).
 /// </summary>
 /// <remarks>
 /// Mother Brain and the Baby Metroid own when the drain's operations below are
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
-/// mutations made by those calls and the movement handler installed later by the
-/// drained-fall animation cue.
+/// mutations made by those calls and the fall the drained-fall animation cue starts later.
 /// </remarks>
 public sealed class SamusDrainedState
 {
@@ -27,7 +26,7 @@ public sealed class SamusDrainedState
     /// </summary>
     private bool _suitPaletteRestoreRequested;
 
-    /// <summary>The drained phase: the active pose and movement handler.</summary>
+    /// <summary>The drained phase: the drained pose Samus holds, or her fall.</summary>
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
@@ -59,26 +58,26 @@ public sealed class SamusDrainedState
     public int HyperBeamGlowStep { get; private set; }
 
     /// <summary>
-    /// The get-up handler installed by either drain setup, able or unable to stand. It
-    /// deliberately survives the later drained pose changes, just as the game's handler does.
+    /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
+    /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
     public DrainedGetUpHandler GetUpHandler { get; internal set; }
 
     /// <summary>
-    /// Another owner replaced the movement handler and pose before drained art
-    /// installed its falling behaviour. The actor may continue its own AI, but this Samus
-    /// handler marker must not shadow the replacement after that owner completes.
+    /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's
+    /// art starts her fall (<see cref="SamusMovementHandOver"/>). The actor may continue its own AI, but the drain must
+    /// not hold her again after that owner lets go.
     /// </summary>
-    internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
+    internal void RelinquishMovement() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>
-    /// Enabling the countdown timer replaces the shared timer/hack
-    /// handler with timer processing. The runtime owns that timer; the old drained behaviour must stop.
+    /// Ends the drained get-up when the escape countdown starts: the countdown's display takes the place of the check
+    /// that runs after her movement. The runtime owns that timer; the old drained behaviour must stop.
     /// </summary>
-    internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
+    internal void RelinquishGetUp() => GetUpHandler = DrainedGetUpHandler.Inactive;
 
     /// <summary>
-    /// Runs the able-to-stand drain setup: install the able-to-stand timer handler,
+    /// Runs the able-to-stand drain setup: Up can stand her once she is crouched,
     /// then enter the shared rainbow-beam setup.
     /// </summary>
     public void SetupForRainbowBeamAbleToStand(SamusState samus)
@@ -88,8 +87,8 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs the unable-to-stand drain setup: install the failed-stand timer
-    /// handler, then enter the same locked left-knockback pose as the able-to-stand setup.
+    /// Runs the unable-to-stand drain setup: Up only starts a failed stand,
+    /// then enter the same locked left-knockback pose as the able-to-stand setup.
     /// </summary>
     public void SetupForRainbowBeamUnableToStand(SamusState samus)
     {
@@ -98,7 +97,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs one call of the installed timer/hack handler. The game calls
+    /// Runs one drained get-up check. The game runs
     /// it after movement and immediately before animation, so a written timer of one is
     /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
@@ -115,7 +114,7 @@ public sealed class SamusDrainedState
         {
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
 
-            // The able branch replaces the hack handler with a no-op after the first accepted Up
+            // The able branch ends its get-up after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
             GetUpHandler = DrainedGetUpHandler.Inactive;
             return true;
@@ -125,7 +124,7 @@ public sealed class SamusDrainedState
             samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
             samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
         {
-            // Unlike the able branch, the failed-stand branch retains its own get-up handler. A later
+            // Unlike the able branch, the failed-stand branch keeps its get-up. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;
@@ -248,7 +247,7 @@ public sealed class SamusDrainedState
             throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
         // The new pose's animation frame is literally two. The animation is initialized here,
-        // but movement remains the normal empty special-movement handler until the drained-fall
+        // but the special movement type keeps her still until the drained-fall
         // animation step appears.
         SamusPresentation.InitializeAnimation(samus, initialFrame: SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
@@ -266,16 +265,15 @@ public sealed class SamusDrainedState
     /// crouches' animations hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
     /// into the drained crouch's animation and reaches it too, so that pose falls as a drained Samus does (#1535).
     /// </summary>
-    internal void InstallFallingMovementHandler(SamusState samus)
+    internal void StartFalling(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // The cue installs the drained falling handler as Samus's one movement handler.
-        // It therefore replaces either kind of special owner: an ordinary uncrashed spark
-        // retains its boost state as Blue Suit, while Crystal Flash retains its independent
-        // palette/input state as Shinespark Suit. Neither old movement behaviour may resume.
-        samus.Shinespark.RelinquishMovementHandler();
-        samus.CrystalFlash.RelinquishMovementHandler();
+        // The cue gives the drain Samus's movement for her fall. It therefore takes it from
+        // either special owner: an ordinary uncrashed spark retains its boost state as Blue Suit,
+        // while Crystal Flash retains its independent palette/input state as Shinespark Suit.
+        // Neither old movement behaviour may resume.
+        SamusMovementHandOver.To(samus, SamusMovementOwner.Drained);
         Phase = DrainedSamusPhase.Falling;
     }
 
@@ -293,7 +291,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
-            throw new InvalidOperationException("The drained falling movement handler is not installed.");
+            throw new InvalidOperationException("Drained Samus is not falling.");
 
         BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, frameCounter, out _, out bool downwardDisplacement);
 
@@ -303,7 +301,7 @@ public sealed class SamusDrainedState
 
         if (vertical.Collided)
         {
-            // The landing restores the normal movement handler, jumps directly to art
+            // The landing ends the fall, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.LandingFrame,

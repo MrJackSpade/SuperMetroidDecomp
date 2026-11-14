@@ -173,7 +173,7 @@ internal sealed class DoorOpeningScrollState
     }
 
     /// <summary>
-    /// Applies the door loader's <c>PlaceSamusOnElevator</c>: whole X, and Y
+    /// Places Samus on the elevator as the door loader does: whole X, and Y
     /// with a zero fraction. Later scroll updates move Samus on from this position.
     /// </summary>
     public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>

@@ -100,7 +100,7 @@ public sealed class TourianStatueSequence
     /// exposed as a negative background vertical offset.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; set; }
-    /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
+    /// <summary>Whether the last loaded room uses <see cref="RoomSetupBehavior.RunStatueUnlockingAnimations"/>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
     /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's

@@ -10,7 +10,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// State for stored Speed Booster shine and Samus's shinespark handler.
+/// State for stored Speed Booster shine and the shinespark that moves Samus (<see cref="SamusMovementOwner.Shinespark"/>).
 /// </summary>
 /// <remarks>
 /// This is the game's state machine, not a desktop “dash”
@@ -74,27 +74,27 @@ public sealed class SamusShinesparkState
     /// <summary>The hurt flash count a moving spark holds, past the flash's colours and its damage sound.</summary>
     private const int MovingSparkHurtFlashCount = 8;
 
-    /// <summary>The shinespark movement handler currently installed.</summary>
+    /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
     public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
-    /// Relinquishes the movement handler when normal movement is installed.
-    /// It does not clear the independently owned palette timer, boost counter, or echoes;
-    /// Draygon's unconditional release relies on that distinction.
+    /// Ends the spark's hold on Samus's movement, and a stored shine with it, when another owner takes her movement
+    /// (<see cref="SamusMovementHandOver"/>). It does not clear the independently kept colouring timer, boost counter or
+    /// echoes; Draygon's release, which ends a spark unconditionally, relies on that distinction.
     /// </summary>
-    internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
+    internal void RelinquishMovement() => Phase = ShinesparkPhase.Inactive;
 
     /// <summary>
-    /// Whether the spark's handler is the single installed movement handler: the windup setup
-    /// installs windup, and launch and crash replace it in turn until the crash finishes.
+    /// Whether the spark moves Samus (<see cref="SamusMovementOwner.Shinespark"/>): from the windup, through the launch
+    /// and the crash, until the crash finishes.
     /// </summary>
-    public bool OwnsMovementHandler => Phase is
+    public bool OwnsMovement => Phase is
         ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or ShinesparkPhase.Vertical or
         ShinesparkPhase.Diagonal or ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
         ShinesparkPhase.CrashFinish;
 
     /// <summary>
-    /// Crystal Flash replaces both the movement handler and shared special
+    /// Crystal Flash takes over both Samus's movement and the shared special
     /// palette timer, and takes Samus's suit colouring. The new owner holds them; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
     /// </summary>
@@ -158,7 +158,7 @@ public sealed class SamusShinesparkState
     /// <summary>
     /// Clearing Samus's shots (a room load, the elevator, the opening cinematic's flashbacks) forgets the released echoes
     /// and restarts the crash's orbit: its stage, radius, angles, turn and copies, and its travel, which the next crash
-    /// starts from. The movement-handler phase and its unrelated timers are unchanged.
+    /// starts from. The spark's phase and its unrelated timers are unchanged.
     /// </summary>
     internal void ResetProjectileEchoStorage()
     {
@@ -223,11 +223,11 @@ public sealed class SamusShinesparkState
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
         // palette timer can admit this launch even after its movement was interrupted.
-        samus.CrystalFlash.RelinquishMovementHandler();
-        samus.CrystalFlash.RelinquishPaletteHandler();
+        SamusMovementHandOver.To(samus, SamusMovementOwner.Shinespark);
+        samus.CrystalFlash.RelinquishSuitColouring();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
         // X-ray's suit colouring with the shinespark's.
-        samus.Xray.RelinquishPaletteHandler();
+        samus.Xray.RelinquishSuitColouring();
 
         // These are literal writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly eight pixels per frame.
@@ -250,15 +250,15 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Installs the launch handler the shinespark's direction selects
+    /// Starts the launch the shinespark's direction selects
     /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>.
     /// </summary>
     public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
         Ensure.NotNull(samus);
-        // The launch installs its handler over whatever handler is current. A windup
-        // whose handler normal movement replaced (a knockback ending in a windup pose) keeps its
+        // The launch takes Samus's movement from whoever holds it. A windup whose hold
+        // her pose's movement took back (a knockback ending in a windup pose) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
         {
@@ -523,7 +523,7 @@ public sealed class SamusShinesparkState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
-    /// <summary>Runs one installed special-handler frame.</summary>
+    /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
@@ -563,8 +563,8 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
                 return FinishCrash(samus, frame.Projectiles);
 
 
-            // Stored/inactive states are not installed special movement handlers. Returning
-            // an empty snapshot is defensive; runtime normally never dispatches them here.
+            // A stored shine or no spark at all does not move Samus. Returning
+            // an empty snapshot is defensive; runtime normally never runs them here.
             return new ShinesparkMovementResult(
 false);
         }
@@ -572,8 +572,8 @@ false);
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.Shinespark;
         samus.HurtFlash.HoldAt(MovingSparkHurtFlashCount);
 
-        // Each active handler samples echoes before motion. Runtime suppresses its ordinary
-        // post-motion producer while this special handler owns the frame.
+        // Each moving phase samples echoes before motion. Runtime suppresses its ordinary
+        // post-motion producer while the spark moves Samus.
         samus.HorizontalSpeed.CaptureSpeedEchoPosition(frame.GameTimeFrames, samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
@@ -599,7 +599,7 @@ false);
         // early; use the last executed axis, including when its result is clear.
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The cannot-die assist bypasses only the energy exit. Terrain/enemy collision still
-        // terminates all three launch directions through the ordinary crash handler.
+        // ends all three launch directions in the ordinary crash.
         bool hasSustainingEnergy = samus.Health >= ShinesparkDefinitions.MinimumSustainingEnergy;
         bool lowEnergy = !frame.SamusCannotDie && !hasSustainingEnergy;
         if (collided || lowEnergy)
@@ -667,18 +667,18 @@ false);
 
     /// <summary>
     /// Stops translational spark motion, sets the orbit's angles and turn, ends the boost's echoes, places both orbiting
-    /// copies on Samus and installs the crash handler. The orbit's travel is not restarted: the orbit counts on from
+    /// copies on Samus and starts the crash. The orbit's travel is not restarted: the orbit counts on from
     /// what the last orbit or the first echo it released left (<see cref="CrashOrbitTravelCarryover"/>).
     /// </summary>
     private void BeginCrash(SamusState samus)
     {
-        // The crash entry kills translational velocity before installing the crash handler.
+        // The crash entry kills translational velocity before the crash starts.
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = default;
         // Ending the shinespark retains this frame's contact damage. The shared frame
-        // prologue clears it before the newly installed crash handler runs next.
+        // prologue clears it before the crash's first frame runs next.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         FirstCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 32 : 224);
@@ -784,16 +784,16 @@ false,             CrashSequenceFinished: true);
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
     public static void ApplyCrashFinishPose(SamusState samus)
     {
-        // Finishing the crash restores the normal input mode as well as the movement mode. That
-        // replaces a drained pose's movement handler too: a Samus drained mid-crash is free.
+        // Finishing the crash returns Samus's input and movement to her pose, and so frees a
+        // Samus drained mid-crash too.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        samus.Drained.RelinquishMovementHandler();
+        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Shinespark);
         SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         int previousRadius = samus.Kinematics.Radius.Y;
         samus.Pose = standingPose;
-        // The transitional-pose handler restores normal movement and
+        // The transitional pose returns Samus to her pose's movement and
         // aligns the standing body's bottom with the old crash body. The input phase alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));

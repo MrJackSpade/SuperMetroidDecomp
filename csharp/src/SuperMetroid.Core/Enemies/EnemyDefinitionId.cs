@@ -9,328 +9,328 @@ public enum EnemyDefinitionId
 {
     /// <summary>A cleared or inactive slot.</summary>
     None,
-    /// <summary>The <c>Boyon</c> enemy definition.</summary>
+    /// <summary>The Boyon enemy definition.</summary>
     Boyon,
-    /// <summary>The <c>MamaTurtle</c> enemy definition.</summary>
+    /// <summary>The Mama Turtle enemy definition.</summary>
     MamaTurtle,
-    /// <summary>The <c>BabyTurtle</c> enemy definition.</summary>
+    /// <summary>The Baby Turtle enemy definition.</summary>
     BabyTurtle,
-    /// <summary>The <c>Puyo</c> enemy definition.</summary>
+    /// <summary>The Puyo enemy definition.</summary>
     Puyo,
-    /// <summary>The <c>Cacatac</c> enemy definition.</summary>
+    /// <summary>The Cacatac enemy definition.</summary>
     Cacatac,
-    /// <summary>The <c>Owtch</c> enemy definition.</summary>
+    /// <summary>The Owtch enemy definition.</summary>
     Owtch,
-    /// <summary>The <c>ShipTop</c> enemy definition.</summary>
+    /// <summary>The Ship Top enemy definition.</summary>
     ShipTop,
-    /// <summary>The <c>ShipBottomEntrance</c> enemy definition.</summary>
+    /// <summary>The Ship Bottom Entrance enemy definition.</summary>
     ShipBottomEntrance,
-    /// <summary>The <c>Mellow</c> enemy definition.</summary>
+    /// <summary>The Mellow enemy definition.</summary>
     Mellow,
-    /// <summary>The <c>Mella</c> enemy definition.</summary>
+    /// <summary>The Mella enemy definition.</summary>
     Mella,
-    /// <summary>The <c>Menu</c> enemy definition.</summary>
+    /// <summary>The Menu enemy definition.</summary>
     Menu,
-    /// <summary>The <c>Multiviola</c> enemy definition.</summary>
+    /// <summary>The Multiviola enemy definition.</summary>
     Multiviola,
-    /// <summary>The <c>LavaRocks</c> enemy definition.</summary>
+    /// <summary>The Lava Rocks enemy definition.</summary>
     LavaRocks,
-    /// <summary>The <c>Rinka</c> enemy definition.</summary>
+    /// <summary>The Rinka enemy definition.</summary>
     Rinka,
-    /// <summary>The <c>Rio</c> enemy definition.</summary>
+    /// <summary>The Rio enemy definition.</summary>
     Rio,
-    /// <summary>The <c>Squeept</c> enemy definition.</summary>
+    /// <summary>The Squeept enemy definition.</summary>
     Squeept,
-    /// <summary>The <c>Geruta</c> enemy definition.</summary>
+    /// <summary>The Geruta enemy definition.</summary>
     Geruta,
-    /// <summary>The <c>Holtz</c> enemy definition.</summary>
+    /// <summary>The Holtz enemy definition.</summary>
     Holtz,
-    /// <summary>The <c>Oum</c> enemy definition.</summary>
+    /// <summary>The Oum enemy definition.</summary>
     Oum,
-    /// <summary>The <c>Choot</c> enemy definition.</summary>
+    /// <summary>The Choot enemy definition.</summary>
     Choot,
-    /// <summary>The <c>GRipper</c> enemy definition.</summary>
+    /// <summary>The G Ripper enemy definition.</summary>
     GRipper,
-    /// <summary>The <c>Ripper2</c> enemy definition.</summary>
+    /// <summary>The Ripper2 enemy definition.</summary>
     Ripper2,
-    /// <summary>The <c>Ripper</c> enemy definition.</summary>
+    /// <summary>The Ripper enemy definition.</summary>
     Ripper,
-    /// <summary>The <c>Dragon</c> enemy definition.</summary>
+    /// <summary>The Dragon enemy definition.</summary>
     Dragon,
-    /// <summary>The <c>ShutterGrowing</c> enemy definition.</summary>
+    /// <summary>The Shutter Growing enemy definition.</summary>
     ShutterGrowing,
-    /// <summary>The <c>ShutterShootable</c> enemy definition.</summary>
+    /// <summary>The Shutter Shootable enemy definition.</summary>
     ShutterShootable,
-    /// <summary>The <c>ShutterDestroyable</c> enemy definition.</summary>
+    /// <summary>The Shutter Destroyable enemy definition.</summary>
     ShutterDestroyable,
-    /// <summary>The <c>Kamer</c> enemy definition.</summary>
+    /// <summary>The Kamer enemy definition.</summary>
     Kamer,
-    /// <summary>The <c>Waver</c> enemy definition.</summary>
+    /// <summary>The Waver enemy definition.</summary>
     Waver,
-    /// <summary>The <c>Metaree</c> enemy definition.</summary>
+    /// <summary>The Metaree enemy definition.</summary>
     Metaree,
-    /// <summary>The <c>Fireflea</c> enemy definition.</summary>
+    /// <summary>The Fireflea enemy definition.</summary>
     Fireflea,
-    /// <summary>The <c>Skultera</c> enemy definition.</summary>
+    /// <summary>The Skultera enemy definition.</summary>
     Skultera,
-    /// <summary>The <c>Elevator</c> enemy definition.</summary>
+    /// <summary>The Elevator enemy definition.</summary>
     Elevator,
-    /// <summary>The <c>Sciser</c> enemy definition.</summary>
+    /// <summary>The Sciser enemy definition.</summary>
     Sciser,
-    /// <summary>The <c>Zero</c> enemy definition.</summary>
+    /// <summary>The Zero enemy definition.</summary>
     Zero,
-    /// <summary>The <c>Tripper</c> enemy definition.</summary>
+    /// <summary>The Tripper enemy definition.</summary>
     Tripper,
-    /// <summary>The <c>Kamer2</c> enemy definition.</summary>
+    /// <summary>The Kamer2 enemy definition.</summary>
     Kamer2,
-    /// <summary>The <c>Sbug</c> enemy definition.</summary>
+    /// <summary>The Sbug enemy definition.</summary>
     Sbug,
-    /// <summary>The <c>Mochtroid</c> enemy definition.</summary>
+    /// <summary>The Mochtroid enemy definition.</summary>
     Mochtroid,
-    /// <summary>The <c>Sidehopper</c> enemy definition.</summary>
+    /// <summary>The Sidehopper enemy definition.</summary>
     Sidehopper,
-    /// <summary>The <c>Dessgeega</c> enemy definition.</summary>
+    /// <summary>The Dessgeega enemy definition.</summary>
     Dessgeega,
-    /// <summary>The <c>SidehopperLarge</c> enemy definition.</summary>
+    /// <summary>The Sidehopper Large enemy definition.</summary>
     SidehopperLarge,
-    /// <summary>The <c>SidehopperTourian</c> enemy definition.</summary>
+    /// <summary>The Sidehopper Tourian enemy definition.</summary>
     SidehopperTourian,
-    /// <summary>The <c>DessgeegaLarge</c> enemy definition.</summary>
+    /// <summary>The Dessgeega Large enemy definition.</summary>
     DessgeegaLarge,
-    /// <summary>The <c>Zoa</c> enemy definition.</summary>
+    /// <summary>The Zoa enemy definition.</summary>
     Zoa,
-    /// <summary>The <c>Viola</c> enemy definition.</summary>
+    /// <summary>The Viola enemy definition.</summary>
     Viola,
-    /// <summary>The <c>Respawn</c> enemy definition.</summary>
+    /// <summary>The Respawn enemy definition.</summary>
     /// <remarks>Reserves a killed actor's slot until it respawns; its AI is inert.</remarks>
     Respawn,
-    /// <summary>The <c>Skree</c> enemy definition.</summary>
+    /// <summary>The Skree enemy definition.</summary>
     Skree,
-    /// <summary>The <c>Yard</c> enemy definition.</summary>
+    /// <summary>The Yard enemy definition.</summary>
     Yard,
-    /// <summary>The <c>HZoomer</c> enemy definition.</summary>
+    /// <summary>The H Zoomer enemy definition.</summary>
     HZoomer,
-    /// <summary>The <c>Zeela</c> enemy definition.</summary>
+    /// <summary>The Zeela enemy definition.</summary>
     Zeela,
-    /// <summary>The <c>Sova</c> enemy definition.</summary>
+    /// <summary>The Sova enemy definition.</summary>
     Sova,
-    /// <summary>The <c>Zoomer</c> enemy definition.</summary>
+    /// <summary>The Zoomer enemy definition.</summary>
     Zoomer,
-    /// <summary>The <c>MZoomer</c> enemy definition.</summary>
+    /// <summary>The M Zoomer enemy definition.</summary>
     MZoomer,
-    /// <summary>The <c>Metroid</c> enemy definition.</summary>
+    /// <summary>The Metroid enemy definition.</summary>
     Metroid,
-    /// <summary>The <c>Crocomire</c> enemy definition.</summary>
+    /// <summary>The Crocomire enemy definition.</summary>
     Crocomire,
-    /// <summary>The <c>CrocomireTongue</c> enemy definition.</summary>
+    /// <summary>The Crocomire Tongue enemy definition.</summary>
     CrocomireTongue,
-    /// <summary>The <c>DraygonBody</c> enemy definition.</summary>
+    /// <summary>The Draygon Body enemy definition.</summary>
     /// <remarks>The Draygon body and encounter owner.</remarks>
     DraygonBody,
-    /// <summary>The <c>DraygonEye</c> enemy definition.</summary>
+    /// <summary>The Draygon Eye enemy definition.</summary>
     /// <remarks>Draygon's eye actor.</remarks>
     DraygonEye,
-    /// <summary>The <c>DraygonTail</c> enemy definition.</summary>
+    /// <summary>The Draygon Tail enemy definition.</summary>
     /// <remarks>Draygon's tail actor.</remarks>
     DraygonTail,
-    /// <summary>The <c>DraygonArms</c> enemy definition.</summary>
+    /// <summary>The Draygon Arms enemy definition.</summary>
     /// <remarks>Draygon's arms actor.</remarks>
     DraygonArms,
-    /// <summary>The <c>SporeSpawn</c> enemy definition.</summary>
+    /// <summary>The Spore Spawn enemy definition.</summary>
     /// <remarks>Spore Spawn's body, distinct from its stalk.</remarks>
     SporeSpawn,
-    /// <summary>The <c>SporeSpawnStalk</c> enemy definition.</summary>
+    /// <summary>The Spore Spawn Stalk enemy definition.</summary>
     /// <remarks>Spore impacts roll their drops from this definition's table, not from the Spore Spawn body's.</remarks>
     SporeSpawnStalk,
-    /// <summary>The <c>Boulder</c> enemy definition.</summary>
+    /// <summary>The Boulder enemy definition.</summary>
     Boulder,
-    /// <summary>The <c>KzanTop</c> enemy definition.</summary>
+    /// <summary>The Kzan Top enemy definition.</summary>
     KzanTop,
-    /// <summary>The <c>KzanBottom</c> enemy definition.</summary>
+    /// <summary>The Kzan Bottom enemy definition.</summary>
     KzanBottom,
-    /// <summary>The <c>Hibashi</c> enemy definition.</summary>
+    /// <summary>The Hibashi enemy definition.</summary>
     Hibashi,
-    /// <summary>The <c>Puromi</c> enemy definition.</summary>
+    /// <summary>The Puromi enemy definition.</summary>
     Puromi,
-    /// <summary>The <c>MiniKraid</c> enemy definition.</summary>
+    /// <summary>The Mini Kraid enemy definition.</summary>
     MiniKraid,
-    /// <summary>The <c>RidleyCeres</c> enemy definition.</summary>
+    /// <summary>The Ridley Ceres enemy definition.</summary>
     /// <remarks>Ceres Ridley, which shares Ridley's implementation.</remarks>
     RidleyCeres,
-    /// <summary>The <c>Ridley</c> enemy definition.</summary>
+    /// <summary>The Ridley enemy definition.</summary>
     /// <remarks>Selects the Lower Norfair boss branches of Ridley's shared implementation.</remarks>
     Ridley,
-    /// <summary>The <c>RidleyExplosion</c> enemy definition.</summary>
+    /// <summary>The Ridley Explosion enemy definition.</summary>
     RidleyExplosion,
-    /// <summary>The <c>Steam</c> enemy definition.</summary>
+    /// <summary>The Steam enemy definition.</summary>
     /// <remarks>The Ceres steam.</remarks>
     Steam,
-    /// <summary>The <c>CeresDoor</c> enemy definition.</summary>
+    /// <summary>The Ceres Door enemy definition.</summary>
     CeresDoor,
-    /// <summary>The <c>Zebetite</c> enemy definition.</summary>
+    /// <summary>The Zebetite enemy definition.</summary>
     Zebetite,
-    /// <summary>The <c>Kraid</c> enemy definition.</summary>
+    /// <summary>The Kraid enemy definition.</summary>
     Kraid,
-    /// <summary>The <c>KraidArm</c> enemy definition.</summary>
+    /// <summary>The Kraid Arm enemy definition.</summary>
     KraidArm,
-    /// <summary>The <c>KraidLintTop</c> enemy definition.</summary>
+    /// <summary>The Kraid Lint Top enemy definition.</summary>
     KraidLintTop,
-    /// <summary>The <c>KraidLintMiddle</c> enemy definition.</summary>
+    /// <summary>The Kraid Lint Middle enemy definition.</summary>
     KraidLintMiddle,
-    /// <summary>The <c>KraidLintBottom</c> enemy definition.</summary>
+    /// <summary>The Kraid Lint Bottom enemy definition.</summary>
     KraidLintBottom,
-    /// <summary>The <c>KraidFoot</c> enemy definition.</summary>
+    /// <summary>The Kraid Foot enemy definition.</summary>
     KraidFoot,
-    /// <summary>The <c>KraidNail</c> enemy definition.</summary>
+    /// <summary>The Kraid Nail enemy definition.</summary>
     KraidNail,
-    /// <summary>The <c>KraidNailBad</c> enemy definition.</summary>
+    /// <summary>The Kraid Nail Bad enemy definition.</summary>
     KraidNailBad,
-    /// <summary>The <c>PhantoonBody</c> enemy definition.</summary>
+    /// <summary>The Phantoon Body enemy definition.</summary>
     PhantoonBody,
-    /// <summary>The <c>PhantoonEye</c> enemy definition.</summary>
+    /// <summary>The Phantoon Eye enemy definition.</summary>
     PhantoonEye,
-    /// <summary>The <c>PhantoonTentacles</c> enemy definition.</summary>
+    /// <summary>The Phantoon Tentacles enemy definition.</summary>
     PhantoonTentacles,
-    /// <summary>The <c>PhantoonMouth</c> enemy definition.</summary>
+    /// <summary>The Phantoon Mouth enemy definition.</summary>
     PhantoonMouth,
-    /// <summary>The <c>Etecoon</c> enemy definition.</summary>
+    /// <summary>The Etecoon enemy definition.</summary>
     Etecoon,
-    /// <summary>The <c>Dachora</c> enemy definition.</summary>
+    /// <summary>The Dachora enemy definition.</summary>
     Dachora,
-    /// <summary>The <c>Evir</c> enemy definition.</summary>
+    /// <summary>The Evir enemy definition.</summary>
     Evir,
-    /// <summary>The <c>EvirProjectile</c> enemy definition.</summary>
+    /// <summary>The Evir Projectile enemy definition.</summary>
     EvirProjectile,
-    /// <summary>The <c>Eye</c> enemy definition.</summary>
+    /// <summary>The Eye enemy definition.</summary>
     Eye,
-    /// <summary>The <c>Fune</c> enemy definition.</summary>
+    /// <summary>The Fune enemy definition.</summary>
     Fune,
-    /// <summary>The <c>Namihe</c> enemy definition.</summary>
+    /// <summary>The Namihe enemy definition.</summary>
     Namihe,
-    /// <summary>The <c>Coven</c> enemy definition.</summary>
+    /// <summary>The Coven enemy definition.</summary>
     Coven,
-    /// <summary>The <c>YappingMaw</c> enemy definition.</summary>
+    /// <summary>The Yapping Maw enemy definition.</summary>
     YappingMaw,
-    /// <summary>The <c>Kago</c> enemy definition.</summary>
+    /// <summary>The Kago enemy definition.</summary>
     Kago,
-    /// <summary>The <c>Magdollite</c> enemy definition.</summary>
+    /// <summary>The Magdollite enemy definition.</summary>
     Magdollite,
-    /// <summary>The <c>Beetom</c> enemy definition.</summary>
+    /// <summary>The Beetom enemy definition.</summary>
     Beetom,
-    /// <summary>The <c>Powamp</c> enemy definition.</summary>
+    /// <summary>The Powamp enemy definition.</summary>
     Powamp,
-    /// <summary>The <c>Robot</c> enemy definition.</summary>
+    /// <summary>The Robot enemy definition.</summary>
     Robot,
-    /// <summary>The <c>RobotNoPower</c> enemy definition.</summary>
+    /// <summary>The Robot No Power enemy definition.</summary>
     RobotNoPower,
-    /// <summary>The <c>Bull</c> enemy definition.</summary>
+    /// <summary>The Bull enemy definition.</summary>
     Bull,
-    /// <summary>The <c>Alcoon</c> enemy definition.</summary>
+    /// <summary>The Alcoon enemy definition.</summary>
     Alcoon,
-    /// <summary>The <c>Atomic</c> enemy definition.</summary>
+    /// <summary>The Atomic enemy definition.</summary>
     Atomic,
-    /// <summary>The <c>Spark</c> enemy definition.</summary>
+    /// <summary>The Spark enemy definition.</summary>
     Spark,
-    /// <summary>The <c>FaceBlock</c> enemy definition.</summary>
+    /// <summary>The Face Block enemy definition.</summary>
     FaceBlock,
-    /// <summary>The <c>KihunterGreen</c> enemy definition.</summary>
+    /// <summary>The Kihunter Green enemy definition.</summary>
     KihunterGreen,
-    /// <summary>The <c>KihunterGreenWings</c> enemy definition.</summary>
+    /// <summary>The Kihunter Green Wings enemy definition.</summary>
     KihunterGreenWings,
-    /// <summary>The <c>KihunterYellow</c> enemy definition.</summary>
+    /// <summary>The Kihunter Yellow enemy definition.</summary>
     KihunterYellow,
-    /// <summary>The <c>KihunterYellowWings</c> enemy definition.</summary>
+    /// <summary>The Kihunter Yellow Wings enemy definition.</summary>
     KihunterYellowWings,
-    /// <summary>The <c>KihunterRed</c> enemy definition.</summary>
+    /// <summary>The Kihunter Red enemy definition.</summary>
     KihunterRed,
-    /// <summary>The <c>KihunterRedWings</c> enemy definition.</summary>
+    /// <summary>The Kihunter Red Wings enemy definition.</summary>
     KihunterRedWings,
-    /// <summary>The <c>MotherBrainHead</c> enemy definition.</summary>
+    /// <summary>The Mother Brain Head enemy definition.</summary>
     MotherBrainHead,
-    /// <summary>The <c>MotherBrainBody</c> enemy definition.</summary>
+    /// <summary>The Mother Brain Body enemy definition.</summary>
     MotherBrainBody,
-    /// <summary>The <c>BabyMetroidCutscene</c> enemy definition.</summary>
+    /// <summary>The Baby Metroid Cutscene enemy definition.</summary>
     /// <remarks>The cutscene Baby Metroid.</remarks>
     BabyMetroidCutscene,
-    /// <summary>The <c>MotherBrainTubes</c> enemy definition.</summary>
+    /// <summary>The Mother Brain Tubes enemy definition.</summary>
     /// <remarks>Mother Brain's falling tube actor.</remarks>
     MotherBrainTubes,
-    /// <summary>The <c>CorpseTorizo</c> enemy definition.</summary>
+    /// <summary>The Corpse Torizo enemy definition.</summary>
     /// <remarks>The Tourian Torizo corpse, which must own enemy slot zero.</remarks>
     CorpseTorizo,
-    /// <summary>The <c>CorpseSidehopper</c> enemy definition.</summary>
+    /// <summary>The Corpse Sidehopper enemy definition.</summary>
     /// <remarks>The dead-sidehopper family: an initially alive victim or an already dead Tourian corpse.</remarks>
     CorpseSidehopper,
-    /// <summary>The <c>CorpseZoomer</c> enemy definition.</summary>
+    /// <summary>The Corpse Zoomer enemy definition.</summary>
     /// <remarks>The dead Zoomer, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseZoomer,
-    /// <summary>The <c>CorpseRipper</c> enemy definition.</summary>
+    /// <summary>The Corpse Ripper enemy definition.</summary>
     /// <remarks>The dead Ripper, with its two corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseRipper,
-    /// <summary>The <c>CorpseSkree</c> enemy definition.</summary>
+    /// <summary>The Corpse Skree enemy definition.</summary>
     /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
-    /// <summary>The <c>BabyMetroid</c> enemy definition.</summary>
+    /// <summary>The Baby Metroid enemy definition.</summary>
     /// <remarks>The retail Shitroid actor.</remarks>
     BabyMetroid,
-    /// <summary>The <c>BombTorizo</c> enemy definition.</summary>
+    /// <summary>The Bomb Torizo enemy definition.</summary>
     BombTorizo,
-    /// <summary>The <c>BombTorizoOrb</c> enemy definition.</summary>
+    /// <summary>The Bomb Torizo Orb enemy definition.</summary>
     BombTorizoOrb,
-    /// <summary>The <c>GoldenTorizo</c> enemy definition.</summary>
+    /// <summary>The Golden Torizo enemy definition.</summary>
     GoldenTorizo,
-    /// <summary>The <c>GoldenTorizoOrb</c> enemy definition.</summary>
+    /// <summary>The Golden Torizo Orb enemy definition.</summary>
     GoldenTorizoOrb,
-    /// <summary>The <c>TourianStatue</c> enemy definition.</summary>
+    /// <summary>The Tourian Statue enemy definition.</summary>
     TourianStatue,
-    /// <summary>The <c>Shaktool</c> enemy definition.</summary>
+    /// <summary>The Shaktool enemy definition.</summary>
     Shaktool,
-    /// <summary>The <c>NoobTubeCrack</c> enemy definition.</summary>
+    /// <summary>The Noob Tube Crack enemy definition.</summary>
     NoobTubeCrack,
-    /// <summary>The <c>Chozo</c> enemy definition.</summary>
+    /// <summary>The Chozo enemy definition.</summary>
     /// <remarks>The shared Chozo statue definition.</remarks>
     Chozo,
-    /// <summary>The <c>Zeb</c> enemy definition.</summary>
+    /// <summary>The Zeb enemy definition.</summary>
     /// <remarks>The normal Brinstar Pipe Bug.</remarks>
     Zeb,
-    /// <summary>The <c>Zebbo</c> enemy definition.</summary>
+    /// <summary>The Zebbo enemy definition.</summary>
     /// <remarks>The strong Brinstar Pipe Bug.</remarks>
     Zebbo,
-    /// <summary>The <c>Gamet</c> enemy definition.</summary>
+    /// <summary>The Gamet enemy definition.</summary>
     /// <remarks>The Norfair Pipe Bug.</remarks>
     Gamet,
-    /// <summary>The <c>Geega</c> enemy definition.</summary>
+    /// <summary>The Geega enemy definition.</summary>
     /// <remarks>The yellow Brinstar Pipe Bug.</remarks>
     Geega,
-    /// <summary>The <c>Botwoon</c> enemy definition.</summary>
+    /// <summary>The Botwoon enemy definition.</summary>
     Botwoon,
-    /// <summary>The <c>EtecoonEscape</c> enemy definition.</summary>
+    /// <summary>The Etecoon Escape enemy definition.</summary>
     EtecoonEscape,
-    /// <summary>The <c>DachoraEscape</c> enemy definition.</summary>
+    /// <summary>The Dachora Escape enemy definition.</summary>
     DachoraEscape,
-    /// <summary>The <c>PirateGreyWall</c> enemy definition.</summary>
+    /// <summary>The Pirate Grey Wall enemy definition.</summary>
     PirateGreyWall,
-    /// <summary>The <c>PirateGoldWall</c> enemy definition.</summary>
+    /// <summary>The Pirate Gold Wall enemy definition.</summary>
     /// <remarks>Its colours are the ones every Ninja Pirate's divekick flashes in, whatever the ninja's own colours.</remarks>
     PirateGoldWall,
-    /// <summary>The <c>PirateMagentaWall</c> enemy definition.</summary>
+    /// <summary>The Pirate Magenta Wall enemy definition.</summary>
     PirateMagentaWall,
-    /// <summary>The <c>PirateSilverWall</c> enemy definition.</summary>
+    /// <summary>The Pirate Silver Wall enemy definition.</summary>
     PirateSilverWall,
-    /// <summary>The <c>PirateGoldNinja</c> enemy definition.</summary>
+    /// <summary>The Pirate Gold Ninja enemy definition.</summary>
     PirateGoldNinja,
-    /// <summary>The <c>PirateSilverNinja</c> enemy definition.</summary>
+    /// <summary>The Pirate Silver Ninja enemy definition.</summary>
     PirateSilverNinja,
-    /// <summary>The <c>PirateGreyWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Grey Walking enemy definition.</summary>
     PirateGreyWalking,
-    /// <summary>The <c>PirateGreenWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Green Walking enemy definition.</summary>
     PirateGreenWalking,
-    /// <summary>The <c>PirateRedWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Red Walking enemy definition.</summary>
     PirateRedWalking,
-    /// <summary>The <c>PirateGoldWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Gold Walking enemy definition.</summary>
     PirateGoldWalking,
-    /// <summary>The <c>PirateMagentaWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Magenta Walking enemy definition.</summary>
     PirateMagentaWalking,
-    /// <summary>The <c>PirateSilverWalking</c> enemy definition.</summary>
+    /// <summary>The Pirate Silver Walking enemy definition.</summary>
     PirateSilverWalking,
 }

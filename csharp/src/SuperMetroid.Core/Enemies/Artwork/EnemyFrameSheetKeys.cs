@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// The key each enemy frame's picture has in the installed enemy sheets and in the
 /// installed artwork's content identity (#1412): its document name (<see cref="EnemyFrameNameDefinitions"/>), which names
 /// the frame for its owner and meaning (#1465), in Pascal case (<c>draygon_arms_facing_left_idle_first</c> is keyed
-/// <c>DraygonArmsFacingLeftIdleFirst</c>). The key stays derived from the document name, the installed artwork document's own key, so renaming a frame's identity
+/// <c>"DraygonArmsFacingLeftIdleFirst"</c>). The key stays derived from the document name, the installed artwork document's own key, so renaming a frame's identity
 /// never changes a key on disk.
 /// </summary>
 internal static class EnemyFrameSheetKeys

@@ -24,8 +24,8 @@ internal static class KnockbackShinesparkLaunchVerification
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "a shine is stored");
         samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.RelinquishMovementHandler();
-        AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");
+        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
+        AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "the knockback's end returned her movement to her pose, ending the windup");
 
         SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
 

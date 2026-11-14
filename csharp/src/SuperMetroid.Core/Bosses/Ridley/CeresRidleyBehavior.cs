@@ -59,7 +59,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>
     /// Runs the Ceres step reached through the end of the battle. The
     /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
-    /// palette handoff, and <c>RidleyEscaped</c> publication all keep the game's order.
+    /// palette handoff, and <see cref="CeresEscapeStatus.RidleyEscaped"/> publication all keep the game's order.
     /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
     internal void RunCeresRidleyMain(

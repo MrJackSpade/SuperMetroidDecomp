@@ -203,10 +203,10 @@ internal static class SamusPosturePoseTransitions
             {
                 // The successful store takes over Samus's special suit colouring
                 // and timer even if an interrupted Flash was keeping them alive.
-                samus.CrystalFlash.RelinquishPaletteHandler();
+                samus.CrystalFlash.RelinquishSuitColouring();
                 // Reserve Mode keeps only X-Ray's cone effect. Crouch storage replaces
                 // X-ray's suit colouring with the stored shine's.
-                samus.Xray.RelinquishPaletteHandler();
+                samus.Xray.RelinquishSuitColouring();
             }
 
             samus.Pose = targetPose;

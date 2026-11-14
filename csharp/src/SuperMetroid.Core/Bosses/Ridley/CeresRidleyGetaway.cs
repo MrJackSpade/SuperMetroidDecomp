@@ -115,7 +115,7 @@ internal sealed class CeresRidleyGetaway
         if (frameIndex == 0)
             _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
-        // At frame 104, Samus's grab handler replaces Samus's movement/hack handlers so the
+        // At frame 104, Ridley's shove takes Samus's movement so the
         // rotating boss image cannot overlap her from the following frame onward.
         if (frameIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);

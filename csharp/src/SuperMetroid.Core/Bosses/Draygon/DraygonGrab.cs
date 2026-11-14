@@ -266,7 +266,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// <c>MoveSamusWithDraygon</c>. It places Samus without checking that she is
+    /// Carries Samus with Draygon. It places Samus without checking that she is
     /// still held, and only then tests the escape flag Samus's grapple publishes. The first carry
     /// call after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
@@ -320,7 +320,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Runs <c>ReleaseSamusFromDraygon</c> from Draygon's AI and publishes it so the
+    /// Releases Samus (<see cref="ReleaseSamusFromDraygon"/>) from Draygon's AI and publishes it so the
     /// runtime clears the prospective poses the input phase already chose, as the grab does.
     /// </summary>
     internal void ReleaseSamusDuringEnemyMain(SamusState samus)

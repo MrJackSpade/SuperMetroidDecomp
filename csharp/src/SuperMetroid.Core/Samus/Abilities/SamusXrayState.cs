@@ -8,12 +8,12 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// X-ray's Samus-side setup, dedicated pose-input handler,
-/// movement handler, beam-angle state, visor palette, and teardown.
+/// X-ray's Samus-side setup, its own pose input and its hold on her movement
+/// (<see cref="SamusMovementOwner.Xray"/>), beam-angle state, visor palette, and teardown.
 /// </summary>
 /// <remarks>
 /// The retail feature crosses three parts of the game: X-ray setup admits and installs the four X-ray
-/// poses, the X-ray pose-input and movement handlers own turning and angle-selected body art, and
+/// poses, X-ray's own pose input and movement own turning and angle-selected body art, and
 /// the cone effect widens/aims/deactivates the window beam. Keeping that state in one
 /// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
 /// crouching input. The desktop compositor now consumes these exact angle and width values to
@@ -29,11 +29,11 @@ public sealed class SamusXrayState
     /// <param name="colouring">Samus's special suit colouring, which the visor takes.</param>
     internal SamusXrayState(SamusSpecialColouring colouring) => _colouring = Ensure.NotNull(colouring);
 
-    /// <summary>True while the dedicated X-ray input/movement handlers are installed.</summary>
+    /// <summary>True while the X-ray scope is live: from its activation until its teardown, including Reserve Mode.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// True while X-Ray owns Samus's input and movement handlers.
+    /// True while X-Ray owns Samus's pose input and her movement.
     /// The cone effect can remain active after automatic Reserve recovery restores the
     /// normal input and movement modes; that game state is the persistent greyout glitch.
     /// </summary>
@@ -204,7 +204,7 @@ public sealed class SamusXrayState
     private void BeginAdmittedBeam(bool facingLeft)
     {
         // The cone setup runs inside the X-ray setup itself, before Samus's pose update
-        // arbitrates X-ray's activation, which installs X-Ray's Samus handlers. If a
+        // arbitrates X-ray's activation, which gives X-Ray Samus's pose input and movement. If a
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time flag, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
@@ -231,20 +231,19 @@ public sealed class SamusXrayState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         // X-ray's activation pose immediately overrides the freshly selected
-        // delay with frame two and a 63-tick timer, installs the dedicated handler pair, starts the
+        // delay with frame two and a 63-tick timer, takes her pose input and movement, starts the
         // visor palette, clears beam-flare state, and plays the X-ray's starting sound.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
         _colouring.Take(SamusSpecialPaletteType.Xray);
         samus.Shinespark.RelinquishPaletteToXray();
-        samus.Shinespark.RelinquishMovementHandler();
-        // X-ray's activation installs both X-Ray handlers, so an interrupted Flash's no-op
-        // pose-input handler is gone as well as its movement handler. Keeping the Crystal Flash input lock
+        // X-ray's activation takes both Samus's pose input and her movement, so an interrupted Flash's
+        // lock on her pose input is gone as well as its hold on her movement. Keeping the Crystal Flash input lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
+        SamusMovementHandOver.To(samus, SamusMovementOwner.Xray);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        // The same step takes over Samus's movement and suit colouring and clears
+        // The same step takes over Samus's suit colouring and clears
         // the special-palette timer even when an interrupted Flash, not a normal charge, owns it.
-        samus.CrystalFlash.RelinquishMovementHandler();
-        samus.CrystalFlash.RelinquishPaletteHandler();
+        samus.CrystalFlash.RelinquishSuitColouring();
         VisorShade = 0;
         CommonPaletteTimer = 1;
         samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
@@ -252,7 +251,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the control setup that replaces the X-Ray handler pair when automatic
+    /// Models the control setup that takes Samus's pose input and movement from X-Ray when automatic
     /// Reserve recovery begins. The independent cone effect and shared freeze flag remain.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()
@@ -273,8 +272,8 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the Reserve recovery state clearing the shared freeze flag before restoring ordinary
-    /// Samus handlers. The X-Ray beam's last step observes time running and therefore leaves its cone effect
+    /// Models the Reserve recovery state clearing the shared freeze flag before returning Samus's
+    /// pose input and movement to her pose. The X-Ray beam's last step observes time running and therefore leaves its cone effect
     /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
     /// </summary>
     internal void ClearSharedFreezeForReserveMode()
@@ -307,7 +306,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
-    internal void RelinquishPaletteHandler()
+    internal void RelinquishSuitColouring()
     {
         VisorShade = 0;
         CommonPaletteTimer = 0;
@@ -315,7 +314,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Runs X-ray's pose input handler, including the exact
+    /// Runs X-ray's own pose input, including the exact
     /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
     /// </summary>
     public XrayPoseInputResult HandlePoseInput(
@@ -347,7 +346,7 @@ public sealed class SamusXrayState
         }
 
         // The game waits until the final visible turning frame has exactly one tick left.
-        // Its movement handler does nothing for a grounded turn, so generic animation owns this
+        // Its movement does nothing for a grounded turn, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
         if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
             return default;
@@ -631,10 +630,10 @@ public sealed class SamusXrayState
         if (radiusDifference >= 0)
             samus.Position -= new Offset16<RoomPixels>(0, radiusDifference);
 
-        // The teardown restores both normal Samus handlers. X-Mode can arrange for
-        // an active spark to own the movement handler while the old visor effect reaches this
-        // teardown; replacing that spark while retaining the spark's palette timer is the Blue Suit result.
-        samus.Shinespark.RelinquishMovementHandler();
+        // The teardown returns both Samus's pose input and her movement to her pose. X-Mode can arrange for
+        // an active spark to hold her movement while the old visor effect reaches this
+        // teardown; ending that spark while retaining the spark's palette timer is the Blue Suit result.
+        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Xray);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;
@@ -659,7 +658,7 @@ public sealed class SamusXrayState
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
-        // Both branches of the frozen X-ray input handler publish history after
+        // Both branches of X-ray's frozen-time pose input publish history after
         // initializing their pose; ordinary gameplay transition dispatch is bypassed.
         samus.CommitPoseHistory();
     }
@@ -699,11 +698,11 @@ public sealed class SamusXrayState
             phaseAtStart,
             completed);
 
-    /// <summary>Rejects movement or pose input after the X-ray handler has been removed.</summary>
+    /// <summary>Rejects movement or pose input after the X-ray scope has closed.</summary>
     private void EnsureActive()
     {
         if (!IsActive)
-            throw new InvalidOperationException("X-ray has no installed Samus handler.");
+            throw new InvalidOperationException("X-ray is not active, so it neither moves Samus nor reads her pose input.");
     }
 
     /// <summary>Posture categories used by visor admission and pose choice.</summary>

@@ -43,7 +43,7 @@ public static class SamusKnockbackMovement
 
         // Requires a live producer timer, unfrozen time, and zero in the
         // installed direction. A nonzero direction means a previous request already
-        // owns the special movement handler; it must finish instead of being restarted.
+        // holds her movement; it must finish instead of being restarted.
         if (samus.KnockbackTimer == 0 ||
             timeIsFrozen ||
             samus.KnockbackDirection != SamusKnockbackDirection.None ||
@@ -59,14 +59,14 @@ public static class SamusKnockbackMovement
     /// Consumes the pending knockback start after the knockback check has admitted either the
     /// normal knockback-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
-    /// <param name="samus">Mutable player owner receiving the hurt pose, timer, movement handler, and cancellation of incompatible movement state.</param>
+    /// <param name="samus">Mutable player owner receiving the hurt pose, timer, the knockback's hold on her movement, and cancellation of incompatible movement state.</param>
     /// <param name="controllerInput">Held buttons used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
     /// <param name="frameCounter">The frame counter passed to pose-expansion block reactions when room geometry is supplied.</param>
     /// <param name="roomObjects">Optional live room-object owner receiving those collision reactions.</param>
     /// <returns>
-    /// True when the movement-type table installs the special knockback handler. False for
+    /// True when the movement-type table gives the knockback her movement. False for
     /// interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
     internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
@@ -122,7 +122,7 @@ public static class SamusKnockbackMovement
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
         // Turning, grapple, current knockback, damage boost, and special-movement bodies all
-        // refuse knockback: they retain the timer/flicker but do not install the knockback handler.
+        // refuse knockback: they retain the timer/flicker but do not give the knockback her movement.
         samus.KnockbackTimer = launch.KnockbackTimer;
         if (suppressesKnockback)
             return false;
@@ -181,16 +181,16 @@ level, targetPose, frameCounter, roomObjects))
         // accepting the producer-owned value here prevents this shared initializer from
         // shortening that visibly longer scripted reaction to ordinary gameplay timing.
         samus.KnockbackActive = true;
-        // Install the knockback movement handler, which replaces the
-        // released-from-grapple-swing handler if that was still running.
+        // The knockback takes her movement, ending her flight after letting go of a
+        // grapple swing if that was still running.
         samus.Grapple.ReleasedMovementActive = false;
 
-        // The remainder of the knockback initializer runs for both handler-table families. A pending bomb
+        // The remainder of the knockback initializer runs for both the humanoid and the ball. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
-        // cancelled before the special movement handler begins.
+        // cancelled before the knockback moves her.
         samus.BombJumpRequest = SamusBombJumpRequest.None;
-        // Replacing the movement handler cancels the bomb mover immediately, but
-        // does not replace its independently locked pose-input handler yet.
+        // Taking her movement ends the bomb jump's movement immediately, but
+        // does not yet release its independent lock on her pose input.
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
@@ -209,7 +209,7 @@ level, targetPose, frameCounter, roomObjects))
         return true;
     }
 
-    /// <summary>Executes one knockback special movement-handler frame.</summary>
+    /// <summary>Runs one frame of the knockback's movement.</summary>
     internal static KnockbackMovementResult Step(
 
         RoomLevelData level,
@@ -221,11 +221,11 @@ level, targetPose, frameCounter, roomObjects))
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!samus.KnockbackActive)
-            throw new InvalidOperationException("Knockback movement requires the special handler to be active.");
+            throw new InvalidOperationException("Knockback movement requires the knockback to hold Samus's movement.");
         if (samus.KnockbackDirection is not (SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight or SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight))
             throw new InvalidOperationException($"Invalid knockback direction {samus.KnockbackDirection}.");
 
-        // The movement handler remains installed even on the zero-timer frame.
+        // The knockback keeps her movement even on the zero-timer frame.
         // Expiry belongs to the post-animation hit interruption, not this mover.
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -286,7 +286,7 @@ level, targetPose, frameCounter, roomObjects))
                 $"Damage boost {sourcePose} -> {targetPose} is not a retail transition.");
         }
 
-        // Restores only the normal movement handler. The conditional jump
+        // Returns only her movement to her pose. The conditional jump
         // reset in the pose handling does not run for a merely prospective type change.
         // Preserve velocity and hurt values until the common expiry handoff consumes them.
         samus.Pose = targetPose;
@@ -354,7 +354,7 @@ level, targetPose, frameCounter, roomObjects))
 
     /// <summary>
     /// Finishes a previously sampled hurt expiry, including when a higher-priority
-    /// pose-transition cue has since replaced the current movement handler.
+    /// pose-transition cue has since taken her movement from the knockback.
     /// </summary>
     public static void FinishExpiredHitInterruption(SamusState samus)
     {
@@ -390,11 +390,10 @@ level, targetPose, frameCounter, roomObjects))
         // Knockback's expiry restores the normal input mode as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
         samus.BombJumpPoseInputLocked = false;
-        // Installs the ordinary movement handler. A Shinespark windup can
-        // have been initialized after the knockback check latched this expiry, so replace that
-        // special handler while retaining its independently owned palette and timer.
-        if (samus.Shinespark.Phase is not (ShinesparkPhase.Inactive or ShinesparkPhase.Stored))
-            samus.Shinespark.RelinquishMovementHandler();
+        // Returns her movement to her pose. A Shinespark windup can
+        // have been initialized after the knockback check latched this expiry, so end that
+        // spark's hold while retaining its independently owned palette and timer.
+        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
         // flag has no field of its own; Y-direction two is its movement-visible
         // publication and is consumed by every normal/ball step.

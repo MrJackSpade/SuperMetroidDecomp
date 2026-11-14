@@ -110,7 +110,7 @@ public sealed class CeresElevatorArrivalState
         DrawProjectile(platform, 1, sprites, presentation, camera);
     }
 
-    /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
+    /// <summary>The moving pad's position: Samus's whole position, <see cref="CeresElevatorArrivalDefinitions.MovingPadYOffset"/> lower.</summary>
     private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
         samus.Position.Whole + new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(CeresElevatorArrivalDefinitions.MovingPadYOffset));
 

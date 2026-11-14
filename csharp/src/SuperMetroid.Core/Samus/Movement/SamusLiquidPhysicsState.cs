@@ -428,7 +428,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Runs <c>HandleLandingSoundEffectsAndGraphics</c> and all area handlers.
+    /// Plays the landing's sound and effects, then each area's landing reaction.
     /// Call this after downward collision has placed Samus against the
     /// surface but before animation and pose-change cleanup erase the impact velocity/radius.
     /// </summary>

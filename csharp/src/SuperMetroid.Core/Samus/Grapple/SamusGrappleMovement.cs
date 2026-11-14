@@ -1032,7 +1032,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Integer octant form of <c>CalculateAngleFromXY</c>.
+    /// The direction of <paramref name="delta"/> as an angle, worked out in whole numbers one octant at a time.
     /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
     /// and 192 left. Division truncates exactly as the game's unsigned divide does.
     /// </summary>

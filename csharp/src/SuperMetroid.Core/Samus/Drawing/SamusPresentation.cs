@@ -256,7 +256,7 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationInstallDrainedFall:
-                samus.Drained.InstallFallingMovementHandler(samus);
+                samus.Drained.StartFalling(samus);
                 samus.AnimationFrame++;
                 break;
 

@@ -23,7 +23,7 @@ internal sealed class EnemyRoomEffects
 {
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
-    /// <summary>Supplies Samus equipment and relinquishes the drained-phase timer handler.</summary>
+    /// <summary>Supplies Samus equipment and ends the drained get-up when the escape countdown starts.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides active level, area, FX record, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
@@ -185,7 +185,7 @@ internal sealed class EnemyRoomEffects
             foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
                 roomColourEffects.Start(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
-                _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
+                _player.IntroducedSamus.Drained.RelinquishGetUp();
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainDefeatRecordRequested)

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// What a special-air block does with its behaviour (#1722, #1742): a conveyor or the scroll trigger, the same in every
-/// area, or one of the reactions whose meaning depends on the room's area (<c>SpecialAirReactions</c>). Its values are
+/// area, or one of the reactions whose meaning depends on the room's area. Its values are
 /// arbitrary; a behaviour written for another collision kind is read as one of these through
 /// <see cref="RoomBlockBehavior"/>, or as none when special air has no reaction for it.
 /// </summary>

@@ -8,8 +8,9 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>Checks Samus's stationary lock during Mother Brain's fake-death descent.</summary>
+/// <summary>Checks Samus's stationary lock during Mother Brain's fake-death descent and its arena's scroll lock.</summary>
 internal static class MotherBrainFakeDeathLockVerification
 {
     /// <summary>
@@ -30,10 +31,18 @@ internal static class MotherBrainFakeDeathLockVerification
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
         state.PhaseTimer = 0;
+        // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
+        RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
+        AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "Mother Brain's room is one row of four screens");
+        for (int cell = 0; cell < 4; cell++)
+            scrolls.SetCell(cell, RoomScrollState.Open);
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
             "the descent locks Samus with command zero's stationary handlers");
+        for (int cell = 0; cell < 4; cell++)
+            AssertEqual(cell == 1 ? RoomScrollState.Closed : RoomScrollState.Open, scrolls.ReadState(cell),
+                $"the arena lock closes only the second screen, leaving cell {cell} as it was");
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
         state.PhaseTimer = 0;

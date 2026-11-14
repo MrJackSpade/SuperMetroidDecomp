@@ -375,6 +375,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidScrollPairVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
@@ -443,6 +444,7 @@ using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactV
 using static SuperMetroid.Verification.Frontend.Ending.EndingShootingStarFieldVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapAnimationLimitsVerification;
 using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerification;
+using static SuperMetroid.Verification.Runtime.Attract.AttractDemoRoomSetupVerification;
 using static SuperMetroid.Verification.Enemies.EnemyMathBoundsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonTrailRingVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingWavySamusWaveVerification;
@@ -1072,6 +1074,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration()),
         new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
+        new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),
@@ -1250,6 +1253,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEndingShootingStarField), () => VerifyEndingShootingStarField()),
         new(nameof(VerifyMapAnimationLimits), () => VerifyMapAnimationLimits()),
         new(nameof(VerifyAttractDemoLoadWaits), () => VerifyAttractDemoLoadWaits()),
+        new(nameof(VerifyChargeBeamClosedScreen), () => VerifyChargeBeamClosedScreen()),
         new(nameof(VerifyEnemyMathBounds), () => VerifyEnemyMathBounds()),
         new(nameof(VerifyBotwoonTrailRing), () => VerifyBotwoonTrailRing()),
         new(nameof(VerifyEndingWavySamusWave), () => VerifyEndingWavySamusWave()),

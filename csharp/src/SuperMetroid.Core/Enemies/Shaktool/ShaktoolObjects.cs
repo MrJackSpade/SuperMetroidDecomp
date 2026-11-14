@@ -23,7 +23,10 @@ internal sealed class ShaktoolObjects
         _events = events;
         _slotTable = slotTable;
     }
-    /// <summary>Spawns the Shaktool room's controller and runs its scroll setup.</summary>
+    /// <summary>
+    /// Spawns the Shaktool room's controller and runs its scroll setup: the room's first screen open with the camera
+    /// aligned to its top, and every other screen closed.
+    /// </summary>
     /// <returns>False when the room is full; the scrolls are then left untouched (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
@@ -33,8 +36,8 @@ internal sealed class ShaktoolObjects
 
         slot.Block = Position16<RoomBlocks>.Zero;
         slot.Become(new ShaktoolRoomControllerObject(_samus, _events));
-        for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-            scrolls.SetCell(cell, cell == 0 ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
+        foreach (Position16<RoomScreens> screen in scrolls.Screens)
+            scrolls.SetLogicalState(screen, screen == Position16<RoomScreens>.Zero ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
         return true;
     }
 }

@@ -181,7 +181,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             case AttractDemoRoomSetup.NoOp:
                 break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.LoadedCamera.Scrolls.SetCell(AttractDemoDefinitions.ChargeBeamRedScrollScreen, RoomScrollState.Closed);
+                _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical

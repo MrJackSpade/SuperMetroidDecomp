@@ -261,12 +261,37 @@ internal sealed class Walk
             foreach (Unit target in scan.Targets)
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
+        LinkConstructorArguments();
         RecordHandedPrograms();
         RouteDataSpriteObjects();
         // Helper evidence first, so a family a helper starts on what its callers spawn is on those spawns' collections
         // when the names no spawning caller reaches look for where the walk spawns their families.
         RouteHelperEvidence();
         RouteUnspawnedNames();
+    }
+
+    /// <summary>
+    /// Makes the code reading each constructor parameter the caller of every member the walk's code hands to it (#1852):
+    /// the spores' behaviour Spore Spawn's spawners are built with runs on the spores their spore spawn makes, and the
+    /// turret bullets' behaviour Mother Brain's projectiles are built with on the bullets their turrets fire, so what those
+    /// members start draws where those spawns' graphics say, not where the receivers' own spawns draw.
+    /// </summary>
+    private void LinkConstructorArguments()
+    {
+        var handed = new Dictionary<IParameterSymbol, HashSet<Unit>>(SymbolEqualityComparer.Default);
+        foreach (Unit unit in _recorded)
+        {
+            foreach ((IParameterSymbol parameter, HashSet<Unit> members) in ScanOf(unit).ConstructorArguments)
+                Of(handed, parameter).UnionWith(members);
+        }
+        foreach (Unit reader in _recorded)
+        {
+            foreach (IParameterSymbol parameter in ScanOf(reader).ConstructorParameterReads)
+            {
+                foreach (Unit member in handed.GetValueOrDefault(parameter) ?? [])
+                    Of(_callers, member).Add(reader);
+            }
+        }
     }
 
     /// <summary>
@@ -478,7 +503,8 @@ internal sealed class Walk
         // the engine's table once held were, never by every walk that reaches the engine.
         if (viaDispatch && _model.IsProjectileBehaviour(type))
             return;
-        if (origin is { } calling)
+        // A member handed to a constructor is the receiver's to use: its callers are the code reading that parameter (#1852).
+        if (origin is { } calling && !ScanOf(calling).OnlyHandsToConstructors(unit))
         {
             if (!_callers.TryGetValue(unit, out HashSet<Unit>? callers))
                 _callers.Add(unit, callers = []);

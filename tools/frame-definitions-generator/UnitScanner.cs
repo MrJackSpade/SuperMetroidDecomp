@@ -54,6 +54,32 @@ internal sealed class UnitScan
     public HashSet<Unit> ForwardsTo { get; } = [];
 
     /// <summary>
+    /// The members this code's object creations hand to each Core constructor parameter (#1852): a behaviour object handed
+    /// to another behaviour's constructor, as Spore Spawn's spawners are handed the spores' behaviour and Mother Brain's
+    /// projectiles the turret bullets', runs where the receiver reads that parameter, not where the receiver is built.
+    /// </summary>
+    public Dictionary<IParameterSymbol, HashSet<Unit>> ConstructorArguments { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>The constructor parameters the code reads: a primary constructor's parameters its type's members capture.</summary>
+    public HashSet<IParameterSymbol> ConstructorParameterReads { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>How many of each member's references in <see cref="Targets"/> are constructor arguments.</summary>
+    private readonly Dictionary<Unit, int> _constructorArgumentReferences = [];
+
+    /// <summary>Records that the code hands <paramref name="member"/> to the constructor parameter <paramref name="parameter"/>.</summary>
+    public void HandToConstructor(IParameterSymbol parameter, Unit member)
+    {
+        if (!ConstructorArguments.TryGetValue(parameter, out HashSet<Unit>? members))
+            ConstructorArguments.Add(parameter, members = []);
+        members.Add(member);
+        _constructorArgumentReferences[member] = _constructorArgumentReferences.GetValueOrDefault(member) + 1;
+    }
+
+    /// <summary>Whether the code references <paramref name="unit"/> only by handing it to constructors, never running or reading it itself.</summary>
+    public bool OnlyHandsToConstructors(Unit unit) =>
+        _constructorArgumentReferences.TryGetValue(unit, out int handed) && Targets.Count(target => target.Equals(unit)) == handed;
+
+    /// <summary>
     /// The projectile program families the code refers to, each with the programs its constructions start it in (#1513);
     /// null for a family the code reaches otherwise, or constructs naming a program no constant decides, which may then be
     /// started in any of its programs.
@@ -355,6 +381,8 @@ internal sealed class UnitScanner(CoreModel model)
                 {
                     Add(scan, symbol);
                     RecordFamilyStart(scan, semantic, node, symbol);
+                    if (node is SimpleNameSyntax simple)
+                        RecordConstructorFlow(scan, semantic, simple, symbol, before);
                 }
                 else if (info.CandidateReason is CandidateReason.MemberGroup or CandidateReason.OverloadResolutionFailure)
                 {
@@ -446,6 +474,30 @@ internal sealed class UnitScanner(CoreModel model)
             scan.FamilyPrograms[family] = new HashSet<string>(programs, StringComparer.Ordinal);
         else
             named?.UnionWith(programs);
+    }
+
+    /// <summary>
+    /// Records a constructor parameter <paramref name="name"/> reads, or the member it hands to a Core constructor's
+    /// parameter as an argument of an object creation (#1852), so the walk links the member to the code reading that
+    /// parameter. A named argument's label names the parameter without reading it.
+    /// </summary>
+    private void RecordConstructorFlow(UnitScan scan, SemanticModel semantic, SimpleNameSyntax name, ISymbol symbol, int before)
+    {
+        if (name.Parent is NameColonSyntax)
+            return;
+        if (symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: MethodKind.Constructor } } parameter)
+        {
+            scan.ConstructorParameterReads.Add(parameter.OriginalDefinition);
+            return;
+        }
+        ExpressionSyntax value = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name;
+        if (value.Parent is not ArgumentSyntax { Parent: ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax } } argument
+            || CoreModel.ParameterOf(semantic, argument) is not { } handed || !model.IsSource(handed))
+        {
+            return;
+        }
+        foreach (Unit member in scan.Targets.Skip(before).Where(unit => unit.Kind == UnitKind.Member).ToList())
+            scan.HandToConstructor(handed, member);
     }
 
     /// <summary>Whether <paramref name="name"/> is the method an invocation calls, rather than a method group passed on.</summary>

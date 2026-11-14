@@ -1233,6 +1233,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCrocomireBodyCollisionDefinitions), () => VerifyCrocomireBodyCollisionDefinitions()),
         new(nameof(VerifyBotwoonObjectIdentity), () => VerifyBotwoonObjectIdentity()),
         .. CompiledEnemyTrigonometrySuites(),
+        .. LookupStream1Verification.LookupStream1Suites(),
         new(nameof(VerifyRidleyExplosionDefinitions), () => VerifyRidleyExplosionDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyCrocomireMeltingDefinitions), () => VerifyCrocomireMeltingDefinitions(

@@ -2089,6 +2089,31 @@ internal static class LookupStream1Verification
     /// <summary>Reads native Samus body DMA source and transfer words.</summary>
     private static byte LookupStream1BodyTransfersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>
+    /// The stream-one oracle's suites that no other registered suite runs, each its own suite of the full run and selectable
+    /// by name (#1757). The stream-one group ran them, with the stream's other checks, as one command over the time limit;
+    /// those other checks are registered suites of their own, or run inside one.
+    /// </summary>
+    internal static FullRunSuitesVerification.RegisteredSuite[] LookupStream1Suites() =>
+    [
+        new(nameof(VerifyLookupStream1), () => VerifyLookupStream1(LoadStream1Oracle())),
+        new(nameof(VerifyLookupStream1ProjectileMotion), () => VerifyLookupStream1ProjectileMotion(LoadStream1Oracle())),
+        new(nameof(VerifyLookupStream1Selection), () => VerifyLookupStream1Selection(LoadStream1Oracle())),
+        new(nameof(VerifyLookupStream1LaunchRoles), () => VerifyLookupStream1LaunchRoles(LoadStream1Oracle())),
+        new(nameof(BeamCallbackTablesVerification.VerifyBeamCallbackInitializers), () => BeamCallbackTablesVerification.VerifyBeamCallbackInitializers()),
+        new(nameof(SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification.VerifyMetroidsClearedStateObject),
+            () => SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification.VerifyMetroidsClearedStateObject(new TestAddressSpace())),
+    ];
+
+    /// <summary>The retail cartridge, confirmed to be the revision the stream-one oracle reads.</summary>
+    private static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace LoadStream1Oracle()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
+        return rom;
+    }
+
     /// <summary>Runs the focused Samus death-transfer definitions oracle with the retail cartridge.</summary>
     [VerificationCommand("--lookup-stream-1-death-definitions")]
     internal static int LookupStream1DeathDefinitionsCommand()

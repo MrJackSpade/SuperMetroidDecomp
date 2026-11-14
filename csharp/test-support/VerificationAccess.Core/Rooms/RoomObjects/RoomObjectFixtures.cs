@@ -19,8 +19,17 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectFixtures
 {
-    /// <summary>The installed artwork each fixture was built with, so a rebound fixture draws the same way.</summary>
-    private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> visualsByFixture = [];
+    /// <summary>
+    /// The installed artwork each fixture was built with, so a rebound fixture draws the same way, kept in one of several
+    /// tables chosen by the fixture's identity: a table takes one lock per added fixture, and a sweep building a fixture
+    /// per case on every core spent an eighth of its time waiting on a single table's lock (#1757).
+    /// </summary>
+    private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>[] visualsByFixture =
+        [.. Enumerable.Range(0, 64).Select(_ => new ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>())];
+
+    /// <summary>The table that keeps <paramref name="fixture"/>'s artwork.</summary>
+    private static ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> VisualsTable(RoomObjectSystem fixture) =>
+        visualsByFixture[(RuntimeHelpers.GetHashCode(fixture) & int.MaxValue) % visualsByFixture.Length];
 
     /// <summary>The repository installation's pictures of Draygon's cannon frames, read once per process.</summary>
     private static readonly Lazy<InstalledDraygonCannonFrames> DraygonCannonFrames = new(() => InstalledDraygonCannonFrames.Stock());
@@ -53,7 +62,7 @@ internal static class RoomObjectFixtures
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces());
-        visualsByFixture.Add(roomObjects, visuals);
+        VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
 
@@ -62,7 +71,7 @@ internal static class RoomObjectFixtures
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces());
-        visualsByFixture.Add(roomObjects, visuals);
+        VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
 
@@ -115,7 +124,7 @@ internal static class RoomObjectFixtures
 
     /// <summary>The installed artwork a fixture draws with; editing it changes what the fixture draws.</summary>
     internal static RoomObjectVisuals VisualsOf(RoomObjectSystem fixture) =>
-        visualsByFixture.TryGetValue(fixture, out RoomObjectVisuals? visuals)
+        VisualsTable(fixture).TryGetValue(fixture, out RoomObjectVisuals? visuals)
             ? visuals
             : throw new InvalidOperationException("The PLM system was not built by RoomObjectFixtures.");
 }

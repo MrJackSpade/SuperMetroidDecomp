@@ -3,25 +3,19 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Compiled staircase used by Kraid's private body/projectile collision path.</summary>
 public static class KraidBodyContour
 {
-    /// <summary>First bottom boundary of Kraid's body hitbox contour.</summary>
-    private const int FirstBottomBoundary = 1023;
-
     /// <summary>
-    /// Each left edge is paired
-    /// with the next ledge's top boundary. The final signed minimum terminates
-    /// the contour for every signed relative Y coordinate.
+    /// The left edge of Kraid's body at <paramref name="relativeY"/>: each ledge of the staircase holds its edge from
+    /// its top down to the next ledge, and everything at or below his origin takes the lowest ledge's edge.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the complete table and both
-    /// wrapped comparisons. The first bottom comparison wraps to
-    /// nonnegative for Y=-32768..-31746, selecting -48 before the ordinary staircase.
-    /// Remaining inputs select the first inclusive top boundary. Preserve this
-    /// wrapped comparison, rather than replacing it with an ordered signed one.
+    /// The original compared heights by the sign of a wrapped 16-bit subtraction, which gives the lowest ledge's edge to
+    /// heights more than 31,745 pixels above his origin too (#1876). No room is that tall (at most
+    /// <see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/> screens), so the ordered comparison is the same at
+    /// every height a projectile or Samus can reach.
     /// </remarks>
-    /// <param name="relativeY">The signed vertical distance from Kraid's body, -32768 through 32767.</param>
+    /// <param name="relativeY">The vertical distance from Kraid's body to the probe, in pixels; negative is above him.</param>
     public static int LeftEdge(int relativeY) => relativeY switch
     {
-        <= short.MinValue + FirstBottomBoundary - 1 => -48,
         >= 0 => -48,
         >= -32 => -32,
         >= -48 => -24,

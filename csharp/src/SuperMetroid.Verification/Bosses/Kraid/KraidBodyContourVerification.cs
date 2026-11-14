@@ -22,7 +22,10 @@ internal static class KraidBodyContourVerification
         return KraidCombat.OverlapsKraidBody(ref bounds, body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
     };
 
-    /// <summary>Compares the real overlap branch across signed Y positions, translated body X values, shot radii, and edge offsets.</summary>
+    /// <summary>
+    /// Compares the real overlap branch across every relative Y a room can hold, translated body X values, shot radii,
+    /// and edge offsets.
+    /// </summary>
     internal static void VerifyKraidBodyContour(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
@@ -30,12 +33,12 @@ internal static class KraidBodyContourVerification
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)).Slots[0];
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        const int roomHeightLimit = SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid.KeptCellCount * 256;
+        for (int y = -roomHeightLimit; y <= roomHeightLimit; y++)
         {
-            short y = unchecked((short)raw);
-            short expected = NativeKraidBodyLeftEdge(rom, y);
-            body.Position = body.Position.WithWholeY((ushort)raw);
-            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(raw + y)));
+            short expected = NativeKraidBodyLeftEdge(rom, (short)y);
+            body.Position = body.Position.WithWholeY(roomHeightLimit);
+            shot.Position = shot.Position.WithWholeY((ushort)(roomHeightLimit + y));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })
             foreach (ushort radius in new ushort[] { 0, 4, 16 })
             for (int delta = -1; delta <= 1; delta++)
@@ -48,7 +51,7 @@ internal static class KraidBodyContourVerification
                 AssertEqual(reference, overlaps(body, shot), "Actual contour collision edge, translation and strict inequality");
             }
         }
-        Console.WriteLine("Kraid body contour: every signed Y and 1769472 actual collision boundary probes pass with ROM reads forbidden.");
+        Console.WriteLine($"Kraid body contour: every relative Y within {roomHeightLimit} pixels and its collision boundary probes pass.");
     }
 
     /// <summary>Runs the Kraid contour and head-instruction checks with a retail cartridge oracle.</summary>

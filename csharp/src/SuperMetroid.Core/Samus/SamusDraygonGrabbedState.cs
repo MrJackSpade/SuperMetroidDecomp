@@ -142,7 +142,7 @@ public sealed class SamusDraygonGrabbedState
     /// grapple is locked in place, then count a newly pressed D-pad pattern only when it is
     /// nonzero and different from the last counted pattern.
     /// </summary>
-    public DraygonEscapeResult StepEscapeHandler(
+    public DraygonEscapeResult CheckDraygonEscape(
         SamusState samus,
         ControllerButton newlyPressedInput,
         bool grappleLockedInPlace)

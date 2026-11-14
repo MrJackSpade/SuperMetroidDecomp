@@ -23,9 +23,9 @@ public static class SamusGroundedMovement
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
-    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share movement type zero with ordinary standing, but the game
+    /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It only clears <see cref="SamusState.SolidVerticalCollisionResult"/> while elevator status is zero.
+    /// It only clears <see cref="SamusState.SolidVerticalCollisionResult"/> while no elevator ride is active.
     /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
     /// clearing that result. The elevator actor remains a separate producer of the status,
     /// and of the platform art; this method holds the complete Samus-side consumer.
@@ -163,8 +163,8 @@ public static class SamusGroundedMovement
 
         // The horizontal speed calculation advances the split 1/65536-pixel base speed. The following
         // direction selector is shared by every horizontal movement family:
-        // modes zero and two obey the pose's facing, while every other nonzero
-        // value reverses it. Mode one is therefore not an invalid running state; it is the
+        // accelerating and decelerating obey the pose's facing, while turning
+        // reverses it. Turning is therefore not an invalid running state; it is the
         // one-frame-old momentum that can survive a pose transition into this body. Do not
         // special-case it, even if another input-side transition has already changed the
         // visible running pose.
@@ -263,7 +263,7 @@ public static class SamusGroundedMovement
 
         // Cancels the speed boost on every turn frame. This matters even
         // without the Speed Booster item: the turn initializer folded the numeric extra component but
-        // deliberately left the running-momentum flag set until this movement handler. Then the handler
+        // deliberately left the running-momentum flag set until this movement. Then the movement
         // cancels that momentum and zeroes the extra run speed, each separately observable.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
@@ -306,7 +306,7 @@ public static class SamusGroundedMovement
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // Moonwalking has its own speed record. Its pose X directions intentionally
-        // produce travel opposite the visible facing; mode one reverses that direction just as it
+        // produce travel opposite the visible facing; turning reverses that direction just as it
         // does for every other family. Do not derive either direction from the pose's name.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
@@ -350,7 +350,7 @@ public static class SamusGroundedMovement
         // Calls the same no-base-speed X movement as standing. Direction still
         // comes from the literal pose definition: the right-facing poses store eight (right), while
         // the left-facing poses store four (left). Extra speed is included in the requested move
-        // before the handler's unconditional cleanup, matching the call order.
+        // before the movement's unconditional cleanup, matching the call order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
@@ -391,8 +391,8 @@ public static class SamusGroundedMovement
         Ensure.NotNull(samus);
         // Do not duplicate the pose list here. The predicates are the single audited definition
         // of the standing movement type's landing family and deliberately include the two firing
-        // landings. Keeping dispatch and this defensive guard on the same predicates prevents a
-        // newly modelled landing from reaching this real movement handler only to be rejected.
+        // landings. Keeping the movement selection and this defensive guard on the same predicates prevents a
+        // newly modelled landing from reaching this real movement only to be rejected.
         if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
             !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
         {
@@ -421,7 +421,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Executes the knockback movement type's ordinary handler after a
+    /// Executes the knockback movement type's ordinary movement after a
     /// special owner (normal damage knockback or Ceres Ridley's ejection) has restored the
     /// normal step while leaving a knockback pose current. The game clears the
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not

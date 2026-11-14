@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
-/// <summary>One Platforms occupant: its own AI handlers, with the shared reactions.</summary>
+/// <summary>One Platforms occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Platforms species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>

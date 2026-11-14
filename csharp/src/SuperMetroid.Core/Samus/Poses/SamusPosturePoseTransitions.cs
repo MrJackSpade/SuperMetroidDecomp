@@ -282,7 +282,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
 
         // Does not require the crouching movement type. Falling straight-down
         // and spin-jump input tables can select the same morphing-transition initializer. The literal
-        // previous-movement-type test below even has a dedicated type-three side effect.
+        // previous-movement-type test below even has a dedicated spin-jumping side effect.
         // Validate only the facing-preserving relationship guaranteed by the transition table.
         SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool startsMorphingRight = sourceFacing == SamusFacingDirection.Right &&
@@ -337,8 +337,8 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
 
-            // Deliberately recognizes a spin-jump source and forces mode
-            // two so the compact body retains decelerating aerial momentum after morphing.
+            // Deliberately recognizes a spin-jump source and forces
+            // SamusAccelerationMode.Decelerating so the compact body retains decelerating aerial momentum after morphing.
             if (previousMovementType == SamusMovementType.SpinJumping)
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
@@ -403,7 +403,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// <remarks>
     /// The game's unmorph input table remains active before the animation's transition cue
     /// reaches its normal crouch endpoint. Up, aim, and Fire input can therefore
-    /// interrupt the transition with an ordinary movement-type-six falling pose. This is
+    /// interrupt the transition with an ordinary <see cref="SamusMovementType.Falling"/> pose. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
@@ -495,7 +495,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         if (reversed)
         {
             // Folds run momentum into base speed, the fraction's overflow passing into the whole pixels,
-            // clears the extra speeds, and selects mode one so displacement initially keeps
+            // clears the extra speeds, and selects SamusAccelerationMode.Turning so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
             // Cancels the speed boost between the 1/65536-pixel fold and the
@@ -582,7 +582,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             return false;
         }
 
-        // Dispatches on the rebound count only, so an ordinary-ball
+        // Selects by the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
@@ -637,7 +637,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// <summary>
     /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
     /// changes: the airborne ball's initializer leaves vertical speed for the next
-    /// handler frame, whose passing-zero test turns the jump downward. Movement types whose
+    /// bomb-jump frame, whose passing-zero test turns the jump downward. Movement types whose
     /// falling entry is "no change" keep their pose.
     /// </summary>
     public static void ApplyBombJumpFallingPose(SamusState samus)
@@ -655,7 +655,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
 
 
     /// <summary>
-    /// Applies the walk-off transition's type-four endpoint, retaining the rolling animation
+    /// Applies the walk-off transition's morph-ball endpoint, retaining the rolling animation
     /// while changing to ordinary airborne <see cref="SamusPoseId.MorphBallFallingRightPose"/> and <see cref="SamusPoseId.MorphBallFallingLeftPose"/> and starting dry-air gravity.
     /// </summary>
     public static void ApplyMorphBallWalkOff(SamusState samus)

@@ -99,20 +99,20 @@ internal sealed class SamusFrameState
     /// <summary>Most recent ordinary Morph-Ball collision result.</summary>
     public MorphBallMovementResult? LastMorphBallMovement { get; internal set; }
 
-    /// <summary>Most recent special bomb-jump handler result.</summary>
+    /// <summary>Most recent bomb-jump movement result.</summary>
     public BombJumpMovementResult? LastBombJumpMovement { get; internal set; }
 
-    /// <summary>Most recent special knockback-handler result.</summary>
+    /// <summary>Most recent knockback movement result.</summary>
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
 
     /// <summary>Most recent connected-grapple update result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; internal set; }
 
-    /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>
+    /// <summary>Most recent stored-shine windup or active shinespark movement result.</summary>
     public ShinesparkMovementResult? LastShinesparkMovement { get; internal set; }
 
-    /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
+    /// <summary>Most recent Crystal Flash start, ammo-drain, or finish movement result.</summary>
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
 
 
@@ -124,9 +124,9 @@ internal sealed class SamusFrameState
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 
-    /// <summary>Most recent call of drained Samus's installed falling handler.</summary>
+    /// <summary>Most recent update of drained Samus's fall.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
 
-    /// <summary>Most recent alternating-D-pad escape-handler result.</summary>
+    /// <summary>Most recent alternating-D-pad Draygon escape check result.</summary>
     public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
 }

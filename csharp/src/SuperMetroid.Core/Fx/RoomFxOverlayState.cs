@@ -246,7 +246,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (RoomFxTypes.UsesWater(Type))
         {
             // Both water motions, the surface wave and the background wave, run their phase initializer on the first
-            // handler pass. A one-frame timer reproduces that first-call rotation.
+            // liquid step. A one-frame timer reproduces that first-call rotation.
             waterOverlayWaveTimer = 1;
             waterBackgroundWaveTimer = 1;
         }
@@ -457,7 +457,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Applies shared liquid writes made by room objects and enemy scripts. These are
     /// intentionally not a rendering shortcut: room objects write the same fields the
-    /// room-FX loader sets. The liquid handler consumes those shared values
+    /// room-FX loader sets. The liquid's step consumes those shared values
     /// on its next ordinary effect pass, just as the game does.
     /// </summary>
     internal void SetLiquidMotion(

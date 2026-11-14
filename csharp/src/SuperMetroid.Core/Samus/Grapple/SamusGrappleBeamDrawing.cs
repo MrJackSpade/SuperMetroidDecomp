@@ -46,7 +46,7 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam || grapple.FlareStage == GrappleFlareStage.None)
             return false;
 
-        // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
+        // While firing, the grapple's drawing recomputes the hand origins immediately before the flare. Grapple
         // physics ran before ordinary Samus movement, so the renderer must reconstruct both
         // hand origins from the final body position or a running shot visibly lags one frame.
         // Connected phases already publish their exact rope/flare pair during movement.
@@ -240,7 +240,7 @@ public static class SamusGrappleBeamDrawing
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple
-        // values before restoring the ordinary draw handler and projectile palette.
+        // values before restoring Samus's ordinary drawing and projectile palette.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.FlarePlace = ChargeFlareAnimations.FirstPlace;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);

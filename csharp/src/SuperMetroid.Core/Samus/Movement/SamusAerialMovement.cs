@@ -110,7 +110,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.NormalJumping)
             throw new InvalidOperationException(
-                $"Normal-jump movement requires type 2, not {SamusPoseMetadata.ReadMovementType(samus)}.");
+                $"Normal-jump movement requires {nameof(SamusMovementType.NormalJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.NormalJumping,
             controllerInput,
@@ -118,7 +118,7 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) !=
                 SamusLiquidMedium.Air);
 
-        // NeutralJumpTransitionRightPose, NeutralJumpTransitionLeftPose and NormalJumpTransitionAimUpRightPose through NormalJumpTransitionAimDiagonalDownLeftPose are genuine movement-type-2 poses, but the game treats them as
+        // NeutralJumpTransitionRightPose, NeutralJumpTransitionLeftPose and NormalJumpTransitionAimUpRightPose through NormalJumpTransitionAimDiagonalDownLeftPose are genuine normal-jumping poses, but the game treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
         if (samus.Pose is SamusPoseId.NeutralJumpTransitionRightPose or
@@ -178,7 +178,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
-                $"Spin-jump movement requires type 3, not {SamusPoseMetadata.ReadMovementType(samus)}.");
+                $"Spin-jump movement requires {nameof(SamusMovementType.SpinJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         // Runs this before ordinary spin movement. Space Jump is not a
         // generic double-jump: it only accepts a fresh Jump edge while descending and
@@ -225,7 +225,7 @@ public static class SamusAerialMovement
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.SpinJumping);
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
-        // turning (mode 1) or while the input matching the pose's facing direction is held.
+        // turning (SamusAccelerationMode.Turning) or while the input matching the pose's facing direction is held.
         // A speed the maximum capped bypasses this test exactly as the game does.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
@@ -240,8 +240,8 @@ public static class SamusAerialMovement
         }
         else if (speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
-            // Mode two is not ordinary deceleration here. The aerial speed calculation tests only whether Samus is turning,
-            // so mode two continues accelerating on subsequent airborne frames.
+            // SamusAccelerationMode.Decelerating is not ordinary deceleration here. The aerial speed calculation tests only whether Samus is turning,
+            // so it continues accelerating on subsequent airborne frames.
             speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }
 
@@ -371,7 +371,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         // Crouched aimed turns use the turning-while-jumping movement type even though they normally remain on
-        // the floor. If a producer gives one nonzero Y direction, the turn handler immediately
+        // the floor. If a producer gives one nonzero Y direction, the turn movement immediately
         // executes the same X/simple-Y path as the ordinary jumping-turn records
         // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
         bool isTranslatedTurnPose = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
@@ -419,7 +419,7 @@ public static class SamusAerialMovement
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
         // or trigger landing presentation. Likewise, the game upward mover
-        // only publishes a ceiling result: this handler clears it before pose
+        // only publishes a ceiling result: this movement clears it before pose
         // processing can stop the jump. Keep gravity and physical clipping, but
         // preserve upward velocity even while the head is touching the ceiling.
 
@@ -429,7 +429,7 @@ public static class SamusAerialMovement
         return result with { Landed = false, HitCeiling = false };
     }
 
-    /// <summary>Executes one movement-type-6 frame.</summary>
+    /// <summary>Executes one frame of <see cref="SamusMovementType.Falling"/> movement.</summary>
     internal static AerialMovementResult StepFalling(
 
         RoomLevelData level,
@@ -441,7 +441,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Falling)
             throw new InvalidOperationException(
-                $"Falling movement requires type 6, not {SamusPoseMetadata.ReadMovementType(samus)}.");
+                $"Falling movement requires {nameof(SamusMovementType.Falling)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Falling,
             controllerInput,
@@ -483,10 +483,10 @@ public static class SamusAerialMovement
     /// Executes one frame of Samus's flight after release from a grapple swing.
     /// </summary>
     /// <remarks>
-    /// This is a movement handler, not movement type two. It begins on the same
+    /// This is a movement owner, not <see cref="SamusMovementType.NormalJumping"/> movement. It begins on the same
     /// frame that the grapple release derives launch velocity, survives the beam's following-frame
     /// cleanup, uses the three standalone authored acceleration records,
-    /// and restores the normal handler after the upward speed passes zero, any downward pass, or
+    /// and hands her movement back to her pose after the upward speed passes zero, any downward pass, or
     /// a ceiling hit. Keeping that lifetime explicit prevents a grapple launch from silently
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
@@ -516,8 +516,8 @@ public static class SamusAerialMovement
             releasedFlightEnds = true;
         }
 
-        // The game writes mode two every frame, so the speed calculation always takes its deceleration
-        // branch until it passes zero and resets mode zero. Only then can an input-free frame
+        // The game selects SamusAccelerationMode.Decelerating every frame, so the speed calculation always takes its deceleration
+        // branch until it passes zero and resets to SamusAccelerationMode.Accelerating. Only then can an input-free frame
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         // The release's speeds are the same in every medium, so the medium Samus is in does not choose them.
@@ -668,7 +668,7 @@ public static class SamusAerialMovement
         hitCeiling = displacement.IsNegative && vertical.Collided;
         if (hitCeiling && ceilingResponse != SamusCeilingResponse.Deferred)
         {
-            // Ordinary handlers consume the ceiling collision as a jump stop. A turn
+            // Ordinary movements consume the ceiling collision as a jump stop. A turn
             // instead clears that pending result, so its caller defers these writes.
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;

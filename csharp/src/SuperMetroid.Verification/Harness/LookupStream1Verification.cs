@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -986,19 +987,19 @@ internal static class LookupStream1Verification
             for (int variant = 0; variant < 4; variant++)
             {
                 var actual = SamusVerticalMotion.Launch(medium, (variant & 1) != 0, ((variant & 2) != 0) ? SamusLaunchKind.WallJump : SamusLaunchKind.Jump);
-                int address = 0x909eb9 + 12 * variant + 2 * (int)medium;
+                int address = 0x909eb9 + 12 * variant + 2 * SamusLiquidMediumCodec.ToNative(medium);
                 AssertEqual(Word(address), actual.Whole, "stream1 native jump whole speed");
                 AssertEqual(Word(address + 6), actual.Fraction, "stream1 native jump fractional speed");
             }
             var hurt = SamusVerticalMotion.Knockback(medium);
-            AssertEqual(Word(0x909ee9 + 2 * (int)medium), hurt.Whole, "stream1 native knockback whole speed");
-            AssertEqual(Word(0x909eef + 2 * (int)medium), hurt.Fraction, "stream1 native knockback fractional speed");
+            AssertEqual(Word(0x909ee9 + 2 * SamusLiquidMediumCodec.ToNative(medium)), hurt.Whole, "stream1 native knockback whole speed");
+            AssertEqual(Word(0x909eef + 2 * SamusLiquidMediumCodec.ToNative(medium)), hurt.Fraction, "stream1 native knockback fractional speed");
             var bomb = SamusVerticalMotion.BombJump(medium);
-            AssertEqual(Word(0x909ef5 + 2 * (int)medium), bomb.Whole, "stream1 native bomb whole speed");
-            AssertEqual(Word(0x909efb + 2 * (int)medium), bomb.Fraction, "stream1 native bomb fractional speed");
+            AssertEqual(Word(0x909ef5 + 2 * SamusLiquidMediumCodec.ToNative(medium)), bomb.Whole, "stream1 native bomb whole speed");
+            AssertEqual(Word(0x909efb + 2 * SamusLiquidMediumCodec.ToNative(medium)), bomb.Fraction, "stream1 native bomb fractional speed");
             var gravity = SamusVerticalMotion.Gravity(medium);
-            AssertEqual(Word(0x909ea7 + 2 * (int)medium), gravity.Whole, "stream1 native whole gravity");
-            AssertEqual(Word(0x909ea1 + 2 * (int)medium), gravity.Fraction, "stream1 native fractional gravity");
+            AssertEqual(Word(0x909ea7 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Whole, "stream1 native whole gravity");
+            AssertEqual(Word(0x909ea1 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Fraction, "stream1 native fractional gravity");
         }
         foreach (SamusLiquidMedium invalid in new[] { (SamusLiquidMedium)3, (SamusLiquidMedium)ushort.MaxValue })
         {

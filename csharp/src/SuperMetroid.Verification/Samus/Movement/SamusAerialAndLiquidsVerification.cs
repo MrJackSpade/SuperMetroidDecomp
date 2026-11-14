@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -933,9 +934,9 @@ internal static void VerifySamusLiquidPhysics()
         WritePoseDefinition(bus, SamusPoseNumbers.Number(released.Pose), [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
         released.HorizontalSpeed.BaseSpeed = released.HorizontalSpeed.BaseSpeed.WithWhole(2);
         released.Grapple.ReleasedMovementActive = true;
-        if (medium == (int)SamusLiquidMedium.Water)
+        if (medium == SamusLiquidMediumCodec.ToNative(SamusLiquidMedium.Water))
             released.LiquidPhysics.ConfigureWater(surfaceY: 127);
-        else if (medium == (int)SamusLiquidMedium.LavaOrAcid)
+        else if (medium == SamusLiquidMediumCodec.ToNative(SamusLiquidMedium.LavaOrAcid))
             released.LiquidPhysics.ConfigureLavaAcid(surfaceY: 127);
         SamusAerialMovement.ConfigureEnvironmentGravity(released);
         SamusAerialMovement.StepReleasedFromGrapple(

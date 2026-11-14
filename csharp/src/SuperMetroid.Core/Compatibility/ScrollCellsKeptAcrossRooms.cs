@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// and scripted events whenever they change a cell; consulted by the camera's scroll-boundary checks during Samus's
 /// scrolling on every update, and by enemies that read a cell. The session's first room finds every cell cleared.
 /// Evidence: the scroll loaders (<c>$82:E878</c> copies fifty bytes from an explicit table whatever the room's size;
-/// <c>$82:E88D</c> writes only the room's cells for an implicit layout) and the camera's scroll handlers (<c>$80:A641</c>,
+/// <c>$82:E88D</c> writes only the room's cells for an implicit layout) and the camera's scroll steps (<c>$80:A641</c>,
 /// <c>$80:A6BB</c>, <c>$80:A893</c>, <c>$80:A936</c>), which index the cells at <c>$7E:CD20</c> by a row times the room
 /// width plus a column and tell a cleared cell, a blue cell and every other value apart; in the 13% movie Samus falls
 /// into a three-by-two implicit room whose cell below the bottom row still holds the room before's blue, so the camera

@@ -239,8 +239,8 @@ internal sealed class RoomLoader
         _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
         // The Zebes start setup does not begin at its endpoint. It selects a front-facing pose,
-        // frame two/timer three, a suit-specific palette object, and the 360-call
-        // appearance handler before restoring ordinary input.
+        // frame two/timer three, the suit's colours, and the 360-call
+        // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, frame: 2, timer: 3);
@@ -306,8 +306,8 @@ internal sealed class RoomLoader
         // Initializing Samus clears all of her state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
-        // Initialization clears Pose; the model's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
+        // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
+        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = SamusPoseId.ForwardFacingPowerSuitPose, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
@@ -364,12 +364,12 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// True after the door-block handler has selected a normal destination door and
+    /// True after a door block's reaction has selected a normal destination door and
     /// before the frontend's door-transition states consume it.
     /// </summary>
     public bool HasPendingDoorTransition => _room.LevelData?.PendingDoorTransition is not null;
 
-    /// <summary>The unconsumed door selected by the door-block collision handler.</summary>
+    /// <summary>The unconsumed door selected by a door block's collision reaction.</summary>
     public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
 
     /// <summary>
@@ -727,11 +727,11 @@ internal sealed class RoomLoader
             _system.StoredExploredMaps.LoadLiveMap(room.Area);
         }
 
-        // The door transition promotes a departing elevator's global status from one to
-        // two after the destination room objects, door code, and door setup have been created. The
+        // The door transition promotes a departing elevator's global status from
+        // ElevatorActorStatus.Departing to ElevatorActorStatus.BeginArrivalReturn after the destination room objects, door code, and door setup have been created. The
         // room load initializes enemies in the same call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
-        // must see two and place itself at its arrival height instead of clearing the journey.
+        // must see the arrival and place itself at its arrival height instead of clearing the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
@@ -742,7 +742,7 @@ internal sealed class RoomLoader
 
         // The door's scroll has already placed Samus before the destination room is
         // constructed. This ordering is observable for elevator arrivals:
-        // The elevator's initialization sees status two, moves the platform to its arrival height, and then pins
+        // The elevator's initialization sees the arrival, moves the platform to its arrival height, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that attachment and exposed the upward arrival one row too low.
         _player.Samus.Position = placement.SamusPosition;
@@ -1160,14 +1160,14 @@ internal sealed class RoomLoader
         // enemy graphics index here previously recolored the level-data concealer teal.
         _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
-        // The locked Ceres-start frame handler still publishes the initial minimap. The
+        // The locked Ceres start's frame still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
 
-        // Samus's Ceres-start control setup installs a locked frame handler. Reuse the
+        // Samus's Ceres-start control setup locks her movement. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
         // elevator arrival sequence has been modelled.
         _player.GroundedSamusMovementEnabled = false;

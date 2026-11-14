@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pendulum terrain interaction, collision kicks, and release.
 /// </summary>
 /// <remarks>
-/// The retail game does not run grapple physics through the grappling movement type's tiny handler.
-/// The grapple beam's handler updates the pendulum before the normal movement phase
+/// The retail game does not run grapple physics through the grappling movement type's own movement.
+/// The grapple beam's step updates the pendulum before the normal movement phase
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
 /// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pass to shake the enemy launched from. The firing-only Draygon-turret damage and both behaviour-indexed swing
 /// spike-damage tables are applied through the shared periodic damage.
 /// Grapple's narrower water flag and persistent environment-selected
-/// release handler are kept apart from ordinary aerial movement.
+/// release are kept apart from ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -58,7 +58,7 @@ public static class SamusGrappleMovement
         grapple.Angle = launch.Angle;
         grapple.MirroredAngle = grapple.Angle;
 
-        // Firing selects run offsets solely for movement type one. Moonwalking is
+        // Firing selects run offsets solely for <see cref="SamusMovementType.Running"/>. Moonwalking is
         // distinct moonwalking type, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
@@ -95,7 +95,7 @@ public static class SamusGrappleMovement
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Fire);
         // The grapple's firing sound, like a beam shot's, cancels a pending resume of the charging sound (#1689).
         samus.ResumeChargingBeamSoundPending = false;
-        // Firing again ends the released-from-swing movement handler, so
+        // Firing again ends the released-from-swing movement, so
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;
         // The game has two easily conflated coordinate pairs. Start is the hand/rope
@@ -147,7 +147,7 @@ public static class SamusGrappleMovement
 
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision producer sets the
-        // enemy's common grapple-handler flag; this consumer reads only the definition's
+        // enemy's common grapple-response flag; this consumer reads only the definition's
         // seven common reaction indexes. Kill/no-interaction deliberately fall through to
         // terrain, exactly like the zero result of their reactions.
         if (enemyCollision is not null)
@@ -219,7 +219,7 @@ public static class SamusGrappleMovement
 
         // The rope collision does not stop when an intermediate probe reports a solid block it
         // does not connect to. It executes all four quarter-velocity probes and returns only the
-        // fourth reaction to the firing handler. At high running speed a thin solid cell can
+        // fourth reaction to the firing step. At high running speed a thin solid cell can
         // therefore be sampled and then cleared before the caller decides whether to
         // cancel. Green Hill Zone's Grapple/Speed Booster gate exploit depends on this
         // general game ordering; it is not a gate-specific collision exception.
@@ -236,7 +236,7 @@ public static class SamusGrappleMovement
     /// Executes the post-phase liquid-bit update.
     /// </summary>
     /// <remarks>
-    /// Grapple physics reads this bit during a phase and the handler rewrites it only
+    /// Grapple physics reads this bit during a phase and the grapple beam's step rewrites it only
     /// afterward, so callers invoke this exactly once at the end of the pass. The
     /// explicit phase set mirrors the phase-range test: release, cancel, dropped,
     /// wall-jump, and inactive phases all clear liquid physics immediately.
@@ -266,13 +266,13 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.ReleaseFromSwing)
         {
             // The release cleanup executes on the frame after the swing queued it. The launch velocity
-            // was already published, so this pass changes art/handlers and clears grapple.
+            // was already published, so this pass changes art and movement and clears grapple.
             SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Level, samus, grapple, poseChange == GrapplePoseChange.Deferred);
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
-        // These are the game's own grapple phases. Each handler owns the whole
-        // grapple movement phase, so dispatch it before entering ordinary pendulum integration.
+        // These are the game's own grapple phases. Each phase owns the whole
+        // grapple movement phase, so run it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
             return StepLocked(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrab)
@@ -304,9 +304,9 @@ public static class SamusGrappleMovement
             }
 
             SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
-            // The release installs the released-from-swing movement handler immediately. The beam remains in
+            // The release hands her movement to the released-from-swing movement immediately. The beam remains in
             // its one-frame release-cleanup phase, but movement already uses the
-            // independent release handler during this same gameplay frame.
+            // independent release movement during this same gameplay frame.
             grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(grapple.Phase);
@@ -370,7 +370,7 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
 
-        // The locked handler does no pendulum work. It merely retains the frozen pose while Shoot
+        // The locked phase does no pendulum work. It merely retains the frozen pose while Shoot
         // remains held and either an enemy or the stored block still supports the endpoint.
         bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
@@ -495,7 +495,7 @@ public static class SamusGrappleMovement
 
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
-        // square slopes, behaviour dispatch, available distance, and enemy identity.
+        // square slopes, block behaviour, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
@@ -676,7 +676,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Dispatches the endpoint block and extensions, including room-object effects, into what the block does to the beam:
+    /// Resolves the endpoint block and extensions, including room-object effects, into what the block does to the beam:
     /// lets it pass, stops it, or connects it.
     /// </summary>
     internal static GrappleBlockReaction ReactAtEndpoint(
@@ -688,7 +688,7 @@ public static class SamusGrappleMovement
         RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
         if (block.Position is null)
         {
-            // The edge-solid block outside the room dispatches as an ordinary solid endpoint: it stops
+            // The edge-solid block outside the room reacts as an ordinary solid endpoint: it stops
             // the beam without connecting, which queues grapple cancellation.
             return GrappleBlockReaction.Solid;
         }
@@ -706,7 +706,7 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Passes;
 
                 // Slopes and these solid-family entries stop the beam without connecting,
-                // which makes the firing handler queue cancellation rather than establish a rope.
+                // which makes the firing step queue cancellation rather than establish a rope.
                 case RoomCollisionType.Slope:
                 case RoomCollisionType.SolidBlock:
                 case RoomCollisionType.DoorBlock:
@@ -822,7 +822,7 @@ public static class SamusGrappleMovement
                         {
                             throw new UnmodeledBehaviorException(
                                 $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
-                                $"Grapple shootable dispatch type {block.CollisionType}/behaviour ({block.Behavior}) " +
+                                $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
                                 $"at block {block.Position} has no translated table entry.",
                                 error);
                         }
@@ -1161,7 +1161,7 @@ public static class SamusGrappleMovement
         return direction;
     }
 
-    /// <summary>Firing branch of the grapple handler, before the selected grapple phase runs.</summary>
+    /// <summary>Firing branch of the grapple beam's step, before the selected grapple phase runs.</summary>
     internal static GrappleMovementResult? HandleFiringPoseChange(
         RoomLevelData level, SamusState samus, ControllerButton controllerInput)
     {
@@ -1174,7 +1174,7 @@ public static class SamusGrappleMovement
             if (direction == grapple.FireDirection) return null;
             if (grapple.PoseChangeAutoFireTimer != 0)
             {
-                // The game changes the phase before dispatch: restart from
+                // The game changes the phase before running it: restart from
                 // the current pose and hand position this frame, without extending.
                 // Do not steer an old endpoint or override the pose from held aim keys.
                 QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.RestartStop);
@@ -1184,7 +1184,7 @@ public static class SamusGrappleMovement
             }
         }
         // Unlike a cancellation requested inside the extension phase, this
-        // decision precedes dispatch, so the cancel phase runs immediately.
+        // decision precedes running the phase, so the cancel phase runs immediately.
         grapple.Phase = GrapplePhase.CancelPending;
         return CompleteFiringCancellation(level, samus);
     }

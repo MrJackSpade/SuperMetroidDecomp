@@ -612,7 +612,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // The handler is chosen before movement: the handler of the category selected before the cursor moved toggles the item
         // the cursor has just moved onto.
-        // A press handled from the boots column onto Plasma therefore bypasses the beam handler's Spazer/Plasma
+        // A press handled from the boots column onto Plasma therefore bypasses the beam column's Spazer/Plasma
         // exclusion. Do not add a category guard that corrects this: the retail game has none. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
@@ -847,7 +847,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve-transfer handler.</summary>
+    /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve transfer's step.</summary>
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
     /// <summary>Runs the tank subdispatcher before its D-pad response.</summary>

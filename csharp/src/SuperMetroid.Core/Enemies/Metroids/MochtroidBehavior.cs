@@ -213,7 +213,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             _collision.ResolveNormalEnemyTouch(slot, samus);
         }
 
-        // Unlike every ordinary contact handler, Mochtroid immediately cancels the timers
+        // Unlike every ordinary contact response, Mochtroid immediately cancels the timers
         // installed by common touch AI. Samus remains attached rather than entering a normal
         // invincibility/knockback grace period, permitting another 80-contact drain cycle.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

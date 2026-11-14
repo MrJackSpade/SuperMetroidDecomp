@@ -142,7 +142,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         }
     }
 
-    /// <summary>Records that <paramref name="library"/>'s ready handler requested <paramref name="sound"/>; it then awaits its acceptance.</summary>
+    /// <summary>Records that <paramref name="library"/>'s ready queue requested <paramref name="sound"/>; it then awaits its acceptance.</summary>
     /// <param name="library">The library asked.</param>
     /// <param name="sound">The sound dequeued for it.</param>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>

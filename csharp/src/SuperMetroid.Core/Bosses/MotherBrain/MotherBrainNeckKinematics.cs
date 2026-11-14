@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's shared neck math. Both the live room-enemy actor
-/// and the later rainbow-beam sequence use these exact angle handlers; keeping them here
+/// and the later rainbow-beam sequence use these exact angle steps; keeping them here
 /// prevents the two encounter halves from slowly acquiring different articulation rules.
 /// </summary>
 internal static class MotherBrainNeckKinematics

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Ordered pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesLate
 {
-    /// <summary>Dispatches the later pose tables in game order, separating held chords from new presses.</summary>
+    /// <summary>Runs the later pose tables in game order, separating held chords from new presses.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, ControllerButton held, ControllerButton newlyPressed) => inputList switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),

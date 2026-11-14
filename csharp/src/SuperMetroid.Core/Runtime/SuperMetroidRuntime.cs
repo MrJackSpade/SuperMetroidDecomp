@@ -533,7 +533,7 @@ internal sealed class SuperMetroidRuntime
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // takes over her movement while the already-spawned blast continues normally.
-        // Its cleanup resumes Samus's sounds, which can queue them before the Samus handler.
+        // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
             Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
     }
@@ -582,7 +582,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null)
         {
             Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
-            // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary shake handler later in
+            // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
             // this frame so its first displacement is visible immediately.
             if (Room.LoadedScope.FxOverlay.SustainedEarthquake is { } risingLiquidShake)
                 Room.LoadedScope.Enemies.Earthquake.Sustain(risingLiquidShake);
@@ -654,7 +654,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Starts the frame's sprite list for its draw pass.</summary>
     private void BeginSpriteFrame()
     {
-        // The main loop starts the sprite list before dispatching the game state and closes it
+        // The main loop starts the sprite list before running the game state and closes it
         // afterward. Samus is drawn before the escape timer so she keeps her normal overlap
         // precedence.
         Sprites.BeginFrame();
@@ -713,7 +713,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Parks the frame's tail when a room object opened a message box; returns whether it did.</summary>
     private bool SuspendTailForMessageBox(GameplayFrameContext context)
     {
-        // The message runs inside the room-object handler: the rest of this gameplay
+        // The message runs inside the room objects' step: the rest of this gameplay
         // frame (enemy-projectile collision, scrolling, drawing, room main and the shared
         // tail) resumes only after the box closes, after the item's step finishes.
         if (context.Tail is not { } suspendedTail || !MessageBox.IsActive)
@@ -723,7 +723,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// The remainder of a main-gameplay update after the room-object handler. A frame whose room-object
+    /// The remainder of a main-gameplay update after the room objects' step. A frame whose room-object
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
     internal RuntimeFrameResult FinishGameplayFrame(
@@ -791,14 +791,14 @@ internal sealed class SuperMetroidRuntime
     private void StepCeresElevatorArrival(SamusState samus, bool deathOwnsSamus)
     {
         // Main gameplay runs enemy projectiles immediately after Samus's
-        // movement handler and before the main scrolling. The two fresh-Ceres actors
+        // movement phase and before the main scrolling. The two fresh-Ceres actors
         // use that slot to lower Samus one pixel at a time; moving this call below the
         // camera would make the viewport trail one frame behind the game.
         if (!deathOwnsSamus && Room.CeresElevatorArrival is { IsComplete: false } arrival)
         {
             if (arrival.Step(samus))
             {
-                // The arrival's Samus lock installed a locked Samus handler before the projectiles
+                // The arrival's Samus lock locked Samus's control before the projectiles
                 // were spawned. Re-enable the ordinary movement path only
                 // after the pad reaches its deletion height.
                 samus.Control.Unlock();
@@ -825,10 +825,10 @@ internal sealed class SuperMetroidRuntime
             var currentCameraPoint = samus.Position;
 
             // The main gameplay state runs the main scrolling after movement and room objects and before
-            // drawing Samus, enemies and projectiles, regardless of which Samus input handler is
-            // installed. A locked input mode suppresses controller transitions; it does not
+            // drawing Samus, enemies and projectiles, whichever input mode Samus's control has
+            // selected. A locked input mode suppresses controller transitions; it does not
             // suppress scrolling. That is why the gunship arriving on Zebes can carry
-            // Samus down several screens while her ordinary movement handler is absent.
+            // Samus down several screens while her ordinary movement owner is absent.
             if (samus.Grapple.SlowScrolling)
             {
                 // A fast grapple swing takes the slow camera branch, which leaves
@@ -888,7 +888,7 @@ internal sealed class SuperMetroidRuntime
 
         RoomScope scope = Room.LoadedScope;
         ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
-            // The stationary lock's movement mode does not dispatch Samus's
+            // The stationary lock's movement mode does not run Samus's
             // palette effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
             tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
@@ -936,7 +936,7 @@ internal sealed class SuperMetroidRuntime
             // The HUD update rebuilds live energy/ammo cells every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next frame boundary.
-            // The room-object handler has not returned while a pickup message is open.
+            // The room objects' step has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Room.LoadedScope.RoomObjects.CollectibleObjects.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(Player.Samus, AudioRequests, Freeze.TimeIsFrozen);
@@ -991,8 +991,8 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay decrements these timers after Samus, enemies, drawing, HUD/background
         // bookkeeping, the room's own update, the energy-zero check, and room shaking. Keep this
-        // shared tail out of individual movement handlers: in particular, grapple spike
-        // reactions set the knockback timers without installing the knockback handler.
+        // shared tail out of individual movement owners: in particular, grapple spike
+        // reactions set the knockback timers without handing her movement to the knockback.
         // Death game states do not execute the gameplay-state tail at all.
         if (Player.Samus is not null && !Player.Samus.DeathSequence.IsActive)
         {
@@ -1085,8 +1085,8 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Gameplay-frame state the remainder of a main-gameplay update reads after the room-object handler.
-    /// The message runs inside that handler, so a room object that opens a box
+    /// Gameplay-frame state the remainder of a main-gameplay update reads after the room objects' step.
+    /// The message runs inside that step, so a room object that opens a box
     /// suspends the frame; the model parks this state until the box closes.
     /// </summary>
     /// <param name="Mode">The frame's installed input and movement modes.</param>
@@ -1151,8 +1151,8 @@ internal sealed class SuperMetroidRuntime
             return Snapshot(infiniteAmmoGuard);
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope);
-        // The room-object handler returns once the box and its item's step finish; the
-        // parked remainder of that gameplay frame runs now, in this same dispatch.
+        // The room objects' step returns once the box and its item's step finish; the
+        // parked remainder of that gameplay frame runs now, in this same update.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;

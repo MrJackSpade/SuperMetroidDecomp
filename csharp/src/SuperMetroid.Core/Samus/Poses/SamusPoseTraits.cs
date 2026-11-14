@@ -259,14 +259,14 @@ internal static class SamusPoseTraits
     };
 
     /// <summary>
-    /// The pose's movement type, from the pose definition's movement entry, which selects the movement handler: its
+    /// The pose's movement type, from the pose definition's movement entry, which selects how she moves: its
     /// authored movement, or what an unauthored pose reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose has no movement type, so no handler runs it.</exception>
+    /// <exception cref="InvalidDataException">The pose has no movement type, so no movement runs it.</exception>
     internal static SamusMovementType ReadMovement(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
             ? unauthored.Movement ?? throw new InvalidDataException(
-                $"Pose {pose} has no movement type; no movement handler runs it.")
+                $"Pose {pose} has no movement type; no movement runs it.")
             : ReadAuthoredMovement(pose);
 
     /// <summary>An authored pose's movement type.</summary>

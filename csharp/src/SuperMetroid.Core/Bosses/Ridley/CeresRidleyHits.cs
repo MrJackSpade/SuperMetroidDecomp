@@ -28,7 +28,7 @@ internal sealed class CeresRidleyHits
 
     /// <summary>
     /// Runs Ceres Ridley's shot-overlap seam against the five ordinary Samus
-    /// projectile slots. The shot handler increments a dedicated counter and never
+    /// projectile slots. The shot response increments a dedicated counter and never
     /// subtracts enemy health; the projectile owner performs its normal explosion change.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
@@ -184,7 +184,7 @@ internal sealed class CeresRidleyHits
                 $"{RidleyReactions.FrameHitboxTouch} from map {slot.Frame}.");
         }
 
-        // Ridley's touch enters the common no-death-check handler. That distinction matters for
+        // Ridley's touch enters the common touch response that does not check for death. That distinction matters for
         // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
         // to select the forced zero-health lunge and grab Samus for the authored death.
         _collision.ResolveNormalEnemyTouch(

@@ -42,7 +42,7 @@ internal sealed class StationObjects
 
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does
-    /// not restore the normal Samus handlers; leaving the automatically opened map does,
+    /// not restore Samus's normal control; leaving the automatically opened map does,
     /// through the station lock's release on unpause (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
@@ -57,7 +57,7 @@ internal sealed class StationObjects
         }
     }
 
-    /// <summary>Station messages/actions emitted by the most recent room-object handler pass.</summary>
+    /// <summary>Station messages/actions emitted by the most recent room-object step.</summary>
     public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
         _stationActivationEvents;
 
@@ -374,8 +374,8 @@ internal sealed class StationObjects
                 station.AccessBehavior = access;
 
                 // The arm-cannon line-up check runs in setup,
-                // before the common room-object handler advances the resident access sequence. This
-                // distinction is observable in G-Mode: the disabled handler cannot start
+                // before the common room-object step advances the resident access sequence. This
+                // distinction is observable in G-Mode: the disabled step cannot start
                 // or finish the animation, but Samus is already movement-locked and the
                 // station therefore softlocks. The save trigger only advances its
                 // resident sequence and does not run the line-up check at this setup seam.

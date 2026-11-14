@@ -142,7 +142,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
 
-    /// <summary>The most recent charged-shot palette sub-handler result.</summary>
+    /// <summary>The most recent charged-shot colour step result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
     {
         get => Charge.LastBeamChargePaletteStep;
@@ -194,8 +194,8 @@ public sealed class SamusProjectileSystem
     /// Samus's colours, which the next displayed frame shows, so the same colours
     /// are written at this phase.
     /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
-    /// handlers afterward unless glow expiry returns the normal-suit restoration action.
-    /// That action models the restore branch, bypassing special handlers for one frame.
+    /// colouring afterward unless glow expiry returns the normal-suit restoration action.
+    /// That action models the restore branch, bypassing special colouring for one frame.
     /// </remarks>
     /// <param name="colours">Samus's shown colours.</param>
     /// <param name="samus">Samus.</param>
@@ -255,7 +255,7 @@ public sealed class SamusProjectileSystem
         {
             // The flash counts its step down before its zero test. Starting at four therefore produces
             // white on steps 3, 2, and 1. Step 1 -> 0 takes the restore branch, causing
-            // the outer handler to restore the complete suit palette on the fourth call.
+            // the outer colour step to restore the complete suit palette on the fourth call.
             glow = glow.Stepped();
             if (glow.RemainingSteps == 0)
             {
@@ -288,7 +288,7 @@ public sealed class SamusProjectileSystem
         int glowStep = glow.RemainingSteps / 2;
         if (glowStep == 0)
         {
-            // The glow's final call, at step zero, ends it and reports it finished so the outer handler performs the
+            // The glow's final call, at step zero, ends it and reports it finished so the outer colour step performs the
             // suit copy.
             Charge.ChargedShotGlow = ChargedShotGlow.None;
             ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
@@ -327,7 +327,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD handler, which the game runs before it
+    /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD item step, which the game runs before it
     /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
     /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
     /// </summary>
@@ -345,11 +345,11 @@ public sealed class SamusProjectileSystem
         SoundEffectId? queuedSound = null;
         SoundRequestPriority? queuedSoundMaximum = null;
 
-        // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
-        // share the beam producer; index one reaches the missile producer. Ball poses still
-        // dispatch to the companion bomb owner, and the debug grapple route disables this
+        // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
+        // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
+        // go to the companion bomb owner, and the debug grapple route disables this
         // producer explicitly while it owns Shoot.
-        // The forward-facing HUD handler branches straight to projectile handling for either
+        // The forward-facing HUD step branches straight to projectile handling for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
         // Spin, wall-jump, hurt and special movement use the jumping HUD selection mode, not
@@ -360,11 +360,11 @@ public sealed class SamusProjectileSystem
         SamusHudSelectionMode hudMode = SamusHudObservations.SelectionMode(SamusPoseMetadata.ReadMovementType(samus));
         bool preservesJumpCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudMode == SamusHudSelectionMode.Jump;
-        // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
+        // The turning HUD step waits for an explicit pose-initializer muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
         bool preservesTurnCharge = hudMode == SamusHudSelectionMode.Turning &&
             samus.PendingTransitionShot is null;
-        // Posture-transition dispatch preserves the carried charge during morph art;
+        // The posture-transition HUD step preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their beam producer.
         bool preservesPostureCharge = hudMode == SamusHudSelectionMode.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
@@ -373,7 +373,7 @@ public sealed class SamusProjectileSystem
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             // The X-ray HUD item fires the normal beam when selected X-ray's Run
-            // action is released. Holding Run owns this dispatch even if setup is
+            // action is released. Holding Run owns this step even if setup is
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
             bool xrayBeamFallback = samus.SelectedHudItem == HudItem.XRay &&
@@ -519,7 +519,7 @@ public sealed class SamusProjectileSystem
             {
                 // The charged Chainsaw shot's frame behaviour is not game code: the game runs Samus's
                 // changing state as its frame behaviour (UnauthoredBeamFrameBehaviors). The model cannot
-                // run changing data, so it fails at the frame-behaviour dispatch instead of silently
+                // run changing data, so it fails at the frame behaviour's selection instead of silently
                 // substituting Wave motion.
                 throw new NotSupportedException(
                     "A charged Chainsaw shot's frame behaviour is read from Samus's changing state and runs whatever " +
@@ -541,7 +541,7 @@ public sealed class SamusProjectileSystem
             }
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
-            // explosion's first frame is selected in this same handler pass.
+            // explosion's first frame is selected in this same projectile pass.
             if (slot.Playback is not null)
                 projectileDeleted |= Animation.AdvanceProjectileAnimation(slot);
         }
@@ -556,13 +556,13 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
 
         if (!Charge.IsCharging)
-            return default;
+            return ChargeFlareComponents.None;
 
         if (samus.HyperBeamEnabled)
         {
             // Hyper Beam replaces the ordinary flare's animations with a backward count through the components'
             // pictures, fast sparks first, then slow sparks, then the main flare.
-            var hyper = new ChargeFlareComponents(3, Descending: true);
+            ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
                 CountdownStep hold = Charge.CountFlareHold(component);
@@ -597,9 +597,9 @@ public sealed class SamusProjectileSystem
             Charge.StartChargeFlare();
         }
         if (Charge.FlareCounter < 15)
-            return default;
+            return ChargeFlareComponents.None;
 
-        var shown = new ChargeFlareComponents(Charge.FlareCounter < 30 ? 1 : 3, Descending: false);
+        ChargeFlareComponents shown = Charge.FlareCounter < 30 ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
         foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
         return shown;

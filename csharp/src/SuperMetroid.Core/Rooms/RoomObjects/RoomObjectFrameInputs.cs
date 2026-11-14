@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>What the room-object handler reads from the rest of the frame: scroll zones, enemy deaths and quota, newly pressed input, collected items and whether a Power Bomb explosion is running (#633).</summary>
+/// <summary>What the room objects' step reads from the rest of the frame: scroll zones, enemy deaths and quota, newly pressed input, collected items and whether a Power Bomb explosion is running (#633).</summary>
 public readonly record struct RoomObjectFrameInputs
 {
     /// <summary>Scrolls.</summary>

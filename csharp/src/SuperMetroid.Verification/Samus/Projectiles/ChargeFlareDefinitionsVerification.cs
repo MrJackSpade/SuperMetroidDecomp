@@ -141,7 +141,7 @@ internal static class ChargeFlareDefinitionsVerification
                         expectedLit = false;
                 }
                 ChargeFlareComponents shown = hyper.AdvanceChargeFlare(samus);
-                AssertEqual(new ChargeFlareComponents(3, Descending: true), shown, "The Hyper Beam's flare shows every component, fast sparks first");
+                AssertEqual(ChargeFlareComponents.HyperBeamFlare, shown, "The Hyper Beam's flare shows every component, fast sparks first");
                 AssertTrue(expectedPhases.Select(phase => (int)phase).SequenceEqual(hyper.Charge.FlarePhases)
                     && expectedHolds.SequenceEqual(hyper.Charge.FlareHolds.Select(hold => hold.RawValue))
                     && expectedLit == hyper.Charge.HyperBeamFlare,

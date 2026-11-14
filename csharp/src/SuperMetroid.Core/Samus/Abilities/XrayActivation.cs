@@ -6,6 +6,6 @@ public enum XrayActivation
     /// <summary>The beam begins at once.</summary>
     Immediate,
 
-    /// <summary>The beam begins at the HUD-item handler's deferred point in the frame.</summary>
+    /// <summary>The beam begins at the HUD item's deferred point in the frame.</summary>
     Deferred,
 }

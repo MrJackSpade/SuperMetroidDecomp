@@ -66,7 +66,7 @@ internal static class IntroSamusDemoMovement
         }
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
-            // The demo handler has written its held buttons into the controller input that
+            // The demo's input phase has written its held buttons into the controller input that
             // the standing animation tests, so a held shot holds the standing animation here too.
             movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
                 heldInput);

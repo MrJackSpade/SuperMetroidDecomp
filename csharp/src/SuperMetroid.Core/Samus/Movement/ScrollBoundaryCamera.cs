@@ -5,10 +5,10 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The camera position constrained by Super Metroid's directional scroll-zone handlers.
+/// The camera position constrained by Super Metroid's directional scroll-zone checks.
 /// </summary>
 /// <remarks>
-/// The four directional handlers are the game's four scroll-boundary handlers. Samus's horizontal and vertical
+/// The four directional checks are the game's four scroll-boundary checks. Samus's horizontal and vertical
 /// tracking, run by the gameplay update's scrolling, supply the proposed position, ideal position and camera speed
 /// they read.
 /// </remarks>
@@ -158,7 +158,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.
     /// Integer movement follows the facing-dependent camera target;
-    /// an unchanged integer position dispatches to autoscrolling exactly
+    /// an unchanged integer position falls through to autoscrolling exactly
     /// as the game does (subpixel-only Samus movement still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
@@ -292,7 +292,7 @@ public sealed class ScrollBoundaryCamera
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
         // The game returns if either half of the time-freeze flag is set. Keep this gate local to the two autoscrollers;
-        // the directional moved-Samus handlers themselves have no freeze check.
+        // the directional moved-Samus checks themselves have no freeze check.
         if (timeIsFrozen)
             return;
 

@@ -47,7 +47,7 @@ internal sealed class BeamCombos
         sound = null;
         if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
         SamusBeamCombination beam = SamusBeamCombinations.Of(samus.EquippedBeams);
-        // A Spazer and Plasma combination indexes the special-attack dispatch past its twelve entries, into the angles
+        // A Spazer and Plasma combination indexes the special attacks past its twelve entries, into the angles
         // the Ice and Plasma attacks start their slots at. Read as places to continue the attack, those angles lead into the game's live state, so the
         // game executes that state as code, which only full memory and processor emulation could reproduce: the
         // attack is rejected under the emulation scope limit (#1500).

@@ -605,7 +605,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             Missiles = 900,
             MaxMissiles = 900,
         };
-        // Shared Samus handlers read the active cinematic phase to select
+        // Samus's shared frame phases read the active cinematic phase to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
@@ -716,7 +716,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
 
         // The old gameplay objects have reached their delete animations. Releasing the scoped
-        // references prevents their projectile/collision handlers from running behind the
+        // references prevents their projectile and collision steps from running behind the
         // new scene while preserving the shared artwork and colours they intentionally reuse.
         CurrentFlashbackSamus = null;
         CurrentFlashbackMotherBrain = null;
@@ -924,7 +924,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
         }
 
-        // Both the demo and locked handlers end by resetting the
+        // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own dispatch.
         SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
@@ -932,8 +932,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Runs the movement/animation/interruption/palette slice of the intro-demo
-    /// handler, followed by the timer owner.
+    /// Runs the movement/animation/interruption/palette slice of the intro demo's
+    /// movement phase, followed by the timer owner.
     /// </summary>
     private void StepMotherBrainFlashbackSamus()
     {
@@ -951,7 +951,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool groundedDemoStepped = false;
         if (samus.KnockbackActive)
         {
-            // The intro-demo handler dispatches the installed knockback movement handler. Its shared
+            // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
             SamusKnockbackMovement.Step(level, samus, frameCounter);
         }
@@ -992,13 +992,13 @@ level, samus, frameCounter);
                 frameCounter);
         }
 
-        // Intro-demo state is not an animation shortcut. The intro-demo handler advances the same
+        // Intro-demo state is not an animation shortcut. The intro demo's movement phase advances the same
         // animation delays as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = frameCounter, Random = Random });
 
         // The pose animation's transition steps publish a prospective pose; they are not ordinary frame
-        // delays. The intro-demo handler consumes that publication before the value following the step
+        // delays. The intro demo's movement phase consumes that publication before the value following the step
         // can ever be misread as another animation duration. This completes landing art's
         // transition from NormalLandingLeftPose to FacingLeftNormalPose instead of walking beyond its pose animation.
         bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
@@ -1020,7 +1020,7 @@ level, samus, frameCounter);
             transitionAccepted = true;
         }
 
-        // The intro-demo handler consumes the timer published by Rinka zero on the preceding cinematic-
+        // The intro demo's movement phase consumes the timer published by Rinka zero on the preceding cinematic-
         // sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&

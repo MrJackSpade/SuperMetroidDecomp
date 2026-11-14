@@ -67,7 +67,7 @@ public sealed class SamusVisorPaletteState
             return;
         }
 
-        // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
+        // The visor's colour step reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int shade = NextShade;
         colours.ShowVisor(SamusShades.Visor(shade));

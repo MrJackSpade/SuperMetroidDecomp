@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -65,7 +66,7 @@ internal sealed class ShallowWaterJumpScenario
             FixedCoordinate y = Samus.Kinematics.Position.Y;
             if (y.Whole < apex.Whole || (y.Whole == apex.Whole && y.Fraction < apex.Fraction))
                 apex = y;
-            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.YSpeed.RawValue:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
+            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.YSpeed.RawValue:X8},{SamusVerticalDirectionCodec.ToNative(Samus.Kinematics.YDirection)},{Samus.Kinematics.Radius.Y},{SamusLiquidMediumCodec.ToNative(Samus.LiquidPhysics.LiquidPhysicsType)}");
         }
         return new JumpTrace(rows, apex);
     }

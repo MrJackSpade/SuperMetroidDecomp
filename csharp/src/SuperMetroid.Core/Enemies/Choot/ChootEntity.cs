@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>One Choot occupant: its own AI handlers, with the shared reactions.</summary>
+/// <summary>One Choot occupant: its own AI, with the shared reactions.</summary>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class ChootEntity(RoomEnemySlot slot, EnemyCommonParticipation common)

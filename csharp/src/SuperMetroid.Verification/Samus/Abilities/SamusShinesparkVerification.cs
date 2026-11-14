@@ -529,17 +529,18 @@ internal static void VerifySamusStoredShineAndShinespark()
         AssertEqual(128, compatibility.CrashOrbitTravel.Travel, "the wrapped travel climbs back to 128");
         AssertEqual(ShinesparkCrashOrbitStage.Contracting, samus.Shinespark.CrashOrbitStage, "travel 128 starts contracting");
 
-        // A departing echo seven short of the largest radius wraps to zero on its next expansion and is drawn on Samus.
+        // A departing echo's radius keeps growing past the lookup's 256 pixels; a radius that is a whole number of
+        // lookups places the echo on Samus again.
         AssertTrue(shots.Shinespark.ReleaseCrashEchoes(samus.Shinespark.FirstReleasedEcho, samus.Shinespark.SecondReleasedEcho,
                 new ShinesparkDepartureAngles(RotationAngle.Zero, RotationAngle.HalfTurn), SuperMetroid.Core.Progression.SamusBeamCombination.Power, samus.Position.Whole),
             "an empty shot pool releases both echoes");
         SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
-        echoShot.EchoRadius = SamusShinesparkState.LargestEchoRadius - 7;
+        echoShot.EchoRadius = 65528;
         shots.Shinespark.StepShinesparkEcho(samus, echoShot, new Position16<RoomPixels>(0, 0));
-        AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "a wrapped echo stays inside the viewport");
-        AssertEqual(0, echoShot.EchoRadius, "a departing echo's radius wraps past 65535 to zero");
-        AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a zero radius places the echo on Samus");
-        Console.WriteLine("Shinespark crash wraps: angular travel and departing echo radius wrap past 65535 to zero.");
+        AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
+        AssertEqual(65536, echoShot.EchoRadius, "a departing echo's radius grows by eight past 65535");
+        AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a radius of whole lookups places the echo on Samus");
+        Console.WriteLine("Shinespark crash: angular travel wraps past 65535 to zero; a departing echo at whole lookups is on Samus.");
     }
 
     /// <summary>

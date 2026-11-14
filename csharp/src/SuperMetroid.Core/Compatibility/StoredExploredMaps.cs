@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Marked by the live map's exploration marks; stored and loaded at the door, save, file and landing points named above;
 /// consulted by the camera's scroll-boundary checks whenever one indexes past the scroll cells, during Samus's scrolling.
-/// Evidence: the camera's scroll handlers (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) index the scroll cells at
+/// Evidence: the camera's scroll steps (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) index the scroll cells at
 /// <c>$7E:CD20</c> with a row times the room width plus a column, and the eight stored maps (<c>$7E:CD52..D551</c>)
 /// follow the fifty cells; the maps are written only by the store and load routines (<c>$80:858C</c>, <c>$80:85C6</c>,
 /// the door transition's <c>$82:DF99</c>/<c>$82:DFB6</c> for doors whose elevator properties carry <c>$40</c>), the

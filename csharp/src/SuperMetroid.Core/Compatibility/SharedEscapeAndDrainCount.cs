@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Consulted by Crystal Flash's ammunition drain on every update of its main phase, by the escape handler on every counted
+/// Consulted by Crystal Flash's ammunition drain on every update of its main phase, by Draygon's escape check on every counted
 /// press while Draygon holds Samus, and written by the suit pickup's stage calls. Lifetime: Samus's; a new Samus starts at
 /// zero.
 /// </para>
 /// <para>
 /// Evidence: the original game keeps Crystal Flash's ammunition decrement timer, Draygon's escape press counter and the
-/// suit pickup's stage in one working word, which none of the three reloads from its own state, and the escape handler
+/// suit pickup's stage in one working word, which none of the three reloads from its own state, and the escape check
 /// compares that word with its target by a signed subtraction; the suit pickup carryover check reads the count after every
 /// stage call, and the Draygon grab check (<c>VerifySamusGrabbedByDraygon</c>) frees Samus from a count just short of
 /// that sign boundary and holds her from one past it.
@@ -32,7 +32,7 @@ public sealed class SharedEscapeAndDrainCount
     /// <summary>The count as Crystal Flash's ammunition countdown reads it.</summary>
     public WrappingCountdown AmmoCountdown => WrappingCountdown.Start(Count);
 
-    /// <summary>The count as Draygon's escape handler reads it: the presses counted toward the escape, 0 through 65535.</summary>
+    /// <summary>The count as Draygon's escape check reads it: the presses counted toward the escape, 0 through 65535.</summary>
     public int EscapePresses => Count;
 
     /// <summary>Restarts Crystal Flash's ammunition countdown.</summary>
@@ -54,7 +54,7 @@ public sealed class SharedEscapeAndDrainCount
     public void CountEscapePress() => Count = WrappingCounter.IncrementCount(Count);
 
     /// <summary>
-    /// Whether the escape presses have reached <paramref name="target"/>, as the escape handler tests them after a counted
+    /// Whether the escape presses have reached <paramref name="target"/>, as the escape check tests them after a counted
     /// press: by the sign of their difference from the target, so a count that is 32768 or more past the target, which
     /// only another sequence's value or a wrapped countdown left on the count can be, reads as below it (#1795).
     /// </summary>

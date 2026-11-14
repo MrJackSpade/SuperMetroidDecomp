@@ -41,7 +41,7 @@ internal sealed class ProjectileEnemyImpacts
 
         if (slot.Type.Family == SamusProjectileFamily.SuperMissile)
         {
-            // The collision walkers write the enemy-hit quake before dispatching the enemy's
+            // The collision walkers write the enemy-hit quake before running the enemy's
             // shot reaction. This remains observable even when gold Ninja armor ignores a
             // fresh, not-yet-linked Super Missile.
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EnemyHitEarthquake);
@@ -186,7 +186,7 @@ internal sealed class ProjectileEnemyImpacts
         {
             // Enemy collision only marks the direction. These particles own
             // hit deletion (and Spazer's paired deletion) in their next frame behaviour;
-            // replacing that handler with a beam explosion loses their family lifecycle.
+            // replacing that response with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
             ApplyEnemyCollisionPrelude(slot,
                 blocksPlasmaBeam || !slot.Type.BeamCombination.HasPlasma);

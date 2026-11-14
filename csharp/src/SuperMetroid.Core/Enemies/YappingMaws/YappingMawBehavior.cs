@@ -370,7 +370,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Unspinning Samus drops any active grapple;
         // its transitional pose must be committed before the Maw releases input. It normalizes
-        // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
+        // spin-jump/wall-jump bodies. Her input phase itself was already replaced by the
         // touch reaction; do not force unrelated falling/running poses to standing.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {

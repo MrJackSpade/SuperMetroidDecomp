@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Pose-to-input dispatch and selected-condition diagnostics; no stored transition rows.</summary>
+/// <summary>Pose-to-input lookup and selected-condition diagnostics; no stored transition rows.</summary>
 internal static class SamusPoseInputDefinitions
 {
     /// <summary>The lists in the later graph section, whose rules <see cref="SamusPoseInputRulesLate"/> holds.</summary>

@@ -19,7 +19,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("/// <summary>WRAM $07E1.</summary>\nclass P { }", "names the hardware or the debugger ('$07E1')");
         Expect("class P { /// <summary>$AA:C95E, the shared no-op movement step.</summary>\nvoid Step() { } }", "('$AA:C95E')");
         Expect("class P { void Run() { // copies the tiles to VRAM\n } }", "('VRAM')");
-        Expect("class P { /* the NMI handler */ }", "('NMI')");
+        Expect("class P { /* runs during the NMI */ }", "('NMI')");
         Expect("class P { string Name => \"OAM capacity\"; }", "('OAM')");
         Expect("class P { string Name => $\"{1} native words\"; }", "('native words')");
         Expect("class P { /// <summary>Reads the cartridge's banks.</summary>\nvoid Read() { } }", "('cartridge')");
@@ -52,7 +52,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // the instruction pointer moves on\n }", "('pointer')");
         Expect("class P { /* the opcode table */ }", "('opcode')");
         Expect("class P { // read from the X register\n }", "('X register')");
-        Expect("class P { /// <summary>Registers the spike's touch handler, registered once.</summary>\nvoid Run() { } }");
+        Expect("class P { /// <summary>Registers the spike's touch response, registered once.</summary>\nvoid Run() { } }");
         Expect("class P { // the 32 kHz clock\n }");
         Expect("class P { // the Assembly Line room's conveyor\n }");
         Expect("class P { int M(int a) => a; // cartridge-encoding: allow(HostPixelFormat) - the host's pixel layout\n }");
@@ -437,7 +437,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Neutral-jump hacks; not a visual alpha hack; the gamma correction, gamma curve and gamma value.</summary>\nint F => 0; }");
         // The original's routine handlers are read in every type (#1828): a handler call and a music, sound, colour-effect,
         // timer, sprite or state handler, spaced or hyphenated.
-        Expect("class P { /// <summary>Times this update processes the queue, including the extra handler call.</summary>\nint F => 0; }",
+        Expect("class P { /// <summary>Times this update processes the queue, including its handler call.</summary>\nint F => 0; }",
             "('handler call')");
         Expect("class P { // The box's last update makes two sound-handler calls\n }", "('sound-handler')");
         Expect("class P { /// <summary>The music requests waiting for the music handler.</summary>\nint F => 0; }", "('music handler')");
@@ -449,8 +449,23 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // one sound effect handler pass\n }", "('sound effect handler')");
         Expect(CompatibilityService + "/// <summary>Evidence: the sound handler accepts one request.</summary>\n[CompatibilityService(\"sound\")] class Sound { }",
             "('sound handler')");
-        // A handler alone or of another kind, calling a handler and a call alone are English.
+        // A handler named by the word before it, a handler pair and a dispatch point are read in every type too (#1855),
+        // spaced or hyphenated, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>The movement handler runs after the input handler.</summary>\nint F => 0; }", "('movement handler')");
+        Expect("class P { // the unable-to-stand handler keeps her crouched\n }", "('unable-to-stand handler')");
+        Expect("class P { /// <summary>One Alcoon occupant: its own AI handlers.</summary>\nint F => 0; }", "('AI handlers')");
+        Expect("class P { string Name => \"The room-object handler requires an active room.\"; }", "('room-object handler')");
+        Expect("class P { // the switched-to handler accepted the item\n }", "('switched-to handler')");
+        Expect("class P { // the knockback sub-handler runs first\n }", "('sub-handler')");
+        Expect("class P { /// <summary>Runs Beetom's custom touch handler.</summary>\nint F => 0; }", "('touch handler')");
+        Expect("class P { // restores the handler pair\n }", "('handler pair')");
+        Expect("class P { /// <summary>Runs at the same palette-update dispatch point.</summary>\nint F => 0; }", "('dispatch point')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the HUD handler runs before the projectile handler.</summary>\n[CompatibilityService(\"hud\")] class Hud { }",
+            "('HUD handler')");
+        // A handler alone or of another kind, calling a handler and a call alone are English, as are a handler after an
+        // article, determiner, pronoun, number or possessive, an unhandled-exception handler, a point and a dispatch.
         Expect("class P { /// <summary>An exception handler; the event handlers; the grapple beam's handler; calling a handler; a call.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Each handler; its handlers; two handlers; Kraid's handlers; an unhandled-exception handler; the next point; the dispatch.</summary>\nint F => 0; }");
         // C#'s Func delegate and a var declaration carry no number.
         Expect("class P { /// <summary>Takes a Func of the speed; var declarations stay; the variance holds.</summary>\nint F => 0; }");
         // The original's game state, load station and area numbers outside hardware owners (#1769), spaced or hyphenated,
@@ -572,5 +587,18 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect(CompatibilityService + "/// <summary>Evidence: the product reads the shared sine table.</summary>\n[CompatibilityService(\"circle\")] class Circle { }");
         // A sine, a cosine, a table and a unit alone, a turn's steps and a speed table are English.
         Expect("class P { /// <summary>The sine and cosine of the angle in steps of a turn; the speed table's next entry; a unit; the table.</summary>\nint F => 0; }");
+        // The original's numbering of Samus's movement outside hardware owners (#1856): a movement type, a mode, a
+        // collision result and a status by number, spaced or hyphenated, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>Morph-ball movement (movement type zero) bounces.</summary>\nint F => 0; }", "('movement type zero')");
+        Expect("class P { string Name => \"Spin-jump movement requires movement-type 3.\"; }", "('movement-type 3')");
+        Expect("class P { // acceleration modes one and two slow her; mode zero keeps the speed\n }", "('modes one')");
+        Expect("class P { /// <summary>Clears acceleration mode-2.</summary>\nint F => 0; }", "('mode-2')");
+        Expect("class P { // stops on collision result one\n }", "('collision result one')");
+        Expect("class P { /// <summary>Moves the elevator's status from one to two.</summary>\nint F => 0; }", "('status from one')");
+        Expect("class P { string Name => \"The elevator left status 0.\"; }", "('status 0')");
+        // A hardware owner may cite the numbering it reproduces.
+        Expect(CompatibilityService + "/// <summary>Evidence: movement type 6 reads collision result one.</summary>\n[CompatibilityService(\"type\")] class Type { }");
+        // A number that counts the noun after it, and a mode, type, result or status alone, are English.
+        Expect("class P { /// <summary>A mode two frames long; the movement type; one result; the elevator's status; status one or more.</summary>\nint F => 0; }");
     }
 }

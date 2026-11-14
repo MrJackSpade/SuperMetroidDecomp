@@ -83,7 +83,7 @@ internal sealed class BeamFiring
         const ControllerButton shoot = ControllerButton.X;
         _charge.PreviousCharge = _charge.Level;
 
-        // The fire handler gives the Hyper flag priority over Charge equipment. It still uses
+        // Firing gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
         // desktop-held button from allocating more frequently than the game.
         if (samus.HyperBeamEnabled)
@@ -114,7 +114,7 @@ internal sealed class BeamFiring
 
         if (samus.PendingTransitionShot is not null)
         {
-            // The charge handler forces release before testing held Shoot. This is why a
+            // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
@@ -133,7 +133,7 @@ internal sealed class BeamFiring
 
         if (held)
         {
-            // The charge handler increments through 120 and fires one ordinary shot on the first
+            // Charging increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
@@ -165,7 +165,7 @@ internal sealed class BeamFiring
             {
                 // The game tries the special beam attack only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
-                // failed family dispatch leaves charge intact, including its ammo debit.
+                // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -201,10 +201,9 @@ internal sealed class BeamFiring
         SamusState samus,
         BeamShot firing)
     {
-        // Charged firing's success path queues the indexed sound value even when an
-        // out-of-domain beam combination reads zero from the adjacent table. Allocation,
-        // not a nonzero sound request, distinguishes that success from the shared failure
-        // tail which cancels an audible charge. Murder Beam is the observable index-15
+        // Charged firing's success path queues the combination's charged sound even when the
+        // combination has none. Allocation, not a sound request, distinguishes that success from
+        // the shared failure tail which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)
             return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);
@@ -242,11 +241,10 @@ internal sealed class BeamFiring
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
 
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
+        // the fifth place holds. With every place held the shot is refused and the count is taken back.
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
         {
-            // Consistent state cannot arrive here. Match the producer's defensive rollback
-            // so an inconsistent count does not stay permanently above five.
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
         }
@@ -357,8 +355,7 @@ internal sealed class BeamFiring
 
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
         {
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
@@ -447,8 +444,7 @@ internal sealed class BeamFiring
         if (ammo == 0)
             return new BeamShot(null, null);
 
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        if (_slotTable.FindFreePlace() is not { } slotIndex)
             return new BeamShot(null, null);
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
@@ -512,7 +508,7 @@ internal sealed class BeamFiring
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        // The muzzle origin uses the running/moonwalk origin table for movement type one and for
+        // The muzzle origin uses the running/moonwalk origin table for SamusMovementType.Running and for
         // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;

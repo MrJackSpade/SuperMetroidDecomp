@@ -24,7 +24,7 @@ internal sealed class SamusFramePhases
     private readonly RuntimeArtwork _artwork;
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
-    /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
+    /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
@@ -34,7 +34,7 @@ internal sealed class SamusFramePhases
     private readonly FrameClock _clock;
     /// <summary>The runtime's assists; a shinespark reads whether Samus cannot die.</summary>
     private readonly ActiveAssists _assists;
-    /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
+    /// <summary>Owns the live Samus state and the selection of her input and movement modes.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
@@ -67,23 +67,23 @@ internal sealed class SamusFramePhases
         SamusProjectileSystem.LoadBeamPalette(_player.Colours, equippedBeams);
 
     /// <summary>
-    /// The grapple beam's step, reached from the HUD-selection dispatch of
+    /// The grapple beam's step, reached from the HUD selection of
     /// Samus's HUD-specific behaviour and projectiles in her input phase.
     /// It therefore runs before Samus's projectiles and before the enemies' main step,
     /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
     /// connected and release phases own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
-    private bool RunGrappleBeamHandler(SamusMovementMode movementMode, ISamusRoomObjects roomObjects, SamusProjectileSystem projectiles, RoomScope room)
+    private bool RunGrappleBeamStep(SamusMovementMode movementMode, ISamusRoomObjects roomObjects, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (_player.Samus is null || _room.LevelData is null)
-            throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
+            throw new InvalidOperationException("The grapple beam's step requires Samus and room collision data.");
         _player.LastGrappleMovement = null;
         bool grappleOwnsMovement = false;
         if (movementMode is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup)
         {
-            // The death sequence's game states do not call the ordinary Samus input/movement
-            // handlers. The death state advances later at the animation seam.
+            // The death sequence's game states do not run Samus's ordinary input and movement
+            // phases. The death state advances later at the animation seam.
         }
         else if (_player.Samus.Grapple.Phase == GrapplePhase.Firing)
         {
@@ -136,7 +136,7 @@ internal sealed class SamusFramePhases
         // The grapple's bottom-boundary check runs after every grapple phase, including inactive.
         // Swing calculations above therefore consumed last frame's bit; this write
         // publishes the current bottom-boundary result for the next frame exactly
-        // where the handler does.
+        // where the grapple beam's step does.
         SamusGrappleMovement.RefreshLiquidPhysicsFlag(_player.Samus);
         return grappleOwnsMovement;
     }
@@ -151,11 +151,11 @@ internal sealed class SamusFramePhases
 
     /// <summary>
     /// Runs the complete Samus-side X-ray admission path after the HUD has selected the
-    /// equipped scope and observed held Dash, matching the HUD's X-ray handler, its setup, and the X-ray spawn.
+    /// equipped scope and observed held Dash, matching the HUD's X-ray selection, its setup, and the X-ray spawn.
     /// </summary>
     /// <remarks>
     /// The HUD selection has already settled on X-ray this update. This still requires the X-ray Scope equipped
-    /// and passes the live dispatch game state (the pause darkening and unpause brightening states
+    /// and passes the live game state (the pause darkening and unpause brightening states
     /// also run this input phase but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
     /// setup logic.
@@ -230,7 +230,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// The movement mode installed for this movement phase: the first of death, the suit's empty movement mode, the stationary lock, the station lock,
-    /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
+    /// the attract demo, the gunship's mode and another lock that holds, otherwise the normal mode.
     /// </summary>
     private SamusMovementMode SelectedMovementMode(SamusControlFrame frame, SamusState samus)
     {
@@ -287,7 +287,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Block-inside detection samples the body after the input phase's radius update: a pose whose
         // radius grew in last frame's movement phase reaches air spikes with its new body now.
         // The stationary lock replaces the ordinary input mode with a locked one,
-        // which never dispatches block-inside detection. Automatic Reserve recovery
+        // which never runs block-inside detection. Automatic Reserve recovery
         // uses this exact lock; re-sampling spikes while it owns Samus changes the
         // post-recovery knockback window used by Shinespark Suit.
         if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked)
@@ -310,7 +310,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal input mode installed, so the normal input phase
-        // still runs cooldown, HUD switching and the HUD handler; only its
+        // still runs cooldown, HUD switching and the HUD item's step; only its
         // projectile-handling tail stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
         frame.SampleInputHandlingRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive);
@@ -318,14 +318,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             // The HUD selection update runs before the movement-type HUD projectile producer.
             // Consequently a Select edge can choose missiles and an X edge can
-            // fire one during this same input phase. Input-locked message/elevator
-            // handlers do not execute the normal selection owner.
-            // The switched-to handler of the item the loop settles on runs on every
+            // fire one during this same input phase. Input-locked message and elevator
+            // control does not run the normal selection owner.
+            // The selection step of the item the loop settles on runs on every
             // cancel or select edge, even one that leaves the selection unchanged.
             // Each clears the charge and restores suit colors, except grapple's
             // while a grapple is already active, which changes nothing.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                SamusHudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
+                SamusHudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemSelectionTookEffect &&
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
@@ -334,7 +334,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
-            // own pose handlers, superseding the input phase's ordinary pending pose.
+            // own pose and movement, superseding the input phase's ordinary pending pose.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
@@ -349,7 +349,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // X-ray's freeze disables enemy room.Projectiles, room objects, block animations,
             // and colour effects while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
-            // The bombs' share of the HUD handler runs the shared cooldown, then the morph ball's producer.
+            // The bombs' share of the HUD item's step runs the shared cooldown, then the morph ball's producer.
             if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
@@ -358,12 +358,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         }
 
-        frame.SampleGrappleOwnership(RunGrappleBeamHandler(frame.Mode.Movement, room.RoomObjects, room.Projectiles, room));
+        frame.SampleGrappleOwnership(RunGrappleBeamStep(frame.Mode.Movement, room.RoomObjects, room.Projectiles, room));
 
         if (frame.InputHandlingRuns)
         {
-            // The bomb half above has already decremented the shared projectile cooldown. The humanoid handler then
-            // dispatches the HUD producer, which fires and queues its sound, before the game handles any projectile: the
+            // The bomb half above has already decremented the shared projectile cooldown. Her standing form's step then
+            // runs the HUD producer, which fires and queues its sound, before the game handles any projectile: the
             // bombs, then the shots (#1620). Passing the live camera position also gives the projectile deletion check
             // its exact off-screen deletion window. The Spacetime beam's malformed frame-behaviour entry writes straight into
             // Samus's progression owners during this pass, so later consumers this frame, and saves, observe them.
@@ -391,7 +391,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Re-samples what the enemy pass can change before the movement phase dispatches: a cancelled prospective pose, the
+    /// Re-samples what the enemy pass can change before the movement phase runs: a cancelled prospective pose, the
     /// stationary-script lock, updated beam hits and the contact-damage index the movement phase clears.
     /// </summary>
     internal void RunPostEnemyMainResample(SamusControlFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
@@ -419,7 +419,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// Runs movement: clears the frame's movement results, runs the grapple-release mover, publishes
-    /// grapple's corrected camera point and the dispatch pose, then runs the installed movement owner.
+    /// grapple's corrected camera point and the frame-start pose, then runs the installed movement owner.
     /// </summary>
     private void RunMovement(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
@@ -1094,11 +1094,11 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // The movement table dispatches strictly through the pose definition's
+        // The movement table selects strictly by the pose definition's
         // movement type. Y direction is data consumed by the selected
-        // handler, never a replacement step. In particular, crouched
+        // movement, never a replacement step. In particular, crouched
         // left-to-right turn can retain downward direction while its type remains
-        // turning on the ground; treating it as turning while jumping sent it into the aerial turn's handler
+        // turning on the ground; treating it as turning while jumping sent it into the aerial turn's movement
         // and produced the live replay crash from issue 58.
         SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementKind(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
@@ -1139,7 +1139,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         // The knockback movement type's normal movement-table entry is this one. Active
         // knockback and Ceres ejection were intercepted above; this branch
-        // is their authentic one-frame normal-dispatch tail before 
+        // is their authentic one-frame normal movement tail before 
         // installs the input/no-input target chosen during the input phase.
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
@@ -1150,7 +1150,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _clock.Counter,
             roomObjects);
         _player.LastGroundedSamusMovement = new GroundedMovementResult(default, grounding);
-        // The normal knockback entry still publishes collision result one when its
+        // The normal knockback entry still publishes a landing when its
         // downward probe hits the floor. Reuse the ordinary landing seam
         // for presentation, pose selection and the landing's speed cleanup.
         if (grounding.Collided && !groundingDisplacement.IsNegative)
@@ -1164,9 +1164,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     private void RunInputPhaseHead(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
-        // X-ray's beam is not part of the Samus handler. Advance its explicit
-        // setup/beam/deactivation state before the input phase so state five can restore the
-        // ordinary pose and handler pair before this frame samples pose input. The
+        // X-ray's beam is not part of Samus's frame phases. Advance its explicit
+        // setup/beam/deactivation state before the input phase so its deactivation can restore the
+        // ordinary pose and her normal input and movement modes before this frame samples pose input. The
         // reveal and the beam's window are the frame boundary's to show.
         _player.LastXrayBeamStep = null;
         _player.LastDeathSequenceStep = null;
@@ -1178,17 +1178,17 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // Preserve movement on either side of the frame boundary. A new camera uses
-        // the fallback sampled before enemy-owned motion and the handler.
+        // the fallback sampled before enemy-owned motion and her movement.
         frame.SampleCameraPoint(camera.PreviousSamusPoint ?? cameraPointAtFrameStart ??
             throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start."));
 
-        // Retain the dispatch pose because the turn-transition animation cue can replace Samus.Pose during
+        // Retain the frame-start pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Input/movement/transition phases all
         // agree on that order; using the mutable value afterward would apply an input
         // match selected for the old pose to the newly installed one.
         _attractDemo.BeginAttractSamusInput();
         frame.SampleFrameStartPose(samus.Pose);
-        // The movement phase dispatches on the pose installed when it runs, which the enemy pass can have
+        // The movement phase moves her by the pose installed when it runs, which the enemy pass can have
         // replaced since the input phase: Draygon's death releases a sparking Samus to facing right normally,
         // and standing movement runs. The pose update then reads that pose's type.
         // The ordinary input phase publishes the current pose's live radius before input
@@ -1218,7 +1218,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
         SamusControlMode mode = new(samus.Control.Mode.Input, SelectedMovementMode(frame, samus));
         // Sound queues persist across the whole game, but this typed control
-        // publication is scoped to one frame's Samus handler. It opened before the per-line
+        // publication is scoped to one frame of Samus's control. It opened before the per-line
         // effect pass, ahead of the landing sounds during collision.
         frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));
         if (frame.XrayOwnsPoseInput)
@@ -1275,7 +1275,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
         // and before animation/pose transitions. Every fourth gameplay frame
         // at boost stage four, it alternates between two exact world-position snapshots.
-        // Keeping this producer here means the draw handler below consumes post-motion
+        // Keeping this producer here means the drawing below consumes post-motion
         // coordinates with the same frame ordering as the game.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && _player.LastShinesparkMovement is null)
         {
@@ -1317,7 +1317,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // animation. A locked grapple cancels the prospective pose chosen in the input phase;
             // an escape release additionally clears every pending route while installing
             // the ordinary facing-normal poses and zeroing the documented velocities.
-            _player.LastDraygonEscape = samus.DraygonGrabbed.StepEscapeHandler(
+            _player.LastDraygonEscape = samus.DraygonGrabbed.CheckDraygonEscape(
                 samus,
                 _controller1.NewlyPressed,
                 samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
@@ -1330,7 +1330,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // Normal gameplay advances animation during the movement phase, before the
-        // pose-transition handler, draw handler, and next frame's picture selection.
+        // pose transitions, drawing, and next frame's picture selection.
         // Animation sees the same held input as movement. Ordinary Dash uses B
         // both to accumulate the running delay and to intercept the running animation's
         // cue; passing a reconstructed input later would skew art.
@@ -1353,8 +1353,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (frame.Mode.Movement is not (SamusMovementMode.Fatal or SamusMovementMode.TitleDemo or SamusMovementMode.SuitPickup))
         {
             // The normal movement phase ends with the periodic damage, the pause check and
-            // the low-energy check, before the enemy-projectile and room-object handlers. Damage those
-            // handlers accumulate this frame therefore lands next frame.
+            // the low-energy check, before the enemy projectiles' and room objects' steps. Damage those
+            // steps accumulate this frame therefore lands next frame.
             // The demo's movement mode omits these calls, and so does the suit pickup lock's empty movement mode:
             // damage pending during the transformation stays accumulated
             // until the first ordinary movement phase after it, which divides it by the new suit.
@@ -1364,7 +1364,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.LiquidPhysics.ApplyPeriodicDamage(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
-            // Locked/elevator/appearance handlers omit the low-energy check; the gunship setup
+            // Locked, elevator and appearance movement modes omit the low-energy check; the gunship setup
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
             if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl)
@@ -1375,7 +1375,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// <summary>
     /// Advances the saved-game appearance owner. The ordinary Samus
     /// animation and palette steps have already run earlier in this frame;
-    /// this tail owns only the exact 360-call fanfare lifetime and handler restoration.
+    /// this tail owns only the exact 360-call fanfare lifetime and the restoration of her normal control.
     /// </summary>
     internal void StepSamusLoadAppearance(RoomScope room)
     {
@@ -1394,7 +1394,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // The item fanfare publishes its same-pose history shift only on the
-        // completion call, before the ordinary handlers regain control.
+        // completion call, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();
         _player.GroundedSamusMovementEnabled = true;

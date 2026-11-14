@@ -98,8 +98,8 @@ public sealed class SamusLiquidPhysicsState
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
 
     /// <summary>
-    /// Exclusive liquid effect identity. Values two and four
-    /// are lava/acid, six is water, and zero is the no-FX handler.
+    /// Exclusive liquid effect identity: lava, acid,
+    /// water, or none.
     /// </summary>
     public RoomFxType FxType { get; set; }
 
@@ -135,7 +135,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// Remembered medium. This is intentionally stateful:
-    /// Space Jump reads it, and the animation handlers use changes to detect entry/exit.
+    /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
 
@@ -308,7 +308,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Runs the animation's complete FX dispatch before the generic animation
+    /// Runs the animation's complete liquid step before the generic animation
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
     /// lava/acid fixed-point damage accumulation.
     /// </summary>
@@ -331,7 +331,7 @@ public sealed class SamusLiquidPhysicsState
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);
 
-        // The animation's FX handlers call the bottom-boundary helper, whose occupied bottom
+        // The animation's liquid steps call the bottom-boundary helper, whose occupied bottom
         // pixel is Y + pose radius - 1. The exclusive collision boundary would
         // enter liquid one frame early and can prematurely cancel lava momentum.
         int bottom = samus.Kinematics.BottomPixel.Y;
@@ -374,7 +374,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
                 // Cancelling the speed boost owns the momentum/counter/palette/echo transition;
-                // the two extra-run speeds are then cleared explicitly by the FX handler.
+                // the two extra-run speeds are then cleared explicitly by the liquid step.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -384,7 +384,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 // Lava's Gravity-Suit branch returns before damage and before surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
-                // strength when periodic damage runs later in the same Samus handler.
+                // strength when periodic damage runs later in the same movement phase.
                 LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
                 samus.AnimationFrameBuffer = 0;
                 return;
@@ -520,7 +520,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // The Green Pirates Shaft bypasses the room policy and always chooses the
-        // dry-dust handler, still subject to live liquid submersion.
+        // dry-dust step, still subject to live liquid submersion.
         if (Room == RoomDefinitions.GreenPiratesShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
@@ -533,8 +533,8 @@ public sealed class SamusLiquidPhysicsState
             SamusAtmosphericEffects.ForCrateriaRoom(Room);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
-            // Landing Site creates splashes only for FX type 10; its normal scrolling-
-            // sky type deletes the pair. This exact comparison is not a generic water test.
+            // Landing Site creates splashes only while it rains; its normal scrolling-sky
+            // effect deletes the pair. This exact comparison is not a generic water test.
             if (FxType == RoomFxType.Rain)
                 SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else
@@ -572,10 +572,10 @@ public sealed class SamusLiquidPhysicsState
         int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole +
             SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
 
-        // Both landing particle handlers suppress their particles when Samus's current
+        // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
         // preserves the absent surfaces and water option-bit-two exemption used by
-        // those handlers. Importantly, suppression RETURNS and leaves the effect waits as they were.
+        // those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
@@ -621,7 +621,7 @@ public sealed class SamusLiquidPhysicsState
 
         UnsignedSixteenSixteen applied = SamusSuitDamage.ReducePeriodic(PendingPeriodicDamage, samus.EquippedItems);
 
-        // The game stops at its crash handler when the whole damage is so large it reads as below zero.
+        // The game stops with a crash when the whole damage is so large it reads as below zero.
         // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
         // into plausible damage.
         if (WrappingCounter.ReadsBelowZero(applied.Whole))

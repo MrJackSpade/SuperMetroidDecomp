@@ -324,7 +324,7 @@ public sealed class SamusCrystalFlashState
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
-        // Therefore cleanup naturally happens on the following movement phase, once type zero is
+        // Therefore cleanup naturally happens on the following movement phase, once standing movement is
         // observable here, and that frame performs no ordinary standing movement.
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;

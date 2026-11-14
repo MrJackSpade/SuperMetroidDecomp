@@ -230,7 +230,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         // Clearing intangibility and invisibility makes the fully materialized ghost visible and eligible for the
-        // ordinary touch/shot collision handlers authored by its enemy definition.
+        // ordinary touch and shot responses authored by its enemy definition.
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.Action = WreckedShipGhostAction.BobbingWhileVisible;

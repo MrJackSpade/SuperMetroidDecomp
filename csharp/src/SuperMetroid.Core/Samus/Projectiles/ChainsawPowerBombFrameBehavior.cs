@@ -43,7 +43,7 @@ internal sealed class ChainsawPowerBombFrameBehavior
             _animation.ClearProjectile(slot);
 
         // The frame behaviour always falls through from the fuse to the Power Bomb boundary reactions, even when the
-        // zero-timer/no-flag branch just cleared the projectile. The latter case consequently dispatches as no
+        // zero-timer/no-flag branch just cleared the projectile. The latter case consequently runs as no
         // projectile, while both paths use the global Power Bomb centre/radius rather than the Chainsaw's position.
         // Preserve the inclusive edge traversal and its synchronous room-object mutations.
         var reactions = new List<BombBlockReaction>();

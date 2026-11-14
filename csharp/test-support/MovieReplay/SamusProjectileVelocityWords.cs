@@ -17,7 +17,7 @@ internal static class SamusProjectileVelocityWords
             SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling)
             return checked((ushort)slot.ComboOrbitRadius);
         if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
-            return checked((ushort)slot.EchoRadius);
+            return (ushort)(slot.EchoRadius % 65536); // The game kept the growing radius in a 16-bit word.
         return slot.Velocity.X.RawValue;
     }
 

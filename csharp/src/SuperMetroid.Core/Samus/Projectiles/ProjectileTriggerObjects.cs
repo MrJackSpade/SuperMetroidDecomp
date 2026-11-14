@@ -11,7 +11,7 @@ internal sealed class ProjectileTriggerObjects
     /// <summary>The room-object slots searched from highest index to lowest on a projectile hit.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds the active room's room-object population for generic projectile collision dispatch.</summary>
+    /// <summary>Binds the active room's room-object population for generic projectile collision reactions.</summary>
     internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;

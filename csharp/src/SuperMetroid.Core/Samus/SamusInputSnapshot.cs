@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>The input Samus's handlers see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
+/// <summary>The input Samus's input and movement phases see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
 internal sealed class SamusInputSnapshot
 {
     /// <summary>
@@ -40,20 +40,20 @@ internal sealed class SamusInputSnapshot
     /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
     public ControllerButton PreviousDrawHeldInput { get; internal set; }
 
-    /// <summary>The pose input handler currently selects the one-shot auto-jump handler.</summary>
+    /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
     public bool AutoJumpInputPending { get; internal set; }
 
     /// <summary>
-    /// Shinespark launch installed the empty pose-input handler. This
-    /// survives an independently replaced movement handler until input is restored,
-    /// for example by normal landing's one-shot auto-jump handler.
+    /// Shinespark launch locked her pose input. This
+    /// survives an independent change of her movement owner until input is restored,
+    /// for example by normal landing's one-shot auto-jump.
     /// </summary>
     public bool ShinesparkPoseInputLocked { get; internal set; }
 
-    /// <summary>Crystal Flash's empty input handler survives grab/release until input is restored.</summary>
+    /// <summary>Crystal Flash's pose-input lock survives grab/release until input is restored.</summary>
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
-    /// <summary>Local input substitution from the auto-jump handler; does not alter the controller's real edge.</summary>
+    /// <summary>Local input substitution from the auto-jump; does not alter the controller's real edge.</summary>
     internal ControllerButton ConsumeAutoJumpInput(ControllerButton newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;

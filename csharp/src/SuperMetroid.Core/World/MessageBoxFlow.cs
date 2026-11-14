@@ -148,14 +148,14 @@ internal sealed class MessageBoxFlow
         if (_room.LevelData is null || _room.Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
         roomObjects.CollectibleObjects.CompleteCollectibleMessage(_room.LevelData);
-        // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
+        // The resumed frame reaches the HUD update, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
             _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // The message returns directly to the suspended item's script.
         // Varia/Gravity immediately call their shared setup; for other items the
-        // rest of the dispatch already ran when the box opened.
+        // rest of the pickup already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)
         {
             if (_player.Samus is null)

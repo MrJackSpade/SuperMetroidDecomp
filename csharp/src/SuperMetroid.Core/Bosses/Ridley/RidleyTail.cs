@@ -148,7 +148,7 @@ internal sealed class RidleyTail
         int turnsBeyond)
     {
         // Facing direction one is the front-facing transition art. The tail attack returns
-        // without installing a target in that state, and fight mode zero likewise blocks
+        // without installing a target in that state, and the fight's opening mode likewise blocks
         // the attack before liftoff.
         if (samus is null || state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
             return;

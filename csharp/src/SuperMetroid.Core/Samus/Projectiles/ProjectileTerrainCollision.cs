@@ -274,7 +274,7 @@ internal sealed class ProjectileTerrainCollision
     {
         endSpan = false;
         // The extension-block resolution is shared by shot, bomb, grapple, collision, and inside
-        // dispatch. Door caps deliberately put the shootable origin at one end and vertical
+        // reaction. Door caps deliberately put the shootable origin at one end and vertical
         // extension blocks across the other three cells. Resolve those signed behaviour
         // links before selecting a reaction; otherwise a centered horizontal beam merely
         // explodes against the middle extension and can never reach the blue-door behaviours.
@@ -286,7 +286,7 @@ internal sealed class ProjectileTerrainCollision
             return SquareSlopeShotReaction(slot, block, span, axis == Axis.Horizontal);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
-            // Non-square slopes dispatch through the projectile's
+            // Non-square slopes react through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = RoomGridConversions.PixelToBlock(axis == Axis.Horizontal ? slot.Position.Y.Whole : slot.Position.X.Whole);
             int slopeBlock = axis == Axis.Horizontal ? block.At.Y : block.At.X;
@@ -401,7 +401,7 @@ internal sealed class ProjectileTerrainCollision
             return;
 
         // The gate-trigger behaviours bypass the normal 16-entry shot-block table and
-        // allocates one of eight temporary trigger room objects. Dispatch it before the table-range
+        // allocates one of eight temporary trigger room objects. React to it before the table-range
         // validation below; those behaviours are intentionally outside that ordinary domain.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
@@ -421,7 +421,7 @@ internal sealed class ProjectileTerrainCollision
 
         // The shot-block table's entries 40..43 select the four blue-door entry room objects. These are not
         // ordinary breakable blocks: setup changes the cap origin to a solid block and the
-        // door's animation opens all four blocks over eighteen frames. Keep this dispatch
+        // door's animation opens all four blocks over eighteen frames. Keep this reaction
         // beside the general table lookup so every beam/missile/bomb collision reaches the
         // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
@@ -542,7 +542,7 @@ internal sealed class ProjectileTerrainCollision
         if (wasSuperMissile)
         {
             // The impact writes the shared room quake immediately; later producers
-            // can replace it before the frame's shake handler consumes the request.
+            // can replace it before the frame's earthquake step consumes the request.
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.WallImpactEarthquake);
         }
 
@@ -590,7 +590,7 @@ internal sealed class ProjectileTerrainCollision
                 Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.Of(1, 0)) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
-                // Dispatch consumes the straddled block; the behaviour and room-object setup
+                // The reaction consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
                 block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
             }

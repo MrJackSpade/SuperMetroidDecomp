@@ -476,7 +476,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         throw new InvalidDataException("Beetom initial-speed calculation did not reach its authored target height.");
     }
 
-    /// <summary>Runs Beetom's custom touch handler.</summary>
+    /// <summary>Runs Beetom's own touch response.</summary>
     private void ResolveBeetomTouch(
         RoomEnemySlot slot,
         BeetomEnemyState state,

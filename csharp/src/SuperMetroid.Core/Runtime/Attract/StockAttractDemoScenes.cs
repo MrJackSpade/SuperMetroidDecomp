@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>Executable staging for the title demonstrations, joined across room, equipment and setup definitions.</summary>
-/// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control dispatch calculate independently.</remarks>
+/// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control calculate independently.</remarks>
 public static class StockAttractDemoScenes
 {
     /// <summary>Mutually exclusive demonstration identities.</summary>
@@ -505,7 +505,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
-    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct setups.</summary>
+    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions are set up once; the front-facing, morph, fall, spark and low-health performances keep their distinct setups.</summary>
     private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,

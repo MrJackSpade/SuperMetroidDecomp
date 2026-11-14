@@ -493,7 +493,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => ElevatorBehavior;
 
-    /// <summary>The gunship's save prompt and health handler.</summary>
+    /// <summary>The gunship's save prompt and health check.</summary>
     internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
@@ -960,7 +960,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 {
                     ranActorAi = true;
                 }
-                // The enemy pass selects the handler from the first state the enemy is in alone. A frozen
+                // The enemy pass selects the AI from the first state the enemy is in alone. A frozen
                 // clock without the frozen state (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
                 if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -973,10 +973,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
-                    // dispatch for this call. Ice removal instead takes the thaw branch
+                    // AI for this call. Ice removal instead takes the thaw branch
                     // immediately. That branch leaves the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
-                    // and frozen dispatch coexist.
+                    // and frozen AI coexist.
                     slot.FlashTimer = 0;
                     bool thaw = slot.FrozenTimer == 0 ||
                         (frame.Samus is not null &&
@@ -1040,7 +1040,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
             {
                 slot.FlashTimer--;
-                // The enemy pass clears hurt dispatch once the post-decrement timer is below
+                // The enemy pass clears the hurt AI once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
                 if (slot.FlashTimer - 8 < 0)

@@ -54,7 +54,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The pose whose facing and movement type the pose initializer last copied to
-    /// the cached facing and movement type. Movement dispatch and camera
+    /// the cached facing and movement type. Movement and camera
     /// tracking read those cached values, not the live pose.
     /// </summary>
     public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
@@ -333,9 +333,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The shot a pose transition handed to the next update's weapon handler, or null. A pose initializer can hand one
-    /// after the current update's weapon handler has already run: a normal jump started on a fresh Shoot press hands
-    /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon handler
+    /// The shot a pose transition handed to the next update's weapon firing, or null. A pose initializer can hand one
+    /// after the current update's weapon firing has already run: a normal jump started on a fresh Shoot press hands
+    /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon firing
     /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
     public SamusTransitionShot? PendingTransitionShot { get; internal set; }
@@ -345,7 +345,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Equipped-item flags. The animation cue's equipment test and the Morph-Ball projectile
-    /// handler read them directly.
+    /// producer read them directly.
     /// </summary>
     public SamusEquipmentFlags EquippedItems { get; set; }
 
@@ -594,7 +594,7 @@ public sealed class SamusState
 
         // The game checks enemies first, then terrain in a separate pass. Mixing the two
         // probes changes both available space and the order of their live Y-fraction
-        // writes (enemy tangency clears it; a later floor scan can set it to FFFF).
+        // writes (enemy tangency clears it; a later floor scan can set it to its largest value).
         SolidEnemyCollisionResult enemyUp = ProbeEnemy(SamusCollisionDirection.Up, radiusDifference, Kinematics.Radius.Y);
         SolidEnemyCollisionResult enemyDown = ProbeEnemy(SamusCollisionDirection.Down, radiusDifference, Kinematics.Radius.Y);
         int enemyAdjustment = 0;
@@ -753,7 +753,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;
             Kinematics.YAcceleration = probe.YAcceleration;
-            // Block dispatch clamps the live fractional Y even for a
+            // The block reaction clamps the live fractional Y even for a
             // changed-pose observation. Preserve that write, but never copy the
             // probe's whole-position movement into the live body.
             if (result.Collided)
@@ -906,7 +906,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         if (!enable && !disable)
             return;
 
-        // The handlers select the stationary pose even while airborne. Keeping
+        // The movement owners select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
         bool left = SamusPoseMetadata.IsFacing(this, SamusFacingDirection.Left);
         Pose = enable

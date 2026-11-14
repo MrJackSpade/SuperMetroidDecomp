@@ -89,7 +89,7 @@ internal sealed class DraygonGoop
         SamusState? samus,
         int frameCounter)
     {
-        // The right-facing shot calls the turret handler; the left-facing one does not.
+        // The right-facing shot runs the turret's step; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus?.XSpeedDivisor != 0)

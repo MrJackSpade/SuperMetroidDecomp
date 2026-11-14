@@ -38,7 +38,7 @@ internal sealed class CollectibleObjects
         _blockPairs = Ensure.NotNull(blockPairs);
     }
 
-    /// <summary>Pickup events published by the current room-object handler pass.</summary>
+    /// <summary>Pickup events published by the current room-object step.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
     private readonly CollectibleBlockPairs _blockPairs;
@@ -47,7 +47,7 @@ internal sealed class CollectibleObjects
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
-    /// <summary>Whether the room-object handler is waiting for its synchronous pickup message.</summary>
+    /// <summary>Whether the room objects' step is waiting for its synchronous pickup message.</summary>
     internal bool HasPendingCollectibleMessage
     {
         get
@@ -87,7 +87,7 @@ internal sealed class CollectibleObjects
         _pendingSpeedBoosterPickupContinuation = false;
     }
 
-    /// <summary>Pickup publications produced during the most recent room-object handler pass.</summary>
+    /// <summary>Pickup publications produced during the most recent room-object step.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
         _collectiblePickupEvents;
 
@@ -102,7 +102,7 @@ internal sealed class CollectibleObjects
     /// <summary>
     /// Publishes Samus contact with a visible item block. The item's touch setup
     /// finds the item room object sharing this block and arms its trigger timer;
-    /// acquisition remains owned by the following room-object handler pass.
+    /// acquisition remains owned by the following room-object step.
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
@@ -151,7 +151,7 @@ internal sealed class CollectibleObjects
         return false;
     }
 
-    /// <summary>Clears pickup publications at the start of a room-object handler frame.</summary>
+    /// <summary>Clears pickup publications at the start of a room-object step.</summary>
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>

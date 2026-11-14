@@ -7,6 +7,6 @@ public static class BeamChargeDefinitions
     public const int ChargeSoundStartCounter = 16;
     /// <summary>Flare-counter value at which release selects the charged beam family.</summary>
     public const int FullyChargedCounter = 60;
-    /// <summary>Flare-counter clamp at which the charge handler begins testing special beam attacks.</summary>
+    /// <summary>Flare-counter clamp at which the charge begins testing special beam attacks.</summary>
     public const int SpecialAttackCounter = 120;
 }

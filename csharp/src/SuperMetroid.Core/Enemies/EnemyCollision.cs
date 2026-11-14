@@ -73,8 +73,8 @@ internal sealed class EnemyCollision
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
-    /// <param name="controllerInput">Current held input used by touch handlers.</param>
-    /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
+    /// <param name="controllerInput">Current held input used by touch responses.</param>
+    /// <param name="level">Room terrain required by collision-aware touch responses.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-list audit.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public bool ResolveOrdinarySamusContact(
@@ -169,7 +169,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Runs common normal-enemy shot AI for ordinary radius-based actors. One
-    /// projectile may resolve per enemy per pass, matching the collision-handler exit.
+    /// projectile may resolve per enemy per pass, matching the collision response's exit.
     /// </summary>
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
@@ -215,8 +215,8 @@ internal sealed class EnemyCollision
 
             foreach (SamusProjectile projectile in projectiles.Slots)
             {
-                // The slot still holds the live beam or missile when the enemy collision
-                // handler selects vulnerability. Starting the impact below deliberately
+                // The slot still holds the live beam or missile when the enemy's collision
+                // response selects vulnerability. Starting the impact below deliberately
                 // turns the slot into an explosion, so retain the incoming type instead of
                 // accidentally asking the vulnerability table about the visual effect.
                 SamusProjectileType projectileType = projectile.Type;
@@ -228,7 +228,7 @@ internal sealed class EnemyCollision
 
                 // Bomb, power-bomb, and pseudo-screw actors share the projectile slot array,
                 // but ordinary enemy shot AI never treats them as beams or missiles.
-                // Yard and Metroid are the exceptions: their private handlers treat
+                // Yard and Metroid are the exceptions: their own responses treat
                 // bomb-family impacts as physical kicks or escapes.
                 if (!reaction.AdmitsBombFamilies &&
                     family is SamusProjectileFamily.PowerBomb or
@@ -493,7 +493,7 @@ internal sealed class EnemyCollision
                 SamusProjectileFamily family = bomb.Type.Family;
 
                 // The radius bomb pass admits an exploding normal bomb. The radius
-                // handler also admits a spread bomb. The frame-hitbox handler is narrower,
+                // pass also admits a spread bomb. The frame-hitbox pass is narrower,
                 // and passes over a bomb on the room's leftmost column (LeftEdgeBombMissesFrameHitboxes).
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
@@ -1027,7 +1027,7 @@ internal sealed class EnemyCollision
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
-        // expires even if the old movement handler remains active (e.g. a boss grab).
+        // expires even if the old movement owner remains active (e.g. a boss grab).
         samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
         samus.KnockbackXDirection = direction;
         // The enemy pass only publishes the request. The common post-animation

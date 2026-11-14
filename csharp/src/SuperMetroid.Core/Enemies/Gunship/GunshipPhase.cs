@@ -16,7 +16,7 @@ internal enum GunshipPhase
     FinishLanding,
     /// <summary>Eject Samus after the Landing Site descent.</summary>
     EjectSamus,
-    /// <summary>Idle entry/exit handler.</summary>
+    /// <summary>Idle while Samus enters or leaves.</summary>
     Idle,
     /// <summary>Wait for the entrance to open.</summary>
     WaitForEntranceToOpen,

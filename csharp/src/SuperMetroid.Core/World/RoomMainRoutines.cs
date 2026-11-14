@@ -19,7 +19,7 @@ internal sealed class RoomMainRoutines
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Active room behaviour and area identity used to dispatch room-main work.</summary>
+    /// <summary>Active room behaviour and area identity used to select room-main work.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Defeated bosses and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
@@ -51,7 +51,7 @@ internal sealed class RoomMainRoutines
     /// Reconstructs the one side effect still owned by the door-transition caller.
     /// Gameplay resumes immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while the arrival statuses are visible to
-    /// main gameplay. Retain its moving movement mode, but permit its door-block handler to
+    /// main gameplay. Retain its moving movement mode, but permit its door block's reaction to
     /// publish a real transition or elevator flag only while departing; otherwise a
     /// collapsed transition can immediately depart again.
     /// </summary>
@@ -77,7 +77,7 @@ internal sealed class RoomMainRoutines
         room.TourianStatues.StepBlockAnimations();
 
         // The Wrecked Ship treadmill door code creates an ordinary block animation. Its
-        // handler shows one treadmill frame a pass only after Phantoon is defeated.
+        // step shows one treadmill frame a pass only after Phantoon is defeated.
         if (room.WreckedShipTreadmill.IsActive)
         {
             AreaId area = _room.ActiveRoom?.Area ?? throw new InvalidOperationException(
@@ -89,7 +89,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Implements the complete visibility test of Samus's display while she rides an elevator. The retail handler returns on odd frames and calls the fatal/no-
+    /// Implements the complete visibility test of Samus's display while she rides an elevator. The elevator's drawing returns on odd frames and calls the fatal/no-
     /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
     /// from being mistaken for the game-authored effect.

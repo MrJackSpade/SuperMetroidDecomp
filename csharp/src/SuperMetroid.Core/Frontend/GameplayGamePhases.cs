@@ -292,7 +292,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // The already-produced gameplay image remains this frame's image; the
             // following update begins the door state from that publication.
             // A message box opened later in the same call (a station's completion
-            // notice in the room-object handler) suspends that call until it
+            // notice in the room objects' step) suspends that call until it
             // closes, so the door's state waits for the box's final frame.
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         }

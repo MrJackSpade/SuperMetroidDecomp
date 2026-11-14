@@ -99,9 +99,9 @@ internal static class SamusHudSelectionVerification
         // selected changes no index but still clears the charge.
         HudItem beforeIdleCancel = samus.SelectedHudItem;
         HudSelectionOutcome idleCancel = SamusHudSelection.HandleHudSelection(samus, cancel, cancel);
-        AssertTrue(samus.SelectedHudItem == beforeIdleCancel && idleCancel.ItemHandlerAccepted,
+        AssertTrue(samus.SelectedHudItem == beforeIdleCancel && idleCancel.ItemSelectionTookEffect,
             "item-cancel with nothing selected runs the Nothing handler");
-        AssertTrue(!SamusHudSelection.HandleHudSelection(samus, cancel, 0).ItemHandlerAccepted,
+        AssertTrue(!SamusHudSelection.HandleHudSelection(samus, cancel, 0).ItemSelectionTookEffect,
             "held item-cancel without a new edge runs no handler");
 
         Console.WriteLine(

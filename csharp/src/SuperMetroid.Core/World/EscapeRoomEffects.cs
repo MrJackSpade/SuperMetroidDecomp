@@ -61,7 +61,7 @@ internal sealed class EscapeRoomEffects
             _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }
 
-    /// <summary>Dispatches the escape room-main behaviours at the post-draw boundary.</summary>
+    /// <summary>Runs the escape room-main behaviours at the post-draw boundary.</summary>
     internal void StepEscapeRoomEffects(RoomScope room)
     {
         RoomEnemySystem enemies = room.Enemies;

@@ -246,7 +246,7 @@ internal sealed class DoorTransitionState
                     // exposes the room as it was before they ran.
                     runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
                     runtime.DoorFade.WriteSamusColours(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
-                    runtime.RoomObjectPhase.RunDoorTransitionObjectHandler(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
+                    runtime.RoomObjectPhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.AlignSamusWithDoorway;
                 }
                 break;
@@ -319,7 +319,7 @@ internal sealed class DoorTransitionState
                     // Elevator arrival retains the elevator's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube's door setup also installs that lock. The fade
-                    // does not replace that handler: release only the temporary door
+                    // does not replace that lock: release only the temporary door
                     // input gate, never a stationary script's movement ownership.
                     if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
                         runtime.Player.Samus is { } arrivingSamus && arrivingSamus.Control.Mode.Movement != SamusMovementMode.ScriptLocked)

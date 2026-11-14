@@ -45,7 +45,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// original's indirect dispatch, the machine's bus, regionalized values and the original's enemy entries named as records.
 /// #1828 adds the original's routine handlers, read in every type: a handler call, and a music, sound, colour-effect,
 /// timer, sprite or state handler. #1853 adds, outside hardware owners, the original's trigonometry tables: an angle
-/// counted in table units, angles or steps, and a sine, cosine or trigonometry table.
+/// counted in table units, angles or steps, and a sine, cosine or trigonometry table. #1855 widens the routine handlers,
+/// read in every type, to a handler named by the word before it, a handler pair and a dispatch point. #1856 adds, outside
+/// hardware owners, the original's numbering of Samus's movement types, modes, collision results and statuses.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -319,17 +321,48 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// The original program's routine handlers in prose (#1828), read in every Core type, spaced or hyphenated: a handler
-    /// call (the extra sound-handler call, two handler calls) and a music, sound or sound-effect, colour-effect, timer,
-    /// sprite or state handler (the music handler's fetch, the colour effect handler, Samus's timer handler, the generic
-    /// sprite handler, separately run state handlers). Core names the queue's pass, the effects that run, the countdown's
-    /// update, the actor's frame or the phase instead (<c>MusicQueuePasses</c>, <c>ColourEffectsRun</c>). English stays
-    /// legal: a handler alone or of another kind (an exception or event handler, the grapple beam's handler), calling a
-    /// handler and a call alone.
+    /// The original program's routine handlers in prose (#1828, #1855), read in every Core type, spaced or hyphenated: a
+    /// handler call (the extra sound-handler call, two handler calls), a handler named by the word before it (the music
+    /// handler's fetch, the colour effect handler, Samus's timer handler, the movement handler, the room-object handler,
+    /// the unable-to-stand handler, AI handlers, a sub-handler), a handler pair and a dispatch point (the ordinary locked
+    /// handler pair, the palette update's dispatch point). The original ran Samus's input and movement, each enemy's AI and
+    /// the room objects through routines it installed in slots and called; Core names the movement owner, the input mode,
+    /// the phase, the check or the queue's pass that runs (<c>SamusMovementOwner</c>, <c>SamusInputMode</c>,
+    /// <c>MusicQueuePasses</c>, <c>ColourEffectsRun</c>). English stays legal: a handler alone or after an article, a
+    /// determiner, a pronoun, a number or a possessive (a handler, each handler, its handlers, the grapple beam's handler),
+    /// an exception or event handler, calling a handler, a call, a point and a dispatch alone.
     /// </summary>
     private static readonly Regex RoutineHandlerProse = new(
-        @"\bhandler[-\s]+calls?\b" +
-        @"|\b(?:music|sound(?:[-\s]+effects?)?|colou?r[-\s]+effects?|timer|sprite|state)[-\s]+handlers?\b",
+        @"\bhandler[-\s]+(?:calls?|pairs?)\b|\bdispatch[-\s]+points?\b" +
+        @"|\b(?:music|sound(?:[-\s]+effects?)?|colou?r[-\s]+effects?|timer|sprite|state)[-\s]+handlers?\b" +
+        @"|(?<![\w'’-])[A-Za-z]\w*(?:-[A-Za-z]\w*)*[-\s]+handlers?\b" +
+        @"(?<!(?<![\w'’-])(?:" + HandlerDeterminers + "|" + NumberWordsOnly + @")[-\s]+handlers?)" +
+        @"(?<!\b(?:exception|event)[-\s]+handlers?)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The words before a handler that do not name it (#1855): articles, determiners, pronouns, quantifiers, conjunctions,
+    /// prepositions and the verbs of being.
+    /// </summary>
+    private const string HandlerDeterminers =
+        @"a|an|the|this|that|these|those|its|it|their|his|her|our|your|my|each|every|any|no|not|some|all|both|either|neither" +
+        @"|which|whose|what|another|other|same|next|own|and|or|nor|of|to|for|by|with|in|on|at|from|as|into|than|is|are|was" +
+        @"|were|be|been|being";
+
+    /// <summary>
+    /// The original's numbering of Samus's movement in prose (#1856), outside hardware owners, spaced or hyphenated, in
+    /// digits or words: a movement type by number (movement type zero, movement-type 6), a mode by number (mode one, modes
+    /// one and two, acceleration mode 2), a collision result by number (collision result one) and a status by number (the
+    /// elevator's status from one to two, status 0). The original numbered each pose's movement type, Samus's acceleration
+    /// modes, her collision results and the elevator's status; Core names each one and cites it with <c>see cref</c>.
+    /// English stays legal: a number that counts the noun after it (a mode two frames long), and a mode, a type, a result
+    /// or a status alone.
+    /// </summary>
+    private static readonly Regex MovementNumberProse = new(
+        @"\bmovement[-\s]+types?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\bmodes?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\bcollision[-\s]+results?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\bstatus(?:es)?[-\s]+(?:from[-\s]+)?" + NumberWord + @"\b" + CountedNoun,
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -707,6 +740,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SpritePartProse.Match(text) is { Success: true } spritePart ? spritePart.Value
             : MachineTableProse.Match(text) is { Success: true } machineTable ? machineTable.Value
             : MachineEntryProse.Match(text) is { Success: true } machineEntry ? machineEntry.Value
+            : MovementNumberProse.Match(text) is { Success: true } movementNumber ? movementNumber.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

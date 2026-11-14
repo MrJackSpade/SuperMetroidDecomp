@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// X-ray cone code stored after the definitions as theirs. The first faces right, the other two face neither way; none
 /// fires a shot, and each places a held charge's flare as its aim value modulo 16 selects; their radii and shot heights
 /// are that data read as numbers. The second moves as standing and keeps its pose with no input; the first and
-/// last read a movement beyond every movement type, which no movement handler runs, and fall back with no input to the
+/// last read a movement beyond every movement type, which no movement step runs, and fall back with no input to the
 /// rightward neutral jump transition and to landing aiming diagonally down facing left.
 /// </summary>
 /// <remarks>

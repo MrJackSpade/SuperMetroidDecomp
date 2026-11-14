@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Hud;
 
-/// <summary>Shared admission decisions from the game's movement-type HUD dispatch.</summary>
+/// <summary>Shared admission decisions from the game's HUD steps for each movement type.</summary>
 internal static class SamusHudInput
 {
     /// <summary>

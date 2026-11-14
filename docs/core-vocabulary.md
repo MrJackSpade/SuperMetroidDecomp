@@ -192,6 +192,23 @@ pass), whether the effects run (`ColourEffectsRun`, `StopColourEffects`), the co
 actor's frame or Samus's input or movement phase, and a control lock by what it stops (`LockOutPlayer`, `LockAtStation`).
 A handler alone or of another kind (an exception or event handler), calling a handler and a call alone stay English.
 
+#1855 widens the routine handlers, still read in every type, spaced or hyphenated: a handler named by the word before it
+(`the movement handler`, `the room-object handler`, `the unable-to-stand handler`, `its own AI handlers`, a
+`sub-handler`), a handler pair and a dispatch point (`the ordinary locked handler pair`, `the palette update's dispatch
+point`). The original ran Samus's input and movement, each enemy's AI, the room objects and the HUD through routines it
+installed in slots and called; Core names who moves her (`SamusMovementOwner`), the input mode (`SamusInputMode`), the
+phase, the check (`CheckDraygonEscape`) or the step that runs (`RunRoomObjectsForDoor`), and what took effect
+(`ItemSelectionTookEffect`). A handler alone or after an article, a determiner, a pronoun, a number or a possessive (`each
+handler`, `its handlers`, `two handlers`, `the grapple beam's handler`), an exception or event handler, a point and a
+dispatch alone stay English.
+
+Outside hardware owners SME6454 also reads the original's numbering of Samus's movement (#1856), spaced or hyphenated,
+in digits or words: a movement type (`movement type zero`), a mode (`acceleration modes one and two`, `mode zero`), a
+collision result (`collision result one`) and a status (`the elevator's status from one to two`, `status 0`) by number.
+Core cites the named member with `see cref` (`SamusMovementType`, `SamusHorizontalCollisionResult`), and an exception
+prints the member's name. A number that counts the noun after it (`a mode two frames long`) and a mode, type, result or
+status alone stay English.
+
 Outside hardware owners SME6454 also reads the original's trigonometry tables (#1853), spaced or hyphenated: an angle
 counted in the table's units, angles or steps (`eight table units`, `0 through 63 table angles`, `an eighth of a table
 step`) and a sine, cosine or trigonometry table (`the shared sine table`, `a sine-table angle`, `the negative-cosine

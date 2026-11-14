@@ -12,7 +12,7 @@ public enum RoomSpriteObjectKind
     SmallExplosion = SporeSpawnDyingExplosion,
     /// <summary>Finite smoke the generic enemy-death explosions scatter.</summary>
     Smoke,
-    /// <summary>Finite impact flash for shots rejected by enemy collision handlers.</summary>
+    /// <summary>Finite impact flash for shots rejected by enemies' collision responses.</summary>
     EnemyProjectileDud,
     /// <summary>Finite dust animation spawned at a Ninja Pirate's landing.</summary>
     NinjaPirateLandingDust,

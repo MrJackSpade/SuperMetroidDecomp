@@ -154,7 +154,7 @@ public sealed class TourianStatueSequence
 
     /// <summary>
     /// Spawns the four statue objects in order. Allocation
-    /// and handler traversal both descend through slots, so insertion order also
+    /// and the room objects' steps both descend through slots, so insertion order also
     /// preserves execution order and which statue can acquire the shared busy bit.
     /// </summary>
     internal void SpawnAnimatedObjects()

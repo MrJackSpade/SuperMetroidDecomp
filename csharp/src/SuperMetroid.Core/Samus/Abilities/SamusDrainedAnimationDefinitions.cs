@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The animation frames the drained-Samus handlers and the drain's operations publish directly, outside the drained poses' own
+/// The animation frames the drained movement and the drain's operations publish directly, outside the drained poses' own
 /// animations (#1513). They are frames of the asymmetrical drained animations as the game numbers them, so several name an
 /// cue's place or a number between two runs of the pose they land in, which the game draws as it stands.
 /// </summary>
 internal static class SamusDrainedAnimationDefinitions
 {
-    /// <summary>The first frame of the left-facing drained crouch from which the able-to-stand handler accepts Up.</summary>
+    /// <summary>The first frame of the left-facing drained crouch from which the drained crouch accepts Up once she can stand.</summary>
     internal const int AbleToStandFirstFrame = 8;
 
-    /// <summary>The frame the able-to-stand handler moves the left-facing drained crouch to on Up, starting its stand-up.</summary>
+    /// <summary>The frame the drained crouch, once she can stand, moves the left-facing drained crouch to on Up, starting its stand-up.</summary>
     internal const int AbleToStandFrame = 13;
 
-    /// <summary>The first frame from which the unable-to-stand handler accepts Up, whatever pose Samus holds.</summary>
+    /// <summary>The first frame from which the drained crouch accepts Up while she cannot stand, whatever pose Samus holds.</summary>
     internal const int UnableToStandFirstFrame = 8;
 
-    /// <summary>The last frame from which the unable-to-stand handler accepts Up.</summary>
+    /// <summary>The last frame from which the drained crouch accepts Up while she cannot stand.</summary>
     internal const int UnableToStandLastFrame = 11;
 
-    /// <summary>The frame the unable-to-stand handler moves the animation to on Up, its failed attempt to stand.</summary>
+    /// <summary>The frame the drained crouch, while she cannot stand, moves the animation to on Up, its failed attempt to stand.</summary>
     internal const int UnableToStandFrame = 18;
 
     /// <summary>The frame the Hyper Beam acquisition freezes the drained animation at.</summary>

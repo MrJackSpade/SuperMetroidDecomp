@@ -66,7 +66,7 @@ public static class SamusPostureMovement
                 $"Crouch/stand transition movement requires a crouching or standing transition pose, not {samus.Pose}.");
         }
 
-        // All four corresponding entries in the posture cleanup table do nothing. Unlike movement type five,
+        // All four corresponding entries in the posture cleanup table do nothing. Unlike crouching movement,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
         return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
@@ -104,7 +104,7 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
-    /// <summary>Requires the level and Samus state used by both posture handlers.</summary>
+    /// <summary>Requires the level and Samus state used by both posture movements.</summary>
     private static void Validate(
         RoomLevelData level,
         SamusState samus)

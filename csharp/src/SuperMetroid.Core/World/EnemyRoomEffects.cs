@@ -110,7 +110,7 @@ internal sealed class EnemyRoomEffects
         {
             // The already-defeated branch clears the wall directly with one store
             // during setup; unlike the live crumble room object, it does not wait for its
-            // clearing step during the first handler pass.
+            // clearing step during the first room-object step.
             _room.Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
             _room.Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
         }
@@ -160,7 +160,7 @@ internal sealed class EnemyRoomEffects
 
     /// <summary>
     /// Transfers Kraid's hardcoded ceiling/platform calls into the shared 
-    /// room-object pool before the current frame's handler pass.
+    /// room-object pool before the current frame's room-object step.
     /// </summary>
     internal void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
     {
@@ -184,7 +184,7 @@ internal sealed class EnemyRoomEffects
         {
             foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
                 roomColourEffects.Start(definition, _player.IntroducedSamus.EquippedItems);
-            if (death.TimerHandlingEnableRequested)
+            if (death.GetUpReleaseRequested)
                 _player.IntroducedSamus.Drained.RelinquishGetUp();
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.

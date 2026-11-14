@@ -499,9 +499,9 @@ public sealed class SamusShinesparkState
                 SamusPoseId.DraygonGrabbingLeftPose => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
                 $"Pose {targetPose} is not one of the six directional shinespark poses."),
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
                 $"Pose {targetPose} is not one of the six directional shinespark poses."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),

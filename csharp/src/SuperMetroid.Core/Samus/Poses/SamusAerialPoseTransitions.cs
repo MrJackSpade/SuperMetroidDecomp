@@ -715,9 +715,9 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 nameof(genericPose),
                 genericPose,
                 "Equipment spin selection requires a generic spin-jump pose."),
-            SamusPoseId.FirstUnauthoredPose or
-                SamusPoseId.SecondUnauthoredPose or
-                SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
+            SamusPoseId.TallStillRightPose or
+                SamusPoseId.ForwardStandingPose or
+                SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
                 nameof(genericPose),
                 genericPose,
                 "Equipment spin selection requires a generic spin-jump pose."),

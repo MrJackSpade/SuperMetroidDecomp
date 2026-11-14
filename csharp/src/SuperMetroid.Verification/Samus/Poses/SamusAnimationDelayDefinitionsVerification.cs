@@ -44,7 +44,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         }
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.
-        foreach (SamusPoseId adjacent in new[] { SamusPoseId.FirstUnauthoredPose, SamusPoseId.SecondUnauthoredPose, SamusPoseId.LastUnauthoredPose })
+        foreach (SamusPoseId adjacent in new[] { SamusPoseId.TallStillRightPose, SamusPoseId.ForwardStandingPose, SamusPoseId.ForwardStillCrouchHeightPose })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.AnimationForPose(adjacent),
                 $"pose {adjacent} has no animation program");
 

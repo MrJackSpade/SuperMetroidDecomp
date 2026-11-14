@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseTraits
 {
     /// <summary>
-    /// The way the pose faces: its authored facing, or what a pose number past the authored poses reads
+    /// The way the pose faces: its authored facing, or what an unauthored pose reads
     /// (<see cref="SamusUnauthoredPoseDefinitions"/>). The front views face neither way.
     /// </summary>
     internal static SamusFacingDirection ReadFacing(SamusPoseId pose) =>
@@ -15,7 +15,7 @@ internal static class SamusPoseTraits
             : ReadAuthoredFacing(pose);
 
     /// <summary>The way an authored pose faces.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is unauthored.</exception>
     private static SamusFacingDirection ReadAuthoredFacing(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
@@ -251,27 +251,26 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingTransitionAimUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose => SamusFacingDirection.Right,
-        SamusPoseId.FirstUnauthoredPose or
-        SamusPoseId.SecondUnauthoredPose or
-        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
-            nameof(pose), pose, "A pose number past the authored poses reads its facing from what follows the definitions."),
+        SamusPoseId.TallStillRightPose or
+        SamusPoseId.ForwardStandingPose or
+        SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "An unauthored pose reads its facing through its unauthored definition."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>
     /// The pose's movement type, from the pose definition's movement entry, which selects the movement handler: its
-    /// authored movement, or what a pose number past the authored poses reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// authored movement, or what an unauthored pose reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose reads a movement beyond every movement type, which no handler
-    /// runs.</exception>
+    /// <exception cref="InvalidDataException">The pose has no movement type, so no handler runs it.</exception>
     internal static SamusMovementType ReadMovement(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
             ? unauthored.Movement ?? throw new InvalidDataException(
-                $"Pose {pose} reads a movement beyond every movement type, past {nameof(SamusMovementType.Special)}; no movement handler runs it.")
+                $"Pose {pose} has no movement type; no movement handler runs it.")
             : ReadAuthoredMovement(pose);
 
     /// <summary>An authored pose's movement type.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is unauthored.</exception>
     private static SamusMovementType ReadAuthoredMovement(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
@@ -507,16 +506,16 @@ internal static class SamusPoseTraits
         SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => SamusMovementType.Special,
-        SamusPoseId.FirstUnauthoredPose or
-        SamusPoseId.SecondUnauthoredPose or
-        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
-            nameof(pose), pose, "A pose number past the authored poses reads its movement from what follows the definitions."),
+        SamusPoseId.TallStillRightPose or
+        SamusPoseId.ForwardStandingPose or
+        SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "An unauthored pose reads its movement through its unauthored definition."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>
-    /// The pose a pose falls back to with no input: its authored fallback, or what a pose number past the authored poses
-    /// reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// The pose a pose falls back to with no input: its authored fallback, or what an unauthored pose reads
+    /// (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
     internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
@@ -524,7 +523,7 @@ internal static class SamusPoseTraits
             : ReadAuthoredNoInputPose(pose);
 
     /// <summary>The pose an authored pose falls back to with no input.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is unauthored.</exception>
     private static SamusPoseId ReadAuthoredNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
@@ -760,10 +759,10 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
-        SamusPoseId.FirstUnauthoredPose or
-        SamusPoseId.SecondUnauthoredPose or
-        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
-            nameof(pose), pose, "A pose number past the authored poses reads its no-input pose from what follows the definitions."),
+        SamusPoseId.TallStillRightPose or
+        SamusPoseId.ForwardStandingPose or
+        SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "An unauthored pose reads its no-input pose through its unauthored definition."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

@@ -17,8 +17,8 @@ internal static class SamusPoseRecordCodecTooling
     /// </summary>
     private static readonly FrozenDictionary<SamusPoseId, byte> IrregularMovementBytes = new Dictionary<SamusPoseId, byte>
     {
-        [SamusPoseId.FirstUnauthoredPose] = 0x8b,
-        [SamusPoseId.LastUnauthoredPose] = 0x38,
+        [SamusPoseId.TallStillRightPose] = 0x8b,
+        [SamusPoseId.ForwardStillCrouchHeightPose] = 0x38,
     }.ToFrozenDictionary();
 
     /// <summary>
@@ -27,8 +27,8 @@ internal static class SamusPoseRecordCodecTooling
     /// </summary>
     private static readonly FrozenDictionary<SamusPoseId, byte> IrregularFacingBytes = new Dictionary<SamusPoseId, byte>
     {
-        [SamusPoseId.SecondUnauthoredPose] = 0x29,
-        [SamusPoseId.LastUnauthoredPose] = 0x12,
+        [SamusPoseId.ForwardStandingPose] = 0x29,
+        [SamusPoseId.ForwardStillCrouchHeightPose] = 0x12,
     }.ToFrozenDictionary();
 
     /// <summary>The facing byte of a pose that faces neither way.</summary>

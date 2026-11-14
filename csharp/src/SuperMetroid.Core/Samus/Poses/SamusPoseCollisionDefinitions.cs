@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Each authored pose's physical half-height, independent of editable artwork and display offsets.</summary>
 /// <remarks>
-/// The pose numbers past the authored poses read their radii from what follows the definitions
-/// (<see cref="SamusUnauthoredPoseDefinitions"/>).
+/// The unauthored poses' radii are their unauthored definitions' (<see cref="SamusUnauthoredPoseDefinitions"/>).
 /// </remarks>
 internal static class SamusPoseCollisionDefinitions
 {

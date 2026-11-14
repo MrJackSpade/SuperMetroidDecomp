@@ -809,7 +809,7 @@ internal static class LookupStream1Verification
         AssertEqual(SamusPoseNumbers.RecordedPoses.Count, document.PoseDescriptors.Count, "cannon installs one descriptor per pose with a record, and none for a record no pose names");
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
             AssertEqual(Native(SamusPoseNumbers.Number(pose)), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
-        foreach (SamusPoseId pose in new[] { SamusPoseId.FirstUnauthoredPose, SamusPoseId.SecondUnauthoredPose, SamusPoseId.LastUnauthoredPose })
+        foreach (SamusPoseId pose in new[] { SamusPoseId.TallStillRightPose, SamusPoseId.ForwardStandingPose, SamusPoseId.ForwardStillCrouchHeightPose })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(pose), "cannon installed pose domain excludes the poses past the records");
         Console.WriteLine("Cannon poses: 233 named installed descriptors, the canonical stock hash and exact FD-FF rejection pass.");
     }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseAims
 {
     /// <summary>
-    /// The aim of <paramref name="pose"/>: its authored aim, or what a pose number past the authored poses reads
+    /// The aim of <paramref name="pose"/>: its authored aim, or what an unauthored pose reads
     /// (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>

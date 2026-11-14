@@ -105,7 +105,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// The direction Samus's pose aims her arm cannon, or none for a pose that fires nothing (turning, shooting
-    /// disabled, and the pose numbers past the authored poses).
+    /// disabled, and the unauthored poses).
     /// </summary>
     public static SamusProjectileDirection? ReadAimDirection(SamusState samus) => ReadAim(samus).Direction;
 
@@ -514,7 +514,7 @@ internal static class SamusPoseMetadata
     public static bool IsLeftToRightAerialTurnPose(SamusPoseId pose) => IsRightToLeftAerialTurnPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
-    /// Every pose some path of the game gives Samus: each pose except the three past the authored poses
+    /// Every pose some path of the game gives Samus: each pose except the three unauthored poses
     /// (<see cref="SamusUnauthoredPoseDefinitions.Poses"/>) and <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
     /// Among them are the glitch balls, their knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper
     /// Beam freeze and rainbow stop reach by a frame read past a transition's animation (#1535).

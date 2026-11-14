@@ -61,7 +61,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.Position.Y.Whole - 43;
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // Each facing keeps its aim within its own arc; an aim beyond the arc's far end, up to the split, takes that
         // end, and any other aim outside it takes the near end.
@@ -88,8 +88,8 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         // divides by 256, then reapplies the sign. Speed 1280 therefore remains a
         // signed 1/256-pixel velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(FireballSpeed, angle),
-            EnemyMath.MultiplySineSample(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            EnemyMath.SineSpeed(FireballSpeed, angle),
+            EnemyMath.SineSpeed(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>

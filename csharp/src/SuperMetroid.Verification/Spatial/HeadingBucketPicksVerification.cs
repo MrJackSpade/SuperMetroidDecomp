@@ -40,7 +40,7 @@ internal static class HeadingBucketPicksVerification
             AssertEqual(OctantDirections[bucket / 32], ShaktoolOrbitDefinitions.Orientations.At(midpoint), $"Shaktool midpoint {raw} orientation");
         }
         for (int octant = 0; octant < OctantDirections.Length; octant++)
-            AssertEqual(new TrigonometryAngle(octant * 32), Bearing.Toward(OctantDirections[octant]).ToMirroredTableAngle(),
+            AssertEqual(new TrigonometryAngle(octant * 32), Bearing.Toward(OctantDirections[octant]).ToMirroredTrigonometryAngle(),
                 $"Shaktool orientation {OctantDirections[octant]} cue direction");
     }
 

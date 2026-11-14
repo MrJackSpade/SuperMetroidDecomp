@@ -174,7 +174,7 @@ internal sealed class DraygonGoop
     internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
         state.Body.Position = state.Body.Position.WithWholeY(
-            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToTrigonometryAngle(), 32));
+            384 + EnemyMath.CircleCosinePixels(state.GoopYOscillationAngle.ToTrigonometryAngle(), 32));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.TurnedBySteps(1);
         DraygonMovement.MoveDraygonHorizontally(state, movingRight);
     }

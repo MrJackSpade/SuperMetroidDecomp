@@ -278,7 +278,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ResetOrientation();
         RoomEnemySlot owner = OwnerSlot(slot);
         RotationAngle target = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(slot.Position.X.Whole, owner.Position.X.Whole), CoordinateAxis.Difference(slot.Position.Y.Whole, owner.Position.Y.Whole))).ToMirroredTableAngle().ToAngle();
+            new(CoordinateAxis.Difference(slot.Position.X.Whole, owner.Position.X.Whole), CoordinateAxis.Difference(slot.Position.Y.Whole, owner.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? target - RotationAngle.QuarterTurn
             : target + RotationAngle.QuarterTurn;
@@ -415,7 +415,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShaktoolCueKind.RaiseTowardCenter:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
-                TrigonometryAngle centerDirection = Bearing.Toward(RequireShaktoolState(group[3]).Orientation).ToMirroredTableAngle();
+                TrigonometryAngle centerDirection = Bearing.Toward(RequireShaktoolState(group[3]).Orientation).ToMirroredTrigonometryAngle();
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter

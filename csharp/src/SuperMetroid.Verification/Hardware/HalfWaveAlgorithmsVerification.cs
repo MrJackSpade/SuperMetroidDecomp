@@ -7,12 +7,12 @@ using SuperMetroid.Verification.Enemies;
 internal static class HalfWaveAlgorithmsVerification
 {
     /// <summary>Checks all 128 byte samples, precise rounding bounds, and out-of-range indices.</summary>
-    internal static void VerifyEightBitHalfWaveAlgorithm(CartridgeImportAddressSpace rom)
+    internal static void VerifyCoarseHalfWaveAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
         {
-            byte original = EightBitHalfWaveAlgorithmRomByte(rom, EnemyMathReferenceData.ByteSine + index);
-            AssertEqual(original, Trigonometry.EightBitHalfWave(index), $"Original byte sine {index}");
+            byte original = CoarseHalfWaveRomByte(rom, EnemyMathReferenceData.ByteSine + index);
+            AssertEqual(original, Trigonometry.CoarseHalfWave(index), $"Original byte sine {index}");
             if (index is 0 or 64) continue;
             decimal value = 256 * Trigonometry.UnitHalfWave(index);
             const decimal error = 256 * 0.0000000000000000001m;
@@ -20,12 +20,12 @@ internal static class HalfWaveAlgorithmsVerification
             AssertEqual(original, decimal.Floor(value + error), $"Byte sine upper bound {index}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 128, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => Trigonometry.EightBitHalfWave(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => Trigonometry.CoarseHalfWave(invalid),
                 $"Byte sine invalid index {invalid}");
     }
 
     /// <summary>Reads the original byte sine table only for this retail oracle check.</summary>
-    private static byte EightBitHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CoarseHalfWaveRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks all 128 unsigned word samples, precise rounding bounds, and invalid indices.</summary>
     internal static void VerifyUnsignedHalfWaveAlgorithm(CartridgeImportAddressSpace rom)

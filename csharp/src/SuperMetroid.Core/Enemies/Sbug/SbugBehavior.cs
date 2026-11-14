@@ -179,7 +179,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding 128 selects the exact opposite direction for behavior six.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTrigonometryAngle();
         state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Action = relativeHeading == SbugHeading.Away
@@ -351,7 +351,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle,
         int speed,
         int phase) =>
-        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).HalfWaveIndex));
+        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).StepsIntoHalfTurn));
 
     /// <summary>Samples the signed short multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
@@ -369,7 +369,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <paramref name="phase"/> at the Sbug's speed, every authored one below five.
     /// </summary>
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
-        EnemyMath.ReadEightBitSineFixedProduct(angle.TurnedBySteps(phase), speed);
+        EnemyMath.CircleSine(angle.TurnedBySteps(phase), speed);
 
     /// <summary>Restarts the selected animation only when its facing animation differs from the installed one.</summary>
     private static void SetSbugFacing(

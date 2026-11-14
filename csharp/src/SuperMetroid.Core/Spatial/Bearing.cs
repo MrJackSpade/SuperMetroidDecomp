@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A compass bearing of 256 units per turn, as the enemies' aim-at calculation produces it: zero points up and the
-/// bearing advances clockwise, so <c>64</c> is right and <c>128</c> down. The sine and cosine lookups take the other
-/// convention, <see cref="TrigonometryAngle"/>; <see cref="ToTableAngle"/> converts between them.
+/// A compass bearing counted in steps of a 256th of a turn, as the enemies' aim-at calculation produces it: zero points
+/// up and the bearing advances clockwise, so <c>64</c> is right and <c>128</c> down. The sine and cosine take the other
+/// convention, <see cref="TrigonometryAngle"/>; <see cref="ToTrigonometryAngle"/> converts between them.
 /// </summary>
 [EncodingOwner("clockwise byte bearing")]
 public readonly record struct Bearing
@@ -21,15 +21,15 @@ public readonly record struct Bearing
     /// <param name="units">The computed bearing, which may lie outside one turn.</param>
     public static Bearing Wrapped(int units) => new(unchecked((byte)units));
 
-    /// <summary>The same direction in the sine-table convention: a quarter turn minus the bearing.</summary>
-    public TrigonometryAngle ToTableAngle() => TrigonometryAngle.Wrapped(TrigonometryAngle.QuarterTurn.RawValue - RawValue);
+    /// <summary>The same direction as a trigonometry angle, counted anticlockwise from right: a quarter turn minus the bearing.</summary>
+    public TrigonometryAngle ToTrigonometryAngle() => TrigonometryAngle.Wrapped(TrigonometryAngle.QuarterTurn.RawValue - RawValue);
 
     /// <summary>
-    /// The table angle of the same number of units: the bearing's direction mirrored across the line between up and
-    /// right, since the bearing counts clockwise from up and the table angle the other way from right. Aim calculations that
+    /// The trigonometry angle of the same number of steps: the bearing's direction mirrored across the line between up and
+    /// right, since the bearing counts clockwise from up and the trigonometry angle the other way from right. Aim calculations that
     /// take this angle read its sine as X and its cosine as Y, which turns the mirror back into the bearing's direction.
     /// </summary>
-    public TrigonometryAngle ToMirroredTableAngle() => new(RawValue);
+    public TrigonometryAngle ToMirroredTrigonometryAngle() => new(RawValue);
 
     /// <summary>The bearing turned <paramref name="steps"/> 256ths of a turn clockwise, anticlockwise when negative, continuing around the circle.</summary>
     public Bearing TurnedBySteps(int steps) => Wrapped(RawValue + steps);

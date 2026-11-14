@@ -366,7 +366,7 @@ internal sealed class CrocomireCombat
     {
         // A negative sine scales exactly as a positive one does. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
-        TrigonometryAngle heading = bearing.ToMirroredTableAngle();
+        TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
         return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
             Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,
             Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * CrocomireProjectileDefinitions.VelocityMultiplier);

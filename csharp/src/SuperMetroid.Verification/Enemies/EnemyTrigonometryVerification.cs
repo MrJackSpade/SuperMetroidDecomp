@@ -294,7 +294,7 @@ internal static class EnemyTrigonometryVerification
     internal static RegisteredSuite[] CompiledEnemyTrigonometrySuites() =>
     [
         new(nameof(VerifyRidleyPowerBombNeutralTail), () => VerifyRidleyPowerBombNeutralTail()),
-        new(nameof(VerifyEightBitHalfWaveAlgorithm), () => VerifyEightBitHalfWaveAlgorithm(LoadRepositoryRom())),
+        new(nameof(VerifyCoarseHalfWaveAlgorithm), () => VerifyCoarseHalfWaveAlgorithm(LoadRepositoryRom())),
         new(nameof(VerifyUnsignedHalfWaveAlgorithm), () => VerifyUnsignedHalfWaveAlgorithm(LoadRepositoryRom())),
         new(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(LoadRepositoryRom())),
         new(nameof(VerifyBombTorizoDroolSine), () => VerifyBombTorizoDroolSine(LoadRepositoryRom())),
@@ -665,12 +665,12 @@ internal static class EnemyTrigonometryVerification
             words[i] = rom.ReadCartridgeWord(address);
         }
 
-        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var fixedProduct = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedProduct = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleSine(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleCosinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleCosine(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleNegativeSine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, phase));
         var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, phase));
         var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));

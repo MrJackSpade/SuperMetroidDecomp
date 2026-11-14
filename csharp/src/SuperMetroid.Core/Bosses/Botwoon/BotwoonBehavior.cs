@@ -326,7 +326,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
         Bearing bearing = EnemyMath.CalculateBearing(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
-        state.MovementAngle = bearing.ToTableAngle().ToAngle();
+        state.MovementAngle = bearing.ToTrigonometryAngle().ToAngle();
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
@@ -572,7 +572,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
         Bearing bearing = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
         StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(bearing));
-        state.SpitAngle = bearing.ToTableAngle().ToAngle();
+        state.SpitAngle = bearing.ToTrigonometryAngle().ToAngle();
         state.HeadAction = state.Phase == BotwoonPhase.SpitWhileHidden
             ? BotwoonHeadAction.WaitForSpitFrame
             : BotwoonHeadAction.SpawnImmediateVolley;

@@ -201,7 +201,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), state.MaximumXRadius));
+            EnemyMath.CircleCosinePixels(state.Angle.ToTrigonometryAngle(), state.MaximumXRadius));
         // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, sixteen pixels
         // narrower. Spore Spawn only moves once the fight has started, which sets the radius to 48 or 64 first; the only
         // other way into movement is a hit on the exposed core, which only the open frames after that start carry. The
@@ -209,7 +209,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
-            EnemyMath.ReadEightBitNegativeSineProduct(
+            EnemyMath.CircleNegativeSinePixels(
                 swayBehind.TurnedBy(swayBehind),
                 state.MaximumXRadius - 16));
 
@@ -221,7 +221,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         TrigonometryAngle direction = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTableAngle();
+            new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTrigonometryAngle();
         state.DeathAngle = direction.ToAngle();
         state.DeathVelocityMagnitude = new(
             EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement(),

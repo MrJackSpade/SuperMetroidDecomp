@@ -666,8 +666,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
-                EnemyMath.MultiplySineSample(ContactPushSpeed, angle.ToTrigonometryAngle()),
-                EnemyMath.MultiplySineSample(
+                EnemyMath.SineSpeed(ContactPushSpeed, angle.ToTrigonometryAngle()),
+                EnemyMath.SineSpeed(
                     ContactPushSpeed,
                     (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
             return;
@@ -712,8 +712,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // damage whose multiple would pass 65535.
         SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(8 * collisionDamage, 240));
         state.Velocity += new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(magnitude, angle.ToTrigonometryAngle()),
-            EnemyMath.MultiplySineSample(
+            EnemyMath.SineSpeed(magnitude, angle.ToTrigonometryAngle()),
+            EnemyMath.SineSpeed(
                 magnitude,
                 (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
     }

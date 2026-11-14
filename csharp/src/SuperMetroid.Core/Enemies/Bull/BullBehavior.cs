@@ -112,7 +112,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)))
-            .ToMirroredTableAngle().TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn).ToAngle();
+            .ToMirroredTrigonometryAngle().TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)

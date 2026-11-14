@@ -135,7 +135,7 @@ internal sealed class GameplayActorDrawing
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
-            // The Crystal Flash colouring owns all sixteen of Samus's projectile colours during Crystal
+            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal
             // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
             // intentionally runs at the same point of the colour step.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
@@ -401,9 +401,8 @@ internal sealed class GameplayActorDrawing
     }
 
     /// <summary>
-    /// Most recent beam-charge/post-shot body-palette branch. This remains
-    /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
-    /// body colours rather than her projectiles' colours.
+    /// The most recent beam-charge or post-shot colouring step of Samus's body. It is distinct from the Hyper Beam's
+    /// colouring of her shots: it colours her body rather than her shots.
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
 

@@ -59,7 +59,6 @@ public sealed class SharedGameState
     /// station and map the overwrite decides takes the state it gives, and the saved loading state when the overwrite
     /// reaches it.
     /// </summary>
-    /// <exception cref="ArgumentException">The overwrite decides more stations than an area numbers.</exception>
     internal void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);

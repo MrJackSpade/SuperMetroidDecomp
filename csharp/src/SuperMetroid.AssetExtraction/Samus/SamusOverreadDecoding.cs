@@ -170,7 +170,7 @@ internal static class SamusOverreadDecoding
                 (byte[])[.. slice[ProgressionSliceLayout.LoadingGameStateOffset..].Select(value =>
                     value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
         }
-        FlagOverwrite events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
+        BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
             Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), storyEvent => storyEvent.ToString()),
             ProgressionTableCodec.ZebetitesDestroyedOf(events),

@@ -104,15 +104,15 @@ public static class ProgressionTableCodec
     }
 
     /// <summary>The item locations <paramref name="itemTable"/>, an overwrite of the collected-item table, decides: those whose bits it reaches.</summary>
-    public static DecidedFlags<ItemLocation> CollectedItemsOf(FlagOverwrite itemTable) =>
+    public static DecidedFlags<ItemLocation> CollectedItemsOf(BitTablePrefix itemTable) =>
         Decided(Ensure.NotNull(itemTable), ItemLocationDefinitions.All, location => location.Number());
 
     /// <summary>The doors <paramref name="doorTable"/>, an overwrite of the opened-door table, decides: those whose bits it reaches.</summary>
-    public static DecidedFlags<LockedDoor> OpenedDoorsOf(FlagOverwrite doorTable) =>
+    public static DecidedFlags<LockedDoor> OpenedDoorsOf(BitTablePrefix doorTable) =>
         Decided(Ensure.NotNull(doorTable), LockedDoorDefinitions.All, door => door.Number());
 
     /// <summary>The members of a kind whose numbered bits <paramref name="table"/> reaches, and those it sets.</summary>
-    private static DecidedFlags<T> Decided<T>(FlagOverwrite table, IReadOnlyList<T> kind, Func<T, int> number)
+    private static DecidedFlags<T> Decided<T>(BitTablePrefix table, IReadOnlyList<T> kind, Func<T, int> number)
         where T : notnull
     {
         T[] decided = [.. kind.Where(member => number(member) < table.Decided)];
@@ -123,7 +123,7 @@ public static class ProgressionTableCodec
     private static void SetBit(Span<byte> table, int number) => table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
 
     /// <summary>What writing <paramref name="copied"/> over a bit table's leading bytes decides.</summary>
-    public static FlagOverwrite PrefixOverwrite(ReadOnlySpan<byte> copied)
+    public static BitTablePrefix PrefixOverwrite(ReadOnlySpan<byte> copied)
     {
         var set = new List<int>();
         for (int number = 0; number < copied.Length * BitsPerByte; number++)
@@ -131,7 +131,7 @@ public static class ProgressionTableCodec
             if (IsBitSet(copied, number))
                 set.Add(number);
         }
-        return new FlagOverwrite(copied.Length * BitsPerByte, set);
+        return new BitTablePrefix(copied.Length * BitsPerByte, set);
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public static class ProgressionTableCodec
     /// reaches. The Zebetite counter's bits are <see cref="ZebetitesDestroyedOf"/>'s, and bits no story event uses hold
     /// nothing the game reads.
     /// </summary>
-    public static DecidedFlags<StoryEvent> StoryEventsOf(FlagOverwrite eventTable)
+    public static DecidedFlags<StoryEvent> StoryEventsOf(BitTablePrefix eventTable)
     {
         Ensure.NotNull(eventTable);
         StoryEvent[] decided = [.. Enum.GetValues<StoryEvent>().Where(storyEvent => storyEvent.Number() < eventTable.Decided)];
@@ -198,7 +198,7 @@ public static class ProgressionTableCodec
     /// the Zebetite counter's bits.
     /// </summary>
     /// <exception cref="InvalidDataException">The overwrite decides only some of the counter's bits, which no count expresses.</exception>
-    public static int? ZebetitesDestroyedOf(FlagOverwrite eventTable)
+    public static int? ZebetitesDestroyedOf(BitTablePrefix eventTable)
     {
         Ensure.NotNull(eventTable);
         if (eventTable.Decided <= FirstZebetiteCounterEvent)
@@ -314,11 +314,11 @@ public static class ProgressionTableCodec
     /// The stations <paramref name="areas"/>, an overwrite of the used-station table by area, decides: those whose numbers
     /// their area's overwrite reaches.
     /// </summary>
-    public static DecidedFlags<LoadStation> UsedStationsOf(IReadOnlyDictionary<AreaId, FlagOverwrite> areas)
+    public static DecidedFlags<LoadStation> UsedStationsOf(IReadOnlyDictionary<AreaId, BitTablePrefix> areas)
     {
         Ensure.NotNull(areas);
         LoadStation[] decided = [.. LoadStationDefinitions.Usable.Where(station =>
-            areas.TryGetValue(station.Area, out FlagOverwrite? area) && LoadStationNumberCodec.Number(station) < area.Decided)];
+            areas.TryGetValue(station.Area, out BitTablePrefix? area) && LoadStationNumberCodec.Number(station) < area.Decided)];
         return new DecidedFlags<LoadStation>(decided.ToHashSet(),
             decided.Where(station => areas[station.Area].Set.Contains(LoadStationNumberCodec.Number(station))).ToHashSet());
     }
@@ -333,9 +333,9 @@ public static class ProgressionTableCodec
     /// The used stations of each area <paramref name="copied"/>, the used-station table's leading bytes, covers: an
     /// area's first eight stations from the low byte of its word, the rest from the high byte.
     /// </summary>
-    public static IReadOnlyDictionary<AreaId, FlagOverwrite> UsedStationsPrefix(ReadOnlySpan<byte> copied)
+    public static IReadOnlyDictionary<AreaId, BitTablePrefix> UsedStationsPrefix(ReadOnlySpan<byte> copied)
     {
-        var areas = new Dictionary<AreaId, FlagOverwrite>();
+        var areas = new Dictionary<AreaId, BitTablePrefix>();
         for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count && index * sizeof(ushort) < copied.Length; index++)
         {
             int start = index * sizeof(ushort);

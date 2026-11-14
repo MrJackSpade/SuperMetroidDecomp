@@ -176,7 +176,7 @@ internal sealed class MotherBrainProjectiles
             {
                 RunMotherBrainDoorFragment(projectile);
             }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin)
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleFixedPlace)
             {
                 PinMotherBrainEscapeSubtitle(projectile);
             }

@@ -66,8 +66,11 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Drags and drops a door fragment under gravity for its fixed lifetime.</summary>
     MotherBrainDeathDoorFragmentFall,
 
-    /// <summary>Pins the death subtitle to fixed screen coordinates.</summary>
-    MotherBrainDeathSubtitleScreenPin,
+    /// <summary>
+    /// Holds the death subtitle still at its fixed place in the room, which every pass writes again; like every
+    /// projectile it is drawn where that place lies on screen (#1851).
+    /// </summary>
+    MotherBrainDeathSubtitleFixedPlace,
 
     /// <summary>Keeps Draygon's goop stuck to Samus for its lifetime.</summary>
     DraygonGoopStuckToSamus,

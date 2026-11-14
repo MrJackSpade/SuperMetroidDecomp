@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skultera;
@@ -26,8 +27,8 @@ internal static class SkulteraOwnedStateVerification
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 
-        SignedSixteenSixteen right = EnemyLinearSpeeds.Row(speedRecord).Positive;
-        SignedSixteenSixteen left = EnemyLinearSpeeds.Row(speedRecord).Negative;
+        SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
+        SignedSixteenSixteen left = -right;
         AssertEqual(right, state.RightVelocity, "rightward speed");
         AssertEqual(left, state.LeftVelocity, "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");

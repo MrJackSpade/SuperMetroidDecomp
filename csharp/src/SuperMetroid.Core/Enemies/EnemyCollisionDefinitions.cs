@@ -40,6 +40,12 @@ internal static class EnemyCollisionDefinitions
     /// <summary>The updates Samus is invincible after an enemy's touch hurts her.</summary>
     internal const int SamusTouchInvincibilityUpdates = 96;
 
+    /// <summary>
+    /// The updates Samus is invincible after an enemy projectile's touch hurts her (#1847): every projectile gives the
+    /// same protection.
+    /// </summary>
+    internal const int SamusProjectileHitInvincibilityUpdates = 96;
+
     /// <summary>The updates of knockback an enemy's touch requests for Samus.</summary>
     internal const int SamusTouchKnockbackUpdates = 5;
 }

@@ -50,9 +50,7 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Atomic initializer animation {selector}");
 
-            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(selector * 7);
-            AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
-            AssertEqual(speeds.Negative, -state.Speed, $"Atomic speed negated for moving up and left {selector}");
+            AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), state.Speed, $"Atomic speed {selector}");
 
             slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),

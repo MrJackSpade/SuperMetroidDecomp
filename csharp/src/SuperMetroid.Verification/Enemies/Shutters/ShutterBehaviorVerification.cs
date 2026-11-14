@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
@@ -192,8 +193,8 @@ internal static class ShutterBehaviorVerification
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedLowerY), state.LowerEndpoint, $"{context}: lower endpoint");
-            SignedSixteenSixteen down = EnemyLinearSpeeds.Row(speedIndex).Positive;
-            SignedSixteenSixteen up = EnemyLinearSpeeds.Row(speedIndex).Negative;
+            SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
+            SignedSixteenSixteen up = -down;
             AssertEqual(down, state.DownVelocity,
                 $"{context}: downward velocity is the speed record's first entry");
             AssertEqual(up, state.UpVelocity,

@@ -33,11 +33,11 @@ internal static class EnemySpeedTableCodec
     /// <summary>The word after a speed's first word.</summary>
     private const int SecondWordOffset = 2;
 
-    /// <summary>Linear row <paramref name="row"/> of the table at <paramref name="table"/>.</summary>
-    public static EnemyLinearSpeedRow LinearRow(IImportCartridgeSource cartridge, int table, int row)
+    /// <summary>Linear row <paramref name="row"/> of the table at <paramref name="table"/>: its speed and its stored negation.</summary>
+    public static (SignedSixteenSixteen Positive, SignedSixteenSixteen Negative) LinearRow(IImportCartridgeSource cartridge, int table, int row)
     {
         int start = table + row * RowBytes;
-        return new EnemyLinearSpeedRow(LinearSpeed(cartridge, start), LinearSpeed(cartridge, start + NegativeOffset));
+        return (LinearSpeed(cartridge, start), LinearSpeed(cartridge, start + NegativeOffset));
     }
 
     /// <summary>Quadratic row <paramref name="row"/> of the table at <paramref name="table"/>.</summary>
@@ -47,10 +47,10 @@ internal static class EnemySpeedTableCodec
         return new QuadraticCurveSpeed(QuadraticSpeed(cartridge, start), QuadraticSpeed(cartridge, start + NegativeOffset));
     }
 
-    /// <summary>The linear row whose speeds start <paramref name="byteOffset"/> bytes into the table, as native enemy state records it.</summary>
+    /// <summary>The speed of the linear row that starts <paramref name="byteOffset"/> bytes into the table, as native enemy state records it.</summary>
     /// <exception cref="InvalidDataException">The offset does not start a row.</exception>
-    public static EnemyLinearSpeedRow LinearRowAtOffset(int byteOffset) => byteOffset % RowBytes == 0
-        ? EnemyLinearSpeeds.Row(byteOffset / RowBytes)
+    public static EnemyLinearSpeed LinearSpeedAtOffset(int byteOffset) => byteOffset % RowBytes == 0
+        ? new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(byteOffset / RowBytes))
         : throw new InvalidDataException($"Linear speed-table offset {byteOffset} does not start a row.");
 
     /// <summary>

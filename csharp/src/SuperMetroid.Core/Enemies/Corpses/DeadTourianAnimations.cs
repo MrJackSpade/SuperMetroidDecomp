@@ -39,37 +39,25 @@ internal static class DeadTourianAnimations
         [
             Show(EnemyFrameId.DeadSidehopperInitiallyDead, 1),
         ],
-        [P.ZoomerCorpse0] =
+        [P.ZoomerCorpseOnItsBack] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpseFirst, 1),
+            Show(EnemyFrameId.DeadZoomerCorpseOnItsBack, 1),
         ],
-        [P.ZoomerCorpse1] =
+        [P.ZoomerCorpseUpright] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpseSecond, 1),
+            Show(EnemyFrameId.DeadZoomerCorpseUpright, 1),
         ],
-        [P.ZoomerCorpse2] =
+        [P.RipperCorpseLevel] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpseThird, 1),
+            Show(EnemyFrameId.DeadRipperCorpseLevel, 1),
         ],
-        [P.RipperCorpse0] =
+        [P.RipperCorpseTilted] =
         [
-            Show(EnemyFrameId.DeadRipperCorpseFirst, 1),
+            Show(EnemyFrameId.DeadRipperCorpseTilted, 1),
         ],
-        [P.RipperCorpse1] =
+        [P.SkreeCorpse] =
         [
-            Show(EnemyFrameId.DeadRipperCorpseSecond, 1),
-        ],
-        [P.SkreeCorpse0] =
-        [
-            Show(EnemyFrameId.DeadSkreeCorpseFirst, 1),
-        ],
-        [P.SkreeCorpse1] =
-        [
-            Show(EnemyFrameId.DeadSkreeCorpseSecond, 1),
-        ],
-        [P.SkreeCorpse2] =
-        [
-            Show(EnemyFrameId.DeadSkreeCorpseThird, 1),
+            Show(EnemyFrameId.DeadSkreeCorpse, 1),
         ],
     });
 
@@ -80,14 +68,11 @@ internal static class DeadTourianAnimations
         [P.SidehopperIdle] = new([new(P.SidehopperIdle, 0, 1, 1)], AnimationEnd.Holds),
         [P.SidehopperCorpse] = new([new(P.SidehopperCorpse, 0, 1, 1)], AnimationEnd.Holds),
         [P.SidehopperInitiallyDead] = new([new(P.SidehopperInitiallyDead, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ZoomerCorpse0] = new([new(P.ZoomerCorpse0, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ZoomerCorpse1] = new([new(P.ZoomerCorpse1, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ZoomerCorpse2] = new([new(P.ZoomerCorpse2, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RipperCorpse0] = new([new(P.RipperCorpse0, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RipperCorpse1] = new([new(P.RipperCorpse1, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkreeCorpse0] = new([new(P.SkreeCorpse0, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkreeCorpse1] = new([new(P.SkreeCorpse1, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkreeCorpse2] = new([new(P.SkreeCorpse2, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ZoomerCorpseOnItsBack] = new([new(P.ZoomerCorpseOnItsBack, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ZoomerCorpseUpright] = new([new(P.ZoomerCorpseUpright, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RipperCorpseLevel] = new([new(P.RipperCorpseLevel, 0, 1, 1)], AnimationEnd.Holds),
+        [P.RipperCorpseTilted] = new([new(P.RipperCorpseTilted, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SkreeCorpse] = new([new(P.SkreeCorpse, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

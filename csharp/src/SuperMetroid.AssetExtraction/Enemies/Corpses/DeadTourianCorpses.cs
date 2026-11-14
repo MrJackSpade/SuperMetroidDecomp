@@ -1,22 +1,35 @@
 using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
-/// <summary>Finds a dead Tourian enemy's corpse variants, whose rotting pictures the import composes.</summary>
+/// <summary>
+/// The cartridge's dead Tourian corpse variants (#1810): a placement names its corpse by a variant number of its species,
+/// and each variant has its own configuration and row upload list. The variant numbers are the import's knowledge; the
+/// game knows each corpse by how it lies, and variants that show the same picture are one corpse.
+/// </summary>
 internal static class DeadTourianCorpses
 {
+    /// <summary>The corpse each of a species' variants lies as, by variant number.</summary>
+    private static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> CorpseByVariant = new()
+    {
+        [DeadTourianCorpseSpecies.Zoomer] =
+            [DeadTourianCorpseDefinitions.ZoomerOnItsBack, DeadTourianCorpseDefinitions.ZoomerUpright, DeadTourianCorpseDefinitions.ZoomerOnItsBack],
+        [DeadTourianCorpseSpecies.Ripper] = [DeadTourianCorpseDefinitions.RipperLevel, DeadTourianCorpseDefinitions.RipperTilted],
+        [DeadTourianCorpseSpecies.Skree] = [DeadTourianCorpseDefinitions.Skree, DeadTourianCorpseDefinitions.Skree, DeadTourianCorpseDefinitions.Skree],
+    };
+
     /// <summary>How many corpse variants <paramref name="species"/> has.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
-    internal static int VariantCount(DeadTourianCorpseSpecies species) =>
-        DeadTourianCorpseDefinitions.Variants.TryGetValue(species, out DeadTourianCorpseDefinition[]? variants)
-            ? variants.Length
-            : throw new ArgumentOutOfRangeException(nameof(species), species, null);
+    internal static int VariantCount(DeadTourianCorpseSpecies species) => Variants(species).Length;
 
-    /// <summary>One Zoomer, Ripper, or Skree corpse's pose and height.</summary>
+    /// <summary>The corpse each of <paramref name="species"/>'s variants lies as, by variant number.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
+    internal static DeadTourianCorpseDefinition[] ByVariant(DeadTourianCorpseSpecies species) => [.. Variants(species)];
+
+    /// <summary>The corpse variant <paramref name="variantIndex"/> of <paramref name="species"/> lies as: its pose and height.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
     {
-        if (!DeadTourianCorpseDefinitions.Variants.TryGetValue(species, out DeadTourianCorpseDefinition[]? variants))
-            throw new ArgumentOutOfRangeException(nameof(species), species, null);
+        DeadTourianCorpseDefinition[] variants = Variants(species);
         if ((uint)variantIndex >= variants.Length)
             throw new ArgumentOutOfRangeException(nameof(variantIndex), variantIndex, null);
         return variants[variantIndex];
@@ -35,4 +48,11 @@ internal static class DeadTourianCorpses
             _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
         }, variantIndex);
     }
+
+    /// <summary>The variants of <paramref name="species"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
+    private static DeadTourianCorpseDefinition[] Variants(DeadTourianCorpseSpecies species) =>
+        CorpseByVariant.TryGetValue(species, out DeadTourianCorpseDefinition[]? variants)
+            ? variants
+            : throw new ArgumentOutOfRangeException(nameof(species), species, null);
 }

@@ -211,20 +211,20 @@ public enum EnemyProjectileFrameId
     PhantoonDestroyableShotThird,
     /// <summary><c>phantoon_destroyable_shot_fourth</c>, an installed animation frame.</summary>
     PhantoonDestroyableShotFourth,
-    /// <summary><c>kraid_rock_shared_pose_first</c>, an installed animation frame.</summary>
-    KraidRockSharedPoseFirst,
+    /// <summary><c>kraid_rock</c>, an installed animation frame.</summary>
+    KraidRock,
     /// <summary><c>kraid_rock_rising_right_pose</c>, an installed animation frame.</summary>
     KraidRockRisingRightPose,
-    /// <summary><c>kraid_rock_shared_pose_fifth</c>, an installed animation frame.</summary>
-    KraidRockSharedPoseFifth,
-    /// <summary><c>kraid_rock_spit_rock_shot_second</c>, an installed animation frame.</summary>
-    KraidRockSpitRockShotSecond,
-    /// <summary><c>kraid_rock_spit_rock_shot_third</c>, an installed animation frame.</summary>
-    KraidRockSpitRockShotThird,
-    /// <summary><c>kraid_rock_spit_rock_shot_fourth</c>, an installed animation frame.</summary>
-    KraidRockSpitRockShotFourth,
-    /// <summary><c>kraid_rock_spit_rock_shot_fifth</c>, an installed animation frame.</summary>
-    KraidRockSpitRockShotFifth,
+    /// <summary><c>kraid_rock_burst_first</c>, an installed animation frame.</summary>
+    KraidRockBurstFirst,
+    /// <summary><c>kraid_rock_burst_second</c>, an installed animation frame.</summary>
+    KraidRockBurstSecond,
+    /// <summary><c>kraid_rock_burst_third</c>, an installed animation frame.</summary>
+    KraidRockBurstThird,
+    /// <summary><c>kraid_rock_burst_fourth</c>, an installed animation frame.</summary>
+    KraidRockBurstFourth,
+    /// <summary><c>kraid_rock_burst_fifth</c>, an installed animation frame.</summary>
+    KraidRockBurstFifth,
     /// <summary><c>fake_kraid_spit</c>, an installed animation frame.</summary>
     FakeKraidSpit,
     /// <summary><c>fake_kraid_spike_left</c>, an installed animation frame.</summary>

@@ -256,7 +256,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount +
                 DeadTourianCorpseVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount,
-            "dead Zoomer, Ripper, Skree, and Sidehopper add thirteen compositions");
+            "dead Zoomer, Ripper, Skree, and Sidehopper add ten compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount +
                 MochtroidVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreEvirFrameCount,

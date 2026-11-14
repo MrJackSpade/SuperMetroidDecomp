@@ -14,20 +14,14 @@ internal enum DeadTourianSegment
     SidehopperCorpse,
     /// <summary>The sidehopper initially dead animation.</summary>
     SidehopperInitiallyDead,
-    /// <summary>The Zoomer corpse 0 animation.</summary>
-    ZoomerCorpse0,
-    /// <summary>The Zoomer corpse 1 animation.</summary>
-    ZoomerCorpse1,
-    /// <summary>The Zoomer corpse 2 animation.</summary>
-    ZoomerCorpse2,
-    /// <summary>The Ripper corpse 0 animation.</summary>
-    RipperCorpse0,
-    /// <summary>The Ripper corpse 1 animation.</summary>
-    RipperCorpse1,
-    /// <summary>The Skree corpse 0 animation.</summary>
-    SkreeCorpse0,
-    /// <summary>The Skree corpse 1 animation.</summary>
-    SkreeCorpse1,
-    /// <summary>The Skree corpse 2 animation.</summary>
-    SkreeCorpse2,
+    /// <summary>The Zoomer corpse lying on its back.</summary>
+    ZoomerCorpseOnItsBack,
+    /// <summary>The Zoomer corpse lying the right way up.</summary>
+    ZoomerCorpseUpright,
+    /// <summary>The Ripper corpse lying level.</summary>
+    RipperCorpseLevel,
+    /// <summary>The Ripper corpse lying tilted on a diagonal.</summary>
+    RipperCorpseTilted,
+    /// <summary>The Skree corpse.</summary>
+    SkreeCorpse,
 }

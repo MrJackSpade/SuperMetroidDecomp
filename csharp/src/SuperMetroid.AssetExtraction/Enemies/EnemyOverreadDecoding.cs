@@ -28,7 +28,7 @@ internal static class EnemyOverreadDecoding
     /// <exception cref="InvalidDataException">A slot's word gives different answers for rises an arm can reach full height with.</exception>
     private static bool[] MagdolliteApexGrowthBySlot(IImportCartridgeSource cartridge)
     {
-        int fastestStep = EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.RowCount - 1).Positive.WholePixels + 1;
+        int fastestStep = EnemyLinearSpeedTable.Speed(EnemyLinearSpeedTable.RowCount - 1).WholePixels + 1;
         var grows = new bool[EnemySlotOrder.Capacity];
         for (int slot = 0; slot < grows.Length; slot++)
         {

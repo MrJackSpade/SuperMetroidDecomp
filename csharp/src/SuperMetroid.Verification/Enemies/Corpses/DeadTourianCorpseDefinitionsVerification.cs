@@ -5,6 +5,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -46,10 +48,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             {
                 DeadTourianCorpseDefinition definition =
                     DeadTourianCorpses.For(family.Species, variantIndex);
-                AssertEqual(
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
-                    NativeEnemyAnimationOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialAnimation),
-                    $"dead {family.Species} variant {variantIndex} instruction selector");
+                VerifyVariantPlaysItsCorpse(rom, family, variantIndex, definition);
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
                 VerifyDeadTourianCorpseProductionInitialization(
@@ -67,6 +66,36 @@ internal static class DeadTourianCorpseDefinitionsVerification
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
             "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' upload lists and heights, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
+    }
+
+    /// <summary>
+    /// The variant's native list plays the corpse the import decodes it to (#1810). The cartridge selects a list per
+    /// variant; the game knows a corpse by how it lies, and a variant that shows the same picture as an earlier one is that
+    /// corpse. Its list is read as the corpse's segment, with the spritemap its own held frame names in place of the
+    /// corpse's: the same beats, timing and sleep, so the variant plays the decoded corpse.
+    /// </summary>
+    private static void VerifyVariantPlaysItsCorpse(
+        CartridgeImportAddressSpace rom,
+        DeadTourianCorpseDefinitionsFamily family,
+        int variantIndex,
+        DeadTourianCorpseDefinition definition)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort variantEntry = cartridge.ReadCartridgeWord(family.InstructionTable + variantIndex * 2);
+        ushort variantSpritemap = cartridge.ReadCartridgeWord(DeadTourianNativeListAddresses.Bank << 16 | variantEntry + 2);
+        EnemyFrameId corpseFrame = DeadTourianAnimations.Segments.Beats(definition.InitialAnimation)
+            .OfType<AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame>().Single().Shown;
+        NativeProgramEntry<DeadTourianSegment>[] entries =
+        [
+            .. DeadTourianNativeListAddresses.Entries.Select(entry => entry.Program == definition.InitialAnimation
+                ? entry with { Entry = variantEntry }
+                : entry),
+        ];
+        NativeEnemyAnimationOracle.Lists(cartridge, DeadTourianNativeListAddresses.Bank, entries, DeadTourianAnimations.Segments,
+            frame => frame == corpseFrame ? variantSpritemap : DeadTourianFrameToolingDefinitions.Spritemap(frame),
+            new NativeEnemyCueRules<DeadTourianCue>(
+                word => DeadTourianNativeListAddresses.Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                (word, operands, cue, at) => AssertEqual(DeadTourianNativeListAddresses.Instructions[word].Kind, cue.Kind, $"{at}: cue")));
     }
 
     /// <summary>

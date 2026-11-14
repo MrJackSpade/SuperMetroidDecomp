@@ -371,7 +371,6 @@ internal sealed class EnemyProjectileEngine
         projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
-        projectile.InvincibilityFrames = 96;
         projectile.Depth = definition.Depth;
         projectile.CanDamageSamus = definition.CanDamageSamus;
         projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
@@ -623,7 +622,7 @@ internal sealed class EnemyProjectileEngine
         }
 
         SamusSuitDamage.Hurt(samus, projectile.Damage);
-        samus.InvincibilityTimer = WrappingCountdown.Start(projectile.InvincibilityFrames);
+        samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates);
         KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
             samus.Position.X.Whole, projectile.Position.X.Whole) >= 0
             ? KnockbackHorizontalDirection.Right

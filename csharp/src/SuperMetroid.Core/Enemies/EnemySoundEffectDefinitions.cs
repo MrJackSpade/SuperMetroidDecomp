@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemySoundEffectDefinitions
 {
     /// <summary>Enemy-library sound queued when Alcoon emerges near Samus.</summary>
-    internal static readonly SoundEffectId AlcoonEmergeSound = EnemySound.SidehopperLanding;
+    internal static readonly SoundEffectId AlcoonEmergeSound = EnemySound.LowThud;
 
     /// <summary>Enemy-library sound queued by each fireball cue.</summary>
     internal static readonly SoundEffectId AlcoonFireSound = EnemySound.AlcoonSpit;
@@ -38,14 +38,17 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound accompanying Dachora's Speed Booster run.</summary>
     internal static readonly SoundEffectId DachoraSpeedBoosterSound = EnemySound.DachoraSpeedBooster;
 
-    /// <summary>Enemy-library sound queued at the scripted left wall turn.</summary>
-    internal static readonly SoundEffectId DachoraWallImpactSound = EnemySound.Silence;
+    /// <summary>
+    /// The enemy-library silence queued at the scripted left wall turn. It is a real request (#1842): it interrupts the
+    /// looping <see cref="DachoraSpeedBoosterSound"/> of the run that hit the wall.
+    /// </summary>
+    internal static readonly SoundEffectId DachoraSpeedBoosterSoundStop = EnemySound.Silence;
 
     /// <summary>Enemy-library cue published by a Dragon fireball volley.</summary>
     internal static readonly SoundEffectId DragonFireballSound = EnemySound.FireSpit;
 
-    /// <summary>The room-library sound that plays when arrival reaches the resting height.</summary>
-    internal static readonly SoundEffectId ElevatorArrivalSound = RoomSound.SpeedBoosterEnd;
+    /// <summary>The room-library request that stops the looping <see cref="ElevatorDepartureSound"/> when arrival reaches the resting height.</summary>
+    internal static readonly SoundEffectId ElevatorSoundStop = RoomSound.SpeedBoosterOrElevatorStop;
 
     /// <summary>The Samus-library sound that accompanies departure.</summary>
     internal static readonly SoundEffectId ElevatorDepartureSpinEndSound = SamusSound.SpinJumpEnd;
@@ -63,13 +66,16 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId EtecoonWallSound = EnemySound.EtecoonWallJump;
 
     /// <summary>Enemy-library sound emitted by the spit cue.</summary>
-    internal static readonly SoundEffectId EvirSpitSound = EnemySound.SidehopperLanding;
+    internal static readonly SoundEffectId EvirSpitSound = EnemySound.LowThud;
 
     /// <summary>Enemy-library cue when the eye finishes opening and requests its beam.</summary>
     internal static readonly SoundEffectId EyeActivationSound = EnemySound.MorphBallEyeRay;
 
-    /// <summary>Enemy-library cue when Samus leaves the active eye's range.</summary>
-    internal static readonly SoundEffectId EyeDeactivationSound = EnemySound.Silence;
+    /// <summary>
+    /// The enemy-library silence queued when Samus leaves the active eye's range. It is a real request (#1842): it
+    /// interrupts the looping <see cref="EyeActivationSound"/> of the eye's beam.
+    /// </summary>
+    internal static readonly SoundEffectId EyeRaySoundStop = EnemySound.Silence;
 
     /// <summary>Enemy-library cue emitted when a live bug's sound countdown reaches zero.</summary>
     internal static readonly SoundEffectId KagoBugSoundEffect = EnemySound.KagoBug;

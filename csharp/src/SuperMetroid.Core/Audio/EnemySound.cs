@@ -182,8 +182,11 @@ public enum EnemySound
     SkreeBurrow,
     /// <summary>A Sidehopper jumping.</summary>
     SidehopperJump,
-    /// <summary>A Sidehopper landing, a fire arc part spawning, an Evir spitting, an Alcoon spawning.</summary>
-    SidehopperLanding,
+    /// <summary>
+    /// A short low thud (#1842): a Sidehopper landing, a fire arc part spawning or a Nuclear Waffle turning, an Evir
+    /// spitting, an Alcoon emerging.
+    /// </summary>
+    LowThud,
     /// <summary>A Holtz, Desgeega, Viola, Alcoon or Botwoon hit.</summary>
     ShotHoltz,
     /// <summary>A Dragon's or Magdollite's fire spit, or a fire pillar.</summary>

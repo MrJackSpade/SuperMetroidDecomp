@@ -86,7 +86,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnPosition = slot.Position.Whole;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SignedSixteenSixteen flightSpeed = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
-        state.FlightSpeeds = new EnemyLinearSpeedRow(flightSpeed, SignedSixteenSixteen.Zero - flightSpeed);
+        state.FlightSpeeds = new EnemyLinearSpeed(flightSpeed);
         state.FormationCounter = 0;
         state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
         state.Action = PipeBugAction.NorfairWaitForFormation;

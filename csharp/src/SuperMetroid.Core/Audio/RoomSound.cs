@@ -78,8 +78,11 @@ public enum RoomSound
     BabyMetroidCry1,
     /// <summary>The Baby Metroid's cry on Ceres; a high-priority sound.</summary>
     CeresBabyMetroidCry,
-    /// <summary>Silences the Speed Booster or an elevator.</summary>
-    SpeedBoosterEnd,
+    /// <summary>
+    /// Stops the library's looping Speed Booster or elevator sound (#1842): Samus's Speed Booster ending, or an elevator
+    /// arriving.
+    /// </summary>
+    SpeedBoosterOrElevatorStop,
     /// <summary>The Baby Metroid's second cry.</summary>
     BabyMetroidCry2,
     /// <summary>The Baby Metroid's third cry.</summary>

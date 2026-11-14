@@ -55,7 +55,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraAction.SwimmingLeft
             : SkulteraAction.SwimmingRight;
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
+        EnemyLinearSpeed speeds = new(settings.Speed);
         state.RightVelocity = speeds.Positive;
         state.LeftVelocity = speeds.Negative;
 

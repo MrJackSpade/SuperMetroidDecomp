@@ -1,33 +1,29 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Initializer and corpse-rotting metadata for dead Tourian enemies: each corpse's pose animation and its height in pixel
-/// rows, sixteen for the Zoomer and Ripper and thirty-two for the Skree.
+/// The dead Zoomer, Ripper and Skree corpses a Tourian room places (#1810): each named for how the corpse lies, with its
+/// pose animation and its height in pixel rows, sixteen for the Zoomer and Ripper and thirty-two for the Skree. Corpses
+/// that lie the same way are one corpse.
 /// </summary>
 internal static class DeadTourianCorpseDefinitions
 {
-    /// <summary>
-    /// Each species' corpses, by their place in the species' configuration order: the pose each lies in and its height. A
-    /// room places a corpse by its species and that place.
-    /// </summary>
-    internal static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> Variants = new()
-    {
-        [DeadTourianCorpseSpecies.Zoomer] =
-        [
-            new(DeadTourianSegment.ZoomerCorpse0, 16),
-            new(DeadTourianSegment.ZoomerCorpse1, 16),
-            new(DeadTourianSegment.ZoomerCorpse2, 16),
-        ],
-        [DeadTourianCorpseSpecies.Ripper] =
-        [
-            new(DeadTourianSegment.RipperCorpse0, 16),
-            new(DeadTourianSegment.RipperCorpse1, 16),
-        ],
-        [DeadTourianCorpseSpecies.Skree] =
-        [
-            new(DeadTourianSegment.SkreeCorpse0, 32),
-            new(DeadTourianSegment.SkreeCorpse1, 32),
-            new(DeadTourianSegment.SkreeCorpse2, 32),
-        ],
-    };
+    /// <summary>A dead Zoomer lying on its back.</summary>
+    internal static readonly DeadTourianCorpseDefinition ZoomerOnItsBack =
+        new(DeadTourianCorpseSpecies.Zoomer, DeadTourianSegment.ZoomerCorpseOnItsBack, 16);
+
+    /// <summary>A dead Zoomer lying the right way up.</summary>
+    internal static readonly DeadTourianCorpseDefinition ZoomerUpright =
+        new(DeadTourianCorpseSpecies.Zoomer, DeadTourianSegment.ZoomerCorpseUpright, 16);
+
+    /// <summary>A dead Ripper lying level.</summary>
+    internal static readonly DeadTourianCorpseDefinition RipperLevel =
+        new(DeadTourianCorpseSpecies.Ripper, DeadTourianSegment.RipperCorpseLevel, 16);
+
+    /// <summary>A dead Ripper lying tilted, nose down.</summary>
+    internal static readonly DeadTourianCorpseDefinition RipperTilted =
+        new(DeadTourianCorpseSpecies.Ripper, DeadTourianSegment.RipperCorpseTilted, 16);
+
+    /// <summary>A dead Skree, its one pose.</summary>
+    internal static readonly DeadTourianCorpseDefinition Skree =
+        new(DeadTourianCorpseSpecies.Skree, DeadTourianSegment.SkreeCorpse, 32);
 }

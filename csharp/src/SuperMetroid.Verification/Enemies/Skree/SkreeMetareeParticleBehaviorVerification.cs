@@ -45,7 +45,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 AssertTrue(particle.Animation is SkreeMetareeParticleAnimation animation && animation.PlayingSegment == program,
                     $"the {particle.Kind} particle starts the {program} program");
                 // SpawnEprojInner copies the definition's properties: four contact damage.
-                AssertTrue(particle.CanDamageSamus && particle.Damage == 4 && particle.InvincibilityFrames == 96,
+                AssertTrue(particle.CanDamageSamus && particle.Damage == 4,
                     $"the {particle.Kind} particle keeps its definition's contact damage");
                 var native = new NativeEnemyProjectileListReader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
                 for (int update = 0; update < 40; update++)

@@ -12,11 +12,11 @@ public sealed class RipperEnemyState
     /// <summary>The Ripper-family typed flying loop (#641), started by setup and restarted at each reversal.</summary>
     internal AnimationPlayback<RipperSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/65536-pixel horizontal velocity per update, one of the selected linear-speed row's speeds.</summary>
+    /// <summary>Signed 1/65536-pixel horizontal velocity per update: the spawn speed rightward, or its negation leftward.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
-    /// <summary>The selected row of the shared linear speed table, set by initialization and read back when the velocity is loaded.</summary>
-    public EnemyLinearSpeedRow Speeds { get; internal set; }
+    /// <summary>The spawn settings' speed, set by initialization and read back when the velocity is loaded.</summary>
+    public EnemyLinearSpeed Speeds { get; internal set; }
 
     /// <summary>
     /// GRipper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The

@@ -22,15 +22,15 @@ internal sealed class CrocomireSkeleton
     private readonly EnemyPresentation _presentation;
     /// <summary>Produces the distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>Crocomire's combat, whose projectile behaviour the spike wall's pieces are bound to.</summary>
     private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access,
+    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, RoomCameraDistance cameraDistance, CrocomireEncounterAccess access,
         CrocomireCombat combat)
     {
         _combat = combat;
@@ -38,7 +38,7 @@ internal sealed class CrocomireSkeleton
         _projectiles = projectiles;
         _presentation = presentation;
         _deathsAndDrops = deathsAndDrops;
-        _zebetiteBehavior = zebetiteBehavior;
+        _cameraDistance = cameraDistance;
         _access = access;
     }
 
@@ -68,7 +68,7 @@ internal sealed class CrocomireSkeleton
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.HiddenWallScreen, RoomScrollState.Closed);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.RightEdge;
+        _cameraDistance.Request(CameraDistanceMode.RightEdge);
         RoomEnemySlot body = state.Body;
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         if (state.Tongue is { } tongue)
@@ -241,7 +241,7 @@ internal sealed class CrocomireSkeleton
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.BossRoomTension), MusicQueueDelay.Shortest);
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
+        _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
         _access.SpawnCrocomireDust(state, -16);
         _access.SpawnCrocomireDust(state, 16);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -32,9 +33,6 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>Sprite objects.</summary>
     public required RoomSpriteObjects SpriteObjects { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
-
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
@@ -44,7 +42,7 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Zebetite behavior.</summary>
-    public required ZebetiteBehavior ZebetiteBehavior { get; init; }
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    public required RoomCameraDistance CameraDistance { get; init; }
 
 }

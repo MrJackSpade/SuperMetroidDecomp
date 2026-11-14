@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 ﻿using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -27,8 +28,8 @@ internal sealed record KraidDeathDependencies
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
-    public required ZebetiteBehavior ZebetiteBehavior { get; init; }
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    public required RoomCameraDistance CameraDistance { get; init; }
 
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     public required KraidEncounterAccess Access { get; init; }

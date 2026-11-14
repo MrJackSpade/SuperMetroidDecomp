@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 ﻿using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -28,8 +29,8 @@ internal sealed record KraidRiseDependencies
     /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
-    public required ZebetiteBehavior ZebetiteBehavior { get; init; }
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    public required RoomCameraDistance CameraDistance { get; init; }
 
 
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>

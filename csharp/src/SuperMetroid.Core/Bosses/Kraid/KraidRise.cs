@@ -27,8 +27,8 @@ internal sealed class KraidRise
     private readonly KraidParts _parts;
     /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
@@ -46,7 +46,7 @@ internal sealed class KraidRise
         _earthquake = dependencies.Earthquake;
         _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
-        _zebetiteBehavior = dependencies.ZebetiteBehavior;
+        _cameraDistance = dependencies.CameraDistance;
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
@@ -77,7 +77,7 @@ internal sealed class KraidRise
         }
 
         // Kraid's fight tracks the camera like a boss.
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
+        _cameraDistance.Request(CameraDistanceMode.BossTracking);
         ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;

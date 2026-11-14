@@ -71,12 +71,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
 
     /// <summary>
-    /// How far ahead of Samus the camera aims, shared by every boss that retargets the camera.
-    /// The new room's special-effect setup clears it on every room load.
-    /// </summary>
-    public CameraDistanceMode CameraDistance { get; internal set; }
-
-    /// <summary>
     /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
     /// room. It selects only the pulse the Zebetites show.
     /// </summary>

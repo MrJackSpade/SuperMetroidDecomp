@@ -16,8 +16,8 @@ internal sealed class CrocomireBridgeCollapse
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
@@ -26,13 +26,13 @@ internal sealed class CrocomireBridgeCollapse
     private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, ZebetiteBehavior zebetiteBehavior, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access,
+    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomCameraDistance cameraDistance, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access,
         CrocomireCombat combat)
     {
         _combat = combat;
         _room = room;
         _projectiles = projectiles;
-        _zebetiteBehavior = zebetiteBehavior;
+        _cameraDistance = cameraDistance;
         _bodyLayer = bodyLayer;
         _access = access;
     }
@@ -309,7 +309,7 @@ internal sealed class CrocomireBridgeCollapse
         if (state.Tongue is { } tongue)
             tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
+        _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;
     }
 

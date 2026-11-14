@@ -12,7 +12,6 @@ internal static class HorizontalCameraTargets
     {
         CameraDistanceMode.NormalTracking => CoordinateAxis.Wrap(256 / 2 + (facingRight ? -32 : 32)),
         CameraDistanceMode.BossTracking => facingRight ? 64 : 80,
-        CameraDistanceMode.LeftEdge => 32,
         CameraDistanceMode.RightEdge => 256 - 32,
         _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
     };

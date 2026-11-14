@@ -725,7 +725,6 @@ internal static class LookupStream2Verification
             {
                 CameraDistanceMode.NormalTracking => 0,
                 CameraDistanceMode.BossTracking => 1,
-                CameraDistanceMode.LeftEdge => 2,
                 CameraDistanceMode.RightEdge => 3,
                 _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
             };

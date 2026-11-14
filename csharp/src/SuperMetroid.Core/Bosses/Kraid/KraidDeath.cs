@@ -24,8 +24,8 @@ internal sealed class KraidDeath
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
@@ -43,7 +43,7 @@ internal sealed class KraidDeath
         _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
         _deathsAndDrops = dependencies.DeathsAndDrops;
-        _zebetiteBehavior = dependencies.ZebetiteBehavior;
+        _cameraDistance = dependencies.CameraDistance;
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
@@ -262,7 +262,7 @@ internal sealed class KraidDeath
         _parts.Foot.Presence = arm.Presence;
         state.BodyState.Phase = KraidPhase.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
+        _cameraDistance.Request(CameraDistanceMode.NormalTracking);
 
         // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently

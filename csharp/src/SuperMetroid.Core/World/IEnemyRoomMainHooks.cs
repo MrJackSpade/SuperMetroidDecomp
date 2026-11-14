@@ -16,6 +16,6 @@ internal interface IEnemyRoomMainHooks
     /// <summary>Runs Spore Spawn's scrolling-finished hook when it is installed.</summary>
     void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera);
 
-    /// <summary>The Zebetites' camera-distance index.</summary>
-    CameraDistanceMode ZebetiteCameraDistance { get; }
+    /// <summary>How far ahead of Samus the room's camera aims, as the room's bosses requested it.</summary>
+    CameraDistanceMode CameraDistance { get; }
 }

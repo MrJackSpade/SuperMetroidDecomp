@@ -25,8 +25,25 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// </summary>
     [IntegerQuantity("position of the slot in the enemy table")]
     public int SlotIndex { get; }
-    /// <summary>The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> denotes an empty slot.</summary>
+    /// <summary>
+    /// The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> when the place holds no enemy, whether it is
+    /// free or <see cref="AwaitsRespawn"/>.
+    /// </summary>
     public EnemyDefinitionId DefinitionId { get; private set; }
+
+    /// <summary>
+    /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it
+    /// rebuilds that enemy from its population entry (#1851). No spawn takes the place meanwhile, and the enemy passes
+    /// that reach every place pass it over as they pass a free one; the enemy pass still counts its updates on the update
+    /// its enemy died.
+    /// </summary>
+    public bool AwaitsRespawn { get; private set; }
+
+    /// <summary>
+    /// Whether the place is free for a spawn: it holds no enemy and does not await one's respawn. A place's earlier
+    /// occupant's partners read it as gone only once it is free.
+    /// </summary>
+    internal bool IsFree => DefinitionId == EnemyDefinitionId.None && !AwaitsRespawn;
     /// <summary>Immutable resolved definition for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
 
@@ -65,9 +82,22 @@ public sealed class RoomEnemySlot : ISolidEnemy
     {
         DefinitionId = definitionId;
         Definition = definition;
+        AwaitsRespawn = false;
         OccupantStates = new();
         AnimationClock = new();
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
+    }
+
+    /// <summary>
+    /// Keeps the place of a respawning enemy just killed in it taken until its death explosion rebuilds it
+    /// (<see cref="AwaitsRespawn"/>). The killed enemy's population entry stays in <see cref="Spawn"/> for the rebuild.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place still holds an enemy.</exception>
+    internal void AwaitRespawn()
+    {
+        if (DefinitionId != EnemyDefinitionId.None)
+            throw new InvalidOperationException($"Enemy slot {SlotIndex} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
+        AwaitsRespawn = true;
     }
 
     /// <summary>
@@ -149,15 +179,16 @@ public sealed class RoomEnemySlot : ISolidEnemy
         get;
         internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
-    /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
-    public int HurtDuration
+    /// <summary>
+    /// The updates a hurt flash runs before any weapon's extension: the definition's, which the import resolves for every
+    /// definition (a definition that names none takes the standard flash), copied into the place when it is populated;
+    /// zero while the place holds no enemy.
+    /// </summary>
+    public int HurtFlashFrames
     {
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
-
-    /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
-    internal int HurtFlashFrames => HurtDuration == 0 ? 4 : HurtDuration;
     /// <summary>
     /// Where the enemy draws relative to its position: zero for every population entry; Ceres's steam sets it to
     /// place its puffs on the rotating station.
@@ -186,7 +217,8 @@ public sealed class RoomEnemySlot : ISolidEnemy
         FrameCounter = 0;
         ShakeTimer = 0;
         InvincibilityTimer = 0;
-        HurtDuration = 0;
+        HurtFlashFrames = 0;
+        AwaitsRespawn = false;
         DrawOffset = Offset16<RoomPixels>.Zero;
     }
 }

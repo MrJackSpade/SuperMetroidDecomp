@@ -1152,6 +1152,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemySoundsQueueInRunOrder), () => VerifyEnemySoundsQueueInRunOrder()),
         new(nameof(VerifyProjectileDudSoundsQueueWhenRejected), () => VerifyProjectileDudSoundsQueueWhenRejected()),
         new(nameof(VerifyBombHitCriesOrDuds), () => VerifyBombHitCriesOrDuds()),
+        new(nameof(VerifyLeftEdgeBombMissesFrameHitboxes), () => VerifyLeftEdgeBombMissesFrameHitboxes()),
         new(nameof(VerifyShotHitBursts), () => VerifyShotHitBursts()),
         new(nameof(VerifyBombHitBursts), () => VerifyBombHitBursts()),
         new(nameof(VerifyPirateHitBursts), () => VerifyPirateHitBursts()),

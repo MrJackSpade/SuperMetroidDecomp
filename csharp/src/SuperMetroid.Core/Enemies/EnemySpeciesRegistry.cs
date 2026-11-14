@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The species registry: which factory creates the entity for each definition. An enemy system's registry covers every
-/// definition a retail room or the respawn placeholder can bind (<see cref="ForRetailRooms"/>).
+/// definition a retail room can bind (<see cref="ForRetailRooms"/>).
 /// </summary>
 internal sealed class EnemySpeciesRegistry
 {
@@ -31,8 +31,7 @@ internal sealed class EnemySpeciesRegistry
     }
 
     /// <summary>
-    /// The registry of an enemy system: every definition a retail room places, and the respawn placeholder, has exactly
-    /// one factory.
+    /// The registry of an enemy system: every definition a retail room places has exactly one factory.
     /// </summary>
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
@@ -40,7 +39,7 @@ internal sealed class EnemySpeciesRegistry
     internal static EnemySpeciesRegistry ForRetailRooms(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
     {
         var registry = new EnemySpeciesRegistry(common, factories);
-        var unowned = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id).Append(EnemyDefinitionId.Respawn)
+        var unowned = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
             .Where(definition => !registry._factories.ContainsKey(definition))
             .ToList();
         if (unowned.Count != 0)

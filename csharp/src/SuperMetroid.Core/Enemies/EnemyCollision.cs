@@ -144,9 +144,9 @@ internal sealed class EnemyCollision
                 continue;
 
             // On the ordinary radius path a frozen enemy never runs its touch
-            // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
+            // AI, except a place awaiting its enemy's respawn. The extended-hitbox path has no such gate.
             if (!usesFrameHitboxes && slot.FrozenTimer != 0 &&
-                slot.DefinitionId != EnemyDefinitionId.Respawn)
+                !slot.AwaitsRespawn)
             {
                 continue;
             }
@@ -170,11 +170,13 @@ internal sealed class EnemyCollision
     /// </summary>
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
+    /// <param name="roomArea">The area of the room the enemies are in, which decides how long a shot's freeze lasts.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
+        AreaId roomArea,
         SamusState? samus = null,
         RoomEnemySlot? onlyEnemy = null)
     {
@@ -352,7 +354,7 @@ internal sealed class EnemyCollision
 
                 if (shotVulnerability.FreezeImmediately)
                 {
-                    FreezeEnemyFromNormalShot(enemy, samus);
+                    FreezeEnemyFromNormalShot(enemy, roomArea);
                     reaction.AfterCommon?.Invoke(shot with { Froze = true });
                     hitCount++;
                     break;
@@ -367,7 +369,7 @@ internal sealed class EnemyCollision
                 }
                 if (damage != 0)
                 {
-                    enemy.FlashTimer = enemy.HurtFlashFrames + 8;
+                    enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the definition's cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
@@ -393,7 +395,7 @@ internal sealed class EnemyCollision
                         // A lethal Ice-bearing beam leaves health unchanged and freezes the
                         // actor. This is not the same path as an authored freezing entry above:
                         // hurt flash and hurt state were already set before the lethal test.
-                        FreezeEnemyFromNormalShot(enemy, samus);
+                        FreezeEnemyFromNormalShot(enemy, roomArea);
                     }
                     else
                     {
@@ -479,13 +481,13 @@ internal sealed class EnemyCollision
                 SamusProjectileFamily family = bomb.Type.Family;
 
                 // The radius bomb pass admits an exploding normal bomb. The radius
-                // handler also admits a spread bomb. The frame-hitbox
-                // handler is narrower: it requires a bomb whose X position is not zero.
+                // handler also admits a spread bomb. The frame-hitbox handler is narrower,
+                // and passes over a bomb on the room's leftmost column (LeftEdgeBombMissesFrameHitboxes).
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
                     (usesFrameHitboxes
                         ? family != SamusProjectileFamily.Bomb ||
-                          bomb.Position.X.Whole == 0
+                          LeftEdgeBombMissesFrameHitboxes.Misses(bomb.Position.X.Whole)
                         : family != SamusProjectileFamily.Bomb &&
                           !bomb.IsBombSpread))
                 {
@@ -601,7 +603,7 @@ internal sealed class EnemyCollision
             return NormalBombHit.Dud;
         }
 
-        enemy.FlashTimer = enemy.HurtFlashFrames + 8;
+        enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
@@ -680,7 +682,8 @@ internal sealed class EnemyCollision
             // A death inside the previous reaction resizes the horizontal reach for the rest of
             // the sweep; the vertical reach is unchanged.
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
-            if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
+            // A place with no enemy, a place awaiting its enemy's respawn among them, is passed.
+            if (enemy.DefinitionId == EnemyDefinitionId.None ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -717,8 +720,8 @@ internal sealed class EnemyCollision
 
             // The common reaction damages the enemy by a Power Bomb's damage; the process-off-screen property follows.
             int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
-            enemy.InvincibilityTimer = 48;
-            enemy.FlashTimer = enemy.HurtFlashFrames + 8;
+            enemy.InvincibilityTimer = EnemyCollisionDefinitions.PowerBombInvincibilityUpdates;
+            enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
             enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
             enemy.Health = damage >= enemy.Health
                 ? 0
@@ -779,22 +782,24 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Installs the common frozen handler. Norfair uses 300 frames; every other
-    /// retail area uses 400. The ten-frame invincibility timer is shared by direct authored
-    /// freezing and the lethal-Ice substitution path.
+    /// Freezes an enemy a shot froze: for <see cref="EnemyCollisionDefinitions.NorfairFreezeUpdates"/> in a Norfair room
+    /// and <see cref="EnemyCollisionDefinitions.FreezeUpdates"/> in a room of any other area, as the original reads the
+    /// current area. The protection after a freeze is shared by direct authored freezing and the lethal-Ice substitution.
     /// </summary>
-    internal void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
+    /// <param name="enemy">The enemy frozen.</param>
+    /// <param name="roomArea">The area of the room the enemy is in.</param>
+    internal void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, AreaId roomArea)
     {
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer == 0)
             _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
-        enemy.FrozenTimer = samus?.LiquidPhysics.Area == AreaId.Norfair
-            ? 300
-            : 400;
+        enemy.FrozenTimer = roomArea == AreaId.Norfair
+            ? EnemyCollisionDefinitions.NorfairFreezeUpdates
+            : EnemyCollisionDefinitions.FreezeUpdates;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
-        enemy.InvincibilityTimer = 10;
+        enemy.InvincibilityTimer = EnemyCollisionDefinitions.FreezeInvincibilityUpdates;
     }
 
     /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
@@ -914,8 +919,8 @@ internal sealed class EnemyCollision
         enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
-    /// Handles Samus touching one already-overlapping ordinary actor. A zero contact index
-    /// damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
+    /// Handles Samus touching one already-overlapping ordinary actor. An ordinary touch, with no
+    /// attacking contact, damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
     /// their own entries from the enemy's vulnerabilities and damage the actor.
     /// </summary>
     internal void ResolveNormalEnemyTouch(
@@ -936,15 +941,15 @@ internal sealed class EnemyCollision
                     enemy.Position.X.Whole);
                 return;
             case SamusContactDamageIndex.SpeedBooster:
-                baseDamage = 500;
+                baseDamage = EnemyCollisionDefinitions.SpeedBoosterContactDamage;
                 vulnerability = contact.SpeedBooster;
                 break;
             case SamusContactDamageIndex.Shinespark:
-                baseDamage = 300;
+                baseDamage = EnemyCollisionDefinitions.ShinesparkContactDamage;
                 vulnerability = contact.Shinespark;
                 break;
             case SamusContactDamageIndex.ScrewAttack:
-                baseDamage = 2000;
+                baseDamage = EnemyCollisionDefinitions.ScrewAttackContactDamage;
                 vulnerability = contact.ScrewAttack;
                 break;
             case SamusContactDamageIndex.PseudoScrew:
@@ -954,7 +959,7 @@ internal sealed class EnemyCollision
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
                 projectiles.Firing.ConsumePseudoScrewCharge(_frameContext.SamusColours
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires Samus's colours."), samus);
-                baseDamage = 200;
+                baseDamage = EnemyCollisionDefinitions.PseudoScrewContactDamage;
                 vulnerability = contact.PseudoScrew;
                 break;
             default:
@@ -964,7 +969,7 @@ internal sealed class EnemyCollision
         if (damage == 0)
             return;
 
-        // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
+        // Touch damage shows the hurt flash alone, unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
         enemy.FlashTimer = enemy.HurtFlashFrames;
@@ -1005,12 +1010,12 @@ internal sealed class EnemyCollision
         // The suit's damage division quarters the source definition's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
         SamusSuitDamage.Hurt(samus, damageBeforeSuit);
-        samus.InvincibilityTimer = WrappingCountdown.Start(96);
+        samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates);
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).
-        samus.KnockbackTimer = 5;
+        samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
         samus.KnockbackXDirection = direction;
         // The enemy pass only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.

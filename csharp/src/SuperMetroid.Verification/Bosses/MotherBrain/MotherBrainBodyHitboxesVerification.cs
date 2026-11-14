@@ -45,14 +45,14 @@ internal static class MotherBrainBodyHitboxesVerification
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
         shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
         AssertTrue(shot.IsSpent, "the beam stops on the body's arm rectangle");
         AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
         shot.IsSpent = false;
         shot.Position = shot.Position.WithWholeY(0x0080);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
         AssertTrue(!shot.IsSpent, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
     }

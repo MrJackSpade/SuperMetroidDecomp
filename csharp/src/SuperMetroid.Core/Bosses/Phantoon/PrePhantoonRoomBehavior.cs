@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// The pre-Phantoon room's own rule: its setup holds an enemy-projectile place
-/// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>).
+/// The pre-Phantoon room's own effect (#1851): its setup holds an enemy-projectile place for its first projectile updates
+/// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>). The place holds no enemy's projectile: it shows and touches nothing.
 /// </summary>
 [RoomLifetime]
 internal sealed class PrePhantoonRoomBehavior
@@ -24,22 +24,22 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>
-    /// Runs the pre-Phantoon room's setup: holds its projectile place with a blank, harmless projectile until its animation
-    /// deletes it or a room load clears the pool.
+    /// Runs the pre-Phantoon room's setup: takes the first free projectile place and holds it until the hold's animation
+    /// frees it or a room load clears the pool.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()
     {
         _room.EnsureLoaded();
         EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
-            "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, HoldingProjectile, graphics: default);
+            "The pre-Phantoon room's held place found no free place in a freshly cleared pool.");
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: default);
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }
 
-    /// <summary>The room's holding projectile (#1760): it holds still until its animation deletes it.</summary>
+    /// <summary>The room's held place (#1760): it holds still until its animation frees it.</summary>
     internal static readonly EnemyProjectileBehavior HoldingProjectile = new HoldingProjectileBehavior();
 
-    /// <summary>The holding projectile, which carries out its animation's deletion cue.</summary>
+    /// <summary>The held place, which carries out its animation's freeing cue.</summary>
     private sealed class HoldingProjectileBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<PrePhantoonRoomCue>
     {
         /// <inheritdoc/>

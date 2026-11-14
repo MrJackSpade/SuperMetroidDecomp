@@ -23,7 +23,7 @@ internal static class EnemySlotOrder
         Ensure.NotNull(slots);
         foreach (RoomEnemySlot slot in slots)
         {
-            if (slot.DefinitionId == EnemyDefinitionId.None)
+            if (slot.IsFree)
                 return slot;
         }
         return null;

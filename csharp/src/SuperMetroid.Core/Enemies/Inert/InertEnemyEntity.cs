@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Inert;
 
-/// <summary>The respawn placeholder: it holds a killed enemy's slot and does nothing when it is initialized or each frame.</summary>
+/// <summary>An occupant of a definition no species owns (constructed test data): it does nothing when it is initialized or each frame.</summary>
 /// <param name="slot">The slot the occupant holds.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class InertEnemyEntity(RoomEnemySlot slot, EnemyCommonParticipation common)

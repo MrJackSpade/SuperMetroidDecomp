@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>One vertical enemy terrain probe: the target center and edge, direction, and remaining span (#633).</summary>
+/// <summary>One vertical enemy terrain probe: the target center and edge, direction, and the block of the span it tests (#633).</summary>
 internal readonly record struct EnemyVerticalProbe
 {
     /// <summary>
@@ -15,9 +15,6 @@ internal readonly record struct EnemyVerticalProbe
     /// <summary>Moving up.</summary>
     public required bool MovingUp { get; init; }
 
-    /// <summary>Remaining.</summary>
-    public required int Remaining { get; init; }
-
-    /// <summary>Span minus one.</summary>
-    public required int SpanMinusOne { get; init; }
+    /// <summary>Which block of the enemy's horizontal span the probe tests.</summary>
+    public required EnemyTerrainSpanBlock SpanBlock { get; init; }
 }

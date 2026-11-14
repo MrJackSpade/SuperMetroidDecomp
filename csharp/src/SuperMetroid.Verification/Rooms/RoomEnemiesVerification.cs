@@ -170,7 +170,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
-    AssertEqual(0x5a, slot.HurtDuration, "definition hurt flash copied into the slot");
+    AssertEqual(0x5a, slot.HurtFlashFrames, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
     AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
@@ -593,12 +593,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
 
     SamusProjectile shot = ArmProjectile(projectiles, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
+    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     shot = ArmProjectile(projectiles, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
+    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
@@ -618,7 +618,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     for (int hit = 0; hit < 2; hit++)
     {
         shot = ArmProjectile(projectiles, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles, SuperMetroid.Core.Progression.AreaId.Crateria),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),

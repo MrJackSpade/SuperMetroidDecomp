@@ -778,7 +778,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         RoomEnemySlot victim = BabyMetroidVictim.Of(_slotTable.Slots, slot.SlotIndex);
-        if (victim.DefinitionId == EnemyDefinitionId.None)
+        if (victim.IsFree)
             throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
         return victim;
     }

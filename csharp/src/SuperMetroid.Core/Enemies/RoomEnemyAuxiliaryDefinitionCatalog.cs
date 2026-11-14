@@ -8,25 +8,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
-    /// <summary>The respawn placeholder, selected when a killed actor vacates its slot.</summary>
-    internal static readonly RoomEnemyDefinition Respawn = new(
-        Health: 0,
-        Damage: 0,
-        Radius: new(8, 8),
-        HurtFlashFrames: 4,
-        HurtSoundEffect: EnemySound.RidleyRoar,
-        Boss: null,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
-        HurtResponse: EnemyHurtResponse.Inert,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: EnemyReaction.Ignore,
-        Shot: EnemyReaction.Ignore,
-        TouchHitboxScan: EnemyHitboxScan.Withheld,
-        ShotHitboxScan: EnemyHitboxScan.Withheld,
-        DropChances: null,
-        Vulnerability: null);
-
     /// <summary>The Baby Metroid of Mother Brain's cutscene.</summary>
     internal static readonly RoomEnemyDefinition BabyMetroidCutscene = new(
         Health: 3200,
@@ -122,11 +103,10 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: new EnemyDropChances(10, 20, 200, 25, 0, 0),
         Vulnerability: EnemyVulnerabilityDefinitions.SporeSpawn);
 
-    /// <summary>The respawn placeholder's, cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions, by identity.</summary>
+    /// <summary>The cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
-        [EnemyDefinitionId.Respawn] = Respawn,
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
         [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubes,
         [EnemyDefinitionId.BombTorizoOrb] = BombTorizoOrb,

@@ -169,7 +169,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,
-                    new SamusBombProjectileSystem()),
+                    new SamusBombProjectileSystem(), SuperMetroid.Core.Progression.AreaId.Crateria),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");

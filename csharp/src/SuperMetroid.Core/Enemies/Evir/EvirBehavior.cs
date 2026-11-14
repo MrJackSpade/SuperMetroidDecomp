@@ -125,12 +125,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return source.Field switch
             {
                 // An enemy whose population entry has not loaded yet is still empty, read as zero.
-                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
+                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.IsFree
                     ? 0
                     : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
                 // The game reads the enemy's colour selection as the count: an empty place's is zero, an Evir spit's
                 // gives the retail rooms' half-cycle.
-                EvirHalfCycleSourceField.SpitColours => enemy.DefinitionId == EnemyDefinitionId.None
+                EvirHalfCycleSourceField.SpitColours => enemy.IsFree
                     ? 0
                     : enemy.DefinitionId == EnemyDefinitionId.EvirProjectile
                         ? EvirInitDefinitions.SpitColoursHalfCycle

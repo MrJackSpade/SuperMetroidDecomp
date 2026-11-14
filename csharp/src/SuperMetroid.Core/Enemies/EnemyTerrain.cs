@@ -7,11 +7,24 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Enemy movement against room terrain: horizontal and vertical steps with square and
 /// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its room object
-/// through the active room-object owner supplied for each enemy frame.
+/// among the room's room objects.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyTerrain
 {
+    /// <summary>
+    /// The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into; null
+    /// for terrain built without them, which refuses an enemy's break.
+    /// </summary>
+    private readonly EnemyBreakableTerrainObjects? _breakableTerrain;
+
+    /// <summary>Moves the room's enemies against its terrain, breaking its enemy-breakable blocks into <paramref name="breakableTerrain"/>.</summary>
+    /// <param name="breakableTerrain">
+    /// The room's room objects that show an enemy-breakable block breaking, which live as long as the room; null for terrain
+    /// whose enemies never break a block.
+    /// </param>
+    internal EnemyTerrain(EnemyBreakableTerrainObjects? breakableTerrain) => _breakableTerrain = breakableTerrain;
+
     /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
@@ -59,20 +72,18 @@ internal sealed class EnemyTerrain
 
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int spanMinusOne = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
+        int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
         // The scan walks down the target column from the top row, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(targetEdge, topPixel).ToRoomBlock();
         bool collided = false;
-        for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
+        for (int scanIndex = 0; scanIndex <= lastBlock; scanIndex++)
         {
-            int remaining = spanMinusOne - scanIndex;
             if (EnemyHorizontalProbeIsSolid(
                     level,
                     slot,
                     BlockScanCycle.BlockDownRows(firstBlock, level.Size.X, scanIndex),
                     targetEdge,
-                    remaining,
-                    spanMinusOne,
+                    SpanBlock(scanIndex, lastBlock),
                     slopes == NonSquareSlopes.Walls))
             {
                 collided = true;
@@ -123,14 +134,13 @@ internal sealed class EnemyTerrain
 
         int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int spanMinusOne = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
+        int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
         // The scan walks along the target row from the left column, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(leftPixel, targetEdge).ToRoomBlock();
         bool collided = false;
-        for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
+        for (int scanIndex = 0; scanIndex <= lastBlock; scanIndex++)
         {
-            int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(level, slot, BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
+            if (EnemyVerticalProbeIsSolid(level, slot, BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, SpanBlock = SpanBlock(scanIndex, lastBlock) }))
             {
                 collided = true;
                 break;
@@ -161,6 +171,15 @@ internal sealed class EnemyTerrain
         }
         return true;
     }
+
+    /// <summary>
+    /// Which block of the enemy's span the move tests at <paramref name="scanIndex"/>, counted from the span's first block to
+    /// its <paramref name="lastBlock"/>; a one-block span's only block is its last.
+    /// </summary>
+    private static EnemyTerrainSpanBlock SpanBlock(int scanIndex, int lastBlock) =>
+        scanIndex == lastBlock ? EnemyTerrainSpanBlock.Last
+        : scanIndex == 0 ? EnemyTerrainSpanBlock.First
+        : EnemyTerrainSpanBlock.Inner;
 
     /// <summary>
     /// Implements the downward, geometry-only attachment probe used by Skree/Metaree. Unlike the common
@@ -251,8 +270,7 @@ internal sealed class EnemyTerrain
         RoomEnemySlot slot,
         Position16<RoomBlocks> startBlock,
         int targetEdge,
-        int remaining,
-        int spanMinusOne,
+        EnemyTerrainSpanBlock spanBlock,
         bool treatNonSquareSlopesAsWalls)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
@@ -270,8 +288,7 @@ internal sealed class EnemyTerrain
                 slot,
                 targetEdge,
                 block.Behavior,
-                remaining,
-                spanMinusOne),
+                spanBlock),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
                 false, // A zero-offset extension resolves to air.
             RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
@@ -309,8 +326,7 @@ internal sealed class EnemyTerrain
                 slot,
                 probe.TargetEdge.Y,
                 block.Behavior,
-                probe.Remaining,
-                probe.SpanMinusOne),
+                probe.SpanBlock),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
             RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
             RoomCollisionType.SolidBlock or
@@ -326,9 +342,8 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Reads a block for the movers, which never bound the block their scan reaches to the authored
-    /// room: past the room plane they read the blocks beyond the room (see
-    /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
-    /// as the reaction step repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
+    /// room: past the room's grid they meet the terrain beyond the room (<see cref="EnemyMovePastRoom"/>). Extension links
+    /// are followed as the reaction step repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
     /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="startBlock">The block the scan reached, in the room's columns (<see cref="BlockScanCycle"/>).</param>
@@ -343,7 +358,7 @@ internal sealed class EnemyTerrain
         for (int link = 0; link <= level.Size.Area; link++)
         {
             if (!level.Size.Contains(reached))
-                return ReadEnemyMoverAllocationTail(level, reached);
+                return EnemyMovePastRoom.Meets(reached, level.GetBlockBeyondRoom, ReactionReadsBehaviour);
             RoomCollisionBlock block = level.GetCollisionBlock(reached);
             if (ExtensionLink(block) is not { } extension)
                 return block;
@@ -374,23 +389,12 @@ internal sealed class EnemyTerrain
         _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
     };
 
-    /// <summary>Reads a block beyond the authored room, rejecting kinds whose behaviour there is unbounded.</summary>
-    private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, Position16<RoomBlocks> beyond)
-    {
-        RoomCollisionBlock block = level.GetBlockBeyondRoom(beyond);
-        // Slopes, extensions and spike blocks read their behaviour, and a block's behaviour
-        // beyond the authored room is unbounded state left by earlier rooms.
-        if (block.CollisionType is RoomCollisionType.Slope or
+    /// <summary>Whether a mover's reaction to <paramref name="block"/> reads its behaviour: a slope's shape, an extension's link or a spike block's breakability.</summary>
+    private static bool ReactionReadsBehaviour(RoomCollisionBlock block) =>
+        block.CollisionType is RoomCollisionType.Slope or
             RoomCollisionType.HorizontalExtension or
             RoomCollisionType.VerticalExtension or
-            RoomCollisionType.SpikeBlock)
-        {
-            throw new NotSupportedException(
-                $"Enemy collision reached behaviour-dependent type {block.CollisionType} at " +
-                $"block {beyond}, past the room plane; block behaviour there is unbounded.");
-        }
-        return block;
-    }
+            RoomCollisionType.SpikeBlock;
 
     /// <summary>
     /// Resolves signed extension links exactly as the step repeats them: each link leads on in the room's reading
@@ -423,17 +427,18 @@ internal sealed class EnemyTerrain
         RoomEnemySlot slot,
         int targetEdge,
         RoomBlockBehavior behavior,
-        int remaining,
-        int spanMinusOne)
+        EnemyTerrainSpanBlock spanBlock)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)), SquareSlopeRowHalf.Top);
-        if (remaining == 0)
+        // The span's last block meets only its top half when the enemy's bottom ends there; its first block only its bottom
+        // half when the enemy's top starts there.
+        if (spanBlock == EnemyTerrainSpanBlock.Last)
         {
             if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.Y + slot.Position.Y.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
-        else if (remaining == spanMinusOne &&
+        else if (spanBlock == EnemyTerrainSpanBlock.First &&
                  RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole - slot.Radius.Y))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
@@ -449,17 +454,18 @@ internal sealed class EnemyTerrain
         RoomEnemySlot slot,
         int targetEdge,
         RoomBlockBehavior behavior,
-        int remaining,
-        int spanMinusOne)
+        EnemyTerrainSpanBlock spanBlock)
     {
         SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)));
-        if (remaining == 0)
+        // The span's last block meets only its left half when the enemy's right side ends there; its first block only its
+        // right half when the enemy's left side starts there.
+        if (spanBlock == EnemyTerrainSpanBlock.Last)
         {
             if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.X + slot.Position.X.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
-        else if (remaining == spanMinusOne &&
+        else if (spanBlock == EnemyTerrainSpanBlock.First &&
                  RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole - slot.Radius.X))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
@@ -580,11 +586,6 @@ internal sealed class EnemyTerrain
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
         behavior.Slope.Shape.HeightAt(xWithinBlock);
-    /// <summary>
-    /// The active frame's room-object owner for enemy-breakable blocks. This synchronous call
-    /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.
-    /// </summary>
-    private EnemyBreakableTerrainObjects? _collisionObjects;
 
     /// <summary>Spawns the breakable-block room object for an enemy spike reaction and clears collision even if its pool is full.</summary>
     /// <param name="level">The room's terrain.</param>
@@ -593,26 +594,9 @@ internal sealed class EnemyTerrain
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room-object owner.");
+        var roomObjects = _breakableTerrain ?? throw new InvalidOperationException(
+            "An enemy broke an enemy-breakable block in terrain built without the room's room objects.");
         roomObjects.TrySpawnEnemyBreakableBlock(level, position);
         return false; // The block reaction reports no collision even if the room-object pool was full.
-    }
-
-    /// <summary>Supplies the active room-object owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>
-    internal readonly struct EnemyTerrainScope : IDisposable
-    {
-        /// <summary>Terrain owner whose active room-object context is temporarily replaced.</summary>
-        private readonly EnemyTerrain owner;
-        /// <summary>Room-object context restored when the enemy frame leaves this scope.</summary>
-        private readonly EnemyBreakableTerrainObjects? previous;
-        /// <summary>Installs the frame's room-object owner while retaining the previous context.</summary>
-        public EnemyTerrainScope(EnemyTerrain owner, EnemyBreakableTerrainObjects? current)
-        {
-            this.owner = owner;
-            previous = owner._collisionObjects;
-            owner._collisionObjects = current;
-        }
-        /// <summary>Restores the terrain owner's prior room-object context.</summary>
-        public void Dispose() => owner._collisionObjects = previous;
     }
 }

@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
@@ -21,8 +21,7 @@ internal static class RoomEnemyFrameFixtures
     /// <summary>
     /// A frame over <paramref name="level"/> with the camera at the room's origin, time running and no Samus: both of the
     /// game's clocks at <paramref name="frameCounter"/>, idle new Samus projectile and bomb systems, Samus's starting
-    /// colours and the breakable terrain of an empty room-object table. A check sets what it needs with a <c>with</c>
-    /// expression.
+    /// colours and a Crateria room. A check sets what it needs with a <c>with</c> expression.
     /// </summary>
     internal static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter) =>
         Standalone(level, frameCounter, new StandaloneInputs());
@@ -49,7 +48,7 @@ internal static class RoomEnemyFrameFixtures
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
         SharedProjectiles = inputs.Bombs,
-        CollisionObjects = inputs.CollisionObjects,
+        RoomArea = AreaId.Crateria,
         FrameCounter = frameCounter,
         ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
     };
@@ -60,7 +59,7 @@ internal static class RoomEnemyFrameFixtures
         /// <summary>
         /// A frame for this system's next pass outside the running game, as <see cref="Standalone(RoomLevelData, int)"/>
         /// builds it, with both clocks at the system's random enemy counter, which advances once a pass, and the same
-        /// projectile, bomb, colour and room-object inputs on every pass.
+        /// projectile, bomb and colour inputs on every pass.
         /// </summary>
         internal RoomEnemyFrame StandaloneFrame(RoomLevelData level) =>
             Standalone(level, self.FrameContext.RandomEnemyCounter, SystemInputs.GetValue(self, _ => new StandaloneInputs()));
@@ -80,7 +79,7 @@ internal static class RoomEnemyFrameFixtures
         }
     }
 
-    /// <summary>Idle Samus projectiles and bombs, Samus's starting colours and an empty room-object table's breakable terrain.</summary>
+    /// <summary>Idle Samus projectiles and bombs and Samus's starting colours.</summary>
     private sealed class StandaloneInputs
     {
         /// <summary>Samus's beams and missiles, none fired.</summary>
@@ -91,8 +90,5 @@ internal static class RoomEnemyFrameFixtures
 
         /// <summary>Samus's colours in their starting shades.</summary>
         internal SamusColours Colours { get; } = new();
-
-        /// <summary>The enemy-breakable terrain of a room-object table with no objects.</summary>
-        internal EnemyBreakableTerrainObjects CollisionObjects { get; } = new(new RoomObjectSlotTable(new RoomObjectPlaces()));
     }
 }

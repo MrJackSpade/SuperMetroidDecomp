@@ -116,6 +116,6 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Fails when AI disables Samus's controls without an installed lock service.</summary>
         public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
-        public void IncrementGlassRoomArgument() => throw Missing("advance Mother Brain's glass-room argument");
+        public void CountHeadShotOnGlass() => throw Missing("count a head shot on Mother Brain's glass");
     }
 }

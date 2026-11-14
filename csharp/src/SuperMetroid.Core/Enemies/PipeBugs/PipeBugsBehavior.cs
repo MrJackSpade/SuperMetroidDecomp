@@ -121,7 +121,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The game's on-screen check returns zero when the
                 // origin is visible. The wait branches on that zero result, so this initial
                 // state arms the proximity check on-screen, not after a despawn boundary.
-                if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
+                if (EnemyProcessingWindow.IsWithinProcessingWindow(slot, camera))
                     state.Action = PipeBugAction.BrinstarWaitForSamus;
                 return;
             case PipeBugAction.BrinstarWaitForSamus:
@@ -453,7 +453,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemySlot member in formation)
         {
             PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
-            bool killed = state is null && member.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn;
+            bool killed = state is null && member.DefinitionId == EnemyDefinitionId.None;
             if (!_norfairPlaces.Contains(member) ||
                 (!killed && state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet))
             {

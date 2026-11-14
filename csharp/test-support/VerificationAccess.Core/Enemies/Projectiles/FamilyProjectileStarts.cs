@@ -54,7 +54,7 @@ internal static class FamilyProjectileStarts
     /// <param name="kind">What the projectile is.</param>
     internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
     {
-        RoomEnemyProjectileKind.PrePhantoonRoom => PrePhantoonRoomBehavior.HoldingProjectile,
+        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => PrePhantoonRoomBehavior.HoldingProjectile,
         RoomEnemyProjectileKind.SkreeParticleDownRight or RoomEnemyProjectileKind.SkreeParticleUpRight or
             RoomEnemyProjectileKind.SkreeParticleDownLeft or RoomEnemyProjectileKind.SkreeParticleUpLeft or
             RoomEnemyProjectileKind.MetareeParticleDownRight or RoomEnemyProjectileKind.MetareeParticleUpRight or
@@ -218,7 +218,7 @@ internal static class FamilyProjectileStarts
             new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.BaseDecoration),
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
-        RoomEnemyProjectileKind.PrePhantoonRoom or RoomEnemyProjectileKind.CrocomireProjectile or
+        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
             RoomEnemyProjectileKind.KraidRisingRockLeft or RoomEnemyProjectileKind.KraidRisingRockRight or

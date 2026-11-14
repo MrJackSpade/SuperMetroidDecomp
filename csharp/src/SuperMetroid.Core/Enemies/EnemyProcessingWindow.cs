@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
@@ -12,18 +11,22 @@ internal sealed class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Per-line display effect stepped before enemy selection at the start of the update.</summary>
-    private readonly MorphBallEyeBehavior _morphBallEyeBehavior;
+    /// <summary>The species' work stepped at the start of the update, before enemy selection.</summary>
+    private readonly IStepBeforeEnemySelection _stepBeforeSelection;
     /// <summary>Room load guard for selection against a valid enemy population.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The slots traversed, in slot order, while choosing active enemies.</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
-    internal EnemyProcessingWindow(EnemyFrameContext frameContext, MorphBallEyeBehavior morphBallEyeBehavior, EnemyRoomBinding room, EnemySlotTable slotTable)
+    /// <param name="frameContext">The frame policy that can force off-screen enemies into the active list.</param>
+    /// <param name="stepBeforeSelection">The species' work that steps at the start of the update, before selection.</param>
+    /// <param name="room">The room load guard.</param>
+    /// <param name="slotTable">The room's enemy places.</param>
+    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
-        _morphBallEyeBehavior = morphBallEyeBehavior;
+        _stepBeforeSelection = stepBeforeSelection;
         _room = room;
         _slotTable = slotTable;
     }
@@ -39,8 +42,7 @@ internal sealed class EnemyProcessingWindow
     internal IReadOnlyList<RoomEnemySlot> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>
-    /// Runs the morph-ball eye's beam effect, then
-    /// decides which enemies to process.
+    /// Steps the species' work that runs before selection (the Morph Ball eye's beam), then decides which enemies to process.
     /// </summary>
     /// <remarks>
     /// Main gameplay builds the window first, before Samus's handlers. The grapple
@@ -54,7 +56,7 @@ internal sealed class EnemyProcessingWindow
     public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
     {
         _room.EnsureLoaded();
-        _morphBallEyeBehavior.StepMorphBallEyeBeam();
+        _stepBeforeSelection.StepBeforeEnemySelection();
         DetermineWhichEnemiesToProcess(camera);
     }
 
@@ -65,7 +67,8 @@ internal sealed class EnemyProcessingWindow
         _interactiveEnemies.Clear();
         foreach (RoomEnemySlot slot in _slotTable.Slots)
         {
-            if (slot.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn)
+            // A place with no enemy, one awaiting its enemy's respawn among them, is not processed.
+            if (slot.DefinitionId == EnemyDefinitionId.None)
                 continue;
             if (slot.Presence.HasAny(EnemyPresence.Deleted))
             {
@@ -76,7 +79,7 @@ internal sealed class EnemyProcessingWindow
             bool active = _frameContext.ProcessAllEnemies ||
                 slot.Processing.HasAny(EnemyProcessing.OffScreen) ||
                 (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None ||
-                EnemyIsWithinProcessingWindow(slot, camera);
+                IsWithinProcessingWindow(slot, camera);
             if (!active)
                 continue;
 
@@ -86,8 +89,13 @@ internal sealed class EnemyProcessingWindow
         }
     }
 
-    /// <summary>Applies radius-aware horizontal and asymmetric vertical bounds around the camera.</summary>
-    private static bool EnemyIsWithinProcessingWindow(
+    /// <summary>
+    /// Whether the enemy lies within the processing window around the camera: its radius reaches the screen's width from
+    /// the camera's left edge, and its centre lies from eight pixels above the camera to 248 pixels below it. The window
+    /// selects the enemies an update processes, and also the enemies the draw pass reaches and the enemies Rios and
+    /// pipe bugs treat as on screen.
+    /// </summary>
+    internal static bool IsWithinProcessingWindow(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
         !CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) &&
@@ -116,13 +124,4 @@ internal sealed class EnemyProcessingWindow
         int fromCamera = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - cameraX);
         return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, 256 + slot.Radius.X);
     }
-
-    /// <summary>Uses the normal-sprite processing window to determine whether all bounds reject a slot.</summary>
-    internal static bool EnemyWithNormalSpritesIsOffScreen(
-        RoomEnemySlot slot,
-        Position16<RoomPixels> camera) =>
-        CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) ||
-        CoordinateAxis.Precedes(slot.Radius.X + camera.X + 256, slot.Position.X.Whole) ||
-        CoordinateAxis.Precedes(slot.Position.Y.Whole + 8, camera.Y) ||
-        CoordinateAxis.Precedes(camera.Y + 248, slot.Position.Y.Whole);
 }

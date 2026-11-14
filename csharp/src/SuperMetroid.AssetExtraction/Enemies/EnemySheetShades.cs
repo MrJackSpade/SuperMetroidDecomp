@@ -396,7 +396,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or EnemyDefinitionId.Sbug
                 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
                 or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
-                or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Respawn or EnemyDefinitionId.Skree
+                or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Skree
                 or EnemyDefinitionId.Yard or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
                 or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer or EnemyDefinitionId.Metroid
                 or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom

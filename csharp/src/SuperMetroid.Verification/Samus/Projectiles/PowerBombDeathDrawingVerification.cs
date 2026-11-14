@@ -67,8 +67,8 @@ internal static class PowerBombDeathDrawingVerification
             enemies.Drawing.DrawAsOam(after, new(0, 0));
             if (lethal)
             {
-                AssertEqual(respawns ? EnemyDefinitionId.Respawn : 0,
-                    actor.DefinitionId, "lethal power bomb clears or reserves the physical slot");
+                AssertEqual(EnemyDefinitionId.None, actor.DefinitionId, "lethal power bomb clears the slot");
+                AssertEqual(respawns, actor.AwaitsRespawn, "a respawning enemy's slot awaits its respawn");
                 AssertEqual(0, after.NextByteOffset, "dead enemy emits no sprite records");
                 AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "death is counted once");
                 AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(projectile =>

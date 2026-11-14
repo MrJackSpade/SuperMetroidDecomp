@@ -110,7 +110,7 @@ internal static class MurderBeamVerification
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
 
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            projectiles, shared, samus),
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "invisible Murder Beam point overlaps an ordinary enemy");
         AssertEqual(800, target.Health,
             "charged vulnerability applies one 200-point Murder Beam hit");
@@ -121,7 +121,7 @@ internal static class MurderBeamVerification
 
         target.InvincibilityTimer = 0;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            projectiles, shared, samus),
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
@@ -130,7 +130,7 @@ internal static class MurderBeamVerification
         target.FrozenTimer = 0;
         target.Health = 100;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            projectiles, shared, samus),
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");

@@ -7,8 +7,12 @@ public enum RoomEnemyProjectileKind
 {
     /// <summary>No projectile: the projectile is gone or has freed its place, and the place is free for a spawn.</summary>
     None,
-    /// <summary>The pre-Phantoon room's background-offset keeper, spawned by the room's setup.</summary>
-    PrePhantoonRoom,
+    /// <summary>
+    /// No enemy's projectile: the place the pre-Phantoon room's setup holds in the pool for its first projectile updates
+    /// (<see cref="Compatibility.PrePhantoonRoomHeldProjectilePlace"/>). It shows nothing, touches nothing and frees the
+    /// place when its hold ends.
+    /// </summary>
+    PrePhantoonRoomHeldPlace,
     /// <summary>The Maw's projectile-backed body.</summary>
     YappingMawBody,
     /// <summary>Skree's downward-right burst particle.</summary>

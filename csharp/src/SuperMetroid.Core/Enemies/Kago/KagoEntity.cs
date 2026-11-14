@@ -7,10 +7,10 @@ internal sealed class KagoEntity(RoomEnemySlot slot, EnemyCommonParticipation co
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KagoBehavior.InitializeKago;
+    public void Initialize() => KagoBehavior.InitializeKago(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => KagoBehavior.RunKagoMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => KagoBehavior.RunKagoMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KagoBehavior.AdvanceKagoTypedAnimation;

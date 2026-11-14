@@ -123,6 +123,19 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<string> BehaviourFieldWords = ["Function"];
 
     /// <summary>
+    /// The enemy record's AI routine fields under the synonyms of <c>AiFunction</c> (#1738), two-word names matched like
+    /// <see cref="HardwarePhrases"/>: the cartridge's enemy record held its initialization, main, grapple and hurt AI as
+    /// routine pointers, and a Core name that says <c>AiRoutine</c> (an <c>EnemyAiRoutine</c> or <c>GrappleAiRoutine</c>
+    /// enum) or <c>AiHandler</c> (an <c>EnemyMainAiHandler</c> delegate a definition's entity looked up) names that pointer
+    /// field instead of the behaviour or response it selects. A delegate keeps no allowance: the handler delegates stood in
+    /// for the record's pointers. Each word alone stays the game's own: an AI, a routine, a handler.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> AiRoutinePhrases =
+    [
+        ["Ai", "Routine"], ["Ai", "Handler"],
+    ];
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -391,6 +404,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the original's routine ('{routineName}')";
         if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
+        if (ContainedPhrase(identifier, AiRoutinePhrases) is { } aiRoutine)
+            return $"names the enemy record's AI routine field ('{aiRoutine}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;

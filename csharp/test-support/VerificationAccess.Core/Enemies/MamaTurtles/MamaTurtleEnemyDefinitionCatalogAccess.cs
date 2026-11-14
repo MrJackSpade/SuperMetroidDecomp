@@ -1,5 +1,4 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
-using SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Independent compiled Mama Turtle family headers that verification compares with the cartridge.</summary>
 internal static class MamaTurtleEnemyDefinitionCatalogAccess
@@ -12,10 +11,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         HurtFlashFrames: 4,
         HurtSoundEffect: null,
         Boss: null,
-        InitializationAi: EnemyAiRoutine.SpeciesRoutine,
-        MainAi: EnemyAiRoutine.SpeciesRoutine,
-        GrappleAi: GrappleAiRoutine.Cancel,
-        HurtAi: EnemyAiRoutine.Inert,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Big,
         PowerBombReaction: null,
         Touch: EnemyReaction.MamaTurtleTouch,
@@ -33,10 +30,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         HurtFlashFrames: 4,
         HurtSoundEffect: null,
         Boss: null,
-        InitializationAi: EnemyAiRoutine.SpeciesRoutine,
-        MainAi: EnemyAiRoutine.SpeciesRoutine,
-        GrappleAi: GrappleAiRoutine.Cancel,
-        HurtAi: EnemyAiRoutine.Inert,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
         Touch: EnemyReaction.BabyTurtleTouch,

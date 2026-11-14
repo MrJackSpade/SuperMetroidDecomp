@@ -8,10 +8,10 @@ internal sealed class EscapeEtecoonEntity(EscapeAnimalsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeEscapeEtecoon;
+    public void Initialize() => species.InitializeEscapeEtecoon(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunEscapeEtecoonMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunEscapeEtecoonMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;

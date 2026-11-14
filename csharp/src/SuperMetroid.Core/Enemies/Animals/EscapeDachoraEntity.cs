@@ -8,11 +8,13 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeEscapeDachora;
+    public void Initialize() => species.InitializeEscapeDachora(Slot);
 
     /// <inheritdoc/>
     /// <remarks>The escape Dachora has no main behaviour; it moves through its animation.</remarks>
-    public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;

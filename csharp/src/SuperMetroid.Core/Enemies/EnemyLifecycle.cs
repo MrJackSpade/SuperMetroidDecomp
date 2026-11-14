@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -59,10 +59,10 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         switch (slot.Entity)
         {
             case IEnemySurroundingsInitialization entity:
-                (entity.FindSurroundingsInitialization() ?? throw NoInitialization(slot))(slot, surroundings);
+                entity.Initialize(surroundings);
                 break;
             case IEnemyInitialization entity:
-                (entity.FindInitialization() ?? throw NoInitialization(slot))(slot);
+                entity.Initialize();
                 break;
             default:
                 throw NoInitialization(slot);
@@ -78,7 +78,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition) =>
         InitializeSlotFromDefinition(slot, population, definition);
 
-    /// <summary>Lets the population loader invoke the slot's compiled initialization handler.</summary>
+    /// <summary>Lets the population loader run the slot's species initialization.</summary>
     void IEnemyLifecycle.RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings) =>
         RunInitializationAi(slot, surroundings);
 
@@ -97,7 +97,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         return slot;
     }
 
-    /// <summary>Routes a scheduled enemy update through its main AI handler.</summary>
+    /// <summary>Routes a scheduled enemy update through its species' main AI.</summary>
     void IEnemyLifecycle.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunMainAi(slot, frame);
 
@@ -107,8 +107,8 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <summary>Runs a loaded slot's main AI through its species' main behaviour.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
-            $"Enemy {slot.DefinitionId} has no main behaviour.");
-        handler(slot, frame);
+        if (slot.Entity is not IEnemyMainAi entity)
+            throw new InvalidDataException($"Enemy {slot.DefinitionId} has no main behaviour.");
+        entity.RunMainAi(frame);
     }
 }

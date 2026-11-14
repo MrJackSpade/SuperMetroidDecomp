@@ -66,6 +66,13 @@ that state is (`TorizoPhase`, `GunshipPhase`, `YardMovement`, `WallSpacePirateAc
 a `SetPhase` cue, a `PhaseTimer` or `ActionTimer`). A `Func<int>` field or parameter, a delegate type and its file keep
 the word, and words that only share its letters stay the game's own (`Functional`, `Func`, `Functor`).
 
+Two synonyms of `AiFunction` are reported too, with no delegate allowance (#1738, `CoreVocabularyAnalyzer.AiRoutinePhrases`):
+`AiRoutine` and `AiHandler`, the enemy record's initialization, main, grapple and hurt AI routine fields. A definition
+names the response it selects (`EnemyGrappleResponse`, `EnemyHurtResponse` with its `Inert` member), and a species
+exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyMainAi.RunMainAi`) instead of handing
+out a handler delegate the record's pointer stood behind. Each word alone stays the game's own (`AiState`, `Routine`,
+`EnemyHurtHandler`).
+
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
 characters after a lower-case letter that holds a hexadecimal letter and ends its word (`Unused0B`, `PoseFD`,
 `Backdrop2A`, `Projectile86E314Frame`); a run of four or more hexadecimal characters of either case that starts with a

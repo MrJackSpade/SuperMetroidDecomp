@@ -8,22 +8,42 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        RipperPart.GRipper => RipperBehavior.InitializeGRipper,
-        RipperPart.Ripper2 => RipperBehavior.InitializeRipper2,
-        RipperPart.Ripper => RipperBehavior.InitializeRipper,
-        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}."),
-    };
+        switch (RipperPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case RipperPart.GRipper:
+                RipperBehavior.InitializeGRipper(Slot);
+                break;
+            case RipperPart.Ripper2:
+                RipperBehavior.InitializeRipper2(Slot);
+                break;
+            case RipperPart.Ripper:
+                RipperBehavior.InitializeRipper(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        RipperPart.GRipper => species.RunGRipperMainAi,
-        RipperPart.Ripper2 => species.RunRipper2MainAi,
-        RipperPart.Ripper => species.RunRipperMainAi,
-        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}."),
-    };
+        switch (RipperPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case RipperPart.GRipper:
+                species.RunGRipperMainAi(Slot, frame);
+                break;
+            case RipperPart.Ripper2:
+                species.RunRipper2MainAi(Slot, frame);
+                break;
+            case RipperPart.Ripper:
+                species.RunRipperMainAi(Slot, frame);
+                break;
+            default:
+                throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;

@@ -264,6 +264,25 @@ internal static class CoreVocabularyAnalyzerTests
         // handler, a setup, a code, Samus's input and movement modes, a door's setup.
         Expect("class P { int Alpha; int Beta; int Handler; int Setup; int Code; int AlphaBetaHandling; int HandlerAlpha; int CodeSetup; }");
         Expect("class P { int SamusInputMode; int SamusMovementMode; int DoorSetup; int SetupCoder; int SetupBehavior; int GrappleBeamHandler; }");
+        // The enemy record's AI routine fields under the synonyms of AiFunction, in each kind of declaration a renamed
+        // definition field, response or lifecycle handler used them in (#1738): the definition's routine enums, a plural,
+        // a positional field, a parameter, a local, the handler delegates (a delegate keeps no allowance) and their files.
+        const string aiRoutine = "names the enemy record's AI routine field";
+        Expect("public enum EnemyAiRoutine { SpeciesRoutine, Inert }", $"'EnemyAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("public enum GrappleAiRoutine { Cancel }", $"'GrappleAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("class P { int[] AiRoutines = []; }", $"'AiRoutines' {aiRoutine} ('AiRoutine')");
+        Expect("record Definition(int HurtAiRoutine);", $"'HurtAiRoutine' {aiRoutine} ('AiRoutine')");
+        Expect("class P { void Run(int aiHandler) { } }", $"'aiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { void Run() { int mainAiHandler = 0; _ = mainAiHandler; } }", $"'mainAiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { int AIHandler; }", $"'AIHandler' {aiRoutine} ('AiHandler')");
+        Expect("delegate void EnemyMainAiHandler(int slot);", $"'EnemyMainAiHandler' {aiRoutine} ('AiHandler')");
+        Expect("class P { System.Action? HurtAiHandler { get; set; } }", $"'HurtAiHandler' {aiRoutine} ('AiHandler')");
+        ExpectFile("delegate void EnemyInitializationAiHandler(int slot);", "EnemyInitializationAiHandler.cs",
+            $"'EnemyInitializationAiHandler' {aiRoutine} ('AiHandler')", $"'EnemyInitializationAiHandler' {aiRoutine} ('AiHandler')");
+        // The words alone, apart, in another order or sharing only their letters are the game's own: an AI state, a
+        // routine, a handler, the responses and lifecycle phases that replaced the fields.
+        Expect("class P { int AiState; int Routine; int Handler; int RoutineAi; int HandlerAi; int AiRoutinely; int AidHandler; }");
+        Expect("class P { int GrappleResponse; int HurtResponse; int EnemyHurtHandler; void RunMainAi() { } void Initialize() { } }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

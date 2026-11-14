@@ -8,20 +8,36 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        KzanPart.Top => KzanBehavior.InitializeKzanTop,
-        KzanPart.Bottom => species.InitializeKzanBottom,
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KzanPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KzanPart.Top:
+                KzanBehavior.InitializeKzanTop(Slot);
+                break;
+            case KzanPart.Bottom:
+                species.InitializeKzanBottom(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        KzanPart.Top => species.RunKzanTopMainAi,
-        KzanPart.Bottom => (enemy, _) => species.RunKzanBottomMain(enemy),
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KzanPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KzanPart.Top:
+                species.RunKzanTopMainAi(Slot, frame);
+                break;
+            case KzanPart.Bottom:
+                species.RunKzanBottomMain(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch

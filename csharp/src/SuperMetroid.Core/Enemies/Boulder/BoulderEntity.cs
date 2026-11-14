@@ -8,10 +8,10 @@ internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => BoulderBehavior.InitializeBoulder;
+    public void Initialize() => BoulderBehavior.InitializeBoulder(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunBoulderMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBoulderMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BoulderBehavior.AdvanceBoulderTypedAnimation;

@@ -8,10 +8,10 @@ internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunAlcoonInitializationAi;
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunAlcoonInitializationAi(Slot, surroundings);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunAlcoonMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceAlcoonTypedAnimation;

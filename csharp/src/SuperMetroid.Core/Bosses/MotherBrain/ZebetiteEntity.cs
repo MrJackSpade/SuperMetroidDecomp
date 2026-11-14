@@ -10,10 +10,10 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeZebetite;
+    public void Initialize() => species.InitializeZebetite(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunZebetiteMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => ZebetiteBehavior.AdvanceZebetiteAnimation(enemy);

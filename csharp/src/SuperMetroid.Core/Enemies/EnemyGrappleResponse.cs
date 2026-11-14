@@ -1,11 +1,10 @@
-namespace SuperMetroid.Core.Samus.Grapple;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy definition's grapple reaction. Every retail
-/// enemy selects one of the seven shared reactions except the elevator, whose
-/// main AI doubles as its grapple AI.
+/// What an enemy does when the grapple beam reaches it. Every retail enemy names one of the seven shared responses except
+/// the elevator, whose own behaviour carries on.
 /// </summary>
-public enum GrappleAiRoutine
+public enum EnemyGrappleResponse
 {
     /// <summary>No definition: an empty enemy slot's default.</summary>
     None,
@@ -31,6 +30,6 @@ public enum GrappleAiRoutine
     /// <summary>The enemy hurts Samus through the grapple.</summary>
     HurtSamus,
 
-    /// <summary>The elevator's main AI, which grapple also uses for frozen enemies.</summary>
-    ElevatorMainAi,
+    /// <summary>The species' own behaviour carries on, as only the elevator's definition names; the grapple has no response to it.</summary>
+    SpeciesOwn,
 }

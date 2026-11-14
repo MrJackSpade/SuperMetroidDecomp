@@ -12,10 +12,10 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     public CorpseRotRows ShownRotRows => species.ShownDeadTorizoRows(Slot);
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTorizo;
+    public void Initialize() => species.InitializeDeadTorizo(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunDeadTorizoMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceDeadTorizoTypedAnimation;

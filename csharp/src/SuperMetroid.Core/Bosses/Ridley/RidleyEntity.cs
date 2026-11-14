@@ -19,22 +19,42 @@ internal sealed class RidleyEntity(
     private bool IsBody => Slot.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void Initialize()
     {
-        RidleyPart.Ridley => ridley.Combat.InitializeNorfairRidley,
-        RidleyPart.Ceres => ceres.Flight.InitializeCeresRidley,
-        RidleyPart.Explosion => ridley.Death.RunRidleyExplosionInitializationAi,
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
-    };
+        switch (RidleyPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case RidleyPart.Ridley:
+                ridley.Combat.InitializeNorfairRidley(Slot);
+                break;
+            case RidleyPart.Ceres:
+                ceres.Flight.InitializeCeresRidley(Slot);
+                break;
+            case RidleyPart.Explosion:
+                ridley.Death.RunRidleyExplosionInitializationAi(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void RunMainAi(IEnemyAiFrame frame)
     {
-        RidleyPart.Ridley => ridley.RunRidleyMainAi,
-        RidleyPart.Ceres => ceres.RunCeresRidleyMainAi,
-        RidleyPart.Explosion => (enemy, _) => ridley.Death.RunNorfairRidleyExplosionMain(enemy),
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
-    };
+        switch (RidleyPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case RidleyPart.Ridley:
+                ridley.RunRidleyMainAi(Slot, frame);
+                break;
+            case RidleyPart.Ceres:
+                ceres.RunCeresRidleyMainAi(Slot, frame);
+                break;
+            case RidleyPart.Explosion:
+                ridley.Death.RunNorfairRidleyExplosionMain(Slot);
+                break;
+            default:
+                throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}.");
+        }
+    }
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch

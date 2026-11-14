@@ -184,18 +184,16 @@ internal static class EnemyInteractionCallbacks
         return ByAddress.TryGetValue(SnesAddress.InBank(bank, pointer), out EnemyReaction local) ? local : null;
     }
 
-    /// <summary>Whether a header's initialization or main-AI word names the shared no-op or the species' routine.</summary>
-    internal static EnemyAiRoutine AiRoutine(int bank, int pointer) =>
-        EnemyAiRoutineDefinitions.CommonNoOpAiRoutines.Contains(SnesAddress.InBank(bank, pointer))
-            ? EnemyAiRoutine.Inert
-            : EnemyAiRoutine.SpeciesRoutine;
+    /// <summary>Whether a header's initialization or main-AI word names the shared no-op rather than the species' routine.</summary>
+    internal static bool NamesSharedNoOp(int bank, int pointer) =>
+        EnemyAiRoutineDefinitions.CommonNoOpAiRoutines.Contains(SnesAddress.InBank(bank, pointer));
 
     /// <summary>
-    /// Whether a header's hurt-AI word names the shared no-op or the species' routine. Every enemy bank repeats the
-    /// shared long return at the same offset, so the word is read as its bank-$A0 copy.
+    /// The hurt response a header's hurt-AI word names: the shared no-op or the species' routine. Every enemy bank repeats
+    /// the shared long return at the same offset, so the word is read as its bank-$A0 copy.
     /// </summary>
-    internal static EnemyAiRoutine HurtRoutine(int pointer) =>
+    internal static EnemyHurtResponse HurtResponse(int pointer) =>
         SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer) == EnemyAiRoutineDefinitions.BankA0.NoOp
-            ? EnemyAiRoutine.Inert
-            : EnemyAiRoutine.SpeciesRoutine;
+            ? EnemyHurtResponse.Inert
+            : EnemyHurtResponse.SpeciesOwn;
 }

@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyHurtAi : IEnemyEntity
 {
     /// <summary>The hurt handler the enemy uses now, or null to fall through to the next handler.</summary>
-    EnemyHurtAiHandler? FindHurt();
+    EnemyHurtHandler? FindHurt();
 }

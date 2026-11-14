@@ -8,10 +8,10 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate;
+    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => species.RunNinjaSpacePirateMainAi;
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Slot, frame);
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceNinjaSpacePirateTypedAnimation;

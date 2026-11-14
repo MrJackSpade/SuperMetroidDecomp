@@ -57,7 +57,7 @@ internal static class PhantoonCollisionDefinitions
 
     /// <summary>A body rectangle that Samus touches and shoots.</summary>
     private static EnemyCollisionHitbox Contact(int left, int top, int right, int bottom) =>
-        new(left, top, right, bottom, EnemyReaction.PhantoonTouch, EnemyReaction.PhantoonShot);
+        new(left, top, right, bottom, PhantoonReactions.Touch, PhantoonReactions.Shot);
 
     /// <summary>
     /// A body rectangle centered on the component's pixel-centered axis: its left edge is one pixel beyond the negated

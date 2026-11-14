@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamCollisionDefinitions
 {
     /// <summary>Every plume rectangle's touch reaction: the steam scalds Samus.</summary>
-    internal const EnemyReaction TouchReaction = EnemyReaction.CeresSteamTouch;
+    internal static readonly EnemyReaction TouchReaction = CeresSteamReactions.Touch;
 
     /// <summary>Every plume rectangle's shot reaction: the steam ignores shots.</summary>
-    internal const EnemyReaction ShotReaction = EnemyReaction.Ignore;
+    internal static readonly EnemyReaction ShotReaction = EnemyReaction.Ignore;
 
     /// <summary>
     /// The 28 steam frames, seven poses per direction, each with one zero-offset component: the first five poses hold
@@ -52,5 +52,4 @@ internal static class CeresSteamCollisionDefinitions
         { EnemyFrameId.CeresSteamRightSixth, [new(Offset16<RoomPixels>.Zero, [])] },
         { EnemyFrameId.CeresSteamRightSeventh, [new(Offset16<RoomPixels>.Zero, [])] },
     };
-
 }

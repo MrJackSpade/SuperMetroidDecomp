@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
@@ -185,15 +185,11 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    internal static void AddOwtchBombReactions(EnemySharedReactions table)
+    /// <remarks>Owtch's shell accepts common damage only during its vulnerable state zero.</remarks>
+    internal static EnemyBombReaction OwtchBombReaction { get; } = new()
     {
-        // Owtch's shell accepts common damage only during its vulnerable state zero.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Owtch &&
-                                                       c.SelectedShotAi == EnemyReaction.OwtchShot)
-        {
-            Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
-        });
-    }
+        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
+    };
 
     /// <summary>Runs Owtch's main AI.</summary>
     internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
@@ -212,23 +208,19 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    internal static void AddOwtchShotReactions(EnemySharedReactions table)
+    /// <remarks>Owtch's private shot reaction returns before common shot AI unless signed(state - 1) is negative. The
+    /// collision prelude has already marked ordinary non-plasma shots as collided at this point, but it has not
+    /// converted them into an impact animation. Preserve that split so the shell is genuinely immune while moving
+    /// right, sinking, buried, or rising.</remarks>
+    internal static EnemyShotReaction OwtchShotReaction { get; } = new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.OwtchShot)
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // Owtch's private shot reaction returns before common shot AI unless signed(state - 1) is negative.
-            // The collision prelude has already marked ordinary non-plasma shots as collided at this point,
-            // but it has not converted them into an impact animation. Preserve that split so the shell is genuinely
-            // immune while moving right, sinking, buried, or rising.
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
-                    return false;
-                if (c.MarksCollision)
-                    c.Projectile.IsSpent = true;
-                return true;
-            },
-        });
-    }
+            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
+                return false;
+            if (c.MarksCollision)
+                c.Projectile.IsSpent = true;
+            return true;
+        },
+    };
 }

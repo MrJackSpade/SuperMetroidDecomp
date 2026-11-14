@@ -298,14 +298,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot reaction.</summary>
-    internal void AddDragonBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction DragonBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                       c.SelectedShotAi == EnemyReaction.DragonShot)
-        {
-            AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary frame behaviour.</summary>
     internal static void AddDragonProjectiles(EnemyProjectileHandlerTable table)
@@ -331,35 +327,22 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
-    internal void AddDragonPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction DragonPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DragonPowerBomb)
-        {
-            AfterCommon = (enemy, _) => ResolveDragonCombatAfterCommon(enemy),
-        });
-    }
+        AfterCommon = (enemy, _) => ResolveDragonCombatAfterCommon(enemy),
+    };
 
     /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>
-    internal void AddDragonShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction DragonShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DragonShot)
-        {
-            AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>
-    internal void AddDragonTouch(EnemySharedReactions table)
+    internal void ReactToDragonTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Dragon &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.DragonTouch,
-            context =>
-            {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                ResolveDragonCombatAfterCommon(context.Slot);
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        ResolveDragonCombatAfterCommon(context.Slot);
     }
     /// <summary>Upward launch velocity of each Dragon fireball: three pixels and 193 256ths per update.</summary>
     private static readonly SignedEightEight DragonFireballInitialYVelocity = -SignedEightEight.FromParts(3, 193);

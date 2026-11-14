@@ -14,5 +14,5 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemySlot slo
     public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ElevatorBehavior.AdvanceElevatorTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ElevatorBehavior.AdvanceElevatorTypedAnimation(Slot, context);
 }

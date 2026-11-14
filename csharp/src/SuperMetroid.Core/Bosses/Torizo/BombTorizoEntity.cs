@@ -29,7 +29,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBombTorizoTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBombTorizoTypedAnimation(Slot, context);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
@@ -42,9 +42,50 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
+    /// <summary>Both Torizos' touch reaction, which their definitions leave to them.</summary>
+    public EnemyReaction? SpeciesTouch => TorizoReactions.Touch;
+
+    /// <summary>The shot reaction each Torizo's definition leaves to it: Golden Torizo's own, or Bomb Torizo's.</summary>
+    public EnemyReaction? SpeciesShot =>
+        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo ? TorizoReactions.GoldenShot : TorizoReactions.Shot;
+
+    /// <summary>
+    /// Both Torizos' hurt behaviour; the common animation runner still advances after it, as the enemies' update does.
+    /// </summary>
+    /// <param name="frame">The enemy frame.</param>
+    public override bool RunHurt(RoomEnemyFrame frame)
+    {
+        species.Combat.ApplyBombTorizoHurt(Slot);
+        return true;
+    }
+
+    /// <summary>Whether the Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
+    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+
+    /// <summary>Runs the Torizo's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
+    /// <param name="context">The touch.</param>
+    public override void ReactToTouch(EnemyTouchContext context)
+    {
+        if (LeavesTouchToSpecies)
+            species.Combat.ReactToBombTorizoTouch(context);
+        else
+            base.ReactToTouch(context);
+    }
+
+    /// <summary>The Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.Combat.BombTorizoShotReaction : base.ShotReaction;
+
+    /// <summary>Runs the Torizos' own reaction to every bomb that overlaps them, before the ignoring check.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        species.Combat.ReactToTorizoBomb(context);
+        return true;
+    }
+
     /// <summary>The Torizo shot reactions, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        reaction is EnemyReaction.BombTorizoShot or EnemyReaction.TorizoStandUpSitDownShot ||
-        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && reaction == EnemyReaction.GoldenTorizoShot;
+        reaction == TorizoReactions.Shot || reaction == TorizoReactions.StandUpSitDownShot ||
+        (Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && reaction == TorizoReactions.GoldenShot);
 }

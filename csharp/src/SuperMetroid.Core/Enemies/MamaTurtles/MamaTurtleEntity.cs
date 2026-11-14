@@ -40,15 +40,45 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        MamaTurtlePart.MamaTurtle => species.AdvanceMamaTurtleTypedAnimation,
-        MamaTurtlePart.BabyTurtle => species.AdvanceBabyTurtleTypedAnimation,
-        _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}."),
-    };
+        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MamaTurtlePart.MamaTurtle:
+                species.AdvanceMamaTurtleTypedAnimation(Slot, context);
+                break;
+            case MamaTurtlePart.BabyTurtle:
+                species.AdvanceBabyTurtleTypedAnimation(Slot, context);
+                break;
+            default:
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+        }
+    }
+
+    /// <summary>Whether the turtle's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
+    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+
+    /// <summary>Runs the mother's or the baby's own touch where the definition leaves Samus's touch to it, or the shared one.</summary>
+    /// <param name="context">The touch.</param>
+    public override void ReactToTouch(EnemyTouchContext context)
+    {
+        if (!LeavesTouchToSpecies)
+            base.ReactToTouch(context);
+        else if (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] == MamaTurtlePart.MamaTurtle)
+            species.ReactToMamaTurtleTouch(context);
+        else
+            species.ReactToBabyTurtleTouch(context);
+    }
+
+    /// <summary>The baby turtle's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.BabyTurtleShotReaction : base.ShotReaction;
+
+    /// <summary>The baby turtle's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot is null ? species.BabyTurtleBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The baby turtle's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        Slot.DefinitionId == EnemyDefinitionId.BabyTurtle && reaction == EnemyReaction.BabyTurtleShot;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

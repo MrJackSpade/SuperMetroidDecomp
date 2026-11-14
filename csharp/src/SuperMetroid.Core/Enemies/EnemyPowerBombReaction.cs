@@ -1,15 +1,12 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A species' power-bomb reaction, from its definition. The power-bomb pass runs its stages around common power-bomb
-/// damage at the game's positions; a reaction sets only the stages it has.
+/// A species' power-bomb reaction. The power-bomb pass runs its stages around common power-bomb damage at the game's
+/// positions; a reaction sets only the stages it has. The species' entity decides when it applies
+/// (<see cref="IEnemyPowerBombReaction.PowerBombReaction"/>).
 /// </summary>
-/// <param name="matches">Whether an enemy uses this reaction (its definition and the definition's reaction).</param>
-internal sealed class EnemyPowerBombReaction(Func<RoomEnemySlot, bool> matches)
+internal sealed class EnemyPowerBombReaction
 {
-    /// <summary>Whether an enemy uses this reaction.</summary>
-    internal Func<RoomEnemySlot, bool> Matches { get; } = Ensure.NotNull(matches);
-
     /// <summary>Whether the enemy is skipped before its reaction is examined.</summary>
     internal Func<RoomEnemySlot, bool>? SkipsEnemy { get; init; }
 

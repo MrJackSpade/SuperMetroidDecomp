@@ -165,34 +165,26 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot handler reports death, before the
     /// common death animation releases the enemy slot.</remarks>
-    internal void AddSkreeShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction SkreeShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Skree &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.SkreeShot)
-        {
-            // Skree's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
-        });
-    }
+        // Skree's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
+    };
 
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
     /// <remarks>Skree's shot reaction owns its four-piece burst and death animation because it calls the normal enemy shot
     /// AI that skips the death animation. A normal bomb selects death variant zero (only missiles select two).</remarks>
-    internal void AddSkreeBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction SkreeBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Skree &&
-                                                       c.SelectedShotAi == EnemyReaction.SkreeShot)
+        RunsGenericDeath = false,
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c =>
         {
-            RunsGenericDeath = false,
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c =>
-            {
-                if (c.Enemy.Health != 0)
-                    return;
-                _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst);
-                _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, deathAnimation: EnemyDeathExplosion.Small);
-            },
-        });
-    }
+            if (c.Enemy.Health != 0)
+                return;
+            _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst);
+            _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, deathAnimation: EnemyDeathExplosion.Small);
+        },
+    };
 }

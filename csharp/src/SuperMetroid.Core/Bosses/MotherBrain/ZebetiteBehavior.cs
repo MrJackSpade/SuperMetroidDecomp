@@ -292,18 +292,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>
-    internal void AddZebetiteBombReactions(EnemySharedReactions table)
+    /// <summary>Lets bombs share the Zebetite shot tail without generic death handling.</summary>
+    internal EnemyBombReaction ZebetiteBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
-                                                       c.SelectedShotAi == EnemyReaction.ZebetiteShot)
-        {
-            RunsGenericDeath = false,
-            // The Zebetite's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
-        });
-    }
+        RunsGenericDeath = false,
+        // The Zebetite's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs Zebetite's main AI.</summary>
     internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
@@ -311,25 +307,17 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RunZebetiteMain(slot, slot.RequireSpeciesState<ZebetiteEnemyState>());
     }
 
-    /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
-    internal void AddZebetiteShotReactions(EnemySharedReactions table)
+    /// <summary>Runs shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
+    internal EnemyShotReaction ZebetiteShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ZebetiteShot)
-        {
-            AlwaysUsesCollisionPrelude = true,
-            ExemptFromGenericDeath = true,
-            // The Zebetite's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
-        });
-    }
+        AlwaysUsesCollisionPrelude = true,
+        ExemptFromGenericDeath = true,
+        // The Zebetite's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
-    internal void AddZebetiteTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Zebetite &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.ZebetiteTouch,
-            context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip));
-    }
+    internal void ReactToZebetiteTouch(EnemyTouchContext context) =>
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
 }

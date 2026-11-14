@@ -467,8 +467,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Adds Ridley's hurt behaviour for the post-hit AI window.</summary>
     /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement and phase work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
-    internal void AddRidleyHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
+    internal void RunRidleyHurt(RoomEnemySlot slot, RoomEnemyFrame frame) =>
+        RunNorfairRidleyHurt(
             slot,
             frame.Samus,
             frame.ControllerInput,
@@ -476,7 +476,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.SamusProjectiles,
             frame.SharedProjectiles ?? throw new InvalidOperationException(
                 "Ridley's power-bomb check requires the shared projectile owner."),
-            frame.Camera));
+            frame.Camera);
 
     /// <summary>
     /// The heading a Norfair swoop turns toward: <paramref name="rightward"/> for a Ridley facing right or forward, and

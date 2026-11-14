@@ -14,5 +14,5 @@ internal sealed class PolypEntity(PolypBehavior species, RoomEnemySlot slot, Ene
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPolypMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PolypBehavior.AdvancePolypTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PolypBehavior.AdvancePolypTypedAnimation(Slot, context);
 }

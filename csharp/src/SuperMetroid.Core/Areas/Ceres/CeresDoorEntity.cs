@@ -16,7 +16,7 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior species, RoomEnemySlot s
     public void RunMainAi(IEnemyAiFrame frame) => species.RunCeresDoorMain(Slot);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceCeresDoorTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCeresDoorTypedAnimation(Slot, context);
 
     /// <summary>
     /// Whether the door's animation has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)

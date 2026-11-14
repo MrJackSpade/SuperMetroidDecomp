@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 
@@ -218,7 +218,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// kicks it, so a killed Bull has no reaction.
     /// </summary>
     internal EnemyBombReaction BombReaction { get; } =
-        new(c => c.Enemy.DefinitionId == EnemyDefinitionId.Bull && c.SelectedShotAi == EnemyReaction.BullShot)
+        new()
         {
             AfterCommon = c =>
             {
@@ -232,8 +232,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Bull has no reaction.
     /// </summary>
     internal EnemyShotReaction ShotReaction { get; } =
-        new(enemy => enemy.DefinitionId == EnemyDefinitionId.Bull &&
-                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BullShot)
+        new()
         {
             AfterCommon = c =>
             {

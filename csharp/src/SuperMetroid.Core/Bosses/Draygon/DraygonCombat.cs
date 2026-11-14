@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -44,49 +44,36 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
-    internal void AddDraygonBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction DraygonBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                       c.SelectedShotAi == EnemyReaction.DraygonShot)
-        {
-            RunsGenericDeath = false,
-            // Draygon's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            BeforeCommon = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
-            AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
-        });
-    }
+        RunsGenericDeath = false,
+        // Draygon's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        BeforeCommon = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+    };
 
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
-    internal void AddDraygonPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction DraygonPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DraygonPowerBomb)
-        {
-            ExemptFromGenericDeath = true,
-            AfterCommon = (enemy, samus) => ResolveDraygonReaction(enemy, samus),
-        });
-    }
+        ExemptFromGenericDeath = true,
+        AfterCommon = (enemy, samus) => ResolveDraygonReaction(enemy, samus),
+    };
 
-    /// <summary>Registers the body and linked-part contact behavior against Samus.</summary>
-    internal void AddDraygonTouch(EnemySharedReactions table)
+    /// <summary>Runs the body's contact against Samus.</summary>
+    internal void ReactToDraygonTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.DraygonTouch,
-            context =>
-            {
-                if (!context.UsesFrameHitboxes)
-                    throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
-                if (context.HitboxTouchAi == EnemyReaction.Ignore)
-                    return; // The vulnerable eye rectangle is harmless to Samus.
-                if (context.HitboxTouchAi != EnemyReaction.DraygonTouch)
-                {
-                    throw new InvalidDataException(
-                        $"Draygon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
-                }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-                ResolveDraygonReaction(context.Slot, context.Samus);
-            });
+        if (!context.UsesFrameHitboxes)
+            throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
+        if (context.HitboxTouch == EnemyReaction.Ignore)
+            return; // The vulnerable eye rectangle is harmless to Samus.
+        if (context.HitboxTouch != DraygonReactions.Touch)
+        {
+            throw new InvalidDataException(
+                $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+        }
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveDraygonReaction(context.Slot, context.Samus);
     }
 
     /// <summary>
@@ -199,38 +186,34 @@ internal sealed class DraygonCombat
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
 
-    /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>
-    internal void AddDraygonShotReactions(EnemySharedReactions table)
+    /// <summary>Draygon's shot response, including acceleration and special death exemption.</summary>
+    internal EnemyShotReaction DraygonShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DraygonShot)
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
+            if (!c.UsesFrameHitboxes)
+                throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
+            if (c.HitboxShot == EnemyReaction.DudShot)
             {
-                if (!c.UsesFrameHitboxes)
-                    throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
-                if (c.HitboxShotAi == EnemyReaction.DudShot)
-                {
-                    // Body, claws, and shell use the shared common touch; only the first
-                    // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
-                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
-                    return true;
-                }
-                if (c.HitboxShotAi != EnemyReaction.DraygonShot)
-                {
-                    throw new InvalidDataException(
-                        $"Draygon has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
-                }
-                return false;
-            },
-            AfterImpact = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
-            ExemptFromGenericDeath = true,
-            // Draygon's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
-        });
-    }
+                // Body, claws, and shell use the shared common touch; only the first
+                // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                return true;
+            }
+            if (c.HitboxShot != DraygonReactions.Shot)
+            {
+                throw new InvalidDataException(
+                    $"Draygon has no response to shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+            }
+            return false;
+        },
+        AfterImpact = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
+        ExemptFromGenericDeath = true,
+        // Draygon's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+    };
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindDraygonHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)

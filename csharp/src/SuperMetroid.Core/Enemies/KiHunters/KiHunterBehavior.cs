@@ -846,14 +846,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
-    internal void AddKiHunterBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction KiHunterBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.DefinitionId) &&
-                                                       c.SelectedShotAi == EnemyReaction.KiHunterShot)
-        {
-            AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Connects acid spit startup and gravity movement to frame behaviours.</summary>
     internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
@@ -888,25 +884,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
-    internal void AddKiHunterPowerBombReactions(EnemySharedReactions table)
-    {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.KiHunterShot)
-        {
-            AfterCommon = (enemy, _) => ResolveKiHunterShotAfterCommon(enemy),
-        });
-    }
-
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
-    internal void AddKiHunterShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction KiHunterShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.KiHunterShot)
-        {
-            AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+    };
     /// <summary>Acid mover installed by the startup frame behaviour after the projectile's idle frames.</summary>
     private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
         EnemyProjectileFrameBehavior.KiHunterAcidFlight;

@@ -54,14 +54,22 @@ internal sealed class EnemyCollision
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }
-    /// <summary>The touch reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
-    internal static EnemyReaction? TouchAi(RoomEnemySlot slot) => slot.Definition.Touch;
 
-    /// <summary>The shot reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
-    internal static EnemyReaction? ShotAi(RoomEnemySlot slot) => slot.Definition.Shot;
+    /// <summary>
+    /// The touch reaction a touch selects when it meets <paramref name="slot"/> by its radius: the shared one its
+    /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesTouch"/>);
+    /// null when neither names one.
+    /// </summary>
+    internal static EnemyReaction? TouchReactionOf(RoomEnemySlot slot) =>
+        slot.Definition.Touch ?? (slot.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
 
-    /// <summary>The Power Bomb reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
-    internal static EnemyReaction? PowerBombReaction(RoomEnemySlot slot) => slot.Definition.PowerBombReaction;
+    /// <summary>
+    /// The shot reaction a shot or bomb selects when it meets <paramref name="slot"/> by its radius: the shared one its
+    /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesShot"/>);
+    /// null when neither names one.
+    /// </summary>
+    internal static EnemyReaction? ShotReactionOf(RoomEnemySlot slot) =>
+        slot.Definition.Shot ?? (slot.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
@@ -107,13 +115,13 @@ internal sealed class EnemyCollision
             // dummy 8x8 radius here. An actor without a touch reaction is skipped.
             if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
                 slot.Presence.HasAny(EnemyPresence.Deleted) ||
-                (slot.Entity as IEnemyTouchReaction)?.FindTouch() is not { } touch)
+                slot.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
             {
                 continue;
             }
 
             bool overlapsSamus;
-            EnemyReaction? hitboxTouchAi = TouchAi(slot);
+            EnemyReaction? hitboxTouch = TouchReactionOf(slot);
             if (usesFrameHitboxes)
             {
                 overlapsSamus = TryFindFrameHitboxReaction(
@@ -121,7 +129,7 @@ internal sealed class EnemyCollision
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
                     contactKind: HitboxContactKind.Touch,
-                    out hitboxTouchAi);
+                    out hitboxTouch);
             }
             else
             {
@@ -143,13 +151,13 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            touch(new EnemyTouchContext(
+            touch.ReactToTouch(new EnemyTouchContext(
                 slot,
                 samus,
                 controllerInput,
                 level,
                 usesFrameHitboxes,
-                hitboxTouchAi,
+                hitboxTouch,
                 contactDamageIndex));
             return true;
         }
@@ -189,7 +197,7 @@ internal sealed class EnemyCollision
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
                 enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
-                (enemy.Entity as IEnemyShotReaction)?.FindShot() is not { } reaction)
+                (enemy.Entity as IEnemyShotReaction)?.ShotReaction is not { } reaction)
             {
                 continue;
             }
@@ -240,7 +248,7 @@ internal sealed class EnemyCollision
                 }
 
                 bool overlapsProjectile;
-                EnemyReaction? hitboxShotAi = ShotAi(enemy);
+                EnemyReaction? hitboxShot = ShotReactionOf(enemy);
                 if (usesFrameHitboxes)
                 {
                     overlapsProjectile = TryFindFrameHitboxReaction(
@@ -248,7 +256,7 @@ internal sealed class EnemyCollision
                         projectile.Position.Whole,
                         projectile.Radius,
                         contactKind: HitboxContactKind.Shot,
-                        out hitboxShotAi);
+                        out hitboxShot);
                 }
                 else
                 {
@@ -262,7 +270,7 @@ internal sealed class EnemyCollision
                 if (!overlapsProjectile)
                     continue;
 
-                bool selectedIgnore = hitboxShotAi == EnemyReaction.Ignore;
+                bool selectedIgnore = hitboxShot == EnemyReaction.Ignore;
                 var shot = new EnemyShotContext(
                     enemy,
                     projectile,
@@ -273,7 +281,7 @@ internal sealed class EnemyCollision
                     projectileDirection,
                     family,
                     usesFrameHitboxes,
-                    hitboxShotAi)
+                    hitboxShot)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };
@@ -445,16 +453,17 @@ internal sealed class EnemyCollision
         for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _lifecycle.InteractiveEnemies.Count); ordinal++)
         {
             RoomEnemySlot enemy = onlyEnemy ?? _lifecycle.InteractiveEnemies[ordinal];
-            bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
-            bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
-            bool usesPrivateShotAi = HasPrivateNormalBombShotAi(enemy, ShotAi(enemy));
+            EnemyReaction? radiusShot = ShotReactionOf(enemy);
+            bool usesCommonShot = radiusShot == EnemyReaction.NormalEnemyShot;
+            bool usesIgnoringShot = radiusShot == EnemyReaction.Ignore;
+            bool usesPrivateShot = HasPrivateNormalBombShot(enemy, radiusShot);
             bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
             bool definitionWithholdsFrameHitboxShots = usesFrameHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
                 admission.AdmitsNormalBombs(usesFrameHitboxes);
-            if ((!usesCommonShotAi && !usesIgnoreShotAi &&
-                    !usesPrivateShotAi && !admittedByOccupant) ||
+            if ((!usesCommonShot && !usesIgnoringShot &&
+                    !usesPrivateShot && !admittedByOccupant) ||
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
@@ -483,14 +492,14 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                EnemyReaction? selectedShotAi = ShotAi(enemy);
+                EnemyReaction? selectedShot = radiusShot;
                 bool overlaps = usesFrameHitboxes
                     ? TryFindFrameHitboxReaction(
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
                         contactKind: HitboxContactKind.Shot,
-                        out selectedShotAi)
+                        out selectedShot)
                     : RadiusBoxesOverlap(
                         enemy.Position.Whole,
                         enemy.Radius,
@@ -504,9 +513,9 @@ internal sealed class EnemyCollision
                 // Frame-hitbox actors dispatch the reaction stored in the selected hitbox,
                 // not necessarily the definition's. Do not turn a protected/private
                 // component into common damage merely because the definition names the ordinary shot.
-                bool selectedIgnore = selectedShotAi == EnemyReaction.Ignore;
-                bool selectedPrivateReaction = HasPrivateNormalBombShotAi(enemy, selectedShotAi);
-                if (selectedShotAi != EnemyReaction.NormalEnemyShot &&
+                bool selectedIgnore = selectedShot == EnemyReaction.Ignore;
+                bool selectedPrivateReaction = HasPrivateNormalBombShot(enemy, selectedShot);
+                if (selectedShot != EnemyReaction.NormalEnemyShot &&
                     !selectedIgnore &&
                     !selectedPrivateReaction)
                     continue;
@@ -520,41 +529,33 @@ internal sealed class EnemyCollision
                     bomb,
                     ordinaryProjectiles,
                     samus,
-                    selectedShotAi,
+                    selectedShot,
                     usesFrameHitboxes)
                 {
                     StruckOccupant = enemy.OccupantStates,
                 };
+                // The enemy's own reaction comes first, even for an ignoring selection; an ignoring selection ends the
+                // contact there, and otherwise the enemy may replace common damage or run its stages around it.
                 var bombReactions = enemy.Entity as IEnemyBombReaction;
-                if (bombReactions?.FindBombSpecial(bombContext) is { } special)
+                if (bombReactions?.TryReactToBomb(bombContext) != true && !selectedIgnore &&
+                    bombReactions?.TryReplaceCommonBombDamage(bombContext) != true)
                 {
-                    special(bombContext);
-                }
-                else if (!selectedIgnore)
-                {
-                    if (bombReactions?.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
+                    // A private reaction that rejects the bomb returns before common damage; the bomb pass has
+                    // already marked the bomb, so rejection belongs here rather than in collision admission.
+                    EnemyBombReaction? reaction = bombReactions?.CommonBombDamageReaction(bombContext);
+                    if (reaction?.Rejects?.Invoke(bombContext) != true)
                     {
-                        afterNoOp(bombContext);
-                    }
-                    else
-                    {
-                        // A private reaction that rejects the bomb returns before common damage; the bomb pass has
-                        // already marked the bomb, so rejection belongs here rather than in collision admission.
-                        EnemyBombReaction? reaction = bombReactions?.FindBombCommon(bombContext);
-                        if (reaction?.Rejects?.Invoke(bombContext) != true)
+                        bombContext = bombContext with { HealthBefore = enemy.Health };
+                        reaction?.BeforeCommon?.Invoke(bombContext);
+                        NormalBombHit hit = HurtByNormalBomb(enemy, bomb);
+                        if (hit == NormalBombHit.HurtUnfrozen &&
+                            (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(bombContext))
                         {
-                            bombContext = bombContext with { HealthBefore = enemy.Health };
-                            reaction?.BeforeCommon?.Invoke(bombContext);
-                            NormalBombHit hit = HurtByNormalBomb(enemy, bomb);
-                            if (hit == NormalBombHit.HurtUnfrozen &&
-                                (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(bombContext))
-                            {
-                                ShowHitBurst(enemy);
-                            }
-                            if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
-                                StartNormalBombDeathIfKilled(enemy);
-                            reaction?.AfterCommon?.Invoke(bombContext);
+                            ShowHitBurst(enemy);
                         }
+                        if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
+                            StartNormalBombDeathIfKilled(enemy);
+                        reaction?.AfterCommon?.Invoke(bombContext);
                     }
                 }
 
@@ -570,7 +571,7 @@ internal sealed class EnemyCollision
     /// Reports the private shot reactions that have a normal-bomb path. The occupant decides, because a frame's
     /// hitbox may deliberately override its definition with a different reaction.
     /// </summary>
-    private static bool HasPrivateNormalBombShotAi(
+    private static bool HasPrivateNormalBombShot(
         RoomEnemySlot enemy,
         EnemyReaction? reaction) =>
         enemy.Entity is IEnemyPrivateShotReaction owner &&
@@ -690,14 +691,11 @@ internal sealed class EnemyCollision
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
-            EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.FindPowerBomb();
+            // A definition names only the ignoring reaction, which the entity answers, or none; an entity with a Power
+            // Bomb reaction it has no response to throws here.
+            EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.PowerBombReaction;
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
-            if (enemy.Definition.PowerBombReaction is { } named && reaction is null)
-            {
-                throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} has no response to power-bomb reaction {named}.");
-            }
 
             // Private reactions replace common power-bomb damage, but still receive the
             // process-off-screen bit after a qualifying ellipse overlap.

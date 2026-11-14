@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -136,16 +136,12 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>
-    internal void AddCeresRidleyBombReactions(EnemySharedReactions table)
-    {
+    internal void ReactToCeresRidleyBomb(EnemyBombContext c) =>
         // Ridley's shot reaction branches on area index before it ever reaches common vulnerability damage. Ceres therefore
-        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the 
+        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the
         // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
         // escape condition.
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.RidleyCeres &&
-                                  c.SelectedShotAi == EnemyReaction.RidleyShot,
-            c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
-    }
+        ResolveCeresRidleyShotAfterCollision(c.Enemy);
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>
     internal bool ResolveRidleyBodySamusContact(SamusState samus)
@@ -176,16 +172,16 @@ internal sealed class CeresRidleyHits
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
                 contactKind: HitboxContactKind.Touch,
-                out EnemyReaction? touchAi))
+                out EnemyReaction? bodyTouch))
         {
             return false;
         }
 
-        if (touchAi != EnemyReaction.RidleyFrameHitboxTouch)
+        if (bodyTouch != RidleyReactions.FrameHitboxTouch)
         {
             throw new InvalidDataException(
-                $"Ridley extended body selected touch AI {touchAi?.ToString() ?? "(unnamed)"}, expected " +
-                $"{EnemyReaction.RidleyFrameHitboxTouch} from map {slot.Frame}.");
+                $"Ridley extended body selected touch reaction {bodyTouch?.ToString() ?? "(unnamed)"}, expected " +
+                $"{RidleyReactions.FrameHitboxTouch} from map {slot.Frame}.");
         }
 
         // Ridley's touch enters the common no-death-check handler. That distinction matters for

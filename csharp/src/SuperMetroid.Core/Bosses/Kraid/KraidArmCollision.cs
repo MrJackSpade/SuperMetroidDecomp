@@ -73,7 +73,7 @@ internal static class KraidArmCollision
     private static readonly Dictionary<KraidArmHitboxList, ImmutableArray<EnemyCollisionHitbox>> HitboxLists = HitboxListShapes.ToDictionary(
         entry => entry.Key,
         entry => entry.Value.Rectangles
-            .Select(shape => new EnemyCollisionHitbox(shape.Left, shape.Top, shape.Right, shape.Bottom, entry.Value.Touch, EnemyReaction.KraidArmShot))
+            .Select(shape => new EnemyCollisionHitbox(shape.Left, shape.Top, shape.Right, shape.Bottom, entry.Value.Touch, KraidReactions.ArmShot))
             .ToImmutableArray());
 
     /// <summary>Each physical pose's components in authored order: five for the ten shared poses, one for the two dying poses.</summary>

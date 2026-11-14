@@ -31,6 +31,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Receives sound requests from shared Space Pirate animation steps.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
+    /// <summary>The owner of the shared Pirate contact reactions, which every Pirate family takes.</summary>
+    internal WalkingSpacePirateBehavior Walking => _walkingSpacePirateBehavior;
+
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
     internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
@@ -654,19 +657,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
-    internal static void AddGoldNinjaPirateBombReactions(EnemySharedReactions table)
+    internal static void ReactToGoldNinjaPirateBomb(EnemyBombContext c)
     {
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja &&
-                                  c.UsesFrameHitboxes && c.SelectedShotAi != EnemyReaction.NormalEnemyShot,
-            c =>
-            {
-                PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAi);
-                if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
-                    throw new InvalidDataException("A Gold Ninja Space Pirate's normal-bomb reaction selected an action other than ignoring the bomb.");
-                // Both gold-Ninja component reactions compare the normal-bomb family against the Power Bomb family and return
-                // immediately. The extended collision walker has already marked the bomb, so this is an
-                // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair
-                // special-drop death tail.
-            });
+        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShot);
+        if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
+            throw new InvalidDataException("A Gold Ninja Space Pirate's normal-bomb reaction selected an action other than ignoring the bomb.");
+        // Both gold-Ninja component reactions compare the normal-bomb family against the Power Bomb family and return
+        // immediately. The extended collision walker has already marked the bomb, so this is an
+        // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair
+        // special-drop death tail.
     }
 }

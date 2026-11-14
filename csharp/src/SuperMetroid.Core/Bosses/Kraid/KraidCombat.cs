@@ -36,73 +36,60 @@ internal sealed class KraidCombat
         _access = access;
     }
 
-    /// <summary>Binds Kraid's body and mouth reactions to Samus bomb contacts.</summary>
-    internal void AddKraidBombReactions(EnemySharedReactions table)
+    /// <summary>Runs the arm's or foot's reaction to a bomb its hitboxes select, before the check for an ignoring reaction.</summary>
+    internal void ReactToArmOrFootBomb(EnemyBombContext c)
     {
-        table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
-            c =>
-            {
-                if (c.SelectedShotAi is not (EnemyReaction.Ignore or EnemyReaction.KraidArmShot) ||
-                    c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                        c.SelectedShotAi != EnemyReaction.Ignore)
-                {
-                    throw new InvalidDataException(
-                        $"Kraid part {c.Enemy.DefinitionId} selected " +
-                        $"normal-bomb shot AI {c.SelectedShotAi?.ToString() ?? "(unnamed)"}.");
-                }
+        if ((c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot) ||
+            c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
+                c.SelectedShot != EnemyReaction.Ignore)
+        {
+            throw new InvalidDataException(
+                $"Kraid part {c.Enemy.DefinitionId} selected " +
+                $"normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+        }
 
-                // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
-                // coordinates, then returns to the frame-hitbox walker that has already recorded the hit's direction.
-                // Protected arm frames and every foot rectangle ignore the shot.
-                if (c.SelectedShotAi == EnemyReaction.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
-            });
+        // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
+        // coordinates, then returns to the frame-hitbox walker that has already recorded the hit's direction.
+        // Protected arm frames and every foot rectangle ignore the shot.
+        if (c.SelectedShot == KraidReactions.ArmShot)
+            SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
     }
 
-    /// <summary>Binds shot reactions for Kraid's mouth, body, arm, and nail surfaces.</summary>
-    internal void AddKraidShotReactions(EnemySharedReactions table)
+    /// <summary>The arm's and foot's shot reaction, which their hitboxes decide behind their definitions' ignoring one.</summary>
+    internal EnemyShotReaction ArmAndFootShotReaction => field ??= new()
     {
         // Kraid's arm and foot are admitted by their species definitions' ignoring shot reaction, which still lets their hitboxes
         // decide; their authored hitboxes select the arm's private reaction.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore)
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            if (!c.UsesFrameHitboxes ||
+                (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot) ||
+                c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
+                    c.HitboxShot != EnemyReaction.Ignore)
             {
-                if (!c.UsesFrameHitboxes ||
-                    c.HitboxShotAi is not (EnemyReaction.Ignore or EnemyReaction.KraidArmShot) ||
-                    c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                        c.HitboxShotAi != EnemyReaction.Ignore)
-                {
-                    throw new InvalidDataException(
-                        $"Kraid part {c.Enemy.DefinitionId} selected " +
-                        $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
-                }
+                throw new InvalidDataException(
+                    $"Kraid part {c.Enemy.DefinitionId} selected " +
+                    $"shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+            }
 
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                if (c.HitboxShotAi == EnemyReaction.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            if (c.HitboxShot == KraidReactions.ArmShot)
+                SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
+            return true;
+        },
+    };
 
-    /// <summary>Binds Samus contact handling for Kraid's body and parts.</summary>
-    internal void AddKraidTouch(EnemySharedReactions table)
+    /// <summary>Runs the arm's push against Samus's touch.</summary>
+    internal void ReactToArmTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidArm &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidArmTouch,
-            context =>
-            {
-                // The arm's push forces the bottom lint's firing phase, so it fires immediately after
-                // the arm launches Samus up and right.
-                // Writes only the whole pixels of the displacement, so preserve both
-                // fractions exactly as they were before contact.
-                _ = _access.RequireKraidState(context.Slot);
-                context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
-                _access.Part(_parts.BottomLint).Phase = KraidPhase.LintFire;
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-            });
+        // The arm's push forces the bottom lint's firing phase, so it fires immediately after
+        // the arm launches Samus up and right.
+        // Writes only the whole pixels of the displacement, so preserve both
+        // fractions exactly as they were before contact.
+        _ = _access.RequireKraidState(context.Slot);
+        context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
+        _access.Part(_parts.BottomLint).Phase = KraidPhase.LintFire;
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
     }
 
     /// <summary>
@@ -337,7 +324,6 @@ internal sealed class KraidCombat
             }
         }
         return false;
-    
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
@@ -368,7 +354,6 @@ internal sealed class KraidCombat
             }
         }
         return false;
-    
     }
 
     /// <summary>The family of a projectile that hit the mouth, for the bound it leaves the mouth.</summary>

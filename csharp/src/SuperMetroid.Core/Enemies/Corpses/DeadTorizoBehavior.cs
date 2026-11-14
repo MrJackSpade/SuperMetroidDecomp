@@ -260,16 +260,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Routes corpse bomb contact to rotting after the common no-op gate.</summary>
-    internal void AddDeadTorizoBombReactions(EnemySharedReactions table)
-    {
-        // Specials consulted after the selected literal no-op gate.
+    /// <summary>Routes corpse bomb contact to rotting once the check for an ignoring reaction has passed.</summary>
+    internal void ReplaceDeadTorizoBombDamage(EnemyBombContext c) =>
         // Corpse shot reactions run directly after the collision mark. They do not consult bomb
         // vulnerability or health; they only hand the actor to its authored rotting state machine.
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                           c.SelectedShotAi == EnemyReaction.DeadTorizoTouchAndShot,
-            c => TriggerDeadTorizoRotting(c.Enemy));
-    }
+        TriggerDeadTorizoRotting(c.Enemy);
 
     /// <summary>Advances DeadTorizo's typed animation.</summary>
     internal void AdvanceDeadTorizoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
@@ -287,40 +282,28 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
-    internal void AddDeadTorizoPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction DeadTorizoPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DeadTorizoPowerBomb)
-        {
-            ReplacesCommon = (enemy, _) => TriggerDeadTorizoPowerBomb(enemy),
-        });
-    }
+        ReplacesCommon = (enemy, _) => TriggerDeadTorizoPowerBomb(enemy),
+    };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
-    internal void AddDeadTorizoShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
     {
         // The dead corpses and Shitroid receive the projectile prelude but never an impact or vulnerability.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadTorizoTouchAndShot)
+        // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
+        // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
-            // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                TriggerDeadTorizoRotting(c.Enemy);
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            TriggerDeadTorizoRotting(c.Enemy);
+            return true;
+        },
+    };
 
     /// <summary>Starts the same rotting tail on direct Samus contact.</summary>
-    internal void AddDeadTorizoTouch(EnemySharedReactions table)
-    {
+    internal void ReactToDeadTorizoTouch(EnemyTouchContext context) =>
         // Touch and shot share one reaction. Contact does not enter common damage; it makes the corpse solid
         // and starts the exact rotting table immediately.
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.DeadTorizoTouchAndShot,
-            context => TriggerDeadTorizoRotting(context.Slot));
-    }
+        TriggerDeadTorizoRotting(context.Slot);
 }

@@ -123,11 +123,11 @@ internal static class EnemyHitBurstVerification
         {
             (silver, EnemyReaction.NormalEnemyShot, true),
             (gold, EnemyReaction.NormalEnemyShot, true),
-            (silver, EnemyReaction.SpacePirateShot, true),
-            (gold, EnemyReaction.SpacePirateShot, false),
-            (silver, EnemyReaction.GoldNinjaVulnerableHitboxShot, false),
-            (silver, EnemyReaction.GoldNinjaInvincibleHitboxShot, false),
-            (gold, EnemyReaction.GoldNinjaVulnerableHitboxShot, false),
+            (silver, SpacePirateReactions.Shot, true),
+            (gold, SpacePirateReactions.Shot, false),
+            (silver, SpacePirateReactions.GoldNinjaVulnerableHitboxShot, false),
+            (silver, SpacePirateReactions.GoldNinjaInvincibleHitboxShot, false),
+            (gold, SpacePirateReactions.GoldNinjaVulnerableHitboxShot, false),
         })
         {
             AssertEqual(shows, PirateHitboxShotActions.ShowsHitBurst(pirate, reaction), $"{pirate.DefinitionId} through {reaction} shows the burst");

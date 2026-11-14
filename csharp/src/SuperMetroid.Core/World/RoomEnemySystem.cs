@@ -430,13 +430,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="RoomEarthquake"/> owner of this RoomEnemySystem.</summary>
     internal RoomEarthquake Earthquake { get; }
 
-    /// <summary>
-    /// The reactions several species share, built from their owners on first access.
-    /// </summary>
-    internal EnemySharedReactions SharedReactions => field ??= BuildSharedReactions();
-
-    /// <summary>The shared reactions, for the common participation to resolve at use.</summary>
-    private EnemySharedReactions GetSharedReactions() => SharedReactions;
+    /// <summary>The enemies' collision, for the shared responses to resolve at use.</summary>
+    private EnemyCollision GetCollision() => Collision;
 
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
     internal EnemySpeciesRegistry Species { get; }
@@ -649,8 +644,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
         WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, SlotTable, Audio);
         WaverBehavior = new WaverBehavior(Terrain);
-        WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio);
-        WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, Collision, DeathsAndDrops, WalkingSpacePirateBehavior);
+        WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
+        WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
@@ -814,7 +809,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
+        Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
         SlotTable.InstallSlots(Species);
     }
@@ -943,15 +938,15 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             if (!frame.TimeIsFrozen)
             {
                 bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
-                // Hurt AI replaces main AI while the enemy is hurt; the first registered match runs.
-                // The grappled, hurt and frozen states are tried in that order, and the first one the enemy is in
-                // selects its handler even when that handler does nothing. Hurt therefore delays frozen AI until
-                // the flash's end clears the hurt state; falling through here prematurely clears flash.
+                // The hurt behaviour replaces main AI while the enemy is hurt: the species' own, or the inert one its
+                // definition names. The grappled, hurt and frozen states are tried in that order, and the first one the
+                // enemy is in selects its behaviour even when that behaviour does nothing. Hurt therefore delays frozen
+                // AI until the flash's end clears the hurt state; falling through here prematurely clears flash.
                 if (!ranActorAi &&
                     (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
-                    (slot.Entity as IEnemyHurtAi)?.FindHurt() is { } hurt)
+                    slot.Entity is IEnemyHurtReaction hurt &&
+                    hurt.RunHurt(frame))
                 {
-                    hurt(slot, frame);
                     ranActorAi = true;
                 }
                 // The enemy pass selects the handler from the first state the enemy is in alone. A frozen
@@ -963,7 +958,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // The active-index array was frozen before AI, so skip the remainder
                     // of this stale entry exactly as its own death call does.
                     var frozen = slot.Entity as IEnemyFrozenAi;
-                    if (frozen?.FindFrozenPreemption() is { } preemption && preemption(slot))
+                    if (frozen?.PreemptFrozenTurn() == true)
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
@@ -987,8 +982,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
                         slot.FrozenTimer = ThawedFreezeLeftover.Of(hold);
                     }
-                    foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
-                        handler(slot);
+                    frozen?.RunFrozen();
                     // The frame clock advances after every selected AI call,
                     // including frozen AI. Animation gating below remains separate.
                     ranActorAi = true;
@@ -1092,112 +1086,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return Earthquake.LastRoomShake;
     }
 
-    /// <summary>
-    /// Builds the shared reactions in the established first-match order.
-    /// </summary>
-    private EnemySharedReactions BuildSharedReactions()
-    {
-        var table = new EnemySharedReactions();
-        AddTouchHandlers(table);
-        AddShotReactions(table);
-        AddBombReactions(table);
-        AddPowerBombReactions(table);
-        AddHurtAi(table);
-        AddFrozenAi(table);
-        return table;
-    }
-
-    /// <summary>Maps each enemy definition's bomb reaction to its handler.</summary>
-    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    /// established precedence between species and shared registrations.</remarks>
-    private void AddBombReactions(EnemySharedReactions table)
-    {
-        CrocomireBehavior.Combat.AddCrocomireBombReactions(table);
-        KraidBehavior.Combat.AddKraidBombReactions(table);
-
-        NinjaSpacePirateBehavior.AddGoldNinjaPirateBombReactions(table);
-        WallSpacePirateBehavior.AddWallSpacePirateBombReactions(table);
-        ShuttersBehavior.AddShuttersBombReactions(table);
-        MetroidBehavior.AddMetroidBombReactions(table);
-        ShitroidBehavior.AddShitroidBombReactions(table);
-        CeresRidleyBehavior.Hits.AddCeresRidleyBombReactions(table);
-        BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
-
-        // The body's reaction makes a dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and the
-        // body's reaction performs no health, phase, or multipart-state work of its own.
-        MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
-        MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);
-        DeadTorizoBehavior.AddDeadTorizoBombReactions(table);
-        DeadSidehopperBehavior.AddDeadSidehopperBombReactions(table);
-        DeadTourianBehavior.AddDeadTourianBombReactions(table);
-        PhantoonBehavior.Combat.AddPhantoonBombReactions(table);
-        MamaTurtleBehavior.AddMamaTurtleBombReactions(table);
-        RinkaBehavior.AddRinkaBombReactions(table);
-        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailBombReactions(table);
-        RipperBehavior.AddRipperBombReactions(table);
-        DragonBehavior.AddDragonBombReactions(table);
-        // The metal-debris death restores the dying actor's graphics long enough to seed four debris actors, then clears both
-        // values. Marking the enemy dead does not erase its state, so the exact source remains here.
-        MetareeBehavior.AddMetareeBombReactions(table);
-        FirefleaBehavior.AddFirefleaBombReactions(table);
-        FakeKraidBehavior.AddFakeKraidBombReactions(table);
-        PlatformsBehavior.AddPlatformsBombReactions(table);
-        // Skree's shot reaction owns its four-piece burst and death animation because its shot reaction skips the
-        // ordinary death animation. A normal bomb selects death variant zero (only missiles select two).
-        SkreeBehavior.AddSkreeBombReactions(table);
-        ZebetiteBehavior.AddZebetiteBombReactions(table);
-        SporeSpawnBehavior.AddSporeSpawnBombReactions(table);
-        DraygonBehavior.Combat.AddDraygonBombReactions(table);
-        BotwoonBehavior.AddBotwoonBombReactions(table);
-        RidleyInteractions.AddRidleyBombReactions(table);
-        ShaktoolBehavior.AddShaktoolBombReactions(table);
-        ShuttersBehavior.AddDestroyableShutterBombReactions(table);
-        EvirBehavior.AddEvirBombReactions(table);
-        YappingMawBehavior.AddYappingMawBombReactions(table);
-        KagoBehavior.AddKagoBombReactions(table);
-        MagdolliteBehavior.AddMagdolliteBombReactions(table);
-        BeetomBehavior.AddBeetomBombReactions(table);
-        PowampBehavior.AddPowampBombReactions(table);
-        WorkRobotBehavior.AddWorkRobotBombReactions(table);
-        KiHunterBehavior.AddKiHunterBombReactions(table);
-        OwtchBehavior.AddOwtchBombReactions(table);
-}
-
-    /// <summary>Maps the species' own power-bomb reactions for each supported species.</summary>
-    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
-    /// definition and the definition's reaction.</remarks>
-    private void AddPowerBombReactions(EnemySharedReactions table)
-    {
-        // These definitions name their own reactions instead of falling through common power-bomb damage. The ignoring
-        // reaction intentionally does nothing; the shutter reactions only run their trigger state machines. All still
-        // receive the process-off-screen bit after a qualifying ellipse overlap.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy =>
-            EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.Ignore)
-        {
-            ReplacesCommon = static (_, _) => { },
-        });
-        ShuttersBehavior.AddShuttersPowerBombReactions(table);
-        CrocomireBehavior.Combat.AddCrocomirePowerBombReactions(table);
-        DeadTorizoBehavior.AddDeadTorizoPowerBombReactions(table);
-        DeadSidehopperBehavior.AddDeadSidehopperPowerBombReactions(table);
-        DeadTourianBehavior.AddDeadTourianPowerBombReactions(table);
-        ShitroidBehavior.AddShitroidPowerBombReactions(table);
-        FirefleaBehavior.AddFirefleaPowerBombReactions(table);
-        MetroidBehavior.AddMetroidPowerBombReactions(table);
-        FakeKraidBehavior.AddFakeKraidPowerBombReactions(table);
-        PowampBehavior.AddPowampPowerBombReactions(table);
-        MagdolliteBehavior.AddMagdollitePowerBombReactions(table);
-        RinkaBehavior.AddRinkaPowerBombReactions(table);
-        DragonBehavior.AddDragonPowerBombReactions(table);
-        EvirBehavior.AddEvirPowerBombReactions(table);
-        KiHunterBehavior.AddKiHunterPowerBombReactions(table);
-        BotwoonBehavior.AddBotwoonPowerBombReactions(table);
-        WallSpacePirateBehavior.AddWallSpacePiratePowerBombReactions(table);
-        RidleyInteractions.AddRidleyPowerBombReactions(table);
-        DraygonBehavior.Combat.AddDraygonPowerBombReactions(table);
-}
-
     /// <summary>Advances enemy-projectile actors after Samus movement and before room objects.</summary>
     public void AdvanceEnemyProjectileAnimations(
         RoomLevelData level,
@@ -1275,147 +1163,5 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CrocomireBehavior.Combat.AddCrocomireDropProjectiles(table);
 
         DeathsAndDrops.ConnectDeathExplosionCues(table);
-    }
-
-    /// <summary>Maps shot responses, including species-specific damage behavior.</summary>
-    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
-    /// precede the generic ignoring definition and the ordinary normal-shot reaction is last, because Crocomire's
-    /// tongue also uses NormalEnemyShot.</remarks>
-    private void AddShotReactions(EnemySharedReactions table)
-    {
-        DeadTorizoBehavior.AddDeadTorizoShotReactions(table);
-        DeadSidehopperBehavior.AddDeadSidehopperShotReactions(table);
-        DeadTourianBehavior.AddDeadTourianShotReactions(table);
-        ShitroidBehavior.AddShitroidShotReactions(table);
-        MotherBrainBehavior.Combat.AddMotherBrainShotReactions(table);
-
-        RidleyInteractions.AddRidleyShotReactions(table);
-
-        DraygonBehavior.Combat.AddDraygonShotReactions(table);
-        BombTorizoBehavior.Combat.AddBombTorizoShotReactions(table);
-        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailShotReactions(table);
-        SporeSpawnBehavior.AddSporeSpawnShotReactions(table);
-        KraidBehavior.Combat.AddKraidShotReactions(table);
-        CrocomireBehavior.Combat.AddCrocomireShotReactions(table);
-        OwtchBehavior.AddOwtchShotReactions(table);
-        WallSpacePirateBehavior.AddWallSpacePirateShotReactions(table);
-        ShuttersBehavior.AddShuttersShotReactions(table);
-
-        MetroidBehavior.AddMetroidShotReactions(table);
-        YardBehavior.AddYardShotReactions(table);
-
-        // The metal-debris shot handler saves these graphics values around common shot AI, uses them for four metal debris actors on
-        // death, then clears the dead body. Spawning before the clears preserves that exact graphics index.
-        MetareeBehavior.AddMetareeShotReactions(table);
-
-        // Skree's shot handler adds its four debris actors after the shared normal shot handler reports death, before the
-        // common death animation releases the enemy slot.
-        SkreeBehavior.AddSkreeShotReactions(table);
-        FirefleaBehavior.AddFirefleaShotReactions(table);
-        PlatformsBehavior.AddPlatformsShotReactions(table);
-        BeetomBehavior.AddBeetomShotReactions(table);
-        PowampBehavior.AddPowampShotReactions(table);
-        WorkRobotBehavior.AddWorkRobotShotReactions(table);
-        FakeKraidBehavior.AddFakeKraidShotReactions(table);
-        MamaTurtleBehavior.AddMamaTurtleShotReactions(table);
-        KagoBehavior.AddKagoShotReactions(table);
-        MagdolliteBehavior.AddMagdolliteShotReactions(table);
-        RinkaBehavior.AddRinkaShotReactions(table);
-        RipperBehavior.AddRipperShotReactions(table);
-        DragonBehavior.AddDragonShotReactions(table);
-        ShuttersBehavior.AddDestroyableShutterShotReactions(table);
-        ZebetiteBehavior.AddZebetiteShotReactions(table);
-        EvirBehavior.AddEvirShotReactions(table);
-        YappingMawBehavior.AddYappingMawShotReactions(table);
-        KiHunterBehavior.AddKiHunterShotReactions(table);
-        BotwoonBehavior.AddBotwoonShotReactions(table);
-        ShaktoolBehavior.AddShaktoolShotReactions(table);
-
-        // Ordinary common shot AI with no species stage.
-        CeresSteamBehavior.AddCeresSteamShotReactions(table);
-        MochtroidBehavior.AddMochtroidShotReactions(table);
-        // Several retail helper/projectile definitions ignore shots. Radius collision still dispatches that reaction
-        // after its projectile prelude.
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore));
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyReaction.NormalEnemyShot));
-}
-
-    /// <summary>Registers Samus-contact handlers after species animation registrations.</summary>
-    /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
-    /// established precedence between species and shared registrations. Matches are mutually exclusive (each names its
-    /// definition and the definition's reaction); the ordinary normal-touch handler is last because Crocomire's tongue also uses
-    /// NormalEnemyTouch.</remarks>
-    private void AddTouchHandlers(EnemySharedReactions table)
-    {
-        KraidBehavior.Projectiles.AddKraidNailTouch(table);
-        KraidBehavior.Combat.AddKraidTouch(table);
-
-        MotherBrainCombat.AddMotherBrainHeadTouch(table);
-        ShitroidBehavior.AddShitroidTouch(table);
-        DeadSidehopperBehavior.AddDeadSidehopperTouch(table);
-        DeadTourianBehavior.AddDeadTourianTouch(table);
-        DeadTorizoBehavior.AddDeadTorizoTouch(table);
-        WallSpacePirateBehavior.AddWallSpacePirateTouch(table);
-        BombTorizoBehavior.Combat.AddBombTorizoTouch(table);
-
-        PhantoonBehavior.Combat.AddPhantoonBodyTouch(table);
-        DraygonBehavior.Combat.AddDraygonTouch(table);
-        SporeSpawnBehavior.AddSporeSpawnTouch(table);
-        CeresSteamBehavior.AddCeresSteamTouch(table);
-        CrocomireBehavior.Combat.AddCrocomireTouch(table);
-        MaridiaLargeSnailBehavior.AddMaridiaLargeSnailTouch(table);
-        PlatformsBehavior.AddPlatformsTouch(table);
-
-        // Definitions that ignore Samus's touch: the collision is still reported, but the reaction performs no damage,
-        // knockback, or actor reaction.
-        table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore,
-            static _ => { });
-        ShuttersBehavior.AddShuttersTouch(table);
-        MochtroidBehavior.AddMochtroidTouch(table);
-        MetroidBehavior.AddMetroidTouch(table);
-        YappingMawBehavior.AddYappingMawTouch(table);
-        YardBehavior.AddYardTouch(table);
-        BeetomBehavior.AddBeetomTouch(table);
-        PowampBehavior.AddPowampTouch(table);
-        WorkRobotBehavior.AddWorkRobotTouch(table);
-        FirefleaBehavior.AddFirefleaTouch(table);
-        MamaTurtleBehavior.AddMamaTurtleTouch(table);
-        MagdolliteBehavior.AddMagdolliteTouch(table);
-        RinkaBehavior.AddRinkaTouch(table);
-        DragonBehavior.AddDragonTouch(table);
-        EvirBehavior.AddEvirTouch(table);
-        BotwoonBehavior.AddBotwoonTouch(table);
-
-        ZebetiteBehavior.AddZebetiteTouch(table);
-        FakeKraidBehavior.AddFakeKraidTouch(table);
-        ShaktoolBehavior.AddShaktoolTouch(table);
-
-        table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyReaction.NormalEnemyTouch,
-            context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
-}
-
-
-    /// <summary>Maps hurt-state AI used while enemies are flashing or reacting.</summary>
-    /// <remarks>Hurt AI is a first-match list in the enemy pass's dispatch order; the shared no-op hurt
-    /// AI is last.</remarks>
-    private void AddHurtAi(EnemySharedReactions table)
-    {
-        MetroidBehavior.AddMetroidHurtAi(table);
-        BombTorizoBehavior.Combat.AddBombTorizoHurtAi(table);
-        RidleyBehavior.AddRidleyHurtAi(table);
-        PhantoonBehavior.AddPhantoonHurtAi(table);
-        DraygonBehavior.AddDraygonHurtAi(table);
-        table.AddHurt(slot => slot.Definition.HurtResponse == EnemyHurtResponse.Inert, (_, _) => { });
-    }
-
-    /// <summary>Maps frozen-state AI used while ice suspends normal behavior.</summary>
-    /// <remarks>Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after
-    /// it.</remarks>
-    private void AddFrozenAi(EnemySharedReactions table)
-    {
-        RinkaBehavior.AddRinkaFrozenPreemption(table);
-        MetroidBehavior.AddMetroidFrozenAi(table);
-        YappingMawBehavior.AddYappingMawFrozenAi(table);
     }
 }

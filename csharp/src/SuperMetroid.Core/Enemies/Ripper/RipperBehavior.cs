@@ -212,14 +212,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
-    internal static void AddRipperBombReactions(EnemySharedReactions table)
+    internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-                                                       c.SelectedShotAi == EnemyReaction.GRipperRipper2Shot)
-        {
-            AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs GRipper's main AI.</summary>
     internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -240,12 +236,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
-    internal static void AddRipperShotReactions(EnemySharedReactions table)
+    internal static EnemyShotReaction RipperShotReaction { get; } = new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.GRipperRipper2Shot)
-        {
-            AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
+    };
 }

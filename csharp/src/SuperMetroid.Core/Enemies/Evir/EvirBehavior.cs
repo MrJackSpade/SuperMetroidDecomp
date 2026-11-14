@@ -534,14 +534,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared post-common Evir combat tail after bomb hits.</summary>
-    internal void AddEvirBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction EvirBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                       c.SelectedShotAi == EnemyReaction.EvirShot)
-        {
-            AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs Evir's initialization AI.</summary>
     internal void RunEvirInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
@@ -581,41 +577,26 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves power-bomb reactions on both body and arms, including relative aliases.</summary>
-    internal void AddEvirPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
         // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
         // does not. Both body and arms therefore dispatch the shared tail and its intentionally physical next-slot follow-up
         // aliases.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.EvirPowerBomb)
-        {
-            AfterCommon = (enemy, _) => ResolveEvirCombatAfterCommon(enemy),
-        });
-    }
+        AfterCommon = (enemy, _) => ResolveEvirCombatAfterCommon(enemy),
+    };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
-    internal void AddEvirShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction EvirShotReaction => field ??= new()
     {
         // Evir's shot tail runs after every accepted common shot, including the freezing ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                     enemy.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.EvirShot)
-        {
-            AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>
-    internal void AddEvirTouch(EnemySharedReactions table)
+    internal void ReactToEvirTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&
-                               slot.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.EvirTouch,
-            context =>
-            {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                ResolveEvirCombatAfterCommon(context.Slot);
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        ResolveEvirCombatAfterCommon(context.Slot);
     }
 }

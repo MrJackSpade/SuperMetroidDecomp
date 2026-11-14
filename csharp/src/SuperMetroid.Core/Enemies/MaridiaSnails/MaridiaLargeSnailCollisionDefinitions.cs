@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 internal static class MaridiaLargeSnailCollisionDefinitions
 {
     /// <summary>Reaction used by Oum's extended hitboxes that hurt Samus on contact.</summary>
-    private const EnemyReaction DamageTouch = EnemyReaction.MaridiaLargeSnailDamagingTouch;
+    private static readonly EnemyReaction DamageTouch = MaridiaLargeSnailReactions.DamagingTouch;
     /// <summary>Reaction for Oum surfaces that permit harmless contact.</summary>
-    private const EnemyReaction SafeTouch = EnemyReaction.MaridiaLargeSnailNonDamagingTouch;
+    private static readonly EnemyReaction SafeTouch = MaridiaLargeSnailReactions.NonDamagingTouch;
     /// <summary>Reaction for the shot-sensitive portion of an Oum frame.</summary>
-    private const EnemyReaction Shot = EnemyReaction.MaridiaLargeSnailShot;
+    private static readonly EnemyReaction Shot = MaridiaLargeSnailReactions.Shot;
     /// <summary>No-op reaction on Oum hitboxes that do not react to shots.</summary>
-    private const EnemyReaction NoShot = EnemyReaction.Ignore;
+    private static readonly EnemyReaction NoShot = EnemyReaction.Ignore;
 
     /// <summary>The 30 hitbox lists, one per frame in frame order; the rectangles are fitted to the drawings.</summary>
     internal static readonly EnemyCollisionHitbox[][] Lists =

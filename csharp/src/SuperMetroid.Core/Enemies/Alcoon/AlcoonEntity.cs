@@ -14,5 +14,5 @@ internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemySlot slot, E
     public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceAlcoonTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceAlcoonTypedAnimation(Slot, context);
 }

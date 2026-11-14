@@ -781,15 +781,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state) => --state.StateTimer < 0;
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
-    internal void AddShitroidBombReactions(EnemySharedReactions table)
-    {
+    internal void ReactToShitroidBomb(EnemyBombContext c) =>
         // The Baby's shot handler reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                  c.SelectedShotAi == EnemyReaction.ShitroidShot,
-            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots)));
-    }
+        ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots));
 
     /// <summary>Runs Shitroid's initialization AI.</summary>
     internal void RunShitroidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
@@ -835,39 +831,27 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the private power-bomb reaction in place of common enemy damage.</summary>
-    internal void AddShitroidPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction ShitroidPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.ShitroidPowerBomb)
-        {
-            ReplacesCommon = ResolveShitroidPowerBomb,
-        });
-    }
+        ReplacesCommon = ResolveShitroidPowerBomb,
+    };
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
-    internal void AddShitroidShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction ShitroidShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShitroidShot)
+        // Like Dead Torizo, Shitroid receives the projectile prelude but never creates an impact or
+        // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // Like Dead Torizo, Shitroid receives the projectile prelude but never creates an impact or
-            // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Slots));
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            ResolveShitroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Slots));
+            return true;
+        },
+    };
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
-    internal void AddShitroidTouch(EnemySharedReactions table)
-    {
+    internal void ReactToShitroidTouch(EnemyTouchContext context) =>
         // The Shitroid's touch replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.ShitroidTouch,
-            context => ResolveShitroidTouch(context.Slot, context.Samus));
-    }
+        ResolveShitroidTouch(context.Slot, context.Samus);
 }

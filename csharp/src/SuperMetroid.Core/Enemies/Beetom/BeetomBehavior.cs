@@ -558,16 +558,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    internal static void AddBeetomBombReactions(EnemySharedReactions table)
+    /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before
+    /// dispatch.</remarks>
+    internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
-        // Common damage can kill the Beetom before this private tail runs, so the identity is matched before dispatch.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Beetom &&
-                                                       EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.BeetomShot &&
-                                                       c.SelectedShotAi == EnemyReaction.BeetomShot)
-        {
-            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Runs Beetom's initialization AI.</summary>
     internal void RunBeetomInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
@@ -590,22 +586,14 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    internal static void AddBeetomShotReactions(EnemySharedReactions table)
+    /// <remarks>Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
+    /// vulnerability results.</remarks>
+    internal static EnemyShotReaction BeetomShotReaction { get; } = new()
     {
-        // Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
-        // vulnerability results.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Beetom &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BeetomShot)
-        {
-            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
-    internal void AddBeetomTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Beetom &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.BeetomTouch,
-            context => ResolveBeetomTouch(context.Slot, context.Slot.RequireSpeciesState<BeetomEnemyState>(), context.Samus));
-    }
+    internal void ReactToBeetomTouch(EnemyTouchContext context) =>
+        ResolveBeetomTouch(context.Slot, context.Slot.RequireSpeciesState<BeetomEnemyState>(), context.Samus);
 }

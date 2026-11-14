@@ -694,14 +694,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Attaches the species tail after common bomb damage when the shot AI selects Magdollite's reaction.</summary>
-    internal void AddMagdolliteBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction MagdolliteBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                       c.SelectedShotAi == EnemyReaction.MagdolliteShot)
-        {
-            AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Connects thrown-lava movement, its typed animations' cues and its shot animation to the projectile engine.</summary>
     internal void AddMagdolliteProjectiles(EnemyProjectileHandlerTable table)
@@ -752,35 +748,22 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
-    internal void AddMagdollitePowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction MagdollitePowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.MagdollitePowerBomb)
-        {
-            AfterCommon = (enemy, _) => ResolveMagdolliteCombatAfterCommon(enemy),
-        });
-    }
+        AfterCommon = (enemy, _) => ResolveMagdolliteCombatAfterCommon(enemy),
+    };
 
     /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>
-    internal void AddMagdolliteShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction MagdolliteShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MagdolliteShot)
-        {
-            AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
-    internal void AddMagdolliteTouch(EnemySharedReactions table)
+    internal void ReactToMagdolliteTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Magdollite &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.MagdolliteTouch,
-            context =>
-            {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                ResolveMagdolliteCombatAfterCommon(context.Slot);
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        ResolveMagdolliteCombatAfterCommon(context.Slot);
     }
     /// <summary>Sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
     private static readonly SignedEightEight MagdolliteLavaHorizontalSpeed = SignedEightEight.FromParts(3, 0);

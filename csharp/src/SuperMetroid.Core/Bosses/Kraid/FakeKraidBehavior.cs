@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -351,22 +351,21 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces generic bomb death with Mini-Kraid's explosion-three and four-drop sequence.</summary>
-    internal void AddFakeKraidBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction FakeKraidBombReaction => field ??= new()
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
         // Mini-Kraid drop. Its definition never runs the generic death, whatever reaction a hitbox selects.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.MiniKraid)
+        RunsGenericDeath = false,
+        // Mini Kraid's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c =>
         {
-            RunsGenericDeath = false,
-            // Mini Kraid's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c =>
-            {
-                if (c.SelectedShotAi == EnemyReaction.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                    KillFakeKraid(c.Enemy);
-            },
-        });
-    }
+            // The bomb selects the fake Kraid's own shot reaction, which its definition leaves to it, rather than the
+            // empty frame's ordinary one.
+            if (c.SelectedShot is null && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                KillFakeKraid(c.Enemy);
+        },
+    };
 
     /// <summary>Dispatches spit gravity and spike wall collision through their projectile frame behaviours.</summary>
     internal static void AddFakeKraidProjectiles(EnemyProjectileHandlerTable table)
@@ -406,49 +405,36 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
-    internal void AddFakeKraidPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction FakeKraidPowerBombReaction => field ??= new()
     {
         // Mini Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
         // death explosion.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.FakeKraidShot)
-        {
-            ReplacesGenericDeath = (enemy, _) => KillFakeKraid(enemy),
-        });
-    }
+        ReplacesGenericDeath = (enemy, _) => KillFakeKraid(enemy),
+    };
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
-    internal void AddFakeKraidShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction FakeKraidShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.FakeKraidShot)
+        // Mini Kraid's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        ReplacesGenericDeath = c =>
         {
-            // Mini Kraid's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            ReplacesGenericDeath = c =>
-            {
-                KillFakeKraid(c.Enemy);
-                return true;
-            },
-            AfterCommon = c =>
-            {
-                if (!c.Froze && c.Enemy.DefinitionId != EnemyDefinitionId.None && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                    SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
-            },
-        });
-    }
+            KillFakeKraid(c.Enemy);
+            return true;
+        },
+        AfterCommon = c =>
+        {
+            if (!c.Froze && c.Enemy.DefinitionId != EnemyDefinitionId.None && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
+        },
+    };
 
     /// <summary>Runs common Samus contact and routes a resulting lethal hit to Mini-Kraid's death sequence.</summary>
-    internal void AddFakeKraidTouch(EnemySharedReactions table)
+    internal void ReactToFakeKraidTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.FakeKraidTouch,
-            context =>
-            {
-                int healthBefore = context.Slot.Health;
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-                if (healthBefore != 0 && context.Slot.Health == 0)
-                    KillFakeKraid(context.Slot);
-            });
+        int healthBefore = context.Slot.Health;
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        if (healthBefore != 0 && context.Slot.Health == 0)
+            KillFakeKraid(context.Slot);
     }
 }

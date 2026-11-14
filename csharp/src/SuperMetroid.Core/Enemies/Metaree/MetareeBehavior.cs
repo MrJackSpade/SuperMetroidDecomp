@@ -218,32 +218,24 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
-    internal void AddMetareeShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction MetareeShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metaree &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MetareeShot)
+        BeforeGenericDeath = c =>
         {
-            BeforeGenericDeath = c =>
-            {
-                _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
-                c.Enemy.Shading = PictureShading.Standard;
-            },
-        });
-    }
+            _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
+            c.Enemy.Shading = PictureShading.Standard;
+        },
+    };
 
     /// <summary>After a lethal bomb, spawns debris while the body's graphics state is intact, then clears both indexes on the dead enemy, which keeps its place.</summary>
-    internal void AddMetareeBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction MetareeBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metaree &&
-                                                       c.SelectedShotAi == EnemyReaction.MetareeShot)
+        AfterCommon = c =>
         {
-            AfterCommon = c =>
-            {
-                if (c.Enemy.Health != 0)
-                    return;
-                _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
-                c.Enemy.Shading = PictureShading.Standard;
-            },
-        });
-    }
+            if (c.Enemy.Health != 0)
+                return;
+            _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
+            c.Enemy.Shading = PictureShading.Standard;
+        },
+    };
 }

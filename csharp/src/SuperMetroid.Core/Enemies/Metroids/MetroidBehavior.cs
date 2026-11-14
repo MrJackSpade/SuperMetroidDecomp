@@ -88,7 +88,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new MetroidEnemyState(outerBodyA, outerBodyB)
         {
-            DrainAccumulator = 0,
+            Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
             IceDamageToFreeze = slot.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
@@ -290,12 +290,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Subtracts one health at suit-dependent fractional intervals without ordinary hurt flash or knockback.</summary>
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
-        int drainRate = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+        int drainFraction = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? MetroidBehaviorDefinitions.GravityDrainFraction
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? MetroidBehaviorDefinitions.VariaDrainFraction
                 : MetroidBehaviorDefinitions.PowerSuitDrainFraction;
-        if (!state.DrainBorrows(drainRate))
+        if (!state.DrainTakesEnergy(drainFraction))
             return;
 
         // Dealing Samus one damage performs a saturating subtract and deliberately does not

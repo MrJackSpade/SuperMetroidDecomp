@@ -113,8 +113,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Action = WalkingSpacePirateAction.NoOperation;
 
-        // The game's additions wrap past 65535. A modded patrol radius can therefore straddle the
-        // world-coordinate seam; keeping ushort arithmetic preserves its signed comparison.
+        // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
+        // reach can straddle it; the patrol compares positions by their signed difference, which still
+        // sees each post on its own side of the pirate.
         state.RightPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.PatrolReach), 0);
         state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
     }

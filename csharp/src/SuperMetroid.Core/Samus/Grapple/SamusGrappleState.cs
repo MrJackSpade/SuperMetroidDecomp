@@ -62,10 +62,9 @@ public sealed class SamusGrappleState
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
-    /// The beam's quarter velocity, whole and fractional, on both axes.
-    /// Each firing frame rebuilds them from the extension
-    /// velocity, but parts of each keep last frame's values, so they are state rather than
-    /// a pure function of the velocity.
+    /// The substep the extending beam's end moved by, on both axes. Each firing update rebuilds it from the extension
+    /// speed, but it keeps parts of the update before's (<see cref="GrappleExtensionStepCarryover"/>), so it is state
+    /// rather than a pure function of the speed.
     /// </summary>
     public FixedVector<RoomPixels> QuarterVelocity { get; set; }
     /// <summary>Gets or sets the physical hand-origin offset from Samus.</summary>

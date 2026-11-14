@@ -77,72 +77,26 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // represented as a desktop-only frozen bitmap.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
+        // The finished fade moves on from what this update started: the pause preparation,
+        // or the next step of a door hit or time-up gameplay wrote on this final fade update.
+        // A time-up written after a door hit on the same update takes precedence.
+        SuperMetroidGameState stateAfterDarkening = SuperMetroidGameState.Pausing;
         if (session.GameplayRuntime.RoomLoader.HasPendingDoorTransition)
+        {
             session.GameState = SuperMetroidGameState.HitDoorBlock;
+            stateAfterDarkening = SuperMetroidGameState.BeginningDoorTransition;
+        }
         if (session.GameplayRuntime.ConsumeTimeUpRequest())
+        {
             BeginTimeUp();
+            stateAfterDarkening = SuperMetroidGameState.WhitingOutFromTimeUp;
+        }
         if (session.StepScreenFadeOut() == 0)
         {
-            // The finished fade moves on from the state gameplay left: into the pause
-            // preparation, or into the next step of a door hit or time-up written on
-            // this final fade frame.
             session.screenFade.Clear();
-            session.GameState = StateAfterPauseDarkening(session.GameState);
+            session.GameState = stateAfterDarkening;
         }
     }
-
-    /// <summary>
-    /// The state the finished pause darkening enters from <paramref name="state"/>, the state gameplay left on its final
-    /// fade update: the pause preparation, or the step after a door hit or time-up that update wrote.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Gameplay left a state the darkening cannot continue from.</exception>
-    private static SuperMetroidGameState StateAfterPauseDarkening(SuperMetroidGameState state) => state switch
-    {
-        SuperMetroidGameState.PausingDarkening or
-        SuperMetroidGameState.HitDoorBlock or
-        SuperMetroidGameState.TimeUp => EnumOrder.Next(state),
-        SuperMetroidGameState.Reset or
-        SuperMetroidGameState.OpeningCinematic or
-        SuperMetroidGameState.GameOptionsMenu or
-        SuperMetroidGameState.FileSelectMenus or
-        SuperMetroidGameState.FileSelectMap or
-        SuperMetroidGameState.LoadingGameData or
-        SuperMetroidGameState.MainGameplayFadeIn or
-        SuperMetroidGameState.MainGameplay or
-        SuperMetroidGameState.BeginningDoorTransition or
-        SuperMetroidGameState.DoorTransition or
-        SuperMetroidGameState.Pausing or
-        SuperMetroidGameState.PauseScreenFadeIn or
-        SuperMetroidGameState.Paused or
-        SuperMetroidGameState.PauseScreenFadeOut or
-        SuperMetroidGameState.RestoringGameplayFromPause or
-        SuperMetroidGameState.Unpausing or
-        SuperMetroidGameState.DeathSequenceStart or
-        SuperMetroidGameState.DeathBlackOutSurroundings or
-        SuperMetroidGameState.DeathWaitForMusic or
-        SuperMetroidGameState.DeathPreFlashing or
-        SuperMetroidGameState.DeathFlashing or
-        SuperMetroidGameState.DeathExplosionWhiteOut or
-        SuperMetroidGameState.DeathFinalBlackOut or
-        SuperMetroidGameState.GameOverMenu or
-        SuperMetroidGameState.ReserveTanksAuto or
-        SuperMetroidGameState.IntroCinematic or
-        SuperMetroidGameState.SetUpNewGame or
-        SuperMetroidGameState.MadeItToCeresElevator or
-        SuperMetroidGameState.BlackoutFromCeres or
-        SuperMetroidGameState.CeresGoesBoom or
-        SuperMetroidGameState.WhitingOutFromTimeUp or
-        SuperMetroidGameState.CeresGoesBoomWithSamus or
-        SuperMetroidGameState.SamusEscapesFromZebes or
-        SuperMetroidGameState.EndingAndCredits or
-        SuperMetroidGameState.LoadingDemo or
-        SuperMetroidGameState.StartingDemo or
-        SuperMetroidGameState.PlayingDemo or
-        SuperMetroidGameState.UnloadingDemo or
-        SuperMetroidGameState.RoutingAfterDemo =>
-            throw new InvalidOperationException($"The pause darkening cannot finish from {state}."),
-        _ => throw new InvalidOperationException($"Undefined game state {state}."),
-    };
 
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
     internal void RunUnpausing(ControllerButton controllerInput)

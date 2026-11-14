@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The loaded room's live state: room, door and assets, level data, camera, background streamer and scrolling
-/// sky, landing-site entry, inherited camera position, load station, Ceres elevator arrival, the value one room main leaves the next, and
+/// sky, landing-site entry, load station, Ceres elevator arrival, the value one room main leaves the next, and
 /// the layers the door transition shows.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
@@ -119,10 +119,4 @@ internal sealed class ActiveRoomState
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);
-
-    /// <summary>
-    /// The camera position an earlier gameplay owner left behind. Only its fractions
-    /// matter: no load path writes them, so this runtime's first camera starts from them.
-    /// </summary>
-    internal FixedPosition<RoomPixels> InheritedCameraPosition { get; set; }
 }

@@ -108,6 +108,9 @@ internal sealed record RoomLoaderDependencies
     /// </summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
+    /// <summary>The session's camera fractions kept across games, which the runtime's first room's camera starts from.</summary>
+    public required CameraFractionsKeptAcrossGames CameraFractions { get; init; }
+
     /// <summary>The runtime's shared fade step count, handed to every room's enemies.</summary>
     public required SharedFadeStepCount FadeStepCount { get; init; }
 

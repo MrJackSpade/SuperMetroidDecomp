@@ -10,15 +10,12 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="PreviousCamera">
 /// The outgoing room's camera, or null for the runtime's first room. A door load inherits its tracking state and both
-/// fractions (#1266).
-/// </param>
-/// <param name="InheritedCameraPosition">
-/// The camera position an earlier gameplay owner left behind; the first room's camera takes its fractions.
+/// fractions (#1266); the runtime's first room takes the fractions the previous game left
+/// (<see cref="CameraFractionsKeptAcrossGames"/>).
 /// </param>
 /// <param name="DoorGates">
 /// The outgoing room's door-transition gates, which door-transition code owns for the whole transition; the
 /// destination's enemies load with them clear and resume them once loaded (owner decision on #1329).
 /// </param>
 [RoomScopeBoundary("Captures the outgoing room's parts the destination reads.")]
-internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, FixedPosition<RoomPixels> InheritedCameraPosition,
-    EnemyDoorTransitionGates DoorGates);
+internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, EnemyDoorTransitionGates DoorGates);

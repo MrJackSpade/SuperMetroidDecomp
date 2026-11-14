@@ -13,11 +13,8 @@ internal sealed record GameplayRuntimeStart
     /// <summary>The assists the runtime plays under; an attract demo's are <see cref="GameplayAssists.None"/>.</summary>
     public required GameplayAssists Assists { get; init; }
 
-    /// <summary>What the session keeps across runtimes: its clock, random number generator, unauthored Speed Booster cadence and power-on rumble delay.</summary>
+    /// <summary>What the session keeps across runtimes: its clock, random number generator, unauthored Speed Booster cadence, power-on rumble delay and camera fractions.</summary>
     public required GameplaySessionCarryover Carryover { get; init; }
-
-    /// <summary>The menu's retained camera position, published to the new runtime.</summary>
-    public required MenuCameraRetention MenuCamera { get; init; }
 
     /// <summary>The installed catalogs; the runtime loads their initial palette and binds every catalog.</summary>
     public required GameArtwork Artwork { get; init; }

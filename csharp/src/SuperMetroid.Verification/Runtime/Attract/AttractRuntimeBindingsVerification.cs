@@ -53,6 +53,11 @@ internal static class AttractRuntimeBindingsVerification
         AssertTrue(ReferenceEquals(game.Session.Random, game.GameplayRuntimeForVerification.System.Random),
             "a recreated runtime shares the session's word");
         AssertEqual(menuFrame, game.GameplayRuntimeForVerification.System.RandomNumber, "a recreated runtime starts from the menu's word");
+        // #1776: the camera fractions a game leaves are the session's, so the next game's first room starts from them.
+        AssertTrue(ReferenceEquals(game.Session.cameraFractions, demo.CameraFractions) &&
+            ReferenceEquals(game.Session.cameraFractions, selected.CameraFractions) &&
+            ReferenceEquals(game.Session.cameraFractions, game.GameplayRuntimeForVerification.CameraFractions),
+            "every runtime shares the session's camera fractions kept across games");
         Console.WriteLine("Attract runtime bindings: shared construction loads installed artwork without ROM, shares the session's RNG word across runtimes, and isolates demo options.");
     }
 

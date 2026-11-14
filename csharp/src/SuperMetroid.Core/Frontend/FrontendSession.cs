@@ -48,8 +48,11 @@ internal sealed class FrontendSession
 
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
-    /// <summary>The menu's retained camera position, handed to and from each gameplay runtime.</summary>
-    internal readonly MenuCameraRetention menuCamera = new();
+    /// <summary>
+    /// The camera fractions the game keeps from one game or demo to the next: each runtime's first room's camera starts from
+    /// them, and each released runtime leaves its camera's; the soft reset clears them.
+    /// </summary>
+    internal readonly CameraFractionsKeptAcrossGames cameraFractions = new();
 
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
@@ -292,8 +295,7 @@ internal sealed class FrontendSession
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
     internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
-        if (runtime is not null)
-            menuCamera.RetainFrom(runtime);
+        runtime?.LeaveCameraFractions();
         bool attract = purpose == GameplayRuntimePurpose.AttractDemo;
         runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
         {
@@ -307,9 +309,9 @@ internal sealed class FrontendSession
                 EarthquakeSoundDelay = earthquakeSoundDelay,
                 SaveChoiceInput = saveChoiceInput,
                 StoredExploredMaps = storedExploredMaps,
+                CameraFractions = cameraFractions,
                 Audio = audio,
             },
-            MenuCamera = menuCamera,
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
             Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
@@ -513,8 +515,7 @@ internal sealed class FrontendSession
     internal void ReleaseRuntime()
     {
         // File-map selection may release when no runtime was ever created.
-        if (runtime is not null)
-            menuCamera.RetainFrom(runtime);
+        runtime?.LeaveCameraFractions();
         runtime = null;
     }
 

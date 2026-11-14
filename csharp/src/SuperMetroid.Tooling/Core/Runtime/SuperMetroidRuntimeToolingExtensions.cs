@@ -40,6 +40,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
                     SaveChoiceInput = new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence(),
                     // A tooling runtime's explored maps are its own, as power-on leaves them.
                     StoredExploredMaps = SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn(),
+                    // A tooling runtime is its session's first game, whose camera starts with no fractions, as power-on leaves them.
+                    CameraFractions = new SuperMetroid.Core.Compatibility.CameraFractionsKeptAcrossGames(),
                 });
     }
 

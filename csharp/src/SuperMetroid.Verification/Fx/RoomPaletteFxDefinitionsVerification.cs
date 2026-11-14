@@ -138,7 +138,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Console.WriteLine(
             "Palette-FX definitions: 57 setup/list records, eight native area lists, " +
             "64 area selections, every production spawn, all retail room-load selections, " +
-            "57 compiled generic program entries, and the specialized Hyper Beam owner pass " +
+            "56 compiled generic program entries, and the specialized Hyper Beam owner pass " +
             "with fixed metadata reads forbidden.");
     }
 

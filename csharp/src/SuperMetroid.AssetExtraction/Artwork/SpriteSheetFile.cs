@@ -23,9 +23,10 @@ public static class SpriteSheetFile
     /// 21 names a room block's pictures by the block's number and a colour group's animated shades as its colour animation's
     /// (#1712); 22 names the depth between a room's back and front parts BehindFrontParts and a block animation's frames by
     /// its block animation, not by the hardware's tiles (#1726); 23 names the four Maridia water blends' shades by the tint
-    /// each shows instead of a letter (#1740).
+    /// each shows instead of a letter (#1740); 24 names the cinematic sprites' frames by their poses, the Ceres floor's Baby
+    /// and wing frames by what they show and the Tourian statues' eye glows by their statues, not by numbers (#1747).
     /// </summary>
-    public const int Version = 23;
+    public const int Version = 24;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

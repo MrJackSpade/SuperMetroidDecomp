@@ -533,8 +533,8 @@ public sealed class SamusLiquidPhysicsState
             SamusAtmosphericEffects.ForCrateriaRoom(Room);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
-            // Landing Site creates splashes only for FX type 10; its normal scrolling-
-            // sky type deletes the pair. This exact comparison is not a generic water test.
+            // Landing Site creates splashes only while it rains; its normal scrolling-sky
+            // effect deletes the pair. This exact comparison is not a generic water test.
             if (FxType == RoomFxType.Rain)
                 SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else

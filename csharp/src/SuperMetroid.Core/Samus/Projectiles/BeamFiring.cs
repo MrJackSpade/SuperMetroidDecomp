@@ -201,10 +201,9 @@ internal sealed class BeamFiring
         SamusState samus,
         BeamShot firing)
     {
-        // Charged firing's success path queues the indexed sound value even when an
-        // out-of-domain beam combination reads zero from the adjacent table. Allocation,
-        // not a nonzero sound request, distinguishes that success from the shared failure
-        // tail which cancels an audible charge. Murder Beam is the observable index-15
+        // Charged firing's success path queues the combination's charged sound even when the
+        // combination has none. Allocation, not a sound request, distinguishes that success from
+        // the shared failure tail which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)
             return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);

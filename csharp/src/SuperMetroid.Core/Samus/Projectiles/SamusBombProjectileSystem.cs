@@ -1029,9 +1029,9 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // Collision types are a four-bit field and every value 0..15 is handled above;
-        // type 5/D either resolves to its parent or returned before this step. Keep
-        // the guard for corrupted packed values, but do not label it missing behavior.
+        // Every collision type is handled above; a horizontal or vertical extension either
+        // resolves to its parent or returned before this step, so reaching here means a
+        // collision type was added without a bomb reaction.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type {block.CollisionType}/" +
             $"behaviour ({block.Behavior}) at ({x},{y}).");

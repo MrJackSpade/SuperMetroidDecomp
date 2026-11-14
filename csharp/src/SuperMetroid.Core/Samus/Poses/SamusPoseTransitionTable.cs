@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <remarks>
 /// This matcher deliberately stops before applying a prospective pose. The runtime owns the
-/// transition side effects. Authored conditions are compiled; non-authored pose indexes fail
-/// explicitly instead of parsing adjacent code as a transition list. The returned
-/// record states which transition entry won for a precise
+/// transition side effects. Authored conditions are compiled; a pose with no authored input
+/// transitions fails loudly. The returned lookup states which input transition won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>
 public static class SamusPoseTransitionTable
@@ -22,12 +21,12 @@ public static class SamusPoseTransitionTable
     /// </summary>
     /// <remarks>
     /// There are two observably different ways to return without a prospective pose.
-    /// Zero input or exhausting a nonempty table calls the pose-definition fallback. A table
-    /// beginning with a terminator returns directly while any input is held;
-    /// matching a record whose target is the current pose returns directly. A nullable
+    /// Zero input or exhausting a nonempty list of transitions calls the pose-definition fallback. A pose
+    /// with no transitions returns directly while any input is held;
+    /// matching a transition whose target is the current pose returns directly. A nullable
     /// transition alone cannot represent that distinction. In particular, running-gun
     /// pose <see cref="SamusPoseId.MovingRightGunExtendedPose"/> matches itself while Right+Shoot is held, but Shoot alone reaches
-    /// the terminator and must fall back to standing pose <see cref="SamusPoseId.FacingRightNormalPose"/>.
+    /// the end of its transitions and must fall back to standing pose <see cref="SamusPoseId.FacingRightNormalPose"/>.
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         SamusPoseId currentPose,
@@ -48,8 +47,7 @@ public static class SamusPoseTransitionTable
         if (!SamusPoseInputs.TryGetInputList(currentPose, out SamusPoseInputList inputList))
         {
             throw new InvalidDataException(
-                $"Pose {currentPose} has no authored input-transition graph; " +
-                "adjacent game code is not mechanics metadata.");
+                $"Pose {currentPose} has no authored input transitions.");
         }
         SamusPoseInputMatch match = SamusPoseInputs.Match(inputList, held, newlyPressed);
         if (match.Rule is not { } rule)

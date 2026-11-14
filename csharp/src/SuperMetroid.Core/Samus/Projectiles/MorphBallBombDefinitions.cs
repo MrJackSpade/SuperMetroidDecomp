@@ -8,10 +8,10 @@ public static class MorphBallBombDefinitions
     /// <summary>How many bombs Samus can have out at once.</summary>
     public const int SlotCount = 5;
 
-    /// <summary>Normal-bomb cooldown selected from non-beam table entry five.</summary>
+    /// <summary>The wait after placing a normal bomb before Samus can place or fire again.</summary>
     public const int NormalBombCooldown = 16;
 
-    /// <summary>Power-bomb cooldown selected from non-beam table entry three.</summary>
+    /// <summary>The wait after placing a Power Bomb before Samus can place or fire again.</summary>
     public const int PowerBombCooldown = 40;
 
     /// <summary>Initial normal- and power-bomb fuse written when they are placed.</summary>

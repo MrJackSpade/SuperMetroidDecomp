@@ -224,7 +224,7 @@ internal sealed class EyeDoorBehavior
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromParts(0, 12);
+    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)

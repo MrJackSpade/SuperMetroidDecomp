@@ -291,16 +291,20 @@ internal static class NativeEnemyFamilyStateImport
             sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = unchecked((short)words.F);
         }
-        if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
+        if (slot.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
-            kiHunterRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
-            kiHunterRecord.SwoopTarget = new(words.B, 0);
-            kiHunterRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            kiHunterRecord.SwoopOrigin = new(0, words.C);
-            kiHunterRecord.DetachedSpeedAccumulator = words.D;
-            kiHunterRecord.AnimationChangeAngle = words.E;
-            kiHunterRecord.SwoopAngle = words.F;
-            kiHunterRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
+            kiHunterBodyRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterBodyRecord.SwoopTarget = new(words.B, 0);
+            kiHunterBodyRecord.SwoopOrigin = new(0, words.C);
+            kiHunterBodyRecord.AnimationChangeAngle = words.E;
+            kiHunterBodyRecord.SwoopAngle = words.F;
+        }
+        if (slot.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
+        {
+            kiHunterWingRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
+            kiHunterWingRecord.DetachedSpeedAccumulator = words.D;
+            kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {

@@ -160,7 +160,7 @@ internal static class GameplayAudioOrderVerification
     private static RoomEnemySlot KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.KihunterGreen);
-        KiHunterEnemyState state = runtime.Enemies.KiHunterStates[body.SlotIndex]
+        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.SlotIndex]
             ?? throw new InvalidOperationException("The Ki Hunter has no state.");
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Action = KiHunterAction.NoOp;

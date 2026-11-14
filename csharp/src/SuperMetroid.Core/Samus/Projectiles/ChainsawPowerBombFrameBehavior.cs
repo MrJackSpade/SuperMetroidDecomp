@@ -54,7 +54,7 @@ internal sealed class ChainsawPowerBombFrameBehavior
             sharedProjectiles.PowerBombExplosion.ExplosionRadius,
             reactions,
             roomObjects,
-            samus.LiquidPhysics.AreaIndex,
+            samus.LiquidPhysics.Area,
             slot.Type);
     }
 }

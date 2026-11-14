@@ -45,7 +45,7 @@ internal static class PauseMenuFixtureVerification
         CartridgePaletteImporter.LoadToCgram(pauseColors, bus, MapSourceDefinitions.Artwork.PauseColors);
         MapStaticPalettes stockPalettes = stock.Palettes;
         var palettes = new MapStaticPalettes(pauseColors.Colors.ToArray(), stockPalettes.FileSelect.ToArray(),
-            Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
+            AreaIds.Zebes
                 .ToDictionary(area => area, area => stockPalettes.World(area).ToArray()));
         var areas = AreaIds.All.ToDictionary(area => area, area => area == AreaId.Crateria ? AreaMapImporter.Load(bus, area) : game.Get(area));
         var backdrops = PauseBackdropPresentation.FromTilemaps(

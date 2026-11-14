@@ -25,7 +25,7 @@ public static class ExploredMapStorage
         Ensure.NotNull(progress);
         IAreaMapSource stock = maps ?? throw new InvalidOperationException("Saving explored maps requires bound immutable stock map rules.");
         PersistentProgress kept = progress.Copy();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             IAreaMapView? view = AreaIds.IsZebes(area) ? stock.Get(area) : null;
             foreach (Position16<MapTiles> cell in progress.ExploredCells(area))

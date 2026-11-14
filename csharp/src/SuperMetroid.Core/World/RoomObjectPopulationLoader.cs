@@ -137,7 +137,7 @@ internal sealed class RoomObjectPopulationLoader
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
-        AreaId areaIndex = room.AreaIndex;
+        AreaId area = room.Area;
         RoomObjectKind objectKind = placed.Kind;
         if (DoorObjects.TryIdentifyColoredDoor(
                 objectKind,
@@ -244,7 +244,7 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot, objectKind))
+        if (StationObjects.TrySetupStationOrElevator(level, system, area, slot, objectKind))
             return true;
 
         return false;

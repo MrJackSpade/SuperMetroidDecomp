@@ -1,17 +1,15 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Reserve-health mode (#1323): zero until the first reserve tank, then AUTO or MANUAL. Pickups and refills
-/// write only AUTO, the pause menu toggles between AUTO and MANUAL, and AUTO is the only odd mode, so the game's
-/// oddness tests are AUTO tests.
+/// Reserve-health mode (#1323): none until the first reserve tank, then AUTO or MANUAL. Pickups and refills set only
+/// AUTO, and the pause menu toggles between AUTO and MANUAL; the game's reserve-mode checks ask whether the mode is AUTO.
 /// </summary>
 public enum ReserveTankMode
 {
     /// <summary>No reserve tank collected.</summary>
-    None = 0,
+    None,
     /// <summary>Reserves refill health automatically; the pause menu labels it AUTO.</summary>
-    Auto = 1,
-    /// <summary>Reserves are transferred from the pause menu, which stores two when leaving AUTO.</summary>
-    Manual = 2,
+    Auto,
+    /// <summary>Reserves are transferred by hand from the pause menu, which selects MANUAL when leaving AUTO.</summary>
+    Manual,
 }
-

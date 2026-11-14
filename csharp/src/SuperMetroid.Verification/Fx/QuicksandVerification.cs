@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -300,7 +301,7 @@ internal static class QuicksandVerification
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
         for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
-            var area = (AreaId)rawArea;
+            AreaId area = RetailArea(rawArea);
             SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(value).SpecialAir;
             AssertEqual((value & 0x80) != 0 && (value & 0x7f) >= 16, reaction is null,
                 $"special-air BTS ${value:X2} has a reaction exactly within the tables");

@@ -57,7 +57,7 @@ internal static class SpacetimeBeamVerification
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
         };
-        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (ControllerButton.Left | ControllerButton.A));
@@ -276,7 +276,7 @@ internal static class SpacetimeBeamVerification
         Until(() => skippedGame.RuntimeForVerification is not null,
             () => skippedGame.Step(0), 200, "SpaceTime Ceres restart");
         SuperMetroidRuntime runtime = skippedGame.GameplayRuntimeForVerification;
-        AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.AreaIndex,
+        AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.Area,
             "SpaceTime save restarts at Ceres");
         AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToEquipmentWord(),
             "SpaceTime Ceres restart retains equipped beams");

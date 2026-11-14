@@ -90,8 +90,8 @@ internal static class GameplayHudPresentationVerification
         var installedSystem = new SharedGameState(new SharedRandom());
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
-        native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
-        installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        native.UpdateMinimap(nativeSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        installed.UpdateMinimap(installedSystem, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 

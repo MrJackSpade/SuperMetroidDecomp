@@ -26,7 +26,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             throw new InvalidOperationException(
                 "Pause setup requires an active room.");
         session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
-                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, MapPresentation = session.Artwork.MapPresentation, SpriteSheets = session.Artwork.SpriteSheets }));
+                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, Area = pauseRoom.Area, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayHud = session.GameplayRuntime.AcceptedHud, MapRevealMode = session.Assists.MapReveal, MapPresentation = session.Artwork.MapPresentation, SpriteSheets = session.Artwork.SpriteSheets }));
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);

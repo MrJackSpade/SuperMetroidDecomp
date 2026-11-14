@@ -163,7 +163,7 @@ public sealed class SamusLiquidPhysicsState
     public RoomIdentity RoomIdentity { get; set; }
 
     /// <summary>Validated retail-area projection used by area-only consumers.</summary>
-    public AreaId AreaIndex => RoomIdentity.Area;
+    public AreaId Area => RoomIdentity.Area;
 
     /// <summary>An active cinematic suppresses ordinary footstep audio.</summary>
     public bool CinematicActive { get; set; }
@@ -473,7 +473,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Is an eight-entry area table. An invalid area would select
         // unrelated data; fail loudly instead of manufacturing output.
-        switch (AreaIndex)
+        switch (Area)
         {
             case AreaId.Crateria:
                 HandleCrateriaLandingGraphics(samus);
@@ -510,7 +510,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {AreaIndex} is outside the seven retail areas.");
+                throw new InvalidDataException($"Landing graphics area {Area} is outside the seven retail areas.");
         }
     }
 
@@ -734,8 +734,8 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        bool useWetFootsteps = AreaIndex == AreaId.Maridia;
-        if (AreaIndex == AreaId.Crateria)
+        bool useWetFootsteps = Area == AreaId.Maridia;
+        if (Area == AreaId.Crateria)
         {
             if (CinematicActive)
             {

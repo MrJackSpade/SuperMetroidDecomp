@@ -345,7 +345,7 @@ internal static class FileSelectRoomMapVerification
         if (savedArea == AreaId.Ceres)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
-            AssertEqual(AreaId.Ceres, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
+            AssertEqual(AreaId.Ceres, game.GameplayRuntimeForVerification.Room.LoadedRoom.Area,
                 "Ceres checkpoint bypasses Zebes map and retains elevator arrival");
             AssertTrue(game.GameplayRuntimeForVerification.Room.CeresElevatorArrival is not null,
                 "Ceres checkpoint still owns its arrival sequence");

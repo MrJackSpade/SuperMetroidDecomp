@@ -81,7 +81,7 @@ internal sealed class IntroBabyDiscoveryState
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
-    /// The Samus display flag for this scene. Scene setup has the objects draw first; the egg and dancing-baby
+    /// How this scene shows Samus. Scene setup shows her under the cinematic objects; the egg and dancing-baby
     /// frame behaviours later reorder or clear it.
     /// </summary>
     public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
@@ -96,7 +96,7 @@ internal sealed class IntroBabyDiscoveryState
     /// </summary>
     public void Step(int frameCounter, int introCrossfadeTimer)
     {
-        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
+        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the intro shows her.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
         {
             // The demo pose-input handler runs the demo input object inside Samus's

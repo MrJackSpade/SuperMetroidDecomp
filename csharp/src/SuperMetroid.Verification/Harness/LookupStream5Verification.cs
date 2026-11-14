@@ -558,7 +558,7 @@ internal static class LookupStream5Verification
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
         MapSpriteCompositions sprites = MapSpriteArtwork.Read(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, MapSourceDefinitions.Menu.ObjectBank | pointer);
-        int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
+        int Root(int table, AreaId area) => ReadVerificationWord(rom, table + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
         string[] expectedIds = ["Crateria.Elevator.ToBrinstarWest", "Crateria.Elevator.ToBrinstarCentral", "Crateria.Elevator.ToBrinstarEast",
             "Crateria.Elevator.ToWreckedShip", "Crateria.Elevator.ToMaridia",
             "Boss.Kraid", "Brinstar.Elevator.ToCrateriaWest", "Brinstar.Elevator.ToCrateriaCentral", "Brinstar.Elevator.ToCrateriaEast",
@@ -568,7 +568,7 @@ internal static class LookupStream5Verification
             "Tourian.Elevator.ToCrateria", "Boss.CeresRidley", "Crateria.Gunship"];
         AssertTrue(expectedIds.SequenceEqual(MapLandmarkFile.Ids()), "Original public identity and manifest order");
         int bossSlots = 0, elevatorSlots = 0;
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             var markers = MapLandmarks.BossMarkers(area);
             int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area);
@@ -604,7 +604,7 @@ internal static class LookupStream5Verification
             AssertEqual(count, elevators.Length, "Native elevator count");
             elevatorSlots += count;
         }
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         foreach (bool downloaded in new[] { false, true })
         foreach (bool defeated in new[] { false, true })
         {

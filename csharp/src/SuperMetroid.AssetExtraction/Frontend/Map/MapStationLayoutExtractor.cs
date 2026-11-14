@@ -19,7 +19,7 @@ public static class MapStationLayoutExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var markers = new Dictionary<string, Position16<MapPixels>>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         foreach (MapStationKind kind in Enum.GetValues<MapStationKind>())
         {
             int table = kind switch

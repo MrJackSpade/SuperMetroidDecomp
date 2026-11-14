@@ -174,10 +174,10 @@ internal sealed class RoomLoader
         }
 
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
-        if (room.AreaIndex != AreaId.Ceres)
+        if (room.Area != AreaId.Ceres)
         {
             throw new InvalidDataException(
-                $"Fresh Ceres station targets {room.AreaIndex}, expected {AreaId.Ceres}.");
+                $"Fresh Ceres station targets {room.Area}, expected {AreaId.Ceres}.");
         }
 
         return LoadRoom(
@@ -221,11 +221,11 @@ internal sealed class RoomLoader
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.Placement.SamusPosition.X);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.Placement.SamusPosition.Y);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
-        if (room.AreaIndex != requestedArea)
+        if (room.Area != requestedArea)
         {
             throw new InvalidDataException(
                 $"Load station {station} targets room area " +
-                $"{room.AreaIndex}.");
+                $"{room.Area}.");
         }
         InitialViewportResult viewport = LoadRoom(
             door,
@@ -255,7 +255,7 @@ internal sealed class RoomLoader
         _room.LoadedScope.ColourEffects.Start(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
-            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
+            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
         _player.IntroducedSamus.Control.LockHandlers();
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus);
         _player.GroundedSamusMovementEnabled = false;
@@ -326,10 +326,10 @@ internal sealed class RoomLoader
         }
 
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
-        if (room.AreaIndex != AreaId.Crateria)
+        if (room.Area != AreaId.Crateria)
         {
             throw new InvalidDataException(
-                $"Post-Ceres station {station} targets area {room.AreaIndex}, expected Crateria.");
+                $"Post-Ceres station {station} targets area {room.Area}, expected Crateria.");
         }
 
         // The cinematic refilled health on the preceding frame; the Ceres start then seeds the
@@ -723,8 +723,8 @@ internal sealed class RoomLoader
         // then, with the destination's definition loaded, loads the live map from the entered area's.
         if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
         {
-            _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.AreaIndex);
-            _system.StoredExploredMaps.LoadLiveMap(room.AreaIndex);
+            _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.Area);
+            _system.StoredExploredMaps.LoadLiveMap(room.Area);
         }
 
         // The door transition promotes a departing elevator's global status from one to
@@ -888,7 +888,7 @@ internal sealed class RoomLoader
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
-            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaBoss),
+            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         scope.SandBlockAnimations = new RoomSandBlockAnimationsState(room.State.Fx, door);
         scope.SpikeBlockAnimations = new RoomSpikeBlockAnimationsState(room.State.Fx, door);
@@ -905,7 +905,7 @@ internal sealed class RoomLoader
             room.State.Fx,
             door,
             _player.Samus?.EquippedItems ?? 0,
-            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
+            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
         roomColourEffects.BindAudioRequests(_audioRequests);
         scope.ColourEffects = roomColourEffects;
 
@@ -938,9 +938,9 @@ internal sealed class RoomLoader
         // context instead of being skipped by a collection of sibling scans.
         // The room's room-object system is built with its bindings, then one set of runtime services
         // serves the room's room objects and enemies.
-        var progress = new RoomAreaProgress(_system, room.AreaIndex);
+        var progress = new RoomAreaProgress(_system, room.Area);
         var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _system);
-        var roomObjectRoom = new RoomObjectRoom(assets.LevelData, _system, room.AreaIndex);
+        var roomObjectRoom = new RoomObjectRoom(assets.LevelData, _system, room.Area);
         var roomObjectBindings = new RoomObjectServices
         {
             Samus = roomObjectServices,
@@ -1038,7 +1038,7 @@ internal sealed class RoomLoader
             // Only Norfair's Ridley marks his arena explored.
             if (enemies.RoomStatus.Boss == AreaBoss.Ridley)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
-                    _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, row + 1));
+                    _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row + 1));
         }
         _escapeEffects.SetupEscapeRoomEffects(room.State.SetupBehavior, enemies, scope.EscapeDiagonalQuake);
         // Gate setup runs while the room-object population is constructed, but Enemies.Load
@@ -1083,14 +1083,14 @@ internal sealed class RoomLoader
     /// </remarks>
     internal SelectedRoom LoadSelectedRoom(RoomDefinition room)
     {
-        AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
+        AreaId area = Ensure.NotNull(room).Area;
 
         // RoomStateSelectionContext owns a detached copy of the events, so selection never
         // observes or changes the live progress.
         SamusState? samus = _player.Samus;
         var selection = new RoomStateSelectionContext(
             _system.Progress.Events.Copy(),
-            DefeatedBosses: _system.BossesDefeatedIn(areaIndex),
+            DefeatedBosses: _system.BossesDefeatedIn(area),
             HasMorphBallAndMissiles:
                 samus is not null &&
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
@@ -1175,7 +1175,7 @@ internal sealed class RoomLoader
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
@@ -1189,7 +1189,7 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is not null)
         {
             return new ActiveRoomGeometry(
-                _room.ActiveRoom.AreaIndex,
+                _room.ActiveRoom.Area,
                 _room.ActiveRoom.MapPosition,
                 _room.ActiveRoom.UpScroller,
                 _room.ActiveRoom.DownScroller);
@@ -1198,7 +1198,7 @@ internal sealed class RoomLoader
         if (_room.LandingSiteEntry is not null)
         {
             return new ActiveRoomGeometry(
-                _room.LandingSiteEntry.AreaIndex,
+                _room.LandingSiteEntry.Area,
                 _room.LandingSiteEntry.RoomMapPosition,
                 _room.LandingSiteEntry.UpScroller,
                 _room.LandingSiteEntry.DownScroller);

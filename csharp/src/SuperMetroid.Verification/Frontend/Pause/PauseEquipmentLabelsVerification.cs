@@ -26,8 +26,8 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
-            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }

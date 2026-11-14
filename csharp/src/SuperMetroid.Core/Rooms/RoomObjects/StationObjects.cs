@@ -129,7 +129,7 @@ internal sealed class StationObjects
             .Where(slot => slot.Active && slot.Argument is SaveStationArgument saved && saved.Station == activation.Station)
             .Select(slot => slot.Behaviour as StationObject)
             .OfType<StationObject>()
-            .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
+            .Where(station => station.Kind == StationKind.Save && station.Area == activation.Area)
             .ToArray();
         return matches.Length switch
         {

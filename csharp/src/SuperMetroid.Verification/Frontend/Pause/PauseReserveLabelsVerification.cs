@@ -28,7 +28,7 @@ internal static class PauseReserveLabelsVerification
         {
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { MaxReserveEnergy = capacity, ReserveTankMode = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedReserveMode(mode),
                 CollectedItems = SamusEquipmentFlags.MorphBall };
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();

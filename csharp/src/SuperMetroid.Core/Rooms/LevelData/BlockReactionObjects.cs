@@ -347,11 +347,11 @@ internal sealed class BlockReactionObjects
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
-        AreaId areaIndex,
+        AreaId area,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        _ = AreaIds.Require(areaIndex);
+        _ = AreaIds.Require(area);
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
         if (projectileType.Family != SamusProjectileFamily.Bomb)
@@ -363,7 +363,7 @@ internal sealed class BlockReactionObjects
 
         if (behavior.Special is null)
             throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special, areaIndex);
+        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special, area);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;

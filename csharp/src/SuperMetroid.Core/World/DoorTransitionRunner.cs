@@ -141,7 +141,7 @@ internal sealed class DoorTransitionRunner
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
-            _system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss));
+            _system.HasDefeatedAnyOf(_room.ActiveRoom.Area, DefeatedBosses.AreaBoss));
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>

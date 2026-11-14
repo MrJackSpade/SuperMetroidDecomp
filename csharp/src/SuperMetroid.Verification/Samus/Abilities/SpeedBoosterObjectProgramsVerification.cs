@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -79,7 +80,7 @@ internal static class SpeedBoosterObjectProgramsVerification
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
             bool found = SpeedBoosterBlocks.TryResolve(RoomBlockBehaviorCodec.Decode((byte)bts),
-                (AreaId)(byte)area,out BlockReactionChange? crumble);
+                RetailArea(area),out BlockReactionChange? crumble);
             AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
             if (!found)
             {

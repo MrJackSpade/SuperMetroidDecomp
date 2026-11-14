@@ -426,13 +426,13 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
-            AreaId areaIndex,
+            AreaId area,
             SamusProjectileType projectileType)
             => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 position,
                 RoomBlockBehaviorCodec.Decode(behavior),
-                areaIndex,
+                area,
                 projectileType);
 
         /// <summary>

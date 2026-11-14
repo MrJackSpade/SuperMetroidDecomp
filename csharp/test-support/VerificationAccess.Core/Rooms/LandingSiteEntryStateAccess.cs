@@ -32,7 +32,7 @@ internal static class LandingSiteEntryStateAccess
             }
 
             RoomDefinition room = RoomDefinitions.LandingSite;
-            RoomIdentity roomIdentity = new(room.AreaIndex, room.RoomIndex);
+            RoomIdentity roomIdentity = new(room.Area, room.RoomIndex);
             if (roomIdentity != RoomIdentities.LandingSite)
             {
                 throw new InvalidDataException(

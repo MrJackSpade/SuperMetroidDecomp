@@ -26,10 +26,10 @@ internal static class PauseBackdropsVerification
         // A debugger save state binds the installed content rather than writing it, as the debugger's store does, so
         // the round trip below carries only the pause session's own state.
         var bound = new BoundObjectGraph([original, MenuSheetFixtures.For(original), .. InstalledFixtures.BoundContent]);
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; InstalledFixtures.ImportOf(original).Pause.Backdrops.LoadTo(tiles, area);
             AssertTrue(BackgroundTileWordBytes.Tiles(expected).SequenceEqual(tiles), "all 1024 backdrop tiles match native frame plus unmasked area lettering");
@@ -57,7 +57,7 @@ internal static class PauseBackdropsVerification
         // writes Plasma's label nine cells long, into the cells after it; that overrun is a presentation quirk the port
         // does not keep (#1515), so the page shows each label as its item's state describes it and the template after it.
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedBeams = SamusBeamFlags.Spazer };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.HiJump, glitch.SelectedControl, "fixture selects Hi-Jump Boots");
@@ -75,7 +75,7 @@ internal static class PauseBackdropsVerification
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
             var system = new SharedGameState(new SharedRandom());
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
-            return new(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
+            return new(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, Area = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         }
     }
 }

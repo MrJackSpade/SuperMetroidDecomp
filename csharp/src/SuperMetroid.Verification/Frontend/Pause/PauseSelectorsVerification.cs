@@ -70,7 +70,7 @@ internal static class PauseSelectorsVerification
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             if (control == PauseEquipmentControls.ReserveTransfer) pause.Step(0, ControllerButton.Down);
             return pause;

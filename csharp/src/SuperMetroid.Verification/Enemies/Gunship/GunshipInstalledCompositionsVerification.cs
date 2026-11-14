@@ -75,7 +75,7 @@ internal static class GunshipInstalledCompositionsVerification
         (scene ?? throw new InvalidOperationException("Verification requires scene.")).Phase = CeresDestructionPhase.Finished;
         game.StepCaptured(0);
         game.StepCaptured(0);
-        AssertEqual(AreaId.Crateria, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
+        AssertEqual(AreaId.Crateria, game.GameplayRuntimeForVerification.Room.LoadedRoom.Area,
             "#1154 fixture reaches the reported Landing Site through the existing loader");
         // The landing's native loading waits publish black; only the subsequent
         // gameplay fade owns the gunship OAM draw that failed in the player report.

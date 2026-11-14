@@ -254,7 +254,7 @@ internal static class ScreenTilePicturesVerification
         system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
+            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
         int layers = AssertPauseDrawnFromVram(pause, maps, "pause map");

@@ -26,7 +26,7 @@ internal static class FileSelectMapWindowVerification
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
     private static WorldMapLabelPositions CreateWindowLabelFixture(Position16<SpritePixels> label)
     {
-        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
+        var points = SuperMetroid.Core.Progression.AreaIds.Zebes.ToDictionary(area => area.ToString(),
             _ => label);
         using var stream = new MemoryStream();
         WorldMapLabelFile.Write(stream, new() { Version = 1, Areas = points });

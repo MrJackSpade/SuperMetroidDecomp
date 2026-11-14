@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Map;
 /// <summary>Where Samus is and how the area map is revealed for one minimap update (#633).</summary>
 public sealed record MinimapFrame
 {
-    /// <summary>Area index.</summary>
-    public required AreaId AreaIndex { get; init; }
+    /// <summary>The area the minimap shows.</summary>
+    public required AreaId Area { get; init; }
 
     /// <summary>Room map.</summary>
     public required Position16<MapTiles> RoomMap { get; init; }

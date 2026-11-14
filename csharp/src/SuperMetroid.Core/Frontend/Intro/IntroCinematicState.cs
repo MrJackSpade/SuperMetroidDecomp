@@ -160,7 +160,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
     internal SamusState FlashbackSamus => CurrentFlashbackSamus ??
         throw new InvalidOperationException("The Mother Brain flashback has not introduced Samus.");
-    /// <summary>The Samus display flag during the Mother Brain flashback: the flashback sets it, and deleting Mother Brain clears it.</summary>
+    /// <summary>How the Mother Brain flashback shows Samus: the flashback shows her, and deleting Mother Brain hides her.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
     /// <summary>Mother Brain animation state active only in the first gameplay flashback.</summary>
     internal IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain { get; private set; }
@@ -519,7 +519,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             }
         }
 
-        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
+        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the intro shows her.
         if (CurrentFlashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             // The intro demo's input phase refreshes the live radius before projectiles and movement.
@@ -660,7 +660,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>
     /// The end of a crossfade into a flashback starts the old Mother Brain fight's background lights (#1733) while
-    /// <paramref name="display"/>, the Samus display flag, has Samus draw first: the Mother Brain flashback sets it so, the
+    /// <paramref name="display"/>, how the intro shows Samus, has Samus draw first: the Mother Brain flashback sets it so, the
     /// discovery's setup has its objects draw first.
     /// </summary>
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
@@ -1099,7 +1099,7 @@ level, samus, frameCounter);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         objectSprites.BeginFrame();
-        // A negative Samus display flag draws Samus and both projectile passes before the
+        // Samus shown over the cinematic objects draws her and both projectile passes before the
         // cinematic objects; once deleting Mother Brain clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
@@ -1117,7 +1117,7 @@ level, samus, frameCounter);
         if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
             motherBrainPose != CinematicSpritePose.Blank)
         {
-            // A negative intro Samus display makes the intro's sprite draw put Samus first and cinematic
+            // Samus shown over the cinematic objects makes the intro's sprite draw put Samus first and cinematic
             // actors afterward. Retaining that drawing order preserves overlap wins.
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
@@ -1132,12 +1132,12 @@ level, samus, frameCounter);
         return sprites;
     }
 
-    /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing sprite data.</summary>
+    /// <summary>Orders Samus and discovery actors by how the intro shows Samus before finalizing sprite data.</summary>
     internal SpriteFrameBuffer PrepareBabyDiscoverySprites()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        // The cinematic draw orders Samus against the cinematic objects by whether the display flag is negative.
+        // The cinematic draw layers Samus and the cinematic objects by how the intro shows her.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(sprites);

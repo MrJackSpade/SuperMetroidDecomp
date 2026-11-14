@@ -165,7 +165,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             CheckSet("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
             CheckSet("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
             CheckSet("Used stations", portProgress.UsedStations, nativeProgress.UsedStations);
-            foreach (AreaId area in Enum.GetValues<AreaId>())
+            foreach (AreaId area in AreaIds.All)
             {
                 if (portProgress.BossesDefeatedIn(area) != nativeProgress.BossesDefeatedIn(area))
                     mismatches.Add($"{area} bosses: native={nativeProgress.BossesDefeatedIn(area)} port={portProgress.BossesDefeatedIn(area)}");

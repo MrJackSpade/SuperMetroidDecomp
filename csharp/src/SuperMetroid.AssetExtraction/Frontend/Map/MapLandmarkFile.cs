@@ -13,7 +13,7 @@ public static class MapLandmarkFile
     /// <returns>All landmark IDs in area order, each area's boss markers before its elevator labels.</returns>
     internal static IEnumerable<string> Ids()
     {
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area)) yield return marker.Id;
             if (area != AreaId.Ceres)

@@ -113,7 +113,7 @@ internal static class PauseMenuVerification
         var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired(0);
         system.MarkExploredMapTile(0, new(30, 5));
-        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
 
         AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause begins on map page");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(presentation.Game, 0).Raw,
@@ -190,7 +190,7 @@ internal static class PauseMenuVerification
         // Samus word and must show the Wave beam's colours immediately.
         samus.CollectedBeams = SamusBeamFlags.Wave;
         samus.EquippedBeams = 0;
-        var beamPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var beamPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
         EnterPauseEquipment(beamPause);
         AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
             "Wave-only pause entry selects the reserve mode control while capacity exists");
@@ -210,7 +210,7 @@ internal static class PauseMenuVerification
         // the sampled point. BG2 is also transparent there. The pixel must therefore be
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
-        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
         RgbaPixel[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new RgbaPixel(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
@@ -223,7 +223,7 @@ internal static class PauseMenuVerification
         revealSystem.MarkExploredMapTile(
             AreaId.Crateria,
             new(exploredSecretMapX, revealTestMapY));
-        PauseMenuState CreateRevealPause(MapRevealMode mode) => new(new PauseMenuEntry { Samus = samus, System = revealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = mode, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        PauseMenuState CreateRevealPause(MapRevealMode mode) => new(new PauseMenuEntry { Samus = samus, System = revealSystem, Area = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = mode, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
 
         PauseMenuState nonePause = CreateRevealPause(MapRevealMode.None);
         AssertEqual(ShownMapCell.Unexplored(MapCell.Empty), nonePause.ReadDisplayedMapCell(new(publicMapX, revealTestMapY)),
@@ -257,7 +257,7 @@ internal static class PauseMenuVerification
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
         var restoredRevealSystem = new SharedGameState(new SharedRandom());
         restoredRevealSlot.ApplyTo(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), restoredRevealSystem);
-        var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = MapRevealMode.None, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, Area = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = MapRevealMode.None, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");
         AssertEqual(ShownMapCell.Unexplored(MapCell.Empty),

@@ -216,7 +216,7 @@ internal static class RidleyFullMovieVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Hud.EnableMinimapAfterDoorEntry();
-            foreach (AreaId area in Enum.GetValues<AreaId>())
+            foreach (AreaId area in AreaIds.All)
                 foreach (Position16<MapTiles> cell in runtime.System.Progress.ExploredCells(area).ToList())
                     runtime.System.Progress.SetExplored(area, cell, explored: false);
             if (defeated) runtime.System.RecordBossesDefeated(AreaId.Norfair, DefeatedBosses.AreaBoss);
@@ -224,7 +224,7 @@ internal static class RidleyFullMovieVerification
             var room = runtime.Room.LoadedRoom;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
             for (int row = 0; row < 2; row++)
-                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1)))),
+                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.Area, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1)))),
                     "Ridley initializes both native arena map cells");
             if (!defeated)
             {
@@ -622,7 +622,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;

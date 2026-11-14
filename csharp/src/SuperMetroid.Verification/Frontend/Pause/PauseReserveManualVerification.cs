@@ -21,7 +21,7 @@ internal static class PauseReserveManualVerification
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
             CollectedBeams = SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, pause.SelectedControl, "equipment entry selects the owned reserve mode control without Up");
         pause.Step(0, ControllerButton.A);
@@ -62,7 +62,7 @@ internal static class PauseReserveManualVerification
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var audio = AudioQueues.Standalone();
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
             pause.Step(0, ControllerButton.Up);
             pause.Step(0, ControllerButton.Down);

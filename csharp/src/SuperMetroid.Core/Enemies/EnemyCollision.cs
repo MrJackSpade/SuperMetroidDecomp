@@ -782,7 +782,7 @@ internal sealed class EnemyCollision
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer == 0)
             _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
-        enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
+        enemy.FrozenTimer = samus?.LiquidPhysics.Area == AreaId.Norfair
             ? 300
             : 400;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;

@@ -27,7 +27,7 @@ internal sealed class StationObject(
     /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
     public StationKind Kind { get; } = kind;
     /// <summary>Area whose map-acquired or save-station state is affected.</summary>
-    public AreaId AreaIndex { get; } = area;
+    public AreaId Area { get; } = area;
     /// <summary>Animation the station currently shows.</summary>
     public StationAnimationList AnimationList { get; set; } = animationList;
     /// <summary>Animation selected after the station has completed its first activation.</summary>
@@ -70,7 +70,7 @@ internal sealed class StationObject(
             Triggered = false;
             bool canActivate = Kind switch
             {
-                StationKind.Map => !stations.RequireSystem("Map station").HasAreaMap(AreaIndex),
+                StationKind.Map => !stations.RequireSystem("Map station").HasAreaMap(Area),
                 StationKind.Energy => samus.Health != samus.MaxHealth,
                 StationKind.Missile => samus.Missiles != samus.MaxMissiles,
                 StationKind.Save => true,
@@ -209,7 +209,7 @@ internal sealed class StationObject(
             stations.Publish(new StationActivationEvent(
                 StationKind.Save,
                 GameplayMessageIds.SaveCompleted,
-                AreaIndex,
+                Area,
                 SavedStation(place),
                 place.Block));
             return true;
@@ -247,7 +247,7 @@ internal sealed class StationObject(
         switch (Kind)
         {
             case StationKind.Map:
-                stations.RequireSystem("Map station").SetAreaMapAcquired(AreaIndex);
+                stations.RequireSystem("Map station").SetAreaMapAcquired(Area);
                 AnimationList = CompletedAnimationList;
                 break;
             case StationKind.Energy:
@@ -269,7 +269,7 @@ internal sealed class StationObject(
         stations.Publish(new StationActivationEvent(
             Kind,
             message,
-            AreaIndex,
+            Area,
             (place.Argument as SaveStationArgument)?.Station,
             place.Block));
     }

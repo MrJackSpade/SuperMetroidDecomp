@@ -62,7 +62,7 @@ internal static class PauseReserveRowToggleVerification
             CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge, Health = 99, MaxHealth = 99,
             MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
         };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         EnterPauseEquipment(menu);
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "with a reserve tank the cursor starts in the reserve column");
         menu.Step(0, ControllerButton.Down);

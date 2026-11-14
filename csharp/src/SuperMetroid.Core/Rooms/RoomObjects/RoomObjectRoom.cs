@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 public sealed record RoomObjectRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>
-    public RoomObjectRoom(RoomLevelData level, SharedGameState system, AreaId areaIndex)
+    public RoomObjectRoom(RoomLevelData level, SharedGameState system, AreaId area)
     {
 
         Level = Ensure.NotNull(level);
         System = Ensure.NotNull(system);
-        AreaIndex = areaIndex;
+        Area = area;
     }
 
 
@@ -27,5 +27,5 @@ public sealed record RoomObjectRoom
     public SharedGameState System { get; }
 
     /// <summary>The room's area.</summary>
-    public AreaId AreaIndex { get; }
+    public AreaId Area { get; }
 }

@@ -14,10 +14,10 @@ internal static class LoadStationEntryImporter
 {
     /// <summary>Follows the area's bank-$80 station table to import its room, door,
     /// camera position, and signed Samus offsets from one native entry.</summary>
-    public static NativeLoadStation Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
+    public static NativeLoadStation Load(ISnesAddressSpace bus, AreaId area, byte stationIndex)
     {
         Ensure.NotNull(bus);
-        int areaTableIndex = AreaNumberCodec.Encode(areaIndex);
+        int areaTableIndex = AreaNumberCodec.Encode(area);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
             LoadStationRomData.PointerTable + areaTableIndex * 2);

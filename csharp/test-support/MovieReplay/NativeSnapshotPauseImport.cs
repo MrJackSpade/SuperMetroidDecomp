@@ -28,7 +28,7 @@ internal static class NativeSnapshotPauseImport
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
 
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, MapPresentation = game.Artwork.MapPresentation, SpriteSheets = game.Artwork.SpriteSheets ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, MapPresentation = game.Artwork.MapPresentation, SpriteSheets = game.Artwork.SpriteSheets ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         menu.MapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
         var highlight = menu.mapHighlight;
         highlight.Timer = memory[PauseMemory.PaletteAnimationTimer];

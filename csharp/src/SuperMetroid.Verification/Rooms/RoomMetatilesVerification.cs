@@ -71,7 +71,7 @@ internal static class RoomMetatilesVerification
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
-            bool ceres = header.AreaIndex == AreaId.Ceres;
+            bool ceres = header.Area == AreaId.Ceres;
             AssertTrue(RoomBlockComposition.StockTiles(stockCatalog, tileset.Blocks, ceres).AsSpan().SequenceEqual(
                     InstalledFixtures.StockBlockTiles(tileset, ceres)),
                 $"room $8F:{roomPointer:X4}'s blocks are composed from the cartridge's exact visual blocks");

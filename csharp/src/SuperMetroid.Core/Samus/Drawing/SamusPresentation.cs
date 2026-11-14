@@ -171,15 +171,16 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Publishes an animation frame/timer pair written directly by an installed special
-    /// movement handler instead of by the generic delay animation.
+    /// Publishes an animation frame/timer pair written directly by whatever moves Samus (her
+    /// <see cref="SamusMovementOwner"/>: her pose's own movement, Crystal Flash, the drain or the X-ray scope) instead of
+    /// by the generic delay animation.
     /// </summary>
     /// <remarks>
     /// Crystal Flash writes the frame and timer directly. This narrow internal
     /// seam preserves the ordering: movement writes the pair, then animation later
     /// in the movement phase immediately decrements the newly written timer.
     /// </remarks>
-    internal static void SetAnimationFrameFromSpecialHandler(SamusState samus, int frame, int timer)
+    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, int frame, int timer)
     {
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);

@@ -27,7 +27,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
-    /// A turning Torizo's drool angle, any of the 256 table angles: the selection divided by two, modulo 256.
+    /// A turning Torizo's drool angle, any of the 256 steps of a turn: the selection divided by two, modulo 256.
     /// </summary>
     internal static readonly RandomSampleField DroolTurningAngle = new(1, 8);
 
@@ -35,7 +35,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField DroolFacingSpread = new(0, 4);
 
     /// <summary>
-    /// Golden Torizo's eye-beam angle spread, 0 through 15 table angles: the selection divided by two, modulo 16.
+    /// Golden Torizo's eye-beam angle spread, 0 through 15 steps (256ths of a turn): the selection divided by two, modulo 16.
     /// </summary>
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 

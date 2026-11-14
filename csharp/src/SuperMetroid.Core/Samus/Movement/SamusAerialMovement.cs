@@ -474,7 +474,7 @@ public static class SamusAerialMovement
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
             samus.AnimationFrame < SamusMovementDefinitions.FastFallAnimationFrame)
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, SamusMovementDefinitions.FastFallAnimationFrame,
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusMovementDefinitions.FastFallAnimationFrame,
                 SamusMovementDefinitions.FastFallAnimationTimer);
         return result;
     }
@@ -500,20 +500,20 @@ public static class SamusAerialMovement
     {
         ValidateCommon(level, samus);
         if (!samus.Grapple.ReleasedMovementActive)
-            throw new InvalidOperationException("Released-grapple movement handler is not active.");
+            throw new InvalidOperationException("Released-grapple flight is not moving Samus.");
 
         SamusKinematicsState state = samus.Kinematics;
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        bool restoreNormalHandler = false;
+        bool releasedFlightEnds = false;
 
         // Treats a signed-negative upward whole speed as the apex-wrap
         // sentinel. It clears the complete magnitude, flips downward, and installs normal
-        // movement, but deliberately continues the remainder of this final special frame.
+        // movement, but deliberately continues the remainder of this final frame of the released flight.
         if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
         {
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
-            restoreNormalHandler = true;
+            releasedFlightEnds = true;
         }
 
         // The game writes mode two every frame, so the speed calculation always takes its deceleration
@@ -548,11 +548,11 @@ public static class SamusAerialMovement
             frameCounter,
             roomObjects: roomObjects);
         // Reads the full collision result: any downward pass, or a ceiling hit, ends the
-        // special handler. Only a free upward pass keeps it for another frame.
+        // released flight. Only a free upward pass keeps it for another frame.
         if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.None)
-            restoreNormalHandler = true;
+            releasedFlightEnds = true;
 
-        samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
+        samus.Grapple.ReleasedMovementActive = !releasedFlightEnds;
         return result;
     }
 

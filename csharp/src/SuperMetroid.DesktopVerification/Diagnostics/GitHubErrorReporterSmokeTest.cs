@@ -110,14 +110,14 @@ public static class GitHubErrorReporterSmokeTest
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         samus.Drained.GetUpCheck = DrainedGetUpCheck.UnableToStand;
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidSurfaceY = 100;
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();
         string before = GameplayFrameFailureDiagnostics.Describe(beforeSnapshot);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 18, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 18, 1);
         GameplaySnapshot afterSnapshot = game.CaptureGameplaySnapshot();
         string after = GameplayFrameFailureDiagnostics.Describe(afterSnapshot);
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),

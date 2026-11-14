@@ -44,7 +44,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and the original's selector tables, record tables and input and pose records. #1812 adds, outside hardware owners, the
 /// original's indirect dispatch, the machine's bus, regionalized values and the original's enemy entries named as records.
 /// #1828 adds the original's routine handlers, read in every type: a handler call, and a music, sound, colour-effect,
-/// timer, sprite or state handler.
+/// timer, sprite or state handler. #1853 adds, outside hardware owners, the original's trigonometry tables: an angle
+/// counted in table units, angles or steps, and a sine, cosine or trigonometry table.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -394,6 +395,21 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's trigonometry tables in prose (#1853), outside hardware owners, spaced or hyphenated: an angle counted
+    /// in the table's units, angles or steps (eight table units, 0 through 63 table angles, an eighth of a table step) and
+    /// a sine, cosine or trigonometry table (the shared sine table, a sine-table angle, the negative-cosine table, the
+    /// trigonometry tables, a trig-table scale). The original looked its sines up in a 256-entry table and counted angles
+    /// by their place in it; Core counts angles in steps, 256ths of a turn (<c>TrigonometryAngle</c>, <c>RotationAngle</c>),
+    /// and computes the wave (<c>Trigonometry.CoarseHalfWave</c>). An encoding owner of the angle names the encoding it
+    /// owns, and a compatibility service may describe the table its reproduced behaviour reads. English stays legal: a sine,
+    /// a cosine, a table and a unit alone, a turn's steps and a speed table.
+    /// </summary>
+    private static readonly Regex TrigonometryTableProse = new(
+        @"\btables?[-\s]+(?:units?|angles?|steps?)\b" +
+        @"|\b(?:co)?sine[-\s]+tables?\b|\btrig(?:onometry|onometric)?[-\s]+tables?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A numbered routine or variable label of the original program in prose (#1769), read in every Core type and in any
     /// case: <c>Func126</c>, <c>Func139–142</c>, <c>var4</c>. Core names the step, phase or countdown that runs; a
     /// compatibility service or encoding owner names the behaviour or encoding, never the original's label for it. English
@@ -684,6 +700,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : DataEncodingProse.Match(text) is { Success: true } encoding ? encoding.Value
             : MachineNumberProse.Match(text) is { Success: true } number ? number.Value
             : TablePositionProse.Match(text) is { Success: true } tablePosition ? tablePosition.Value
+            : TrigonometryTableProse.Match(text) is { Success: true } trigonometryTable ? trigonometryTable.Value
             : GameNumberProse.Match(text) is { Success: true } gameNumber ? gameNumber.Value
             : PoseNumberProse.Match(text) is { Success: true } poseNumber ? poseNumber.Value
             : QueueLimitProse.Match(text) is { Success: true } queueLimit ? queueLimit.Value

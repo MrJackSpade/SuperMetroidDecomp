@@ -39,6 +39,6 @@ public sealed class WallSpacePirateEnemyState
     public RotationAngle RightJumpTargetAngle { get; internal set; }
     /// <summary>The leftward jump's endpoint, step 66 of the turn for slow jumps or 64 for fast ones; reaching it installs the left-wall landing.</summary>
     public RotationAngle LeftJumpTargetAngle { get; internal set; }
-    /// <summary>Table units the jump angle steps each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
+    /// <summary>Steps (256ths of a turn) the jump angle turns each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
     public int JumpAngleDelta { get; internal set; }
 }

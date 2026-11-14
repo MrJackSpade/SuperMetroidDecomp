@@ -192,6 +192,14 @@ pass), whether the effects run (`ColourEffectsRun`, `StopColourEffects`), the co
 actor's frame or Samus's input or movement phase, and a control lock by what it stops (`LockOutPlayer`, `LockAtStation`).
 A handler alone or of another kind (an exception or event handler), calling a handler and a call alone stay English.
 
+Outside hardware owners SME6454 also reads the original's trigonometry tables (#1853), spaced or hyphenated: an angle
+counted in the table's units, angles or steps (`eight table units`, `0 through 63 table angles`, `an eighth of a table
+step`) and a sine, cosine or trigonometry table (`the shared sine table`, `a sine-table angle`, `the negative-cosine
+table`, `the trigonometry tables`). Core counts an angle in steps, 256ths of a turn (`TrigonometryAngle`,
+`RotationAngle`, `StepsIntoHalfTurn`, `ToTrigonometryAngle`), and computes the wave (`CoarseHalfWave`). The angle's
+encoding owner names the encoding it owns, and a compatibility service may describe the table its reproduced behaviour
+reads. A sine, a cosine, a table and a unit alone, a turn's steps and a speed table stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

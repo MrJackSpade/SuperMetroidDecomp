@@ -20,7 +20,7 @@ internal sealed class AngledFlightState(TrigonometryAngle heading, UnsignedSixte
     /// <summary>The unsigned vertical part of the projectile's speed, in pixels per update.</summary>
     internal UnsignedSixteenSixteen VerticalSpeed { get; } = verticalSpeed;
 
-    /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the shared sine table.</summary>
+    /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the heading's sine and cosine.</summary>
     /// <param name="heading">The direction the projectile flies in.</param>
     /// <param name="speed">The speed in whole pixels per update, zero or more.</param>
     internal static AngledFlightState Launch(TrigonometryAngle heading, int speed) => new(

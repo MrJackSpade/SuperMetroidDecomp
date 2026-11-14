@@ -28,7 +28,7 @@ public sealed class SkulteraEnemyState
     public bool TurnFinished { get; internal set; }
 
     /// <summary>
-    /// Signed angle step per unobstructed swimming update, in table units: its authored wave step (0 through 255),
+    /// Signed angle step per unobstructed swimming update, in steps (256ths of a turn): its authored wave step (0 through 255),
     /// negated at every completed turn.
     /// </summary>
     public int AngleDelta { get; internal set; }

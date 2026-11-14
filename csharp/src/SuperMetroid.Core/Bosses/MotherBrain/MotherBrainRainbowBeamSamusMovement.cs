@@ -47,7 +47,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         if (!reachedWall)
         {
-            // The sine multiply adds a quarter turn before indexing the sine table. Its multiplication returns
+            // The sine multiply adds a quarter turn before taking the sine. Its multiplication returns
             // product divided by 256, a signed 1/256-pixel component for the supplied 1/256-pixel speed.
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: RainbowBeamPushSpeed, RainbowBeamAngle));
 
@@ -137,7 +137,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         RotationAngle angle)
     {
         // The sine multiply multiplies unsigned speed by the magnitude, divides the product by 256,
-        // then reapplies the table entry's sign.
+        // then reapplies the sine's sign.
         return Trigonometry.MultiplySignedSine(
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }

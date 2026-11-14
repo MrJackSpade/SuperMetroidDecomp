@@ -233,7 +233,7 @@ public sealed class SamusXrayState
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with frame two and a 63-tick timer, takes her pose input and movement, starts the
         // visor palette, clears beam-flare state, and plays the X-ray's starting sound.
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 2, timer: 63);
         _colouring.Take(SamusSpecialPaletteType.Xray);
         samus.Shinespark.RelinquishPaletteToXray();
         // X-ray's activation takes both Samus's pose input and her movement, so an interrupted Flash's
@@ -385,7 +385,7 @@ public sealed class SamusXrayState
               Angle < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
               Angle < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
               Angle < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame, timer: 15);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame, timer: 15);
         return frame;
     }
 

@@ -18,7 +18,7 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     public static RidleyTailAngle StraightDown => default;
 
     /// <summary>
-    /// The sine-table direction the link's offset is computed from: the step within the turn, with straight down at
+    /// The direction in 256ths of a turn the link's offset is computed from: the step within the turn, with straight down at
     /// zero, the link's horizontal offset from its sine and its vertical offset from its cosine.
     /// </summary>
     public TrigonometryAngle Direction => TrigonometryAngle.Wrapped(StepsFromStraightDown);

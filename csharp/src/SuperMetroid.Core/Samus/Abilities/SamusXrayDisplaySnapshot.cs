@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="WarmUp">The beam's warm-up; <see cref="XrayWarmUp.Over"/> once the beam steps.</param>
 /// <param name="BeamPhase">The beam's current phase.</param>
 /// <param name="Closing">The beam's closing; <see cref="XrayClosing.Over"/> whenever the beam is not closing.</param>
-/// <param name="Angle">Beam aim in 256 table units per turn.</param>
+/// <param name="Angle">Beam aim in steps, 256ths of a turn.</param>
 /// <param name="AngularWidth">Beam half-width in whole steps, none through ten.</param>
 /// <param name="SamusPosition">Samus's whole room-pixel position.</param>
 /// <param name="FacingLeft">Whether Samus's current pose faces left.</param>

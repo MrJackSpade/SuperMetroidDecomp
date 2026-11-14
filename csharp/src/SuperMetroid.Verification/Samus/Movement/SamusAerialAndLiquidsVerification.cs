@@ -1193,7 +1193,7 @@ internal static void VerifySamusAtmosphericEffects()
     // The native foot-contact gate checks the final tick of this frame. The
     // compiled running stream initializes frame two at two ticks, so stage its
     // final tick explicitly instead of relying on the old synthetic ROM delay.
-    SamusPresentation.SetAnimationFrameFromSpecialHandler(runner, frame: 2, timer: 1);
+    SamusPresentation.SetAnimationFrameFromMovementOwner(runner, frame: 2, timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     IReadOnlyList<SamusParticle> runnerParticles = runner.Presentation.Particles.All;

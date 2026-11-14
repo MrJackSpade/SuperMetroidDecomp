@@ -71,7 +71,7 @@ public static class SamusBombJumpMovement
 
         // The jump turns a speed that passed zero into the falling direction. A diagonal jump
         // additionally selects mode two so normal horizontal movement decelerates after
-        // this special handler relinquishes control.
+        // the bomb jump hands her movement back to her pose.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {

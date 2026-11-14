@@ -29,8 +29,8 @@ internal static class PowerBombRuntimeIntegrationVerification
             bus,
             RoomDefinitions.AlphaPowerBomb.Pointer);
         AssertEqual(
-            new RoomIdentity(AreaId.Brinstar, 0x26),
-            room.Identity,
+            RoomDefinitions.AlphaPowerBomb,
+            room.Definition,
             "Power Bomb renderer integration retail room");
 
         var runtime = CreateRetailRuntimeFixture();

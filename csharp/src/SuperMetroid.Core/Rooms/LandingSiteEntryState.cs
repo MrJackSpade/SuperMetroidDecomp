@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 [RoomLifetime]
 public sealed record LandingSiteEntryState(
-    RoomIdentity RoomIdentity,
+    RoomDefinition Room,
     Position16<MapTiles> RoomMapPosition,
     int UpScroller,
     int DownScroller)
@@ -19,6 +19,6 @@ public sealed record LandingSiteEntryState(
     /// <summary>The room's down-scroller distance in pixels; a distance, so never negative.</summary>
     public int DownScroller { get; } = Ensure.AtLeastZero(DownScroller);
 
-    /// <summary>Validated area projected from the logical room identity.</summary>
-    public AreaId Area => RoomIdentity.Area;
+    /// <summary>The area of <see cref="Room"/>.</summary>
+    public AreaId Area => Room.Area;
 }

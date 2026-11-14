@@ -20,9 +20,6 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// </remarks>
 public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
 {
-    /// <summary>The room's per-area index, 0 through 255.</summary>
-    public int RoomIndex => Definition.RoomIndex;
-
     /// <summary>The room's validated retail world area.</summary>
     public AreaId Area => Definition.Area;
 
@@ -43,9 +40,6 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
 
     /// <summary>The entries the room's door blocks select by index.</summary>
     public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
-
-    /// <summary>Logical area/room pair.</summary>
-    public RoomIdentity Identity => new(Area, RoomIndex);
 
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
     public static SelectedRoom LoadUsingCompiledSelection(

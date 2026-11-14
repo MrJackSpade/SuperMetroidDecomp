@@ -377,7 +377,7 @@ internal static partial class SwapchainTests
             }
             var positions = new HashSet<OptionalScreenPosition>();
             var poses = new HashSet<SamusPoseId?>();
-            var roomBeforeMovement = legacy.GameplayActiveRoomIdentity;
+            var roomBeforeMovement = legacy.GameplayActiveRoom;
             // Bounded room-local inputs: held movement, single-tick direction taps,
             // jump/shoot edges and explicit releases. No room traversal is intended.
             for (int tick = 0; tick < 64; tick++)
@@ -395,7 +395,7 @@ internal static partial class SwapchainTests
                 worker.Publish(new RenderFrame(new(sequence, 1), actual.Snapshot));
                 positions.Add(new OptionalScreenPosition(legacy.GameplaySamusX, legacy.GameplaySamusY));
                 poses.Add(legacy.GameplaySamusPose);
-                if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)
+                if (legacy.GameplayActiveRoom != roomBeforeMovement)
                     throw new InvalidOperationException("Movement scheduling fixture crossed a room boundary.");
                 if (tick % 16 == 15) CompareRuntimeGraphs($"movement input tick {tick}");
             }

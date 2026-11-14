@@ -32,16 +32,8 @@ internal static class LandingSiteEntryStateAccess
             }
 
             RoomDefinition room = RoomDefinitions.LandingSite;
-            RoomIdentity roomIdentity = new(room.Area, room.RoomIndex);
-            if (roomIdentity != RoomIdentities.LandingSite)
-            {
-                throw new InvalidDataException(
-                    $"Landing Site room definition has logical identity {roomIdentity}, expected " +
-                    $"{RoomIdentities.LandingSite}.");
-            }
-
             return new LandingSiteEntryState(
-                RoomIdentity: roomIdentity,
+                Room: room,
                 RoomMapPosition: room.MapPosition,
                 UpScroller: room.UpScroller,
                 DownScroller: room.DownScroller);

@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Checks the compiled room roster and each room definition's fields against the pinned retail cartridge's room headers.</summary>
 internal static class RoomDefinitionsVerification
 {
-    /// <summary>Checks all 261 named room identities and ten native fields, including sorted enumeration.</summary>
+    /// <summary>Checks all 261 named room identities and nine native fields, including sorted enumeration.</summary>
     internal static void VerifyCompiledRoomDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -21,7 +21,6 @@ internal static class RoomDefinitionsVerification
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         Suite(nameof(VerifyRoomDefinitionIdentities), () => VerifyRoomDefinitionIdentities(rooms));
-        Suite(nameof(VerifyRoomDefinitionRoomIndex), () => VerifyRoomDefinitionRoomIndex(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionArea), () => VerifyRoomDefinitionArea(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionMapX), () => VerifyRoomDefinitionMapX(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionMapY), () => VerifyRoomDefinitionMapY(rom, rooms));
@@ -31,7 +30,7 @@ internal static class RoomDefinitionsVerification
         Suite(nameof(VerifyRoomDefinitionDownScroller), () => VerifyRoomDefinitionDownScroller(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionIsolatedDoorTransition), () => VerifyRoomDefinitionIsolatedDoorTransition(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionDoorListPointer), () => VerifyRoomDefinitionDoorListPointer(rom, rooms));
-        Console.WriteLine("Room definitions: all 261 identities, ten fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
+        Console.WriteLine("Room definitions: all 261 identities, nine fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
     }
 
     /// <summary>Checks every ushort pointer for roster membership and production header construction.</summary>
@@ -58,8 +57,6 @@ internal static class RoomDefinitionsVerification
         }
     }
 
-    /// <summary>Checks the room index stored at header byte zero.</summary>
-    private static void VerifyRoomDefinitionRoomIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 0, header => header.RoomIndex);
     /// <summary>Checks the area byte and its production area lookup.</summary>
     private static void VerifyRoomDefinitionArea(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 1, header => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(header.Area));
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>

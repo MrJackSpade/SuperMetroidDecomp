@@ -1234,7 +1234,7 @@ internal static void VerifySamusAtmosphericEffects()
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     SamusPoseMetadata.RefreshCollisionRadii(landing);
     landing.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 1);
-    landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Norfair, 0);
+    landing.LiquidPhysics.Room = RoomDefinitions.FirstIn(AreaId.Norfair);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
@@ -1317,7 +1317,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Ceres shows no landing effect, which ends the bubbles' wait as the original game's deletion of the landing's
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
-    landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Ceres, 0);
+    landing.LiquidPhysics.Room = RoomDefinitions.FirstIn(AreaId.Ceres);
     landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithWhole(1);
     int beforeCeres = landingParticles.Count;
@@ -1336,7 +1336,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
-    landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
+    landing.LiquidPhysics.Room = RoomDefinitions.LandingSite;
     landing.LiquidPhysics.FxType = RoomFxType.Rain;
     landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithFraction(1);

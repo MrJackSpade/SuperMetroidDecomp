@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// [<see cref="LoopStart"/>, end); an ending song stops at its last frame, leaving no song playing.
 /// </summary>
 /// <param name="AudioSet">The music data set whose clip set holds the song.</param>
-/// <param name="Track">The song within its data set.</param>
+/// <param name="Track">The song.</param>
 /// <param name="Clip">The rendered clip.</param>
 /// <param name="LoopStart">The loop's first frame, or null for a song that ends.</param>
 /// <param name="TempoSegments">The song's tempo map: how long the beat lasts from each frame on, in frame order, starting at frame zero.</param>

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Reads the installed pre-rendered audio clips (#1305, #1410) into the game's <see cref="ClipAudioLibrary"/>. The clip
-/// index, <c>audio-clips.json</c>, names each song by its data set and its part in it, and each sound by its name
+/// index, <c>audio-clips.json</c>, names each song by its data set and the song it is (#1748), and each sound by its name
 /// (#1693). The audio folder holds this index and the clips it lists, and nothing else.
 /// Loading checks the index's format, contained paths and every file's size; <see cref="InstalledClipFiles"/> checks
 /// each clip's encoding and rate as it reads it.

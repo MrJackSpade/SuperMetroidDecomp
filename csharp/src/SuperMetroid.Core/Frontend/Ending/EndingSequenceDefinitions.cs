@@ -9,8 +9,11 @@ public static class EndingSequenceDefinitions
     /// <summary>The music the escape and ending sequences queue at their boundaries.</summary>
     public static class Music
     {
-        /// <summary>The loaded set's first own song, selected with both the escape and ending music sets.</summary>
-        public const MusicTrack Track = MusicTrack.FirstSetSong;
+        /// <summary>The song the escape selects once Zebes's explosion music has loaded.</summary>
+        public const MusicTrack EscapeSong = MusicTrack.ZebesExplosion;
+
+        /// <summary>The song the ending selects once the credits' music has loaded.</summary>
+        public const MusicTrack CreditsSong = MusicTrack.Credits;
 
         /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion reads rather than counting frames.</summary>
         public const int DelayArgument = 14;

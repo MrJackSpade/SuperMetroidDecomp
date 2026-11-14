@@ -232,7 +232,7 @@ internal sealed class CeresRidleyGetaway
                     // The warning setup also queues the set's third song after showing the final
                     // static warning picture. The frontend consumes this typed request
                     // through the same queue used by every other music producer.
-                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.ThirdSetSong));
+                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
                     state.CeresEscapeTextDelayTimer = 128;
                 }

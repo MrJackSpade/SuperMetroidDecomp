@@ -99,7 +99,7 @@ try
         AudioRequest[] commands = frame == 0
             ? [new AudioRequest.ChangeMusicDataSet(null),
                new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet),
-               AudioRequest.ForTrack(MusicTrackNumbers.Decode(AudioRomDataMusicTracks.Title))] : [];
+               AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.TitleSequence, AudioRomDataMusicTracks.Title))] : [];
         renderer.Render(new AudioFrameEvents(events.Advance(commands)), pcm);
         foreach (short sample in pcm) if (sample != 0) audible++;
     }

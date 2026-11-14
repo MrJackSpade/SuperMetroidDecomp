@@ -303,7 +303,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+                    audio?.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -318,7 +318,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     audio?.QueueMusic(
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
                     audio?.ScheduleMusic(
-                        MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
+                        MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
                         MusicQueueDelay.AtLeastShortest(
                             IntroCinematicDefinitions.Music.SceneTrackDelay));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
@@ -1217,7 +1217,7 @@ level, samus, frameCounter);
         audio?.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
         audio?.ScheduleMusic(
-            MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
+            MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.IntroductionSong),
             MusicQueueDelay.AtLeastShortest(
                 IntroCinematicDefinitions.Music.SceneTrackDelay));
         timer = IntroCinematicDefinitions.Music.DiscoveryInitialTimer;

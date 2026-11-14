@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Spawn and music identities for Mother Brain's cutscene Baby Metroid.</summary>
 internal static class MotherBrainBabyMetroidDefinitions
 {
-    /// <summary>The Samus theme, the theme data set's first own song, played once the set has loaded.</summary>
-    internal const MusicTrack SamusThemeMusicTrack = MusicTrack.FirstSetSong;
+    /// <summary>The Samus theme, played once its data set has loaded.</summary>
+    internal const MusicTrack SamusThemeMusicTrack = MusicTrack.SamusTheme;
 
     /// <summary>
     /// The single embedded population record. Baby init AI

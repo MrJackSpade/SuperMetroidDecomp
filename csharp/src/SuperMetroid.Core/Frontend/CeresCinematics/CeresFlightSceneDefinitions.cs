@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>The opening flight toward Ceres: its music and its colour effect.</summary>
 internal static class CeresFlightSceneDefinitions
 {
-    /// <summary>The song of the flight's music set that starts with the flight: its first own song.</summary>
-    internal const MusicTrack FlightSong = MusicTrack.FirstSetSong;
+    /// <summary>The song that starts with the flight.</summary>
+    internal const MusicTrack FlightSong = MusicTrack.CeresFlight;
     /// <summary>The queue delay the flight's track is requested with.</summary>
     internal const int MusicDelay = 14;
 

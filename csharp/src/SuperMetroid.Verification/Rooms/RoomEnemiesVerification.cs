@@ -915,7 +915,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
-            MusicRequest.SelectTrack(MusicTrack.FirstSetSong),
+            MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle),
             MusicQueueDelay.Shortest)),
         "Ceres Ridley final body fade queues battle/escape track five");
 

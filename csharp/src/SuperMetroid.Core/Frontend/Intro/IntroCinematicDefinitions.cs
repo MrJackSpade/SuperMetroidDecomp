@@ -30,9 +30,13 @@ public static class IntroCinematicDefinitions
     /// <summary>The music the opening's scene changes start.</summary>
     public static class Music
     {
-        /// <summary>The song each loaded cinematic music set starts: its first own song.</summary>
-        public const MusicTrack SceneTrack = MusicTrack.FirstSetSong;
-        /// <summary>The queue delay the scene track is requested with.</summary>
+        /// <summary>The song the opening's first spoken line plays once its music set has loaded.</summary>
+        public const MusicTrack CaptivityLineSong = MusicTrack.LastMetroidInCaptivity;
+        /// <summary>The song the opening's second spoken line plays once its music set has loaded.</summary>
+        public const MusicTrack PeaceLineSong = MusicTrack.GalaxyAtPeace;
+        /// <summary>The song the illustrated pages play once the introduction's music set has loaded.</summary>
+        public const MusicTrack IntroductionSong = MusicTrack.Introduction;
+        /// <summary>The queue delay the second line's and the pages' songs are requested with.</summary>
         public const int SceneTrackDelay = 14;
         /// <summary>The countdown before the discovery scene's music begins.</summary>
         public const int DiscoveryInitialTimer = 14;

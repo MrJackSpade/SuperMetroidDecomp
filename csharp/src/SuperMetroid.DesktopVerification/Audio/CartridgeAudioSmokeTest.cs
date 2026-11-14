@@ -12,7 +12,7 @@ public static class CartridgeAudioSmokeTest
 
         var queue = AudioQueues.Standalone();
         queue.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        queue.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+        queue.QueueMusic(MusicRequest.SelectTrack(MusicTrack.TitleOpening));
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;

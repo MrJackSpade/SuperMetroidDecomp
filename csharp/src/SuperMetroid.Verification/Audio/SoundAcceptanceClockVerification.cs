@@ -59,7 +59,7 @@ internal static class SoundAcceptanceClockVerification
             {
                 if (command is AudioRequest.ChangeMusicDataSet && frame > 0)
                     uploadFrame = frame;
-                else if (command == AudioRequest.ForTrack(MusicTrack.FirstSetSong))
+                else if (command == AudioRequest.ForTrack(MusicTrack.GreenBrinstar))
                     trackFrame = frame;
                 else if (command == new AudioRequest.RequestSound(RoomSound.SpeedBooster))
                     downtimeRequestFrame = frame;
@@ -180,7 +180,7 @@ internal static class SoundAcceptanceClockVerification
                 break;
             case 10:
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
-                audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+                audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.GreenBrinstar));
                 break;
             case 24:
                 // Sent on the first call after the upload's downtime, one call before the

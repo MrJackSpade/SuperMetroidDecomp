@@ -144,10 +144,12 @@ internal static class AudioClipExporter
             if (sample - start < clipFrames)
                 segments.Add(new SongTempo(sample - start, DriverTempoBeats.LengthAt(tempo)));
         }
+        MusicDataSet dataSet = AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
+            ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export.");
         return new MusicClipEntry(
-            AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
-                ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export."),
-            MusicTrackNumbers.Decode(key.Track),
+            dataSet,
+            // The data set and its track number decode into the song (#1748).
+            MusicTrackNumbers.Decode(dataSet, key.Track),
             Write(root, MusicDirectory, files, pcm),
             track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
             segments);

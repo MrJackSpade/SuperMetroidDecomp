@@ -118,7 +118,7 @@ internal sealed class MotherBrainBody
                 // enemy slots can keep drawing replaced pictures.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
-                _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
+                _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SilentSong), MusicQueueDelay.Shortest);
 
                 // Sealing the wall creates both dust puffs before its
                 // two identical fixed room objects. Requests remain ordered because the room-object

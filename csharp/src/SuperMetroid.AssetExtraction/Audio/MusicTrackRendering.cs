@@ -31,7 +31,7 @@ internal static class MusicTrackRendering
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
         renderer.RenderFrame(frame);
         long rendered = Keep(frame, 0, clip, start * 2);
-        renderer.PlayTrack(MusicTrackNumbers.Decode(track.Track));
+        renderer.PlayTrack(MusicTrackNumbers.Decode(track.Bank, track.Track));
         while (rendered < end * 2)
         {
             renderer.RenderFrame(frame);

@@ -31,10 +31,10 @@ public static class TitleSequenceDefinitions
     /// <summary>The tracks the normal and skip paths select.</summary>
     public static class Music
     {
-        /// <summary>The title music's song for the normal opening sequence: the set's first own song.</summary>
-        public const MusicTrack OpeningTrack = MusicTrack.FirstSetSong;
-        /// <summary>The song the skip path selects before rebuilding the title screen: the set's second own song.</summary>
-        public const MusicTrack ImmediateTitleTrack = MusicTrack.SecondSetSong;
+        /// <summary>The title music's song for the normal opening sequence.</summary>
+        public const MusicTrack OpeningTrack = MusicTrack.TitleOpening;
+        /// <summary>The song the skip path selects before rebuilding the title screen.</summary>
+        public const MusicTrack ImmediateTitleTrack = MusicTrack.TitleScreen;
     }
 
     /// <summary>The four title cards: where each draws and with which sprite palette.</summary>

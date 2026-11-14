@@ -336,7 +336,7 @@ internal sealed class KraidRise
                 state.BodyState.Phase = KraidPhase.RaiseRocksEvery16Frames;
                 state.BodyState.RisingRockTimer = 120;
                 _earthquake.RunFor(496);
-                _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
+                _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
                 return;
 
             case KraidPhase.RaiseRocksEvery16Frames:

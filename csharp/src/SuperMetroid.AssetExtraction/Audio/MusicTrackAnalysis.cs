@@ -69,7 +69,7 @@ internal sealed record MusicTrackAnalysis(
         observer.Attach(renderer);
         QueueBanks(renderer, bank);
         renderer.AdvanceSequencerFrame();
-        renderer.PlayTrack(MusicTrackNumbers.Decode(track));
+        renderer.PlayTrack(MusicTrackNumbers.Decode(bank, track));
         while (observer.Outcome is null)
             renderer.AdvanceSequencerFrame();
         return new MusicTrackAnalysis(

@@ -213,7 +213,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     audio.QueueMusic(MusicRequest.Stop);
                     audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Credits));
                     audio.ScheduleMusic(
-                        MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.Track),
+                        MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.CreditsSong),
                         MusicQueueDelay.AtLeastShortest(
                             EndingSequenceDefinitions.Music.DelayArgument));
                     Stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;

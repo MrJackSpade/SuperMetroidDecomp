@@ -594,7 +594,7 @@ public sealed class SamusState
 
         // The game checks enemies first, then terrain in a separate pass. Mixing the two
         // probes changes both available space and the order of their live Y-fraction
-        // writes (enemy tangency clears it; a later floor scan can set it to FFFF).
+        // writes (enemy tangency clears it; a later floor scan can set it to its largest value).
         SolidEnemyCollisionResult enemyUp = ProbeEnemy(SamusCollisionDirection.Up, radiusDifference, Kinematics.Radius.Y);
         SolidEnemyCollisionResult enemyDown = ProbeEnemy(SamusCollisionDirection.Down, radiusDifference, Kinematics.Radius.Y);
         int enemyAdjustment = 0;

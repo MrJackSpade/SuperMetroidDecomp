@@ -800,9 +800,6 @@ false,             CrashSequenceFinished: true);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
-    /// <summary>The largest radius an echo's shot holds, in pixels; one more expansion continues from zero.</summary>
-    internal const int LargestEchoRadius = 65535;
-
     /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from Samus again.</summary>
     private const int EchoPlacementRadii = 256;
 
@@ -813,9 +810,8 @@ false,             CrashSequenceFinished: true);
     private const int EchoScreenReach = 256;
 
     /// <summary>
-    /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by eight, continuing past
-    /// <see cref="LargestEchoRadius"/> from zero, and the echo is placed that far from Samus's current position along its
-    /// angle, with the radius taken within the lookup's 256 pixels, so an echo still on the screen at 248 pixels returns
+    /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by eight, and the echo is
+    /// placed that far from Samus's current position along its angle, with the radius taken within the lookup's 256 pixels, so an echo still on the screen at 248 pixels returns
     /// to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
     /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has
     /// left (<see cref="CrashOrbitTravelCarryover"/>).
@@ -833,8 +829,7 @@ false,             CrashSequenceFinished: true);
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
         // copies, not ordinary projectiles with independent velocity.
-        int expanded = shot.EchoRadius + EchoRadiusStep;
-        shot.EchoRadius = expanded > LargestEchoRadius ? expanded - (LargestEchoRadius + 1) : expanded;
+        shot.EchoRadius += EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
             ProjectileSinLookup(shot.EchoAngle.ToAngle(), shot.EchoRadius % EchoPlacementRadii);
         bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < EchoScreenReach &&

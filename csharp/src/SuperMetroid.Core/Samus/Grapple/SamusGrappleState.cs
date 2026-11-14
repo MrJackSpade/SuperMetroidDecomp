@@ -159,7 +159,7 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// The wall-grab grace counter. Wall-grab release seeds 30, then the grace check performs
-    /// one decrement-and-test wall-jump check per frame until zero wraps to 65535.
+    /// one decrement-and-test wall-jump check per frame until the count passes zero.
     /// </summary>
     public int WallJumpTimer { get; set; }
 

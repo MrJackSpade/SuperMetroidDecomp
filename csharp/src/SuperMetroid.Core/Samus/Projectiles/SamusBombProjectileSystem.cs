@@ -783,8 +783,9 @@ public sealed class SamusBombProjectileSystem
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
-        // The blast's reach is clipped to the room: before its first pixel and, past the coordinate range, at its last pixel,
-        // whose block lies at or beyond every room's last column or row.
+        // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
+        // or above the room holds a coordinate near 65535, so its far edge is first held to the last room coordinate a
+        // block can be read at; the room's own clip then leaves that edge before the near one and the blast reaches nothing.
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,

@@ -49,7 +49,7 @@ internal static class CollectibleMessageTimingVerification
             RoomBackgroundLayer bg1 = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
                 "The displayed frame has no room backgrounds.")).Foreground;
             RoomBlockCell cell = bg1.Blocks.Cells[itemIndex];
-            return (cell, bg1.Pictures?.Picture(cell.Definition));
+            return (cell, bg1.Pictures?.Picture(cell.Picture));
         }
         ushort[] HudWords() => runtime.Hud.TileWords(runtime.InstalledHudArtwork).WhereToArray((_, index) => index % 32 < 26);
         // The displayed HUD is the one the last accepted NMI latched, laid out as tilemap words below its static top row;

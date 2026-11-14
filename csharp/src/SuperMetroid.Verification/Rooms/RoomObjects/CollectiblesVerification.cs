@@ -19,6 +19,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -89,8 +90,8 @@ internal static class CollectiblesVerification
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
                     $"{kind} writes the first block pair's first-frame block");
                 AssertEqual(
-                    CollectibleCellPictures.DefinitionOf(new CollectiblePicture(kind, 0)),
-                    fixture.Level.ForegroundPlane.Cells.Cells[fixture.BlockIndex].Definition,
+                    RoomCellPicture.Of(new CollectiblePicture(kind, 0)),
+                    fixture.Level.ForegroundPlane.Cells.Cells[fixture.BlockIndex].Picture,
                     $"{kind} shows its own picture's first frame");
             }
             RoomTerrainBlock visibleItemWord = fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain;

@@ -24,7 +24,7 @@ internal static class XrayRevealVisualInstallationVerification
     /// </summary>
     internal static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
     {
-        static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
+        static RevealedBlock Defined(int block) => new(RoomCellPicture.OfBlock(block), RevealedBlockArrangement.AsDefined);
         InstalledXrayReveals stock = installed.LoadXrayRevealVisuals();
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         int drawable = 0;

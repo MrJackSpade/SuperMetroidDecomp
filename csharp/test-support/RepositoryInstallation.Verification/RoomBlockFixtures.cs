@@ -52,7 +52,8 @@ internal static class RoomBlockFixtures
             composed.Size, composed.Pixels, composed.PaletteIndices);
         var blocks = new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(painted.Count));
         return new PicturedBlocks(blocks,
-            new RoomBlockPictureTable([.. Enumerable.Range(0, painted.Count).Select(block => (LayeredPicture?)blocks.Picture($"{block}"))]));
+            new RoomBlockPictureTable([.. Enumerable.Range(0, painted.Count).Select(block => (LayeredPicture?)blocks.Picture($"{block}"))],
+                new Dictionary<CollectiblePicture, LayeredPicture>()));
     }
 
     /// <summary>A fixture's block sheet and the picture of each of its blocks.</summary>

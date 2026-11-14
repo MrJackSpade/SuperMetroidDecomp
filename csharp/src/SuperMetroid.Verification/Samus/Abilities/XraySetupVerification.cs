@@ -49,7 +49,7 @@ internal static class XraySetupVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // Markers are tileset blocks, which no reveal or overlay metatile names, so a revealed marker can only have been
         // copied from BG1 showing it (#1431); the room draws them from their installed pictures (#1392).
-        RevealedBlock Marker(int stage) => new(Markers[stage], RevealedBlockArrangement.AsDefined);
+        RevealedBlock Marker(int stage) => new(RoomCellPicture.OfBlock(Markers[stage]), RevealedBlockArrangement.AsDefined);
         // BG1 shows level data (#1346): show one unmirrored block everywhere, keeping collision.
         void ShowEverywhere(int stage)
         {
@@ -80,13 +80,13 @@ internal static class XraySetupVerification
         AssertTrue(expected.SequenceEqual(Shown().Blocks.ToArray()), "the shown reveal is built from the foreground the room shows and its overlays");
         AssertTrue(expected.Contains(Marker(2)), "the reveal copies the level data the frame shows");
         AssertTrue(!expected.Any(block => block == Marker(0) || block == Marker(1)), "no earlier frame's foreground reaches the reveal");
-        // An uncollected item that shows its own picture overlays that picture's block (#1538), which lies past the common
-        // room elements like the markers do.
-        HashSet<int> itemPictures = [.. runtime.RoomObjects.CollectibleObjects.Collectibles
+        // An uncollected item that shows its own picture overlays that picture (#1538, #1764), which is no block of the room's
+        // tileset, as no marker is a common room element.
+        HashSet<RoomCellPicture> itemPictures = [.. runtime.RoomObjects.CollectibleObjects.Collectibles
             .Where(item => item.Location is { } location && !runtime.System.HasCollectedItem(location) && CollectibleObjects.ShowsOwnPicture(item.Kind))
-            .Select(item => CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)))];
-        RevealedBlock? stray = expected.FirstOrDefault(block => block is not null && block != Marker(2) &&
-            block.Value.Definition >= CommonRoomElementBlocks && !itemPictures.Contains(block.Value.Definition));
+            .Select(item => RoomCellPicture.Of(new CollectiblePicture(item.Kind, 0)))];
+        RevealedBlock? stray = expected.FirstOrDefault(block => block is { } shown && shown != Marker(2) &&
+            (shown.Picture.ShowsCollectible ? !itemPictures.Contains(shown.Picture) : shown.Picture.Block >= CommonRoomElementBlocks));
         AssertTrue(stray is null,
             $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {Array.IndexOf(expected, stray)})");
         AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition), Shown().Origin,

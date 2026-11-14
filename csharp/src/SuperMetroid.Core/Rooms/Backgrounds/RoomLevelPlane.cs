@@ -42,11 +42,11 @@ public sealed class RoomLevelPlane
     public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>
-    /// The plane's blocks as a frame shows them (#1403), read once: a collectible's picture where one lies, as
-    /// <see cref="CollectibleCellPictures"/> names it, and each other block's own.
+    /// The plane's blocks as a frame shows them (#1403), read once: a collectible's picture where one lies, unmirrored, and
+    /// each other block's own (#1764).
     /// </summary>
     public RoomBlockCells Cells => field ??= new RoomBlockCells(Size,
         [.. blocks.Select((block, index) => collectibles.TryGetValue(index, out CollectiblePicture picture)
-            ? new RoomBlockCell(CollectibleCellPictures.DefinitionOf(picture), BlockMirroring.None)
-            : new RoomBlockCell(block.Block, block.Mirroring))]);
+            ? new RoomBlockCell(RoomCellPicture.Of(picture), BlockMirroring.None)
+            : new RoomBlockCell(RoomCellPicture.OfBlock(block.Block), block.Mirroring))]);
 }

@@ -719,24 +719,26 @@ internal static class RoomBlockPicturesVerification
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;
         ushort[] stock = BackgroundTileWordBytes.Words(InstalledFixtures.StockBlockTiles(scope.Assets.Tileset, ceres));
         int pictures = 0, uploaded = 0;
-        for (int block = 0; block < table.Blocks; block++)
+        IEnumerable<RoomCellPicture> covered = Enumerable.Range(0, table.Blocks).Select(RoomCellPicture.OfBlock)
+            .Concat(CollectiblePicture.All.Select(RoomCellPicture.Of));
+        foreach (RoomCellPicture block in covered)
         {
             if (table.Picture(block) is not { } picture)
                 continue;
             pictures++;
             // A collectible's picture shows its kind's own graphics, whatever the room loaded or showed before it (#1538).
-            bool collectible = CollectibleCellPictures.TryPictureOf(block, out CollectiblePicture shownCollectible);
-            bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block, rooms.BlockArtwork)
+            bool collectible = block.ShowsCollectible;
+            bool overUpload = !collectible && scope.Assets.BlockSheet.Inputs.Of(block.Block, rooms.BlockArtwork)
                 .Any(input => appearance.ValueOf(input) != RoomAppearanceValues.Loaded);
-            ushort[] blockWords = collectible ? CollectibleWords(shownCollectible)
-                : stock[(block * BlockTiles)..((block + 1) * BlockTiles)];
+            ushort[] blockWords = collectible ? CollectibleWords(block.Collectible)
+                : stock[(block.Block * BlockTiles)..((block.Block + 1) * BlockTiles)];
             for (int tile = 0; tile < BlockTiles; tile++)
             {
                 var word = new SnesBgTilemapWord(blockWords[tile]);
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = false;
                 ReadOnlySpan<byte> bytes = collectible
-                    ? DynamicCollectibleGraphics.Get(shownCollectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
+                    ? DynamicCollectibleGraphics.Get(block.Collectible.Kind).Tiles.Span[(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())..]
                     : sprites ? tiles.AsSpan(word.CharacterIndex * BgCharacterSet.Tiles.CharacterBytes())
                     : tileAnimations.Bytes(latched, word.CharacterIndex, tiles, out animated);
                 for (int y = 0; y < CharacterPixels; y++)
@@ -754,7 +756,7 @@ internal static class RoomBlockPicturesVerification
                         if (!PaintsInPart(picture, pixel, expected, word.HasPriority))
                         {
                             AssertTrue(false,
-                                $"{where}: block {block}'s picture paints {Describe(picture, pixel)} {PartOf(word)} " +
+                                $"{where}: {block}'s picture paints {Describe(picture, pixel)} {PartOf(word)} " +
                                 $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected}{(animated ? " in its animation's frame" : "")}");
                         }
                     }

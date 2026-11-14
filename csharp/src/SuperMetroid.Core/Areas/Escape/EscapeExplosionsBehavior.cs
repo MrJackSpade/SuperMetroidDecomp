@@ -22,19 +22,18 @@ internal sealed class EscapeExplosionsBehavior
     }
 
     /// <summary>Spawns an escape explosion's sprite object and requests its sound.</summary>
-    /// <remarks>A random value whose remainder modulo 16 is eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
-    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
+    /// <param name="position">Where the explosion goes off.</param>
+    /// <param name="random">The random sample that draws the explosion.</param>
+    /// <param name="kindLeftOpen">The kind the explosion's place gives it when the draw names no explosion; such an explosion makes no sound.</param>
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomSpriteObjectKind kindLeftOpen)
     {
-        int choice = ZebesEscapeDefinitions.ExplosionChoice.Of(random);
-        // Preserve the game's unchanged-X branch, not the upstream C rewrite's bugfix.
-        if (choice < ZebesEscapeExplosionDefinitions.Choices.Length)
+        RoomSpriteObjectKind kind = kindLeftOpen;
+        if (ZebesEscapeExplosions.Drawn(random) is { } drawn)
         {
-            inheritedX = choice;
-            if (ZebesEscapeExplosions.ForIndex(choice).SoundEffect is SoundEffectId sound)
+            kind = drawn.SpriteKind;
+            if (drawn.SoundEffect is SoundEffectId sound)
                 _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
         }
-        RoomSpriteObjectKind kind =
-            ZebesEscapeExplosions.ForIndex(inheritedX & 7).SpriteKind;
         _spriteObjects.SpawnRoomSpriteObject(position, kind, default);
     }
 }

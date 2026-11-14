@@ -4,6 +4,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.World;
 
@@ -28,6 +29,6 @@ internal interface IEnemyObjectSpawns
     /// <summary>Spawns a fragment of Bomb Torizo's breaking statue.</summary>
     EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
 
-    /// <summary>Spawns one escape explosion.</summary>
-    void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX);
+    /// <summary>Spawns one escape explosion, of the kind its place gives it when its draw names none.</summary>
+    void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomSpriteObjectKind kindLeftOpen);
 }

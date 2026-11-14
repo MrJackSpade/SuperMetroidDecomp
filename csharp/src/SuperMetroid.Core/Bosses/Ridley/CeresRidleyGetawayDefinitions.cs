@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Immutable NTSC Ceres getaway zoom and drift curves.</summary>
+/// <summary>Immutable Ceres getaway zoom and drift curves.</summary>
 public static class CeresRidleyGetawayDefinitions
 {
     /// <summary>The floor's zoom as the getaway sets it up, before its first frame: eight floor pixels per screen pixel.</summary>

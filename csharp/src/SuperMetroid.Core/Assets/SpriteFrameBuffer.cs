@@ -32,6 +32,6 @@ public sealed class SpriteFrameBuffer
     }
 
     /// <summary>Makes a finalized frame the displayed one, as the frame boundary does.</summary>
-    /// <param name="staging">The buffer the main loop built and finalized.</param>
-    public void LatchFrom(SpriteFrameBuffer staging) => finalized = Ensure.NotNull(staging).finalized;
+    /// <param name="built">The buffer the main loop built and finalized.</param>
+    public void LatchFrom(SpriteFrameBuffer built) => finalized = Ensure.NotNull(built).finalized;
 }

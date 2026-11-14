@@ -47,7 +47,7 @@ public sealed class SamusCeresRidleyEjectionState
         samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
 
-        // Replaces only MovementHandler. The ordinary pose-input handler stays
+        // Replaces only the movement owner. The ordinary pose-input handler stays
         // installed: held controller chords are still matched, projectile/HUD input still
         // runs, and the shove specifically discards a prospective damage boost
         // while the shove remains active. Runtime owns that narrow prospective-pose clear.

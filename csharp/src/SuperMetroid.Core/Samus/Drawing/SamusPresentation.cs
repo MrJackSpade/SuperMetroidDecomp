@@ -371,8 +371,8 @@ internal sealed class SamusPresentation
         if (!bodyVisible)
             return false;
 
-        // Ceres's rotation temporarily overwrites Samus's integer world point only while Ceres's
-        // high status bit is set. Every position selector below therefore consumes the
+        // While Ceres's floor turns, Samus is drawn at her whole-pixel world point as the floor
+        // rotates it. Every drawn position below therefore uses the
         // rotated point, but public physics coordinates remain completely untouched.
         Position16<RoomPixels> position = samus.Position.Whole;
         Position16<RoomPixels> renderPoint = turningFloor is { } transform

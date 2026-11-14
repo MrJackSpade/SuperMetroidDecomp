@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The steps Ceres Ridley's colours pass through and the rules that select them (#1413). The colours themselves, and
 /// their shapes, are the import's.
 /// </summary>
-public static class CeresRidleyPaletteDefinitions
+public static class CeresRidleyShadeDefinitions
 {
     /// <summary>The black-to-visible body shades, one shown every two Ceres Ridley updates.</summary>
     public const int BodyFadeShadeCount = 16;

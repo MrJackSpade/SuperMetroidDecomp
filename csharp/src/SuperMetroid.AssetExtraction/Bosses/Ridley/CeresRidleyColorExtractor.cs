@@ -25,7 +25,7 @@ public static class CeresRidleyColorExtractor
                 CeresRidleyColorFormat.EyeFadeShadeCount,
                 CeresRidleyColorFormat.EyeFadeColorCount),
             BodyFade = ReadRows(RidleySourceDefinitions.Ceres.BodyFadeColors,
-                CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
+                CeresRidleyShadeDefinitions.BodyFadeShadeCount,
                 CeresRidleyColorFormat.BodyFadeColorCount),
             Health = ReadRows(RidleySourceDefinitions.Ceres.HealthColors,
                 CeresRidleyColorFormat.HealthBandCount,

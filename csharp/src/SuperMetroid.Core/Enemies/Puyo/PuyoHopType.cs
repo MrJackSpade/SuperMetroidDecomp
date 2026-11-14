@@ -12,7 +12,7 @@ public enum PuyoHopType
     NormalBig,
     /// <summary>The third ordinary hop, reached only by chance once Samus is within the proximity radius.</summary>
     NormalHigh,
-    /// <summary>128-pixel height and 1/256-pixel X speed 1.25, whose fraction is discarded by NTSC movement; selected after a post-drop bounce.</summary>
+    /// <summary>128-pixel height and 1/256-pixel X speed 1.25, whose fraction is discarded by its movement; selected after a post-drop bounce.</summary>
     Giant,
     /// <summary>No horizontal motion and 1/256-pixel downward speed 1.0; wall or ceiling collision selects this fall before a recovery bounce.</summary>
     Dropping,

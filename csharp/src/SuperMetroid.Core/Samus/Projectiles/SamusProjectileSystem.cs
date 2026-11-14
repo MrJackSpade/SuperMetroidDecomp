@@ -352,24 +352,24 @@ public sealed class SamusProjectileSystem
         // The forward-facing HUD handler branches straight to projectile handling for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
-        // Spin, wall-jump, hurt and special entries dispatch the jumping HUD selection handler, not
-        // the normal beam producer. With grapple inactive that handler does
+        // Spin, wall-jump, hurt and special movement use the jumping HUD selection mode, not
+        // the normal beam producer. With grapple inactive that mode does
         // nothing: held/released Shoot must leave the charge untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following input phase.
-        SamusHudHandler hudHandler = SamusHudObservations.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
-        bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
-            hudHandler == SamusHudHandler.Jump;
+        SamusHudSelectionMode hudMode = SamusHudObservations.SelectionMode(SamusPoseMetadata.ReadMovementType(samus));
+        bool preservesJumpCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
+            hudMode == SamusHudSelectionMode.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
-        bool preservesTurnCharge = hudHandler == SamusHudHandler.Turning &&
+        bool preservesTurnCharge = hudMode == SamusHudSelectionMode.Turning &&
             samus.PendingTransitionShot is null;
         // Posture-transition dispatch preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their beam producer.
-        bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
+        bool preservesPostureCharge = hudMode == SamusHudSelectionMode.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
                 grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive, PostureAdmission);
-        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
+        if (projectileProducerEnabled && !preservesJumpCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             // The X-ray HUD handler calls the normal beam handler when selected X-ray's Run

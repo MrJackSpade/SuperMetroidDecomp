@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 public static class DraygonProjectileSpeeds
 {
-    /// <summary>The NTSC wall-turret shot speed.</summary>
+    /// <summary>The wall-turret shot speed.</summary>
     public const int WallTurret = 3;
 
     /// <summary>

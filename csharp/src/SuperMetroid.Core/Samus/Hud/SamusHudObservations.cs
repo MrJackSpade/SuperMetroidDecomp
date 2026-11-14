@@ -6,23 +6,23 @@ namespace SuperMetroid.Core.Samus.Hud;
 /// <summary>What the HUD reads of Samus's movement and posture.</summary>
 internal static class SamusHudObservations
 {
-    /// <summary>Movement-state HUD admission dispatch, preserving all 28 handler identities.</summary>
-    internal static SamusHudHandler MovementHandler(SamusMovementType movement)
+    /// <summary>The HUD selection mode of each of the 28 movement types.</summary>
+    internal static SamusHudSelectionMode SelectionMode(SamusMovementType movement)
     {
         return movement switch
         {
             SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.CompactAirborne or
-            SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => SamusHudHandler.Jump,
+            SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => SamusHudSelectionMode.Jump,
             SamusMovementType.MorphBallGround or SamusMovementType.GlitchBall or SamusMovementType.MorphBallFalling or
             SamusMovementType.GlitchBallKnockback or SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => SamusHudHandler.MorphBall,
-            SamusMovementType.Grappling => SamusHudHandler.Grapple,
-            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SamusHudHandler.Turning,
-            SamusMovementType.PostureTransition => SamusHudHandler.Transition,
-            SamusMovementType.DraygonHeld => SamusHudHandler.DraygonHeld,
+            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => SamusHudSelectionMode.MorphBall,
+            SamusMovementType.Grappling => SamusHudSelectionMode.Grapple,
+            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SamusHudSelectionMode.Turning,
+            SamusMovementType.PostureTransition => SamusHudSelectionMode.Transition,
+            SamusMovementType.DraygonHeld => SamusHudSelectionMode.DraygonHeld,
             SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
                 SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or
-                SamusMovementType.RanIntoWall => SamusHudHandler.Standard,
+                SamusMovementType.RanIntoWall => SamusHudSelectionMode.Standard,
             _ => throw new ArgumentOutOfRangeException(nameof(movement), movement, "Undefined movement type."),
         };
     }

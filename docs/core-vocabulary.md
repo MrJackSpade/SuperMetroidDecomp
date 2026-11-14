@@ -145,6 +145,17 @@ the picture's place in pixels. A number that counts the noun after it (`a statio
 later`), an area number past the game's eight areas, a family's own animation frames by decimal ordinal (`Pose 3 of the
 wave trail`) and a position by X or Y that no part is placed by stay English.
 
+Outside hardware owners SME6454 also reads the machine's display transfers, staging and video standard and the original's
+tables and records (#1797): a frame, artwork, graphics, sprite, palette, picture, layer, display, queued or general
+transfer and a transfer queue, buffer or slot; a staging buffer, a foreground or scroll staging, staging the foreground
+and a scroll or position staged; `NTSC` and `PAL`, read case-sensitively; the common room elements; a selector table or
+row; and a record table, an input-table record, an input record and a pose record. Core publishes whole frames, places
+its views where they stand, names the release (the Japanese and North American release, the European release), names
+the door, item and block pictures every room shares, and names the choice, the entry, the input transition or the pose.
+The reserve tanks' transfer, transferring a value, a stage of an animation, a staged fight, a staging point, a common
+room, a selector alone and a record of something stay English. The grapple rope's installed frames name their mirroring
+(`Rope.Diagonal.2.MirroredVertically`), not the flip bits' value.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

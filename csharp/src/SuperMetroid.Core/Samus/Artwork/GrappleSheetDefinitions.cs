@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class GrappleSheetDefinitions
 {
-    /// <summary>The value each key selects; MirrorName looks it up.</summary>
+    /// <summary>The frame-name word each rope mirroring is installed under; <see cref="GrappleSheets.RopeFrame"/> reads it.</summary>
     internal static readonly IReadOnlyDictionary<SpriteMirror, string> MirrorNames = new Dictionary<SpriteMirror, string>
     {
-        [SpriteMirror.None] = "0",
-        [SpriteMirror.Horizontal] = "1",
-        [SpriteMirror.Vertical] = "2",
-        [SpriteMirror.Horizontal | SpriteMirror.Vertical] = "3",
+        [SpriteMirror.None] = "Unmirrored",
+        [SpriteMirror.Horizontal] = "MirroredHorizontally",
+        [SpriteMirror.Vertical] = "MirroredVertically",
+        [SpriteMirror.Horizontal | SpriteMirror.Vertical] = "MirroredBothWays",
     };
 }

@@ -43,14 +43,14 @@ public sealed class BackgroundScrollState
     public void SetForegroundVerticalScroll(int vertical) => ForegroundScroll = ForegroundScroll.WithY(vertical);
 
     /// <summary>
-    /// Begins a door's opening scroll with the destination room's views at <paramref name="stagedForeground"/>, the
+    /// Begins a door's opening scroll with the destination room's views at <paramref name="openingForeground"/>, the
     /// destination pixel the source room's screen will lie at, before the setup's first step: the screen shows the source
     /// room's screen there and the destination scrolls in around it.
     /// </summary>
-    public void BeginDoorOpeningViews(Position16<RoomPixels> stagedForeground)
+    public void BeginDoorOpeningViews(Position16<RoomPixels> openingForeground)
     {
-        ForegroundScroll = stagedForeground;
-        BackgroundScroll = new Position16<BackgroundPixels>(stagedForeground.X, stagedForeground.Y);
+        ForegroundScroll = openingForeground;
+        BackgroundScroll = new Position16<BackgroundPixels>(openingForeground.X, openingForeground.Y);
     }
 
     /// <summary>

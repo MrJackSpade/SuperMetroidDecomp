@@ -9,62 +9,62 @@ namespace SuperMetroid.Core.World.RoomStates;
 public static class CeresRoomStateDefinitions
 {
 
-    /// <summary>The Ceres Elev room's state 0.</summary>
+    /// <summary>The Ceres Elev room's default state.</summary>
     public static RoomStateSettings CeresElevDefault { get; } =
         new(nameof(CeresElevDefault), RoomLevelDefinitions.CeresElev, RoomGraphicsSet.BlueCeresElevator, new RoomMusic(MusicDataSet.Ceres, RoomMusicTrack.Plays(MusicTrack.CeresStation)), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Ceres Elev room's state 1.</summary>
+    /// <summary>The Ceres Elev room's state once the area's boss is dead.</summary>
     public static RoomStateSettings CeresElevWhenAreaBossDead { get; } =
         new(nameof(CeresElevWhenAreaBossDead), RoomLevelDefinitions.CeresElev, RoomGraphicsSet.WhiteCeresElevator, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze);
 
 
-    /// <summary>The Falling Tile room's state 0.</summary>
+    /// <summary>The Falling Tile room's default state.</summary>
     public static RoomStateSettings FallingTileDefault { get; } =
         new(nameof(FallingTileDefault), RoomLevelDefinitions.FallingTile, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FallingTileDefault, RoomEnemyPopulationDefinitions.FallingTileDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FallingTile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Falling Tile room's state 1.</summary>
+    /// <summary>The Falling Tile room's state once the area's boss is dead.</summary>
     public static RoomStateSettings FallingTileWhenAreaBossDead { get; } =
         new(nameof(FallingTileWhenAreaBossDead), RoomLevelDefinitions.FallingTile, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FallingTileWhenAreaBossDead, RoomEnemyPopulationDefinitions.FallingTileWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FallingTile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Magnet Stairs room's state 0.</summary>
+    /// <summary>The Magnet Stairs room's default state.</summary>
     public static RoomStateSettings MagnetStairsDefault { get; } =
         new(nameof(MagnetStairsDefault), RoomLevelDefinitions.MagnetStairs, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MagnetStairsDefault, RoomEnemyPopulationDefinitions.MagnetStairsDefault, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Parallax(64), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MagnetStairs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Magnet Stairs room's state 1.</summary>
+    /// <summary>The Magnet Stairs room's state once the area's boss is dead.</summary>
     public static RoomStateSettings MagnetStairsWhenAreaBossDead { get; } =
         new(nameof(MagnetStairsWhenAreaBossDead), RoomLevelDefinitions.MagnetStairs, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MagnetStairsWhenAreaBossDead, RoomEnemyPopulationDefinitions.MagnetStairsWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MagnetStairs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Dead Scientist room's state 0.</summary>
+    /// <summary>The Dead Scientist room's default state.</summary>
     public static RoomStateSettings DeadScientistDefault { get; } =
         new(nameof(DeadScientistDefault), RoomLevelDefinitions.DeadScientist, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.DeadScientistDefault, RoomEnemyPopulationDefinitions.DeadScientistDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DeadScientist, null, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Dead Scientist room's state 1.</summary>
+    /// <summary>The Dead Scientist room's state once the area's boss is dead.</summary>
     public static RoomStateSettings DeadScientistWhenAreaBossDead { get; } =
         new(nameof(DeadScientistWhenAreaBossDead), RoomLevelDefinitions.DeadScientist, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.DeadScientistWhenAreaBossDead, RoomEnemyPopulationDefinitions.DeadScientistWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DeadScientist, null, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Room Escape room's state 0.</summary>
+    /// <summary>The Room Escape room's default state.</summary>
     public static RoomStateSettings Room58EscapeDefault { get; } =
         new(nameof(Room58EscapeDefault), RoomLevelDefinitions.Room58Escape, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Room58EscapeDefault, RoomEnemyPopulationDefinitions.Room58EscapeDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Room58Escape, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Room Escape room's state 1.</summary>
+    /// <summary>The Room Escape room's state once the area's boss is dead.</summary>
     public static RoomStateSettings Room58EscapeWhenAreaBossDead { get; } =
         new(nameof(Room58EscapeWhenAreaBossDead), RoomLevelDefinitions.Room58Escape, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Room58EscapeWhenAreaBossDead, RoomEnemyPopulationDefinitions.Room58EscapeWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Room58Escape, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Ceres Ridley room's state 0.</summary>
+    /// <summary>The Ceres Ridley room's default state.</summary>
     public static RoomStateSettings CeresRidleyDefault { get; } =
         new(nameof(CeresRidleyDefault), RoomLevelDefinitions.CeresRidley, RoomGraphicsSet.BlueCeresRidley, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Silenced), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyDefault, RoomEnemyPopulationDefinitions.CeresRidleyDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.HandleCeresRidleyGetawayCutscene, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidley, null, RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze);
 
 
-    /// <summary>The Ceres Ridley room's state 1.</summary>
+    /// <summary>The Ceres Ridley room's state once the area's boss is dead.</summary>
     public static RoomStateSettings CeresRidleyWhenAreaBossDead { get; } =
         new(nameof(CeresRidleyWhenAreaBossDead), RoomLevelDefinitions.CeresRidley, RoomGraphicsSet.WhiteCeresRidley, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyWhenAreaBossDead, RoomEnemyPopulationDefinitions.CeresRidleyWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.HandleCeresRidleyGetawayCutscene, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidley, null, RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze);
 }

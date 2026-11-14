@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// and their fifteen distinct hitbox lists.
 /// Sprite and body-layer art are deliberately absent: installed visual overrides cannot
 /// alter the game's component offsets, rectangles, or reaction identities.
-/// Values are pinned to the project's NTSC J/U v1.0 retail release.
+/// Values are pinned to the project's Japanese and North American v1.0 retail release.
 /// Corpse-frame requests delegate to the separate corpse collision catalog.
 /// </summary>
 /// <remarks>

@@ -26,7 +26,7 @@ internal static class SamusAtmosphericEffects
                 SamusMovementType.Grappling or SamusMovementType.TurningWhileJumping or
                 SamusMovementType.TurningWhileFalling or SamusMovementType.DamageBoost or
                 SamusMovementType.DraygonHeld or SamusMovementType.Special => WaterSplashKind.Diving,
-            _ => throw new InvalidDataException($"Water-splash movement type {movementType} is outside 28 retail selectors."),
+            _ => throw new InvalidDataException($"Water-splash movement type {movementType} is outside the 28 movement types."),
         };
     }
 
@@ -34,7 +34,7 @@ internal static class SamusAtmosphericEffects
     internal static bool IsRunningFootContact(int animationFrame)
     {
         if (animationFrame >= 10)
-            throw new InvalidDataException($"Running animation frame {animationFrame} is outside ten foot-contact selectors.");
+            throw new InvalidDataException($"Running animation frame {animationFrame} is outside the ten running frames.");
         return animationFrame % 5 == 2;
     }
 

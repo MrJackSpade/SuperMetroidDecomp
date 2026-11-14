@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Compiled health bands for Draygon's colouring as he takes damage. The selected color records
-/// remain presentation data; <see cref="DraygonHealthPalette"/> selects a band from these thresholds.
+/// Compiled health bands for Draygon's colouring as he takes damage. The colours each band shows
+/// remain presentation data; <see cref="DraygonHealthShades"/> selects a band from these thresholds.
 /// </summary>
-internal static class DraygonHealthPaletteDefinitions
+internal static class DraygonHealthShadeDefinitions
 {
 
     /// <summary>Draygon body's authored health.</summary>

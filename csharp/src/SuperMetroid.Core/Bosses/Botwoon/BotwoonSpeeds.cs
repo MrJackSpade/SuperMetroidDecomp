@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public static class BotwoonSpeeds
 {
     /// <summary>Returns the speeds of health phase zero through two.</summary>
-    /// <exception cref="InvalidDataException">The phase is outside the three speed records.</exception>
+    /// <exception cref="InvalidDataException">The phase is outside the three health phases.</exception>
     public static BotwoonSpeedDefinition ForHealthPhase(int phase) =>
         (uint)phase < (uint)BotwoonSpeedDefinitions.ByHealthPhase.Length
             ? BotwoonSpeedDefinitions.ByHealthPhase[phase]
-            : throw new InvalidDataException($"Botwoon health phase {phase} is outside the three speed records.");
+            : throw new InvalidDataException($"Botwoon health phase {phase} is outside the three health phases.");
 }

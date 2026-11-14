@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Which of the grapple's directional connection policies a connecting beam reads (#1411).</summary>
-public enum GrappleConnectionTable
+public enum GrappleConnectionPolicy
 {
     /// <summary>The default policy.</summary>
     Default,

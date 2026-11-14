@@ -16,20 +16,20 @@ public sealed class InstalledXrayOverlays
     internal readonly RoomBlockAppearance[] tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
-    /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
-    /// Bomb Torizo selects a special X-ray overlay. Its three
-    /// records are block 82 at column fifteen, rows ten through twelve, followed
+    /// Issue #1039: among the Japanese and North American v1.0 release's 323 pinned room states, only
+    /// Bomb Torizo selects a special X-ray overlay. It reveals three
+    /// blocks, block 82 at column fifteen, rows ten through twelve, followed
     /// by zero coordinates. The loop stops there;
-    /// the data that follows is not a fourth record. The independent installation
-    /// verifier compared all three stock records with the game.
+    /// what follows is not a fourth block. The independent installation
+    /// verifier compared all three stock blocks with the game.
     /// reveals.json may change coordinates and blocks while retaining the
-    /// overlay and record count, so the apparent Y sequence is not an
+    /// overlay and block count, so the apparent Y sequence is not an
     /// algorithm for all valid installations. Retain the bounded lists
     /// and reject missing or duplicate overlays.
     /// </remarks>
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
-    /// <summary>Copies tank blocks and ordered special-room records, requiring all compiled overlay sources without changing item collection or room object state.</summary>
+    /// <summary>Copies tank blocks and ordered special-room blocks, requiring all compiled overlay sources without changing item collection or room object state.</summary>
     /// <param name="tankBlocks">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
     /// <param name="rooms">Nonempty ordered block lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>

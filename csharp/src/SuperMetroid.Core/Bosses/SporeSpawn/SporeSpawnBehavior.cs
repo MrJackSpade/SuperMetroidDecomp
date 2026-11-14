@@ -567,7 +567,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (body.Health != state.PreviousHealth)
                 {
                     state.PreviousHealth = body.Health;
-                    LoadSporeSpawnHealthPalette(healthFrame);
+                    ShowSporeSpawnHealthShade(healthFrame);
                 }
             }
         }
@@ -639,11 +639,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.SetMovement setMovement:
                 state.Movement = setMovement.Movement;
                 return;
-            case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
-                LoadSporeSpawnDeathPalette(loadDeathPalette.DeathPaletteStep);
+            case SporeSpawnCue.ShowDeathShade showDeathShade:
+                ShowSporeSpawnDeathShade(showDeathShade.DeathShadeStep);
                 return;
-            case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(loadDeathTargetPalette.DeathPaletteStep);
+            case SporeSpawnCue.TargetDeathShade targetDeathShade:
+                ShowSporeSpawnDeathShade(targetDeathShade.DeathShadeStep);
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
@@ -657,7 +657,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shows health-stage body image <paramref name="frame"/>.</summary>
-    internal void LoadSporeSpawnHealthPalette(int frame)
+    internal void ShowSporeSpawnHealthShade(int frame)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn's health colours show once Spore Spawn is loaded.");
@@ -670,10 +670,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// as the import's shades of it. A defeated room's initialization loads it as the fade's target only, which the door's
     /// fade then brings in, so both copies show it.
     /// </summary>
-    internal void LoadSporeSpawnDeathPalette(int step)
+    internal void ShowSporeSpawnDeathShade(int step)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
-            "Spore Spawn palette cue ran without the boss state.");
+            "Spore Spawn's death shade cue ran without the boss state.");
         state.Colours.ShowDeath(step);
         state.Body.Shading = state.Colours.Sprites;
     }

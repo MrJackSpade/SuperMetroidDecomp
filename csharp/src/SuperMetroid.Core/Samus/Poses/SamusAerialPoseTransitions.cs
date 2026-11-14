@@ -36,7 +36,7 @@ internal static class SamusAerialPoseTransitions
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
     /// The wall-jump tables use this very same route for their diagonal-aim
-    /// records and gun-extended Shot records; they do not have a separate wall-fire handler.
+    /// poses and gun-extended Shot poses; they do not have a separate wall-fire handler.
     /// </remarks>
     public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus, 
 
@@ -58,7 +58,7 @@ internal static class SamusAerialPoseTransitions
             SamusPoseMetadata.ReadFacingDirection(sourcePose) != SamusPoseMetadata.ReadFacingDirection(targetPose))
         {
             // The six spin/Space/Screw tables and two wall-jump tables emit only same-facing
-            // normal-jump records when aim or Shoot cancels rotation. A different movement
+            // normal-jump poses when aim or Shoot cancels rotation. A different movement
             // family is owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
                 $"Compact-jump-to-normal-jump transition {sourcePose} -> " +
@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
             return true;
 
         // Publishes the newly installed pose's shot direction on the exact Fire
-        // edge that selected this record. The projectile producer consumes it in the input phase.
+        // edge that selected this pose. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
 
@@ -244,9 +244,9 @@ internal static class SamusAerialPoseTransitions
 
         // Ordinary and wall-jump definition fallbacks publish the generic spin jump, whereas
         // the dedicated Screw Attack and Space Jump input tables can publish their already-
-        // specialized opposite-facing record directly. Reduce either form back to the
+        // specialized opposite-facing pose directly. Reduce either form back to the
         // generic direction before applying the spin-jump initializer's live equipment priority. This is
-        // observable when both bits are equipped: an authored right-to-left Screw Attack record must remain
+        // observable when both bits are equipped: an authored right-to-left Screw Attack pose must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
         SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
@@ -845,7 +845,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
             // Turning-on-ground uses its own input handler, but a Jump
-            // record still enters the ordinary spin-jump initializer. The turn pose has
+            // transition still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
             // Keeps consulting the turning pose's live input table. A fresh
@@ -871,7 +871,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);
         if (!verified)
         {
-            // The pairs above exhaust the active retail input-table records that invoke
+            // The pairs above exhaust the active retail input transitions that invoke
             // the ordinary jump initializer. Movement-specific launches (damage boost,
             // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
             throw new InvalidOperationException(
@@ -935,7 +935,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
     /// falling type six without replacing the live 1/65536-pixel velocities. The horizontal
-    /// gun-extended jumping and falling records use this same initialization seam;
+    /// gun-extended jumping and falling poses use this same initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>
     public static void ApplyAerialAimTransition(SamusState samus, SamusPoseId targetPose)

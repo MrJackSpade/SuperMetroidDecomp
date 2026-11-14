@@ -49,21 +49,21 @@ internal static class EnemyFirstShownColourDefinitions
             RidleyShades.CeresStart,
             RidleyShades.CeresHidden,
             RidleyShades.EyeFade(0),
-            RidleyShades.BodyFade(CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1),
+            RidleyShades.BodyFade(CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1),
         ],
         [EnemyDefinitionId.Ridley] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
             RidleyShades.EyeFade(0),
-            RidleyShades.BodyFade(CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1),
+            RidleyShades.BodyFade(CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1),
         ],
         [EnemyDefinitionId.RidleyExplosion] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,
             RidleyShades.EyeFade(0),
-            RidleyShades.BodyFade(CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1),
+            RidleyShades.BodyFade(CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1),
         ],
         [EnemyDefinitionId.TourianStatue] = [TourianStatueShades.Entrance],
         [EnemyDefinitionId.BombTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue))],

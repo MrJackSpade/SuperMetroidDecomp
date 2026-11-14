@@ -12,7 +12,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
-    /// released. The definition's fallback is left-facing crouching for all six records,
+    /// released. The definition's fallback is left-facing crouching for all six poses,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
     /// Because the pose changes, the prospective pose handler skips the stop; only the pose initializer runs.
     /// </summary>
@@ -58,10 +58,10 @@ internal static class SamusGroundedPoseTransitions
     /// <summary>
     /// Applies a same-facing arm-body transition within the movement-type-zero standing
     /// family and movement-type-one running family. Besides aimed bodies, this includes the
-    /// real gun-extended running horizontal-fire records.
+    /// real gun-extended running horizontal-fire poses.
     /// </summary>
     /// <remarks>
-    /// All admitted records have radius 21. If both endpoints are running, the pose initializer writes
+    /// All admitted poses have radius 21. If both endpoints are running, the pose initializer writes
     /// the new-frame value 32768 and the animation setup preserves the current frame and timer;
     /// this matters when firing midway through the ten-frame run cycle. A transition between
     /// movement types initializes frame zero normally. Movement type changes take effect on
@@ -224,7 +224,7 @@ internal static class SamusGroundedPoseTransitions
             (SamusPoseMetadata.IsLeftFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseId.StandingAimUpLeftPose);
         if (!rightRoute && !leftRoute)
         {
-            // Only block-backed ran-into-wall records call this exact initializer. Treat a
+            // Only block-backed ran-into-wall poses call this exact initializer. Treat a
             // different source/target pair as misuse of the specialized operation.
             throw new InvalidOperationException(
                 $"Ran-into-wall pose change {samus.Pose} -> {targetPose} is not a block-backed retail route.");
@@ -282,7 +282,7 @@ internal static class SamusGroundedPoseTransitions
 
         if (entering && !moonwalkEnabled)
         {
-            // Normal landing points at the same grounded input records as
+            // Normal landing points at the same grounded input transitions as
             // ordinary standing. Consequently a backward direction can nominate the
             // corresponding Moonwalk pose before the option gate runs. The initializer
             // does not special-case the old landing movement type: with Moonwalk off it
@@ -318,7 +318,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the moonwalk turn when a stable moonwalk pose reverses while Jump is held.
-    /// The six requested moonwalk turn-jump records are not airborne yet: they retain the grounded
+    /// The six requested moonwalk turn-jump poses are not airborne yet: they retain the grounded
     /// turn movement handler while their three visible frames play.
     /// </summary>
     public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
@@ -518,7 +518,7 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Reads the PREVIOUS pose record before it installs the final turn art.
+        // Reads the PREVIOUS pose before it installs the final turn art.
         // Previous movement type five selects the second shot-direction table; every other admitted source uses
         // the first. Both tables have ten entries, but shot directions four/five belong to
         // the compact straight-down family, which this transition does not handle.

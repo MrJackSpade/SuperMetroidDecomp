@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal static class PipeBugDefinitions
 {
     /// <summary>
-    /// The formation initializer assigns NTSC formation release counters centered on 104,
+    /// The formation initializer assigns formation release counters centered on 104,
     /// eight ticks per vertical rank. Listing order is center, upper-near,
-    /// upper-far, lower-near, lower-far; PAL shifts the same sequence down 32 ticks.
+    /// upper-far, lower-near, lower-far; the European release shifts the same sequence down 32 ticks.
     /// </summary>
     internal static readonly int[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
 

@@ -1,8 +1,8 @@
 ﻿
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Cartridge values and helpers of <see cref="CeresRidleyPaletteDefinitions"/> that only verification reads.</summary>
-internal static class CeresRidleyPaletteDefinitionsConstants
+/// <summary>Cartridge values and helpers of <see cref="CeresRidleyShadeDefinitions"/> that only verification reads.</summary>
+internal static class CeresRidleyShadeDefinitionsConstants
 {
     /// <summary>CGRAM color index 160 (native byte offset $0140), the start of OBJ palette 2; the 32-color initialization also fills OBJ palette 3.</summary>
     public const int StartCgramIndex = 0x140 / 2;

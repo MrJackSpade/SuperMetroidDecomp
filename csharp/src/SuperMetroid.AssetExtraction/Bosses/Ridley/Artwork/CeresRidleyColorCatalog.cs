@@ -43,7 +43,7 @@ public sealed class CeresRidleyColorCatalog
         this.start = new InstalledColourRows(start, CeresRidleyColorFormat.StartColorCount, "Ceres Ridley start");
         this.eyeFade = new InstalledColourRows(eyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,
             CeresRidleyColorFormat.EyeFadeColorCount, "Ceres Ridley eye fade");
-        this.bodyFade = new InstalledColourRows(bodyFade, CeresRidleyPaletteDefinitions.BodyFadeShadeCount,
+        this.bodyFade = new InstalledColourRows(bodyFade, CeresRidleyShadeDefinitions.BodyFadeShadeCount,
             CeresRidleyColorFormat.BodyFadeColorCount, "Ceres Ridley body fade");
         this.health = new InstalledColourRows(health, CeresRidleyColorFormat.HealthBandCount,
             CeresRidleyColorFormat.HealthColorCount, "Ceres Ridley health");

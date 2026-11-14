@@ -13,18 +13,18 @@ internal static class SamusGrappleConnectionNative
         [GrappleConnectionKind.WallGrab] = 0xc814,
     });
 
-    /// <summary>The handler a connection record's handler word names.</summary>
-    internal static readonly NativeWordIdentities<GrappleConnectionHandler> Handlers = new(new Dictionary<GrappleConnectionHandler, ushort>
+    /// <summary>The pose routine a connection record's handler word names.</summary>
+    internal static readonly NativeWordIdentities<GrappleConnectionPose> Poses = new(new Dictionary<GrappleConnectionPose, ushort>
     {
-        [GrappleConnectionHandler.SwingClockwise] = 0xb9d9,
-        [GrappleConnectionHandler.SwingAnticlockwise] = 0xb9e2,
-        [GrappleConnectionHandler.StandingUpRight] = 0xb9ea,
-        [GrappleConnectionHandler.StandingRight] = 0xb9f3,
-        [GrappleConnectionHandler.StandingDown] = 0xb9fc,
-        [GrappleConnectionHandler.StandingUpLeft] = 0xba05,
-        [GrappleConnectionHandler.CrouchingUpRight] = 0xba0e,
-        [GrappleConnectionHandler.CrouchingRight] = 0xba17,
-        [GrappleConnectionHandler.CrouchingDownLeft] = 0xba20,
-        [GrappleConnectionHandler.CrouchingUpLeft] = 0xba29,
+        [GrappleConnectionPose.SwingClockwise] = 0xb9d9,
+        [GrappleConnectionPose.SwingAnticlockwise] = 0xb9e2,
+        [GrappleConnectionPose.StandingUpRight] = 0xb9ea,
+        [GrappleConnectionPose.StandingRight] = 0xb9f3,
+        [GrappleConnectionPose.StandingDown] = 0xb9fc,
+        [GrappleConnectionPose.StandingUpLeft] = 0xba05,
+        [GrappleConnectionPose.CrouchingUpRight] = 0xba0e,
+        [GrappleConnectionPose.CrouchingRight] = 0xba17,
+        [GrappleConnectionPose.CrouchingDownLeft] = 0xba20,
+        [GrappleConnectionPose.CrouchingUpLeft] = 0xba29,
     });
 }

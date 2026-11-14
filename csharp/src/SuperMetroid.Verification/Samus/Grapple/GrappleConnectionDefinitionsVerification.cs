@@ -34,13 +34,13 @@ internal static class GrappleConnectionDefinitionsVerification
         // Each policy's ten-row table, one row per firing direction at its aim index; firing admits only these ten
         // directions, so no connection reads another policy's rows.
         int compiled = 0;
-        foreach ((GrappleConnectionTable kind, int table) in new[] { (GrappleConnectionTable.Default, 0x9bc3c6),
-                     (GrappleConnectionTable.MovingVertically, 0x9bc3ee), (GrappleConnectionTable.Crouching, 0x9bc416) })
+        foreach ((GrappleConnectionPolicy kind, int table) in new[] { (GrappleConnectionPolicy.Default, 0x9bc3c6),
+                     (GrappleConnectionPolicy.MovingVertically, 0x9bc3ee), (GrappleConnectionPolicy.Crouching, 0x9bc416) })
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
         {
             int address = table + direction.ToAimIndex() * 4;
             var connection = GrappleConnections.ResolveConnection(kind, direction);
-            AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Kinds.Word(connection.Kind), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
+            AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Kinds.Word(connection.Kind), SamusGrappleConnectionNative.Poses.Word(connection.Pose)),
                 "Both native connection words");
             compiled++;
         }

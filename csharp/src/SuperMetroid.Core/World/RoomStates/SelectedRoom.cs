@@ -14,9 +14,9 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
 /// <c>UpScroller</c> and <c>DownScroller</c> are the camera's vertical scroller distances in pixels, 0 through 255.
-/// <c>UsesIsolatedDoorTransition</c> is the definition's common-room-element flag that door transitions read: when the
-/// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the common
-/// room elements' colours while the source palette fades.
+/// <c>UsesIsolatedDoorTransition</c> is the definition's flag that door transitions read: when the
+/// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours
+/// of the door, item and block pictures every room shares while the source room fades.
 /// </remarks>
 public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
 {
@@ -35,7 +35,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>The camera's downward scroller distance in pixels.</summary>
     public int DownScroller => Definition.DownScroller;
 
-    /// <summary>Whether door transitions into or out of this room hide the foreground and drop the common room elements' colours.</summary>
+    /// <summary>Whether door transitions into or out of this room hide the foreground and drop the colours of the door, item and block pictures every room shares.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
     /// <summary>The entries the room's door blocks select by index.</summary>

@@ -324,8 +324,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepAirborneIndex(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Hop(state).YIndexDelta));
 
-        // X speed is authored as 1/256 pixels, but NTSC movement moves by the whole pixels only
-        // and zeroes the subspeed; only the PAL build uses the fraction. The giant
+        // X speed is authored as 1/256 pixels, but the Japanese and North American release moves it by the whole pixels only
+        // and zeroes the subspeed; only the European release uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
         int whole = EightEight.WholeOf(xSpeed);

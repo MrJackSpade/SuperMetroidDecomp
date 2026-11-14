@@ -15,7 +15,7 @@ internal static class DraygonBurialEvirs
     internal static DraygonBurialEvirDefinition ForEntry(int entry)
     {
         if ((uint)entry >= EntryCount)
-            throw new InvalidDataException($"Draygon burial Evir entry {entry} exceeds its six-record table.");
+            throw new InvalidDataException($"Draygon burial Evir entry {entry} exceeds its six Evirs.");
         int angle = FirstAngle - AngleStep * entry;
         double radians = angle * Math.PI / 128;
         double x = Math.Cos(radians), y = Math.Sin(radians);

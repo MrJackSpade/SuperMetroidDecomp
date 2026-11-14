@@ -580,7 +580,7 @@ internal sealed class SamusPoseTransitionPhase
                       (SamusPoseMetadata.IsLeftFacingFallingPose(source) &&
                        target == SamusPoseId.TurningLeftToRightFallingPose)):
                 // The generic jumping and falling turns are table outputs. The helper
-                // reads the source shot-direction record, chooses the exact
+                // reads the source pose's shot direction, chooses the exact
                 // aimed aerial turn art when needed, folds momentum, and runs compact
                 // pose-expansion collision before committing the turn.
                 SamusAerialPoseTransitions.TryApplyAerialTurn(samus, 
@@ -769,7 +769,7 @@ internal sealed class SamusPoseTransitionPhase
                           SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
                           SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) ||
                      SamusPoseMetadata.IsLandingToNormalJumpTransition(source, target):
-                // All the landing records expose the same
+                // All the landing poses expose the same
                 // standing input table while their brief streams are active.
                 // A fresh Jump edge can therefore preserve any authored
                 // normal-jump aim target, even from the firing landings
@@ -809,7 +809,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.NeutralJumpTransitionRightPose) ||
                       (SamusPoseMetadata.IsLeftFacingCrouchingPose(source) &&
                        target == SamusPoseId.NeutralJumpTransitionLeftPose)):
-                // The crouched aim records use the ordinary neutral-jump transition
+                // The crouched aim poses use the ordinary neutral-jump transition
                 // art for every crouched aim direction. The helper preserves
                 // the crouching-turn poses' literal ten-pixel adjustment.
                 SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus, 
@@ -827,7 +827,7 @@ internal sealed class SamusPoseTransitionPhase
                       SamusPoseMetadata.IsLeftFacingNormalJumpPose(target)):
                 // Aim and Fire cancel both compact spin and wall-
                 // jump bodies through the same normal-jump initializer without
-                // restarting the jump arc. The wall-jump Shot record, for example, maps Shot
+                // restarting the jump arc. The wall-jump Shot transition, for example, maps Shot
                 // directly from the right wall jump to the right gun-extended normal jump. The shared helper performs
                 // changed-pose collision for every radius expansion; a rejected
                 // body leaves the compact source pose installed.
@@ -862,7 +862,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.FacingRightNormalPose) ||
                       (SamusPoseMetadata.IsLeftFacingCrouchingPose(source) &&
                        target == SamusPoseId.FacingLeftNormalPose)):
-                // These direct facing-normal records bypass the animated
+                // These direct facing-normal poses bypass the animated
                 // aimed standing-transition family, but still run pose-expansion
                 // collision before installing the final standing body.
                 SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, 
@@ -911,7 +911,7 @@ internal sealed class SamusPoseTransitionPhase
                          SamusPoseId.ShinesparkVerticalLeftPose or
                          SamusPoseId.ShinesparkDiagonalRightPose or
                          SamusPoseId.ShinesparkDiagonalLeftPose:
-                // These are ordinary held/new input records, but
+                // These are ordinary held/new input transitions, but
                 // their handler installs a special movement handler instead of
                 // invoking a normal movement-type initializer.
                 SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, 

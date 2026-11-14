@@ -247,7 +247,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     /// <remarks>
     /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus palette bindings and
-    /// rebinds queued transfers that later catalogs' setters may read.
+    /// rebinds the queued artwork that later catalogs' setters may read.
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
     /// <param name="previous">The catalogs bound before, or <see langword="null"/> to bind every catalog.</param>

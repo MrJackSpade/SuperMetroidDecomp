@@ -60,12 +60,12 @@ internal sealed class RidleyFadeIn
 
         // Each step of the body fade shows the next shade, from black to the full body colours.
         int shade = state.FadeStep;
-        if (shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
+        if (shade < CeresRidleyShadeDefinitions.BodyFadeShadeCount)
             state.Colours.ShowBodyFade(shade);
         else throw new InvalidOperationException(
             $"Ridley body-fade shade {shade} is outside the installed shades.");
         state.FadeStep++;
-        if (state.FadeStep < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
+        if (state.FadeStep < CeresRidleyShadeDefinitions.BodyFadeShadeCount)
             return;
 
         // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits

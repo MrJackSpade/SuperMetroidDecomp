@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>One Ridley-breakup lifetime and initializer-dispatch record.</summary>
+/// <summary>How long one piece of Ridley's breakup lasts.</summary>
 internal readonly record struct RidleyExplosionPartDefinition(
     int Lifetime);

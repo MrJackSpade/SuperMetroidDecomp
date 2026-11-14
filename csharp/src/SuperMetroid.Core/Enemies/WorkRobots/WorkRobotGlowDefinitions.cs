@@ -11,7 +11,7 @@ internal static class WorkRobotGlowDefinitions
 
     /// <summary>The updates each glow step shows for: a three-step cadence of 64 updates then 16 and 16.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release: the six steps' timers repeat a
+    /// Independently reviewed for #1165 against the Japanese and North American v1.0 release: the six steps' timers repeat a
     /// three-step cadence, 64 ticks at i%3==0 and 16 otherwise. After the sixth step the cycle restarts at the first;
     /// there is never a seventh duration.
     /// </remarks>

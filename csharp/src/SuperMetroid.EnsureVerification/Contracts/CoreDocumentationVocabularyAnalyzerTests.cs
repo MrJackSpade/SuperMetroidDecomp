@@ -465,5 +465,36 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Starts the goop path at X=-80, Y=384; the ship parts slow below Y=768.</summary>\nint F => 0; }");
         Expect("class P { // the palette and its part; each part's picture; the depth of 8 high; the 256th; the height\n }");
         Expect(EncodingOwner + "[EncodingOwner(\"sprite parts\")] static class Parts { /// <summary>One part, at X=508, in palette0800.</summary>\nstatic int N => 0; }");
+        // The machine's display transfers and staging outside hardware owners (#1797).
+        Expect("class P { /// <summary>Publishes the frame transfers before the latch.</summary>\nint F => 0; }", "('frame transfers')");
+        Expect("class P { // the transfer queue holds the artwork\n }", "('transfer queue')");
+        Expect("class P { string Name => \"The queued transfers overflowed.\"; }", "('queued transfers')");
+        Expect("class P { // the general artwork follows the general transfer\n }", "('general transfer')");
+        Expect("class P { // the foreground staging offset\n }", "('foreground staging')");
+        Expect("class P { /// <summary>Copies the sprite list into the staging buffer.</summary>\nint F => 0; }", "('staging buffer')");
+        Expect("class P { // an upward door stages the foreground five pixels lower\n }", "('stages the foreground')");
+        Expect("class P { /// <summary>While its room scroll is being staged.</summary>\nint F => 0; }", "('scroll is being staged')");
+        Expect("class P { // from the foreground position staged before the first call\n }", "('position staged')");
+        // The video standards, read case-sensitively (#1797).
+        Expect("class P { /// <summary>The NTSC wall-turret shot speed.</summary>\nint F => 0; }", "('NTSC')");
+        Expect("class P { // only the PAL build uses the fraction\n }", "('PAL')");
+        Expect("class P { string Name => \"NTSC delay exceeded.\"; }", "('NTSC')");
+        // The common room elements, spaced or hyphenated, and the original's selector and record tables and its input and
+        // pose records (#1797).
+        Expect("class P { /// <summary>The definition's common-room-element flag.</summary>\nint F => 0; }", "('common-room-element')");
+        Expect("class P { // drops the common room elements' colours\n }", "('common room elements')");
+        Expect("class P { /// <summary>A trail selector table picks the family.</summary>\nint F => 0; }", "('selector table')");
+        Expect("class P { // The family each selector row names\n }", "('selector row')");
+        Expect("class P { /// <summary>Finish after three trips through the end of the record table.</summary>\nint F => 0; }", "('record table')");
+        Expect("class P { string Name => \"The entry exceeds its six-record table.\"; }", "('record table')");
+        Expect("class P { // the active retail input-table records that start the jump\n }", "('input-table records')");
+        Expect("class P { // Reads the previous pose record before the turn\n }", "('pose record')");
+        Expect("class P { /// <summary>These are ordinary held input records.</summary>\nint F => 0; }", "('input records')");
+        // The reserve tanks' transfer, transferring a value, an animation's or ending's stage, a staged fight and a staging
+        // point, a lower-case pal, a common room, a selector alone, a record of something and a hardware owner are English.
+        Expect("class P { /// <summary>The reserve tank's manual transfer; transfers the camera position back; a reserve-transfer sound; the foot-transfer advance.</summary>\nint F => 0; }");
+        Expect("class P { // the logo stage; the ending's stages; a staged fight; the staging point Ridley retreats to; attack staging positions\n }");
+        Expect("class P { /// <summary>Samus's pal; a common room; the room's elements; the selector picks a row; a record of the kills; the input's record.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the shots index the selector table and read the pose record in NTSC timing.</summary>\n[CompatibilityService(\"shots\")] class Shots { }");
     }
 }

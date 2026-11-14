@@ -1319,7 +1319,7 @@ internal static class LookupStream1Verification
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
             AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
         var undefinedMovement = (SamusMovementType)(-1);
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.MovementHandler(undefinedMovement), "HUD movement exact domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.SelectionMode(undefinedMovement), "HUD movement exact domain");
         AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.WaterSplashFor(undefinedMovement), "splash exact movement domain");
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.IsRunningFootContact(invalid), "foot-contact exact frame domain");

@@ -8,7 +8,7 @@ internal static class GrappleFiring
 {
     /// <summary>Returns exact launch components and angle for a firing direction.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against every original value of the NTSC J/U v1.0 game
+    /// Independently reviewed for #1165 against every original value of the Japanese and North American v1.0 game
     /// and BeginFiring. Directions progress clockwise from up,
     /// facing right (0), through down, facing right (4), duplicated down (5), to up (9).
     /// Fixed cardinal/diagonal cases avoid runtime trigonometry. Quantization precedes

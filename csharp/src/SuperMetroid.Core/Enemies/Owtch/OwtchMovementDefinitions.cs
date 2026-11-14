@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>Compiled NTSC patrol rules for Owtch.</summary>
+/// <summary>Compiled patrol rules for Owtch.</summary>
 internal static class OwtchMovementDefinitions
 {
     /// <summary>The random choice that sends a surfacing Owtch right rather than left: taken when the sample divided by 256 is odd.</summary>

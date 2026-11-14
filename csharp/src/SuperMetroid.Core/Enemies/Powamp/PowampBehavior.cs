@@ -160,7 +160,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Action = PowampAction.InflatedRiseToTargetHeight;
-            // Exactly half a pixel per frame upward on NTSC.
+            // Exactly half a pixel per frame upward.
             state.YVelocity = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
             SetPowampAnimation(body, state, PowampSegment.BodyFast);
         }

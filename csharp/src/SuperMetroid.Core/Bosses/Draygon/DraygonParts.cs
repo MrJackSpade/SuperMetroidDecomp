@@ -95,7 +95,7 @@ internal sealed class DraygonParts
                 return;
 
             case DraygonPart.Arms:
-                // Body init briefly writes a body phase before this record exists. Retail part init
+                // Body init briefly writes a body phase before this part exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop.
                 part.Shading = state.Colours.Sprites;
                 state.Arms = part;
@@ -246,7 +246,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>A linked Draygon part, failing if its record never loaded.</summary>
+    /// <summary>A linked Draygon part, failing if the part never loaded.</summary>
     internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
 

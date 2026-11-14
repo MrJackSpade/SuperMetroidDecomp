@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>NTSC figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
+/// <summary>Phantoon's figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
 public static class PhantoonMotionDefinitions
 {
     /// <summary>
-    /// The horizontal swoop velocity below which the leftward pull stops (the NTSC
-    /// value, about -8 pixels per update; PAL differs).
+    /// The horizontal swoop velocity below which the leftward pull stops (the Japanese and North American
+    /// value, about -8 pixels per update; the European release's differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-2047);
 
@@ -27,8 +27,8 @@ public static class PhantoonMotionDefinitions
     /// <summary>The rightmost swoop X position.</summary>
     public const int SwoopMaximumX = 448;
     /// <summary>
-    /// The vertical swoop velocity below which the upward pull stops (the NTSC value,
-    /// about -6 pixels per update; PAL differs).
+    /// The vertical swoop velocity below which the upward pull stops (the Japanese and North American value,
+    /// about -6 pixels per update; the European release's differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
     /// <summary>The figure-eight's slow-stage sub-pixel acceleration, shared by its reverse, fractional 1/65536-pixel acceleration.</summary>
@@ -41,13 +41,13 @@ public static class PhantoonMotionDefinitions
     public const int FastWhole = 0;
     /// <summary>The figure-eight's stage-zero maximum speed.</summary>
     public const int ForwardSlowCap = 2;
-    /// <summary>The figure-eight's stage-one maximum speed, NTSC value seven.</summary>
+    /// <summary>The figure-eight's stage-one maximum speed, seven.</summary>
     public const int ForwardFastCap = 7;
     /// <summary>The figure-eight's stage-two minimum speed.</summary>
     public const int ForwardMinimum = 0;
     /// <summary>The reverse figure-eight's stage-zero maximum, the slow stage's signed whole-speed cap.</summary>
     public const int ReverseSlowCap = -2;
-    /// <summary>The reverse figure-eight's stage-one maximum, the fast stages' signed whole-speed cap (NTSC).</summary>
+    /// <summary>The reverse figure-eight's stage-one maximum, the fast stages' signed whole-speed cap.</summary>
     public const int ReverseFastCap = -7;
     /// <summary>The reverse figure-eight's stage-two minimum.</summary>
     public const int ReverseMaximum = 0;

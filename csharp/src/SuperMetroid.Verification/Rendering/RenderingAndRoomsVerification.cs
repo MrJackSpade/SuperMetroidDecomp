@@ -687,7 +687,7 @@ internal static void VerifyBackgroundScrollState()
         ForegroundPosition = new(0xff04, 0), // destination $0000 - $00FC
         BackgroundPosition = new(0xff04, 0),
     };
-    rightDoor.BeginDoorOpeningViews(stagedForeground: new(0xff00, 0x0000));
+    rightDoor.BeginDoorOpeningViews(openingForeground: new(0xff00, 0x0000));
     AssertEqual(new Position16<RoomPixels>(0xff00, 0), rightDoor.ForegroundScroll,
         "the door's foreground view begins at the staged destination origin");
     AssertEqual(new Position16<BackgroundPixels>(0xff00, 0), rightDoor.BackgroundScroll,
@@ -703,7 +703,7 @@ internal static void VerifyBackgroundScrollState()
         ForegroundPosition = new(0x00fc, 0), // destination $0000 + $00FC
         BackgroundPosition = new(0x00fc, 0),
     };
-    leftDoor.BeginDoorOpeningViews(stagedForeground: new(0x0100, 0x0000));
+    leftDoor.BeginDoorOpeningViews(openingForeground: new(0x0100, 0x0000));
     leftDoor.CalculateLayerScrolls();
     AssertEqual((ushort)0x00fc, leftDoor.ForegroundScroll.X,
         "left-door foreground view retreats four pixels with its first step");
@@ -716,7 +716,7 @@ internal static void VerifyBackgroundScrollState()
         ForegroundPosition = new(0, 0x02fb),
         BackgroundPosition = new(0, 0x01dc),
     };
-    upwardDestination.BeginDoorOpeningViews(stagedForeground: new(0, 0x0300));
+    upwardDestination.BeginDoorOpeningViews(openingForeground: new(0, 0x0300));
     AssertEqual((ushort)0x0300, upwardDestination.ForegroundScroll.Y,
         "upward setup's view begins at the staged origin");
     upwardDestination.CalculateLayerScrolls();

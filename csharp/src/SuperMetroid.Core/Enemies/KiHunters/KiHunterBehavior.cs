@@ -185,6 +185,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequireKiHunterSamus(samus);
                 SelectKiHunterAcidSpit(actor, state, samus);
                 return;
+            case KiHunterAction.FollowBody:
+            case KiHunterAction.DetachedWing:
             default:
                 throw new InvalidDataException(
                     $"Ki-Hunter body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
@@ -203,6 +205,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequireKiHunterLevel(level);
                 RunDetachedKiHunterWing(wings, state, level);
                 return;
+            case KiHunterAction.FlyingPatrol:
+            case KiHunterAction.Swooping:
+            case KiHunterAction.RecoveringFromSwoop:
+            case KiHunterAction.FallingAfterWingLoss:
+            case KiHunterAction.StartGroundJump:
+            case KiHunterAction.NoOp:
+            case KiHunterAction.GroundJump:
+            case KiHunterAction.GroundWait:
+            case KiHunterAction.SelectAcidSpit:
             default:
                 throw new InvalidDataException(
                     $"Ki-Hunter wings have no behaviour for action {state.Action?.ToString() ?? "none"}.");

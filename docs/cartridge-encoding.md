@@ -94,7 +94,7 @@ widening commit records the result for each field:
 Words exist only at the boundaries (SRAM, JSON saves, native snapshot import and word-level parity checks), which
 convert through a named codec that rejects out-of-range words (`SamusCountWords.Decode`/`Encode` at the save and native-trace boundaries). A wrap that is part
 of the behavior stays explicit: `WrappingCounter` for counters, or a named operation on the owning type.
-`SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
+Samus's fraction of an energy keeps its borrow into `Health` because the borrow is load-bearing; the compatibility layer owns it (`PeriodicDamageEnergyFraction`), and her counts' range below zero is `CountsRunBelowZero`.
 
 ## Fixed-point values, angles and carries
 

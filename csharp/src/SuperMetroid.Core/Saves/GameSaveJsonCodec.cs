@@ -254,7 +254,7 @@ public static class GameSaveJsonCodec
                      new SaveFieldCheck(resources.ReserveEnergy, "reserveEnergy"), new SaveFieldCheck(resources.MaxReserveEnergy, "maxReserveEnergy"),
                      new SaveFieldCheck(resources.ReserveMissiles, "reserveMissiles"),
                  })
-            RequireRange(value, SamusQuantity.MinimumValue, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
+            RequireRange(value, CountsRunBelowZero.MinimumValue, CountsRunBelowZero.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)
             throw new InvalidDataException($"slots[{expectedSlot}].resources.health exceeds maxHealth");
         if (slot.Resources.Missiles > slot.Resources.MaxMissiles ||

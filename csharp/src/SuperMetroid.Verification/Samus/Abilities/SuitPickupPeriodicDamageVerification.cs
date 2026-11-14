@@ -38,7 +38,7 @@ internal static class SuitPickupPeriodicDamageVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.MaxHealth = 299;
         samus.Health = 299;
-        samus.SubunitHealth = 0;
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.LiquidPhysics.PendingPeriodicDamage = default;
@@ -50,7 +50,7 @@ internal static class SuitPickupPeriodicDamageVerification
         {
             MaxHealth = samus.MaxHealth,
             Health = samus.Health,
-            SubunitHealth = samus.SubunitHealth,
+            EnergyFraction = samus.EnergyFraction,
             EquippedItems = samus.EquippedItems,
         };
         int pickupFrames = 0;
@@ -60,14 +60,14 @@ internal static class SuitPickupPeriodicDamageVerification
             samus.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
             reference.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
             int healthBefore = samus.Health;
-            int subunitBefore = samus.SubunitHealth;
+            int fractionBefore = samus.EnergyFraction.Parts;
             runtime.StepFrame(0);
             if (!runtime.SuitPickup.IsActive)
                 break;
             pickupFrames++;
             AssertEqual(healthBefore, samus.Health,
                 $"the empty suit beta skips $90:E9CE on pickup frame {pickupFrames}");
-            AssertEqual(subunitBefore, samus.SubunitHealth,
+            AssertEqual(fractionBefore, samus.EnergyFraction.Parts,
                 $"no sub-unit damage lands on pickup frame {pickupFrames}");
             AssertEqual(reference.LiquidPhysics.PendingPeriodicDamage.Fraction, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
                 $"fractional periodic damage stays pending on pickup frame {pickupFrames}");
@@ -83,7 +83,7 @@ internal static class SuitPickupPeriodicDamageVerification
         AssertTrue(reference.Health < samus.MaxHealth, "the deferred damage costs energy");
         AssertEqual(reference.Health, samus.Health,
             "the first ordinary beta applies all pickup-time damage, halved by Varia");
-        AssertEqual(reference.SubunitHealth, samus.SubunitHealth,
+        AssertEqual(reference.EnergyFraction.Parts, samus.EnergyFraction.Parts,
             "the first ordinary beta applies the halved fractional damage");
         AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Fraction, "$90:E9CE clears the fractional word");
         AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Whole, "$90:E9CE clears the whole word");

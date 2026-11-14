@@ -72,8 +72,8 @@ public sealed class GameplayHudPresentation
             HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter."),
         };
-        // A count the game has drained below zero shows as SamusQuantity.HudShown describes.
-        return Digits(SamusQuantity.HudShown(value), field.Anchor, field.Digits)
+        // A count the game has drained below zero shows as CountsRunBelowZero.HudShown describes.
+        return Digits(CountsRunBelowZero.HudShown(value), field.Anchor, field.Digits)
             .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));
     }
 

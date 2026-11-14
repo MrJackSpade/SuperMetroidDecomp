@@ -277,13 +277,13 @@ public sealed class SamusCrystalFlashState
         switch (DrainingAmmo)
         {
             case CrystalFlashAmmoKind.Missiles:
-                samus.Missiles = SamusQuantity.DecrementWrapping(samus.Missiles);
+                samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
                 break;
             case CrystalFlashAmmoKind.SuperMissiles:
-                samus.SuperMissiles = SamusQuantity.DecrementWrapping(samus.SuperMissiles);
+                samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
                 break;
             case CrystalFlashAmmoKind.PowerBombs:
-                samus.PowerBombs = SamusQuantity.DecrementWrapping(samus.PowerBombs);
+                samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
                 break;
             default:
                 throw new InvalidOperationException(

@@ -95,15 +95,20 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!SamusSnapshotWords.AlignsToSlopes(1), "a slope-alignment word without its enable bit disables it");
 
     // Samus counts are signed words: the cartridge's Crystal Flash drain takes an ammunition count below zero.
-    AssertEqual(SamusQuantity.MaximumValue, SamusCountWords.Decode(0x7fff), "the largest count word decodes");
+    AssertEqual(CountsRunBelowZero.MaximumValue, SamusCountWords.Decode(0x7fff), "the largest count word decodes");
     AssertEqual(-1, SamusCountWords.Decode(0xffff), "a drained-past-zero word decodes as -1");
-    AssertEqual(SamusQuantity.MinimumValue, SamusCountWords.Decode(0x8000), "the smallest count word decodes");
-    AssertEqual((ushort)0x7fff, SamusCountWords.Encode(SamusQuantity.MaximumValue), "the largest count encodes");
+    AssertEqual(CountsRunBelowZero.MinimumValue, SamusCountWords.Decode(0x8000), "the smallest count word decodes");
+    AssertEqual((ushort)0x7fff, SamusCountWords.Encode(CountsRunBelowZero.MaximumValue), "the largest count encodes");
     AssertEqual((ushort)0xffff, SamusCountWords.Encode(-1), "-1 encodes as the word the cartridge stores");
-    AssertThrows<InvalidOperationException>(() => SamusCountWords.Encode(SamusQuantity.MinimumValue - 1), "an undersized count cannot be stored");
-    AssertThrows<InvalidOperationException>(() => SamusCountWords.Encode(SamusQuantity.MaximumValue + 1), "an oversized count cannot be stored");
-    AssertEqual(-1, SamusQuantity.DecrementWrapping(0), "the unchecked decrement takes zero to -1");
-    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.DecrementWrapping(SamusQuantity.MinimumValue), "the unchecked decrement wraps the smallest count");
+    AssertThrows<InvalidOperationException>(() => SamusCountWords.Encode(CountsRunBelowZero.MinimumValue - 1), "an undersized count cannot be stored");
+    AssertThrows<InvalidOperationException>(() => SamusCountWords.Encode(CountsRunBelowZero.MaximumValue + 1), "an oversized count cannot be stored");
+    AssertEqual(-1, CountsRunBelowZero.DecrementWrapping(0), "the unchecked decrement takes zero to -1");
+    AssertEqual(CountsRunBelowZero.MaximumValue, CountsRunBelowZero.DecrementWrapping(CountsRunBelowZero.MinimumValue), "the unchecked decrement wraps the smallest count");
+    // The HUD draws a count's digits from the word the cartridge stores, so a count below zero shows that word's value.
+    foreach (int count in new[] { CountsRunBelowZero.MinimumValue, -1, 0, 1, CountsRunBelowZero.MaximumValue })
+        AssertEqual((int)SamusCountWords.Encode(count), CountsRunBelowZero.HudShown(count), $"the HUD shows count {count} as its stored word's digits");
+    AssertEqual(32767, CountsRunBelowZero.MaximumValue, "the largest count is the largest word that reads as zero or more");
+    AssertEqual(-32768, CountsRunBelowZero.MinimumValue, "the smallest count is the first word that reads as below zero");
 
     // The shown suit is a three-way choice. Verify all three branches plus the native
     // Gravity-over-Varia priority that motivated centralization.

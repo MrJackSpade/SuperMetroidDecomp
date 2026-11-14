@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// takes an energy at once, and a fraction that exactly uses up what is held over takes none, leaving nothing held over
 /// for the next update to take an energy again. The cadence of the energy taken therefore depends on where the drain
 /// began, not only on the fraction: a Metroid's grip takes an energy on the update it starts draining, and then once every
-/// so many updates as its suit's fraction gives.
+/// so many updates as its suit's fraction gives. Samus's periodic damage takes from the fraction of an energy she holds by
+/// the same arithmetic (<see cref="PeriodicDamageEnergyFraction"/>).
 /// </summary>
 /// <remarks>
 /// Consulted on every update a Metroid stays attached to Samus, during the enemy pass, as its drain takes its suit's

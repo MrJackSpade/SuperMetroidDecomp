@@ -84,7 +84,7 @@ internal static class RoomFxRetailInventoryVerification
             .ToLookup(door => RoomDefinitions.PointerOf(door.DestinationRoom));
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
-        var knownExamples = new Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>>();
+        var knownExamples = new Dictionary<RoomDefinition, HashSet<RetailLiquidClassification>>();
         var inventoryLines = new List<string>
         {
             "room\troom_header\tstate\tentry_door\tfx_list\tselected_record\t" +
@@ -114,10 +114,10 @@ internal static class RoomFxRetailInventoryVerification
             {
                 doorSpecificRecords++;
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out DoorDefinition? fxDoor),
-                    $"room {room.Identity} state $8F:{room.State.Pointer:X4} FX-specific " +
+                    $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
                 AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
-                    $"FX-specific door $83:{recordDoor:X4} enters room {room.Identity}");
+                    $"FX-specific door $83:{recordDoor:X4} enters room {room.Definition.Name}");
             }
 
             ushort[] entryPaths = incomingDoors[room.Pointer]
@@ -138,7 +138,7 @@ internal static class RoomFxRetailInventoryVerification
                     classifications.GetValueOrDefault(classification) + 1;
                 auditedEntryPaths++;
                 inventoryLines.Add(string.Join('\t',
-                    room.Identity.ToString(),
+                    room.Definition.Name,
                     $"{room.Pointer:X4}",
                     $"{room.State.Pointer:X4}",
                     doorPointer == 0 ? "default" : $"{doorPointer:X4}",
@@ -174,12 +174,12 @@ internal static class RoomFxRetailInventoryVerification
                     }
                 }
 
-                if (RetailRoomFxDefinitions.KnownExampleRooms.Contains(room.Identity))
+                if (RetailRoomFxDefinitions.KnownExampleRooms.Contains(room.Definition))
                 {
-                    if (!knownExamples.TryGetValue(room.Identity, out HashSet<RetailLiquidClassification>? set))
+                    if (!knownExamples.TryGetValue(room.Definition, out HashSet<RetailLiquidClassification>? set))
                     {
                         set = [];
-                        knownExamples.Add(room.Identity, set);
+                        knownExamples.Add(room.Definition, set);
                     }
                     set.Add(classification);
                 }
@@ -231,7 +231,7 @@ internal static class RoomFxRetailInventoryVerification
             byte blend = ReadRetailFxRecordByte(bus, expectedRecord,
                 RoomFxRomDataRecordTooling.PaletteBlendOffset);
             AssertTrue(blend == 0 || RoomFxPaletteBlendDocumentRules.Ids.Contains(FxNativeWords.PaletteBlend(blend)),
-                $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} uses an extracted FX palette blend (${blend:X2})");
         }
         RoomFxType expectedType = expectedRecord == 0
@@ -241,7 +241,7 @@ internal static class RoomFxRetailInventoryVerification
                     bus,
                     expectedRecord,
                     RoomFxRomDataRecordTooling.TypeOffset),
-                $"retail room {room.Identity} state $8F:{room.State.Pointer:X4} " +
+                $"retail room {room.Definition.Name} state $8F:{room.State.Pointer:X4} " +
                 $"entry $83:{doorPointer:X4}");
         ushort expectedBase = expectedRecord == 0
             ? (ushort)0
@@ -269,20 +269,20 @@ internal static class RoomFxRetailInventoryVerification
             randomNumber: 0);
         AssertEqual(expectedRecord,
             RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, EntryDoor(doorPointer)),
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} record selection");
         AssertEqual(expectedType, actual.Type,
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX type");
         // The cartridge word of a typed surface or target (#1546): the typed line, or the word a record naming none holds.
         AssertEqual(expectedBase, RoomFxRecordEncoding.SurfaceWord(actual.BaseY?.Whole),
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX base Y");
         AssertEqual(expectedTarget, RoomFxRecordEncoding.SurfaceWord(actual.TargetSurface),
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX target Y");
         AssertEqual(expectedVelocity, actual.LiquidLevelSpeed.RawValue,
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX velocity");
 
         bool liquid = expectedType is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
@@ -327,11 +327,11 @@ internal static class RoomFxRetailInventoryVerification
             actual.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             RoomFxOverlayRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
-                    $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
+                    $"Room {room.Definition.Name} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
             RgbaPixel[] hiddenFrame = frames.Render(vram, cgram, hiddenSnapshot, EffectPlane(actual));
             AssertTrue(hiddenFrame.SequenceEqual(SeededBackdrop.Value),
-                $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} negative liquid surface is visually absent");
             return audit;
         }
@@ -353,11 +353,11 @@ internal static class RoomFxRetailInventoryVerification
         {
             RoomFxOverlayRenderSnapshot visibleSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
-                    $"Room {room.Identity} visible liquid record $83:{expectedRecord:X4} " +
+                    $"Room {room.Definition.Name} visible liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
             RgbaPixel[] visibleFrame = frames.Render(vram, cgram, visibleSnapshot, EffectPlane(actual));
             AssertTrue(!visibleFrame.SequenceEqual(SeededBackdrop.Value),
-                $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} visibly composes {expectedType}");
         }
 
@@ -402,7 +402,7 @@ internal static class RoomFxRetailInventoryVerification
         CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
-        SelectedRoom room = LoadRoomByIdentity(
+        SelectedRoom room = LoadRoomByDefinition(
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
@@ -709,7 +709,7 @@ internal static class RoomFxRetailInventoryVerification
         RetailFxRoomState namedState = states.Single(state =>
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer);
-            return header.Identity == definition.Room;
+            return header.Definition == definition.Room;
         });
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, namedState.RoomPointer) with
         {
@@ -729,17 +729,17 @@ internal static class RoomFxRetailInventoryVerification
             door,
             randomNumber: 0,
             room: room.Definition);
-        AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
+        AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room.Name} rising FX type");
         AssertEqual(definition.InitialY, fx.NamedBaseY.Whole,
-            $"room {definition.Room} initial lava Y");
+            $"room {definition.Room.Name} initial lava Y");
         AssertEqual(definition.TargetY, fx.NamedTargetSurface,
-            $"room {definition.Room} target lava Y");
+            $"room {definition.Room.Name} target lava Y");
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         AssertTrue((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")).WaterSurfaceScreenY >=
                 DisplayScreen.Height,
-            $"room {definition.Room} entry lava begins below the viewport");
+            $"room {definition.Room.Name} entry lava begins below the viewport");
 
         int movingFrames = 0;
         var risenFrames = new ArtworkFrameSelections();
@@ -750,21 +750,21 @@ internal static class RoomFxRetailInventoryVerification
                 break;
         }
         AssertTrue(movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames,
-            $"room {definition.Room} lava reaches its cartridge target");
+            $"room {definition.Room.Name} lava reaches its cartridge target");
         AssertEqual(definition.TargetY, fx.NamedBaseY.Whole,
-            $"room {definition.Room} lava stops at its cartridge target");
+            $"room {definition.Room.Name} lava stops at its cartridge target");
 
         AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, AnimatedTiles, BlockAnimation.Lava);
         ushort[] finalPlane = EffectPlane(fx);
         RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
-                $"Room {definition.Room} rising lava published no final snapshot.");
+                $"Room {definition.Room.Name} rising lava published no final snapshot.");
         AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= DisplayScreen.HudHeight and
                 < DisplayScreen.Height,
-            $"room {definition.Room} risen lava enters the gameplay viewport");
+            $"room {definition.Room.Name} risen lava enters the gameplay viewport");
         RgbaPixel[] frame = RenderRoomFx(vram, cgram, finalSnapshot, finalPlane);
         AssertTrue(!frame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
-            $"room {definition.Room} risen lava is visibly composed");
+            $"room {definition.Room.Name} risen lava is visibly composed");
     }
 
     /// <summary>
@@ -939,7 +939,7 @@ internal static class RoomFxRetailInventoryVerification
                 ? LiquidTideDefinitions.SmallTideScale
                 : LiquidTideDefinitions.LargeTideScale;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
-            $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
+            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");
     }
 
@@ -948,11 +948,11 @@ internal static class RoomFxRetailInventoryVerification
         CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
-        SelectedRoom visibleRoom = LoadRoomByIdentity(
+        SelectedRoom visibleRoom = LoadRoomByDefinition(
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        SelectedRoom hiddenRoom = LoadRoomByIdentity(
+        SelectedRoom hiddenRoom = LoadRoomByDefinition(
             bus,
             states,
             RetailRoomFxDefinitions.HiddenLavaRoom);
@@ -985,13 +985,12 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Loads the named retail room with the exact state pointer found in the FX inventory.</summary>
-    private static SelectedRoom LoadRoomByIdentity(
+    private static SelectedRoom LoadRoomByDefinition(
         CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
-        RoomIdentity identity)
+        RoomDefinition definition)
     {
-        RetailFxRoomState state = states.First(candidate =>
-            SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, candidate.RoomPointer).Identity == identity);
+        RetailFxRoomState state = states.First(candidate => candidate.RoomPointer == definition.Pointer);
         return SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, state.RoomPointer) with
         {
             State = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.Load(bus, state.StatePointer),
@@ -1000,19 +999,19 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Checks reported heat-only and visible-lava rooms retain their classification on every entry path.</summary>
     private static void AssertKnownRetailLiquidExamples(
-        Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>> examples)
+        Dictionary<RoomDefinition, HashSet<RetailLiquidClassification>> examples)
     {
-        foreach (RoomIdentity room in RetailRoomFxDefinitions.HiddenLavaExamples)
+        foreach (RoomDefinition room in RetailRoomFxDefinitions.HiddenLavaExamples)
         {
             AssertTrue(examples.TryGetValue(room, out HashSet<RetailLiquidClassification>? values) &&
                     values.SetEquals([RetailLiquidClassification.HiddenLavaOrAcid]),
-                $"known heat-only room {room} is classified as hidden lava on every entry path");
+                $"known heat-only room {room.Name} is classified as hidden lava on every entry path");
         }
-        foreach (RoomIdentity room in RetailRoomFxDefinitions.VisibleLavaExamples)
+        foreach (RoomDefinition room in RetailRoomFxDefinitions.VisibleLavaExamples)
         {
             AssertTrue(examples.TryGetValue(room, out HashSet<RetailLiquidClassification>? values) &&
                     values.SetEquals([RetailLiquidClassification.VisibleLavaOrAcid]),
-                $"known lava room {room} is classified as visible lava on every entry path");
+                $"known lava room {room.Name} is classified as visible lava on every entry path");
         }
     }
 
@@ -1092,7 +1091,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Known room, door, and endpoint values for a retail rising-liquid trace.</summary>
     internal readonly record struct RisingLiquidAuditDefinition(
-        RoomIdentity Room,
+        RoomDefinition Room,
         ushort EntryDoor,
         ushort InitialY,
         ushort TargetY);
@@ -1130,46 +1129,46 @@ internal static class RoomFxRetailInventoryVerification
         /// <summary>Applied shake frames from frame one through frame 672 inclusive.</summary>
         public const int Room28ShakeFrameCount = 672;
 
-        /// <summary>Business Center, whose default record exposes lava at world Y $01B1.</summary>
-        public static RoomIdentity VisibleLavaRoom { get; } = new(AreaId.Norfair, 0x01);
+        /// <summary>Cathedral, whose default record exposes lava at world Y $01B1.</summary>
+        public static RoomDefinition VisibleLavaRoom { get; } = RoomDefinitions.Cathedral;
 
-        /// <summary>Bubble Mountain, whose $FFFF surface intentionally hides lava BG3.</summary>
-        public static RoomIdentity HiddenLavaRoom { get; } = new(AreaId.Norfair, 0x03);
+        /// <summary>Business Center, whose $FFFF surface intentionally hides lava BG3.</summary>
+        public static RoomDefinition HiddenLavaRoom { get; } = RoomDefinitions.BusinessCenter;
 
         /// <summary>Known false-positive rooms from issue #272.</summary>
-        public static IReadOnlySet<RoomIdentity> HiddenLavaExamples { get; } =
-            new HashSet<RoomIdentity>
+        public static IReadOnlySet<RoomDefinition> HiddenLavaExamples { get; } =
+            new HashSet<RoomDefinition>
             {
-                new(AreaId.Norfair, 0x03),
-                new(AreaId.Norfair, 0x1a),
-                new(AreaId.Norfair, 0x24),
+                RoomDefinitions.BusinessCenter,
+                RoomDefinitions.BubbleMountain,
+                RoomDefinitions.PurpleShaft,
             };
 
         /// <summary>Known missing-lava rooms from issue #275.</summary>
-        public static IReadOnlySet<RoomIdentity> VisibleLavaExamples { get; } =
-            new HashSet<RoomIdentity>
+        public static IReadOnlySet<RoomDefinition> VisibleLavaExamples { get; } =
+            new HashSet<RoomDefinition>
             {
-                new(AreaId.Norfair, 0x21),
-                new(AreaId.Norfair, 0x28),
+                RoomDefinitions.Volcano,
+                RoomDefinitions.RisingTide,
             };
 
         /// <summary>All user-reported rooms whose classifications must be retained.</summary>
-        public static HashSet<RoomIdentity> KnownExampleRooms { get; } =
-            new HashSet<RoomIdentity>(HiddenLavaExamples.Concat(VisibleLavaExamples));
+        public static HashSet<RoomDefinition> KnownExampleRooms { get; } =
+            new HashSet<RoomDefinition>(HiddenLavaExamples.Concat(VisibleLavaExamples));
 
         /// <summary>
-        /// Room $02/$21 entered through door $83:9672: lava starts at $02E0 and rises to
+        /// Volcano entered through door $83:9672: lava starts at $02E0 and rises to
         /// $0260 after timer $40 using velocity $FFF6.
         /// </summary>
         public static RisingLiquidAuditDefinition RisingLavaRoom21 { get; } =
-            new(new RoomIdentity(AreaId.Norfair, 0x21), 0x9672, 0x02e0, 0x0260);
+            new(RoomDefinitions.Volcano, 0x9672, 0x02e0, 0x0260);
 
         /// <summary>
-        /// Room $02/$28 entered through door $83:929A: lava starts at $0108 and rises to
+        /// Rising Tide entered through door $83:929A: lava starts at $0108 and rises to
         /// $00C0 after timer $40 using velocity $FFE0.
         /// </summary>
         public static RisingLiquidAuditDefinition RisingLavaRoom28 { get; } =
-            new(new RoomIdentity(AreaId.Norfair, 0x28), 0x929a, 0x0108, 0x00c0);
+            new(RoomDefinitions.RisingTide, 0x929a, 0x0108, 0x00c0);
     }
 
     /// <summary>Runs the full named-state and physical-door FX inventory verification command.</summary>

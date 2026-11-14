@@ -244,7 +244,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(_player.IntroducedSamus, frame: 2, timer: 3);
-        _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
+        _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? SavedGameAppearanceDefinitions.GravitySuitGlow
@@ -357,7 +357,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.LiquidPhysics.RoomIdentity = room.Identity;
+        samus.LiquidPhysics.Room = room.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
@@ -767,7 +767,7 @@ internal sealed class RoomLoader
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
-        _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
+        _player.Samus.LiquidPhysics.Room = room.Definition;
         _player.GroundedSamusMovementEnabled = true;
         return viewport;
     }
@@ -1160,7 +1160,7 @@ internal sealed class RoomLoader
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
-        _player.Samus.LiquidPhysics.RoomIdentity = _room.ActiveRoom.Identity;
+        _player.Samus.LiquidPhysics.Room = _room.ActiveRoom.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // The Ceres elevator projectiles are spawned with enemy graphics and thus briefly seed both objects

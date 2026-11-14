@@ -38,7 +38,7 @@ internal static class TreadmillVisualVerification
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
             BlockAnimation[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).BlockAnimations];
-            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
+            Console.WriteLine($"Room {room.Definition.Name} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
             bool rightwards = tiles.Contains(BlockAnimation.WreckedShipTreadmillRightwards);
             if (!rightwards && !tiles.Contains(BlockAnimation.WreckedShipTreadmillLeftwards)) continue;
             var images = new HashSet<string>();
@@ -71,11 +71,11 @@ internal static class TreadmillVisualVerification
                 {
                     int matched = Array.FindIndex(sources, source => floor.AsSpan().SequenceEqual(NativeFloorCharacters(bus, source)));
                     AssertTrue(floor.AsSpan().SequenceEqual(NativeFloorCharacters(bus, sources[(frame - 1) & 3])),
-                        $"{room.Identity} native direction/cadence characters frame {frame}: expected native frame {(frame - 1) & 3}, " +
+                        $"{room.Definition.Name} native direction/cadence characters frame {frame}: expected native frame {(frame - 1) & 3}, " +
                         (matched < 0 ? "shown characters match no native frame" : $"shown characters are native frame {matched}"));
                 }
             }
-            AssertEqual(4, images.Count, $"{room.Identity} powered floor shows all four graphics frames");
+            AssertEqual(4, images.Count, $"{room.Definition.Name} powered floor shows all four graphics frames");
         }
     }
 

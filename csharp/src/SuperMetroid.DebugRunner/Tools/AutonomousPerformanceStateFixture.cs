@@ -28,7 +28,7 @@ internal static class AutonomousPerformanceStateFixture
             long start = Stopwatch.GetTimestamp();
             RgbaPixel[] pixels = [];
             for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet);
-            Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoomIdentity}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
+            Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoom?.Name}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             if (packet.Layers is { } layers)
                 foreach (var layer in layers.Layers) Console.WriteLine($"Layer: {layer.GetType().Name}");
             PngWriterTooling.WriteRgba(Path.Combine(root, "frame.png"), packet.Size, pixels);

@@ -429,7 +429,7 @@ internal static class RidleyFullMovieVerification
         foreach (var sample in new[] { new VerifyRidleyFireballDamageCase(AreaId.Ceres, 3), new VerifyRidleyFireballDamageCase(AreaId.Norfair, 60), new VerifyRidleyFireballDamageCase(AreaId.Tourian, 80) })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.LiquidPhysics.RoomIdentity = new RoomIdentity(sample.First, 0);
+            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(sample.First);
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(sample.Second, fireball.Damage, "native area initializer overrides fireball damage");

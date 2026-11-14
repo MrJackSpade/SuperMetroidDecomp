@@ -9,7 +9,7 @@ internal static class FixtureRooms
 {
     /// <summary>The destination of a synthetic door whose room is never entered.</summary>
     public static RoomDefinition UnloadedDestination { get; } =
-        new("unloaded fixture door destination", 0, AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
+        new("unloaded fixture door destination", AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
 
     /// <summary>A synthetic door that no library-background transfer or room-FX record names.</summary>
     public static DoorDefinition UnmatchedDoor { get; } = new(

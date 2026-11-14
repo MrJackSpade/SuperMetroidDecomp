@@ -216,10 +216,10 @@ internal static class SuperMetroidRuntimeAccess
             SamusPresentation.InitializeAnimation(self.Player.Samus);
             if (self.Room.LandingSiteEntry is not null)
             {
-                // FootstepGraphics dispatches on the literal area and room-index bytes. Keep
-                // those room-owned inputs beside the FX surface state instead of hard-coding
-                // “Landing Site” behavior into the generic atmospheric renderer.
-                self.Player.Samus.LiquidPhysics.RoomIdentity = self.Room.LandingSiteEntry.RoomIdentity;
+                // Footstep and landing graphics choose by area and room. Keep the room beside the
+                // FX surface state instead of hard-coding Landing Site behavior into the generic
+                // atmospheric renderer.
+                self.Player.Samus.LiquidPhysics.Room = self.Room.LandingSiteEntry.Room;
             }
             self.Player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(self.Player.Samus);
         }

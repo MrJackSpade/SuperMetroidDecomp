@@ -663,7 +663,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Refreshes presentation, room caption, frame timing, and recovery status.</summary>
     private void RefreshFrame(FrontendFrame frame)
     {
-        RefreshRoomIdentity();
+        RefreshRoomCaption();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
         {
             latestFrameTiming = timing;
@@ -705,8 +705,8 @@ public sealed class PlayableGameControl : UserControl
         frameTimings.Reset(Stopwatch.GetTimestamp());
     }
 
-    /// <summary>Publishes the active room's name, logical identity and selected state in the window caption.</summary>
-    private void RefreshRoomIdentity()
+    /// <summary>Publishes the active room's area, name and selected state in the window caption.</summary>
+    private void RefreshRoomCaption()
     {
         RoomDefinition? room = game.GameplayActiveRoom;
         if (room == displayedRoom)
@@ -724,9 +724,7 @@ public sealed class PlayableGameControl : UserControl
 
         RoomStateSettings state = game.GameplayActiveRoomState
             ?? throw new InvalidOperationException($"Room {room.Name} has no selected room state.");
-        RoomIdentity identity = game.GameplayActiveRoomIdentity
-            ?? throw new InvalidOperationException($"Room {room.Name} has no logical room identity.");
-        host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state {state.Name}]";
+        host.Text = $"Super Metroid C# — {room.Area}: {room.Name} [state {state.Name}]";
     }
 
     /// <summary>Merges keyboard and gamepad into one filtered set of held controller buttons.</summary>

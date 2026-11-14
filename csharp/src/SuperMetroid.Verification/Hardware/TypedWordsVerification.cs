@@ -654,27 +654,6 @@ internal static void VerifyTypedNativeWords()
         () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(UnknownArea),
         "forged non-retail area rejected before table access");
 
-    var crateriaRoom = new RoomIdentity(AreaId.Crateria, 0x1c);
-    var brinstarRoom = new RoomIdentity(AreaId.Brinstar, 0x1c);
-    AssertEqual(RoomIdentities.CrateriaSpacePirateShaft, crateriaRoom,
-        "named room identity combines area and per-area index");
-    AssertTrue(crateriaRoom != brinstarRoom,
-        "equal room bytes in different areas remain distinct");
-    AssertEqual("Crateria room 28", crateriaRoom.ToString(),
-        "room identity diagnostic format");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => new RoomIdentity(UnknownArea, 0),
-        "room identity rejects forged area enum");
-    // A room's index is any index within its area (#1627).
-    AssertEqual(300, new RoomIdentity(AreaId.Crateria, 300).RoomIndex, "room identity keeps an index past 255");
-    AssertThrows<ArgumentOutOfRangeException>(() => new RoomIdentity(AreaId.Crateria, -1), "room identity rejects a negative index");
-    AssertTrue(RoomIdentities.UsesTourianStyleLandingDust(
-            RoomIdentities.BrinstarDirectLandingDust),
-        "named Brinstar dust room matches shared landing policy");
-    AssertTrue(!RoomIdentities.UsesTourianStyleLandingDust(
-            new RoomIdentity(AreaId.Crateria, 0x08)),
-        "same room byte in unrelated area does not match landing policy");
-
     Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
 }
 

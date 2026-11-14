@@ -40,12 +40,21 @@ internal static class SamusAtmosphericEffects
 
     /// <summary>A Crateria room's landing/rain and wet-floor policy; a room the policy does not name has none.</summary>
     /// <exception cref="InvalidDataException">The room is outside Crateria.</exception>
-    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(RoomIdentity room)
+    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(RoomDefinition room)
     {
-        if (room.Area != AreaId.Crateria)
-            throw new InvalidDataException($"Room {room} is outside Crateria's atmospheric policy.");
+        if (Ensure.NotNull(room).Area != AreaId.Crateria)
+            throw new InvalidDataException($"Room {room.Name} is outside Crateria's atmospheric policy.");
         return CrateriaRoomEffects.TryGetValue(room, out CrateriaAtmosphericEffectFlags effects)
             ? effects
             : CrateriaAtmosphericEffectFlags.None;
+    }
+
+    /// <summary>Whether a landing in the Brinstar or Tourian room <paramref name="room"/> raises dust.</summary>
+    /// <exception cref="InvalidDataException">The room is outside Brinstar and Tourian.</exception>
+    internal static bool LandingRaisesDustInBrinstarOrTourian(RoomDefinition room)
+    {
+        if (Ensure.NotNull(room).Area is not (AreaId.Brinstar or AreaId.Tourian))
+            throw new InvalidDataException($"Room {room.Name} is outside Brinstar's and Tourian's landing-dust policy.");
+        return BrinstarAndTourianLandingDustRooms.Contains(room);
     }
 }

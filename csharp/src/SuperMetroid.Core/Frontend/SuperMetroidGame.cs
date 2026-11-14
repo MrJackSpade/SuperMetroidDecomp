@@ -146,11 +146,8 @@ public sealed class SuperMetroidGame
     /// <summary>The active room, exposed for door-transition watches, or null before gameplay.</summary>
     public RoomDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
 
-    /// <summary>The active room's selected state, exposed beside the room identity, or null before gameplay.</summary>
+    /// <summary>The active room's selected state, exposed beside the room, or null before gameplay.</summary>
     public RoomStateSettings? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;
-
-    /// <summary>Validated logical area/room pair, or null before gameplay.</summary>
-    public RoomIdentity? GameplayActiveRoomIdentity => Session.Runtime?.Room.ActiveRoom?.Identity;
 
     /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
     public DoorDefinition? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;

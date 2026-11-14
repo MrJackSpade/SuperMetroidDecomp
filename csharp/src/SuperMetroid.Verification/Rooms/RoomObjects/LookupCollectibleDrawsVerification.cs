@@ -27,7 +27,7 @@ internal static class LookupCollectibleDrawsVerification
     private static void VerifyCollectibleDrawField(CartridgeImportAddressSpace rom, int field)
     {
         // Original exported pointer/name contract; physical values come from the ROM.
-        LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-0"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-1"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-2"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-0"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-1"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-0"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-1"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-0"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-1"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-0"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-1"),new LookupEscapeGateStockFrame(0xa30f,"block-pair-0-frame-0"),new LookupEscapeGateStockFrame(0xa315,"block-pair-0-frame-1"),new LookupEscapeGateStockFrame(0xa31b,"block-pair-1-frame-0"),new LookupEscapeGateStockFrame(0xa321,"block-pair-1-frame-1"),new LookupEscapeGateStockFrame(0xa327,"block-pair-2-frame-0"),new LookupEscapeGateStockFrame(0xa32d,"block-pair-2-frame-1"),new LookupEscapeGateStockFrame(0xa333,"block-pair-3-frame-0"),new LookupEscapeGateStockFrame(0xa339,"block-pair-3-frame-1"),new LookupEscapeGateStockFrame(0xa3dd,"shot-reveal-0"),new LookupEscapeGateStockFrame(0xa3e3,"shot-reveal-1"),new LookupEscapeGateStockFrame(0xa3e9,"shot-reveal-2")];
+        LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-dim"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-glowing"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-bright"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-bright"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-dim"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-dim"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-bright"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-dim"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-bright"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-bright"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-dim"),new LookupEscapeGateStockFrame(0xa30f,"first-block-pair-first-frame"),new LookupEscapeGateStockFrame(0xa315,"first-block-pair-second-frame"),new LookupEscapeGateStockFrame(0xa31b,"second-block-pair-first-frame"),new LookupEscapeGateStockFrame(0xa321,"second-block-pair-second-frame"),new LookupEscapeGateStockFrame(0xa327,"third-block-pair-first-frame"),new LookupEscapeGateStockFrame(0xa32d,"third-block-pair-second-frame"),new LookupEscapeGateStockFrame(0xa333,"fourth-block-pair-first-frame"),new LookupEscapeGateStockFrame(0xa339,"fourth-block-pair-second-frame"),new LookupEscapeGateStockFrame(0xa3dd,"shot-block-intact"),new LookupEscapeGateStockFrame(0xa3e3,"shot-block-cracking"),new LookupEscapeGateStockFrame(0xa3e9,"shot-block-dust")];
         var exported = RoomObjectCollectibleVisualFiles.All.ToArray();
         AssertEqual(24, exported.Length, "Collectible original export count");
         InstalledRoomObjectCollectibleVisuals? pictures = field == 2 ? InstalledRoomObjectCollectibleVisuals.Stock() : null;
@@ -35,10 +35,10 @@ internal static class LookupCollectibleDrawsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 bool owned = expected.Any(entry => entry.Pointer == raw);
-                AssertEqual(owned, RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>((ushort)raw), out var value), "Collectible complete pointer domain");
-                AssertEqual(owned, CollectibleObjectDraws.TryGetCollision(NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>((ushort)raw), out RoomCollisionType collision), "Collectible runtime block domain");
-                AssertEqual(owned && expected.Single(entry => entry.Pointer == raw).Id.StartsWith("block-pair-", StringComparison.Ordinal),
-                    CollectibleObjectDraws.TryGetBlockPairTerrain(NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>((ushort)raw), out RoomTerrainBlock pairTerrain),
+                AssertEqual(owned, RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out var value), "Collectible complete pointer domain");
+                AssertEqual(owned, CollectibleObjectDraws.TryGetCollision(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out RoomCollisionType collision), "Collectible runtime block domain");
+                AssertEqual(owned && expected.Single(entry => entry.Pointer == raw).Id.EndsWith("-frame", StringComparison.Ordinal),
+                    CollectibleObjectDraws.TryGetBlockPairTerrain(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out RoomTerrainBlock pairTerrain),
                     "Collectible block-pair terrain domain");
                 if (!owned)
                 {
@@ -50,7 +50,7 @@ internal static class LookupCollectibleDrawsVerification
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
-            AssertTrue(RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>(entry.Pointer), out var direct), "Collectible direct identity");
+            AssertTrue(RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<CollectibleDraw>(entry.Pointer), out var direct), "Collectible direct identity");
             RoomObjectCollectibleDrawFrame[] values;
             if (RoomObjectCollectibleVisualFiles.IsEditable(direct.Draw))
             {
@@ -74,7 +74,7 @@ internal static class LookupCollectibleDrawsVerification
                 else if (field == 3) AssertEqual(entry.Id, value.Id, "Collectible original published name");
                 else
                 {
-                    RoomObjectDraw draw = NativeObjectDraws.At<RoomObjectCollectibleDrawDefinitions.Draw>(entry.Pointer);
+                    RoomObjectDraw draw = NativeObjectDraws.At<CollectibleDraw>(entry.Pointer);
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadCollectibleDrawWord(rom, (ushort)(entry.Pointer + 2)));
                     AssertTrue(CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType runtimeCollision), "Collectible runtime word ownership");
                     if (field == 1)
@@ -99,7 +99,7 @@ internal static class LookupCollectibleDrawsVerification
                     AssertTrue(!RoomObjectCollectibleVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Collectible ordinal identity");
         }
         if (field == 3)
-            foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-0-frame-0","block-pair-0-frame-0","chozo-orb-3","shot-reveal-3"})
+            foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-0-frame-0","first-block-pair-first-frame","chozo-orb-0","chozo-orb-3","energy-tank-0","shot-reveal-0","block-pair-0-frame-0"})
                 AssertTrue(!RoomObjectCollectibleVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Collectible unsupported ID");
     }
 }

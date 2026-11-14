@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -20,7 +21,7 @@ public static class RoomObjectCollectibleVisualFiles
     public const string VisualFileName = "collectibles.json";
     /// <summary>The collectibles as the import pictures them: every installed frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
-        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDraw.FrameOf<Draw>(draw, "collectible")));
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDraw.FrameOf<CollectibleDraw>(draw, "collectible")));
 
     /// <summary>
     /// Checks the block pairs' frame selectors and the frames lying under the item's own picture against the cartridge,
@@ -46,28 +47,13 @@ public static class RoomObjectCollectibleVisualFiles
     /// The artwork identifier of a draw: the installed file's name for an editable frame, and for a block-pair frame, which
     /// the file does not hold, the name its native checks report.
     /// </summary>
-    internal static string VisualId(Draw draw) => draw.Group switch
-    {
-        DrawGroup.Empty => "empty",
-        DrawGroup.Orb => $"chozo-orb-{draw.Index}",
-        DrawGroup.OrbBurst => "chozo-orb-burst",
-        DrawGroup.Tank => $"{TankKindName(draw.Index / 2)}-tank-{draw.Index % 2}",
-        DrawGroup.OwnPicture => $"block-pair-{draw.Index / 2}-frame-{draw.Index % 2}",
-        DrawGroup.ShotReveal => $"shot-reveal-{draw.Index}",
-        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
-    };
-
-    /// <summary>Gets the stable visual ID stem for one of the four tank pickup kinds.</summary>
-    private static string TankKindName(int kind) => kind switch
-    {
-        0 => "energy",
-        1 => "missile",
-        2 => "super-missile",
-        _ => "power-bomb",
-    };
+    /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
+    internal static string VisualId(CollectibleDraw draw) => Enum.IsDefined(draw)
+        ? JsonNamingPolicy.KebabCaseLower.ConvertName(draw.ToString())
+        : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");
 
     /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>
-    internal static bool IsEditable(Draw draw) => draw.Group != DrawGroup.OwnPicture;
+    internal static bool IsEditable(CollectibleDraw draw) => CollectibleObjectDraws.GroupOf(draw) != DrawGroup.OwnPicture;
 
     /// <summary>The sixteen frames the installed file holds, in their published order.</summary>
     internal static IEnumerable<RoomObjectCollectibleDrawFrame> Editable => All.Where(frame => IsEditable(frame.Draw));
@@ -77,14 +63,10 @@ public static class RoomObjectCollectibleVisualFiles
     {
         get
         {
-            foreach (DrawGroup group in Enum.GetValues<DrawGroup>())
+            foreach (CollectibleDraw draw in Enum.GetValues<CollectibleDraw>())
             {
-                for (int index = 0; index < CollectibleObjectDraws.CountOf(group); index++)
-                {
-                    var draw = new Draw(group, index);
-                    CollectibleObjectDraws.TryGetCollision(RoomObjectDraw.Of(draw), out RoomCollisionType collision);
-                    yield return new(draw, collision, VisualId(draw));
-                }
+                CollectibleObjectDraws.TryGetCollision(RoomObjectDraw.Of(draw), out RoomCollisionType collision);
+                yield return new(draw, collision, VisualId(draw));
             }
         }
     }

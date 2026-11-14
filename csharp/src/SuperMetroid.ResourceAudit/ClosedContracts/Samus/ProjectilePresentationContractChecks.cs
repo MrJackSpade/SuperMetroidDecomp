@@ -32,14 +32,14 @@ internal static class ProjectilePresentationContractChecks
                     placement.Resolve(false, SamusFlareAim.WhileTurning(SamusTurningAim.Down));
                     placement.Resolve(true, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
                     flare.Frame(ChargeFlareSpriteDefinitions.All[27]);
-                    flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, 6));
+                    flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, "SparksSeventh"));
                     trails.Resolve(ProjectileTrailFrame.LeftIce0);
                     trails.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount);
                     grapple.Segment(3);
                     grapple.Segment(4);
                     swing.Resolve(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.FromNumber(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.Count - 1));
                     sprites.Frame(ProjectileSpriteDefinitions.All[0]);
-                    sprites.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.Power, 8));
+                    sprites.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.Power, "Sideways"));
                 }
             }
             """;

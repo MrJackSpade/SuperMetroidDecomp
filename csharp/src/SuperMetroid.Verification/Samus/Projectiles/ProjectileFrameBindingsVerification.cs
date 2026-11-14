@@ -88,9 +88,20 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual(stock.Resolve(firstTimedRecord),
             RepositoryInstallation.Installation.LoadProjectiles().FrameBindings.Resolve(firstTimedRecord),
             "installed stock frame binding selects the native sprite");
+        // #1762: every composition a frame binds, and every flare and hit-burst composition, is named for the pose it shows,
+        // never by its place in its family.
+        string[] numbered = [.. document.Frames.Values.Concat(ChargeFlareSpriteDefinitions.All.Select(sprite => sprite.Name))
+            .Concat(HitBurstSpriteDefinitions.All.Select(sprite => sprite.Name))
+            .Where(name => name.Split('.').Any(segment => segment.All(char.IsAsciiDigit))).Distinct()];
+        AssertTrue(numbered.Length == 0, $"compositions are named for their poses, not numbered: {string.Join(", ", numbered)}");
+        AssertEqual("Power.UpRight", document.Frames["PowerUpRight_0"], "the up-right Power beam binds the up-right Power pose");
+        AssertEqual("Wave.Right.Up1", document.Frames["WaveRight_1"], "the right-travelling Wave beam's first swing binds its first upward stage");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
+        document.Frames[frameName] = "Power.3";
+        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
+            "a composition named by its place in its family fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");

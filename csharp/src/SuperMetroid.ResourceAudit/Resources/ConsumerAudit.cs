@@ -218,9 +218,9 @@ internal static class ConsumerAudit
         while (sprite is Microsoft.CodeAnalysis.Operations.IConversionOperation conversion)
             sprite = conversion.Operand;
         if (sprite is not Microsoft.CodeAnalysis.Operations.IObjectCreationOperation { Type.Name: "ProjectileSpriteId" } creation ||
-            creation.Arguments is not [{ Value.ConstantValue: { HasValue: true, Value: { } group } }, { Value.ConstantValue: { HasValue: true, Value: { } index } }])
+            creation.Arguments is not [{ Value.ConstantValue: { HasValue: true, Value: { } group } }, { Value.ConstantValue: { HasValue: true, Value: string pose } }])
             return null;
-        return $"{(SuperMetroid.Core.Samus.Artwork.ProjectileSpriteGroup)Convert.ToInt32(group)}.{Convert.ToInt32(index)}";
+        return $"{(SuperMetroid.Core.Samus.Artwork.ProjectileSpriteGroup)Convert.ToInt32(group)}.{pose}";
     }
 
     private static string? ConstantKey(string domain, InvocationExpressionSyntax call, SemanticModel semantic)

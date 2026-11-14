@@ -29,12 +29,9 @@ public static class ChargeFlarePictures
     /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>
     public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, ChargeFlarePicture picture)
-    {
-        IReadOnlyDictionary<ChargeFlarePicture, int> places = component == ChargeFlareComponent.MainFlare ? MainFlareCompositions : SparkCompositions;
-        return places.TryGetValue(picture, out int place)
-            ? CompositionsOf(component, facingLeft)[place]
+        => Compositions[FamilyOf(component, facingLeft)].TryGetValue(picture, out ProjectileSpriteId composition)
+            ? composition
             : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
-    }
 
     /// <summary>The sprite source instance that tells the flare's three components' draws apart.</summary>
     internal static int DrawSlot(ChargeFlareComponent component) => component switch
@@ -45,16 +42,18 @@ public static class ChargeFlarePictures
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
     };
 
-    /// <summary><paramref name="component"/>'s compositions for the facing, in family order.</summary>
-    private static ProjectileSpriteId[] CompositionsOf(ChargeFlareComponent component, bool facingLeft) => Families[component switch
+    /// <summary>The family of <paramref name="component"/>'s compositions for the facing.</summary>
+    private static ProjectileSpriteGroup FamilyOf(ChargeFlareComponent component, bool facingLeft) => component switch
     {
         ChargeFlareComponent.MainFlare => ProjectileSpriteGroup.FlareMain,
         ChargeFlareComponent.SlowSparks => facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight,
         ChargeFlareComponent.FastSparks => facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight,
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    }];
+    };
 
-    /// <summary>Each flare family's compositions, in family order.</summary>
-    private static readonly Dictionary<ProjectileSpriteGroup, ProjectileSpriteId[]> Families =
-        Groups.ToDictionary(family => family.Group, family => family.Members.ToArray());
+    /// <summary>Each flare family's composition of each picture it shows, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
+    private static readonly Dictionary<ProjectileSpriteGroup, Dictionary<ChargeFlarePicture, ProjectileSpriteId>> Compositions =
+        SparkFamilies.Prepend(ProjectileSpriteGroup.FlareMain).ToDictionary(family => family, family =>
+            (family == ProjectileSpriteGroup.FlareMain ? MainPictures : SparkPictures).ToDictionary(picture => picture,
+                picture => All.Single(composition => composition.Group == family && composition.Pose == picture.ToString())));
 }

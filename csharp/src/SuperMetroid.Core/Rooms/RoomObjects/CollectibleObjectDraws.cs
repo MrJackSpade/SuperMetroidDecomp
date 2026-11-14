@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefinitions;
 
@@ -12,8 +13,8 @@ internal static class CollectibleObjectDraws
     /// <summary>How the block <paramref name="request"/> writes collides, when it is a collectible draw.</summary>
     internal static bool TryGetCollision(RoomObjectDraw request, out RoomCollisionType collision)
     {
-        bool found = TryLocate(request, out Draw draw);
-        collision = found ? Collision(draw.Group) : default;
+        bool found = TryLocate(request, out CollectibleDraw draw);
+        collision = found ? Collision(GroupOf(draw)) : default;
         return found;
     }
 
@@ -24,26 +25,32 @@ internal static class CollectibleObjectDraws
     /// </summary>
     internal static bool TryGetBlockPairTerrain(RoomObjectDraw request, out RoomTerrainBlock terrain)
     {
-        bool found = TryLocate(request, out Draw draw) && draw.Group == DrawGroup.OwnPicture;
-        terrain = found ? RoomTerrainBlock.Of(OwnPictureFirstBlock + draw.Index, BlockMirroring.None, Collision(DrawGroup.OwnPicture)) : default;
+        int block = 0;
+        bool found = TryLocate(request, out CollectibleDraw draw) && BlockPairBlocks.TryGetValue(draw, out block);
+        terrain = found ? RoomTerrainBlock.Of(block, BlockMirroring.None, Collision(DrawGroup.OwnPicture)) : default;
         return found;
     }
 
-    /// <summary>The number of frames in a group.</summary>
-    internal static int CountOf(DrawGroup group) => group switch
+    /// <summary>The kind of draw <paramref name="draw"/> is.</summary>
+    /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
+    internal static DrawGroup GroupOf(CollectibleDraw draw) => draw switch
     {
-        DrawGroup.Empty => 1,
-        DrawGroup.Orb => 3,
-        DrawGroup.OrbBurst => 1,
-        DrawGroup.Tank => 8,
-        DrawGroup.OwnPicture => CollectibleBlockPairs.InTurn.Count * 2,
-        DrawGroup.ShotReveal => 3,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
+        CollectibleDraw.Empty => DrawGroup.Empty,
+        CollectibleDraw.ChozoOrbDim or CollectibleDraw.ChozoOrbGlowing or CollectibleDraw.ChozoOrbBright => DrawGroup.Orb,
+        CollectibleDraw.ChozoOrbBurst => DrawGroup.OrbBurst,
+        CollectibleDraw.EnergyTankBright or CollectibleDraw.EnergyTankDim or CollectibleDraw.MissileTankDim or CollectibleDraw.MissileTankBright
+            or CollectibleDraw.SuperMissileTankDim or CollectibleDraw.SuperMissileTankBright or CollectibleDraw.PowerBombTankBright
+            or CollectibleDraw.PowerBombTankDim => DrawGroup.Tank,
+        CollectibleDraw.FirstBlockPairFirstFrame or CollectibleDraw.FirstBlockPairSecondFrame or CollectibleDraw.SecondBlockPairFirstFrame
+            or CollectibleDraw.SecondBlockPairSecondFrame or CollectibleDraw.ThirdBlockPairFirstFrame or CollectibleDraw.ThirdBlockPairSecondFrame
+            or CollectibleDraw.FourthBlockPairFirstFrame or CollectibleDraw.FourthBlockPairSecondFrame => DrawGroup.OwnPicture,
+        CollectibleDraw.ShotBlockIntact or CollectibleDraw.ShotBlockCracking or CollectibleDraw.ShotBlockDust => DrawGroup.ShotReveal,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}."),
     };
 
-    /// <summary>Accepts a collectible draw whose frame lies within its group.</summary>
-    private static bool TryLocate(RoomObjectDraw request, out Draw draw) =>
-        RoomObjectDraw.TryFrame(request, static (Draw frame) => (uint)frame.Index < (uint)CountOf(frame.Group), out draw);
+    /// <summary>Accepts a collectible draw that is one of the collectibles' frames.</summary>
+    private static bool TryLocate(RoomObjectDraw request, out CollectibleDraw draw) =>
+        RoomObjectDraw.TryFrame(request, static (CollectibleDraw frame) => Enum.IsDefined(frame), out draw);
 
     /// <summary>How the block a draw of <paramref name="group"/> writes collides.</summary>
     private static RoomCollisionType Collision(DrawGroup group) => group switch
@@ -58,51 +65,39 @@ internal static class CollectibleObjectDraws
     };
 
     /// <summary>The orb cycles forward through its three draws and back through the middle draw.</summary>
-    internal static RoomObjectFrameDraw<Draw> OrbFrame(int animationIndex)
+    internal static RoomObjectFrameDraw<CollectibleDraw> OrbFrame(int animationIndex)
     {
         if ((uint)animationIndex >= 4)
             throw new InvalidDataException(
                 $"Chozo orb animation index {animationIndex} is outside four authored phases.");
-        return RoomObjectDraw.Of(new Draw(DrawGroup.Orb, 2 - Math.Abs(animationIndex - 2)));
+        return RoomObjectDraw.Of(OrbFrames[2 - Math.Abs(animationIndex - 2)]);
     }
 
     /// <summary>A shot-block reveal shows three consecutive draws; hiding consumes them in reverse.</summary>
-    internal static RoomObjectFrameDraw<Draw> ShotRevealFrame(int animationIndex)
+    internal static RoomObjectFrameDraw<CollectibleDraw> ShotRevealFrame(int animationIndex)
     {
         if ((uint)animationIndex >= 3)
             throw new InvalidDataException(
                 $"Shot-block reveal index {animationIndex} is outside three authored frames.");
-        return RoomObjectDraw.Of(new Draw(DrawGroup.ShotReveal, animationIndex));
+        return RoomObjectDraw.Of(ShotRevealFrames[animationIndex]);
     }
 
     /// <summary>
     /// The visible frame <paramref name="animationIndex"/> of a tank kind, or of the block pair an item that shows its own
     /// picture took (<see cref="CollectibleBlockPairs"/>): two draws each.
     /// </summary>
-    internal static RoomObjectFrameDraw<Draw> VisibleFrame(InWorldCollectibleKind kind,
+    internal static RoomObjectFrameDraw<CollectibleDraw> VisibleFrame(InWorldCollectibleKind kind,
         int animationIndex, CollectibleBlockPairs.Pair? blockPair)
     {
         if ((uint)animationIndex >= 2)
             throw new InvalidDataException(
                 $"Collectible animation index {animationIndex} is outside two authored frames.");
-        int tank = Array.IndexOf(TankKinds, kind);
-        if (tank >= 0)
-            return RoomObjectDraw.Of(new Draw(DrawGroup.Tank, tank * 2 + animationIndex));
+        if (TankFrames.TryGetValue(kind, out CollectibleDraw[]? tank))
+            return RoomObjectDraw.Of(tank[animationIndex]);
         if (blockPair is not { } pair)
             throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
-        return RoomObjectDraw.Of(new Draw(DrawGroup.OwnPicture, FirstOwnPictureFrame(pair) + animationIndex));
+        return BlockPairFrames.TryGetValue(pair, out CollectibleDraw[]? frames)
+            ? RoomObjectDraw.Of(frames[animationIndex])
+            : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
     }
-
-    /// <summary>
-    /// The first of the two frames under the item's own picture that <paramref name="pair"/>'s collectible writes: each
-    /// pair's two frames follow the previous pair's, in the turn the room's collectibles take the pairs in.
-    /// </summary>
-    private static int FirstOwnPictureFrame(CollectibleBlockPairs.Pair pair) => pair switch
-    {
-        CollectibleBlockPairs.Pair.First => 0,
-        CollectibleBlockPairs.Pair.Second => 2,
-        CollectibleBlockPairs.Pair.Third => 4,
-        CollectibleBlockPairs.Pair.Fourth => 6,
-        _ => throw new InvalidDataException($"Undefined collectible block pair {pair}."),
-    };
 }

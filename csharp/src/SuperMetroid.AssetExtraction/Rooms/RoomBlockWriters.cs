@@ -195,9 +195,9 @@ internal static class RoomBlockWriters
     /// <exception cref="InvalidDataException">The draw is not a collectible's frame.</exception>
     private static Func<InventoriedRoomState, bool> CollectibleFrameWrittenIn(RoomObjectDraw draw)
     {
-        if (draw is not RoomObjectFrameDraw<Draw> { Frame: var frame })
+        if (draw is not RoomObjectFrameDraw<CollectibleDraw> { Frame: var frame })
             throw new InvalidDataException($"Collectible frame {draw} is not a collectible's frame.");
-        switch (frame.Group)
+        switch (CollectibleObjectDraws.GroupOf(frame))
         {
             case DrawGroup.Empty:
                 return static state => state.PlacesCollectible(static (_, _) => true);
@@ -207,8 +207,7 @@ internal static class RoomBlockWriters
             case DrawGroup.ShotReveal:
                 return static state => state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock);
             case DrawGroup.Tank:
-                int framesPerTank = CollectibleObjectDraws.CountOf(DrawGroup.Tank) / TankKinds.Length;
-                InWorldCollectibleKind tank = TankKinds[frame.Index / framesPerTank];
+                InWorldCollectibleKind tank = TankKinds.Single(kind => TankFrames[kind].Contains(frame));
                 return state => state.PlacesCollectible((kind, _) => kind == tank);
             case DrawGroup.OwnPicture:
                 return static state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind));
@@ -268,7 +267,7 @@ internal static class RoomBlockWriters
     /// where the picture does not cover them (#1538).
     /// </summary>
     private static HashSet<int> BlockPairBlocks() =>
-        [.. Enumerable.Range(OwnPictureFirstBlock, CollectibleObjectDraws.CountOf(DrawGroup.OwnPicture))];
+        [.. RoomObjectCollectibleDrawDefinitions.BlockPairBlocks.Values];
 
     /// <summary>The blocks <paramref name="shown"/> show, each once.</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) => [.. shown.Select(block => block.Block)];

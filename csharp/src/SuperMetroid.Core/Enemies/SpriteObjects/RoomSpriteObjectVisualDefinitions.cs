@@ -148,9 +148,9 @@ internal static class RoomSpriteObjectVisualDefinitions
     /// <summary>The burst composition each frame of a hit burst shows, nearest its centre first.</summary>
     internal static IReadOnlyDictionary<RoomSpriteObjectFrame, ProjectileSpriteId> HitBurstPictures { get; } = new Dictionary<RoomSpriteObjectFrame, ProjectileSpriteId>
     {
-        [RoomSpriteObjectFrame.EnemyHit0] = new(ProjectileSpriteGroup.HitBurst, 0),
-        [RoomSpriteObjectFrame.EnemyHit1] = new(ProjectileSpriteGroup.HitBurst, 1),
-        [RoomSpriteObjectFrame.EnemyHit2] = new(ProjectileSpriteGroup.HitBurst, 2),
-        [RoomSpriteObjectFrame.EnemyHit3] = new(ProjectileSpriteGroup.HitBurst, 3),
+        [RoomSpriteObjectFrame.EnemyHit0] = HitBurstSpriteDefinitions.Tight,
+        [RoomSpriteObjectFrame.EnemyHit1] = HitBurstSpriteDefinitions.Opening,
+        [RoomSpriteObjectFrame.EnemyHit2] = HitBurstSpriteDefinitions.Wide,
+        [RoomSpriteObjectFrame.EnemyHit3] = HitBurstSpriteDefinitions.Scattered,
     };
 }

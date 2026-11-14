@@ -73,7 +73,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<TourianAccessDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.TourianAccess[frame],
         RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var shot } => ShotBlock(shot),
         RoomObjectFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(RoomObjectDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
-        RoomObjectFrameDraw<RoomObjectCollectibleDrawDefinitions.Draw> { Frame: var item } => Collectible(item),
+        RoomObjectFrameDraw<CollectibleDraw> { Frame: var item } => RoomObjectDrawSourceDefinitions.Collectible[item],
         RoomObjectFrameDraw<BlueDoorCaps.Draw> { Frame: var blue } => Offset(RoomObjectDrawSourceDefinitions.BlueDoorLeftAlias,
             FacingIndex(blue.Orientation) * BlueFacingStride + BlueCapIndex(blue) * CapStride),
         RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: null } clear } =>
@@ -112,18 +112,6 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectShotBlockDrawDefinitions.Shape.Square => RoomObjectDrawSourceDefinitions.ShotBlockRestoreSquare,
         RoomObjectShotBlockDrawDefinitions.Shape.Single => throw new InvalidDataException($"A single shot block has no restoration draw: {shot}."),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
-    };
-
-    /// <summary>A collectible draw: its group's first draw, then one six-byte record per frame.</summary>
-    private static SnesAddress Collectible(RoomObjectCollectibleDrawDefinitions.Draw item) => item.Group switch
-    {
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.Empty => RoomObjectDrawSourceDefinitions.CollectibleEmpty,
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.Orb => Offset(RoomObjectDrawSourceDefinitions.CollectibleOrbFirst, item.Index * OneBlockStride),
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.OrbBurst => RoomObjectDrawSourceDefinitions.CollectibleOrbBurst,
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.Tank => Offset(RoomObjectDrawSourceDefinitions.CollectibleTankFirst, item.Index * OneBlockStride),
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.OwnPicture => Offset(RoomObjectDrawSourceDefinitions.CollectibleDynamicFirst, item.Index * OneBlockStride),
-        RoomObjectCollectibleDrawDefinitions.DrawGroup.ShotReveal => Offset(RoomObjectDrawSourceDefinitions.CollectibleShotRevealFirst, item.Index * OneBlockStride),
-        _ => throw new InvalidDataException($"Collectible draw {item} has no cartridge address."),
     };
 
     /// <summary>An eye-door draw: the right door's draws follow the left's at a fixed offset.</summary>

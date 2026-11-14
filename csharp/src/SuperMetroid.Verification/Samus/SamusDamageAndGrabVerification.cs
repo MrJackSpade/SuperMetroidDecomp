@@ -310,7 +310,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "rainbow first call loads Hyper Beam palette zero");
     AssertEqual(1, unable.Drained.HyperBeamGlowStep,
         "one-call rainbow cadence advances immediately");
-    unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
+    unable.Drained.HoldRainbowGlowLonger(longestHold: 10);
     unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
     AssertEqual(2, unable.Drained.CommonPaletteTimer,
         "Baby-raised rainbow delay reloads two");

@@ -45,8 +45,9 @@ internal static class TorizoDefinitionMigrationVerification
         AssertMaskedDecision(0x0110, TorizoRandomDefinitions.MediumRangeAttack, "medium-range attack");
         AssertMaskedDecision(0x0101, TorizoRandomDefinitions.ForwardLeap, "forward leap");
 
-        // The code's inventory is the cartridge's two immediates.
-        AssertEqual(0xf337, GoldenTorizoCodeDefinitions.Items.ToEquipmentWord(), "code items word");
+        // The code's inventory is the cartridge's two immediates. The items immediate also sets the bit that records no
+        // item, which #1778 deleted and the import's codec drops, so the typed items are compared with its decoding (#1884).
+        AssertEqual(SamusEquipmentWordCodec.FromEquipmentWord(0xf337), GoldenTorizoCodeDefinitions.Items, "code items");
         AssertEqual(0x100f, GoldenTorizoCodeDefinitions.Beams.ToEquipmentWord(), "code beams word");
 
         // The tile pages keep their sizes; their sources are the import's.

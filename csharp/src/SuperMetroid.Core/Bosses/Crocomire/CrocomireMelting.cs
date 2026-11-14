@@ -158,7 +158,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Updates the acid dissolve, background distortion, tongue placement, and scheduled melting graphics.</summary>
-    internal void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus)
+    internal void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus, Position16<RoomPixels> camera)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
@@ -169,7 +169,7 @@ internal sealed class CrocomireMelting
         EraseNextCrocomireMeltingColumn();
 
         // The melting's end places his body layer again, which also moves the tongue onto the body.
-        _bodyLayer.PlaceCrocomireBodyLayer(state);
+        _bodyLayer.PlaceCrocomireBodyLayer(state, camera);
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {

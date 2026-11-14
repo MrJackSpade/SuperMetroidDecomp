@@ -375,6 +375,7 @@ using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerificati
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidScrollPairVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidPowerBombVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
@@ -1076,6 +1077,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
         new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
+        new(nameof(VerifyShitroidPowerBombReadsPassCamera), () => VerifyShitroidPowerBombReadsPassCamera()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),

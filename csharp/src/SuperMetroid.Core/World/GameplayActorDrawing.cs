@@ -254,7 +254,7 @@ internal sealed class GameplayActorDrawing
                     // The flare animates as a simulation phase, then shows what it advanced to.
                     ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(_player.Samus);
                     // Drawing any flare component sets the value a Puyo's ceiling strike reads.
-                    if (flare.Count > 0)
+                    if (flare.ShowsAny)
                         room.Enemies.PuyoCeilingTurn.ChargeFlareDrawn();
                     room.Projectiles.DrawChargeFlare(
                         _sprites,

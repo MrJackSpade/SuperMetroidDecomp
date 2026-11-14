@@ -556,13 +556,13 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
 
         if (!Charge.IsCharging)
-            return default;
+            return ChargeFlareComponents.None;
 
         if (samus.HyperBeamEnabled)
         {
             // Hyper Beam replaces the ordinary flare's animations with a backward count through the components'
             // pictures, fast sparks first, then slow sparks, then the main flare.
-            var hyper = new ChargeFlareComponents(3, Descending: true);
+            ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
                 CountdownStep hold = Charge.CountFlareHold(component);
@@ -597,9 +597,9 @@ public sealed class SamusProjectileSystem
             Charge.StartChargeFlare();
         }
         if (Charge.FlareCounter < 15)
-            return default;
+            return ChargeFlareComponents.None;
 
-        var shown = new ChargeFlareComponents(Charge.FlareCounter < 30 ? 1 : 3, Descending: false);
+        ChargeFlareComponents shown = Charge.FlareCounter < 30 ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
         foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
         return shown;

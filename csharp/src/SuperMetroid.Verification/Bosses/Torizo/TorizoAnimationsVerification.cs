@@ -26,6 +26,12 @@ internal static class TorizoAnimationsVerification
     /// <summary>The updates the death explosion callback sleeps for.</summary>
     private const int DeathExplosionSleep = 1;
 
+    /// <summary>Bomb Torizo's swipe placement X table, which a swipe instruction's operand indexes by byte.</summary>
+    private const int SwipeXTable = 0x86a738;
+
+    /// <summary>Bomb Torizo's swipe placement Y table, beside the X table.</summary>
+    private const int SwipeYTable = 0x86a74e;
+
     /// <summary>The bytes a common $814B tile transfer occupies: its opcode word and seven-byte descriptor.</summary>
     private const int TileTransferBytes = 9;
 
@@ -175,6 +181,18 @@ internal static class TorizoAnimationsVerification
         {
             ushort value = cartridge.ReadCartridgeWord(address + 2 + 2 * operandIndex);
             TorizoOperand role = instruction.Operands[operandIndex];
+            if (role == TorizoOperand.Unread)
+            {
+                AssertTrue(value <= 1, $"{at}: the unread operand is the authored zero or one");
+                continue;
+            }
+            if (role == TorizoOperand.SwipePlacement)
+            {
+                Offset16<RoomPixels> native = new(unchecked((short)cartridge.ReadCartridgeWord(SwipeXTable + value)),
+                    unchecked((short)cartridge.ReadCartridgeWord(SwipeYTable + value)));
+                AssertEqual(native, AssertIs<TorizoCue.Swipe>(cue, $"{at}: cue").Hand, $"{at}: swipe hand placement");
+                continue;
+            }
             if (role == TorizoOperand.ReplayedRun)
                 AssertEqual(0, run.FirstBeat, $"{at}: a replayed run begins its list");
             ushort typed = role switch
@@ -184,11 +202,8 @@ internal static class TorizoAnimationsVerification
                     // The cartridge's operand is the step's byte offset into its word table.
                     TorizoCue.Posture posture => posture.Step * sizeof(ushort),
                     TorizoCue.Walk walk => walk.Step * sizeof(ushort),
-                    // A swipe's operand is its placement's byte offset; a low-health explosion's selects the gut's or the
-                    // face's rows, six bytes apart.
-                    TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnExplosiveSwipe } swipe => swipe.Parameter * sizeof(ushort),
+                    // A low-health explosion's operand selects the gut's or the face's rows, six bytes apart.
                     TorizoCue.LowHealthExplosions explosions => (explosions.Site == BombTorizoExplosionSite.Gut ? 0 : 1) * 6,
-                    TorizoCue.ParameterizedSpawn spawn => spawn.Parameter,
                     _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                 })),
                 TorizoOperand.Function => TorizoNativeWords.Phases.Word(AssertIs<TorizoCue.SetPhase>(cue, $"{at}: cue").Phase),
@@ -201,6 +216,8 @@ internal static class TorizoAnimationsVerification
                 }),
                 TorizoOperand.Alternate => Entry(AssertIs<TorizoCue.Choice>(cue, $"{at}: cue").Alternate),
                 TorizoOperand.ReplayedRun => run.List,
+                TorizoOperand.SwipePlacement or TorizoOperand.Unread =>
+                    throw new InvalidOperationException($"{at}: the {role} operand is compared before the word table."),
                 _ => throw new InvalidOperationException($"Undefined {nameof(TorizoOperand)} {role}."),
             };
             AssertEqual(value, typed, $"{at}: {role} operand");
@@ -262,6 +279,10 @@ internal static class TorizoAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Wait:
                     beats.Add(new(cursor, BodyBeatKind.Wait));
                     cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                case NativeEnemyListDefinitions.WordKind.Callback when OmittedBodyInstructions.Contains(word):
+                    // A routine that returned at once has no event: read past it without a beat (#1870).
+                    cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
@@ -391,6 +412,9 @@ internal static class TorizoAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 case NativeEnemyListDefinitions.WordKind.Wait:
                     cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                case NativeEnemyListDefinitions.WordKind.Callback when OmittedBodyInstructions.Contains(word):
+                    cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {

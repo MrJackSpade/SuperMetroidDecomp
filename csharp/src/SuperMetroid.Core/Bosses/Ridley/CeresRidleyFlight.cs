@@ -43,7 +43,7 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     internal void InitializeCeresRidley(RoomEnemySlot slot)
     {
-        _ridleyEncounter.Parts.RequireBody(slot, "Ceres Ridley");
+        _ridleyEncounter.Parts.AttachBody(slot, "Ceres Ridley");
 
         // Ceres Ridley's initialization clears the boss's working state, which the fresh Ridley state below holds, and
         // disables the minimap, which the room loader does once the enemies are loaded; Ceres has no arena to mark explored.

@@ -13,13 +13,17 @@ internal static class SporeSpawnProjectileDefinitionsVerification
     /// <summary>Compares geometry and all movement bytes, then runs real spawn and mirrored-motion paths with source reads blocked.</summary>
     internal static void VerifySporeSpawnProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
+        // The cartridge numbered the stalk segments and the emitters by their spawn order, the order of the typed lists.
+        AssertEqual(4, SporeSpawnProjectileDefinitions.StalkSegments.Count, "Spore Spawn stalk segments");
+        AssertEqual(4, SporeSpawnProjectileDefinitions.Emitters.Count, "Spore Spawn emitters");
         for (ushort index = 0; index < 4; index++)
         {
+            AssertEqual(0, SporeSpawnProjectileDefinitions.StalkSegments[index].X, $"Spore Spawn stalk X {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),
-                SporeSpawnProjectiles.StalkYOffset(index),
+                CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y),
                 $"Spore Spawn stalk Y {index}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
-                SporeSpawnProjectiles.SpawnerX(index),
+                SporeSpawnProjectileDefinitions.Emitters[index].X,
                 $"Spore Spawn emitter X {index}");
         }
         // The cartridge keeps the drift as one byte stream, each step's X then its Y.
@@ -34,8 +38,8 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, stalkArgument);
-        Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, spawnerArgument);
+        Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
+        Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
         Action<EnemyProjectile> move = SporeSpawnBehavior.RunSporeSpawnSporeFrameBehavior;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
@@ -78,12 +82,6 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 $"Spore Spawn production path step {offset:X2}/{mirrored}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SporeSpawnProjectiles.StalkYOffset(4),
-            "Spore Spawn stalk index past table");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SporeSpawnProjectiles.SpawnerX(ushort.MaxValue),
-            "Spore Spawn emitter index underflow");
         Console.WriteLine(
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }

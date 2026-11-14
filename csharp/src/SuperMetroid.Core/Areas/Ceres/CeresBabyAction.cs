@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public enum CeresBabyAction
 {
     /// <summary>Outside Ceres the Baby workspace is never initialized and holds no behaviour.</summary>
-    None = 0,
+    None,
     /// <summary>The Baby stays at Ridley's arm anchor.</summary>
-    CarriedInArms = 1,
+    CarriedInArms,
     /// <summary>The Baby follows Ridley's grasp point.</summary>
     CarriedInFeet,
     /// <summary>Clears the fall state and starts falling.</summary>

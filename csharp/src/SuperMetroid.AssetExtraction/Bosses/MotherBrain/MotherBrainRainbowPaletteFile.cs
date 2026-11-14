@@ -29,7 +29,7 @@ public static class MotherBrainRainbowPaletteFile
         if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
         return new InstalledMotherBrainRainbowPalette(
-            CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
+            CompileFrames(document.Rainbow, MotherBrainRainbowColourFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
             new InstalledMotherBrainRainbowPalette.PaletteFade(CompileFrames(document.ToGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
@@ -46,7 +46,7 @@ public static class MotherBrainRainbowPaletteFile
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
     private static InstalledMotherBrainRainbowPalette.PaletteFrame[] CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
-        if (source is null || source.Length != MotherBrainFakeDeathPaletteDefinitions.FrameCount)
+        if (source is null || source.Length != MotherBrainFakeDeathFadeDefinitions.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
         var frames = new InstalledMotherBrainRainbowPalette.PaletteFrame[source.Length];
         for (int frame = 0; frame < source.Length; frame++)

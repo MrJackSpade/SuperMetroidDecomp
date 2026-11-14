@@ -132,7 +132,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
-        foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
+        foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {
             var subtitle = _projectiles.AllocateEnemyProjectile();
@@ -149,7 +149,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileSegment segment = MotherBrainDeathExplosions.Animation(request.ProjectileParameter);
+        MiscDustProjectileSegment segment = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
@@ -160,11 +160,9 @@ internal sealed class MotherBrainRainbowAndDeath
         _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
     }
 
-    /// <summary>Spawns a falling door fragment from the parameter identity.</summary>
-    internal void SpawnMotherBrainDoorFragment(int parameter)
+    /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
+    internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
-        MotherBrainDoorFragmentDefinition definition =
-            MotherBrainDoorFragments.ForParameter(parameter);
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment,
@@ -269,7 +267,6 @@ internal sealed class MotherBrainRainbowAndDeath
             state.BrainMainShakeTimer = 50;
         }
         state.Form = sequence.State.Body.Form;
-        state.BodySubPhaseTimer = sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex;
         state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
         state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
         state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
@@ -309,7 +306,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain's step runs after body AI. Its health check is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            state.Colours.ShowHealth(MotherBrainHealthPalette.Band(state.Head.Health));
+            state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -394,7 +391,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
-            state.Colours.ShowRainbow(MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame);
+            state.Colours.ShowRainbow(MotherBrainRainbowColourDefinitions.DrainedRainbowFrame);
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -409,7 +406,7 @@ internal sealed class MotherBrainRainbowAndDeath
             return;
 
         int frame = state.NextRainbowFrame;
-        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowPaletteFormat.RainbowFrameCount;
+        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowColourFormat.RainbowFrameCount;
         state.Colours.ShowRainbow(frame);
     }
 }

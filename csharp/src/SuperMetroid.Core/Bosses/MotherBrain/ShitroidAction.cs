@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public enum ShitroidAction
 {
     /// <summary>Keeps the encounter actor inactive in the alternate camera state.</summary>
-    Dormant = 1,
+    Dormant,
     /// <summary>Waits for the camera before starting the scripted entrance.</summary>
     WaitForCamera,
     /// <summary>Initializes the Shitroid entrance delay.</summary>

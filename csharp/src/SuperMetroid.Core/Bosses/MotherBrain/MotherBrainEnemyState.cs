@@ -44,8 +44,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>Zero-based count of fake-death grey palette steps taken, 0 through the eight-step table length plus one.</summary>
-    public int GrayFadeIndex { get; internal set; }
+    /// <summary>Zero-based count of fake-death grey fade steps taken, 0 through the fade's eight steps plus one.</summary>
+    public int GreyFadeStep { get; internal set; }
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
     public int FakeDeathExplosionTimer { get; internal set; }
@@ -60,8 +60,8 @@ public sealed class MotherBrainEnemyState
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room flash's step and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
-    /// <summary>The brain's tube-collapse step and its independent countdown.</summary>
-    public MotherBrainTubeCollapseStep TubeCollapseStep { get; internal set; }
+    /// <summary>The brain's tube-collapse step, or null until her fake-death flash starts the collapse.</summary>
+    public MotherBrainTubeCollapseStep? TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }
 
@@ -106,7 +106,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame palette
-    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowPaletteFormat.RainbowFrameCount"/>; the
+    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowColourFormat.RainbowFrameCount"/>; the
     /// step advances it and returns to the first frame after the last.
     /// </summary>
     public int NextRainbowFrame { get; internal set; }
@@ -173,8 +173,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
-    /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public int BodySubPhaseTimer { get; internal set; }
+    /// <summary>
+    /// The place in <see cref="MotherBrainAscentDustDefinitions.DustPositions"/> of the last dust cloud her ascent raised;
+    /// each cloud takes the place before it, and the last place after the first (#1872). Only the ascent dust reads it.
+    /// </summary>
+    public int AscentDustPlace { get; internal set; }
 
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
@@ -192,11 +195,11 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// Attached-mouth offset selector used by the drool step. The game
-    /// increments before spawning and wraps at six, so a zero-initialized encounter emits
-    /// drool at mouth offset one first.
+    /// The place in <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/> of the mouth point the last drool hung from.
+    /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
+    /// from the second.
     /// </summary>
-    public int DroolProjectileParameter { get; internal set; }
+    public int LastDroolMouthPoint { get; internal set; }
 
     /// <summary>The walk credit this encounter owns and an attached sequence shares.</summary>
     internal MotherBrainWalkCounter Walk { get; } = new();

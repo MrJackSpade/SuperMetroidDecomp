@@ -67,7 +67,6 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.DisableCollisionWIthSamusProj] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.StopBlockingShots))),
         [NativeEnemyProjectileInstruction.DisableCollisionWithSamus] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.StopHarmingSamus))),
         [NativeEnemyProjectileInstruction.SetHighPriority] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.DrawInFront))),
-        [NativeEnemyProjectileInstruction.RTS_8681DE] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.NoOperation))),
     };
 
     /// <summary>The library and queue limit of each sound command Torizo's lists use; its one operand byte is the sound.</summary>
@@ -110,7 +109,9 @@ internal static class TorizoProjectileAnimationsVerification
             CompareOperands(instruction, operands, cue, at);
         },
         EndsList: cue => cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch },
-        Replays: cue => cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled });
+        Replays: cue => cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled },
+        // The sonic boom's wall impact calls a routine that returned at once before its deletion: it has no event (#1870).
+        Omitted: word => (NativeEnemyProjectileInstruction)word == NativeEnemyProjectileInstruction.RTS_8681DE);
 
     /// <summary>Every projectile animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoProjectileAnimations(CartridgeImportAddressSpace rom)
@@ -207,7 +208,7 @@ internal static class TorizoProjectileAnimationsVerification
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
                 TorizoProjectileCueKind.AimSuperMissileAwayFromSamus or TorizoProjectileCueKind.ReturnToOrigin or TorizoProjectileCueKind.RaiseDust or
                 TorizoProjectileCueKind.StopBlockingShots or TorizoProjectileCueKind.StopHarmingSamus or TorizoProjectileCueKind.DrawInFront or
-                TorizoProjectileCueKind.NoOperation or TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch }:
+                TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch }:
                 AssertEqual(0, operands.Length, $"{at}: no operands");
                 return;
             case TorizoProjectileCue.PlaySound:

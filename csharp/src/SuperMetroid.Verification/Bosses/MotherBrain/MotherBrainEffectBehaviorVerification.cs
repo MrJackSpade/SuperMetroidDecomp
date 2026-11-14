@@ -78,7 +78,7 @@ internal static class MotherBrainEffectBehaviorVerification
             deathEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(
                 new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
             deathEnemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(
-                new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), ProjectileParameter: parameter, SoundEffect: MotherBrainSoundDefinitions.Explosion));
+                new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter], SoundEffect: MotherBrainSoundDefinitions.Explosion));
             EnemyProjectile deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainDeathExplosion);
             AssertTrue(deathExplosion.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == deathPrograms[parameter],

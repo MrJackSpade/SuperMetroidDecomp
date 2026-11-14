@@ -13,13 +13,8 @@ internal static class MotherBrainFallingTubes
     /// </summary>
     internal static RoomEnemyPlacement Get(MotherBrainTubePiece piece)
     {
-        int index = Pieces.PositionOf(piece);
         bool main = piece == MotherBrainTubePiece.Main;
-        bool outer = piece is MotherBrainTubePiece.BottomLeft or MotherBrainTubePiece.BottomRight;
-        int horizontalOffset = outer ? OuterOffset : InnerOffset;
-        int x = main ? CenterX : CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset);
-        int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
-        Position16<RoomPixels> position = new(x, BottomBaseline - compositionBottom);
+        Position16<RoomPixels> position = Positions[piece];
         EnemyProcessing processing = main
             ? EnemyProcessing.Animates | EnemyProcessing.OffScreen
             : EnemyProcessing.Animates;

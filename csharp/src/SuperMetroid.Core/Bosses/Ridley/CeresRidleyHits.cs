@@ -92,11 +92,11 @@ internal sealed class CeresRidleyHits
             : 13;
         state.HitCounter++;
 
-        // The game draws the hurt palette from the enemy frame that just completed.
+        // The game draws the hurt flash from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
         // for standalone renderers inspecting the colours before the next enemy update. Only the count's cadence
         // phase is read, and it wraps, so the count before zero reads as the last phase.
-        UpdateRidleyHurtFlashPalettes(
+        UpdateRidleyHurtFlash(
             slot,
             state,
             slot.FrameCounter - 1);
@@ -109,7 +109,7 @@ internal sealed class CeresRidleyHits
     /// the ordinary body uses the current execution counter, while the manual tail/wings
     /// deliberately test the counter after an increment.
     /// </summary>
-    internal static void UpdateRidleyHurtFlashPalettes(
+    internal static void UpdateRidleyHurtFlash(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
@@ -120,7 +120,7 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Updates the health palette. Ceres uses shot count in place of health, including the
+    /// Updates the health shade. Ceres uses shot count in place of health, including the
     /// game's missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
@@ -152,9 +152,11 @@ internal sealed class CeresRidleyHits
         // Samus's invincibility timer. It does not inspect the knockback-active
         // state. An extra guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
+        if (_ridleyEncounter.Ridley is null)
+            return false;
+
         RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
-        if (_ridleyEncounter.Ridley is null ||
-            !RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
+        if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
             slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {

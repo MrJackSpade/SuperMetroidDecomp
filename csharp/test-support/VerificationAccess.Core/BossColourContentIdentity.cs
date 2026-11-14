@@ -193,7 +193,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyColorFormat.InitialColorCount];
                 for (int color = 0; color < initialWords.Length; color++) initialWords[color] = colors.ResolveInitial(color);
                 content.AppendColors("initial", initialWords);
-                RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealStepCount][];
+                RgbColor[][] revealWords = new RgbColor[NorfairRidleyRevealDefinitions.RevealStepCount][];
                 for (int step = 0; step < revealWords.Length; step++)
                 {
                     revealWords[step] = new RgbColor[NorfairRidleyColorFormat.RevealColorCount];

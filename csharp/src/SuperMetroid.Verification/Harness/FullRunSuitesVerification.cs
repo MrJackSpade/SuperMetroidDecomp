@@ -242,7 +242,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFakeDeathVi
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassSuperMissileVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlitchMechanicsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainHeadHitboxVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainInheritedExplosionIndexVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathExplosionStartVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMissileWalkResetVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRainbowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRaiseCounterVerification;
@@ -1115,7 +1115,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset()),
         new(nameof(VerifyMotherBrainWalkCreditShared), () => VerifyMotherBrainWalkCreditShared()),
         new(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes()),
-        new(nameof(VerifyMotherBrainInheritedExplosionIndex), () => VerifyMotherBrainInheritedExplosionIndex()),
+        new(nameof(VerifyMotherBrainDeathExplosionStart), () => VerifyMotherBrainDeathExplosionStart()),
         new(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaftWall()),
         new(nameof(VerifyTourianFirstRoomGrantsAreaMap), () => VerifyTourianFirstRoomGrantsAreaMap()),
         new(nameof(VerifyEscapeAcidRise), () => VerifyEscapeAcidRise()),

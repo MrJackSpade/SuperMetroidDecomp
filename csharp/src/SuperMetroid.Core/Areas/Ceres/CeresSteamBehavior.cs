@@ -111,9 +111,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Action)
         {
-            // The up, left, down and right vents use a behaviour that does nothing. Their base
-            // world position is also their draw position, so no drawing offset is changed.
-            case CeresSteamAction.None:
+            // The up, left, down and right vents have no action. Their base world position is also their draw
+            // position, so no drawing offset is changed.
+            case null:
                 return;
 
             // The rotating-elevator vents sit inside the rotating elevator shaft.
@@ -134,7 +134,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres steam has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ceres steam has no behaviour for action {state.Action}.");
         }
     }
 

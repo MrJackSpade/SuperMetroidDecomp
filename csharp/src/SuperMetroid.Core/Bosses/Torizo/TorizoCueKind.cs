@@ -13,18 +13,16 @@ internal enum TorizoCueKind
     MakeVisible,
     /// <summary>Makes the body invisible.</summary>
     MakeInvisible,
-    /// <summary>Starts the palette fade to black.</summary>
+    /// <summary>Starts the colour fade to black.</summary>
     FadeToBlack,
     /// <summary>Records the boss's defeat, queues the elevator music and spawns the drops.</summary>
     FinishDeath,
     /// <summary>Advances the gradual colour fade.</summary>
     AdvanceColourFade,
-    /// <summary>Starts the palette fade to the normal colors.</summary>
+    /// <summary>Starts the colour fade to the normal colors.</summary>
     FadeToNormalColors,
-    /// <summary>Starts Bomb Torizo's fight music and belly palette effect.</summary>
+    /// <summary>Starts Bomb Torizo's fight music and belly glow.</summary>
     StartBombTorizoFight,
-    /// <summary>Does nothing.</summary>
-    NoOperation,
     /// <summary>Sets the animation lock.</summary>
     LockAnimation,
     /// <summary>Clears the animation lock.</summary>
@@ -51,13 +49,19 @@ internal enum TorizoCueKind
     SteppedRightWithLeftFoot,
     /// <summary>Spawns Bomb Torizo's Chozo orbs.</summary>
     SpawnBombTorizoChozoOrbs,
+    /// <summary>Spawns a Bomb Torizo sonic boom.</summary>
+    SpawnBombTorizoSonicBoom,
+    /// <summary>Spawns a Golden Torizo sonic boom.</summary>
+    SpawnGoldenTorizoSonicBoom,
+    /// <summary>Spawns Golden Torizo's eye beam.</summary>
+    SpawnEyeBeam,
     /// <summary>Queues the shot sound.</summary>
     PlayShotSound,
     /// <summary>Queues the footstep sound.</summary>
     PlayFootstepSound,
-    /// <summary>Loads Golden Torizo's palettes.</summary>
-    LoadGoldenTorizoPalettes,
-    /// <summary>Starts Golden Torizo's fight music and belly palette effect.</summary>
+    /// <summary>Starts the colour fade to Golden Torizo's colours.</summary>
+    FadeToGoldenColors,
+    /// <summary>Starts Golden Torizo's fight music and belly glow.</summary>
     StartGoldenTorizoFight,
     /// <summary>Clears the caught-super-missile flag.</summary>
     ClearCaughtSuperMissile,

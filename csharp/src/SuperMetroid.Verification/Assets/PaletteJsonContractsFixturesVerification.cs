@@ -80,7 +80,7 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {
             Version = MotherBrainRoomColorFormat.Version,
-            Flash = PaletteContractRows(MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount, MotherBrainRoomColorGeometry.SliceColors * 2),
+            Flash = PaletteContractRows(MotherBrainRoomFlashDefinitions.FlashFrameCount, MotherBrainRoomColorGeometry.SliceColors * 2),
             FinalRoom = PaletteContractColors(MotherBrainRoomColorGeometry.SliceColors * 2),
             PhaseTwoAttack = PaletteContractColors(MotherBrainRoomColorGeometry.PhaseTwoColors),
             PhaseTwoRearLeg = PaletteContractColors(MotherBrainRoomColorGeometry.PhaseTwoColors),
@@ -95,14 +95,14 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("Mother Brain rainbow", PaletteContractDocument(new MotherBrainRainbowPaletteDocument
         {
             Version = MotherBrainRainbowPaletteFile.Version,
-            Rainbow = Frames(MotherBrainRainbowPaletteFormat.RainbowFrameCount, MotherBrainRainbowPaletteGeometry.ColorCount,
+            Rainbow = Frames(MotherBrainRainbowColourFormat.RainbowFrameCount, MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, false),
             ToGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.DrainedColors,
                 MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             FromGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.RevivalColors,
                 MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount, false)[0],
-            FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathPaletteDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
+            FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathFadeDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
         yield return new("Mother Brain beam", PaletteContractDocument(new MotherBrainBeamColourDocument
         {

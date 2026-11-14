@@ -52,9 +52,11 @@ internal static class CeresDoorQuakeDefinitionsVerification
             BossArtwork = InstalledFixtures.BossArtwork,
         };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
+        enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
         var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
         door.SetSpeciesState(doorState);
         door.Position = door.Position.WithWhole(new(100, 80));

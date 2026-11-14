@@ -19,7 +19,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
-                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Animation(parameter)),
+                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
                 $"Mother Brain death explosion instruction {parameter}");
         }
 
@@ -31,7 +31,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
-                ProjectileParameter: parameter,
+                Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],
                 SoundEffect: MotherBrainSoundDefinitions.Explosion);
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(request);
 
@@ -40,7 +40,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
             AssertTrue(projectile.Animation is MiscDustProjectileAnimation started &&
-                    started.PlayingSegment == MotherBrainDeathExplosions.Animation(parameter),
+                    started.PlayingSegment == MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]],
                 $"production Mother Brain death explosion instruction {parameter}");
             AssertEqual(0x00f9, projectile.Position.X.Whole,
                 $"production Mother Brain death explosion X {parameter}");
@@ -55,9 +55,6 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 $"production Mother Brain death explosion left Y velocity {parameter}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainDeathExplosions.Animation(3),
-            "Mother Brain death explosion parameter past table");
         Console.WriteLine(
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }

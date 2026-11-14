@@ -26,4 +26,7 @@ internal sealed record CeresDoorBehaviorDependencies
 
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     public required ICeresEscapeStatus CeresEscape { get; init; }
+
+    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to (#1877).</summary>
+    public required ICeresRidleyScene RidleyScene { get; init; }
 }

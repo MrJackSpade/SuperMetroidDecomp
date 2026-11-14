@@ -469,10 +469,8 @@ internal sealed class MotherBrainHead
         if (!state.DroolGenerationEnabled)
             return;
 
-        int parameter = state.DroolProjectileParameter + 1;
-        if (parameter >= 6)
-            parameter = 0;
-        state.DroolProjectileParameter = parameter;
+        state.LastDroolMouthPoint = (state.LastDroolMouthPoint + 1) % MotherBrainBehavior.MotherBrainDroolOffsets.Length;
+        Offset16<RoomPixels> mouth = MotherBrainBehavior.MotherBrainDroolOffsets[state.LastDroolMouthPoint];
 
         EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
         if (drool is null)
@@ -483,7 +481,7 @@ internal sealed class MotherBrainHead
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool));
-        drool.State = new MotherBrainDroolState(parameter);
+        drool.State = new MotherBrainDroolState(mouth);
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.

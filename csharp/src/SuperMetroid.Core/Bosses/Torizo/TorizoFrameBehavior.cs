@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 public enum TorizoFrameBehavior
 {
     /// <summary>The shared no-op movement step.</summary>
-    Idle = 1,
+    Idle,
 
     /// <summary>Torizo behaviour: movement, walking.</summary>
     AirTransition,

@@ -21,10 +21,10 @@ internal static class CeresRidleyEyeFade
     {
         < 0 => throw new InvalidDataException($"Ceres Ridley eye-fade offset {offset} precedes the authored schedule."),
         < 16 => new(false, 15 - offset),
-        < PaletteStepCount => new(false, 0),
-        PaletteStepCount => new(true, 0),
+        < FadeStepCount => new(false, 0),
+        FadeStepCount => new(true, 0),
         _ => throw new InvalidDataException(
             $"Ceres Ridley eye-fade offset {offset} exceeds the authored " +
-            $"{PaletteStepCount + 1}-entry schedule."),
+            $"{FadeStepCount + 1}-entry schedule."),
     };
 }

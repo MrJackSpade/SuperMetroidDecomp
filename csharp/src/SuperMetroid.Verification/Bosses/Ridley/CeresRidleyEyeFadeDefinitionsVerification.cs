@@ -16,7 +16,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
     internal static void VerifyCeresRidleyEyeFadeDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort offset = 0;
-             offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;
+             offset < CeresRidleyEyeFadeDefinitions.FadeStepCount;
              offset++)
         {
             CeresRidleyEyeFadeStep compiled = CeresRidleyEyeFade.Get(offset);
@@ -30,15 +30,15 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
 
         AssertEqual((byte)0xff,
             rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
-                CeresRidleyEyeFadeDefinitions.PaletteStepCount),
+                CeresRidleyEyeFadeDefinitions.FadeStepCount),
             "Ceres Ridley eye-fade native terminator");
         AssertTrue(
             CeresRidleyEyeFade.Get(
-                CeresRidleyEyeFadeDefinitions.PaletteStepCount).IsComplete,
+                CeresRidleyEyeFadeDefinitions.FadeStepCount).IsComplete,
             "Ceres Ridley eye-fade compiled terminator");
         AssertThrows<InvalidDataException>(
             () => CeresRidleyEyeFade.Get(
-                CeresRidleyEyeFadeDefinitions.PaletteStepCount + 1),
+                CeresRidleyEyeFadeDefinitions.FadeStepCount + 1),
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
@@ -52,7 +52,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             MovementAnimationEnabled = false,
         };
         for (ushort offset = 0;
-             offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;
+             offset < CeresRidleyEyeFadeDefinitions.FadeStepCount;
              offset++)
         {
             state.FadeStep = offset;
@@ -76,7 +76,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             }
         }
 
-        state.FadeStep = CeresRidleyEyeFadeDefinitions.PaletteStepCount;
+        state.FadeStep = CeresRidleyEyeFadeDefinitions.FadeStepCount;
         state.PhaseTimer = 0;
         tick(state);
         AssertEqual(0, state.FadeStep,
@@ -98,7 +98,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
                 address <= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
-                    CeresRidleyEyeFadeDefinitions.PaletteStepCount,
+                    CeresRidleyEyeFadeDefinitions.FadeStepCount,
                 address => $"Ceres Ridley eye fade attempted schedule read ${address:X6}.");
 
     /// <summary>Runs the eye-fade schedule comparison with the retail cartridge.</summary>

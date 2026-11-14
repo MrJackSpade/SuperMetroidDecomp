@@ -33,9 +33,14 @@ internal static class MotherBrainDeathExplosionDefinitions
     internal static Offset16<RoomPixels> Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>
-    /// The three animations Mother Brain's death explosions choose among:
-    /// the shared misc-dust small explosion, smoke and big explosion.
+    /// The shared misc-dust animation each of Mother Brain's death explosions shows: the small explosion, smoke and the big
+    /// explosion.
     /// </summary>
-    internal static readonly MiscDustProjectileSegment[] Animations =
-        [MiscDustProjectileSegment.SmallExplosion, MiscDustProjectileSegment.Smoke, MiscDustProjectileSegment.BigExplosion];
+    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, MiscDustProjectileSegment> Animations =
+        new Dictionary<MotherBrainDeathExplosionAnimation, MiscDustProjectileSegment>
+        {
+            [MotherBrainDeathExplosionAnimation.SmallExplosion] = MiscDustProjectileSegment.SmallExplosion,
+            [MotherBrainDeathExplosionAnimation.Smoke] = MiscDustProjectileSegment.Smoke,
+            [MotherBrainDeathExplosionAnimation.BigExplosion] = MiscDustProjectileSegment.BigExplosion,
+        };
 }

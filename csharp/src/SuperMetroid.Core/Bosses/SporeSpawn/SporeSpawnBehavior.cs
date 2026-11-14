@@ -122,8 +122,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The projectile spawner searches the eighteen-slot pool downward. Four calls therefore
         // occupy the pool's places 17..14, which the stalk update later reaches directly.
-        for (int argument = 0; argument < 4; argument++)
-            SpawnSporeSpawnStalk(body, argument);
+        foreach (Offset16<RoomPixels> segment in SporeSpawnProjectileDefinitions.StalkSegments)
+            SpawnSporeSpawnStalk(body, segment);
 
         state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
         if (state.LoadedAsDefeated)
@@ -142,8 +142,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // Preserve that distinction so all room actors use the same scan.
         _frameContext.RequestFullSweep();
         state.ScrollClampHookActive = true;
-        for (int argument = 0; argument < 4; argument++)
-            SpawnSporeSpawnSpawner(body, argument);
+        foreach (Position16<RoomPixels> emitter in SporeSpawnProjectileDefinitions.Emitters)
+            SpawnSporeSpawnSpawner(body, emitter);
         UpdateSporeSpawnStalks(state);
     }
 
@@ -397,8 +397,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
-        private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((encounter.SporeSpawn
+        /// <summary>The colours newly spawned spores share: his body's colours as they show now (#1512).</summary>
+        private SpriteGraphics SporeSpawnSporeColours => SpriteGraphics.SharedIn((encounter.SporeSpawn
             ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
 
         /// <summary>Spawns one spore projectile and runs its initializer.</summary>
@@ -412,7 +412,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 spore,
                 RoomEnemyProjectileKind.SporeSpawnSpore,
                 Spores,
-                SporeSpawnGraphicsIndex);
+                SporeSpawnSporeColours);
             spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
             spore.Position = spore.Position.WithWhole(position);
 
@@ -709,11 +709,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
         }
     }
-    /// <summary>Spawns Spore Spawn's stalk projectile and runs its initializer.</summary>
-    internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)
+    /// <summary>Spawns the stalk segment at <paramref name="segment"/> from his body and runs its initializer.</summary>
+    internal void SpawnSporeSpawnStalk(RoomEnemySlot body, Offset16<RoomPixels> segment)
     {
-        if (spawnArgument is < 0 or > 3)
-            throw new ArgumentOutOfRangeException(nameof(spawnArgument));
         EnemyProjectile? stalk = _projectiles.AllocateEnemyProjectile();
         if (stalk is null)
             return;
@@ -724,17 +722,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             Stalk,
             SpriteGraphics.SpawnedBy(body));
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
-        stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
-        stalk.Position = stalk.Position.WithWrappedWholeY(
-            body.Position.Y.Whole +
-            SporeSpawnProjectiles.StalkYOffset(spawnArgument));
+        stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
     }
 
-    /// <summary>Spawns Spore Spawn's spore-spawner projectile and runs its initializer.</summary>
-    internal void SpawnSporeSpawnSpawner(RoomEnemySlot body, int spawnArgument)
+    /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> and runs its initializer.</summary>
+    internal void SpawnSporeSpawnSpawner(RoomEnemySlot body, Position16<RoomPixels> emitter)
     {
-        if (spawnArgument is < 0 or > 3)
-            throw new ArgumentOutOfRangeException(nameof(spawnArgument));
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)
             return;
@@ -745,8 +738,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             Spawner,
             SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
-        spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
-        spawner.Position = spawner.Position.WithWholeY(520);
+        spawner.Position = spawner.Position.WithWhole(emitter);
         spawner.State = new SporeSpawnEmitterState();
     }
 

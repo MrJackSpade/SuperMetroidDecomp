@@ -47,7 +47,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.NativeTubeCollapseSteps.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseStep collapse))
             state.TubeCollapseStep = collapse;
         state.TubeCollapseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
-        state.BodySubPhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        state.AscentDustPlace = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
@@ -97,7 +97,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
+        state.LastDroolMouthPoint = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
@@ -275,8 +275,8 @@ internal static class NativeSnapshotMotherBrainImport
     /// frame; an odd offset or one beyond the terminator is not a state the game produces.
     /// </summary>
     internal static int DecodeNextRainbowFrame(ushort word) =>
-        word % 2 == 0 && word / 2 <= MotherBrainRainbowPaletteFormat.RainbowFrameCount
-            ? word / 2 % MotherBrainRainbowPaletteFormat.RainbowFrameCount
+        word % 2 == 0 && word / 2 <= MotherBrainRainbowColourFormat.RainbowFrameCount
+            ? word / 2 % MotherBrainRainbowColourFormat.RainbowFrameCount
             : throw new InvalidDataException($"Mother Brain rainbow palette list offset {word} is outside the list.");
 
     /// <summary>

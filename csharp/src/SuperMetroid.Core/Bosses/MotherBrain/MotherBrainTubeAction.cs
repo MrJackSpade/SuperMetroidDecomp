@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal enum MotherBrainTubeAction
 {
     /// <summary>Mother Brain tubes behaviour: non main tube.</summary>
-    NonMainTube = 1,
+    NonMainTube,
 
     /// <summary>Mother Brain tubes behaviour: main tube, waiting to fall.</summary>
     WaitingToFall,

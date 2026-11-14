@@ -36,12 +36,9 @@ internal abstract record TorizoCue
     /// <param name="Step">The walking step, one of the walking Torizo's twenty steps.</param>
     internal sealed record Walk(TorizoWalkKind Kind, int Step) : TorizoCue;
 
-    /// <summary>Spawns a Torizo projectile with a spawn parameter.</summary>
-    /// <param name="Kind">What the cue spawns.</param>
-    /// <param name="Parameter">
-    /// What the spawn places: a swipe's placement index or a sonic boom's parameter.
-    /// </param>
-    internal sealed record ParameterizedSpawn(TorizoParameterizedSpawnKind Kind, int Parameter) : TorizoCue;
+    /// <summary>Spawns an explosive swipe at Bomb Torizo's hand.</summary>
+    /// <param name="Hand">Where the hand is relative to a left-facing Torizo; a right-facing Torizo mirrors it.</param>
+    internal sealed record Swipe(Offset16<RoomPixels> Hand) : TorizoCue;
 
     /// <summary>
     /// Spawns the low-health explosions and flashes; the animation then waits forty updates.

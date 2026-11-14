@@ -36,6 +36,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     private readonly ICeresEscapeStatus _ridleyEncounter;
 
+    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to.</summary>
+    private readonly ICeresRidleyScene _ridleyScene;
+
 
     /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
     internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
@@ -46,6 +49,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
         _ridleyEncounter = dependencies.CeresEscape;
+        _ridleyScene = dependencies.RidleyScene;
     }
 
     /// <summary>
@@ -158,6 +162,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         };
         slot.SetSpeciesState(state);
 
+        // The door of Ridley's room is the one his scene draws while the door hands its drawing to him (#1877).
+        if (variant == CeresDoorVariant.RidleyRoomFacingRight)
+            _ridleyScene.AttachRoomDoor(slot);
+
         // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
             _presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
@@ -190,7 +198,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorAction.RotatingElevatorRoomDefault:
-                RunCeresDoorPaletteAnimation(slot);
+                RunCeresElevatorGlowAndPlatform(slot);
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // Entering the destruction state enters the destruction action and initializes all three
@@ -199,7 +207,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                     state.Action = CeresDoorAction.RotatingElevatorRumble;
                     state.RumbleCallsLeft = CeresDoorRumbleDuration;
                     state.ExplosionIntervalLeft = 0;
-                    state.ExplosionPositionIndex = 0;
+                    state.LastExplosionPlace = 0;
                 }
                 return;
 
@@ -208,7 +216,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorAction.ElevatorAnimation:
-                RunCeresDoorPaletteAnimation(slot);
+                RunCeresElevatorGlowAndPlatform(slot);
                 return;
 
             default:
@@ -261,11 +269,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        state.ExplosionPositionIndex = state.ExplosionPositionIndex == 0
-            ? CeresDoorRumbleGeometryDefinitions.Count - 1
-            : state.ExplosionPositionIndex - 1;
+        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
+        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
 
-        Position16<RoomPixels> explosion = slot.Position.Whole + CeresDoorRumble.Offset(state.ExplosionPositionIndex);
+        Position16<RoomPixels> explosion = slot.Position.Whole + offsets[state.LastExplosionPlace];
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(_room.Random.Generate())
@@ -283,7 +290,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the game read the
     /// room's first enemy's count, which only shifts the drawn phase where another enemy is listed first.
     /// </summary>
-    internal void RunCeresDoorPaletteAnimation(RoomEnemySlot door)
+    internal void RunCeresElevatorGlowAndPlatform(RoomEnemySlot door)
     {
         int frame = Ensure.NotNull(door).FrameCounter;
 

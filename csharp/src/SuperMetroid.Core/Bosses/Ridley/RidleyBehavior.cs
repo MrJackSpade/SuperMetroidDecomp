@@ -74,7 +74,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         if (state.MovementAnimationEnabled)
         {
-            CeresRidleyHits.UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
+            CeresRidleyHits.UpdateRidleyHurtFlash(slot, state, slot.FrameCounter);
             _ceresRidleyBehavior.Flight.IntegrateRidleyMovement(slot, state);
             CeresRidleyFlight.TickRidleyWingAnimation(state);
             _ridleyTail.TickRidleyTail(slot, state, samus);
@@ -361,7 +361,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.CeresPublishEscapeHandoff:
             case RidleyPhase.CeresInactive:
             case RidleyPhase.CeresActivateSelfDestruct:
-            case RidleyPhase.CeresSelfDestructPaletteOnly:
+            case RidleyPhase.CeresSelfDestructAlarmOnly:
             case RidleyPhase.CeresFakeRetreatMoveToPosition:
             case RidleyPhase.CeresFakeRetreatRising:
             case RidleyPhase.CeresWaitBeforeRetrievingBaby:
@@ -456,7 +456,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         if (samusProjectiles is not null && state.MovementAnimationEnabled)
             _ridleyTail.ResolveRidleyTailProjectileHits(body, state, samusProjectiles);
-        CeresRidleyHits.UpdateRidleyHurtFlashPalettes(body, state, body.FrameCounter);
+        CeresRidleyHits.UpdateRidleyHurtFlash(body, state, body.FrameCounter);
         RidleyInteractions.UpdateNorfairRidleyHealthBand(body, state);
 
         state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);

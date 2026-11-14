@@ -124,7 +124,6 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.FadeToNormalColors)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 4),
             Cue(new TorizoCue.Signal(K.AdvanceColourFade)),
-            Cue(new TorizoCue.Signal(K.NoOperation)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.StartBombTorizoFight)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 16),

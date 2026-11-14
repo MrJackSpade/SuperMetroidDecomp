@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public enum MotherBrainBrainAction
 {
     /// <summary>Advances neck geometry unless time is frozen, attaches the head to joint 4, and draws her brain and neck.</summary>
-    SetupBrainAndNeckToBeDrawn = 1,
+    SetupBrainAndNeckToBeDrawn,
     /// <summary>Draws her brain alone, without her articulated neck.</summary>
     SetupBrainToBeDrawn,
 }

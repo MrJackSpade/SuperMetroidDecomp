@@ -18,10 +18,11 @@ internal static class MotherBrainTurretDefinitionsVerification
     {
         var guarded = NewMotherBrainTurretReadGuard(rom);
 
+        // The cartridge numbered the turrets by their spawn order, which is the order of the typed list.
+        AssertEqual(12, MotherBrainTurretDefinitions.Turrets.Count, "Mother Brain has twelve turrets");
         for (ushort parameter = 0; parameter < 12; parameter++)
         {
-            MotherBrainTurretDefinition definition =
-                MotherBrainTurrets.ForTurret(parameter);
+            MotherBrainTurretDefinition definition = MotherBrainTurretDefinitions.Turrets[parameter];
             int wordOffset = parameter * 2;
             // $86:BEF9: each turret's eight allowed-direction bytes follow the previous turret's.
             ushort policyRow = (ushort)(0xbef9 + parameter * 8);
@@ -42,14 +43,14 @@ internal static class MotherBrainTurretDefinitionsVerification
                 bool nativeAllowed = rom.ReadCartridgeByte(
                     0x860000 | (policyRow + direction)) != 0;
                 AssertEqual(nativeAllowed, MotherBrainTurrets.IsRotationAllowed(
-                    parameter,
+                    definition,
                     MotherBrainTurretDefinitions.Ring.At(direction)),
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
             }
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
-            enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(parameter);
+            enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(definition);
 
             EnemyProjectile turret =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
@@ -60,7 +61,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(definition.Position, turret.Position.Whole,
                 $"production Mother Brain turret position {parameter}");
             MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
-            AssertEqual(parameter, turretState.Turret,
+            AssertEqual(definition, turretState.Turret,
                 $"production Mother Brain turret identity {parameter}");
             AssertEqual(MotherBrainTurretDefinitions.Ring.PositionOf(definition.InitialDirection), turretState.RingPosition,
                 $"production Mother Brain turret initial ring position {parameter}");
@@ -80,7 +81,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             {
                 var rotation = new EnemyProjectile(0, default)
                 {
-                    State = new MotherBrainTurretState(parameter, current) { RotationStep = delta },
+                    State = new MotherBrainTurretState(definition, current) { RotationStep = delta },
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadCartridgeByte(
@@ -129,7 +130,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             var turret = new EnemyProjectile(0, default)
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
-                State = new MotherBrainTurretState(0, direction),
+                State = new MotherBrainTurretState(MotherBrainTurretDefinitions.Turrets[0], direction),
             };
             enemies.MotherBrainBehavior.Projectiles.Projectile.SpawnMotherBrainTurretBullet(turret);
 
@@ -145,14 +146,6 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(definition.BulletVelocity, bullet.Velocity,
                 $"production Mother Brain turret bullet velocity {direction}");
         }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurrets.ForTurret(12),
-            "Mother Brain turret parameter past table");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurrets.IsRotationAllowed(
-                12, MotherBrainTurretDirection.Left),
-            "Mother Brain turret rotation policy past table");
 
         Console.WriteLine(
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");

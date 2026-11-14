@@ -20,11 +20,16 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// native conditional goto to its own list does: its operand word is its own list's entry, and its run begins that list;
 /// null when no cue does.
 /// </param>
+/// <param name="Omitted">
+/// Whether a family command has no event in the typed animations because it has no effect (#1870): an operand-less
+/// routine that returned at once. The oracle reads past it without a beat; null when the family omits none.
+/// </param>
 internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, int?> OperandBytes,
     Action<ushort, byte[], TCue, string> CompareCue,
     Func<TCue, bool>? EndsList = null,
     Func<ushort, bool>? ShowsFrame = null,
     Func<ushort, bool>? EndsAt = null,
-    Func<TCue, bool>? Replays = null)
+    Func<TCue, bool>? Replays = null,
+    Func<ushort, bool>? Omitted = null)
     where TCue : notnull;

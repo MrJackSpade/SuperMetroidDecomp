@@ -27,7 +27,7 @@ internal static class MotherBrainRainbowPaletteExtractor
         {
             Version = MotherBrainRainbowPaletteFile.Version,
             Rainbow = ReadTable(MotherBrainSourceDefinitions.Palettes.RainbowPointerTable,
-                MotherBrainRainbowPaletteFormat.RainbowFrameCount,
+                MotherBrainRainbowColourFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, false),
             ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
@@ -66,7 +66,7 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5[][] ReadFakeDeathToGrey()
         {
-            var frames = new PaletteRgb5[MotherBrainFakeDeathPaletteDefinitions.FrameCount][];
+            var frames = new PaletteRgb5[MotherBrainFakeDeathFadeDefinitions.FrameCount][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
                 int address = MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +

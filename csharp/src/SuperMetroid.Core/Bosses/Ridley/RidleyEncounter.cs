@@ -10,14 +10,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ceres escape handoff value that Ceres Ridley publishes.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyEncounter : ICeresEscapeStatus
+internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
 {
-    /// <summary>Binds both Ridley encounters to the room's enemies, among which <see cref="Parts"/> names his.</summary>
-    /// <param name="slotTable">The room's enemies.</param>
+    /// <summary>Starts both Ridley encounters for a room; <see cref="Parts"/> names his enemies as they initialize.</summary>
     /// <param name="session">The session that holds Ceres's escape progress across rooms.</param>
-    internal RidleyEncounter(EnemySlotTable slotTable, EnemySession session)
+    internal RidleyEncounter(EnemySession session)
     {
-        Parts = new RidleyParts(slotTable);
         _session = Ensure.NotNull(session);
     }
 
@@ -25,7 +23,10 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     private readonly EnemySession _session;
 
     /// <summary>The enemies of Ridley's rooms his encounters reach by name: his body and Ceres's door.</summary>
-    internal RidleyParts Parts { get; }
+    internal RidleyParts Parts { get; } = new();
+
+    /// <inheritdoc/>
+    void ICeresRidleyScene.AttachRoomDoor(RoomEnemySlot door) => Parts.AttachCeresRoomDoor(door);
 
     /// <summary>
     /// Ridley's state beyond what every enemy has while either encounter owns his body,
@@ -37,8 +38,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// Ridley's state while his body is Ceres Ridley, and null during the Lower
     /// Norfair fight, which has neither the Baby nor the rotating Ceres floor.
     /// </summary>
-    public RidleyEnemyState? CeresRidley =>
-        Parts.Body.DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;
+    public RidleyEnemyState? CeresRidley => Parts.HoldsCeresRidley ? Ridley : null;
 
     /// <summary>
     /// The warning Ceres's self-destruct shows over the arena's foreground (#1555): its EMERGENCY title, the Japanese

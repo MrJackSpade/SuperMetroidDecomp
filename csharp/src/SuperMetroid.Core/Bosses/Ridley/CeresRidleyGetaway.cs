@@ -279,7 +279,7 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.Finishing:
                 UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 state.Velocity = EightEightVector<RoomPixels>.Zero;
-                state.Phase = RidleyPhase.CeresSelfDestructPaletteOnly;
+                state.Phase = RidleyPhase.CeresSelfDestructAlarmOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // The escape-text sequence records the area boss's defeat inside Ridley's AI, so later slots (the
                 // room's exit door) observe it in this same enemy update.

@@ -422,7 +422,7 @@ internal static class MapPresentationVerification
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
         InstalledMotherBrainRainbowPalette rainbow = InstalledFixtures.ImportMaps.MotherBrainRainbowColours;
         Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
-        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainRainbowColourFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
             int pointer = MotherBrainSourceDefinitions.Palettes.RainbowPointerTable + frame * sizeof(ushort);
@@ -569,7 +569,7 @@ internal static class MapPresentationVerification
         foreach (var (health, state) in new VerifyMotherBrainHealthPaletteCase[]
             { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
-            int band = MotherBrainHealthPalette.Band(health);
+            int band = MotherBrainHealthShades.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);
             SnesCgram installed = MotherBrainLook.OfHealth(InstalledFixtures.ImportOf(original).MotherBrainHealthPalette, band);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
@@ -579,9 +579,9 @@ internal static class MapPresentationVerification
             AssertEqual(0, installed.Colors[MotherBrainColorDestinations.RearLegColor +
                 MotherBrainRainbowPaletteGeometry.ColorCount],
                 "Mother Brain health palette leaves adjacent colors untouched");
-            AssertEqual(state, health >= MotherBrainHealthPaletteDefinitions.FirstThreshold ? 0 :
-                health >= MotherBrainHealthPaletteDefinitions.SecondThreshold ? 1 :
-                health >= MotherBrainHealthPaletteDefinitions.FinalThreshold ? 2 : 3,
+            AssertEqual(state, health >= MotherBrainHealthShadeDefinitions.FirstThreshold ? 0 :
+                health >= MotherBrainHealthShadeDefinitions.SecondThreshold ? 1 :
+                health >= MotherBrainHealthShadeDefinitions.FinalThreshold ? 2 : 3,
                 "native health thresholds still choose the four damage states");
         }
 

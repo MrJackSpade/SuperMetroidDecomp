@@ -12,7 +12,7 @@ internal static class MotherBrainRoomColorExtractor
 {
     /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>
     internal static ushort FlashPaletteOperandAddress(int index) =>
-        (uint)index < MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount
+        (uint)index < MotherBrainRoomFlashDefinitions.FlashFrameCount
             ? checked((ushort)(MotherBrainRoomFlashSourceDefinitions.FlashList +
                 index * MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes +
                 MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset))
@@ -22,7 +22,7 @@ internal static class MotherBrainRoomColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var flash = new PaletteRgb5[MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount][];
+        var flash = new PaletteRgb5[MotherBrainRoomFlashDefinitions.FlashFrameCount][];
         for (int index = 0; index < flash.Length; index++)
         {
             int pointerAddress = MotherBrainSourceDefinitions.RoomColors.FlashBank |

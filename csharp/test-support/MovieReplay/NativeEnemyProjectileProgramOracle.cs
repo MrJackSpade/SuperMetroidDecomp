@@ -332,6 +332,12 @@ internal static class NativeEnemyProjectileProgramOracle
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
+            if (rules.Omitted?.Invoke(word) == true)
+            {
+                // A command with no effect has no event: read past it without a beat.
+                cursor = unchecked((ushort)(cursor + 2));
+                continue;
+            }
             VerificationAssertions.AssertTrue(rules.OperandBytes(word) is not null, $"{at}: native command ${word:X4} is known");
             int count = rules.OperandBytes(word) ?? 0;
             var raised = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Event>(Next("command"), $"{at}: command");

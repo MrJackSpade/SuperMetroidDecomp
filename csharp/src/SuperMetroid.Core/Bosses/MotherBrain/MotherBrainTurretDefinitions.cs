@@ -19,12 +19,26 @@ internal static class MotherBrainTurretDefinitions
     /// <summary>Minimum random firing cooldown the turret's firing applies.</summary>
     internal const int MinimumFiringCooldown = 128;
 
-    /// <summary>Turret initialization places four room bays of three turrets.</summary>
-    internal const int TurretCount = 12;
-    /// <summary>Turret initialization selects eight turret poses in left-to-up-left octant order; it starts the first bay at X=920 and each later bay is 192 pixels left.</summary>
-    internal const int FirstBayX = 920;
-    /// <summary>The placement rows repeat three mounting positions every twelve blocks.</summary>
-    internal const int BaySpacing = 192;
+    /// <summary>
+    /// The twelve wall turrets in the order her body's initializer spawns them: four bays of three, from the rightmost bay
+    /// leftwards, each bay's ceiling turret first and then its two wall turrets. Each turret has its place, the direction it
+    /// starts facing and the arc, in ring order, it may turn through.
+    /// </summary>
+    internal static IReadOnlyList<MotherBrainTurretDefinition> Turrets { get; } =
+    [
+        new(new(920, 48), MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
+        new(new(840, 64), MotherBrainTurretDirection.Right, MotherBrainTurretDirection.Down, MotherBrainTurretDirection.Right),
+        new(new(808, 64), MotherBrainTurretDirection.Down, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.Down),
+        new(new(728, 48), MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
+        new(new(648, 64), MotherBrainTurretDirection.Right, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Right),
+        new(new(616, 64), MotherBrainTurretDirection.Down, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownRight),
+        new(new(536, 48), MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
+        new(new(456, 64), MotherBrainTurretDirection.Right, MotherBrainTurretDirection.Down, MotherBrainTurretDirection.Right),
+        new(new(424, 64), MotherBrainTurretDirection.Down, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.Down),
+        new(new(344, 48), MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.DownRight),
+        new(new(264, 64), MotherBrainTurretDirection.Right, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Right),
+        new(new(232, 64), MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownRight),
+    ];
     /// <summary>The bullet uses a 2.75-pixel speed, in 1/256 pixels, rounded in diagonal octants.</summary>
     internal const int BulletSpeed = 704;
     /// <summary>The muzzle samples a seventeen-pixel horizontal radius.</summary>

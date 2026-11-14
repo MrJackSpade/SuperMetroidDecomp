@@ -14,11 +14,12 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
     /// <summary>Compares all eight fragments with native physical words and forbids those table reads during spawn.</summary>
     internal static void VerifyMotherBrainDoorFragmentDefinitions(CartridgeImportAddressSpace rom)
     {
+        // The cartridge numbered the fragments by their spawn order, which is the order of the typed list.
+        AssertEqual(8, MotherBrainDoorFragmentDefinitions.Fragments.Count, "the escape door throws eight fragments");
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
             int byteOffset = parameter * 4;
-            MotherBrainDoorFragmentDefinition definition =
-                MotherBrainDoorFragments.ForParameter(parameter);
+            MotherBrainDoorFragmentDefinition definition = MotherBrainDoorFragmentDefinitions.Fragments[parameter];
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c992 + byteOffset))),
                 definition.Offset.X, $"Mother Brain door fragment X offset {parameter}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c994 + byteOffset))),
@@ -33,10 +34,8 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(parameter);
-
-            MotherBrainDoorFragmentDefinition definition =
-                MotherBrainDoorFragments.ForParameter(parameter);
+            MotherBrainDoorFragmentDefinition definition = MotherBrainDoorFragmentDefinitions.Fragments[parameter];
+            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(definition);
             EnemyProjectile fragment =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
@@ -53,9 +52,6 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 $"production Mother Brain door fragment lifetime {parameter}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainDoorFragments.ForParameter(8),
-            "Mother Brain door fragment parameter past table");
         Console.WriteLine(
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");
     }

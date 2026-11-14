@@ -202,7 +202,6 @@ internal static class TorizoProjectileAnimations
             Show(F.SonicBoomWallImpact, 2, 3),
             Show(F.SonicBoomWallImpact, 3, 3),
             Show(F.SonicBoomWallImpact, 4, 2),
-            Cue(new TorizoProjectileCue.Signal(K.NoOperation)),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.LandingDustRightFoot] =
@@ -396,7 +395,7 @@ internal static class TorizoProjectileAnimations
         [P.ChozoOrbShot] = new([new(P.ChozoOrbShot, 0, 9, 1)], AnimationEnd.Holds),
         [P.SonicBoomFiredLeft] = new([new(P.SonicBoomFiredLeft, 0, 3, 1), new(P.SonicBoomFiredLeft, 3, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SonicBoomFiredRight] = new([new(P.SonicBoomFiredRight, 0, 3, 1), new(P.SonicBoomFiredRight, 3, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SonicBoomWallImpact] = new([new(P.SonicBoomWallImpact, 0, 4, 1), new(P.SonicBoomWallImpact, 4, 8, 5), new(P.SonicBoomWallImpact, 12, 1, 1)], AnimationEnd.Holds),
+        [P.SonicBoomWallImpact] = new([new(P.SonicBoomWallImpact, 0, 4, 1), new(P.SonicBoomWallImpact, 4, 7, 5), new(P.SonicBoomWallImpact, 11, 1, 1)], AnimationEnd.Holds),
         [P.LandingDustRightFoot] = new([new(P.LandingDustRightFoot, 0, 8, 1)], AnimationEnd.Holds),
         [P.LandingDustLeftFoot] = new([new(P.LandingDustLeftFoot, 0, 8, 1)], AnimationEnd.Holds),
         [P.EggBouncingLeft] = new([new(P.EggBouncingLeft, 0, 1, 1)], AnimationEnd.Holds),

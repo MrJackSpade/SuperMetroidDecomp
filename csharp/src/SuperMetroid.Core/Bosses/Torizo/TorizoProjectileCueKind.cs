@@ -25,8 +25,6 @@ internal enum TorizoProjectileCueKind
     StopHarmingSamus,
     /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
-    /// <summary>Does nothing: the sonic boom's wall impact calls the bare return.</summary>
-    NoOperation,
     /// <summary>
     /// Plays the run of steps the cue is in again, from that run's first step, while Golden Torizo's eye-beam explosions are
     /// disabled (#1788): the eye beam's floor spark sparks again.

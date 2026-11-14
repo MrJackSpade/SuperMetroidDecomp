@@ -53,7 +53,7 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
     {
-        _ridleyEncounter.Parts.RequireBody(slot, "Lower Norfair Ridley");
+        _ridleyEncounter.Parts.AttachBody(slot, "Lower Norfair Ridley");
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
@@ -109,14 +109,14 @@ internal sealed class NorfairRidleyCombat
 
         state.PhaseTimer = 2;
         int step = state.FadeStep;
-        bool hasPalette;
-        if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
+        bool showsRevealStep;
+        if (step > NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {step} is past the reveal's end.");
-        hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
-        if (hasPalette)
+        showsRevealStep = step < NorfairRidleyRevealDefinitions.RevealStepCount;
+        if (showsRevealStep)
             state.Colours.ShowArenaReveal(step);
         state.FadeStep++;
-        if (hasPalette)
+        if (showsRevealStep)
             return;
 
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.BattleHeight,

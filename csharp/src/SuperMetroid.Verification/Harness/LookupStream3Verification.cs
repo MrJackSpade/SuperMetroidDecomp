@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -1003,11 +1004,8 @@ internal static class LookupStream3Verification
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Animation(parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
                 "stream 3 native death explosion variant");
-        foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosions.Animation(invalid),
-                "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
             AssertEqual(new Offset16<RoomPixels>((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
@@ -1034,7 +1032,7 @@ internal static class LookupStream3Verification
                     AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
-                    AssertEqual(mixed ? (ushort)2 : (ushort)1, requests[item].ProjectileParameter, "stream 3 independent death type case");
+                    AssertEqual(mixed ? MotherBrainDeathExplosionAnimation.BigExplosion : MotherBrainDeathExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
                 }
             }
         }
@@ -1636,7 +1634,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        for (int frame = 0; frame < MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainRoomFlashDefinitions.FlashFrameCount; frame++)
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
             int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;

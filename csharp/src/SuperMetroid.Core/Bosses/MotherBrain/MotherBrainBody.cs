@@ -398,21 +398,18 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans the pool from its highest place down, so request
-    /// zero lands in place 17 and request eleven lands in place 6.
+    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first
+    /// turret lands in place 17 and the last in place 6.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets()
     {
-        for (int parameter = 0; parameter < 12; parameter++)
-            SpawnMotherBrainTurret(parameter);
+        foreach (MotherBrainTurretDefinition turret in MotherBrainTurretDefinitions.Turrets)
+            SpawnMotherBrainTurret(turret);
     }
 
-    /// <summary>Spawns one of Mother Brain's turrets.</summary>
-    internal void SpawnMotherBrainTurret(int parameter)
+    /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
+    internal void SpawnMotherBrainTurret(MotherBrainTurretDefinition definition)
     {
-        if (parameter is < 0 or >= 12)
-            throw new ArgumentOutOfRangeException(nameof(parameter));
-
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
         if (turret is null)
             return;
@@ -423,11 +420,9 @@ internal sealed class MotherBrainBody
             _projectileAttacks.Projectile,
             MotherBrainTurretDefinitions.Graphics);
 
-        MotherBrainTurretDefinition definition =
-            MotherBrainTurrets.ForTurret(parameter);
         MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
+        turret.State = new MotherBrainTurretState(definition, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo

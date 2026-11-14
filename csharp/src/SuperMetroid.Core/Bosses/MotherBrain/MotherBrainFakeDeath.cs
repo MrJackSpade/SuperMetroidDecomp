@@ -47,14 +47,8 @@ internal sealed class MotherBrainFakeDeath
     /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(int tubeIndex) =>
-        tubeIndex switch
-        {
-            0 or 1 => new(new(16, 32), 248),
-            2 or 3 => new(new(8, 24), 240),
-            4 => new(new(16, 32), 246),
-            _ => throw new InvalidDataException($"Mother Brain falling tube index {tubeIndex} is outside its five pieces."),
-        };
+    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
+        MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
@@ -62,8 +56,8 @@ internal sealed class MotherBrainFakeDeath
         if (--state.PhaseTimer < 0)
         {
             state.PhaseTimer = 8;
-            int step = state.GrayFadeIndex++;
-            if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
+            int step = state.GreyFadeStep++;
+            if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
             {
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentCollapseTubes;
             }
@@ -281,7 +275,7 @@ internal sealed class MotherBrainFakeDeath
     {
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
-        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece));
+        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {
@@ -532,11 +526,11 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         state.PhaseTimer = 4;
-        int paletteStep = state.GrayTransitionCounter++;
-        if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
+        int fadeStep = state.GrayTransitionCounter++;
+        if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            state.Colours.ShowFakeDeathFromGrey(paletteStep);
+            state.Colours.ShowFakeDeathFromGrey(fadeStep);
             return;
         }
 

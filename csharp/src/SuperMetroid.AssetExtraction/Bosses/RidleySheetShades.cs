@@ -172,7 +172,7 @@ internal static class RidleySheetShades
     {
         Ensure.NotNull(norfair);
         var shades = new List<SheetShade> { SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1]) };
-        for (int step = 0; step < NorfairRidleyPaletteDefinitions.RevealStepCount; step++)
+        for (int step = 0; step < NorfairRidleyRevealDefinitions.RevealStepCount; step++)
         {
             int shown = step;
             shades.Add(SheetShade.Run(RidleyShades.NorfairReveal(shown), OwnRow + 1,

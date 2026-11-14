@@ -165,7 +165,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
-            ceresSteamRecord.Action = words.A == 0 ? null : CeresNativeWords.SteamActions.Decode(words.A, "recorded CeresSteamAction");
+            ceresSteamRecord.Action = words.A == 0 ? null : CeresNativeWords.DecodeSteamAction(words.A, "recorded CeresSteamAction");
             ceresSteamRecord.ActivationDelay = WrappingCountdown.Start(words.D);
         }
         if (slot.SpeciesState<CeresDoorEnemyState>() is { } ceresDoorRecord)
@@ -174,7 +174,7 @@ internal static class NativeEnemyFamilyStateImport
             ceresDoorRecord.HandsDrawingToRidley = words.B != 0;
             ceresDoorRecord.RumbleCallsLeft = words.D;
             ceresDoorRecord.ExplosionIntervalLeft = words.E;
-            ceresDoorRecord.ExplosionPositionIndex = words.F;
+            ceresDoorRecord.LastExplosionPlace = words.F;
         }
         if (slot.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {

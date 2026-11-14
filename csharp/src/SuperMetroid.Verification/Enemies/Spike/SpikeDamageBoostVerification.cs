@@ -48,7 +48,7 @@ internal static class SpikeDamageBoostVerification
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 0, 1);
         samus.Position = samus.Position.WithWhole(new(128, 160));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
 
@@ -152,7 +152,7 @@ internal static class SpikeDamageBoostVerification
             samus.Pose = retainedPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 5);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 0, 5);
             samus.Position = samus.Position.WithWholeY(200);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -174,7 +174,7 @@ internal static class SpikeDamageBoostVerification
         samus.Pose = SamusPoseId.TurningRightToLeftFallingPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 2, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 2, 1);
         samus.LiquidPhysics.ConfigureWater(8);
         samus.Position = samus.Position.WithWholeX(99);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);

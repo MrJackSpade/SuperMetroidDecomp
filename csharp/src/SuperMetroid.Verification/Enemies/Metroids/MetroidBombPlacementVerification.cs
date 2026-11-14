@@ -110,7 +110,7 @@ internal static class MetroidBombPlacementVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousMovement =
             SamusMovementType.MorphBallGround;

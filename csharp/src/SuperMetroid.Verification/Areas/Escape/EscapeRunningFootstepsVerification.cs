@@ -62,7 +62,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.Control.Unlock();
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 8);
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 8, 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;
             samus.LiquidPhysics.LavaAcidSurfaceY = 0;
             samus.Drained.RunGetUpCheck(samus, (ControllerButton.Up | ControllerButton.A));

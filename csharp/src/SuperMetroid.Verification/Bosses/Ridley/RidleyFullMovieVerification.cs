@@ -501,7 +501,7 @@ internal static class RidleyFullMovieVerification
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 5, 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 5, 3);
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;

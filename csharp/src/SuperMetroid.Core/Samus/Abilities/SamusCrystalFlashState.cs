@@ -255,7 +255,7 @@ public sealed class SamusCrystalFlashState
 
         // The delay animation is already on its raise loop, but the raise forces
         // frame six and timer three so main art begins on this precise transition frame.
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 6, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 6, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleEffectRequested = true;
@@ -311,7 +311,7 @@ public sealed class SamusCrystalFlashState
         // The ammunition drain switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a cue.
         Phase = CrystalFlashPhase.Finishing;
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 12, timer: 3);
     }
 
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>

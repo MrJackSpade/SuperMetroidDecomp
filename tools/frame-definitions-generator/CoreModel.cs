@@ -25,7 +25,6 @@ internal sealed class CoreModel
     /// <summary>Tables that name every kind or frame; reading one would make every kind or frame every reader's.</summary>
     private static readonly string[] TableNames =
     [
-        "EnemyProjectileTypedStarts",
         "EnemyProjectileDefinitionCatalog",
         "RoomSpriteObjectVisualDefinitions",
         "RoomSpriteObjectDefinitions",

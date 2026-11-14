@@ -8,5 +8,5 @@ internal static class SkreeParticleDefinitions
     /// <summary>Skree's four-particle burst.</summary>
     internal static MetalParticleBurst Burst { get; } = new(
         RoomEnemyProjectileKind.SkreeParticleDownRight, RoomEnemyProjectileKind.SkreeParticleUpRight,
-        RoomEnemyProjectileKind.SkreeParticleDownLeft, RoomEnemyProjectileKind.SkreeParticleUpLeft);
+        RoomEnemyProjectileKind.SkreeParticleDownLeft, RoomEnemyProjectileKind.SkreeParticleUpLeft, SkreeMetareeParticleSegment.Skree);
 }

@@ -62,7 +62,11 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
+            // The collapse step names the pose its spawn falls in, the one the kind's spawn starts.
+            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind) is MotherBrainTopTubeAnimation started
+                ? started.PlayingSegment
+                : throw new InvalidOperationException($"{item.Kind} is not a top tube.");
+            enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, pose, new Position16<RoomPixels>(item.X, item.Y));
             EnemyProjectile tube = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
             AssertEqual(item.Program, NativePointer(tube),
@@ -78,7 +82,8 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         }
 
         RoomEnemySystem shotSystem = NewSystem();
-        shotSystem.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
+        shotSystem.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube,
+            MotherBrainTopTubeSegment.TopRight, new Position16<RoomPixels>(152, 47));
         EnemyProjectile shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
         shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

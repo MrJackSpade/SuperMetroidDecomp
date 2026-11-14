@@ -70,7 +70,7 @@ internal static class EnemySoundOrderVerification
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
 
         EnemyProjectile link = enemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
+        FamilyProjectileStarts.Initialize(enemies, link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;

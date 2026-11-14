@@ -101,7 +101,7 @@ namespace SuperMetroid.Core.World;
 /// meets, and the gunship's lower part copies fields from the slot before it. A compacted list would lose that.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrameResults, IEnemyDisplaySources
+public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 {
     /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -627,7 +627,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         SpriteObjects = new RoomSpriteObjects(Presentation, compatibility.SpriteObjectPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, SpriteObjects, Earthquake, Audio);
-        Projectiles.AddHandlerSource(this);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
         Terrain = new EnemyTerrain();
         CorpseRowDust = new CorpseRowDust(Audio);
@@ -638,7 +637,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
@@ -1098,70 +1097,5 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
         Projectiles.RunPass(level, samus, camera, shortFrameCounter, samusBombs, frameCounter);
-    }
-
-    /// <summary>
-    /// Registers species projectile handlers before generic and cross-species handlers,
-    /// preserving the keyed per-frame step and ordered script-interceptor dispatch.
-    /// </summary>
-    void IEnemyProjectileHandlerSource.AddEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
-    {
-        // Species register first; generic and cross-species registrations follow.
-        AlcoonBehavior.AddAlcoonProjectiles(table);
-        BombTorizoBehavior.Attacks.AddBombTorizoProjectiles(table);
-        BotwoonBehavior.AddBotwoonProjectiles(table);
-        CacatacBehavior.AddCacatacProjectiles(table);
-        CrocomireBehavior.Combat.AddCrocomireProjectiles(table);
-        DownwardGateBehavior.AddDownwardGateProjectiles(table);
-        DragonBehavior.AddDragonProjectiles(table);
-        DraygonBehavior.Goop.AddDraygonProjectiles(table);
-        EyeDoorBehavior.AddEyeDoorProjectiles(table);
-        FakeKraidBehavior.AddFakeKraidProjectiles(table);
-        FallingSparksBehavior.AddFallingSparksProjectiles(table);
-        FuneNamiheBehavior.AddFuneNamiheProjectiles(table);
-        KagoBehavior.AddKagoProjectiles(table);
-        KiHunterBehavior.AddKiHunterProjectiles(table);
-        KraidProjectiles.AddKraidProjectiles(table);
-        KraidProjectiles.AddKraidRockAnimations(table);
-        MagdolliteBehavior.AddMagdolliteProjectiles(table);
-        MotherBrainBehavior.Projectiles.AddMotherBrainProjectiles(table);
-        NinjaSpacePirateBehavior.AddNinjaSpacePirateProjectiles(table);
-        NoobTubeBehavior.AddNoobTubeProjectiles(table);
-        PhantoonBehavior.Combat.AddPhantoonProjectiles(table);
-        PolypBehavior.AddPolypProjectiles(table);
-        PowampBehavior.AddPowampProjectiles(table);
-        PrePhantoonRoomBehavior.AddPrePhantoonRoomProjectiles(table);
-        ShaktoolBehavior.AddShaktoolProjectiles(table);
-        SporeSpawnBehavior.AddSporeSpawnProjectiles(table);
-        TourianEntranceStatueBehavior.AddTourianEntranceStatueProjectiles(table);
-        TourianUnlockBehavior.AddTourianUnlockProjectiles(table);
-        WalkingSpacePirateBehavior.AddWalkingSpacePirateProjectiles(table);
-        WorkRobotBehavior.AddWorkRobotProjectiles(table);
-
-        DeathsAndDrops.ConnectPickupFrameBehavior(table);
-
-        RinkaBehavior.AddMiscDustFrameBehavior(table);
-
-        RidleyProjectiles.AddFireballFrameBehaviors(table);
-
-        EnemyProjectileEngine.AddMetalSkreeParticleFrameBehavior(table);
-
-        KraidProjectiles.AddKraidRockSpitFrameBehavior(table);
-
-        Projectiles.AddCeresFallingTileFrameBehavior(table);
-
-        EnemyProjectileEngine.AddGunshipDustCues(table);
-
-
-        OldTourianEscapeShaftWallBehavior.AddWallExplosionCues(table);
-
-        NoobTubeBehavior.AddNoobTubeProjectileCues(table);
-
-
-        RidleyProjectiles.AddFireballCues(table);
-
-        CrocomireBehavior.Combat.AddCrocomireDropProjectiles(table);
-
-        DeathsAndDrops.ConnectDeathExplosionCues(table);
     }
 }

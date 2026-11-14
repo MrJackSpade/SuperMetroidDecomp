@@ -111,27 +111,40 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
     };
 
-    /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
-    internal void AddKagoProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>A Kago bug (#1760).</summary>
+    internal EnemyProjectileBehavior Bug => field ??= new BugBehavior(this);
+
+    /// <summary>
+    /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
+    /// animation, the animation its definition names.
+    /// </summary>
+    private sealed class BugBehavior(KagoBehavior owner)
+        : EnemyProjectileBehavior(shot: () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot)), IEnemyProjectileCues<KagoBugProjectileCue>
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunKagoBugIdle(context.Projectile);
-        }, EnemyProjectileFrameBehavior.KagoBugWaiting);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.KagoBugWaiting)
+            {
+                owner.RunKagoBugIdle(context.Projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KagoBugJump)
+            {
+                owner.RunKagoBugJumping(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KagoBugFall)
+            {
+                owner.RunKagoBugFalling(context.Projectile, context.Level);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
 
-        table.AddFrameBehavior(context =>
-        {
-            RunKagoBugJumping(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.KagoBugJump);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunKagoBugFalling(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.KagoBugFall);
-
-        table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
-        // A shot bug runs its typed shot animation, the animation its definition names.
-        table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => owner.ApplyKagoBugCue(context.Projectile, cue);
     }
 
     /// <summary>Carries out one cue of the bugs' animations.</summary>
@@ -201,6 +214,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KagoBug,
+            Bug,
             SpriteGraphics.SpawnedBy(source));
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);

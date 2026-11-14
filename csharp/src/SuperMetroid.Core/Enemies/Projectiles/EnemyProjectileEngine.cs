@@ -9,14 +9,17 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.SaveStation;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
 /// place and its definition setup, the per-frame pass (frame behaviours, then each animation), the animation runner,
-/// both draw-priority passes and the Samus collision passes. Species behavior arrives through registered handlers; the
-/// engine names no species.
+/// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
+/// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
 /// <para>
 /// The places are ordered, and gameplay reads the order: spawns take the free place searched from the last down, and
 /// every pass (movement and animations, collisions, drawing) runs from the last place down, so a projectile spawned below
@@ -26,32 +29,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
-    /// <summary>The owners whose projectile handlers make up the dispatch table.</summary>
-    private readonly List<IEnemyProjectileHandlerSource> _handlerSources = [];
-
-    /// <summary>
-    /// Adds an owner whose projectile handlers join the table. Owners are added while the enemy system is
-    /// composed, before the first dispatch builds the table.
-    /// </summary>
-    internal void AddHandlerSource(IEnemyProjectileHandlerSource source) => _handlerSources.Add(source);
-
-    /// <summary>The dispatch table, built from the handler owners on the first dispatch, after composition added them all.</summary>
-    private EnemyProjectileHandlerTable Handlers => field ??= BuildHandlers();
-
-    /// <summary>Registers the stationary behaviour and every species-owned projectile handler.</summary>
-    private EnemyProjectileHandlerTable BuildHandlers()
-    {
-        var table = new EnemyProjectileHandlerTable();
-        // A stationary projectile does not move itself: it holds still, or its owner positions it.
-        table.AddFrameBehavior(static _ => { }, EnemyProjectileFrameBehavior.Stationary);
-        table.AddCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
-        foreach (IEnemyProjectileHandlerSource source in _handlerSources)
-            source.AddEnemyProjectileHandlers(table);
-        return table;
-    }
-
-    /// <summary>Carries out one shared cue of a typed projectile animation.</summary>
-    private void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
+    /// <summary>Carries out one shared cue of a typed projectile animation, for every kind whose animations publish them.</summary>
+    internal void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue)
         {
@@ -197,9 +176,7 @@ internal sealed class EnemyProjectileEngine
                 else
                 {
                     // Every shot animation without a typed reaction of its own is the shared delete animation.
-                    enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
-                        ? shotAnimation()
-                        : EnemyProjectileDeleteAnimation.Instance);
+                    enemyProjectile.StartAnimation(BehaviorOf(enemyProjectile).ShotAnimation());
                     enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
 
                     // A shot that destroys a projectile strips its behaviours and keeps only its damage: it no
@@ -386,19 +363,23 @@ internal sealed class EnemyProjectileEngine
     /// authored initializer does; centralizing the copy prevents each projectile kind
     /// from inventing subtly different radius/property semantics.
     /// </summary>
+    /// <param name="projectile">The freshly spawned projectile.</param>
+    /// <param name="kind">What the projectile is, which names its definition.</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760).</param>
+    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
+        EnemyProjectileBehavior behavior,
         SpriteGraphics graphics)
     {
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
         projectile.Kind = kind;
+        projectile.Behavior = Ensure.NotNull(behavior);
         projectile.FrameBehavior = definition.FrameBehavior;
-        // The spawn starts the animation timer at one, so the first step runs on the first pass. A kind without
-        // a typed start has its spawner start the animation its producer chooses.
+        // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
+        // the animation it chooses.
         projectile.FrameHold = WrappingCountdown.Start(1);
-        if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
-            projectile.StartAnimation(animation);
 
         // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
         // frame; advances to that on its own pass.
@@ -415,7 +396,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Runs the projectile's current frame behaviour before its animation advances.</summary>
-    private void RunEnemyProjectileFrameBehavior(
+    private static void RunEnemyProjectileFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level,
         SamusState? samus,
@@ -423,14 +404,15 @@ internal sealed class EnemyProjectileEngine
         int frameCycle,
         SamusBombProjectileSystem? samusBombs)
     {
-        EnemyProjectileFrameBehavior id = projectile.FrameBehavior;
-        if (!Handlers.TryGetFrameBehavior(id, out EnemyProjectileFrameBehaviorHandler? handler))
-        {
-            throw new InvalidDataException(
-                $"Enemy projectile has no frame behaviour {projectile.FrameBehavior}.");
-        }
-        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
+        BehaviorOf(projectile).RunFrameBehavior(
+            new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
     }
+
+    /// <summary>The behaviour bound to <paramref name="projectile"/> at its spawn.</summary>
+    /// <exception cref="InvalidOperationException">The projectile was given a kind without a behaviour.</exception>
+    private static EnemyProjectileBehavior BehaviorOf(EnemyProjectile projectile) =>
+        projectile.Behavior ?? throw new InvalidOperationException(
+            $"Enemy projectile {projectile.Kind} in place {projectile.Place} has no behaviour bound.");
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
     internal static bool MoveProjectileAxis(
@@ -649,7 +631,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
-    internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
+    internal static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -683,8 +665,8 @@ internal sealed class EnemyProjectileEngine
         // prevents later persistent projectile families from needing bespoke hit effects.
         bool hasTouchList = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
         // Every touch animation without a typed reaction of its own is the shared delete animation.
-        if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
-            projectile.StartAnimation(touchAnimation());
+        if (BehaviorOf(projectile).TouchAnimation() is { } touchAnimation)
+            projectile.StartAnimation(touchAnimation);
         else if (hasTouchList)
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
 
@@ -704,7 +686,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera), Handlers);
+            animation.Advance(new(projectile, samus, camera), this);
             return;
         }
 
@@ -803,6 +785,7 @@ internal sealed class EnemyProjectileEngine
         InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.MiscDustExplosion,
+            MiscDustProjectileBehavior.Instance,
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
@@ -828,26 +811,52 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileKind kind = dark
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, CeresFallingTile, graphics);
         projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(0, 16));
         projectile.StartAnimation(animation);
     }
 
-    /// <summary>Deletes a gunship dust cloud when its animation ends.</summary>
-    internal static void AddGunshipDustCues(EnemyProjectileHandlerTable table) =>
-        table.AddCue<GunshipDustCue>((context, cue) =>
+    /// <summary>
+    /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
+    /// raises dust and sounds its fall.
+    /// </summary>
+    internal SingleMotionProjectileBehavior CeresFallingTile => field ??= new(
+        EnemyProjectileFrameBehavior.CeresTileFall,
+        context => DropCeresFallingTile(context.Projectile, context.Level));
+
+    /// <summary>Drops a Ceres tile, accelerating, and raises dust and sounds its fall where it strikes the room.</summary>
+    internal void DropCeresFallingTile(EnemyProjectile projectile, RoomLevelData level)
+    {
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CeresFallingTileGravity);
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            EnemyProjectile projectile = context.Projectile;
+            Position16<RoomPixels> impact = projectile.Position.Whole;
+            projectile.Delete();
+            SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
+            _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
+        }
+    }
+
+    /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
+    internal static EnemyProjectileBehavior GunshipDust { get; } = new GunshipDustBehavior();
+
+    /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
+    private sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
+    {
+        /// <summary>Deletes the dust cloud when its animation ends.</summary>
+        public void RunCue(EnemyProjectileCueContext context, GunshipDustCue cue)
+        {
             switch (cue)
             {
                 case GunshipDustCue.Delete:
-                    projectile.Delete();
+                    context.Projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
             }
-        });
+        }
+    }
 
     /// <summary>
     /// Spawns the save station's projectile with the room's graphics and initializes it.
@@ -869,7 +878,9 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.SaveStationElectricity,
+            EnemyProjectileBehavior.Still,
             graphics: default);
+        projectile.StartAnimation(new SaveStationElectricityAnimation(SaveStationElectricitySegment.Start));
         int blockX = roomObjectBlock.X;
         int blockY = roomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
@@ -885,6 +896,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
+            GunshipDust,
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + definition.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
@@ -898,10 +910,26 @@ internal sealed class EnemyProjectileEngine
     internal void SpawnMetalParticleBurst(RoomEnemySlot source, MetalParticleBurst burst)
     {
         Ensure.NotNull(burst);
-        SpawnSkreeOrMetareeParticle(source, burst.DownRight, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpRight, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
-        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
+        SpawnSkreeOrMetareeParticle(source, burst.DownRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
+        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
+    }
+
+    /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>
+    internal static EnemyProjectileBehavior MetalParticles { get; } = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.SkreeParticleFlight, context => FlyMetalParticle(context.Projectile, context.Camera));
+
+    /// <summary>Flies a Skree or Metaree particle under gravity, removing it once it leaves the camera's square.</summary>
+    private static void FlyMetalParticle(EnemyProjectile projectile, Position16<RoomPixels> camera)
+    {
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SkreeParticleGravity);
+        if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
+        {
+            projectile.Delete();
+        }
     }
 
     /// <summary>
@@ -912,6 +940,7 @@ internal sealed class EnemyProjectileEngine
     private void SpawnSkreeOrMetareeParticle(
         RoomEnemySlot source,
         RoomEnemyProjectileKind kind,
+        SkreeMetareeParticleSegment look,
         int xOffset,
         EightEightVector<RoomPixels> velocity)
     {
@@ -922,7 +951,9 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             particle,
             kind,
+            MetalParticles,
             SpriteGraphics.SpawnedBy(source));
+        particle.StartAnimation(new SkreeMetareeParticleAnimation(look));
         particle.Position = particle.Position.WithWhole(new(CoordinateAxis.Wrap(source.Position.X.Whole + xOffset), source.Position.Y.Whole));
         particle.Velocity = velocity;
     }
@@ -977,37 +1008,6 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>A falling Ceres tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight CeresFallingTileGravity = SignedEightEight.FromParts(0, 16);
-
-    /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
-    internal static void AddMetalSkreeParticleFrameBehavior(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(context.Projectile.Velocity.Y + SkreeParticleGravity);
-            if (CoordinateAxis.Wrap(context.Projectile.Position.X.Whole - context.Camera.X) >= 256 ||
-                CoordinateAxis.Wrap(context.Projectile.Position.Y.Whole - context.Camera.Y) >= 256)
-            {
-                context.Projectile.Delete();
-            }
-        }, EnemyProjectileFrameBehavior.SkreeParticleFlight);
-    }
-
-    /// <summary>Registers tile gravity and impact dust/sound when Ceres debris strikes room terrain.</summary>
-    internal void AddCeresFallingTileFrameBehavior(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(context.Projectile.Velocity.Y + CeresFallingTileGravity);
-            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
-            {
-                Position16<RoomPixels> impact = context.Projectile.Position.Whole;
-                context.Projectile.Delete();
-                SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
-                _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
-            }
-        }, EnemyProjectileFrameBehavior.CeresTileFall);
-    }
 
     /// <summary>
     /// Draws the one-in-four branch: it is taken when the room's next random number divided by 16384

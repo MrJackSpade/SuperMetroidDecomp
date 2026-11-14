@@ -60,60 +60,75 @@ internal sealed class PhantoonCombat
         },
     };
 
-    /// <summary>Adds Phantoon's flame initializers, frame behaviours, and animation steps.</summary>
-    internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one runs its typed shot
+    /// animation, the animation its definition names.
+    /// </summary>
+    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(this,
+        () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableShot));
+
+    /// <summary>
+    /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one runs the destroyable
+    /// flame's idle animation, the animation its definition names.
+    /// </summary>
+    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(this,
+        () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
+
+    /// <summary>A Phantoon flame: every flame's frame behaviour, from the intro's wait and orbit to the rage and spiral, and the flame animations' cues.</summary>
+    private sealed class PhantoonFlameBehavior(PhantoonCombat owner, Func<EnemyProjectileAnimation> shot)
+        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<PhantoonFlameCue>
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunPhantoonStartingFlameWaiting(context.Projectile);
-        }, EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting);
+            EnemyProjectile flame = context.Projectile;
+            EnemyProjectileFrameBehavior motion = flame.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting)
+            {
+                owner.RunPhantoonStartingFlameWaiting(flame);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit)
+            {
+                owner.RunPhantoonStartingFlameOrbit(flame);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameFall)
+            {
+                RunPhantoonCasualFlameFalling(flame, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameLanding)
+            {
+                RunPhantoonCasualFlameImpactPause(flame, owner._projectiles.CurrentFrame16);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameBounce)
+            {
+                RunPhantoonCasualFlameBouncing(flame, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit)
+            {
+                owner.RunPhantoonEnragedFlame(flame);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonFlameRainFall)
+            {
+                owner.RunPhantoonRainFlame(flame, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit)
+            {
+                owner.RunPhantoonSpiralFlame(flame);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
 
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonStartingFlameOrbit(context.Projectile);
-        }, EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonCasualFlameFalling(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameFall);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonCasualFlameImpactPause(context.Projectile, _projectiles.CurrentFrame16);
-        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameLanding);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonCasualFlameBouncing(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.PhantoonCasualFlameBounce);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonEnragedFlame(context.Projectile);
-        }, EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonRainFlame(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.PhantoonFlameRainFall);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunPhantoonSpiralFlame(context.Projectile);
-        }, EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit);
-
-        table.AddShotAnimation(RoomEnemyProjectileKind.PhantoonDestroyableFlame,
-            () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableShot));
-        table.AddShotAnimation(RoomEnemyProjectileKind.PhantoonStartingFlame,
-            () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
-        table.AddCue<PhantoonFlameCue>((context, cue) =>
+        /// <summary>Carries out a flame animation's cue: the flame's drop, or its deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, PhantoonFlameCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case PhantoonFlameCue.SpawnDrop:
-                    RequestPhantoonFlameDrop(projectile);
+                    owner.RequestPhantoonFlameDrop(projectile);
                     return;
                 case PhantoonFlameCue.Delete:
                     projectile.Delete();
@@ -121,7 +136,7 @@ internal sealed class PhantoonCombat
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
             }
-        });
+        }
     }
 
     /// <summary>

@@ -670,8 +670,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by key.
-            return TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null ||
-                TourianStatueProjectileStarts.ForKind(kind) is not null || MotherBrainProjectileStarts.ForKind(kind) is not null
+            return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartingAnimation(kind) is not null
                 ? DrawPresentedFrame(artwork, operand, source, kind)
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }

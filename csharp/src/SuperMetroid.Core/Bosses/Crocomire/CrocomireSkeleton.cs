@@ -26,11 +26,14 @@ internal sealed class CrocomireSkeleton
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
-
+    /// <summary>Crocomire's combat, whose projectile behaviour the spike wall's pieces are bound to.</summary>
+    private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access)
+    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access,
+        CrocomireCombat combat)
     {
+        _combat = combat;
         _room = room;
         _projectiles = projectiles;
         _presentation = presentation;
@@ -291,6 +294,7 @@ internal sealed class CrocomireSkeleton
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
+                _combat.Debris,
                 graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.SpikeWallPiece));
             int piece = CrocomireSpikeMotionDefinitions.PieceCount - 1 - count;

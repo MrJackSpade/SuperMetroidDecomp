@@ -492,18 +492,29 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Registers front and linked attack-circle movement behaviours.</summary>
-    internal void AddShaktoolProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.ShaktoolFrontCircleFlight);
+    /// <summary>Shaktool's attack circles, front, middle and back (#1760): their spawner starts their animations.</summary>
+    internal EnemyProjectileBehavior AttackCircles => field ??= new AttackCircleBehavior(this);
 
-        table.AddFrameBehavior(context =>
+    /// <summary>An attack circle: the front one's flight with room collision, and the trailing ones' while their owner lives.</summary>
+    private sealed class AttackCircleBehavior(ShaktoolBehavior owner) : EnemyProjectileBehavior
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.ShaktoolFrontCircleFlight)
+            {
+                RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)
+            {
+                owner.RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
     }
 
     /// <summary>Runs Shaktool's main AI.</summary>

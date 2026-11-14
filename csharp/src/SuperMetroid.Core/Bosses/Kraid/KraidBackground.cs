@@ -66,6 +66,7 @@ internal sealed class KraidBackground
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
+            KraidProjectiles.Rocks,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));

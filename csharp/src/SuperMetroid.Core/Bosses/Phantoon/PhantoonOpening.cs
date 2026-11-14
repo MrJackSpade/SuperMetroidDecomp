@@ -16,10 +16,14 @@ internal sealed class PhantoonOpening
     private readonly PhantoonPresentation _presentation;
     /// <summary>The bosses' results of the pass, where the opening asks for the fight's door.</summary>
     private readonly BossFrameResultBuilder _frameResults;
+    /// <summary>Phantoon's combat, whose flame behaviours the intro flames are bound to.</summary>
+    private readonly PhantoonCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation, BossFrameResultBuilder frameResults)
+    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation, BossFrameResultBuilder frameResults,
+        PhantoonCombat combat)
     {
+        _combat = combat;
         _projectiles = projectiles;
         _audio = audio;
         _presentation = presentation;
@@ -111,6 +115,7 @@ internal sealed class PhantoonOpening
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonStartingFlame,
+            _combat.StartingFlame,
             SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);

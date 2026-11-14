@@ -699,16 +699,20 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Connects thrown-lava movement, its typed animations' cues and its shot animation to the projectile engine.</summary>
-    internal void AddMagdolliteProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.MagdolliteLavaFlight);
+    /// <summary>Magdollite's thrown lava (#1760).</summary>
+    internal EnemyProjectileBehavior Lava => field ??= new LavaBehavior(this);
 
-        table.AddCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
-        table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot));
+    /// <summary>
+    /// Thrown lava: it flies sideways until it leaves the view, handles its animations' cues, and a shot ball runs its
+    /// typed shot animation, the animation its definition names.
+    /// </summary>
+    private sealed class LavaBehavior(MagdolliteBehavior owner) : SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.MagdolliteLavaFlight,
+        context => RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera),
+        shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
+    {
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, MagdolliteLavaCue cue) => owner.ApplyMagdolliteLavaCue(context.Projectile, cue);
     }
 
     /// <summary>Carries out one cue of the thrown lava's animations.</summary>
@@ -778,6 +782,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.LavaThrownByMagdollite,
+            Lava,
             SpriteGraphics.SpawnedBy(source));
 
         // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the

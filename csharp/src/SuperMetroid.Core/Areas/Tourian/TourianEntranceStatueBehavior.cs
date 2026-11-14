@@ -113,7 +113,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         }
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
-            if (TourianStatueProjectileStarts.ShowsStatueScene(projectile.Kind))
+            if (projectile.IsActive && projectile.Behavior is TourianStatueProjectileBehavior)
                 projectile.Graphics = projectile.Graphics.In(shading);
         }
     }
@@ -147,12 +147,15 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
+                TourianStatueProjectileSegment.BaseDecoration,
                 position: new(120, 184));
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueRidley,
+                TourianStatueProjectileSegment.Ridley,
                 position: new(142, 85));
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatuePhantoon,
+                TourianStatueProjectileSegment.Phantoon,
                 position: new(132, 136));
         }
 
@@ -161,16 +164,21 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         ShowScene();
     }
 
-    /// <summary>Allocates a decorative projectile when a slot is free tied to its authored position.</summary>
+    /// <summary>
+    /// Allocates a decorative projectile of <paramref name="kind"/>, starting its animation at <paramref name="start"/>,
+    /// when a slot is free tied to its authored position.
+    /// </summary>
     internal void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
+        TourianStatueProjectileSegment start,
         Position16<RoomPixels> position)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        TourianStatueProjectileStarts.Initialize(projectile, kind, graphics: SceneGraphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Decorations, graphics: SceneGraphics);
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
         projectile.State = new AnchoredProjectileState(position);
@@ -194,13 +202,25 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - TourianEntranceStatueVerticalOffset);
     }
 
-    /// <summary>Registers the shared per-frame behaviour for base, Ridley, and Phantoon decoration actors.</summary>
-    internal void AddTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>The statue's base decoration, Ridley and Phantoon (#1760): their spawner starts their animations.</summary>
+    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(this);
+
+    /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
+    private sealed class DecorationBehavior(TourianEntranceStatueBehavior owner) : TourianStatueProjectileBehavior
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            PositionTourianEntranceStatueProjectile(context.Projectile);
-        }, EnemyProjectileFrameBehavior.TourianStatueRevealFollow, EnemyProjectileFrameBehavior.TourianStatueDecorationSettled);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion is EnemyProjectileFrameBehavior.TourianStatueRevealFollow or EnemyProjectileFrameBehavior.TourianStatueDecorationSettled)
+            {
+                owner.PositionTourianEntranceStatueProjectile(context.Projectile);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
     }
 
     /// <summary>Advances TourianEntranceStatue's typed animation.</summary>

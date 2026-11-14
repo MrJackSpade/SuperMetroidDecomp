@@ -86,7 +86,8 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash);
+        enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash,
+            TourianStatueProjectileSegment.Splash);
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, NativePointer(splash),
@@ -157,7 +158,11 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
 
         EnemyProjectile SpawnStatue(RoomEnemyProjectileKind kind)
         {
-            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, new Position16<RoomPixels>(128, 128));
+            // The statue names the animation each decoration starts, the one the kind's spawn starts.
+            TourianStatueProjectileSegment start = FamilyProjectileStarts.StartingAnimation(kind) is TourianStatueProjectileAnimation started
+                ? started.PlayingSegment
+                : throw new ArgumentOutOfRangeException(nameof(kind), kind, "The entrance statue spawns no such decoration.");
+            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, start, new Position16<RoomPixels>(128, 128));
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 

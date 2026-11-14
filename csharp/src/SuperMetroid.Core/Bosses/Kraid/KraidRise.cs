@@ -297,7 +297,7 @@ internal sealed class KraidRise
         if (rock is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, KraidProjectiles.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockSegment.RisingRightPose
             : KraidRockSegment.SharedPose));

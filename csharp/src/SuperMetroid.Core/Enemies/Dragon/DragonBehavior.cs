@@ -303,14 +303,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary frame behaviour.</summary>
-    internal static void AddDragonProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunDragonFireballFrameBehavior(context.Projectile, context.Camera.Y);
-        }, EnemyProjectileFrameBehavior.DragonFireballArc);
-    }
+    /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
+    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.DragonFireballArc,
+        context => RunDragonFireballFrameBehavior(context.Projectile, context.Camera.Y));
 
     /// <summary>Runs Dragon's main AI.</summary>
     internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -361,6 +357,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.DragonFireball,
+            Fireball,
             SpriteGraphics.SpawnedBy(body));
         projectile.Position = projectile.Position.WithY(new(CoordinateAxis.Wrap(body.Position.Y.Whole - 28), 0));
         projectile.Velocity = projectile.Velocity.WithY(DragonFireballInitialYVelocity);

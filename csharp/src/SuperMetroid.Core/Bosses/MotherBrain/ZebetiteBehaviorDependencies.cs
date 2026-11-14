@@ -38,6 +38,9 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
+    /// <summary>The enemy deaths, whose death explosion a dying half leaves.</summary>
+    public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
+
     /// <summary>The fade step count every gradual fade shares, past whose start the Zebetites' pulse holds.</summary>
     public required SharedFadeStepCount FadeStepCount { get; init; }
 }

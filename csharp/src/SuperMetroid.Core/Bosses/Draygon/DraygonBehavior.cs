@@ -36,8 +36,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>How Draygon moves along an angle or horizontally, and the breath bubbles it trails.</summary>
     internal DraygonMovement Movement { get; }
 
-    /// <summary>Draygon's goop passes and the goop and turret shots as projectiles.</summary>
+    /// <summary>Draygon's goop passes.</summary>
     internal DraygonGoop Goop { get; }
+
+    /// <summary>The goop and turret shots as projectiles.</summary>
+    internal DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     internal DraygonGrab Grab { get; }
@@ -58,17 +61,19 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
+        Shots = new DraygonShots(_frameContext, dependencies.DeathsAndDrops);
         Parts = new DraygonParts(new DraygonPartsDependencies
         {
             Room = dependencies.Room, Projectiles = dependencies.Projectiles,
             Earthquake = dependencies.Earthquake, SpriteObjects = dependencies.SpriteObjects,
             Presentation = dependencies.Presentation, FrameContext = dependencies.FrameContext, Audio = dependencies.Audio,
+            Shots = Shots,
         });
-        Turrets = new DraygonTurrets(_room, dependencies.Projectiles);
+        Turrets = new DraygonTurrets(_room, dependencies.Projectiles, Shots);
         Intro = new DraygonIntro(dependencies.SpriteObjects, Turrets);
         Movement = new DraygonMovement(dependencies.SpriteObjects);
         Swoops = new DraygonSwoops(_room, Parts, Turrets, Movement);
-        Goop = new DraygonGoop(_room, _frameContext, dependencies.DeathsAndDrops, Parts, Turrets, Movement);
+        Goop = new DraygonGoop(_room, Parts, Turrets, Movement);
         Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.SpriteObjects, dependencies.ScrollCap, Parts, Turrets);
         Death = new DraygonDeath(_room, dependencies.SpriteObjects, dependencies.DeathsAndDrops, Parts);
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Parts, Grab);

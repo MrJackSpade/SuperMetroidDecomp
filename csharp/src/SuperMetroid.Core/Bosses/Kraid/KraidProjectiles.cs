@@ -82,18 +82,60 @@ internal sealed class KraidProjectiles
         _parts.NailStateOf(state, nail).PhaseTimer = 64;
     }
 
-    /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
-    internal static void AddKraidProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunKraidRockFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.KraidRockFlight);
+    /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
+    internal static EnemyProjectileBehavior Rocks { get; } = new RockBehavior();
 
-        table.AddFrameBehavior(context =>
+    /// <summary>
+    /// A rock Kraid spits (#1760): its spawner starts its animation, and a shot one runs its typed burst, the animation its
+    /// definition names.
+    /// </summary>
+    internal static EnemyProjectileBehavior SpitRock { get; } = new RockBehavior(() => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
+
+    /// <summary>
+    /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, a shot spat
+    /// rock's switch to the shared colours, and the rock animations' cues.
+    /// </summary>
+    private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
+        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<KraidRockCue>
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.KraidCeilingRockFall);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.KraidRockFlight)
+            {
+                RunKraidRockFrameBehavior(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KraidCeilingRockFall)
+            {
+                RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KraidShotRockRecolor)
+            {
+                context.Projectile.Graphics = SpriteGraphics.SharedStandard;
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
+
+        /// <summary>Carries out a rock animation's cue: drawing from the shared sheet from the next pass, or deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
+        {
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue)
+            {
+                case KraidRockCue.DrawFromSharedSheetFromNextPass:
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.KraidShotRockRecolor;
+                    return;
+                case KraidRockCue.Delete:
+                    projectile.Delete();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
+            }
+        }
     }
 
     /// <summary>Runs KraidLintTop's initialization AI.</summary>
@@ -124,28 +166,6 @@ internal sealed class KraidProjectiles
     internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot, _parts.SecondNail);
-    }
-
-    /// <summary>Registers the spat rock's typed burst and the rock animations' cues.</summary>
-    internal static void AddKraidRockAnimations(EnemyProjectileHandlerTable table)
-    {
-        table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
-            () => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
-        table.AddCue<KraidRockCue>((context, cue) =>
-        {
-            EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case KraidRockCue.DrawFromSharedSheetFromNextPass:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.KraidShotRockRecolor;
-                    return;
-                case KraidRockCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
-            }
-        });
     }
 
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>
@@ -531,12 +551,4 @@ internal sealed class KraidProjectiles
                 KraidNailTouchDeathExplosion.AfterTouch(context.Slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }
 
-    /// <summary>Adds the shared frame behaviour used by spit rocks.</summary>
-    internal static void AddKraidRockSpitFrameBehavior(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            context.Projectile.Graphics = SpriteGraphics.SharedStandard;
-        }, EnemyProjectileFrameBehavior.KraidShotRockRecolor);
-    }
 }

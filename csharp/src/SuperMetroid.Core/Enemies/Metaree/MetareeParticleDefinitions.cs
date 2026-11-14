@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
@@ -11,5 +12,5 @@ internal static class MetareeParticleDefinitions
     /// <summary>Metaree's four-particle burst.</summary>
     internal static MetalParticleBurst Burst { get; } = new(
         RoomEnemyProjectileKind.MetareeParticleDownRight, RoomEnemyProjectileKind.MetareeParticleUpRight,
-        RoomEnemyProjectileKind.MetareeParticleDownLeft, RoomEnemyProjectileKind.MetareeParticleUpLeft);
+        RoomEnemyProjectileKind.MetareeParticleDownLeft, RoomEnemyProjectileKind.MetareeParticleUpLeft, SkreeMetareeParticleSegment.Metaree);
 }

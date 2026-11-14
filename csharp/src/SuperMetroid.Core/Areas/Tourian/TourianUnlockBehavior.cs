@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 
@@ -52,10 +53,12 @@ internal sealed class TourianUnlockBehavior
         {
             var projectile = _projectiles.AllocateEnemyProjectile();
             if (projectile is null) continue;
-            TourianStatueProjectileStarts.Initialize(
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
+                Effects,
                 _statue.SceneGraphics);
+            projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust));
             projectile.State = new AnchoredProjectileState(TourianDescentDustAnchor);
         }
     }
@@ -63,37 +66,45 @@ internal sealed class TourianUnlockBehavior
     /// <summary>Spawns the glow of a statue's <paramref name="eye"/> and lights the eye's colours.</summary>
     public void SpawnTourianEyeGlow(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, eye) is null) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, TourianStatueProjectileSegment.EyeGlow, eye) is null) return;
         _statue.ShowEyeGlow(eye.Glow);
     }
 
     /// <summary>Spawns a statue's released soul, rising from its <paramref name="eye"/>.</summary>
     public void SpawnTourianSoul(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, eye) is not { } soul) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(SignedEightEight.FromPixels(-4));
     }
 
-    /// <summary>Allocates an unlock effect at a statue's <paramref name="eye"/>; null when every slot is busy.</summary>
-    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueEye eye)
+    /// <summary>
+    /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at a
+    /// statue's <paramref name="eye"/>; null when every slot is busy.
+    /// </summary>
+    private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
     {
         Ensure.NotNull(eye);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, _statue.SceneGraphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
 
-    /// <summary>Spawns a splash, particle, or tail at its parent, applying water height or randomized motion.</summary>
-    internal void SpawnTourianParticleChild(EnemyProjectile parent, RoomEnemyProjectileKind kind)
+    /// <summary>
+    /// Spawns a splash, particle, or tail of <paramref name="kind"/>, starting its animation at <paramref name="start"/>,
+    /// at its parent, applying water height or randomized motion.
+    /// </summary>
+    internal void SpawnTourianParticleChild(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
     {
         if (kind is not (RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueParticle or
                 RoomEnemyProjectileKind.TourianStatueTail))
             throw new InvalidOperationException($"{kind} is not a Tourian statue child projectile.");
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return;
-        TourianStatueProjectileStarts.Initialize(projectile, kind, _statue.SceneGraphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
@@ -134,7 +145,7 @@ internal sealed class TourianUnlockBehavior
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
         bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
         if (submergedBefore != submergedAfter)
-            SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
+            SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash);
         if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
@@ -142,41 +153,58 @@ internal sealed class TourianUnlockBehavior
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ParticleGravity);
     }
 
-    /// <summary>Registers the statue effects' movers and animation cues.</summary>
-    internal void AddTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
+    /// tails, and the splashes. Their spawners start their animations.
+    /// </summary>
+    internal EnemyProjectileBehavior Effects => field ??= new ReleaseBehavior(this);
+
+    /// <summary>One of the unlock's effects: the splash's hold, the particle's fall and the soul's rise, and the release's cues.</summary>
+    private sealed class ReleaseBehavior(TourianUnlockBehavior owner) : TourianStatueProjectileBehavior
     {
-        table.AddFrameBehavior(context => HoldTourianStatueSplash(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSplashMotion);
-        table.AddFrameBehavior(context => DropTourianStatueParticle(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueParticleMotion);
-        table.AddFrameBehavior(context => RaiseTourianStatueSoul(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSoulMotion);
-        table.AddCue<TourianStatueProjectileCue>((context, cue) =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            EnemyProjectile projectile = context.Projectile;
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.TourianStatueSplashMotion)
+            {
+                owner.HoldTourianStatueSplash(context.Projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.TourianStatueParticleMotion)
+            {
+                owner.DropTourianStatueParticle(context.Projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.TourianStatueSoulMotion)
+            {
+                RaiseTourianStatueSoul(context.Projectile);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
+
+        /// <inheritdoc/>
+        private protected override void RunReleaseCue(EnemyProjectile projectile, TourianStatueProjectileCue cue)
+        {
             switch (cue)
             {
-                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete }:
-                    projectile.Delete();
-                    break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
+                    owner._audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake }:
-                    _earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
+                    owner._earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
-                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
+                    owner.SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
-                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
-                    break;
-                case TourianStatueProjectileCue.MoveDown moveDown:
-                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
-                    break;
-                case TourianStatueProjectileCue.StartMoving startMoving:
-                    projectile.FrameBehavior = startMoving.Movement;
+                    owner.SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
                     break;
                 default:
-                    throw new InvalidOperationException($"The Tourian statue projectiles have no {cue} cue.");
+                    base.RunReleaseCue(projectile, cue);
+                    break;
             }
-        });
+        }
     }
 }

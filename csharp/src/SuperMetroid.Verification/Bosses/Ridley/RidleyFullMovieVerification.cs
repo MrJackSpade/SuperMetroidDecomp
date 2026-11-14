@@ -438,7 +438,7 @@ internal static class RidleyFullMovieVerification
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            runtime.Enemies.Projectiles.ResolveEnemyProjectileSamusCollision(fireball, samus);
+            EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision(fireball, samus);
             AssertEqual((ushort)(700 - sample.Second / 4), samus.Health, "area damage passes through native Gravity reduction");
         }
         Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");

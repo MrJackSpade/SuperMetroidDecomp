@@ -253,6 +253,7 @@ internal sealed class KraidHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidSpitRock,
+            KraidProjectiles.SpitRock,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();

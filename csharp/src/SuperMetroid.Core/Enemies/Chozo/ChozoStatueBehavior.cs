@@ -314,7 +314,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
+            EnemyProjectileBehavior.Still,
             graphics: default);
+        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 

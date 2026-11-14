@@ -30,4 +30,7 @@ internal sealed record DraygonPartsDependencies
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
+
+    /// <summary>The goop and turret shots, whose goop behaviour Draygon's goop is bound to.</summary>
+    public required DraygonShots Shots { get; init; }
 }

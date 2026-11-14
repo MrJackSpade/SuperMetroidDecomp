@@ -322,41 +322,57 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Binds spore movement, emitter timing, impact properties, and drop steps.</summary>
-    internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>A spore (#1760): its spawner starts its animation, and a shot spore runs its typed shot animation.</summary>
+    internal EnemyProjectileBehavior Spore => field ??= new SporeSpawnProjectileBehavior(this,
+        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
+
+    /// <summary>A ceiling spore spawner (#1760): its spawner starts its animation, and a shot one restarts it closed.</summary>
+    internal EnemyProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(this,
+        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+
+    /// <summary>A link of Spore Spawn's stalk (#1760): its spawner starts its animation, and a shot one restarts it.</summary>
+    internal EnemyProjectileBehavior Stalk => field ??= new SporeSpawnProjectileBehavior(this,
+        () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+
+    /// <summary>A spore, spawner or stalk link: the spores' drift and the spawners' cadence, and their animations' cues.</summary>
+    private sealed class SporeSpawnProjectileBehavior(SporeSpawnBehavior owner, Func<EnemyProjectileAnimation> shot)
+        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunSporeSpawnSporeFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.SporeDrift);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.SporeDrift)
+            {
+                RunSporeSpawnSporeFrameBehavior(context.Projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.SporeSpawnerCadence)
+            {
+                owner.RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
 
-        table.AddFrameBehavior(context =>
-        {
-            RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.SporeSpawnerCadence);
-
-        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
-        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpawner,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
-        table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
-        table.AddCue<SporeSpawnProjectileCue>((context, cue) =>
+        /// <summary>Carries out a cue of the spores' and spawners' animations: spores, impact properties, the killed sound, drops and deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case SporeSpawnProjectileCue.SpawnSpore:
-                    SpawnSporeSpawnSpore(projectile.Position.Whole);
+                    owner.SpawnSporeSpawnSpore(projectile.Position.Whole);
                     return;
                 case SporeSpawnProjectileCue.SetImpactProperties:
                     SetSporeSpawnImpactProperties(projectile);
                     return;
                 case SporeSpawnProjectileCue.QueueKilledSound:
-                    _deathsAndDrops.QueueEnemyKilledSound();
+                    owner._deathsAndDrops.QueueEnemyKilledSound();
                     return;
                 case SporeSpawnProjectileCue.RequestDrop:
-                    RequestSporeSpawnSporeDrop(projectile);
+                    owner.RequestSporeSpawnSporeDrop(projectile);
                     return;
                 case SporeSpawnProjectileCue.Delete:
                     projectile.Delete();
@@ -364,7 +380,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
             }
-        });
+        }
     }
 
     /// <summary>Runs SporeSpawn's main AI.</summary>
@@ -640,6 +656,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
+            Stalk,
             SpriteGraphics.SpawnedBy(body));
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
@@ -660,6 +677,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
+            Spawner,
             SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
@@ -677,6 +695,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
+            Spore,
             SporeSpawnGraphicsIndex);
         spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);

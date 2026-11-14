@@ -100,6 +100,7 @@ internal sealed class EnemyDeathsAndDrops
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
+                DeathProjectiles,
                 graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.DropDefinitionId = enemy.DefinitionId;
@@ -195,6 +196,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
+            DeathProjectiles,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropDefinitionId = definitionId;
@@ -220,6 +222,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
+            DeathProjectiles,
             graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropChancesOverride = dropChances;
@@ -563,22 +566,36 @@ internal sealed class EnemyDeathsAndDrops
         _lifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None);
     }
 
-    /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>
-    internal void ConnectPickupFrameBehavior(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// The death explosions and the pickups they and direct drops become (#1760). Each spawner starts the explosion or
+    /// pickup animation it chooses.
+    /// </summary>
+    internal EnemyProjectileBehavior DeathProjectiles => field ??= new DeathProjectileBehavior(this);
+
+    /// <summary>
+    /// A death explosion or pickup: a pickup counts its lifetime and is collected on contact, and both handle the death
+    /// and drop animations' cues (sprite spawns, sounds, drop conversion and respawn).
+    /// </summary>
+    private sealed class DeathProjectileBehavior(EnemyDeathsAndDrops deaths)
+        : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            // Lifetime, grapple endpoint, then Samus body.
-            RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
-        }, EnemyProjectileFrameBehavior.PickupLifetime);
+            // A pickup runs its lifetime, then its grapple endpoint, then its Samus body contact.
+            if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.PickupLifetime)
+                deaths.RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
+            else
+                base.Move(context);
+        }
+
+        /// <inheritdoc/>
+        public EnemyDeathProjectileSegment? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue) =>
+            deaths.ApplyEnemyDeathProjectileCue(context.Projectile, cue);
     }
 
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
-
-    /// <summary>Connects the death and drop animations' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
-    internal void ConnectDeathExplosionCues(EnemyProjectileHandlerTable table) =>
-        table.AddBranchingCue<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
 
     /// <summary>
     /// Carries out one cue of the death and drop animations, returning the segment a converted explosion continues at, or

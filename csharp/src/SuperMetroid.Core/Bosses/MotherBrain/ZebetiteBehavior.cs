@@ -45,6 +45,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>The fade step count every gradual fade shares, past whose start the pulse holds.</summary>
     private readonly SharedFadeStepCount _fadeStepCount;
+    /// <summary>The enemy deaths, whose death explosion a dying half leaves.</summary>
+    private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
 
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
@@ -60,6 +62,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _slotTable = dependencies.SlotTable;
         _roomStatus = dependencies.RoomStatus;
         _fadeStepCount = dependencies.FadeStepCount;
+        _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
@@ -261,9 +264,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {
-            MotherBrainProjectileStarts.Initialize(
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
+                _deathsAndDrops.DeathProjectiles,
                 graphics: default);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;

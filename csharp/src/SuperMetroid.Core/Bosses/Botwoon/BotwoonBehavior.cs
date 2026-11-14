@@ -801,18 +801,29 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Adds the body-segment and spit frame behaviours.</summary>
-    internal void AddBotwoonProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
-        }, EnemyProjectileFrameBehavior.BotwoonBodySegment);
+    /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations.</summary>
+    internal EnemyProjectileBehavior BodyAndSpit => field ??= new BodyAndSpitBehavior(this);
 
-        table.AddFrameBehavior(context =>
+    /// <summary>A body segment, oriented and coloured with its hurt and run through its death, or a spit flying until it leaves the camera.</summary>
+    private sealed class BodyAndSpitBehavior(BotwoonBehavior owner) : EnemyProjectileBehavior
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.BotwoonSpitFlight);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.BotwoonBodySegment)
+            {
+                owner.RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.BotwoonSpitFlight)
+            {
+                RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
     }
 
     /// <summary>Runs Botwoon's main AI.</summary>
@@ -862,6 +873,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             segment,
             RoomEnemyProjectileKind.BotwoonBody,
+            BodyAndSpit,
             SpriteGraphics.SpawnedBy(head));
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
 
@@ -998,6 +1010,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
+            BodyAndSpit,
             SpriteGraphics.SpawnedBy(head));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(BotwoonProjectileAnimation.Spit());

@@ -152,7 +152,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
+                EnemyProjectileBehavior.Still,
                 state.GraphicsAttributes);
+            segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
             segment.Position = owner.Position.WithWhole(state.InitialHead);
             // The initializer writes collision option one for these four links. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent

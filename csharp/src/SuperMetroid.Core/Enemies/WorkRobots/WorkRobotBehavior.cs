@@ -373,14 +373,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
     };
 
-    /// <summary>Connects robot lasers to collision-first movement in their projectile frame behaviour.</summary>
-    internal static void AddWorkRobotProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunWorkRobotLaserFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.WorkRobotLaserFlight);
-    }
+    /// <summary>A Work Robot laser, in any of its five directions (#1760): it flies with room collision.</summary>
+    internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.WorkRobotLaserFlight,
+        context => RunWorkRobotLaserFrameBehavior(context.Projectile, context.Level));
 
     /// <summary>Runs WorkRobot's main AI.</summary>
     internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -428,7 +424,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             definition.ProjectileKind(),
+            Laser,
             SpriteGraphics.SharedStandard);
+        projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Initial));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(definition switch
         {

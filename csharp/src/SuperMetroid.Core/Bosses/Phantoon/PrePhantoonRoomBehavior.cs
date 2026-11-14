@@ -32,24 +32,27 @@ internal sealed class PrePhantoonRoomBehavior
         _room.EnsureLoaded();
         EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, HoldingProjectile, graphics: default);
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }
 
-    /// <summary>Registers the holding projectile's deletion cue.</summary>
-    internal static void AddPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>The room's holding projectile (#1760): it holds still until its animation deletes it.</summary>
+    internal static readonly EnemyProjectileBehavior HoldingProjectile = new HoldingProjectileBehavior();
+
+    /// <summary>The holding projectile, which carries out its animation's deletion cue.</summary>
+    private sealed class HoldingProjectileBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<PrePhantoonRoomCue>
     {
-        table.AddCue<PrePhantoonRoomCue>((context, cue) =>
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, PrePhantoonRoomCue cue)
         {
-            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case PrePhantoonRoomCue.Delete:
-                    projectile.Delete();
+                    context.Projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(PrePhantoonRoomCue)} {cue}.");
             }
-        });
+        }
     }
 }

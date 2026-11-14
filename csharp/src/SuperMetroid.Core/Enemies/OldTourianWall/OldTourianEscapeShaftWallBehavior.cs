@@ -40,16 +40,24 @@ internal sealed class OldTourianEscapeShaftWallBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
+            WallExplosion,
             graphics: default);
         projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);
     }
 
+    /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
+    internal EnemyProjectileBehavior WallExplosion => field ??= new WallExplosionBehavior(this);
 
-    /// <summary>Registers the handler that carries out the wall explosion animation's cues.</summary>
-    internal void AddWallExplosionCues(EnemyProjectileHandlerTable table) =>
-        table.AddCue<OldTourianWallExplosionCue>((context, cue) => ApplyWallExplosionCue(context.Projectile, cue));
+    /// <summary>The fake wall's explosion, which carries out its animation's cues.</summary>
+    private sealed class WallExplosionBehavior(OldTourianEscapeShaftWallBehavior owner)
+        : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
+    {
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, OldTourianWallExplosionCue cue) =>
+            owner.ApplyWallExplosionCue(context.Projectile, cue);
+    }
 
     /// <summary>Carries out one cue of the wall explosion's animation.</summary>
     private void ApplyWallExplosionCue(EnemyProjectile projectile, OldTourianWallExplosionCue cue)

@@ -49,28 +49,62 @@ internal sealed class CrocomireCombat
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
         ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot);
 
-    /// <summary>Registers Crocomire's owned projectile setup, movement, and cue handlers.</summary>
-    internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
+    /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
+    /// </summary>
+    internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(this,
+        () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
+
+    /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
+    internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(this);
+
+    /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
+    private sealed class CrocomireProjectileBehavior(CrocomireCombat owner, Func<EnemyProjectileAnimation>? shot = null)
+        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<CrocomireProjectileCue>
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            StartCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.CrocomireShotAiming);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.CrocomireShotAiming)
+            {
+                owner.StartCrocomireProjectileFlight(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.CrocomireShotFlight)
+            {
+                RunCrocomireProjectileFlight(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.CrocomireSpikeWallCollapse)
+            {
+                owner.RunCrocomireSpikeWallPiece(context.Projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.CrocomireBridgeFragmentFall)
+            {
+                RunCrocomireBridgeFragment(context.Projectile, context.Level);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
 
-        table.AddFrameBehavior(context =>
+        /// <summary>Carries out a cue of the shot's animation: the drop, allocated before the deletion frees the actor, or the deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, CrocomireProjectileCue cue)
         {
-            RunCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.CrocomireShotFlight);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunCrocomireSpikeWallPiece(context.Projectile);
-        }, EnemyProjectileFrameBehavior.CrocomireSpikeWallCollapse);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunCrocomireBridgeFragment(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.CrocomireBridgeFragmentFall);
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue)
+            {
+                case CrocomireProjectileCue.SpawnDrops:
+                    owner._deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
+                    return;
+                case CrocomireProjectileCue.Delete:
+                    projectile.Delete();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
+            }
+        }
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
@@ -346,31 +380,6 @@ internal sealed class CrocomireCombat
 
         projectile.Velocity = projectile.Velocity.WithY(
             RestartingFallSpeed.Accelerate(projectile.Velocity.Y, CrocomireBridgeFragmentDefinitions.Gravity));
-    }
-
-    /// <summary>
-    /// Registers the mouth projectile's typed shot animation and its cues: the drop is allocated with Crocomire's
-    /// chances before the deletion frees the exploding actor.
-    /// </summary>
-    internal void AddCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
-            () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
-        table.AddCue<CrocomireProjectileCue>((context, cue) =>
-        {
-            EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case CrocomireProjectileCue.SpawnDrops:
-                    _deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
-                    return;
-                case CrocomireProjectileCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
-            }
-        });
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>

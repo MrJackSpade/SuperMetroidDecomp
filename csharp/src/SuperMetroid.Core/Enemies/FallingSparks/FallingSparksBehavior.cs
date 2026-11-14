@@ -38,7 +38,9 @@ internal sealed class FallingSparksBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
+            Spark,
             SpriteGraphics.SpawnedBy(source));
+        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
         // The initializer zeros both ordinary velocities, then takes a random number. The
@@ -138,12 +140,8 @@ internal sealed class FallingSparksBehavior
             projectile.Graphics);
     }
 
-    /// <summary>Connects the falling-spark frame behaviour to the projectile handler table.</summary>
-    internal void AddFallingSparksProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunFallingSparkFrameBehavior(context.Projectile, context.Level, context.ShortCounter);
-        }, EnemyProjectileFrameBehavior.FallingSparkBounce);
-    }
+    /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
+    internal SingleMotionProjectileBehavior Spark => field ??= new(
+        EnemyProjectileFrameBehavior.FallingSparkBounce,
+        context => RunFallingSparkFrameBehavior(context.Projectile, context.Level, context.ShortCounter));
 }

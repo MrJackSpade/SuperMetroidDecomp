@@ -100,7 +100,6 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(EscapeExplosionsBehavior)] = EscapeExplosions,
         [nameof(ZebesEscapeExplosionDefinitions)] = EscapeExplosions,
         [nameof(TourianUnlockBehavior)] = StatueUnlocking,
-        [nameof(TourianStatueProjectileStarts)] = StatueUnlocking,
         [nameof(TourianStatueActors)] = StatueUnlocking,
         [nameof(EnemyDeathsAndDrops)] = EveryEnemy,
         [nameof(EnemyCollision)] = EveryEnemy,
@@ -122,11 +121,11 @@ internal static class CommonSpawnerPresenceDefinitions
             Enemies = DustRaisers, Mains = FallingDebris, Shades = [CommonSpawnerShades.CeresDoorLooks],
         },
         [Engine(nameof(EnemyProjectileEngine.SpawnCeresFallingDebris))] = CeresDebris,
-        [Engine(nameof(EnemyProjectileEngine.AddCeresFallingTileFrameBehavior))] = CeresDebris,
+        [Engine(nameof(EnemyProjectileEngine.DropCeresFallingTile))] = CeresDebris,
         [Engine(nameof(EnemyProjectileEngine.SpawnGunshipLiftoffDustCloud))] =
             new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
         [Engine(nameof(EnemyProjectileEngine.SpawnMetalParticleBurst))] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
-        [Engine(nameof(EnemyProjectileEngine.AddMetalSkreeParticleFrameBehavior))] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
+        [Engine(nameof(EnemyProjectileEngine.MetalParticles))] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
         [nameof(RoomMainRoutines)] = new()
         {
             Mains = [.. FallingDebris, .. CeresElevator], Shades = [CommonSpawnerShades.CeresDoorLooks, CommonSpawnerShades.CeresElevatorConcealer],

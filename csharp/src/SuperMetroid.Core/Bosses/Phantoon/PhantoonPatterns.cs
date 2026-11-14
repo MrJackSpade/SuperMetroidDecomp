@@ -19,11 +19,14 @@ internal sealed class PhantoonPatterns
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
-
+    /// <summary>Phantoon's combat, whose flame behaviours the destroyable flames are bound to.</summary>
+    private readonly PhantoonCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation)
+    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation,
+        PhantoonCombat combat)
     {
+        _combat = combat;
         _room = room;
         _projectiles = projectiles;
         _audio = audio;
@@ -776,6 +779,7 @@ internal sealed class PhantoonPatterns
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             flame,
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
+            _combat.DestroyableFlame,
             SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);

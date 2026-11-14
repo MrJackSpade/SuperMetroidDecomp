@@ -114,15 +114,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypProximity;
     }
 
-    /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling behaviour.</summary>
-    internal static void AddPolypProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            // Polyp rock: quadratic rise/fall and viewport cull.
-            RunPolypRockFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.PolypRockFlight);
-    }
+    /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
+    internal static readonly EnemyProjectileBehavior Rock = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.PolypRockFlight,
+        context => RunPolypRockFrameBehavior(context.Projectile, context.Camera));
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
@@ -160,6 +155,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PolypRock,
+            Rock,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;

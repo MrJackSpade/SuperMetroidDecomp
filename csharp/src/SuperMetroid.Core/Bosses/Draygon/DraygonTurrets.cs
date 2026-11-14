@@ -14,12 +14,15 @@ internal sealed class DraygonTurrets
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>The goop and turret shots, whose turret behaviour the turrets' shots are bound to.</summary>
+    private readonly DraygonShots _shots;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonTurrets(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    internal DraygonTurrets(EnemyRoomBinding room, EnemyProjectileEngine projectiles, DraygonShots shots)
     {
         _room = room;
         _projectiles = projectiles;
+        _shots = shots;
     }
 
     /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
@@ -57,6 +60,7 @@ internal sealed class DraygonTurrets
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
+            _shots.WallTurretShot,
             graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);

@@ -865,7 +865,7 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.DeadSkreeCorpseSecond] = "dead_skree_corpse_second",
         [EnemyFrameId.DeadSkreeCorpseThird] = "dead_skree_corpse_third",
         [EnemyFrameId.DeadSidehopperHopBody] = "dead_sidehopper_hop_body",
-        [EnemyFrameId.DeadSidehopperHopAlt] = "dead_sidehopper_hop_alt",
+        [EnemyFrameId.DeadSidehopperHopCrouched] = "dead_sidehopper_hop_crouched",
         [EnemyFrameId.DeadSidehopperIdle] = "dead_sidehopper_idle",
         [EnemyFrameId.DeadSidehopperCorpse] = "dead_sidehopper_corpse",
         [EnemyFrameId.DeadSidehopperInitiallyDead] = "dead_sidehopper_initially_dead",

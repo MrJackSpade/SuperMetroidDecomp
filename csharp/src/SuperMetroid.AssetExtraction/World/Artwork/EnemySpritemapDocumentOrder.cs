@@ -865,7 +865,7 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.DeadSkreeCorpseSecond,
         EnemyFrameId.DeadSkreeCorpseThird,
         EnemyFrameId.DeadSidehopperHopBody,
-        EnemyFrameId.DeadSidehopperHopAlt,
+        EnemyFrameId.DeadSidehopperHopCrouched,
         EnemyFrameId.DeadSidehopperIdle,
         EnemyFrameId.DeadSidehopperCorpse,
         EnemyFrameId.DeadSidehopperInitiallyDead,

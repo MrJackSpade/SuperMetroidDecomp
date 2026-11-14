@@ -1714,8 +1714,8 @@ public enum EnemyFrameId
     DeadSkreeCorpseThird,
     /// <summary>The dead Sidehopper: hop body.</summary>
     DeadSidehopperHopBody,
-    /// <summary>The dead Sidehopper: hop alt.</summary>
-    DeadSidehopperHopAlt,
+    /// <summary>The dead Sidehopper: hopping, crouched low with its legs spread.</summary>
+    DeadSidehopperHopCrouched,
     /// <summary>The dead Sidehopper: idle.</summary>
     DeadSidehopperIdle,
     /// <summary>The dead Sidehopper: corpse.</summary>

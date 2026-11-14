@@ -1129,7 +1129,7 @@ internal static class EnemyDefinitionFrameDefinitions
     private static readonly EnemyFrameId[] DeadSidehopper =
     [
         EnemyFrameId.DeadSidehopperHopBody,
-        EnemyFrameId.DeadSidehopperHopAlt,
+        EnemyFrameId.DeadSidehopperHopCrouched,
         EnemyFrameId.DeadSidehopperIdle,
         EnemyFrameId.DeadSidehopperCorpse,
         EnemyFrameId.DeadSidehopperInitiallyDead,

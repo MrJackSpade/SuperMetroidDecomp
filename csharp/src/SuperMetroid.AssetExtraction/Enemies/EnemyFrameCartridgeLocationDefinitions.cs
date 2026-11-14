@@ -868,7 +868,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DeadSkreeCorpseSecond] = new(0xa9, 0xedcb),
         [EnemyFrameId.DeadSkreeCorpseThird] = new(0xa9, 0xede1),
         [EnemyFrameId.DeadSidehopperHopBody] = new(0xa9, 0xee3c),
-        [EnemyFrameId.DeadSidehopperHopAlt] = new(0xa9, 0xee61),
+        [EnemyFrameId.DeadSidehopperHopCrouched] = new(0xa9, 0xee61),
         [EnemyFrameId.DeadSidehopperIdle] = new(0xa9, 0xee86),
         [EnemyFrameId.DeadSidehopperCorpse] = new(0xa9, 0xed25),
         [EnemyFrameId.DeadSidehopperInitiallyDead] = new(0xa9, 0xed4f),

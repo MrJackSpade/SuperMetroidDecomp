@@ -18,13 +18,13 @@ internal static class DeadTourianAnimations
         [P.SidehopperHopping] =
         [
             Show(EnemyFrameId.DeadSidehopperHopBody, 2),
-            Show(EnemyFrameId.DeadSidehopperHopAlt, 4),
+            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
             Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopAlt, 48),
+            Show(EnemyFrameId.DeadSidehopperHopCrouched, 48),
             Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopAlt, 4),
+            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
             Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopAlt, 4),
+            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
             Cue(new(K.EndHop)),
         ],
         [P.SidehopperIdle] =

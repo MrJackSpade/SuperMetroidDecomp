@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 public enum DraygonPhase
 {
     /// <summary>A body whose fight has not begun is in no phase.</summary>
-    None = 0,
+    None,
     /// <summary>Loads four Evir sprites, then waits 256 gameplay frames.</summary>
-    IntroInitialDelay = 1,
+    IntroInitialDelay,
     /// <summary>Advances the opening Evir movement stream for 1,232 frames before the first swoop.</summary>
     IntroDance,
     /// <summary>Constructs the swoop-height table, aims horizontal velocity at Samus, and installs right-facing graphics.</summary>

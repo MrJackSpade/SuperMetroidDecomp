@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal enum KraidHeadGrowthResume
 {
     /// <summary>The next step shows the closed mouth.</summary>
-    NextFrameClosed = 1,
+    NextFrameClosed,
     /// <summary>The next step shows the first opening stage.</summary>
     NextFrameOpening,
     /// <summary>The next step shows the wider opening stage.</summary>

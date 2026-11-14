@@ -116,9 +116,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                 FirefleaTouchDeathExplosion.AfterSurvivedTouch(slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
         else
         {
-            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the cleared
-            // slot. It spawns at (0,0) with the slot's current definition (zero, or the placeholder), clears any placeholder,
-            // and counts a second kill.
+            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the emptied
+            // place. The second explosion appears at the room's top-left corner for whatever the place now holds (nothing,
+            // or the respawn placeholder), clears that placeholder, and counts a second kill.
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
                 FirefleaTouchDeathExplosion.AfterKillingTouch(EnemyDeathExplosionDefinitions.AuthoredOrder));
         }

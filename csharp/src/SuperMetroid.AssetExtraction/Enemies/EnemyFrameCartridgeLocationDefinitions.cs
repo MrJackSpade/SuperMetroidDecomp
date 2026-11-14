@@ -817,7 +817,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.NorfairLavaJumperJumpSixth] = new(0xa2, 0xc086),
         [EnemyFrameId.NorfairLavaJumperJumpSeventh] = new(0xa2, 0xc09c),
         [EnemyFrameId.NorfairLavaJumperFollowerFirst] = new(0xa2, 0xc0ad),
-        [EnemyFrameId.NorfairLavaJumperFollowerSecond] = new(0xa2, 0x804d),
         [EnemyFrameId.NorfairLavaJumperFollowerLoopFirst] = new(0xa2, 0xc0c5),
         [EnemyFrameId.NorfairLavaJumperFollowerLoopThird] = new(0xa2, 0xc0b9),
         [EnemyFrameId.ChozoStatueLowerNorfairInitial] = new(0xaa, 0xefd8),

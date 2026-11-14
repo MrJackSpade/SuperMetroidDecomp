@@ -102,9 +102,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case EnemyGrappleResponse.Kill:
-                // Grapple kills always select explosion variant zero. The shared death
-                // death preserves the actor's position/drop identity and any respawn
-                // marker; directly deleting the enemy loses the complete visual tail.
+                // A grapple kill always ends in the small explosion. The shared death keeps the enemy's position, its drop
+                // and any respawn marker; deleting the enemy outright would skip the explosion.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;

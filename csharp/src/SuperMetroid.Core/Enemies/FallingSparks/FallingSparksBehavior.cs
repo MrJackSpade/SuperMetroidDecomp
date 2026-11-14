@@ -120,8 +120,8 @@ internal sealed class FallingSparksBehavior
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
-        // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does: the unauthored launch the
-        // last random selection reads is any displacement, so its quadruple can pass the type's range.
+        // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
+        // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         spark.HorizontalStep *= FallingSparkImpactDriftScale;
 

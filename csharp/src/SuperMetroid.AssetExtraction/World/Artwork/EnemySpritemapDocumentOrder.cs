@@ -814,7 +814,6 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.NorfairLavaJumperJumpSixth,
         EnemyFrameId.NorfairLavaJumperJumpSeventh,
         EnemyFrameId.NorfairLavaJumperFollowerFirst,
-        EnemyFrameId.NorfairLavaJumperFollowerSecond,
         EnemyFrameId.NorfairLavaJumperFollowerLoopFirst,
         EnemyFrameId.NorfairLavaJumperFollowerLoopThird,
         EnemyFrameId.ChozoStatueLowerNorfairInitial,

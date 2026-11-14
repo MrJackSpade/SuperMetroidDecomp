@@ -1612,8 +1612,6 @@ public enum EnemyFrameId
     NorfairLavaJumperJumpSeventh,
     /// <summary>The Norfair lava jumper: follower, first frame.</summary>
     NorfairLavaJumperFollowerFirst,
-    /// <summary>The Norfair lava jumper: follower, second frame.</summary>
-    NorfairLavaJumperFollowerSecond,
     /// <summary>The Norfair lava jumper: follower loop, first frame.</summary>
     NorfairLavaJumperFollowerLoopFirst,
     /// <summary>The Norfair lava jumper: follower loop, third frame.</summary>

@@ -46,8 +46,8 @@ internal static class EnemyFrameCartridgeLookupTooling
 
     /// <summary>
     /// The frame bank <paramref name="bank"/> stores at <paramref name="word"/>, or null when it stores none there. A
-    /// frame the bank's own compositions name at a shared word (the Lava Jumper's first pose at $A2:804D, #1432) is that
-    /// frame; only a shared word no composition names is the empty frame.
+    /// frame the bank's own compositions name at a shared word is that frame; a shared word no composition names is the
+    /// empty frame.
     /// </summary>
     internal static EnemyFrameId? TryFrameAt(byte bank, ushort word)
     {

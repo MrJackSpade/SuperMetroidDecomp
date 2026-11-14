@@ -814,7 +814,6 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.NorfairLavaJumperJumpSixth] = "norfair_lava_jumper_jump_sixth",
         [EnemyFrameId.NorfairLavaJumperJumpSeventh] = "norfair_lava_jumper_jump_seventh",
         [EnemyFrameId.NorfairLavaJumperFollowerFirst] = "norfair_lava_jumper_follower_first",
-        [EnemyFrameId.NorfairLavaJumperFollowerSecond] = "norfair_lava_jumper_follower_second",
         [EnemyFrameId.NorfairLavaJumperFollowerLoopFirst] = "norfair_lava_jumper_follower_loop_first",
         [EnemyFrameId.NorfairLavaJumperFollowerLoopThird] = "norfair_lava_jumper_follower_loop_third",
         [EnemyFrameId.ChozoStatueLowerNorfairInitial] = "chozo_statue_lower_norfair_initial",

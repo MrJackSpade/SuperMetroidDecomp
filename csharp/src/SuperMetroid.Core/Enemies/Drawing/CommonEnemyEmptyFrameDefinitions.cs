@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// </summary>
 internal static class CommonEnemyEmptyFrameDefinitions
 {
-    /// <summary>
-    /// The frames that show the empty frame: the common empty frame, and the Norfair lava jumper frame catalogued at the
-    /// same picture.
-    /// </summary>
-    internal static readonly HashSet<EnemyFrameId> EmptyFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumperFollowerSecond];
+    /// <summary>The frames that show the empty frame: the common empty frame.</summary>
+    internal static readonly HashSet<EnemyFrameId> EmptyFrames = [EnemyFrameId.Empty];
 }

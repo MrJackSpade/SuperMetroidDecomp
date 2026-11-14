@@ -3,14 +3,6 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>Verification conveniences for building <see cref="PersistentProgress"/> fixtures.</summary>
 internal static class PersistentProgressAccess
 {
-    /// <summary>Compares numbered flags.</summary>
-    extension(NumberedFlagSet self)
-    {
-        /// <summary>Whether <paramref name="other"/> numbers the same range with the same flags on.</summary>
-        internal bool SetEquals(NumberedFlagSet other) =>
-            self.Capacity == other.Capacity && self.Members.SequenceEqual(other.Members);
-    }
-
     /// <summary>Whether two progress sets hold the same members.</summary>
     extension<TMember>(ProgressSet<TMember> self)
         where TMember : notnull

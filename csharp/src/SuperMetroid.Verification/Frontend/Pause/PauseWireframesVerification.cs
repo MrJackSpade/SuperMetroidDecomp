@@ -72,10 +72,10 @@ internal static class PauseWireframesVerification
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, ControllerButton.Down);
-        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.HiJump, toggles.SelectedControl, "actual navigation reaches Hi-Jump");
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuit);
         toggles.Step(0, ControllerButton.Up);
-        AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Suits, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Varia, toggles.SelectedControl, "actual navigation returns to Varia");
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
         AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "invalid compiled selector rejected");

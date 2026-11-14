@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -15,27 +16,27 @@ public static class PauseEquipmentLabelExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var labels = new Dictionary<string, PauseEquipmentLabel>(StringComparer.Ordinal);
-        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
+        // The cartridge's label tables list each column's labels in the column's cursor order.
+        foreach (ImmutableArray<PauseUpgradeControl> column in PauseEquipmentControls.UpgradeColumns)
         {
-            PauseEquipmentCategoryDefinition definition = PauseEquipmentCategories.Get(category);
+            PauseEquipmentCategory category = column[0].Category;
             PauseEquipmentLabelTables tables = PauseMenuSourceDefinitions.EquipmentLabelTables[category];
-            for (int item = 0; item < definition.ItemCount; item++)
+            for (int item = 0; item < column.Length; item++)
             {
                 int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Places + item * 2);
                 int source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), tables.Labels + item * 2);
-                labels.Add(PauseEquipmentLabelKeys.Key(category, item), new()
+                labels.Add(column[item].Anchor, new()
                 {
                     Column = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) % PauseEquipmentLabelArtworkDefinitions.TilemapColumns,
                     Row = ((destination - PauseMenuSourceDefinitions.EquipmentTilemapBase) / 2) / PauseEquipmentLabelArtworkDefinitions.TilemapColumns,
-                    Cells = ReadCells(bus, source, PauseEquipmentLabelKeys.WordCount(category),
-                        PauseEquipmentLabelKeys.Key(category, item)),
+                    Cells = ReadCells(bus, source, PauseEquipmentLabelKeys.WordCount(category), column[item].Anchor),
                 });
             }
         }
 
         int hyper = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.HyperBeamLabels +
             PauseEquipmentLabelArtworkDefinitions.HyperBeamItem * sizeof(ushort));
-        for (int index = 0; index < PauseEquipmentLabels.ItemCount(PauseEquipmentCategory.Beams); index++)
+        for (int index = 0; index < PauseEquipmentControls.Beams.Length; index++)
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 PauseMenuSourceDefinitions.HyperBeamLabels + index * sizeof(ushort));
@@ -46,8 +47,8 @@ public static class PauseEquipmentLabelExtractor
         }
         labels.Add(PauseEquipmentLabelArtworkDefinitions.HyperKey, new()
         {
-            Column = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelArtworkDefinitions.HyperBeamItem)].Column,
-            Row = labels[PauseEquipmentLabelKeys.Key(PauseEquipmentCategory.Beams, PauseEquipmentLabelArtworkDefinitions.HyperBeamItem)].Row,
+            Column = labels[PauseEquipmentControls.Beams[PauseEquipmentLabelArtworkDefinitions.HyperBeamItem].Anchor].Column,
+            Row = labels[PauseEquipmentControls.Beams[PauseEquipmentLabelArtworkDefinitions.HyperBeamItem].Anchor].Row,
             Cells = ReadCells(bus, hyper, PauseEquipmentLabelArtworkDefinitions.EquipmentWords,
                 PauseEquipmentLabelArtworkDefinitions.HyperKey),
         });

@@ -60,7 +60,7 @@ internal static class PauseBackdropsVerification
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
-        AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.HiJump, glitch.SelectedControl, "fixture selects Hi-Jump Boots");
         glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams.ToEquipmentWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.ShownVram(original).AsSpan(0x6000, 0x800).ToArray();

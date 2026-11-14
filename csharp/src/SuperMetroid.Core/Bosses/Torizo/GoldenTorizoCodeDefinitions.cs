@@ -19,12 +19,12 @@ internal static class GoldenTorizoCodeDefinitions
     internal const int PowerBombs = 20;
     /// <summary>
     /// Every item but the Screw Attack, replacing the collected and equipped items without merging
-    /// prior upgrades. The game's item set also holds one more flag, which names no item and nothing tests.
+    /// prior upgrades.
     /// </summary>
     internal const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
         SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
         SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster |
-        SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.UnassignedItem;
+        SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope;
     /// <summary>Every beam, collected and equipped, including simultaneous Spazer and Plasma.</summary>
     internal const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
         SamusBeamFlags.Plasma | SamusBeamFlags.Charge;

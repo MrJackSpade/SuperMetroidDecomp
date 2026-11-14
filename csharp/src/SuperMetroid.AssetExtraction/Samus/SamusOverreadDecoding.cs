@@ -170,7 +170,7 @@ internal static class SamusOverreadDecoding
                 (byte[])[.. slice[ProgressionSliceLayout.LoadingGameStateOffset..].Select(value =>
                     value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
         }
-        FlagOverwrite events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
+        BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
             Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), storyEvent => storyEvent.ToString()),
             ProgressionTableCodec.ZebetitesDestroyedOf(events),
@@ -197,7 +197,7 @@ internal static class SamusOverreadDecoding
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
-        DefeatedBossKinds.InMarkerOrder.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
+        DefeatedBossKinds.Listed.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
 
     /// <summary>
     /// Where the Chainsaw fuse's fast-list offset moves every animation position that lands on one; a position whose move

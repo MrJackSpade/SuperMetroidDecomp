@@ -37,11 +37,11 @@ public sealed class PauseSelectorPresentation
     private string[] PhaseFrames(IReadOnlyList<string> frames, string category) => frames.Count == durations.Length
         ? [.. frames]
         : throw new InvalidDataException($"The installed pause selector's {category} sequence names {frames.Count} frames for {durations.Length} phases.");
-    /// <summary>The installed screen-pixel anchor of the category's item.</summary>
-    /// <exception cref="InvalidDataException">The installation has no anchor for the item.</exception>
-    public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
+    /// <summary>The installed screen-pixel anchor of <paramref name="control"/>.</summary>
+    /// <exception cref="InvalidDataException">The installation has no anchor for the control.</exception>
+    public Position16<SpritePixels> Anchor(PauseEquipmentControl control)
     {
-        string name = PauseSelectorAnchors.Anchor(category, item);
+        string name = Ensure.NotNull(control).Anchor;
         return anchors.TryGetValue(name, out Position16<SpritePixels> anchor) ? anchor
             : throw new InvalidDataException($"The installed pause selector has no anchor {name}.");
     }
@@ -50,13 +50,14 @@ public sealed class PauseSelectorPresentation
     /// <summary>The installed dwell of a phase after cyclic phase normalization.</summary>
     public int Duration(int phase) => durations[NormalizePhase(phase)];
     /// <summary>
-    /// Draws the selected category's normalized selector frame of the pause sheet at the item's anchor, in the selector's
-    /// own colours (#1544).
+    /// Draws the normalized selector frame of <paramref name="control"/>'s column from the pause sheet at the control's
+    /// anchor, in the selector's own colours (#1544).
     /// </summary>
-    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentCategory category, int item, int phase)
+    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentControl control, int phase)
     {
-        var point = Anchor(category, item);
+        var point = Anchor(control);
         int normalized = NormalizePhase(phase);
+        PauseEquipmentCategory category = control.Category;
         string frame = (category switch
         {
             PauseEquipmentCategory.Reserves => reserve,

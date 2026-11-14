@@ -28,7 +28,6 @@ public static class SamusEquipmentWordCodec
         new(SamusEquipmentFlags.SpringBall, 1 << 1),
         new(SamusEquipmentFlags.MorphBall, 1 << 2),
         new(SamusEquipmentFlags.ScrewAttack, 1 << 3),
-        new(SamusEquipmentFlags.UnassignedItem, 1 << 4),
         new(SamusEquipmentFlags.GravitySuit, 1 << 5),
         new(SamusEquipmentFlags.HiJumpBoots, 1 << 8),
         new(SamusEquipmentFlags.SpaceJump, 1 << 9),
@@ -37,6 +36,12 @@ public static class SamusEquipmentWordCodec
         new(SamusEquipmentFlags.GrappleBeam, 1 << 14),
         new(SamusEquipmentFlags.XrayScope, 1 << 15),
     ];
+
+    /// <summary>
+    /// The equipment word's bit that records no item (#1778): Golden Torizo's item code and one attract demonstration set
+    /// it and nothing reads it, so decoding drops it and encoding never writes it.
+    /// </summary>
+    private const ushort UnusedItemBit = 1 << 4;
 
     /// <summary>Each beam and the word bit that records it.</summary>
     private static readonly BeamBit[] BeamBits =
@@ -62,14 +67,14 @@ public static class SamusEquipmentWordCodec
         return word;
     }
 
-    /// <summary>The items an equipment word records.</summary>
+    /// <summary>The items an equipment word records; the unused item bit is dropped.</summary>
     /// <param name="word">A sixteen-bit equipment word.</param>
     /// <returns>The items whose bits are set.</returns>
-    /// <exception cref="InvalidDataException">The word sets a bit that records no item.</exception>
+    /// <exception cref="InvalidDataException">The word sets a bit that records no item and is not the unused item bit.</exception>
     public static SamusEquipmentFlags FromEquipmentWord(ushort word)
     {
         SamusEquipmentFlags items = SamusEquipmentFlags.None;
-        ushort recorded = 0;
+        ushort recorded = UnusedItemBit;
         foreach (ItemBit entry in ItemBits)
         {
             if ((word & entry.Bit) != 0)

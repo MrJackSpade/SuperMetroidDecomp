@@ -419,9 +419,14 @@ public static class SaveRamCodec
         ControllerWordCodec.ToJoypadWord(bindings.AimUp),
     ];
 
-    /// <summary>A save field's value as the word its slot stores, rejected when the field cannot keep it.</summary>
-    /// <exception cref="InvalidOperationException">The value is outside the field's range.</exception>
-    private static ushort FieldWord(int value, string field) => checked((ushort)SaveFieldValue.Require(value, field));
+    /// <summary>
+    /// A save field's value as the sixteen-bit word its slot stores (#1778), rejected when the word cannot hold it, so every
+    /// value a slot stores survives a round trip exactly.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The value is outside <c>[0, 65535]</c>.</exception>
+    private static ushort FieldWord(int value, string field) => value is >= 0 and <= ushort.MaxValue
+        ? checked((ushort)value)
+        : throw new InvalidOperationException($"Save field {field} value {value} is outside [0, {ushort.MaxValue}].");
 
     /// <summary>Reads one little-endian word.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);

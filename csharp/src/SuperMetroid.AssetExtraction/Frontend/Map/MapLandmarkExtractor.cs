@@ -13,7 +13,7 @@ public static class MapLandmarkExtractor
     /// <summary>Exports named boss, elevator-destination-label, and Crateria gunship drawing positions from native area-map records.</summary>
     /// <param name="bus">Import-capable cartridge source for bank-$82 boss/elevator lists and the Crateria save-point position list.</param>
     /// <returns>A new UTF-8 JSON buffer mapping compiled landmark identities to area-map pixel anchors before scroll subtraction.</returns>
-    /// <remarks>Verifies expected boss slots, unused-slot sentinels, list terminators, and elevator destination spritemaps; discovery, defeated-boss state, and elevator connectivity are not editable output.</remarks>
+    /// <remarks>Verifies that each used boss slot shows its named marker's boss, list terminators, and elevator destination spritemaps; discovery, defeated-boss state, and elevator connectivity are not editable output.</remarks>
     /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
     /// <exception cref="InvalidDataException">Required records, unused slots, destination bindings, or list boundaries differ from compiled definitions.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -22,31 +22,36 @@ public static class MapLandmarkExtractor
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int boss = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.BossLists), area);
-            var bosses = MapLandmarks.Bosses(area);
-            if (boss == 0 && !bosses.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
-            for (int i = 0; i < bosses.Length; i++)
+            var markers = MapLandmarks.BossMarkers(area);
+            if (boss == 0 && !markers.IsEmpty) throw new InvalidDataException($"Missing {area} boss list.");
+            // Each used slot holds the next named marker, which must show the flag the slot shows; unused slots show none.
+            int shown = 0;
+            for (int slot = 0; boss != 0 && Read(boss + slot * 4) != ushort.MaxValue; slot++)
             {
-                int x = Read(boss + i * 4);
-                if (bosses[i] is string id)
-                {
-                    if (x >= ushort.MaxValue - 1) throw new InvalidDataException($"Missing map boss {id}.");
-                    points.Add(id, Position16<MapPixels>.Of(x, Read(boss + i * 4 + 2)));
-                }
-                else if (x != ushort.MaxValue - 1) throw new InvalidDataException($"Expected unused {area} boss slot {i}.");
+                if (slot >= MapSourceDefinitions.Landmarks.BossSlotFlags.Length)
+                    throw new InvalidDataException($"Unexpected {area} boss slots.");
+                int x = Read(boss + slot * 4);
+                if (x == MapSourceDefinitions.Landmarks.UnusedBossSlot)
+                    continue;
+                if (shown >= markers.Length || markers[shown].Boss != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
+                    throw new InvalidDataException($"{area}'s boss slot {slot} differs from the named boss markers.");
+                points.Add(markers[shown].Id, Position16<MapPixels>.Of(x, Read(boss + slot * 4 + 2)));
+                shown++;
             }
-            if (boss != 0 && Read(boss + bosses.Length * 4) != ushort.MaxValue)
-                throw new InvalidDataException($"Unexpected {area} boss slots.");
+            if (shown != markers.Length)
+                throw new InvalidDataException($"Missing map boss {markers[shown].Id}.");
             if (area == AreaId.Ceres) continue;
             int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
             var elevators = MapLandmarks.Elevators(area);
-            for (int i = 0; i < elevators.Count; i++)
+            // The cartridge lists each area's labels in the named labels' drawing order.
+            for (int i = 0; i < elevators.Length; i++)
             {
                 var label = elevators[i];
                 if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorPicture(label.Destination)))
                     throw new InvalidDataException($"Elevator label destination differs from cartridge: {label.Id}.");
                 points.Add(label.Id, new(Read(elevator + i * 6), Read(elevator + i * 6 + 2)));
             }
-            if (Read(elevator + elevators.Count * 6) != ushort.MaxValue)
+            if (Read(elevator + elevators.Length * 6) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} elevator labels.");
         }
         int ship = Pointer(FrontendSourceDefinitions.SavePointMapPointers, AreaId.Crateria);

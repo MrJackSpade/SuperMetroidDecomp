@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -111,6 +112,18 @@ internal static class PauseMenuSourceDefinitions
 
     /// <summary>$82:AD9D, the reserve arrow's second animated colour, one per pulse frame.</summary>
     internal const int ReserveArrowSecondColours = 0x82ad9d;
+
+    /// <summary>
+    /// The cartridge's per-category selector tables (#1772): the position-list pointers at $82:C18E and the sprite bases at
+    /// $82:C1E8 list the columns in this order, and each position list holds its column's controls in cursor order.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<PauseEquipmentControl>> SelectorColumns =
+    [
+        [.. PauseEquipmentControls.Reserves],
+        [.. PauseEquipmentControls.Beams],
+        [.. PauseEquipmentControls.Suits],
+        [.. PauseEquipmentControls.Boots],
+    ];
 
     /// <summary>The spritemap each equipment category's selector shows.</summary>
     internal static readonly FrozenDictionary<PauseEquipmentCategory, ushort> SelectorSpritemaps =

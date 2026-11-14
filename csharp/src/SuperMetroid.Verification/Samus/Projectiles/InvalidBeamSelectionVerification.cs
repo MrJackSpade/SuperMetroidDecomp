@@ -24,13 +24,13 @@ internal static class InvalidBeamSelectionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
-            var navigationSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
+            var navigationSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
                 EquippedBeams = SamusBeamFlags.Spazer, EquippedItems = SamusEquipmentFlags.HiJumpBoots };
             var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, ControllerButton.Down);
-            AssertEqual(boot, navigation.SelectedItem, "each of the three Boots entries is reachable");
+            AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Boots[boot], navigation.SelectedControl, "each of the three Boots entries is reachable");
             navigation.Step(0, (ControllerButton.Left | ControllerButton.A));
             AssertEqual(0x000c, navigationSamus.EquippedBeams.ToEquipmentWord(), $"simultaneous selection from boot {boot}");
         }
@@ -43,12 +43,11 @@ internal static class InvalidBeamSelectionVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
-        AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.HiJump, pause.SelectedControl, "fixture starts on Hi-Jump Boots");
         byte[] beforeVram = pause.ShownVram(RetailPresentationFixture());
         pause.Step(0, (scenario == 0 ? ControllerButton.Left | ControllerButton.A : ControllerButton.Left));
         if (scenario == 1) pause.Step(0, ControllerButton.A);
-        AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
-        AssertEqual(4, pause.SelectedItem, "same-frame Left+A selects Plasma");
+        AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Plasma, pause.SelectedControl, "same-frame Left+A moves Boots to the beams' Plasma");
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToEquipmentWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
         var after = pause.CaptureRenderSnapshot();

@@ -12,17 +12,14 @@ public sealed class PersistentProgress
     /// <summary>The Zebetites barring the way to Mother Brain, destroyed one after another.</summary>
     public const int ZebetiteCount = 4;
 
-    /// <summary>The cells of one area's 64-by-32 map.</summary>
-    private const int MapCellsPerArea = AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles;
-
     /// <summary>Each area's defeated bosses.</summary>
     private readonly Dictionary<AreaId, DefeatedBosses> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => DefeatedBosses.None);
 
     /// <summary>Whether each area's map has been acquired.</summary>
     private readonly Dictionary<AreaId, bool> _acquiredMaps = AreaIds.All.ToDictionary(area => area, _ => false);
 
-    /// <summary>Each area's explored map cells, each cell numbered in row-major order.</summary>
-    private readonly Dictionary<AreaId, NumberedFlagSet> _explored = Areas(MapCellsPerArea);
+    /// <summary>Each area's explored map cells.</summary>
+    private readonly Dictionary<AreaId, ExploredMapCells> _explored = AreaIds.All.ToDictionary(area => area, _ => new ExploredMapCells());
 
     /// <summary>Every story event, in the order the game lists them.</summary>
     private static readonly StoryEvent[] StoryEvents = Enum.GetValues<StoryEvent>();
@@ -83,7 +80,7 @@ public sealed class PersistentProgress
 
     /// <summary>Whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
-    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[AreaIds.Require(area)].Contains(CellNumber(cell));
+    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[AreaIds.Require(area)].Contains(cell);
 
     /// <summary>Records whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <param name="area">The area.</param>
@@ -91,11 +88,10 @@ public sealed class PersistentProgress
     /// <param name="explored">Whether the cell has been explored.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
     public void SetExplored(AreaId area, Position16<MapTiles> cell, bool explored) =>
-        _explored[AreaIds.Require(area)].Set(CellNumber(cell), explored);
+        _explored[AreaIds.Require(area)].Set(cell, explored);
 
-    /// <summary>The explored cells of <paramref name="area"/>'s map, in row-major order.</summary>
-    public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) =>
-        _explored[AreaIds.Require(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
+    /// <summary>The explored cells of <paramref name="area"/>'s map, row by row from the top, each row from the left.</summary>
+    public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) => _explored[AreaIds.Require(area)].Cells;
 
     /// <summary>
     /// Applies the Spacetime Beam's progression overwrite: every story event, boss, item, door, station and map it decides,
@@ -140,13 +136,4 @@ public sealed class PersistentProgress
         copy.CopyFrom(this);
         return copy;
     }
-
-    /// <summary>One range of <paramref name="capacity"/> flags for each area.</summary>
-    private static Dictionary<AreaId, NumberedFlagSet> Areas(int capacity) =>
-        AreaIds.All.ToDictionary(area => area, _ => new NumberedFlagSet(capacity));
-
-    /// <summary>The number of a map cell, rejecting a cell outside the area map.</summary>
-    private static int CellNumber(Position16<MapTiles> cell) => AreaMapSize.Extent.Contains(cell)
-        ? AreaMapSize.Extent.RowMajorIndex(cell)
-        : throw new ArgumentOutOfRangeException(nameof(cell), cell, "The cell lies outside the 64-by-32 area map.");
 }

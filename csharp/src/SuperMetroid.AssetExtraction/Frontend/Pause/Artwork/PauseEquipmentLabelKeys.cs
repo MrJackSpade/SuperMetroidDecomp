@@ -10,15 +10,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// </summary>
 public static class PauseEquipmentLabelKeys
 {
-    /// <summary>The JSON key of an ordinary label, which is its selector control's anchor name.</summary>
-    public static string Key(PauseEquipmentCategory category, int item) => Name(PauseEquipmentLabels.Label(category, item));
-
     /// <summary>The JSON key of a label: its selector control's anchor name, or <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>.</summary>
     public static string Name(PauseEquipmentLabelId label)
     {
         if (label == PauseEquipmentLabelId.Hyper) return PauseEquipmentLabelArtworkDefinitions.HyperKey;
-        PauseEquipmentLabelKey entry = PauseEquipmentLabels.Labels().Single(candidate => candidate.Label == label);
-        return PauseSelectorAnchors.Anchor(entry.Category, entry.Item);
+        return PauseEquipmentControls.Upgrades.Single(control => control.Label == label).Anchor;
     }
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width is a separate contract.</summary>

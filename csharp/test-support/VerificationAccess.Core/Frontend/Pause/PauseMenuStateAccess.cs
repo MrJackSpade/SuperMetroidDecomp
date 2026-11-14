@@ -19,11 +19,8 @@ internal static class PauseMenuStateAccess
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
         internal bool IsPageTransitionActive => self.Transition != default;
 
-        /// <summary>Low byte of the native category/item selector word.</summary>
-        internal PauseEquipmentCategory SelectedCategory => self.SelectedCategory;
-
-        /// <summary>High byte of the native category/item selector word.</summary>
-        internal int SelectedItem => self.SelectedItem;
+        /// <summary>The column the cursor is in: its selected control's category.</summary>
+        internal PauseEquipmentCategory SelectedCategory => self.SelectedControl.Category;
 
         /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
         internal SelectorAnimation ItemSelectorAnimationState => new SelectorAnimation(self.ItemSelectorAnimationFrame, self.ItemSelectorAnimationTimer);

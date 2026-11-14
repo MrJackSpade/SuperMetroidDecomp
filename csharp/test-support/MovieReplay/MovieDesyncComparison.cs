@@ -42,7 +42,7 @@ internal static class MovieDesyncComparison
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         if (game.Session.ScreenAs<PauseMenuState>() is { } pause)
-            Console.WriteLine($"  pause port mode={pause.ScreenMode} cat={(int)pause.SelectedCategory} item={pause.SelectedItem} transition={pause.IsPageTransitionActive} " +
+            Console.WriteLine($"  pause port mode={pause.ScreenMode} control={pause.SelectedControl} transition={pause.IsPageTransitionActive} " +
                 $"held cur={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.Controller1.Current):X4} new={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.Controller1.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.System.HeldInputPrevious):X4} tt={game.Session.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.System.TimedHeldInput):X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)

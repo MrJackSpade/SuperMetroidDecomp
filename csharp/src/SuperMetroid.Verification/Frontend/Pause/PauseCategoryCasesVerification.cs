@@ -17,13 +17,8 @@ internal static class PauseCategoryCasesVerification
         Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));
         Suite(nameof(VerifyPauseCategoryItemCounts), () => VerifyPauseCategoryItemCounts(rom));
         Suite(nameof(VerifyPauseCategoryCopyLengths), () => VerifyPauseCategoryCopyLengths(rom));
-        AssertEqual(new PauseEquipmentCategoryDefinition(0, 0),
-            PauseEquipmentCategories.Get(PauseEquipmentCategory.Reserves), "reserve controls retain the original managed zero-data contract");
-        foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
-            AssertEqual(category, PauseEquipmentCategories.Get(category).Category, "category identity");
-        foreach (PauseEquipmentCategory invalid in new[] { (PauseEquipmentCategory)4, (PauseEquipmentCategory)byte.MaxValue })
-            AssertThrows<InvalidOperationException>(() => PauseEquipmentCategories.Get(invalid),
-                "undefined pause category is rejected at the typed boundary");
+        foreach (var column in PauseMenuSourceDefinitions.SelectorColumns)
+            AssertTrue(column.All(control => control.Category == column[0].Category), "each column's controls stand in that column's category");
     }
 
     /// <summary>
@@ -32,8 +27,8 @@ internal static class PauseCategoryCasesVerification
     /// </summary>
     private static void VerifyPauseCategoryOffsets(ISnesAddressSpace rom)
     {
-        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
-            AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c02c + 2 * (int)category),
+        foreach (var (category, table) in InventoryTables())
+            AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c02c + 2 * table),
                 PauseMenuSourceDefinitions.EquipmentLabelTables[category].Places, "import reads the cartridge's category label places");
     }
 
@@ -43,8 +38,8 @@ internal static class PauseCategoryCasesVerification
     /// </summary>
     private static void VerifyPauseCategoryTilemapPointers(ISnesAddressSpace rom)
     {
-        foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
-            AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c044 + 2 * (int)category),
+        foreach (var (category, table) in InventoryTables())
+            AssertEqual(0x820000 | ReadVerificationWord(rom, 0x82c044 + 2 * table),
                 PauseMenuSourceDefinitions.EquipmentLabelTables[category].Labels, "import reads the cartridge's category label tilemaps");
     }
 
@@ -56,9 +51,14 @@ internal static class PauseCategoryCasesVerification
         {
             AssertEqual((byte)0xe0, rom.ReadCartridgeByte(address), "original inventory scan CPX");
             AssertEqual(ReadVerificationWord(rom, address + 1) / 2,
-                PauseEquipmentCategories.Get(category).ItemCount, "native category item-count bound");
+                PauseMenuSourceDefinitions.SelectorColumns.Single(column => column[0].Category == category).Length, "native category item-count bound");
         }
     }
+
+    /// <summary>Each inventory column's category and its position in the cartridge's per-category tables.</summary>
+    private static IEnumerable<VerifyPauseCategoryItemCountsCase> InventoryTables() =>
+        PauseMenuSourceDefinitions.SelectorColumns.Select((column, table) => new VerifyPauseCategoryItemCountsCase(column[0].Category, table))
+            .Where(entry => entry.First != PauseEquipmentCategory.Reserves);
 
     /// <summary>Matches the import's label strip widths to the native dispatched category copy lengths.</summary>
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)

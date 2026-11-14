@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>One valid save slot expressed as named gameplay domains.</summary>
 /// <remarks>
-/// The numeric fields are JSON numbers. The codec accepts each only inside the range the slot can hold
-/// (<see cref="SaveFieldValue"/>); the reserve mode and HUD item are written by name.
+/// The numeric fields are JSON numbers, each accepted only inside the range its quantity can take; the reserve mode and
+/// HUD item are written by name.
 /// </remarks>
 public sealed record GameSaveSlotJsonDocument
 {

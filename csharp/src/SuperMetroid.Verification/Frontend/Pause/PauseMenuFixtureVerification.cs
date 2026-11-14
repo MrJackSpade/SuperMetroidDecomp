@@ -69,8 +69,8 @@ internal static class PauseMenuFixtureVerification
         using var spritePng = File.OpenRead(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.PngFile));
         // The selectors' and the reserve strip's documents are import data (#1638): the cartridge-derived extraction's.
         var selectors = ImportDocument<PauseSelectorDocument>(PauseSelectorFormat.ArtworkFileName);
-        selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
-        selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
+        selectors.Anchors[PauseEquipmentControls.MorphBall.Anchor] = new(0x90, 0x70);
+        selectors.Anchors[PauseEquipmentControls.Bombs.Anchor] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
         using var selectorJson = Json(selectors);
         PauseSelectorSourcePresentation constructedSelectors = PauseSelectorSourcePresentation.Load(selectorJson);

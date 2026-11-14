@@ -241,12 +241,12 @@ internal static class FileSelectRoomMapVerification
         var system = new SharedGameState(new SharedRandom());
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkFile.Ids().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
-        landmarks[(MapLandmarks.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
+        landmarks[MapLandmarks.BossMarkers(AreaId.Brinstar).First().Id] = new(32, 40);
         var destination = MapLandmarks.Elevators(AreaId.Brinstar).First(label =>
             label.Destination == AreaId.Crateria);
         landmarks[destination.Id] = new(96, 112);
         using var landmarkJson = new MemoryStream();
-        MapLandmarkFile.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
+        MapLandmarkFile.Write(landmarkJson, new() { Version = MapLandmarkFormat.Version, Markers = landmarks });
         landmarkJson.Position = 0;
         var stations = MapStationLayoutFile.Markers.ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
         var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();

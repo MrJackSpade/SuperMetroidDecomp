@@ -31,18 +31,20 @@ internal static class TypedWordsVerification
 /// </summary>
 internal static void VerifyTypedNativeWords()
 {
-    // Equipment helpers must mutate only the requested independent bits. The unassigned item
-    // slot is set by no ability and deliberately survives both operations unchanged.
-    SamusEquipmentFlags equipment = SamusEquipmentFlags.UnassignedItem;
+    // Equipment helpers must mutate only the requested independent bits: Varia, which neither names,
+    // survives both operations unchanged.
+    SamusEquipmentFlags equipment = SamusEquipmentFlags.VariaSuit;
     equipment |= SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs;
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
     equipment &= ~SamusEquipmentFlags.GravitySuit;
-    AssertEqual(0x1010, equipment.ToEquipmentWord(), "equipment flags keep the unassigned item slot");
+    AssertEqual(0x1001, equipment.ToEquipmentWord(), "equipment flags keep the item neither operation names");
 
     // The codec is the one place that knows each item's word bit: the word round-trips, and a word
     // setting a bit that records no item is rejected rather than dropped.
-    AssertEqual(equipment, SamusEquipmentWordCodec.FromEquipmentWord(0x1010), "equipment word decodes to its items");
+    AssertEqual(equipment, SamusEquipmentWordCodec.FromEquipmentWord(0x1001), "equipment word decodes to its items");
+    // The equipment word's bit 4 records no item; Golden Torizo's item code sets it and decoding drops it (#1778).
+    AssertEqual(SamusEquipmentFlags.VariaSuit, SamusEquipmentWordCodec.FromEquipmentWord(0x0011), "the unused item bit is dropped");
     AssertEqual((ushort)0xf32f, SamusEquipmentWordCodec.FromEquipmentWord(0xf32f).ToEquipmentWord(),
         "every recorded item bit round-trips through the codec");
     AssertThrows<InvalidDataException>(() => SamusEquipmentWordCodec.FromEquipmentWord(0x0080),
@@ -58,8 +60,8 @@ internal static void VerifyTypedNativeWords()
     // boundary keeps exactly the items and beams the words record, and re-encoding writes the other bits as zero.
     AssertEqual(SamusEquipmentWordCodec.FromEquipmentWord(0xf33f), SamusEquipmentWordCodec.FromSavedEquipmentWord(0xffff),
         "a saved equipment word decodes to the items it records");
-    AssertEqual((ushort)0xf33f, SamusEquipmentWordCodec.FromSavedEquipmentWord(0xffff).ToEquipmentWord(),
-        "a saved equipment word's unassigned bits re-encode as zero");
+    AssertEqual((ushort)0xf32f, SamusEquipmentWordCodec.FromSavedEquipmentWord(0xffff).ToEquipmentWord(),
+        "a saved equipment word's unassigned bits, the unused item bit among them (#1778), re-encode as zero");
     AssertEqual(SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Charge,
         SamusEquipmentWordCodec.FromSavedBeamWord(0xffff), "a saved beam word decodes to the beams it records");
     AssertEqual((ushort)0x100f, SamusEquipmentWordCodec.FromSavedBeamWord(0xffff).ToEquipmentWord(),

@@ -149,7 +149,7 @@ internal static class SaveRamCodecVerification
         AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(importedImage, maps), maps).SequenceEqual(image),
             "an imported save's unread words are not carried; it re-encodes as the game would save it");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
-        AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(SaveFieldValue.MaximumValue),
+        AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ushort.MaxValue),
             "a dispatcher word the cartridge does not name resumes the main game");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");

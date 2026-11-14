@@ -10,12 +10,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public static class MapLandmarkFile
 {
     /// <summary>Enumerates every published boss, elevator, and gunship landmark identity the document must hold.</summary>
-    /// <returns>All non-reserved landmark IDs in area and slot order.</returns>
+    /// <returns>All landmark IDs in area order, each area's boss markers before its elevator labels.</returns>
     internal static IEnumerable<string> Ids()
     {
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            foreach (string? id in MapLandmarks.Bosses(area)) if (id is not null) yield return id;
+            foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area)) yield return marker.Id;
             if (area != AreaId.Ceres)
                 foreach (var label in MapLandmarks.Elevators(area)) yield return label.Id;
         }
@@ -34,7 +34,7 @@ public static class MapLandmarkFile
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
         var ids = Ids().ToArray();
         if (document.Version != MapLandmarkFormat.Version || document.Markers is null || document.Markers.Count != ids.Length)
-            throw new InvalidDataException("Map landmarks require version 1 and every known marker.");
+            throw new InvalidDataException($"Map landmarks require version {MapLandmarkFormat.Version} and every known marker.");
         foreach (string id in ids)
             if (!document.Markers.TryGetValue(id, out var point) || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
                 throw new InvalidDataException($"Map landmark {id} requires X=0..511 and Y=0..255.");

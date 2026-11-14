@@ -5,38 +5,17 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireRumbleDefinitions
 {
     /// <summary>
-    /// Selected final repeat counter3 in the shake/sound performance.
-    /// This counts completed oscillations, not elapsed frames. The consumer adds
-    /// one final traversal before loading the next phase.
+    /// The rumble's oscillations in the order it plays them (#1879): the swing grows from one pixel to four over the
+    /// first five, faster and more often in the middle, then dies away. The rumble ends when the last finishes.
     /// </summary>
-    private const int FinalDecayHold = 3;
-
-    /// <summary>
-    /// The rumble's targets in the order it visits them: seven oscillations, each a return target followed by a
-    /// negative target and the timing the next oscillation loads. Stepping past the last target ends the rumble.
-    /// </summary>
-    /// <remarks>
-    /// Negative extrema double after each two-cycle buildup, reaching amplitude 4 at phase 4, then halve each phase
-    /// through phase 6. Cooldown rises by four from eight, saturates at sixteen for two cycles, then halves; the final
-    /// selected repeat count belongs to the authored shake cadence. The six live approach deltas rise from one to two
-    /// for the middle pair, then return to one. The last negative target ends the rumble, so like a return target it
-    /// carries no next phase.
-    /// </remarks>
-    internal static ImmutableArray<CrocomireRumbleDefinition> All { get; } =
+    internal static ImmutableArray<CrocomireRumbleOscillation> Oscillations { get; } =
     [
-        new(0, 0, 0),
-        new(-1, 8, 1),
-        new(1, 0, 0),
-        new(-1, 12, 1),
-        new(1, 0, 0),
-        new(-2, 16, 2),
-        new(2, 0, 0),
-        new(-2, 16, 2),
-        new(2, 0, 0),
-        new(-4, 8, 1),
-        new(1, 0, 0),
-        new(-2, FinalDecayHold, 1),
-        new(1, 0, 0),
-        new(-1, 0, 0),
+        new(ReturnOffset: 0, ExtremeOffset: -1, Repeats: 10, Speed: 1),
+        new(ReturnOffset: 1, ExtremeOffset: -1, Repeats: 8, Speed: 1),
+        new(ReturnOffset: 1, ExtremeOffset: -2, Repeats: 12, Speed: 1),
+        new(ReturnOffset: 2, ExtremeOffset: -2, Repeats: 16, Speed: 2),
+        new(ReturnOffset: 2, ExtremeOffset: -4, Repeats: 16, Speed: 2),
+        new(ReturnOffset: 1, ExtremeOffset: -2, Repeats: 8, Speed: 1),
+        new(ReturnOffset: 1, ExtremeOffset: -1, Repeats: 3, Speed: 1),
     ];
 }

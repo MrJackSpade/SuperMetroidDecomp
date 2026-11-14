@@ -76,12 +76,12 @@ internal sealed class CrocomireSkeleton
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
-        state.RumbleStep = CrocomireRumble.FirstStep;
+        state.RumbleOscillation = 0;
+        state.RumbleTowardExtreme = false;
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.RumbleYOffset = 0;
-        death.RumbleCooldown = 10;
-        death.RumbleDelta = 1;
+        death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
         state.DamageReactionPending = false;
         body.Radius = body.Radius.WithY(56);
         state.DeathPhase = state.DeathPhase.Next();
@@ -91,7 +91,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (CrocomireRumble.IsComplete(state.RumbleStep))
+        if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
         {
             state.DeathPhaseDelay = 128;
             state.Colours.ShowWallSpikes();
@@ -102,31 +102,34 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        CrocomireRumbleDefinition definition = CrocomireRumble.At(state.RumbleStep);
-        int target = definition.TargetYOffset;
+        CrocomireRumbleOscillation oscillation = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation];
+        int target = state.RumbleTowardExtreme ? oscillation.ExtremeOffset : oscillation.ReturnOffset;
         if (death.RumbleYOffset == target)
         {
-            if (target < 0)
+            // Reaching an offset takes the update: the wall turns around on the next one.
+            if (!state.RumbleTowardExtreme)
             {
-                if (death.RumbleCooldown != 0)
-                {
-                    death.RumbleCooldown--;
-                    // Repeat the oscillation: back to its return target.
-                    state.RumbleStep--;
-                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
-                    return;
-                }
-
-                death.RumbleCooldown = definition.Cooldown;
-                death.RumbleDelta = definition.Delta;
+                state.RumbleTowardExtreme = true;
+                return;
             }
-            state.RumbleStep++;
+
+            state.RumbleTowardExtreme = false;
+            if (death.RumbleRepeatsLeft != 0)
+            {
+                death.RumbleRepeatsLeft--;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
+                return;
+            }
+
+            state.RumbleOscillation++;
+            if (state.RumbleOscillation < CrocomireRumbleDefinitions.Oscillations.Length)
+                death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats;
             return;
         }
 
         death.RumbleYOffset = death.RumbleYOffset >= target
-            ? death.RumbleYOffset - death.RumbleDelta
-            : death.RumbleYOffset + death.RumbleDelta;
+            ? death.RumbleYOffset - oscillation.Speed
+            : death.RumbleYOffset + oscillation.Speed;
     }
 
     /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
@@ -142,7 +145,7 @@ internal sealed class CrocomireSkeleton
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
-        death.RumbleCooldown = 80;
+        death.SkeletonFallDelay = 80;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
@@ -171,9 +174,9 @@ internal sealed class CrocomireSkeleton
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
-        if (death.RumbleCooldown == 0)
+        if (death.SkeletonFallDelay == 0)
             return;
-        if (--death.RumbleCooldown != 0)
+        if (--death.SkeletonFallDelay != 0)
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFalling);

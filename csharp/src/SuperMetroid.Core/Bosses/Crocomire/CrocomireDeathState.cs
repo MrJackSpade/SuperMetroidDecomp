@@ -84,11 +84,14 @@ public sealed class CrocomireDeathState
     /// <summary>Signed vertical offset in pixels the hidden-wall rumble adds to the foreground scroll.</summary>
     public int RumbleYOffset { get; internal set; }
 
-    /// <summary>Oscillations left before the rumble moves on, consumed by negative rumble-table entries; it stops at zero.</summary>
-    public int RumbleCooldown { get; internal set; }
+    /// <summary>The swings left in the current rumble oscillation after the one under way; it stops at zero.</summary>
+    public int RumbleRepeatsLeft { get; internal set; }
 
-    /// <summary>Pixels per frame the rumble offset moves toward its target, loaded from each completed negative target.</summary>
-    public int RumbleDelta { get; internal set; }
+    /// <summary>
+    /// The updates left before the skeleton starts falling once it has broken through the wall, counted down while
+    /// above zero.
+    /// </summary>
+    public int SkeletonFallDelay { get; internal set; }
 
     /// <summary>
     /// The stretch the melt sags his body layer through (#1468): his body layer's vertical scroll, levelled at each pass's

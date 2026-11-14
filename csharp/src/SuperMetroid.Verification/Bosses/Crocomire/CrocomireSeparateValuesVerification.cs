@@ -20,7 +20,7 @@ internal static class CrocomireSeparateValuesVerification
         body.SetSpeciesState(state);
 
         state.StepCounter = 5;
-        AssertEqual(0, state.RumbleStep, "the queued steps leave the rumble step alone");
+        AssertEqual(0, state.RumbleOscillation, "the queued steps leave the rumble oscillation alone");
         Console.WriteLine("Crocomire separate values: the steps and rumble step are held apart.");
     }
 

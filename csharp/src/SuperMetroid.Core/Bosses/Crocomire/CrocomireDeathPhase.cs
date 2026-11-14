@@ -72,7 +72,7 @@ public enum CrocomireDeathPhase
     FinalSink,
     /// <summary>Waits behind the wall for Samus to return left.</summary>
     WaitForSamusAtWall,
-    /// <summary>Rumbles the hidden wall using the authored signed table.</summary>
+    /// <summary>Rumbles the hidden wall through its oscillations.</summary>
     RumbleHiddenWall,
     /// <summary>Loads the skeleton's pictures and breaks the spike wall.</summary>
     BreakSpikeWall,

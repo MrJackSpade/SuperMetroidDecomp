@@ -24,8 +24,11 @@ internal static class CrocomireBridgeFragmentDefinitions
     private const int FirstColumnX = 1808;
 
     /// <summary>
-    /// The gravity on a falling bridge fragment, in 256ths of a pixel an update, each update; the fall restarts as
-    /// <see cref="RestartingFallSpeed"/> states.
+    /// The gravity on a falling bridge fragment, in 256ths of a pixel an update, each update. The fragment starts falling
+    /// at under half a pixel an update and is removed when its terrain probe finds a block, at the latest as it leaves the
+    /// room, at most fifty screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); its fall speed
+    /// therefore stays below 50 pixels an update, and the game's restart of a fall reaching 64 pixels an update is never
+    /// reached (#1795).
     /// </summary>
     internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 

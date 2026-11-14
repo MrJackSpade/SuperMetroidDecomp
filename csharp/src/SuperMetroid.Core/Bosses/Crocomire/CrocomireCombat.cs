@@ -378,8 +378,7 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(
-            RestartingFallSpeed.Accelerate(projectile.Velocity.Y, CrocomireBridgeFragmentDefinitions.Gravity));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CrocomireBridgeFragmentDefinitions.Gravity);
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>

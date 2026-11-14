@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 public static class SamusSuitDamage
 {
-    /// <summary>The whole damage points a suit's division of periodic damage reads within a cycle of 256; higher points drop out.</summary>
-    private const int SuitDividedWholeDamageCycle = 256;
-
     /// <summary>
     /// Gravity takes precedence over Varia; halving discards fractions. The damage is any amount of energy, zero or more
     /// (#1627).
@@ -47,17 +44,24 @@ public static class SamusSuitDamage
 
     /// <summary>
     /// The periodic damage a suit lets through. Its rule differs from <see cref="Reduce"/>'s because periodic damage
-    /// carries a fraction: a suit divides the damage as one amount in 256ths of energy, the whole damage within its
-    /// 256-point cycle and the fraction's 256ths, so a whole point the division moves into the fraction is kept and the
-    /// fraction's finer part and the whole damage's higher points drop out. Without a dividing suit the damage passes
-    /// unchanged.
+    /// carries a fraction: a suit divides the damage as one amount in 256ths of energy, so a whole point the division
+    /// moves into the fraction is kept and the fraction's part finer than a 256th drops out. Without a dividing suit the
+    /// damage passes unchanged.
     /// </summary>
+    /// <remarks>
+    /// The game divides only the whole damage's lowest eight bits, but no periodic damage reaches 256 whole points in one
+    /// update, so the whole damage is divided as it is (#1795). The most an update's producers accumulate is a heavy
+    /// spike's 60 or the swinging grapple's spike damage, never both, since each starts the invincibility the other waits
+    /// out, with lava's half or acid's one and a half, heat's quarter, a chewing plant's two and the Draygon turret
+    /// spike's one, all far below 256. The suit pickup, which holds the damage over its updates, equips its suit before it
+    /// starts, which stops heat, and its rooms hold no other producer.
+    /// </remarks>
     public static UnsignedSixteenSixteen ReducePeriodic(UnsignedSixteenSixteen damage, SamusEquipmentFlags equippedItems)
     {
         if (!equippedItems.HasAny(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.VariaSuit))
             return damage;
 
-        int divided = Reduce(EightEight.FromSixteenSixteen(damage.Whole % SuitDividedWholeDamageCycle, damage.Fraction), equippedItems);
+        int divided = Reduce(EightEight.FromSixteenSixteen(damage.Whole, damage.Fraction), equippedItems);
         return new UnsignedSixteenSixteen(EightEight.WholeOf(divided), SixteenSixteen.FromEightEight(EightEight.FractionOf(divided)));
     }
 }

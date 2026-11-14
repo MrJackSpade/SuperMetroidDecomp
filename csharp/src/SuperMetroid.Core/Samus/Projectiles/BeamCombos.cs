@@ -193,7 +193,7 @@ internal sealed class BeamCombos
         slot.ComboAngle += OrbitTurnPerUpdate;
         SoundEffectId? sound = null;
         if (outward)
-            slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, 8);
+            slot.ComboOrbitRadius = ComboRingCollapse.Grown(slot.ComboOrbitRadius, 8);
         else
         {
             // The lifetime starts at 600 and the particle turns outward as it leaves one, so it never passes zero.
@@ -230,11 +230,11 @@ internal sealed class BeamCombos
         switch (slot.PlasmaPhase)
         {
             case PlasmaRingPhase.Expanding:
-                slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
+                slot.ComboOrbitRadius = ComboRingCollapse.Grown(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
                 if (slot.ComboOrbitRadius >= BeamComboDefinitions.PlasmaOuterRadius) slot.PlasmaPhase = PlasmaRingPhase.Contracting;
                 break;
             case PlasmaRingPhase.Contracting:
-                slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, -BeamComboDefinitions.PlasmaRadiusStep);
+                slot.ComboOrbitRadius = ComboRingCollapse.Grown(slot.ComboOrbitRadius, -BeamComboDefinitions.PlasmaRadiusStep);
                 if (slot.ComboOrbitRadius < BeamComboDefinitions.PlasmaInnerThreshold) slot.PlasmaPhase = PlasmaRingPhase.FinalExpansion;
                 break;
             case PlasmaRingPhase.FinalExpansion:
@@ -245,7 +245,7 @@ internal sealed class BeamCombos
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 16) < 0 ||
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 256) >= 0)
                     _animation.ClearProjectile(slot);
-                else slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
+                else slot.ComboOrbitRadius = ComboRingCollapse.Grown(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
                 break;
             default: throw new InvalidOperationException($"Undefined {nameof(PlasmaRingPhase)} {slot.PlasmaPhase}.");
         }

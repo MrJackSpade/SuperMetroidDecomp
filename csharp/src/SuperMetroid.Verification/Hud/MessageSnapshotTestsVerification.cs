@@ -62,7 +62,7 @@ internal static class MessageSnapshotTestsVerification
                 ControllerButton input = state.Phase == GameplayMessageBoxPhase.AwaitingInput
                     ? tick % 3 == 0 ? ControllerButton.Right : tick % 3 == 2 ? ControllerButton.A : 0
                     : 0;
-                if (id == GameplayMessageIds.SaveConfirmation && state.Phase == GameplayMessageBoxPhase.AwaitingInput)
+                if (id == GameplayMessageId.SaveConfirmation && state.Phase == GameplayMessageBoxPhase.AwaitingInput)
                 {
                     if (!toggledSave) { input = ControllerButton.Right; toggledSave = true; }
                     else if (!releasedSave) { input = 0; releasedSave = true; }
@@ -72,7 +72,7 @@ internal static class MessageSnapshotTestsVerification
             }
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its message and radius.
-            state.Begin(GameplayMessageIds.SaveCompleted, 0);
+            state.Begin(GameplayMessageId.SaveCompleted, 0);
             AssertTrue(held is not null && heldPixels.SequenceEqual(DisplayRendering.Render(held)),
                 "retained message survives closing and reuse of the source owner");
         }

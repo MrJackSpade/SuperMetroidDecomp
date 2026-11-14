@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class FirefleaShades
 {
-    /// <summary>Returns the triangular flashing shade level 6-abs(index-6), index 0..11.</summary>
+    /// <summary>Returns the triangular flashing shade level 6-abs(phase-6) at flash phase <paramref name="phase"/>, 0..11.</summary>
     /// <remarks>Independently checked for #1165 against every original Japanese and North American v1.0
     /// value and the pinned reference sources. The six-frame timer and phase wrap are caller-owned;
     /// this exact integer wave requires no sampled floating-point construction.</remarks>
-    internal static int FlashingShade(int index)
+    internal static int FlashingShade(int phase)
     {
-        if (index is < 0 or >= FlashCount)
+        if (phase is < 0 or >= FlashCount)
         {
             throw new InvalidDataException(
-                $"Fireflea flashing index {index} is outside the {FlashCount}-entry flash cycle.");
+                $"Fireflea flash phase {phase} is outside the {FlashCount}-phase flash cycle.");
         }
 
-        return 6 - Math.Abs(index - 6);
+        return 6 - Math.Abs(phase - 6);
     }
 
     /// <summary>Returns the darkness fade level darkness step <paramref name="step"/> shows (<see cref="FirefleaFxDefinitions.DarknessLevels"/>).</summary>

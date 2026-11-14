@@ -37,8 +37,8 @@ public sealed class EscapeTimer
     public Position16<ScreenSubpixels> Position { get; private set; }
 
     /// <summary>
-    /// Whether the countdown has expired and Samus's timer handler only draws it: expiry installs the drawing-only
-    /// handler, so the timer is never processed again until an escape restarts it.
+    /// Whether the countdown has expired and is only drawn: after expiry the timer never counts again until an escape
+    /// restarts it.
     /// </summary>
     public bool CountdownExpired { get; private set; }
 

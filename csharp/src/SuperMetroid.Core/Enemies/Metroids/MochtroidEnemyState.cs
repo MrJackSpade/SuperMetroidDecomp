@@ -2,15 +2,12 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of a Mochtroid: its 1/65536-pixel steering, its shake timer and its one-update movement selector.
+/// The state of a Mochtroid: its 1/65536-pixel steering and its one-update movement selector.
 /// </summary>
 public sealed class MochtroidEnemyState
 {
     /// <summary>Signed 1/65536-pixel velocity in room pixels per update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
-
-    /// <summary>Shake countdown, used only by the shipped-but-unreferenced shake mode.</summary>
-    public int ShakeTimer { get; internal set; }
 
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }

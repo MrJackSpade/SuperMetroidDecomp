@@ -195,7 +195,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Checks the main-gameplay pause gate, including Samus handler locks and new Start input.</summary>
+    /// <summary>Checks the main-gameplay pause gate, including Samus's control locks and new Start input.</summary>
     [IndependentFlag("Message-box ownership and the frame-start input lock are separate runtime states read from the frame.")]
     private bool CanEnterPause(
         bool messageBoxOwnedFrame,
@@ -204,10 +204,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // The pause check only runs from Samus's normal new-state handler. The station lock
-        // replaces that handler with an inert one, so its entire insertion,
+        // The pause check only runs from Samus's normal input phase. The station lock
+        // replaces that phase with an inert one, so its entire insertion,
         // message/data-load, and retraction sequence bypasses pause-check even though the game
-        // state remains MainGameplay. The locked input mode installed with it stands for that handler
+        // state remains MainGameplay. The locked input mode installed with it stands for that
         // replacement; the remaining clauses are the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
@@ -235,10 +235,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // misses that final suspended frame.
         bool messageBoxOwnedFrame = session.GameplayRuntime.MessageBox.IsActive;
         bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
-            session.GameplayRuntime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
-        // The station lock installs an inert new-state handler before this
-        // frame. Retraction can restore normal input later in StepFrame, after the
-        // game's Samus-handler call site has already passed pause-check.
+            session.GameplayRuntime.MessageBox.MessageId == GameplayMessageId.MapDataAccessCompleted;
+        // The station lock installs an inert input phase before this
+        // frame. Retraction can restore normal input later in StepFrame, after
+        // Samus's input phase has already passed pause-check.
         bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.InputLocked == true;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
@@ -253,7 +253,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (timeUp)
         {
-            // The escape countdown wrote the time-up state inside Samus's handler, after her movement's
+            // The escape countdown wrote the time-up state during Samus's update, after her movement's
             // door hits and before pause-check, which then sees a state other than MainGameplay.
             BeginTimeUp();
         }
@@ -312,10 +312,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else
         {
-            // Samus's death code disables palette effects and installs fatal-input and
-            // fatal-draw handlers. Input locking is the shared representation;
+            // Samus's death disables palette effects and locks her input and drawing.
+            // Locking the player out is the shared representation;
             // the following named death states own palette and animation side effects.
-            samus.Control.LockHandlers();
+            samus.Control.LockOutPlayer();
             session.GameState = SuperMetroidGameState.DeathSequenceStart;
         }
         return true;

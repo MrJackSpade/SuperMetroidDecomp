@@ -50,15 +50,12 @@ internal sealed class IntroEggParticle
                 $"Intro egg particle names invalid frame behaviour {sprite.FrameBehavior}.");
         }
 
-        // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
-        // frames fallen. Each velocity is a signed 1/65536-pixel pair stored whole part first,
-        // exactly matching the actor's whole/subposition addition order.
+        // The piece flies sideways at its own speed and vertically at its fall's speed for the updates it has flown.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(framesFallen, fallPastCurve));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentFallSpeed(framesFallen, fallPastCurve));
         if (CoordinateAxis.Difference(sprite.WholePosition.Y, IntroEggMotionDefinitions.FragmentFloorY) >= 0)
         {
-            // The game primes the shared one-step delete animation, which the generic handler
-            // consumes later in this same object call.
+            // The landed piece starts the one-step delete animation, which plays later in this same update.
             sprite.Start(CinematicSpriteSegment.Delete);
         }
         else

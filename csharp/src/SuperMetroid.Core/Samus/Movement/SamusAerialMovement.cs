@@ -614,8 +614,8 @@ public static class SamusAerialMovement
     /// without adding any horizontal movement.
     /// </summary>
     /// <remarks>
-    /// Ordinary jump/fall handlers call this after their X pass, but the drained-Samus
-    /// handler calls this directly. Keeping one implementation
+    /// Ordinary jumps and falls call this after their X pass, but the drained Samus's
+    /// movement calls this directly. Keeping one implementation
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable game behavior, not general-purpose physics.
     /// </remarks>
@@ -626,7 +626,7 @@ public static class SamusAerialMovement
 
         // Snapshots the OLD speed into displacement before changing the stored
         // velocity. A newly initialized zero-speed fall therefore moves zero pixels on its
-        // first handler call even though gravity has already accumulated for next frame.
+        // first update even though gravity has already accumulated for next frame.
         UnsignedSixteenSixteen oldSpeed = state.YSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {

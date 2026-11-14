@@ -408,7 +408,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.GrabCooldown = WrappingCountdown.Start(0);
         state.HasGrabbedSamus = true;
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
     }
 
     /// <summary>

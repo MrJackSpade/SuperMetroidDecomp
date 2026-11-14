@@ -37,17 +37,17 @@ internal static class ElevatubeScrollingVerification
             uint? previousScrollY = null;
             for (int frame = 0; frame < 180; frame++)
             {
-                uint beforeY = samus.Kinematics.Position.Y.RawValue;
+                uint beforeY = SixteenSixteenWords.Compose(samus.Kinematics.Position.Y);
                 uint expectedY = unchecked(beforeY + (uint)(SixteenSixteen.FromEightEight(runtime.MaridiaElevatube.Velocity.InTwoHundredFiftySixthsOfPixel)));
                 AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);
-                AssertEqual(expectedY, samus.Kinematics.Position.Y.RawValue,
+                AssertEqual(SixteenSixteenWords.ToCoordinate(expectedY), samus.Kinematics.Position.Y,
                     "tube displacement contains only room-main velocity, not ordinary falling");
                 var checkpoint = (camera.PreviousSamusPoint ?? throw new InvalidOperationException("Verification requires camera.PreviousSamusPoint."));
-                uint savedY = checkpoint.Y.RawValue;
+                uint savedY = SixteenSixteenWords.Compose(checkpoint.Y);
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
-                AssertTrue(samus.Kinematics.Position.Y.RawValue != savedY,
+                AssertTrue(samus.Kinematics.Position.Y != checkpoint.Y,
                     "room-main displacement remains pending for next scrolling pass");
                 if (previousScrollY is { } previous)
                 {

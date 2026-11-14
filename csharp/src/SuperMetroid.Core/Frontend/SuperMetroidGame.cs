@@ -199,27 +199,27 @@ public sealed class SuperMetroidGame
         // must not queue a new cancellation merely because the host resumed.
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
-        bool musicHandler = false;
-        int soundHandlers = runsAudioProcessing && (!doorAudioDispatch || !leavesDoorLoadRunning) ? 1 : 0;
+        bool runsMusicQueue = false;
+        int soundQueuePasses = runsAudioProcessing && (!doorAudioDispatch || !leavesDoorLoadRunning) ? 1 : 0;
         if (messageWasActive)
         {
             // A message-box update runs exactly the box's own audio processing.
             MessageBoxFrameAudio boxAudio = Session.GameplayRuntime.MessageBox.LastFrameAudio;
-            musicHandler = boxAudio.MusicHandlerCalls != 0;
-            soundHandlers = boxAudio.SoundHandlerCalls;
+            runsMusicQueue = boxAudio.MusicQueuePasses != 0;
+            soundQueuePasses = boxAudio.SoundQueuePasses;
         }
         else if (Session.Runtime?.MessageBox.IsActive == true)
         {
             // The opening update's sound processing runs only once the box closes.
-            soundHandlers = 0;
+            soundQueuePasses = 0;
         }
         IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcceptance.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
-            advanceMusicQueue: musicHandler,
-            soundEffectHandlerCalls: soundHandlers);
+            advanceMusicQueue: runsMusicQueue,
+            soundQueuePasses: soundQueuePasses);
         IReadOnlyList<AudioRequest> audioRequests = prologueMusicRequests.Count == 0 ? trailingAudioRequests
             : [.. prologueMusicRequests, .. trailingAudioRequests];
         // The sound acceptance clock acts on this update's requests during the update's own
-        // samples; its acknowledgements become visible to the next update's sound handlers.
+        // samples; its acknowledgements become visible to the next update's sound queues.
         AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));
         // The pause phases publish held input after they return, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;

@@ -182,7 +182,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
                 part.EngineSoundTimer = 71;
             }
         }
-        part.Phase = GunshipPhase.NoOperation;
     }
 
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
@@ -207,7 +206,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
 
         // The landed ship continuously performs its four-phase bob before running the phase itself, in every
         // phase from waiting for the landing entrance through loading the liftoff dust.
-        GunshipPhase phase = Part(top).Phase;
+        GunshipPhase phase = Part(top).Phase ?? throw new InvalidOperationException("The gunship's top hull has no phase.");
         if (BobsWhileLanded(phase))
             StepGunshipBob(top);
 
@@ -287,10 +286,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             case GunshipPhase.MoveAccelerating:
                 MoveEscapingGunship(top, samus);
                 return;
-            case GunshipPhase.NoOperation:
-                throw new InvalidDataException(
-                    $"Gunship has no behaviour for phase {Part(top).Phase}.");
-            case GunshipPhase.None:
             default:
                 throw new InvalidOperationException($"The gunship has no behaviour for phase {phase}.");
         }
@@ -563,7 +558,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
             // highest surviving slot, matching the ordinary scheduler.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
-                _projectiles.SpawnGunshipLiftoffDustCloud(cloud, samus);
+                GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
         }
         if (Part(bottom).RumbleFrame >= GunshipTakeoffDefinitions.EngineRumbleFrames)
         {

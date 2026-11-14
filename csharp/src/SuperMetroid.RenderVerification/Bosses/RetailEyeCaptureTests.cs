@@ -29,7 +29,7 @@ internal static class RetailEyeCaptureTests
         var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         bool firstBeam = false, fullBeam = false;
         for (int tick = 0; tick < 96; tick++)
         {

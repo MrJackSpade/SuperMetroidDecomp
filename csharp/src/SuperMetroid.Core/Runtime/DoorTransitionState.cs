@@ -76,7 +76,7 @@ internal sealed class DoorTransitionState
             throw new InvalidOperationException("A door transition is already active.");
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
-        runtime.Player.Samus.Control.LockHandlers();
+        runtime.Player.Samus.Control.LockOutPlayer();
         runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;

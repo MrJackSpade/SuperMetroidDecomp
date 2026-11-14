@@ -3,7 +3,7 @@
 /// <summary>What a cue of the Chozo statue's animations does: clear its frame behaviour, play its footstep or grab sound, release Samus, lower the acid, or give Samus her controls back.</summary>
 internal enum ChozoStatueCueKind
 {
-    /// <summary>Clears the frame behaviour.</summary>
+    /// <summary>Clears the frame behaviour: the statue waits for nothing.</summary>
     ClearFrameBehavior,
     /// <summary>Plays the footstep sound.</summary>
     PlayFootstepSound,

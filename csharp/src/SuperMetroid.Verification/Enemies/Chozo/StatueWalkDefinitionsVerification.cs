@@ -58,9 +58,9 @@ internal static class StatueWalkDefinitionsVerification
             carry(slot, samus, level, step);
             uint x = unchecked(start + (uint)(SixteenSixteen.FromEightEight(velocity)));
             uint y = start + (uint)(SixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(x), slot.Position.X.Whole, "Chozo real signed X movement");
             AssertEqual((ushort)x, slot.Position.X.Fraction, "Chozo real fractional X");
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)y)), slot.Position.Y.Whole, "Chozo real absolute Y movement");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(y), slot.Position.Y.Whole, "Chozo real absolute Y movement");
             AssertEqual((ushort)y, slot.Position.Y.Fraction, "Chozo real fractional Y");
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");

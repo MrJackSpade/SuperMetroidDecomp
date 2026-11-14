@@ -519,7 +519,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyDefinitionId spawner = BurstSpawner(program);
             bool skree = spawner == EnemyDefinitionId.Skree;
             RoomEnemySystem enemies = BurstSystem(artwork, spawner);
-            Action<RoomEnemySlot> spawn = slot => enemies.Projectiles.SpawnMetalParticleBurst(slot,
+            Action<RoomEnemySlot> spawn = slot => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot,
                 skree ? SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst : SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst);
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
@@ -534,7 +534,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                          .Where(particle => particle.IsActive))
             {
                 particle.FrameHold = WrappingCountdown.Start(1);
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, shortCounter: 0);
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -719,7 +719,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Graphics = SpawnedGraphics;
             // The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
             slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Shard0));
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, shortCounter: 0);
             // It draws from the sheets a set spawning it composes from this artwork.
             slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
                 slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."), SpawnedGraphics);

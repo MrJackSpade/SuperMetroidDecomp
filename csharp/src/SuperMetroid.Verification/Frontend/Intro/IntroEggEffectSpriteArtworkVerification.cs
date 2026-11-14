@@ -76,7 +76,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed egg fragment preserves native live-actor OAM");
 
-        var slime = new IntroEggSlimeDrop(new(0x0070, 0x00b8), index: 0);
+        var slime = new IntroEggSlimeDrop(new(0x0070, 0x00b8), IntroEggMotionDefinitions.SlimeLaunches[0]);
         for (int frame = 0; frame < 31; frame++)
         {
             slime.Step();

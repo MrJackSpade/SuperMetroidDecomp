@@ -54,8 +54,8 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(!samus.Control.InputLocked, "installed ejection replaces movement but not pose input");
 
         bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
-        uint xBeforeInitialization = samus.Kinematics.Position.X.RawValue;
-        uint yBeforeInitialization = samus.Kinematics.Position.Y.RawValue;
+        FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
+        FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
 
             emptyRoom,
@@ -67,8 +67,8 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
         AssertEqual(SamusMovementType.Knockback, samus.PoseHistory.PreviousMovement, "ejection initialization publishes hurt metadata");
-        AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X.RawValue, "first gamma performs no horizontal movement");
-        AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y.RawValue, "first gamma performs no vertical movement");
+        AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X, "first gamma performs no horizontal movement");
+        AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(CeresRidleyShoveDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed.Whole, "ejection installs terminal downward speed");
@@ -134,25 +134,25 @@ internal static class CeresEscapeHandoffVerification
         StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(0, state.RotationTimer, "shaft door delay retains zero for one room-main call");
         AssertEqual(
-            CeresElevatorShaftRoomMainState.InitialRotationIndex,
-            state.RotationStep,
+            CeresElevatorShaftRoomMainState.StartingTurnPlace,
+            state.TurnPlace,
             "shaft index waits through first 60 calls");
 
         CeresElevatorShaftRoomMainResult firstTilt =
             state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover);
         AssertTrue(firstTilt.TiltChanged, "61st shaft call underflows and consumes the first rotation step");
-        AssertEqual(35, state.RotationStep, "shaft index advances after record 34");
+        AssertEqual(35, state.TurnPlace, "shaft turn place advances after place 34");
         AssertEqual(0.0, state.Transform.Angle, "step 34 leaves the shaft level");
 
         // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
         // The following room inherits the backward steps with the native phase word's sign bit.
         for (int i = 0; i < 33; i++)
             StepFrames(state.RotationTimer + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
-        AssertEqual(68, state.RotationStep, "shaft forward sweep enters the reverse sweep at step 68");
+        AssertEqual(68, state.TurnPlace, "shaft forward sweep enters the reverse sweep at place 68");
         AssertEqual(CeresShaftSweep.Backward, state.Sweep, "shaft forward sweep reverses after step 67");
         AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
         StepFrames(state.RotationTimer + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
-        AssertEqual(67, state.RotationStep, "shaft reverse sweep counts down");
+        AssertEqual(67, state.TurnPlace, "shaft reverse sweep counts down");
         AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
         AssertEqual(34 / CeresShaftRotationDefinitions.StepsPerRadian, state.Transform.Angle,
             "reverse step 68 reads record 68, the shaft's furthest clockwise tilt");

@@ -171,10 +171,10 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
-    /// <summary>Creates the frame-steppable runtime under its assists, and loads the required initial palette.</summary>
+    /// <summary>Creates the frame-steppable runtime under its assists, Samus in her starting shades.</summary>
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
-    /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
+    /// The installed catalogs; their Samus overread services
     /// are handed to the owners that consult them, their enemy and boss overread services, enemy sheets and enemy frame
     /// displays and the rainbow-beam camera checkpoint are injected into the enemy session it builds, and
     /// <see cref="BindArtwork"/> binds the rest.
@@ -363,7 +363,7 @@ internal sealed class SuperMetroidRuntime
     public ShownHud AcceptedHud =>
         Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
 
-    /// <summary>The colour effect handler enable bit and heat phases, which outlive each room's colour effects.</summary>
+    /// <summary>Whether the colour effects run, and the heat phases, which outlive each room's colour effects.</summary>
     public ColourEffectSessionState ColourEffectSession { get; } = new();
 
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
@@ -614,26 +614,26 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.ProcessingWindow.PrepareEnemyProcessingList(Room.Camera.PixelPosition);
     }
 
-    /// <summary>Runs the colour effect handler and Hyper Beam's palette object.</summary>
+    /// <summary>Runs the room's colour effects and Hyper Beam's colour effect.</summary>
     private void RunColourEffects()
     {
-        // Main gameplay runs the colour effect handler before Samus's update and
+        // Main gameplay runs the colour effects before Samus's update and
         // before enemies are processed. The Hyper Beam is equipped by the
-        // Baby during that later enemy phase, so a newly spawned Hyper Beam palette object naturally
+        // Baby during that later enemy phase, so a newly started Hyper Beam colour effect naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
-        // first StepFrame get the same handler-first behavior immediately.
+        // first StepFrame get the same effects-first behavior immediately.
         // The room's colour effects take their turns first (ColourEffectTurnOrder): room FX starts first,
         // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Running the room's effects before the separately owned Hyper Beam effect keeps that
         // order.
         // Door destination drawing borrows this frame path, but the door's destination
-        // fade does not call the colour effect handler. Its colors must remain
+        // fade does not run the colour effects. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (Room.LoadedScope.ColourEffects.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
+        if (Room.LoadedScope.ColourEffects.ColourEffectsRun && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.AreColourEffectsSuspended != true)
         {
-            Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasDefeatedAnyOf(paletteRoom.Area, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
+            Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } activeRoom &&
+                    System.HasDefeatedAnyOf(activeRoom.Area, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
@@ -644,8 +644,8 @@ internal sealed class SuperMetroidRuntime
             foreach ((IGlowingEnemy enemy, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.GlowsShown)
                 enemy.ShowGlow(frame);
         }
-        // Hyper Beam's palette object lives in the same pool and handler.
-        if (Room.LoadedScope.ColourEffects.HandlerEnabled)
+        // Hyper Beam's colour effect runs whenever the colour effects run.
+        if (Room.LoadedScope.ColourEffects.ColourEffectsRun)
         {
             Player.Samus?.Drained.HyperBeamColourEffect.Step(Player.Colours);
         }
@@ -706,7 +706,7 @@ internal sealed class SuperMetroidRuntime
                 throw new InvalidDataException(
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
-            MessageBox.Begin(GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
+            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, Controller1.Current);
         }
     }
 
@@ -739,7 +739,7 @@ internal sealed class SuperMetroidRuntime
             RunMainScrolling(Player.Samus, Room.Camera, tail.PreviousCameraPoint, deathOwnsSamus);
             DrawGameplayActors(tail, deathOwnsSamus);
         }
-        RunEscapeTimerHandler(frameTail);
+        RunEscapeTimer(frameTail);
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard);
@@ -894,22 +894,22 @@ internal sealed class SuperMetroidRuntime
             tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
     }
 
-    /// <summary>Runs the escape-timer handler unless the gunship's movement mode owns the frame.</summary>
-    private void RunEscapeTimerHandler(SuspendedGameplayFrameTail? frameTail)
+    /// <summary>Counts the escape timer down and draws it, unless the gunship's movement mode owns the frame.</summary>
+    private void RunEscapeTimer(SuspendedGameplayFrameTail? frameTail)
     {
         // The enemy phase can install the gunship's movement mode on this frame.
         // It omits the normal timer-drawing call: neither countdown nor its sprites
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's sprite pictures as dust.
-        bool runEscapeTimerHandler = frameTail?.Mode.Movement != SamusMovementMode.Gunship;
-        if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
+        bool escapeTimerRuns = frameTail?.Mode.Movement != SamusMovementMode.Gunship;
+        if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
             // game-state loop, whites the target palettes and disables colour effects.
             TimeUpRequested = true;
-            ColourEffectSession.DisableHandler();
+            ColourEffectSession.StopColourEffects();
         }
-        if (runEscapeTimerHandler && EscapeTimer.IsActive)
+        if (escapeTimerRuns && EscapeTimer.IsActive)
         {
             var presentation = Artwork.MapPresentation ?? throw new InvalidOperationException(
                 "Escape timer requires installed presentation assets.");

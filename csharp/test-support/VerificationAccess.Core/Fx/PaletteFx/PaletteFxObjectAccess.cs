@@ -39,7 +39,6 @@ internal static class PaletteFxObjectAccess
         [ColourEffectId.SamusLoadingVariaSuit] = 0xe1f8,
         [ColourEffectId.SamusLoadingGravitySuit] = 0xe1fc,
         [ColourEffectId.PostCreditsSuperMetroidIcon] = 0xe200,
-        [ColourEffectId.Nothing] = 0xf745,
         [ColourEffectId.GreyOutTourianStatueDraygon] = 0xf749,
         [ColourEffectId.GreyOutTourianStatueKraid] = 0xf74d,
         [ColourEffectId.GreyOutTourianStatueRidley] = 0xf751,

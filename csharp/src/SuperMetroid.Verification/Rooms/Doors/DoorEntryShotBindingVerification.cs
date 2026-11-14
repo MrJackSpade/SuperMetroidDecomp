@@ -38,7 +38,7 @@ internal static class DoorEntryShotBindingVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Options.ControllerBindings = lowc;
             var samus = runtime.Player.IntroducedSamus;
-            samus.Control.LockHandlers();
+            samus.Control.LockOutPlayer();
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

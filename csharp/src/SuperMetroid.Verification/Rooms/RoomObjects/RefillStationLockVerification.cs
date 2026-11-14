@@ -28,7 +28,7 @@ internal static class RefillStationLockVerification
         runtime.StepFrame(0);
         AssertTrue(Animation() != unlocked, "the normal beta advances Samus's animation");
 
-        samus.Control.LockIntoRefillStation();
+        samus.Control.LockAtStation();
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.RefillStation && samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
             "command six installs the station pair, not command zero's");
         var locked = Animation();

@@ -21,12 +21,12 @@ internal static class RoomPaletteFxDefinitionsVerification
 {
     /// <summary>
     /// The bank-$8D definitions of the Nintendo boot logo's fade (#1686), the cinematic fade, the dark lightning, the Wrecked
-    /// Ship lights' copy and the Tourian glow's copy, which no scene spawns and no room's record sets, so they are no effect
-    /// of the game.
+    /// Ship lights' copy and the Tourian glow's copy, which no scene spawns and no room's record sets, and the empty object
+    /// the unused area bits select, which shows nothing (#1827), so they are no effect of the game.
     /// </summary>
-    private static readonly HashSet<ushort> UnreachableDefinitions = [0xe198, 0xe1ec, 0xf769, 0xf771, 0xf7a5];
+    private static readonly HashSet<ushort> UnreachableDefinitions = [0xe198, 0xe1ec, 0xf745, 0xf769, 0xf771, 0xf7a5];
 
-    /// <summary>Audits the 58 reachable entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
+    /// <summary>Audits the 57 effect entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
     internal static void VerifyRoomPaletteFxDefinitions(CartridgeImportAddressSpace rom)
     {
 
@@ -46,7 +46,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
         Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));
         Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
-        AssertEqual(58, pointers.Length, "compiled palette-FX definition count");
+        AssertEqual(57, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
         int genericCompiledPrograms = 0;
@@ -69,7 +69,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 genericCompiledPrograms++;
             }
         }
-        AssertEqual(57, genericCompiledPrograms,
+        AssertEqual(56, genericCompiledPrograms,
             "generic palette-FX definitions with typed initial programs");
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
@@ -98,8 +98,10 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            // Tourian's third bit selects the glow copy no room sets, which is no effect of the game and starts nothing.
-            if (AreaPaletteFxObjects.GetAreaDefinition(area, bit) is not { } effect)
+            // Tourian's third bit selects the glow copy no room sets, which the decode refuses, and an unused bit starts no
+            // effect.
+            if ((area, bit) == (SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Tourian), 2) ||
+                AreaPaletteFxObjects.GetAreaDefinition(area, bit) is not { } effect)
                 continue;
             var definition = new RoomEffectDefinition(LiquidStartLevel: 0, LiquidTargetLevel: 0, LiquidLevelSpeed: default, LiquidMoveDelay: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
@@ -134,9 +136,9 @@ internal static class RoomPaletteFxDefinitionsVerification
             "out-of-range palette-FX bit index");
 
         Console.WriteLine(
-            "Palette-FX definitions: 58 setup/list records, eight native area lists, " +
+            "Palette-FX definitions: 57 setup/list records, eight native area lists, " +
             "64 area selections, every production spawn, all retail room-load selections, " +
-            "57 compiled generic program entries, and the specialized Hyper Beam owner pass " +
+            "56 compiled generic program entries, and the specialized Hyper Beam owner pass " +
             "with fixed metadata reads forbidden.");
     }
 

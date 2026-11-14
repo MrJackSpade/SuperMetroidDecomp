@@ -35,10 +35,10 @@ internal static class GameOverSheetComposer
             frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         RgbColor[] colours = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         int babyInk = gameOver.BabyPaletteIndex * GroupColours;
-        gameOver.BabyPaint.Colours(GameOverBabyPalette.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
+        gameOver.BabyPaint.Colours(GameOverBabyColouring.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
         {
-            Shades = [.. Enum.GetValues<GameOverBabyPalette>().Select(palette =>
+            Shades = [.. Enum.GetValues<GameOverBabyColouring>().Select(palette =>
                 SheetShade.Run(GameOverBabyShades.Colours(palette), babyInk, gameOver.BabyPaint.Colours(palette)))],
         };
     }

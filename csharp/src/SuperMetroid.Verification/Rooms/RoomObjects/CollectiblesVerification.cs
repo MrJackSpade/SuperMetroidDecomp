@@ -515,7 +515,7 @@ internal static class CollectiblesVerification
         GameplayMessageArtwork messages = CreatePermanentMessageFixture();
         var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
 
-        message.Begin(GameplayMessageIds.EnergyTank, 0);
+        message.Begin(GameplayMessageId.EnergyTank, 0);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
         // dispatch that opened the box.
         AssertEqual(GameplayMessageBoxPhase.Preparing, message.Phase,
@@ -585,12 +585,12 @@ internal static class CollectiblesVerification
         }
         message.Step(0);
         AssertTrue(!message.IsActive, "item message returns after its restore frames");
-        AssertEqual(MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 }, message.LastFrameAudio,
+        AssertEqual(MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 }, message.LastFrameAudio,
             "the return frame adds the dispatch's own HandleSounds");
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: ControllerButton.B);
+        message.Begin(GameplayMessageId.MissileTank, 0, shootBinding: ControllerButton.B);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount(messages), "large item message has four content rows");
@@ -605,7 +605,7 @@ internal static class CollectiblesVerification
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name.
         message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        message.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
+        message.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(5, message.TilemapRowCount(messages),
@@ -652,7 +652,7 @@ internal static class CollectiblesVerification
             {
                 var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
-                    GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"),
+                    GameplayMessageId.FromCartridge(messageId, "retail definition-table audit"),
                     controllerRead: 0);
                 AssertTrue(
                     retailMessage.TilemapRowCount(RetailMessageFixture()) is >=
@@ -662,10 +662,10 @@ internal static class CollectiblesVerification
             }
         }
 
-        AssertEqual(0x1a, GameplayMessageNumbers.Numbers.Word(GameplayMessageIds.GravitySuit),
+        AssertEqual(0x1a, GameplayMessageNumbers.Numbers.Word(GameplayMessageId.GravitySuit),
             "Gravity Suit uses retail message $1A rather than map-station message $14");
         NotSupportedException unsupported = AssertThrows<NotSupportedException>(
-            () => GameplayMessageIds.FromCartridge(0x1b, "constructed PLM"),
+            () => GameplayMessageId.FromCartridge(0x1b, "constructed PLM"),
             "message terminator is not exposed as a gameplay message");
         AssertTrue(unsupported.Message.Contains("$1B", StringComparison.Ordinal) &&
             unsupported.Message.Contains("constructed PLM", StringComparison.Ordinal),

@@ -84,7 +84,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect overlay FX reads.</summary>
     public required RoomFxSession RoomFx { get; init; }
 
-    /// <summary>The colour effect handler state each room's colour effects reads.</summary>
+    /// <summary>Whether the colour effects run, and the heat phases, which each room's colour effects read.</summary>
     public required ColourEffectSessionState ColourEffectSession { get; init; }
 
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>

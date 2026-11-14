@@ -73,6 +73,6 @@ internal static class MultiviolaLeftOrUpSpeedVerification
         int whole = turnedLeftOrUp ? magnitude.Whole ^ ushort.MaxValue : magnitude.Whole;
         int fraction = turnedLeftOrUp ? ((magnitude.Fraction ^ ushort.MaxValue) + 1) & ushort.MaxValue : magnitude.Fraction;
         uint place = unchecked(((uint)Centre << 16) + (((uint)whole << 16) | (uint)fraction));
-        return FixedCoordinate.FromRaw(place);
+        return SixteenSixteenWords.ToCoordinate(place);
     }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -33,15 +34,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private int brightness;
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile = new();
-    /// <summary>Current step of the Baby pose animation, or null before the first animation update of this visit.</summary>
-    internal int? BabyStep { get; private set; }
+    /// <summary>Where the Baby's animation stands, or null before its first update of this visit.</summary>
+    internal AnimationPlace? BabyPlace { get; private set; }
+    /// <summary>The pose and colours the Baby shows: its resting look before its animation starts.</summary>
+    internal GameOverBabyLook BabyLook { get; private set; } = GameOverBabyAnimation.Resting;
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal int BabyFrameHold { get; private set; }
-    /// <summary>
-    /// The colours the Baby shows (#1512): those of the pose animation's current step, which the step loads as it runs, or
-    /// its idle colours before the animation's first step.
-    /// </summary>
-    internal GameOverBabyPalette BabyColours => BabyStep is int step ? GameOverBabyAnimation.Get(step).Palette : GameOverBabyPalette.Idle;
+    /// <summary>The colours the Baby shows (#1512): those of its current look.</summary>
+    internal GameOverBabyColouring BabyColours => BabyLook.Colours;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
@@ -156,7 +156,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusic(MusicRequest.Stop);
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-                BabyStep = null;
+                BabyPlace = null;
+                BabyLook = GameOverBabyAnimation.Resting;
                 BabyFrameHold = 0;
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
@@ -241,53 +242,55 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
-        GameOverBabyScriptStep step = GameOverBabyAnimation.Get(BabyStep ?? 0);
-        content.GameOver.DrawBaby(sprites, sheet, step.Frame, BabyColours);
+        content.GameOver.DrawBaby(sprites, sheet, BabyLook.Frame, BabyLook.Colours);
         content.GameOver.DrawEgg(sprites, sheet);
         content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
         sprites.FinishFrame();
     }
 
-    /// <summary>Runs the game-over Baby Metroid's pose animation.</summary>
+    /// <summary>
+    /// Runs the game-over Baby Metroid's animation one update: its first update starts it, and when a look's updates run
+    /// out it plays on to the next, queueing the cries it passes.
+    /// </summary>
     private void StepBabyMetroid()
-    {
-        StepCompiledBabyMetroid();
-    }
-
-    /// <summary>Advances the compiled Baby pose stream and queues its sounds; the step reached names the colours the Baby shows.</summary>
-    private void StepCompiledBabyMetroid()
     {
         if (BabyFrameHold == 0)
         {
-            BabyStep = 0;
-            BabyFrameHold = GameOverBabyAnimation.Get(0).Duration;
+            BabyPlace = null;
+            ShowNextBabyLook();
         }
 
         BabyFrameHold--;
-        GameOverBabyScriptStep current = GameOverBabyAnimation.Get(BabyStep ??
-            throw new InvalidOperationException("The game-over Baby program is held before its first step."));
         if (BabyFrameHold == 0)
-        {
-            if (current.SoundAfter != GameOverBabySound.None)
-                QueueCompiledBabySound(current.SoundAfter);
-            current = GameOverBabyAnimation.Get(current.NextStep);
-            BabyStep = current.Step;
-            BabyFrameHold = current.Duration;
-        }
+            ShowNextBabyLook();
     }
 
-    /// <summary>Queues a Baby animation sound marker's cry on the retail sound queue.</summary>
-    private void QueueCompiledBabySound(GameOverBabySound sound) =>
+    /// <summary>Plays the Baby's animation on to its next look, queueing the cries it passes, and holds that look.</summary>
+    /// <exception cref="InvalidOperationException">The animation showed no look, which a looping animation of looks never does.</exception>
+    private void ShowNextBabyLook()
+    {
+        AnimationPlace place = BabyPlace ?? AnimationPlace.StartOfAnimation;
+        WrappingCountdown repeats = default;
+        AnimationShown<GameOverBabySegment, GameOverBabyLook> shown = GameOverBabyAnimation.Segments.PlayToNextFrame(
+            GameOverBabyAnimation.Playing, ref place, ref repeats, QueueCry);
+        if (shown is not AnimationShown<GameOverBabySegment, GameOverBabyLook>.Frame look)
+            throw new InvalidOperationException($"The game-over Baby's animation showed {shown} instead of its next look.");
+        BabyPlace = place;
+        BabyLook = look.Shown;
+        BabyFrameHold = look.Duration;
+    }
+
+    /// <summary>Queues one of the Baby's cries on the retail sound queue.</summary>
+    private void QueueCry(GameOverBabySound sound) =>
         audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.MaximumQueuedSounds);
 
-    /// <summary>The cry a Baby animation sound marker queues.</summary>
-    /// <exception cref="InvalidDataException">The marker queues no cry.</exception>
+    /// <summary>The sound of one of the Baby's cries.</summary>
+    /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>
     internal static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
     {
         GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
         GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
         GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
-        GameOverBabySound.None => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
         _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
     };
 

@@ -71,8 +71,11 @@ public sealed class KiHunterEnemyState
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
-    /// <summary>The wings' secondary behaviour, alternating between non-colliding and collision-bearing detached arcs.</summary>
-    public KiHunterWingMovement WingMovement { get; internal set; }
+    /// <summary>
+    /// The wings' secondary behaviour, alternating between non-colliding and collision-bearing detached arcs; null until the
+    /// wings are detached.
+    /// </summary>
+    public KiHunterWingMovement? WingMovement { get; internal set; }
     /// <summary>
     /// A body's signed 1/65536-step angular velocity in 256ths of a turn per update: zero when a swoop begins, accelerated each
     /// update with the fraction carrying into the whole part, and capped on its whole part. Its whole part steps the

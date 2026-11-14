@@ -46,7 +46,12 @@ internal static class ShaktoolNativeListAddresses
         [0xd93f] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.RaiseTowardCenter, ""),
         [0xd94a] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Lower, ""),
         [0xd953] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Raise, ""),
-        [0xd99f] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Nothing, ""),
         [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResetFrameBehaviors, ""),
     };
+
+    /// <summary>
+    /// The native routine the head's attack list calls between its two long pauses (#1803): it returned at once, so the
+    /// animations have no event for it.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0xd99f];
 }

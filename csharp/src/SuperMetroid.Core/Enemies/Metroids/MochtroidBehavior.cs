@@ -83,12 +83,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case MochtroidMovementMode.TouchingSamus:
                 RunMochtroidAttachedFlight(slot, state, samus, level);
                 return;
-            case MochtroidMovementMode.Shaking:
-                RunMochtroidShake(slot, state);
-                return;
             default:
                 throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} is not one of its three movements.");
+                    $"Mochtroid movement {selectedMode} is not one of its two movements.");
         }
     }
 
@@ -148,20 +145,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : MochtroidAttachedVelocity;
         StoreMochtroidYVelocity(state, yVelocity);
         _terrain.MoveEnemyVertically(level, slot, yVelocity);
-    }
-
-    /// <summary>Applies the authored four-direction shake offset and counts down to free flight.</summary>
-    private static void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
-    {
-        // This third dispatch entry is unused by retail callers but present in the shipped
-        // table. The low two even bits select right/up/left/down, then the timer counts down.
-        slot.Position += MochtroidShake.Offset(state.ShakeTimer);
-        StoreMochtroidXVelocity(state, SignedSixteenSixteen.Zero);
-        StoreMochtroidYVelocity(state, SignedSixteenSixteen.Zero);
-        if (--state.ShakeTimer == 0)
-            state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        SetMochtroidAnimation(
-            slot, state, MochtroidSegment.FreeFlight);
     }
 
     /// <summary>Stores the current horizontal velocity in the species state.</summary>

@@ -68,7 +68,7 @@ internal static class SpikeDamageBoostVerification
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(frame < 3 ? ControllerButton.Left | ControllerButton.A : ControllerButton.A);
-            AssertEqual(expected[frame], new SpikeDamageBoostExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
+            AssertEqual(expected[frame], new SpikeDamageBoostExpected(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y),
                 samus.Pose, samus.HorizontalSpeed.BaseSpeed.RawValue), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
             AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
@@ -96,8 +96,8 @@ internal static class SpikeDamageBoostVerification
         runtime.Controller1.Latch((ControllerButton.Right | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
-        AssertEqual(0x00534000u, samus.Kinematics.Position.X.RawValue, "expired hurt floor probe keeps X");
-        AssertEqual(0x00ebffffu, samus.Kinematics.Position.Y.RawValue, "expired hurt floor alignment");
+        AssertEqual(FixedCoordinate.Of(0x0053, 0x4000), samus.Kinematics.Position.X, "expired hurt floor probe keeps X");
+        AssertEqual(FixedCoordinate.Of(0x00eb, 0xffff), samus.Kinematics.Position.Y, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "landing clears residual hurt momentum");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -131,7 +131,7 @@ internal static class SpikeDamageBoostVerification
         {
             runtime.StepFrame(ControllerWordCodec.FromJoypadWord(expectedFrame.Input, "spike fixture frame"));
             AssertEqual(new VerifyMorphedSpikeReleaseCase(expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
-                new VerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
+                new VerifyMorphedSpikeReleaseCase(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y),
                     samus.HorizontalSpeed.BaseSpeed.RawValue, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
                 "native carried-speed hurt fallback trajectory");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
@@ -187,14 +187,14 @@ internal static class SpikeDamageBoostVerification
         runtime.Controller1.Latch((ControllerButton.Left | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0063c000u, 0x00edffffu, 0x0000a000u),
-            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.YSpeed.RawValue),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Kinematics.YSpeed.RawValue),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0062c000u, 0x00ebffffu, 0u),
-            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.YSpeed.RawValue),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Kinematics.YSpeed.RawValue),
             "following normal fall performs actual landing");
         AssertEqual(SamusPoseId.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }

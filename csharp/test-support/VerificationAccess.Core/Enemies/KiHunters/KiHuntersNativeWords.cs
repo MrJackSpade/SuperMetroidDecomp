@@ -16,7 +16,7 @@ internal static class KiHuntersNativeWords
         [KiHunterAction.RecoveringFromSwoop] = 0xf4ed,
         [KiHunterAction.FallingAfterWingLoss] = 0xf55a,
         [KiHunterAction.StartGroundJump] = 0xf58b,
-        [KiHunterAction.NoOp] = 0xf5e3,
+        [KiHunterAction.AnimatingOnGround] = 0xf5e3,
         [KiHunterAction.GroundJump] = 0xf5f0,
         [KiHunterAction.GroundWait] = 0xf68b,
         [KiHunterAction.SelectAcidSpit] = 0xf6b3,

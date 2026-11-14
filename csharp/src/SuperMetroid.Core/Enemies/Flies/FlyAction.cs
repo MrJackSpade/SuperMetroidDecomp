@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 public enum FlyAction
 {
     /// <summary>Circles with its flight angle increasing, switching direction after a full turn or attacking when cooldown is zero and Samus is within 112 horizontal pixels.</summary>
-    ClockwiseCircle = 1,
+    ClockwiseCircle,
     /// <summary>Circles with its flight angle decreasing and the same proximity/cooldown admission as the clockwise state.</summary>
     AntiClockwiseCircle,
     /// <summary>Advances the sampled attack velocity until crossing the saved Samus Y, then reverses vertical velocity and retreats.</summary>

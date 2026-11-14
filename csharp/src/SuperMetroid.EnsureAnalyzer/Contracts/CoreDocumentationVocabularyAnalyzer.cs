@@ -43,6 +43,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// hardware owners, the machine's display transfers, staging and NTSC and PAL video standards, the common room elements,
 /// and the original's selector tables, record tables and input and pose records. #1812 adds, outside hardware owners, the
 /// original's indirect dispatch, the machine's bus, regionalized values and the original's enemy entries named as records.
+/// #1828 adds the original's routine handlers, read in every type: a handler call, and a music, sound, colour-effect,
+/// timer, sprite or state handler.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -313,6 +315,20 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex RoutineSlotProse = new(
         @"/\s*hack\b|\btimer[-\s]+hacks?\b|\bhack[-\s]+(?:handl(?:ers?|ing)|owners?)\b" +
         @"|\bgamma\b(?![-\s]+(?:correct\w*|curves?|ramps?|space|encod\w*|decod\w*|values?)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's routine handlers in prose (#1828), read in every Core type, spaced or hyphenated: a handler
+    /// call (the extra sound-handler call, two handler calls) and a music, sound or sound-effect, colour-effect, timer,
+    /// sprite or state handler (the music handler's fetch, the colour effect handler, Samus's timer handler, the generic
+    /// sprite handler, separately run state handlers). Core names the queue's pass, the effects that run, the countdown's
+    /// update, the actor's frame or the phase instead (<c>MusicQueuePasses</c>, <c>ColourEffectsRun</c>). English stays
+    /// legal: a handler alone or of another kind (an exception or event handler, the grapple beam's handler), calling a
+    /// handler and a call alone.
+    /// </summary>
+    private static readonly Regex RoutineHandlerProse = new(
+        @"\bhandler[-\s]+calls?\b" +
+        @"|\b(?:music|sound(?:[-\s]+effects?)?|colou?r[-\s]+effects?|timer|sprite|state)[-\s]+handlers?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -633,7 +649,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), the
-    /// original's call structure (<see cref="CallStructureProse"/>), its routine slots (<see cref="RoutineSlotProse"/>) or the C reimplementation
+    /// original's call structure (<see cref="CallStructureProse"/>), its routine slots (<see cref="RoutineSlotProse"/>), its routine
+    /// handlers (<see cref="RoutineHandlerProse"/>) or the C reimplementation
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals.
@@ -645,6 +662,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
             : CallStructureProse.Match(text) is { Success: true } call ? call.Value
             : RoutineSlotProse.Match(text) is { Success: true } slot ? slot.Value
+            : RoutineHandlerProse.Match(text) is { Success: true } handler ? handler.Value
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : IsInHardwareOwner(owner) ? null

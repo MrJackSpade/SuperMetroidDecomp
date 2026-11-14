@@ -99,7 +99,7 @@ internal static class PipeBugBehaviorVerification
             for (int update = 0; update < expected.Length; update++)
             {
                 enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
-                AssertEqual(FixedCoordinate.FromRaw(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
+                AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
                 AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)

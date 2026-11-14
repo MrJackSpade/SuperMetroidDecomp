@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 public enum BabyTurtleAction
 {
     /// <summary>Crawls along the shell without carrying Samus.</summary>
-    CrawlingNotCarryingSamus = 1,
+    CrawlingNotCarryingSamus,
     /// <summary>Hides while remaining attached to a carried Samus.</summary>
     HidingCarryingSamus,
     /// <summary>Hides without carrying Samus.</summary>

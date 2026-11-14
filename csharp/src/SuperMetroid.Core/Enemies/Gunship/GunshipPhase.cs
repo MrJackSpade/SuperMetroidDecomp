@@ -6,10 +6,6 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal enum GunshipPhase
 {
-    /// <summary>A cleared gunship piece holds no phase.</summary>
-    None = 0,
-    /// <summary>Shared no-op phase.</summary>
-    NoOperation = 1,
     /// <summary>High-altitude post-Ceres descent.</summary>
     DescendAfterCeres,
     /// <summary>Landing brake phase.</summary>

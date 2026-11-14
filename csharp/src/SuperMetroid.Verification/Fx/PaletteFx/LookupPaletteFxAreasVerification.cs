@@ -22,6 +22,9 @@ internal static class LookupPaletteFxAreasVerification
     /// <summary>The bank-$8D palette-FX object Tourian's third effect bit names, the glow copy no room sets.</summary>
     private const ushort TourianGlowCopyObject = 0xf7a5;
 
+    /// <summary>The bank-$8D palette-FX object every unused effect bit names, which shows nothing.</summary>
+    private const ushort EmptyObject = 0xf745;
+
     /// <summary>Checks the full area/bit dispatch domain and gives area validation precedence on invalid pairs.</summary>
     internal static void VerifyPaletteFxAreaSelections(CartridgeImportAddressSpace rom)
     {
@@ -32,10 +35,17 @@ internal static class LookupPaletteFxAreasVerification
             {
                 ushort nativeList = ReadVerificationWord(rom, 0x83ac46 + 2 * area);
                 ushort expected = ReadVerificationWord(rom, 0x830000 | (nativeList + 2 * bit));
-                // Only Tourian's third bit names an object that is no effect: the glow copy no room sets.
+                // Tourian's third bit names the glow copy no room sets, which the decode refuses; every unused bit names the
+                // empty object, which starts no effect.
+                if (expected == TourianGlowCopyObject)
+                {
+                    AssertThrows<InvalidDataException>(() => AreaPaletteFxObjects.GetAreaDefinition(area, bit),
+                        "Tourian glow copy is refused");
+                    continue;
+                }
                 AssertEqual(expected, AreaPaletteFxObjects.GetAreaDefinition(area, bit) is { } effect
                         ? PaletteFxObjectAccess.NativeAddress(effect)
-                        : TourianGlowCopyObject,
+                        : EmptyObject,
                     "Original palette-FX area/bit dispatch");
             }
             else

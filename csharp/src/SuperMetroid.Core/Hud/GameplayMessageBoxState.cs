@@ -195,7 +195,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     3 => default,
                     2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
                     // The box returns to gameplay, whose own sound processing follows.
-                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
+                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 },
                     _ => MessageBoxFrameAudio.MusicAndSounds,
                 };
                 if (_pauseUpdatesRemaining-- == 0)
@@ -221,10 +221,10 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                         // every ordinary message as equipment left Samus locked in a map
                         // station while its access-loop sound continued for six seconds.
                         MinimumDisplayFramesRemaining = MessageId is
-                            GameplayMessageIds.MapDataAccessCompleted or
-                            GameplayMessageIds.EnergyRechargeCompleted or
-                            GameplayMessageIds.MissileRechargeCompleted or
-                            GameplayMessageIds.SaveCompleted
+                            GameplayMessageId.MapDataAccessCompleted or
+                            GameplayMessageId.EnergyRechargeCompleted or
+                            GameplayMessageId.MissileRechargeCompleted or
+                            GameplayMessageId.SaveCompleted
                             ? GameplayMessageBoxDefinitions.Timing.StationMinimumDisplayFrames
                             : GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames;
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
@@ -293,7 +293,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     // The completion notice opens only after the saving sound's wait.
                     // Preserve YES across that message.
                     Phase = GameplayMessageBoxPhase.Inactive;
-                    Begin(GameplayMessageIds.SaveCompleted, _controller.Current);
+                    Begin(GameplayMessageId.SaveCompleted, _controller.Current);
                     // The second box needs no screen preparation or clearing, which
                     // preceded the saving sound.
                     BeginPreparing(GameplayMessageBoxDefinitions.Timing.SecondBoxOpeningPauseUpdates);
@@ -326,7 +326,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         _nextClosingRadiusPixels -= GameplayMessageBoxDefinitions.Timing.RadiusStepPixels;
         if (_nextClosingRadiusPixels >= 0)
             return;
-        if (MessageId == GameplayMessageIds.GunshipSaveConfirmation && _closingConfirmationResult == true)
+        if (MessageId == GameplayMessageId.GunshipSaveConfirmation && _closingConfirmationResult == true)
         {
             // The accepted gunship save clears the box, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;

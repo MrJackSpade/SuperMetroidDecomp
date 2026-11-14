@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </summary>
 internal static class TitleNativeWords
 {
-    /// <summary>The routine word naming each <see cref="TitleSequenceScriptStep"/>.</summary>
-    internal static readonly NativeWordIdentities<TitleSequenceScriptStep> Instructions = new(new Dictionary<TitleSequenceScriptStep, ushort>
+    /// <summary>The routine word naming each <see cref="TitleCardCue"/>.</summary>
+    internal static readonly NativeWordIdentities<TitleCardCue> Instructions = new(new Dictionary<TitleCardCue, ushort>
     {
-        [TitleSequenceScriptStep.Delete] = 0x9438,
-        [TitleSequenceScriptStep.StartLowerPan] = 0x9ce1,
-        [TitleSequenceScriptStep.StartUpperPan] = 0x9d5d,
-        [TitleSequenceScriptStep.StartDownwardPan] = 0x9dd6,
-        [TitleSequenceScriptStep.StartFinalZoom] = 0x9e58,
+        [TitleCardCue.RemoveCard] = 0x9438,
+        [TitleCardCue.StartLowerPan] = 0x9ce1,
+        [TitleCardCue.StartUpperPan] = 0x9d5d,
+        [TitleCardCue.StartDownwardPan] = 0x9dd6,
+        [TitleCardCue.StartFinalZoom] = 0x9e58,
     });
 
     /// <summary>$8C:879D, TitleSequenceSpritemaps_SuperMetroidTitleLogo: the logo composition's bank-$8C word.</summary>

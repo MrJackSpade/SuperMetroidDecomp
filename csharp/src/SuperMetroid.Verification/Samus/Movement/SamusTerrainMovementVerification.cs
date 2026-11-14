@@ -977,13 +977,13 @@ internal static void VerifySamusGroundedReversal()
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
             airborneCrouchedTurn.Kinematics.YDirection = SamusVerticalDirection.Up;
             airborneCrouchedTurn.Kinematics.YSpeed = airborneCrouchedTurn.Kinematics.YSpeed.WithWhole(1);
-            uint airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y.RawValue;
+            FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
             SamusAerialMovement.StepTurningInAir(
 
                 aimedLevel,
                 airborneCrouchedTurn,
                 frameCounter: 0);
-            AssertTrue(airborneCrouchedTurn.Kinematics.Position.Y.RawValue != airborneYBefore,
+            AssertTrue(airborneCrouchedTurn.Kinematics.Position.Y != airborneYBefore,
                 "airborne crouched type-$17 turn executes simple Y movement");
         }
 

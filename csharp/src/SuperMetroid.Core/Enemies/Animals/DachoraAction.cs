@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 public enum DachoraAction
 {
     /// <summary>Probes the floor and waits for Samus to enter the activation rectangle.</summary>
-    WaitingForSamus = 1,
+    WaitingForSamus,
 
     /// <summary>Runs the 120-update warning countdown before starting the first run animation.</summary>
     BlinkingBeforeRun,

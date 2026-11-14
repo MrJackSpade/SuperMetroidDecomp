@@ -435,6 +435,22 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "('gamma')");
         // Another hack and a colour's gamma correction, curve or value are English.
         Expect("class P { /// <summary>Neutral-jump hacks; not a visual alpha hack; the gamma correction, gamma curve and gamma value.</summary>\nint F => 0; }");
+        // The original's routine handlers are read in every type (#1828): a handler call and a music, sound, colour-effect,
+        // timer, sprite or state handler, spaced or hyphenated.
+        Expect("class P { /// <summary>Times this update processes the queue, including the extra handler call.</summary>\nint F => 0; }",
+            "('handler call')");
+        Expect("class P { // The box's last update makes two sound-handler calls\n }", "('sound-handler')");
+        Expect("class P { /// <summary>The music requests waiting for the music handler.</summary>\nint F => 0; }", "('music handler')");
+        Expect("class P { // Main gameplay runs the colour effect handler before Samus\n }", "('colour effect handler')");
+        Expect("class P { string Name => \"The color-effect handler is disabled.\"; }", "('color-effect handler')");
+        Expect("class P { /// <summary>Expiry installs Samus's drawing-only timer handler.</summary>\nint F => 0; }", "('timer handler')");
+        Expect("class P { // drawn by the generic sprite handler\n }", "('sprite handler')");
+        Expect("class P { /// <summary>The separately run state handlers.</summary>\nint F => 0; }", "('state handlers')");
+        Expect("class P { // one sound effect handler pass\n }", "('sound effect handler')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the sound handler accepts one request.</summary>\n[CompatibilityService(\"sound\")] class Sound { }",
+            "('sound handler')");
+        // A handler alone or of another kind, calling a handler and a call alone are English.
+        Expect("class P { /// <summary>An exception handler; the event handlers; the grapple beam's handler; calling a handler; a call.</summary>\nint F => 0; }");
         // C#'s Func delegate and a var declaration carry no number.
         Expect("class P { /// <summary>Takes a Func of the speed; var declarations stay; the variance holds.</summary>\nint F => 0; }");
         // The original's game state, load station and area numbers outside hardware owners (#1769), spaced or hyphenated,

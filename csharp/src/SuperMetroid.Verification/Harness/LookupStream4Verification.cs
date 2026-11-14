@@ -531,7 +531,7 @@ internal static class LookupStream4Verification
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
@@ -540,7 +540,7 @@ internal static class LookupStream4Verification
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
             AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
@@ -1502,18 +1502,18 @@ internal static class LookupStream4Verification
 
         var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var electricitySystem = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        electricitySystem.Projectiles.SpawnSaveStationElectricity(new(10, 2));
+        electricitySystem.SaveStationElectricity.Spawn(new(10, 2));
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.FrameHold = WrappingCountdown.Start(1);
-            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
+            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero, shortCounter: 0);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.FrameHold = WrappingCountdown.Start(1);
-        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
+        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
     }

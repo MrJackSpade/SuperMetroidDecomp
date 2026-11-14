@@ -17,7 +17,7 @@ internal static class BossMaskCodec
     {
         if (value is < 0 or > byte.MaxValue)
             throw new InvalidDataException($"{context}: boss mask {value} is not a byte.");
-        int unnamed = value & ~ProgressionTableCodec.EncodeBossMask(DefeatedBossKinds.AllKnown);
+        int unnamed = value & ~ProgressionTableCodec.EncodeBossMask(DefeatedBosses.AreaBoss | DefeatedBosses.AreaMiniBoss | DefeatedBosses.AreaTorizo);
         if (unnamed != 0)
             throw new InvalidDataException($"{context}: boss mask ${value:X2} sets bits ${unnamed:X2}, which name no boss.");
         return ProgressionTableCodec.StoredBosses(value);

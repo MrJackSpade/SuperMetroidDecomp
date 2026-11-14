@@ -86,8 +86,8 @@ internal sealed class IntroBabyDiscoveryState
     /// </summary>
     public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
 
-    /// <summary>True once the scene's end has pointed both Samus state handlers at handlers that do nothing.</summary>
-    private bool samusHandlersEnded;
+    /// <summary>True once the scene's end has stopped both phases of Samus's update.</summary>
+    private bool samusUpdateStopped;
 
     /// <summary>
     /// Samus, her demo input and the cinematic sprite objects for one dispatch. All run after
@@ -97,21 +97,21 @@ internal sealed class IntroBabyDiscoveryState
     public void Step(int frameCounter, int introCrossfadeTimer)
     {
         // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the intro shows her.
-        if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
+        if (SamusDisplay != IntroSamusDisplay.Hidden && !samusUpdateStopped)
         {
-            // The demo pose-input handler runs the demo input object inside Samus's
-            // current-state handler, ahead of her pose input and movement.
+            // The demo's pose input runs the demo input object inside Samus's
+            // input phase, ahead of her pose input and movement.
             if (demo.IsPlaying)
                 CheckDemoPhase(introCrossfadeTimer);
             demo.Step(HandleDemoCue);
-            // The current-state handler ends by resetting the movement and pose-change state,
+            // The input phase ends by resetting the movement and pose-change state,
             // before this dispatch's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
-            // An end cue read above already replaced the new-state handler, so this
+            // An end cue read above already stopped Samus's update, so this
             // dispatch skips Samus's movement and animation.
-            if (!samusHandlersEnded)
+            if (!samusUpdateStopped)
             {
                 // The intro-demo input phase publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
@@ -215,8 +215,8 @@ internal sealed class IntroBabyDiscoveryState
         // The scene's end replaces both Samus handlers with ones that do nothing, disables demo input, and
         // returns into the following shared delete step. Samus is never processed again.
         demo.Disable();
-        Samus.Control.LockHandlers();
-        samusHandlersEnded = true;
+        Samus.Control.LockOutPlayer();
+        samusUpdateStopped = true;
     }
 
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's animation.</summary>
@@ -242,7 +242,7 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:
@@ -367,10 +367,8 @@ internal sealed class IntroBabyDiscoveryState
         // reaches this row once. Four init parameters select four distinct arcs.
         if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
-            for (int index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
-            {
-                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, index));
-            }
+            foreach (IntroEggSlimeLaunch launch in IntroEggMotionDefinitions.SlimeLaunches)
+                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, launch));
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio?.QueueSound(

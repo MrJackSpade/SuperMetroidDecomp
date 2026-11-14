@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The behaviour an escape Etecoon's main AI calls every frame.
+/// The behaviour an escape Etecoon's main AI runs every frame, when it runs one; a cleared Etecoon has none.
 /// Its values are arbitrary.
 /// </summary>
 public enum EscapeEtecoonFrameBehavior
 {
-    /// <summary>No frame behaviour: the cleared step that does nothing.</summary>
-    Cleared = 1,
-
     /// <summary>Add 3.5 pixels to X without terrain collision.</summary>
     EscapeRight,
 

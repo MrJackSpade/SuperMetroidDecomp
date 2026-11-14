@@ -370,7 +370,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
-        state.Action = state.NorfairPostRiseAction;
+        state.Action = state.NorfairPostRiseAction
+            ?? throw new InvalidOperationException("A Norfair Pipe Bug finished rising without a post-rise action from its formation.");
         state.RiseEnd = slot.Position.Whole;
         StartPipeBugAnimation(slot, state,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0

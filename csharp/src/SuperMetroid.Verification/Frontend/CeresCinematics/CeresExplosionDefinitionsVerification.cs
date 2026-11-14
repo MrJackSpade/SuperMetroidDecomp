@@ -34,18 +34,8 @@ internal static class CeresExplosionDefinitionsVerification
 
         Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule(retail));
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresExplosions.InitialExplosion(
-                CeresExplosionDefinitions.InitialExplosionCount),
-            "initial explosion definition boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresExplosions.RepeatingExplosion(
-                CeresExplosionDefinitions.RepeatingExplosionCount),
-            "repeating explosion definition boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresExplosions.FinalExplosion(
-                CeresExplosionDefinitions.FinalExplosionCount),
-            "final explosion definition boundary");
+        AssertEqual(5, CeresExplosionDefinitions.InitialWave.Count, "the first wave spawns five blasts");
+        AssertEqual(4, CeresExplosionDefinitions.FinalWave.Count, "the final wave spawns four blasts");
 
         var guard = NewCeresExplosionDefinitionReadGuard(retail);
         var state = CreateRetailDestructionFixture();
@@ -73,12 +63,13 @@ internal static class CeresExplosionDefinitionsVerification
         }
     }
 
-    /// <summary>Compares repeating and final-wave placement records and their index bounds.</summary>
+    /// <summary>Compares the repeating blasts' eight places and the final wave's heights with the cartridge's placement words.</summary>
     internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
-        for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
+        AssertEqual(8, CeresExplosionDefinitions.RepeatingBlasts.Count, "the repeating blasts cycle eight places");
+        for (int index = 0; index < CeresExplosionDefinitions.RepeatingBlasts.Count; index++)
         {
-            CeresExplosionPlacement placement = CeresExplosions.RepeatingExplosion(index);
+            CeresExplosionPlacement placement = CeresExplosionDefinitions.RepeatingBlasts[index];
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)placement.Offset.X),
                 $"repeating explosion {index} X offset");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)placement.Offset.Y),
@@ -87,19 +78,12 @@ internal static class CeresExplosionDefinitionsVerification
                 $"repeating explosion {index} initial instruction delay");
         }
 
-        for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
+        for (int index = 0; index < CeresExplosionDefinitions.FinalWave.Count; index++)
         {
-            CeresExplosionPlacement placement = CeresExplosions.FinalExplosion(index);
+            CeresExplosionPlacement placement = CeresExplosionDefinitions.FinalWave[index];
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc57a + index * 2)), unchecked((ushort)placement.Offset.Y),
                 $"final explosion {index} Y offset");
         }
-
-        foreach (int invalid in new[] { int.MinValue, -1, 8, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresExplosions.RepeatingExplosion(invalid), "repeating layout bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresExplosions.FinalExplosion(invalid), "final layout bounds");
     }
 
     /// <summary>Rejects runtime reads from migrated explosion actor and placement records.</summary>

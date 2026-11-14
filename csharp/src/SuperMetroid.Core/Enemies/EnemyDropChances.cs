@@ -28,7 +28,6 @@ public readonly record struct EnemyDropChances(
         EnemyPickupKind.NoDrop => Nothing,
         EnemyPickupKind.SuperMissile => SuperMissile,
         EnemyPickupKind.PowerBomb => PowerBomb,
-        EnemyPickupKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "No pickup is not a drop."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy pickup kind."),
     };
 }

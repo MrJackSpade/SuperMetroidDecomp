@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// The game's music queue and its three sound queues (#1410): each music request waits its delay and plays on the update
 /// the game plays it; a data set change withdraws every library's sound request for
-/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; and a sound queue admits a request by its
+/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> sound-queue passes; and a sound queue admits a request by its
 /// priority (<see cref="SoundQueueAdmission.For"/>) and hands it to its library through the session's
 /// <see cref="SoundRequestHandshakes{TLibrary, TSound}"/>, which repeat each request until the library accepts it, then
 /// withdraw it.
@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Audio;
 public sealed class AudioQueues
 {
     /// <summary>
-    /// The music requests waiting for the music handler, oldest first, each with its delay. The request the handler fetched
+    /// The music requests waiting on the music queue, oldest first, each with its delay. The request the queue fetched
     /// stays first until it has played. No retail path holds more requests than the game's queue keeps without filling it,
     /// so the queue never refuses or overwrites one (#1692, <c>docs/compatibility-layer.md</c>).
     /// </summary>
@@ -25,7 +25,7 @@ public sealed class AudioQueues
     /// <summary>Each sound library's own queue of waiting requests.</summary>
     internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
-    /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
+    /// <summary>The handshake each sound queue runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
@@ -34,19 +34,19 @@ public sealed class AudioQueues
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
     /// <summary>
-    /// The request the music handler fetched and is waiting out the delay of, or none when its next call fetches the
+    /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
     internal PendingMusicDispatch? PendingMusic { get; private set; }
-    /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
-    private int _soundHandlerDowntime;
+    /// <summary>Sound-queue passes, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/>, for which a music change withdraws every library's sound request.</summary>
+    private int _soundDowntimePasses;
 
     /// <summary>The gameplay states every sound request is tested against as it is made (<see cref="SoundSuppression"/>).</summary>
     private readonly IGameplaySoundState _gameplay;
 
-    /// <summary>Creates empty music and sound queues with every library's handler ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
+    /// <summary>Creates empty music and sound queues with every library's handshake ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
     /// <param name="soundHandshakes">
-    /// The handshakes the libraries' handlers run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
+    /// The handshakes the sound queues run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
     /// the queues reset them with their own state.
     /// </param>
     /// <param name="gameplay">
@@ -76,13 +76,13 @@ public sealed class AudioQueues
 
     /// <summary>
     /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one
-    /// the music handler fetched and is waiting out the delay of.
+    /// the music queue fetched and is waiting out the delay of.
     /// </summary>
     public bool HasQueuedMusic => Music.Count != 0;
 
     /// <summary>
     /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
-    /// its handler has already taken and is only waiting for its library to accept does not keep the door waiting.
+    /// its queue has already taken and is only waiting for its library to accept does not keep the door waiting.
     /// </summary>
     public bool HasQueuedSounds => SoundQueues.Values.Any(queue => queue.Count != 0);
 
@@ -95,7 +95,7 @@ public sealed class AudioQueues
         foreach (SoundQueue queue in SoundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
-        _soundHandlerDowntime = 0;
+        _soundDowntimePasses = 0;
         DataSet = null;
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
@@ -256,13 +256,13 @@ public sealed class AudioQueues
     internal IReadOnlyList<AudioRequest> AdvanceFrame(
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         bool advanceMusicQueue = true,
-        int soundEffectHandlerCalls = 1)
+        int soundQueuePasses = 1)
     {
-        Ensure.AtLeastZero(soundEffectHandlerCalls);
+        Ensure.AtLeastZero(soundQueuePasses);
         List<AudioRequest> requests = [.. _pendingPowerOnRequests];
         _pendingPowerOnRequests.Clear();
         if (advanceMusicQueue) HandleMusicQueue(requests);
-        for (int call = 0; call < soundEffectHandlerCalls; call++)
+        for (int pass = 0; pass < soundQueuePasses; pass++)
             HandleSoundEffects(acknowledgements, requests);
         return requests.Count == 0 ? Array.Empty<AudioRequest>() : requests.ToArray();
     }
@@ -279,16 +279,16 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Runs one music-handler call. While a fetched request waits out its delay the call counts the wait down, and the
-    /// call that ends it dispatches the request and retires it from the queue: a data set change then returns, so the
-    /// next request is fetched on the following call, and a track or a stop goes on to fetch the next request in the same
-    /// call. A call that is not waiting fetches the next request, if the queue has one to fetch, and starts its delay.
+    /// Runs one music-queue pass. While a fetched request waits out its delay the pass counts the wait down, and the
+    /// pass that ends it dispatches the request and retires it from the queue: a data set change then returns, so the
+    /// next request is fetched on the following pass, and a track or a stop goes on to fetch the next request in the same
+    /// pass. A pass that is not waiting fetches the next request, if the queue has one to fetch, and starts its delay.
     /// </summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
         if (PendingMusic is PendingMusicDispatch pending)
         {
-            // A fetched request waits at least the shortest delay, so the wait reaches zero on its last call and never wraps.
+            // A fetched request waits at least the shortest delay, so the wait reaches zero on its last pass and never wraps.
             int callsUntilSent = Ensure.AtLeastZero(pending.CallsUntilSent - 1);
             if (callsUntilSent != 0)
             {
@@ -303,7 +303,7 @@ public sealed class AudioQueues
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
                 Music.Dequeue();
-                _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
+                _soundDowntimePasses = AudioQueueDefinitions.MusicChangeSoundDowntimePasses;
                 return;
             }
 
@@ -316,7 +316,7 @@ public sealed class AudioQueues
             };
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
-            _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
+            _soundDowntimePasses = AudioQueueDefinitions.MusicChangeSoundDowntimePasses;
         }
 
         if (Music.TryPeek(out QueuedMusic? next))
@@ -334,10 +334,10 @@ public sealed class AudioQueues
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         List<AudioRequest> requests)
     {
-        if (_soundHandlerDowntime != 0)
+        if (_soundDowntimePasses != 0)
         {
             // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
-            _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
+            _soundDowntimePasses = Ensure.AtLeastZero(_soundDowntimePasses - 1);
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
                 requests.Add(new AudioRequest.ClearSoundRequest(library));
             SoundHandshakes.DropAwaitedRequests();
@@ -348,32 +348,32 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
-    /// <summary>Runs one handler call of <paramref name="library"/>'s handshake and does what the call asks of its queue.</summary>
+    /// <summary>Runs one pass of <paramref name="library"/>'s handshake and does what the pass asks of its queue.</summary>
     private void HandleSoundEffectQueue(
         SoundEffectLibrary library,
         SoundAcknowledgement<SoundEffectId> acknowledgement,
         List<AudioRequest> requests)
     {
-        SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep step = SoundHandshakes.Advance(library, acknowledgement);
+        SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep step = SoundHandshakes.Advance(library, acknowledgement);
         switch (step)
         {
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.Wait:
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
                 break;
 
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RequestNext:
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
                 SendNextSound(library, requests);
                 break;
 
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RepeatRequest:
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
                 requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
                 break;
 
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.Withdraw:
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
                 requests.Add(new AudioRequest.ClearSoundRequest(library));
                 break;
 
             default:
-                throw new InvalidDataException($"Sound library {library}'s handler asked for unknown step {step}.");
+                throw new InvalidDataException($"Sound library {library}'s handshake asked for unknown step {step}.");
         }
     }
 

@@ -38,13 +38,13 @@ internal static class DoorEntryEnemySoundVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.SlotIndex];
         body.Position = body.Position.WithWhole(new(128, 128));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.NoOp;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
         // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
         // The spit cue, four poses into the right spit animation.
         state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));

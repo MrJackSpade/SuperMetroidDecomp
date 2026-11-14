@@ -30,7 +30,7 @@ public static class SamusGrappleBeamDrawing
 
     /// <summary>
     /// Draws the grapple beam's flare. Call before atmosphere and Samus,
-    /// exactly where the active half of the grapple draw handler calls it.
+    /// exactly where the active half of the grapple beam's drawing draws it.
     /// </summary>
     /// <returns>True when the flare is drawn: the grapple is firing or connected with a flare to show.</returns>
     public static bool DrawFlareBeforeSamus(
@@ -166,18 +166,17 @@ public static class SamusGrappleBeamDrawing
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
         // Preserve the fraction across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
-        int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)
-            * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
-        int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle)
-            * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
+        var step = new FixedVector<ScreenPixels>(
+            SegmentStep(SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)),
+            SegmentStep(SamusGrappleSwing.ReadSignedSine(drawAngle)));
 
         SpriteMirror mirror = RopeMirror(grapple.Angle);
         AdvanceRopeAnimation(grapple);
 
         // Each rope picture is placed by its centre, the first at the muzzle and each after it one segment's spacing on
         // toward the anchor. A positive rope shorter than one spacing still shows its first picture.
-        int centreXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - cameraPosition.X));
-        int centreYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - cameraPosition.Y));
+        FixedPosition<ScreenPixels> centre = FixedPosition<ScreenPixels>.FromWhole(new Position16<ScreenPixels>(
+            CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X), CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y)));
         int segmentCount = Math.Max(1, grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing);
         for (int segment = 0; segment < segmentCount; segment++)
         {
@@ -185,10 +184,8 @@ public static class SamusGrappleBeamDrawing
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, RopePicture(grapple.RopeAnimationPhase, segment), mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
-                Position16<ScreenPixels>.Of(FixedCoordinate.WholeOf(centreXFixed), FixedCoordinate.WholeOf(centreYFixed)),
-                SpriteMirror.None));
-            centreXFixed = unchecked(centreXFixed + stepX);
-            centreYFixed = unchecked(centreYFixed + stepY);
+                centre.Whole, SpriteMirror.None));
+            centre = centre.Advance(step);
         }
 
         // The endpoint is placed by its centre at the anchor.
@@ -213,6 +210,14 @@ public static class SamusGrappleBeamDrawing
         }
         grapple.RopeAnimationTimer = remaining;
     }
+
+    /// <summary>
+    /// The displacement along one axis from one rope picture's centre to the next: one segment's spacing scaled by the
+    /// draw direction's signed sine <paramref name="sine"/>, in 256ths, keeping the fraction so diagonal and backward
+    /// steps add up exactly.
+    /// </summary>
+    private static SignedSixteenSixteen SegmentStep(int sine) =>
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sine * GrappleBeamDefinitions.Rendering.SegmentSpacing);
 
     /// <summary>
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of

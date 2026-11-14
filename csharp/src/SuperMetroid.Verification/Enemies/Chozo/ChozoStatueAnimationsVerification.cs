@@ -30,6 +30,12 @@ internal static class ChozoStatueAnimationsVerification
                             continue;
                         }
 
+                        if (instruction.Operands[index] == 'E' && cue is ChozoStatueCue.Signal)
+                        {
+                            AssertTrue(ChozoNativeWords.NoFrameBehaviorWords.Contains(operands[index]), $"{at}: operand {index} is a frame routine that returns at once");
+                            continue;
+                        }
+
                         AssertEqual(operands[index], instruction.Operands[index] switch
                         {
                             // The other native operands are the footstep's signed X word and the frame behaviour's word.

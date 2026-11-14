@@ -6,9 +6,6 @@ internal static class CollectibleTimingDefinitions
     /// <summary>The updates each of an item's two visible images shows.</summary>
     internal const int VisibleImageUpdates = 4;
 
-    /// <summary>The updates each of a Chozo orb's four shell images shows, in order.</summary>
-    internal static IReadOnlyList<int> OrbImageUpdates { get; } = [20, 10, 20, 10];
-
     /// <summary>The updates each of a broken Chozo orb's empty, burst and empty images shows before the item appears.</summary>
     internal const int OrbBurstImageUpdates = 3;
 

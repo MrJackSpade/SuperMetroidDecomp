@@ -1055,9 +1055,9 @@ level, samus, frameCounter);
 
         // The flashback's end locks Samus standing facing left, reinitializes the pose/animation bookkeeping,
         // disables demo publication, and then returns to the demo's animation. The next
-        // step is the shared delete, so the object is removed in the same
-        // handler call. Freezing input after the exact pose change gives the remaining Mother Brain explosion
-        // frames what the original's separately dispatched state handlers give them.
+        // step is the shared delete, so the object is removed on the same
+        // update. Freezing input after the exact pose change gives the remaining Mother Brain explosion
+        // frames the standing Samus the original gives them once her demo stops driving her.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
         // A Samus already standing facing left keeps her running animation.

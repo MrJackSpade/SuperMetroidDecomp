@@ -65,8 +65,8 @@ internal static class ClosedPresentationContractChecks
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.MapTiles>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
                     FileSelectPresentation.DrawCursor(oam, sheet, dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
-                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
-                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
+                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
+                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     _ = arrow.Pulse(dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);

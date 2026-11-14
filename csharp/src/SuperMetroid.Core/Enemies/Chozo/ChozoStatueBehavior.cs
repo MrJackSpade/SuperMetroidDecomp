@@ -96,7 +96,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new ChozoStatueState
         {
-            FrameBehavior = ChozoStatueFrameBehavior.Idle,
             IsWreckedShip = isWreckedShip,
             HandTriggered = false,
         };
@@ -165,9 +164,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.FrameBehavior)
         {
-            case ChozoStatueFrameBehavior.Idle:
-            case ChozoStatueFrameBehavior.Cleared:
-            case ChozoStatueFrameBehavior.Walking:
+            case null:
                 return;
 
             case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
@@ -187,8 +184,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Chozo statue has no frame behaviour {state.FrameBehavior?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Chozo statue has no frame behaviour {state.FrameBehavior}.");
         }
     }
 
@@ -210,7 +206,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = ChozoStatueFrameBehavior.Cleared;
+                state.FrameBehavior = null;
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:

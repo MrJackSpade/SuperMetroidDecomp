@@ -23,7 +23,7 @@ internal static class AerialSpreadTransitionVerification
             var samus = scenario.Samus;
             for (int frame = 0; frame < scenario.FrameCount; frame++)
             {
-                uint previousY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
+                FixedCoordinate previousY = FixedCoordinate.Of(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction);
                 runtime.StepFrame(scenario.Input(frame));
                 if (wallRoute)
                     VerifyWallSpreadFrame(runtime, left, timingCase, scenario.Delay, frame, previousY);
@@ -55,7 +55,7 @@ internal static class AerialSpreadTransitionVerification
     }
 
     /// <summary>Checks walljump pose, retained charge, held-Down release, and negative input controls frame by frame.</summary>
-    private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, uint previousY)
+    private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, FixedCoordinate previousY)
     {
         var samus = runtime.Player.IntroducedSamus;
         if (frame == 89)
@@ -79,7 +79,7 @@ internal static class AerialSpreadTransitionVerification
             if (frame >= releaseFrame)
                 AssertEqual(0, samus.BeamCharge.FlareCounter, "walljump spread consumes charge");
             if (delay == 41 && frame == 134)
-                AssertTrue((new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue) > previousY,
+                AssertTrue((FixedCoordinate.Of(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction) - previousY).IsPositive,
                     "late success starts morph after descent has already begun, as native permits");
         }
         else

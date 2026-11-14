@@ -1,6 +1,3 @@
-using SuperMetroid.Verification.Enemies.Metroids;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -8,7 +5,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Holds focused retail-ROM oracles for narration, Mochtroid shake, and phase data.</summary>
+/// <summary>Holds focused retail-ROM oracles for narration and phase data.</summary>
 internal static class LookupRomOraclesVerification
 {
     /// <summary>Checks every registered narration page's native begin callback, then its extraction and compilation.</summary>
@@ -33,18 +30,6 @@ internal static class LookupRomOraclesVerification
         }
     }
 
-    /// <summary>Compares the compiled Mochtroid shake offsets with the native $A3:A76D/$A3:A775 tables for masked timers.</summary>
-    internal static void VerifyMochtroidShakeOffsets(CartridgeImportAddressSpace rom)
-    {
-        foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfff8, 0xfff9, 0xfffa, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff })
-        {
-            int offset = timer & 6;
-            short x = unchecked((short)rom.ReadCartridgeWord(0xa3a76d + offset));
-            short y = unchecked((short)rom.ReadCartridgeWord(0xa3a775 + offset));
-            AssertEqual(new Offset16<RoomPixels>(x, y), MochtroidShake.Offset(timer), "Native cardinal shake and timer-bit mask");
-        }
-    }
-
     /// <summary>Compares the registered intro caret's part count with its native $8C:8D68 spritemap.</summary>
     internal static void VerifyIntroCaretNativePartCount(CartridgeImportAddressSpace rom) =>
         AssertEqual(rom.ReadCartridgeWord(0x8c8d68), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
@@ -62,17 +47,6 @@ internal static class LookupRomOraclesVerification
             // A value no page identity holds stands for an unknown page.
             AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)(-1)), "narration registry rejects an unknown page");
         Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and unknown-page rejection pass.");
-        return 0;
-    }
-
-    /// <summary>Checks native shake offsets and compiled Mochtroid instruction mechanics.</summary>
-    [VerificationCommand("--lookup-mochtroid-shake")]
-    internal static int LookupMochtroidShakeCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyMochtroidShakeOffsets(rom);
-        Suite(nameof(MochtroidBehaviorVerification.VerifyMochtroidBehavior), () => MochtroidBehaviorVerification.VerifyMochtroidBehavior());
-        Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
         return 0;
     }
 }

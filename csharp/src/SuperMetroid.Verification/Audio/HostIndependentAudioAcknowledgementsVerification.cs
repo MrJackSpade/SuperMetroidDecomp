@@ -98,7 +98,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

@@ -53,8 +53,6 @@ internal static class GameOverRomDataVerification
         // The standalone menu's audio is never advanced, so its room-library queue keeps every request the menu made.
         IReadOnlyList<SoundEffectId> roomRequests = babyAudio.WaitingSounds(SoundEffectLibrary.Room);
         ushort pointer = GameOverBabyAnimationDefinitions.FirstPointer;
-        // Record order in the native stream is the program's step identity.
-        int step = 0;
         int timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;
         while (!looped && ticks < 1000)
@@ -67,7 +65,6 @@ internal static class GameOverRomDataVerification
                 if (command == ushort.MaxValue)
                 {
                     next = GameOverBabyAnimationDefinitions.FirstPointer;
-                    step = -1;
                     looped = true;
                 }
                 else if ((command & 0x8000) != 0)
@@ -85,13 +82,13 @@ internal static class GameOverRomDataVerification
                 else StepBaby();
                 if (looped) StepBaby();
                 pointer = (ushort)next;
-                step++;
                 timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer);
             }
             else StepBaby();
             ticks++;
-            AssertEqual(step, babyMenu.BabyStep,
-                "game-over live step matches independent ROM stream record each tick");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 4)),
+                GameOverBabyAnimationDefinitions.NativePalettePointer(babyMenu.BabyColours),
+                "game-over live colours match independent ROM stream record each tick");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)),
                 GameOverBabyAnimationDefinitions.NativeSpritemap(babyMenu.BabyFrame),
                 "game-over live pose matches independent ROM stream spritemap each tick");

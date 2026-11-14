@@ -28,7 +28,7 @@ internal sealed class SamusControl : IRoomSamusControl
     /// Locked modes whose movement mode no gate distinguishes: elevator rides, cinematics, face-forward, death and load
     /// appearances. Modes that are already locked stay installed, so a script lock survives an overlapping gate.
     /// </summary>
-    public void LockHandlers()
+    public void LockOutPlayer()
     {
         if (!InputLocked)
             Install(SamusInputMode.Locked, SamusMovementMode.Locked);
@@ -38,7 +38,7 @@ internal sealed class SamusControl : IRoomSamusControl
     /// The station lock: the locked input mode with an empty movement mode, which neither moves nor
     /// animates Samus. A map station keeps it through the pause menu until closing the pause menu restores the normal modes.
     /// </summary>
-    public void LockIntoRefillStation() => Install(SamusInputMode.Locked, SamusMovementMode.RefillStation);
+    public void LockAtStation() => Install(SamusInputMode.Locked, SamusMovementMode.RefillStation);
 
     /// <summary>
     /// The station lock's release on unpause: whenever the movement mode is the station lock's empty one, it

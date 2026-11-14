@@ -111,7 +111,7 @@ internal sealed class EndingEscapeScenes
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
@@ -214,7 +214,7 @@ internal sealed class EndingEscapeScenes
             case CinematicSpriteCueKind.StartIntroPage5:
             case CinematicSpriteCueKind.StartRinkaMoving:
             default:
-                throw new InvalidOperationException($"The ending sprite programs publish no {cue} cue.");
+                throw new InvalidOperationException($"The ending escape scenes' animations publish no {cue} cue.");
         }
     }
 

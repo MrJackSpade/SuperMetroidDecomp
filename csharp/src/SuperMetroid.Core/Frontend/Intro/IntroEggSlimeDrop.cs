@@ -8,13 +8,10 @@ internal sealed class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
     internal readonly IntroDiscoverySprite sprite;
+    /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
+    private readonly IntroEggSlimeLaunch launch;
     /// <summary>
-    /// The drop's trajectory, 0 through 3: it selects the horizontal velocity, and its parity the gravity curve; it never
-    /// changes.
-    /// </summary>
-    private readonly int trajectory;
-    /// <summary>
-    /// The frames the drop has fallen: its step along the fall's gravity curve. A plain count (#1781): every drop reaches
+    /// The frames the drop has fallen: its place along its fall. A plain count (#1781): every drop reaches
     /// the puddle height within its curve, whose next step throws, so the count never approaches the 256 at which the
     /// game's byte would have wrapped.
     /// </summary>
@@ -22,17 +19,13 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
     private bool motionEnabled = true;
 
-    /// <summary>Starts one of four drops at the confused Baby's position, using its index as trajectory selector.</summary>
-    public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, int index)
+    /// <summary>Starts a drop at the confused Baby's position, flying as <paramref name="launch"/> says.</summary>
+    public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, IntroEggSlimeLaunch launch)
     {
-        if (index is < 0 or >= IntroEggEffectDefinitions.SlimeDropCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
-        trajectory = index;
+        this.launch = launch;
 
-        // The slime spawn copies the confused baby's slot coordinates rather than using a separate
-        // literal position table.
+        // Every drop starts where the confused Baby is.
         sprite = new IntroDiscoverySprite(
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
@@ -40,7 +33,7 @@ internal sealed class IntroEggSlimeDrop
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
-    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then plays the puddle animation in place.</summary>
+    /// <summary>Flies the drop by its launch until Y 168, then plays the puddle animation in place.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -53,12 +46,8 @@ internal sealed class IntroEggSlimeDrop
                 throw new InvalidDataException(
                     $"Intro egg slime names invalid frame behaviour {sprite.FrameBehavior}.");
             }
-            AddVelocity(axis: Axis.Horizontal, IntroEggMotion.SlimeX(trajectory));
-
-            // The trajectory's parity selects one of two gravity curves, not an animation-frame toggle: odd drops begin
-            // at -2 px/frame, evens at -3.
-            AddVelocity(axis: Axis.Vertical, IntroEggMotion.SlimeY(
-                framesFallen, odd: trajectory % 2 != 0));
+            AddVelocity(axis: Axis.Horizontal, launch.Drift);
+            AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
 
             if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {

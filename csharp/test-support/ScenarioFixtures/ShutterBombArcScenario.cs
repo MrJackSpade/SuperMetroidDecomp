@@ -93,7 +93,10 @@ internal sealed class ShutterBombArcScenario
         return input;
     }
 
+    /// <summary>A position as the native trace records it: its whole pixel times 65536 plus its fraction.</summary>
+    private static uint InSubpixels(FixedCoordinate coordinate) => ((uint)coordinate.Whole << 16) | coordinate.Fraction;
+
     /// <summary>One native-comparison row after <paramref name="frame"/> has run.</summary>
     internal string ArcRow(int frame) =>
-        $"{frame},{Samus.Kinematics.Position.X.RawValue},{Samus.Kinematics.Position.Y.RawValue},{Samus.Kinematics.YSpeed.RawValue},{SamusBombJumpRequestCodec.ToNative(Samus.BombJumpRequest)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
+        $"{frame},{InSubpixels(Samus.Kinematics.Position.X)},{InSubpixels(Samus.Kinematics.Position.Y)},{Samus.Kinematics.YSpeed.RawValue},{SamusBombJumpRequestCodec.ToNative(Samus.BombJumpRequest)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
 }

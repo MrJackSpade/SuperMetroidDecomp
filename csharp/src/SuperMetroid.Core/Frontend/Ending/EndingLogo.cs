@@ -19,9 +19,9 @@ internal sealed class EndingLogo
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
-    public int PaletteStep { get; internal set; }
+    public int CrossfadeStep { get; internal set; }
     /// <summary>The logo hands off to percentage text after its sixteenth palette step.</summary>
-    public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
+    public bool Completed => CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps;
 
     /// <summary>Creates four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
@@ -51,8 +51,8 @@ internal sealed class EndingLogo
         // pair is copied on the call after the request, not during the call that requests it.
         if (CrossfadeStarted)
         {
-            Ensure.NotNull(colours).LogoCrossfade(PaletteStep);
-            if (++PaletteStep == EndingLogoDefinitions.PaletteSteps) return;
+            Ensure.NotNull(colours).LogoCrossfade(CrossfadeStep);
+            if (++CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps) return;
         }
         for (int i = 0; i < actors.Length; i++)
         {
@@ -83,7 +83,7 @@ internal sealed class EndingLogo
     private void HandleCue(CinematicSpriteCueKind cue)
     {
         if (cue != CinematicSpriteCueKind.GreyOut)
-            throw new InvalidOperationException($"The logo programs publish no {cue} cue.");
+            throw new InvalidOperationException($"The logo's animations publish no {cue} cue.");
         CrossfadeStarted = true;
     }
 

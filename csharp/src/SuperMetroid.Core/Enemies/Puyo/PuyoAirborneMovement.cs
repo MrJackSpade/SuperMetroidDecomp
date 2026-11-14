@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 public enum PuyoAirborneMovement
 {
     /// <summary>Moves the small normal hop and selects the slow grounded animation on landing or terrain collision.</summary>
-    NormalShortHop = 1,
+    NormalShortHop,
     /// <summary>Moves the taller normal hop and selects the medium grounded animation on landing or terrain collision.</summary>
     NormalBigHop,
     /// <summary>Moves as hop two with increased horizontal speed and selects the fast grounded animation on landing or terrain collision.</summary>

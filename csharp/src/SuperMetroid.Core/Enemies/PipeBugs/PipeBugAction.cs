@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 public enum PipeBugAction
 {
     /// <summary>Waits until a Brinstar Pipe Bug's origin is on screen.</summary>
-    BrinstarWaitUntilOnScreen = 1,
+    BrinstarWaitUntilOnScreen,
     /// <summary>Waits for Samus to enter the Brinstar emergence region.</summary>
     BrinstarWaitForSamus,
     /// <summary>Raises a Brinstar Pipe Bug out of its pipe.</summary>

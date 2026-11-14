@@ -155,7 +155,7 @@ internal static class ProjectileInheritanceProbeVerification
         level.SetTerrain(4 * 16 + 5, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock));
         var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(20) });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
-        AssertEqual(FixedCoordinate.WholeOf(clipped.AcceptedDisplacement.RawValue),
+        AssertEqual(clipped.AcceptedDisplacement.UnsignedWholePixels,
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
         samus.ProjectileInheritance.CameraYSubspeed = 0xabcd;
@@ -216,7 +216,7 @@ internal static class ProjectileInheritanceProbeVerification
         AssertTrue(beforeFreeze.SequenceEqual(records.CaptureDistanceRecords()),
             "Frozen gameplay skips the projectile alpha and preserves directional records");
         runtime.Freeze.GameplayTimeFrozen = false;
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         runtime.StepFrame(0);
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Input-locked projectile alpha still clears directional movement records");

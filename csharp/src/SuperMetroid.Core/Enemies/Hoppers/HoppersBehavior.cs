@@ -113,36 +113,21 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             case HopperAction.PrepareBigHop:
                 PrepareHopperHop(state, HopperHopSize.Big);
                 return;
-            case HopperAction.ChooseDirectionUpsideUp:
-                ChooseHopperDirection(slot, state, samus, HopperSurface.Floor);
+            case HopperAction.ChooseDirection:
+                ChooseHopperDirection(slot, state, samus);
                 return;
-            case HopperAction.ChooseDirectionUpsideDown:
-                ChooseHopperDirection(slot, state, samus, HopperSurface.Ceiling);
+            case HopperAction.StartBackwardHop:
+                StartHopperJump(slot, state, HopperHopDirection.Backward);
                 return;
-            case HopperAction.StartBackwardHopUpsideUp:
-                StartHopperJump(slot, state, HopperSurface.Floor, HopperHopDirection.Backward);
-                return;
-            case HopperAction.StartForwardHopUpsideUp:
-                StartHopperJump(slot, state, HopperSurface.Floor, HopperHopDirection.Forward);
-                return;
-            case HopperAction.StartBackwardHopUpsideDown:
-                StartHopperJump(slot, state, HopperSurface.Ceiling, HopperHopDirection.Backward);
-                return;
-            case HopperAction.StartForwardHopUpsideDown:
-                StartHopperJump(slot, state, HopperSurface.Ceiling, HopperHopDirection.Forward);
+            case HopperAction.StartForwardHop:
+                StartHopperJump(slot, state, HopperHopDirection.Forward);
                 return;
             case HopperAction.Landed:
                 LandHopper(slot, state);
                 return;
-            case HopperAction.JumpingUpsideUpBackward:
-            case HopperAction.JumpingUpsideUpForward:
+            case HopperAction.Jumping:
                 RequireHopperLevel(level);
-                RunHopperMovement(slot, state, level, HopperSurface.Floor);
-                return;
-            case HopperAction.JumpingUpsideDownBackward:
-            case HopperAction.JumpingUpsideDownForward:
-                RequireHopperLevel(level);
-                RunHopperMovement(slot, state, level, HopperSurface.Ceiling);
+                RunHopperMovement(slot, state, level, SurfaceOf(state));
                 return;
             case HopperAction.WaitToHop:
                 if (state.ReadyToHop)
@@ -164,7 +149,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Hopper movement requires room level data.");
     }
 
-    /// <summary>Selects big or small quadratic-speed parameters and routes to the facing choice for the next hop.</summary>
+    /// <summary>Selects big or small quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
     {
         state.YSpeedCurvePlaceDelta = size == HopperHopSize.Big ? 4 : 3;
@@ -172,39 +157,27 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = size == HopperHopSize.Big
             ? state.BigHopInitialYSpeedCurvePlace
             : state.SmallHopInitialYSpeedCurvePlace;
-        state.Action = state.UpsideDown
-            ? HopperAction.ChooseDirectionUpsideDown
-            : HopperAction.ChooseDirectionUpsideUp;
+        state.Action = HopperAction.ChooseDirection;
     }
 
-    /// <summary>Chooses the floor or ceiling hop branch from Samus's signed horizontal position relative to the actor.</summary>
+    /// <summary>Chooses the hop's direction from Samus's signed horizontal position relative to the actor.</summary>
     private static void ChooseHopperDirection(
         RoomEnemySlot slot,
         HopperEnemyState state,
-        SamusState? samus,
-        HopperSurface surface)
+        SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Hopper direction selection requires Samus.");
 
-        HopperHopDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-            ? HopperHopDirection.Backward
-            : HopperHopDirection.Forward;
-        state.Action = new HopperHop(surface, direction) switch
-        {
-            (HopperSurface.Floor, HopperHopDirection.Backward) => HopperAction.StartBackwardHopUpsideUp,
-            (HopperSurface.Floor, HopperHopDirection.Forward) => HopperAction.StartForwardHopUpsideUp,
-            (HopperSurface.Ceiling, HopperHopDirection.Backward) => HopperAction.StartBackwardHopUpsideDown,
-            (HopperSurface.Ceiling, HopperHopDirection.Forward) => HopperAction.StartForwardHopUpsideDown,
-            _ => throw new InvalidOperationException($"Undefined hopper hop {surface}/{direction}."),
-        };
+        state.Action = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+            ? HopperAction.StartBackwardHop
+            : HopperAction.StartForwardHop;
     }
 
     /// <summary>Installs the jumping animation and negates X velocity only for the leftward branch.</summary>
     internal static void StartHopperJump(
         RoomEnemySlot slot,
         HopperEnemyState state,
-        HopperSurface surface,
         HopperHopDirection direction)
     {
         // “Backward” is the leftward branch selected when Samus is left of the actor. The
@@ -212,15 +185,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (direction == HopperHopDirection.Backward)
             state.XVelocity = -state.XVelocity;
 
-        SetHopperAnimation(slot, state, ReadHopperAnimation(state, surface, HopperPhase.Jumping));
-        state.Action = new HopperHop(surface, direction) switch
-        {
-            (HopperSurface.Floor, HopperHopDirection.Backward) => HopperAction.JumpingUpsideUpBackward,
-            (HopperSurface.Floor, HopperHopDirection.Forward) => HopperAction.JumpingUpsideUpForward,
-            (HopperSurface.Ceiling, HopperHopDirection.Backward) => HopperAction.JumpingUpsideDownBackward,
-            (HopperSurface.Ceiling, HopperHopDirection.Forward) => HopperAction.JumpingUpsideDownForward,
-            _ => throw new InvalidOperationException($"Undefined hopper hop {surface}/{direction}."),
-        };
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Jumping));
+        state.Action = HopperAction.Jumping;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>

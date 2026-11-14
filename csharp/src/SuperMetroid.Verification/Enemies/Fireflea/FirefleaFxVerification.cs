@@ -48,9 +48,9 @@ internal static class FirefleaFxVerification
         for (int frame = 1; frame <= 144; frame++)
         {
             fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-            int expectedIndex = (frame / 6) % 12;
-            int shade = LittleEndianBytes.HighByte(flash[expectedIndex]);
-            AssertEqual(expectedIndex, fx.Fireflea.Index, $"Fireflea index frame {frame}");
+            int expectedPhase = (frame / 6) % 12;
+            int shade = LittleEndianBytes.HighByte(flash[expectedPhase]);
+            AssertEqual(expectedPhase, fx.Fireflea.FlashPhase, $"Fireflea flash phase frame {frame}");
             AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.FirefleaTint,
                 $"Fireflea grey shade frame {frame}");
         }
@@ -124,27 +124,27 @@ internal static class FirefleaFxVerification
         fireflea.Initialize();
         for (int frame = 0; frame < 10; frame++) fireflea.Step(frozen: false, darknessStep: 0);
         WrappingCountdown timer = fireflea.Timer;
-        int index = fireflea.Index;
+        int phase = fireflea.FlashPhase;
         fireflea.Step(frozen: true, darknessStep: 1);
         AssertEqual(timer, fireflea.Timer, "frozen Fireflea holds its flash timer");
-        AssertEqual(index, fireflea.Index, "frozen Fireflea holds its flash index");
+        AssertEqual(phase, fireflea.FlashPhase, "frozen Fireflea holds its flash phase");
         AssertEqual(1, fireflea.DarknessStep, "frozen Fireflea still publishes the enemies' darkness step");
     }
 
     /// <summary>
     /// Checks the flash clock's wrap: a step from the cleared zero timer, before the FX initializes, wraps to $FFFF
-    /// rather than restarting, and the index stays put until the timer later reaches zero.
+    /// rather than restarting, and the flash phase stays put until the timer later reaches zero.
     /// </summary>
     private static void VerifyFirefleaUninitializedTimerWrap()
     {
         var fireflea = new FirefleaFxState();
         fireflea.Step(frozen: false, darknessStep: 0);
         AssertEqual(ushort.MaxValue, fireflea.Timer.RawValue, "a step from the cleared timer wraps");
-        AssertEqual(0, fireflea.Index, "the wrapped step does not advance the index");
+        AssertEqual(0, fireflea.FlashPhase, "the wrapped step does not advance the flash phase");
         fireflea.Initialize();
         for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
             fireflea.Step(frozen: false, darknessStep: 0);
-        AssertEqual(1, fireflea.Index, "the timer reaching zero advances the index");
+        AssertEqual(1, fireflea.FlashPhase, "the timer reaching zero advances the flash phase");
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.Timer.RawValue, "the timer reaching zero restarts it");
     }
 

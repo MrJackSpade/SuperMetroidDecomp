@@ -50,7 +50,7 @@ internal static class GunshipLandingVerification
             // produced only after the complete descent and lift sequence.
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
         };
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == StoryEvent.ZebesTimebombSet } }) { BossArtwork = InstalledFixtures.BossArtwork };
         samus.Presentation.BindBodyFixture(InstalledFixtures.SamusBody);
@@ -73,7 +73,7 @@ internal static class GunshipLandingVerification
         {
             ushort previousTopY = top.Position.Y.Whole;
             ushort previousTopSubY = top.Position.Y.Fraction;
-            GunshipPhase previousPhase = GunshipPartState.Of(top).Phase;
+            GunshipPhase? previousPhase = GunshipPartState.Of(top).Phase;
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
@@ -93,7 +93,7 @@ internal static class GunshipLandingVerification
                 if (previousTopY >= 0x0300)
                 {
                     uint previous = SixteenSixteenWords.Compose(previousTopY, previousTopSubY);
-                    uint current = top.Position.Y.RawValue;
+                    uint current = SixteenSixteenWords.Compose(top.Position.Y);
                     AssertEqual(0x0002_8000u, current - previous,
                         "gunship descent slows to cartridge 2.8 fixed pixels");
                     observedSlowDescent = true;

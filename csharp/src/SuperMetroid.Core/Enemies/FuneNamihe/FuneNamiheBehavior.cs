@@ -102,7 +102,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.ShowsActiveAnimation = true;
                 StartFuneNamiheAnimation(slot, state);
-                state.Action = FuneNamiheAction.FuneActivityNoOp;
+                state.Action = FuneNamiheAction.Spitting;
                 state.CooldownTimer = 0;
                 return;
 
@@ -125,13 +125,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.ShowsActiveAnimation = true;
                 StartFuneNamiheAnimation(slot, state);
-                state.Action = FuneNamiheAction.NamiheActivityNoOp;
+                state.Action = FuneNamiheAction.Spitting;
                 return;
 
-            case FuneNamiheAction.FuneActivityNoOp:
-            case FuneNamiheAction.NamiheActivityNoOp:
+            case FuneNamiheAction.Spitting:
                 // The active animation's finish step is the only owner allowed to leave
-                // these inert states. Main AI intentionally does nothing until that step.
+                // the spit. Main AI does nothing until that step.
                 return;
 
             default:

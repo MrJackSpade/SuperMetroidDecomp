@@ -152,7 +152,7 @@ internal sealed class RoomObjectFramePhase
             {
                 if (station.Kind == StationKind.Save)
                 {
-                    if (station.Message == GameplayMessageIds.SaveConfirmation)
+                    if (station.Message == GameplayMessageId.SaveConfirmation)
                     {
                         if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
@@ -161,11 +161,11 @@ internal sealed class RoomObjectFramePhase
                                 "A save station attempted to replace an active room-object message owner.");
                         }
                         _messageBoxes.AwaitSaveConfirmation(station);
-                        _messageBox.Begin(GameplayMessageIds.SaveConfirmation,
+                        _messageBox.Begin(GameplayMessageId.SaveConfirmation,
                             _controller1.Current);
                         continue;
                     }
-                    if (station.Message == GameplayMessageIds.SaveCompleted)
+                    if (station.Message == GameplayMessageId.SaveCompleted)
                     {
                         if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
@@ -174,7 +174,7 @@ internal sealed class RoomObjectFramePhase
                                 "A completed save station attempted to replace an active message owner.");
                         }
                         _messageBoxes.AwaitSaveCompletion(station);
-                        _messageBox.Begin(GameplayMessageIds.SaveCompleted, _controller1.Current);
+                        _messageBox.Begin(GameplayMessageId.SaveCompleted, _controller1.Current);
                         continue;
                     }
                     throw new InvalidDataException(

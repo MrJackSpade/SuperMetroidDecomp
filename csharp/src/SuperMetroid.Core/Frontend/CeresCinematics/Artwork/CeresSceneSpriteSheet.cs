@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// </summary>
 /// <param name="sheet">The scene's current sheet.</param>
 /// <param name="shading">
-/// The shading the scene shows a draw named in a colouring's drawn shade in: that shade with the record of any colour effect
+/// The shading the scene shows a draw named in a colouring's drawn shade in: that shade with the frame of any colour effect
 /// animating the colouring (#1733).
 /// </param>
 internal sealed class CeresSceneSpriteSheet(SpriteSheet sheet, Func<PictureShade, PictureShading> shading) : IIntroCinematicSpritePresentation

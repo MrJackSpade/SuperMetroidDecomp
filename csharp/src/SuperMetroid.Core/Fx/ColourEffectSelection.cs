@@ -39,7 +39,6 @@ internal static class ColourEffectSelection
         ColourEffectId.SamusLoadingVariaSuit => new(ColourEffectStart.Plain, ColourEffectAnimation.SamusLoadingVariaSuit),
         ColourEffectId.SamusLoadingGravitySuit => new(ColourEffectStart.Plain, ColourEffectAnimation.SamusLoadingGravitySuit),
         ColourEffectId.PostCreditsSuperMetroidIcon => new(ColourEffectStart.Plain, ColourEffectAnimation.PostCreditsSuperMetroidIcon),
-        ColourEffectId.Nothing => new(ColourEffectStart.Plain, ColourEffectAnimation.Nothing),
         ColourEffectId.GreyOutTourianStatueDraygon => new(ColourEffectStart.Plain, ColourEffectAnimation.GreyOutTourianStatueDraygon),
         ColourEffectId.GreyOutTourianStatueKraid => new(ColourEffectStart.Plain, ColourEffectAnimation.GreyOutTourianStatueKraid),
         ColourEffectId.GreyOutTourianStatueRidley => new(ColourEffectStart.Plain, ColourEffectAnimation.GreyOutTourianStatueRidley),

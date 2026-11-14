@@ -101,10 +101,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
     private int lavaAcidBackgroundWavePhase;
     /// <summary>
-    /// Set after the liquid's first motion pass installs its per-frame step. Later passes
-    /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
+    /// Set by the liquid's first motion pass, which only starts its motion. Each later pass moves the lava, acid or
+    /// water before the main loop's random number, until the next room load.
     /// </summary>
-    internal bool LavaAcidOverlayFrameBehaviorInstalled { get; set; }
+    internal bool LiquidMotionStarted { get; set; }
     /// <summary>
     /// Records an enemy ending the liquid's scrolling motion directly, which stops
     /// its per-frame updates until the next room load.
@@ -252,9 +252,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // Lava and acid start with timer B at one, so the background wave's first step rotates A
-            // from zero to 30 and then reloads either four or six. Expressing the already-
-            // resolved waveform phase as zero produces the same first visible table.
+            // Lava and acid start their heat haze at its first displacement, held for a whole phase: the haze's
+            // first step in the game moves it to that displacement and starts that wait, so the first haze shown is
+            // the same.
             lavaAcidBackgroundWaveTimer = HazePhaseDuration;
             lavaAcidBackgroundWavePhase = 0;
         }
@@ -299,8 +299,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
-    /// main-loop random-number generation. Their setup installs the liquid's motion on the
-    /// liquid's first motion pass; lava/acid's motion then swaps the shared random state on
+    /// main-loop random-number generation. The liquid's first motion pass only starts its
+    /// motion (<see cref="LiquidMotionStarted"/>); lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -312,10 +312,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         SustainedEarthquake = null;
-        if (!LavaAcidOverlayFrameBehaviorInstalled)
+        if (!LiquidMotionStarted)
         {
-            LavaAcidOverlayFrameBehaviorInstalled = true;
-            // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
+            LiquidMotionStarted = true;
+            // The pass that starts lava's or acid's motion also starts its ambient sound clock.
             if (lavaOrAcid)
                 lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
             return;
@@ -803,7 +803,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         lavaAcidBackgroundWaveTimer = 0;
         lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
-        LavaAcidOverlayFrameBehaviorInstalled = false;
+        LiquidMotionStarted = false;
         LiquidMotionStopped = false;
         lavaSoundTimer = 0;
         SustainedEarthquake = null;

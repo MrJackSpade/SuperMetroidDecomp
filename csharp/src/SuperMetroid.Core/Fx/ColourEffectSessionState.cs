@@ -12,7 +12,7 @@ public sealed class ColourEffectSessionState
     /// Whether the colour effects run, checked first each update. Loading a game turns them on; the escape timer's
     /// expiry turns them off.
     /// </summary>
-    public bool HandlerEnabled { get; private set; } = true;
+    public bool ColourEffectsRun { get; private set; } = true;
 
     /// <summary>
     /// The heat phase the heated room's glow published last, which Samus's heat shimmer, taking its turn before the glow,
@@ -24,5 +24,5 @@ public sealed class ColourEffectSessionState
     internal HeatPhase ShimmerHeatPhase { get; set; } = HeatPhase.First;
 
     /// <summary>Stops the colour effects from running.</summary>
-    public void DisableHandler() => HandlerEnabled = false;
+    public void StopColourEffects() => ColourEffectsRun = false;
 }

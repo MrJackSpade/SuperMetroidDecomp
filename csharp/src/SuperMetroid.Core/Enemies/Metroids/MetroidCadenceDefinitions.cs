@@ -24,10 +24,4 @@ internal static class MetroidCadenceDefinitions
     /// every four, while they show the hurt flash for the other two.
     /// </summary>
     internal static readonly UpdateCounterField HurtOuterBodiesShowOwnColours = new(1, 1);
-
-    /// <summary>
-    /// The phase of a shaking Mochtroid's shake timer that picks its displacement: the timer's place in a cycle of four
-    /// steps, each held for two updates, indexing <see cref="MochtroidShakeDefinitions.Offsets"/>.
-    /// </summary>
-    internal static readonly UpdateCounterField MochtroidShakeStep = new(1, 2);
 }

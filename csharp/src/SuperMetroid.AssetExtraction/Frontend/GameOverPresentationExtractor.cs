@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -69,7 +70,7 @@ public static class GameOverPresentationExtractor
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
-        foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
+        foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
         {
             var colors = new ushort[GameOverPresentationFormat.BabyPaletteColorCount];
             int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
@@ -134,49 +135,50 @@ public static class GameOverPresentationExtractor
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverSourceDefinitions.SpriteBank | pointer);
     }
 
-    /// <summary>Compares each Baby pose's duration, sprite, palette, sound handoff, and restart marker with the compiled dispatcher.</summary>
+    /// <summary>Compares each look of the Baby's animation, its duration, sprite and colours, its cries and its loop with the cartridge.</summary>
     /// <remarks>
-    /// Walks the cartridge's record stream from its first record alongside the compiled steps in play order: each
-    /// six-byte frame record is followed by the next record, or by a two-byte cry callback and then the next record.
+    /// Walks the cartridge's record stream from its first record alongside the animation's beats: each six-byte frame
+    /// record is followed by the next record, or by a two-byte cry callback and then the next record, and the last by the
+    /// restart marker.
     /// </remarks>
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
     {
         const int FrameRecordBytes = 6;
         const int CryCallbackBytes = 2;
         int pointer = GameOverBabyAnimationDefinitions.FirstPointer;
-        foreach (GameOverBabyScriptStep instruction in Enumerable.Range(0, GameOverBabyAnimation.StepCount).Select(GameOverBabyAnimation.Get))
+        IReadOnlyList<AnimationBeat<GameOverBabyLook, GameOverBabySound>> beats = GameOverBabyAnimation.Segments.Beats(GameOverBabySegment.Crying);
+        if (GameOverBabyAnimation.Playing.End != AnimationEnd.LoopsFrom(0))
+            throw new InvalidDataException("The game-over Baby's animation does not start again after its last look.");
+        for (int beat = 0; beat < beats.Count; beat++)
         {
+            if (beats[beat] is not AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame look)
+                throw new InvalidDataException($"Game-over Baby beat {beat} is a cry that follows no look.");
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
             int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             int sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
             int palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
-            if (duration != instruction.Duration ||
-                sprite != GameOverBabyAnimationDefinitions.NativeSpritemap(instruction.Frame) ||
-                palette != GameOverBabyAnimationDefinitions.NativePalettePointer(instruction.Palette))
+            if (duration != look.Duration ||
+                sprite != GameOverBabyAnimationDefinitions.NativeSpritemap(look.Shown.Frame) ||
+                palette != GameOverBabyAnimationDefinitions.NativePalettePointer(look.Shown.Colours))
                 throw new InvalidDataException(
-                    $"Compiled game-over Baby instruction $82:{pointer:X4} does not match the cartridge.");
+                    $"Game-over Baby look $82:{pointer:X4} does not match the cartridge.");
 
             int nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
-            if (instruction.RestartAfter)
+            pointer += FrameRecordBytes;
+            if (beat + 1 == beats.Count)
             {
                 if (nextWord != GameOverSourceDefinitions.BabyAnimationEnd)
                     throw new InvalidDataException(
-                        $"Game-over Baby instruction $82:{pointer:X4} lacks its native end marker.");
+                        $"Game-over Baby look $82:{pointer - FrameRecordBytes:X4} lacks its native end marker.");
             }
-            else if (instruction.SoundAfter != GameOverBabySound.None)
+            else if (beats[beat + 1] is AnimationBeat<GameOverBabyLook, GameOverBabySound>.Event cry)
             {
-                if (nextWord != GameOverBabyAnimationDefinitions.NativeSoundOpcode(instruction.SoundAfter) ||
-                    RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 8) !=
-                    GameOverBabyAnimation.Get(instruction.NextStep).Duration)
+                if (nextWord != GameOverBabyAnimationDefinitions.NativeSoundOpcode(cry.Raised))
                     throw new InvalidDataException(
-                        $"Game-over Baby sound handoff at $82:{pointer:X4} does not match the cartridge.");
+                        $"Game-over Baby cry at $82:{pointer:X4} does not match the cartridge.");
+                pointer += CryCallbackBytes;
+                beat++;
             }
-            else if (nextWord != GameOverBabyAnimation.Get(instruction.NextStep).Duration)
-            {
-                throw new InvalidDataException(
-                    $"Game-over Baby next duration at $82:{pointer:X4} does not match the cartridge.");
-            }
-            pointer += FrameRecordBytes + (instruction.SoundAfter == GameOverBabySound.None ? 0 : CryCallbackBytes);
         }
     }
 }

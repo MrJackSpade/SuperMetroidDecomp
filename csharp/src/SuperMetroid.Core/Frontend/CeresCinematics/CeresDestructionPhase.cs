@@ -17,10 +17,10 @@ internal enum CeresDestructionPhase
     FadeOutCeres,
     /// <summary>Shows the planet-reveal art on the following update.</summary>
     FlyToZebesInitial,
-    /// <summary>Raises planet-scene brightness while reducing its mosaic.</summary>
+    /// <summary>Raises planet-scene brightness while reducing its pixelation.</summary>
     FadeInZebes,
-    /// <summary>Finishes mosaic reduction before creating the turning-floor planet actors.</summary>
-    RemoveZebesMosaic,
+    /// <summary>Finishes reducing the planet's pixelation before creating the turning-floor planet actors.</summary>
+    RemoveZebesPixelation,
     /// <summary>Waits for the title actor's cue to start the camera approach.</summary>
     PlanetZebesTitle,
     /// <summary>Moves toward Zebes and increases scale to the first approach limit.</summary>

@@ -15,11 +15,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TSound">The sound a library is asked for; the handshakes only compare requests.</typeparam>
 /// <remarks>
 /// Created once per game session by its composition root (<c>FrontendSession</c>), which supplies the game's libraries,
-/// and injected into the session's audio queues, so each handler's phase, awaited request and hold live as long as the
-/// session's queues; a soft reset returns every handler to ready (<see cref="Reset"/>). Advanced once per library on every
-/// sound-handler call of an update's audio dispatch, after the music handler, against what each library reports as
+/// and injected into the session's audio queues, so each handshake's phase, awaited request and hold live as long as the
+/// session's queues; a soft reset returns every handshake to ready (<see cref="Reset"/>). Advanced once per library on every
+/// sound-queue pass of an update's audio processing, after the music queue's, against what each library reports as
 /// accepted to that update (<see cref="ISoundAcceptanceTiming{TLibrary, TSound}"/>). Evidence: the original's per-library
-/// sound handlers, whose four-state handshake and two-call withdrawal hold the SMV replays trace beside each library's
+/// sound queues, whose four-state handshake and two-call withdrawal hold the SMV replays trace beside each library's
 /// waiting requests on every update (the movie desync comparison prints both), and whose timing the Ridley full-movie and
 /// 13% replays depend on through the door transition's wait for empty queues.
 /// </remarks>
@@ -41,8 +41,8 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         AwaitingWithdrawalAcceptance,
     }
 
-    /// <summary>What one handler call asks of the library's queue.</summary>
-    public enum HandlerStep
+    /// <summary>What one sound-queue pass asks of the library's queue.</summary>
+    public enum HandshakeStep
     {
         /// <summary>Nothing this call.</summary>
         Wait,
@@ -57,10 +57,10 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <summary>One library's handshake.</summary>
     /// <param name="Phase">Where the handler is.</param>
     /// <param name="Awaited">The sound the handler last requested and has not withdrawn, or none.</param>
-    /// <param name="HoldCallsLeft">Handler calls left before the accepted request is withdrawn; 1 or 2 while holding, otherwise 0.</param>
+    /// <param name="HoldCallsLeft">Sound-queue passes left before the accepted request is withdrawn; 1 or 2 while holding, otherwise 0.</param>
     internal readonly record struct Handshake(Phase Phase, TSound? Awaited, int HoldCallsLeft);
 
-    /// <summary>Handler calls an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
+    /// <summary>Sound-queue passes an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
     public const int WithdrawalHoldCalls = 2;
 
     /// <summary>The libraries, distinct, in the order the handshakes were given them.</summary>
@@ -98,27 +98,27 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
     /// <summary>
-    /// Runs one handler call of <paramref name="library"/>'s handshake against what the library reports as accepted, and
-    /// says what the call asks of the library's queue.
+    /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
+    /// says what the pass asks of the library's queue.
     /// </summary>
     /// <param name="library">The library whose handler runs.</param>
     /// <param name="acceptance">What the library reports as accepted to this update.</param>
     /// <returns>What the call asks of the library's queue.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    /// <exception cref="InvalidDataException">The library's handshake holds a phase no handler call can leave.</exception>
-    public HandlerStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
+    /// <exception cref="InvalidDataException">The library's handshake holds a phase no pass can leave.</exception>
+    public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
     {
         Handshake handshake = HandshakeOf(library);
         switch (handshake.Phase)
         {
             case Phase.ReadyToRequest:
-                return HandlerStep.RequestNext;
+                return HandshakeStep.RequestNext;
 
             case Phase.AwaitingAcceptance:
                 if (!acceptance.Acknowledges(handshake.Awaited))
-                    return HandlerStep.RepeatRequest;
+                    return HandshakeStep.RepeatRequest;
                 Handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldCallsLeft = WithdrawalHoldCalls };
-                return HandlerStep.Wait;
+                return HandshakeStep.Wait;
 
             case Phase.HoldingBeforeWithdrawal:
                 // The hold starts at two and is withdrawn on reaching zero, so it never runs below zero.
@@ -126,19 +126,19 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
                 if (holdCallsLeft != 0)
                 {
                     Handshakes[library] = handshake with { HoldCallsLeft = holdCallsLeft };
-                    return HandlerStep.Wait;
+                    return HandshakeStep.Wait;
                 }
                 Handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldCallsLeft: 0);
-                return HandlerStep.Withdraw;
+                return HandshakeStep.Withdraw;
 
             case Phase.AwaitingWithdrawalAcceptance:
                 if (!acceptance.IsNone)
-                    return HandlerStep.Withdraw;
+                    return HandshakeStep.Withdraw;
                 Handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
-                return HandlerStep.RequestNext;
+                return HandshakeStep.RequestNext;
 
             default:
-                throw new InvalidDataException($"Sound library {library} holds handshake phase {handshake.Phase}, which no handler call can leave.");
+                throw new InvalidDataException($"Sound library {library} holds handshake phase {handshake.Phase}, which no pass can leave.");
         }
     }
 

@@ -61,6 +61,7 @@ using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
@@ -388,6 +389,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The <see cref="CeresSteamBehavior"/> owner of this RoomEnemySystem.</summary>
     internal CeresSteamBehavior CeresSteamBehavior { get; }
 
+    /// <summary>The <see cref="Areas.Ceres.CeresFallingTiles"/> owner of this RoomEnemySystem.</summary>
+    internal CeresFallingTiles CeresFallingTiles { get; }
+
+    /// <summary>The <see cref="Enemies.SaveStation.SaveStationElectricity"/> owner of this RoomEnemySystem.</summary>
+    internal SaveStationElectricity SaveStationElectricity { get; }
+
     /// <summary>The <see cref="CeresRidleyBehavior"/> owner of this RoomEnemySystem.</summary>
     internal CeresRidleyBehavior CeresRidleyBehavior { get; }
 
@@ -512,7 +519,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Tourian statue sequence's operations.</summary>
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
-    /// <summary>The enemies' colour effect glows and flashes the room's colour effect handler shows.</summary>
+    /// <summary>The enemies' colour effect glows and flashes the room's colour effects show.</summary>
     internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(BombTorizoBehavior, TourianEntranceStatueBehavior,
         SlotTable);
 
@@ -715,6 +722,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
+        CeresFallingTiles = new CeresFallingTiles(Room, Projectiles, Audio);
+        SaveStationElectricity = new SaveStationElectricity(Room, Projectiles);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
         BullBehavior = new BullBehavior(compatibility.BullInheritance);

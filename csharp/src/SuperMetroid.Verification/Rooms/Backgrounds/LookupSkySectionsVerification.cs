@@ -104,7 +104,7 @@ internal static class LookupSkySectionsVerification
         }
         var expected = new ushort[ushort.MaxValue + 1];
         for (int row = 0; row <= ushort.MaxValue; row++)
-            expected[row] = cartridge.ScrollWordAt(row) is { } word ? FixedCoordinate.WholeOf(unchecked((int)words[word])) : (ushort)0;
+            expected[row] = cartridge.ScrollWordAt(row) is { } word ? (ushort)SixteenSixteenWords.WholeOf(words[word]) : (ushort)0;
         for (int cameraY = 0; cameraY <= ushort.MaxValue; cameraY++)
         {
             ScrollingSkyLayer layer = sky.Publish(cameraY)
@@ -149,7 +149,7 @@ internal static class LookupSkySectionsVerification
             bool atStart = true;
             foreach (CartridgeEntry entry in cartridge.Entries)
             {
-                int want = FixedCoordinate.WholeOf(unchecked((int)words[entry.ScrollWord]));
+                int want = (ushort)SixteenSixteenWords.WholeOf(words[entry.ScrollWord]);
                 int actual = layer.BandAt(entry.TopRow)?.Offset
                     ?? throw new InvalidOperationException($"No sky band covers row {entry.TopRow}.");
                 if (actual != want)

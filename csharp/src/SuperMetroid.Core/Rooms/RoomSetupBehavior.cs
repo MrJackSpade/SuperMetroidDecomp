@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Rooms;
 public enum RoomSetupBehavior
 {
     /// <summary>
-    /// No room-specific setup behaviour runs: the state names no setup, or one that returns at once without changing
-    /// anything (#1787).
+    /// No room-specific setup behaviour runs: the state names no setup, one that returns at once without changing
+    /// anything (#1787), or Draygon's room's, which only restores the room's display effects when the game unpauses; the
+    /// port draws the room without them, so nothing acts on it (#1827).
     /// </summary>
     None,
     /// <summary>Clears the rescued animals' exit blocks and starts shaking.</summary>
@@ -26,11 +27,6 @@ public enum RoomSetupBehavior
     SpawnPrePhantoonRoomEnemyProjectile,
     /// <summary>Creates Shaktool's room-setup room object.</summary>
     SetupShaktoolRoomObject,
-    /// <summary>
-    /// Has Draygon's room restore its own display interrupts when the game unpauses. The port draws the room without
-    /// display interrupts, so nothing acts on it.
-    /// </summary>
-    KeepDraygonRoomDisplayAcrossPause,
     /// <summary>Marks the room's area map as collected.</summary>
     SetCollectedMap,
     /// <summary>Sets the timebomb event and starts light horizontal shaking.</summary>

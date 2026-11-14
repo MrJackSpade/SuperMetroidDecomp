@@ -9,12 +9,12 @@ internal abstract record CeresSteamCue
     }
 
     /// <summary>
-    /// Counts the vent's activation timer down, continuing at <see cref="Target"/> while it runs and at
-    /// <see cref="Alternate"/>, visible and tangible, once it expires.
+    /// Counts the vent's activation timer down: while it runs the vent waits again in <see cref="Dormant"/>; once it expires
+    /// the vent appears, harmful, and plays <see cref="Puffing"/>.
     /// </summary>
-    /// <param name="Target">The segment the vent continues at while its timer runs.</param>
-    /// <param name="Alternate">The segment the vent continues at once its timer expires.</param>
-    internal sealed record CountDownToActivation(CeresSteamSegment Target, CeresSteamSegment Alternate) : CeresSteamCue;
+    /// <param name="Dormant">The vent's dormant wait, which it plays again while its timer runs.</param>
+    /// <param name="Puffing">The vent's puff, which it plays once its timer expires.</param>
+    internal sealed record CountDownToActivation(CeresSteamSegment Dormant, CeresSteamSegment Puffing) : CeresSteamCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

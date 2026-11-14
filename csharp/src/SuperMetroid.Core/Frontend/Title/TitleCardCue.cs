@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>The steps that end a title card: start the next floor scene, or remove the card.</summary>
+/// <summary>What a title card does as it ends (#1826): start the next floor scene, or remove the card.</summary>
 /// <remarks>The values are arbitrary (#1416).</remarks>
-internal enum TitleSequenceScriptStep
+internal enum TitleCardCue
 {
     /// <summary>Removes the card.</summary>
-    Delete = 1,
+    RemoveCard = 1,
 
     /// <summary>Starts the lower pan.</summary>
     StartLowerPan,

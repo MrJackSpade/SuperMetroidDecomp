@@ -8,24 +8,28 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 internal static class HoppersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="HopperAction"/>.</summary>
-    internal static readonly NativeWordIdentities<HopperAction> HopperActions = new(new Dictionary<HopperAction, ushort>
+    /// <summary>
+    /// The routine words naming each <see cref="HopperAction"/>: the original kept a floor and a ceiling routine for the
+    /// direction choice and each start, and a floor and a ceiling routine for each direction of the hop, which a
+    /// hopper's placement tells apart (#1814).
+    /// </summary>
+    internal static readonly NativeWordIdentities<HopperAction> HopperActions = new(new Dictionary<ushort, HopperAction>
     {
-        [HopperAction.ChooseHopSize] = 0xabd6,
-        [HopperAction.PrepareSmallHop] = 0xabe6,
-        [HopperAction.PrepareBigHop] = 0xac13,
-        [HopperAction.ChooseDirectionUpsideUp] = 0xac40,
-        [HopperAction.ChooseDirectionUpsideDown] = 0xac56,
-        [HopperAction.StartBackwardHopUpsideUp] = 0xac6c,
-        [HopperAction.StartForwardHopUpsideUp] = 0xac8f,
-        [HopperAction.StartBackwardHopUpsideDown] = 0xaca8,
-        [HopperAction.StartForwardHopUpsideDown] = 0xaccb,
-        [HopperAction.Landed] = 0xace4,
-        [HopperAction.JumpingUpsideUpBackward] = 0xad0e,
-        [HopperAction.JumpingUpsideUpForward] = 0xad20,
-        [HopperAction.JumpingUpsideDownBackward] = 0xad32,
-        [HopperAction.JumpingUpsideDownForward] = 0xad44,
-        [HopperAction.WaitToHop] = 0xad56,
+        [0xabd6] = HopperAction.ChooseHopSize,
+        [0xabe6] = HopperAction.PrepareSmallHop,
+        [0xac13] = HopperAction.PrepareBigHop,
+        [0xac40] = HopperAction.ChooseDirection,
+        [0xac56] = HopperAction.ChooseDirection,
+        [0xac6c] = HopperAction.StartBackwardHop,
+        [0xac8f] = HopperAction.StartForwardHop,
+        [0xaca8] = HopperAction.StartBackwardHop,
+        [0xaccb] = HopperAction.StartForwardHop,
+        [0xace4] = HopperAction.Landed,
+        [0xad0e] = HopperAction.Jumping,
+        [0xad20] = HopperAction.Jumping,
+        [0xad32] = HopperAction.Jumping,
+        [0xad44] = HopperAction.Jumping,
+        [0xad56] = HopperAction.WaitToHop,
     });
 
     /// <summary>

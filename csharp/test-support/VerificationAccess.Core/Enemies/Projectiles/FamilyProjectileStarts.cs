@@ -59,7 +59,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.SkreeParticleDownLeft or RoomEnemyProjectileKind.SkreeParticleUpLeft or
             RoomEnemyProjectileKind.MetareeParticleDownRight or RoomEnemyProjectileKind.MetareeParticleUpRight or
             RoomEnemyProjectileKind.MetareeParticleDownLeft or RoomEnemyProjectileKind.MetareeParticleUpLeft =>
-            EnemyProjectileEngine.MetalParticles,
+            SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.Behavior,
         RoomEnemyProjectileKind.CrocomireProjectile => enemies.CrocomireBehavior.Combat.MouthShot,
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces =>
             enemies.CrocomireBehavior.Combat.Debris,
@@ -88,8 +88,8 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
             RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => enemies.RidleyProjectiles.Fireballs,
         RoomEnemyProjectileKind.CeresFallingDebrisLight or RoomEnemyProjectileKind.CeresFallingDebrisDark =>
-            enemies.Projectiles.CeresFallingTile,
-        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => EnemyProjectileEngine.GunshipDust,
+            enemies.CeresFallingTiles.Behavior,
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.Behavior,
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
         RoomEnemyProjectileKind.PowampSpike => PowampBehavior.Spike,
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft or RoomEnemyProjectileKind.WorkRobotLaserHorizontal or

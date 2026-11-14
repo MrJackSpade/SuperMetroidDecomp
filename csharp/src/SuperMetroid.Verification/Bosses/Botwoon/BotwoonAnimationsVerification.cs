@@ -156,7 +156,7 @@ internal static class BotwoonAnimationsVerification
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero);
+        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {

@@ -210,12 +210,10 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// The palette effects a record's palette-effect byte starts in a room of <paramref name="area"/>, in ascending bit
-    /// order, leaving out <see cref="ColourEffectId.Nothing"/>, whose program only stops.
+    /// order, leaving out a bit that starts none. A bit that selects the Tourian glow copy no retail room sets is refused.
     /// </summary>
     internal static ImmutableArray<ColourEffectId> PaletteEffects(AreaId area, byte value) =>
-        [.. SetBits(value).Select(bit => AreaPaletteFxObjects.Read(area, bit) ?? throw new InvalidDataException(
-                $"A {area} record sets palette-effect bit {bit}, which selects the glow copy no retail room sets."))
-            .Where(effect => effect != ColourEffectId.Nothing)];
+        [.. SetBits(value).Select(bit => AreaPaletteFxObjects.Read(area, bit)).OfType<ColourEffectId>()];
 
     /// <summary>
     /// The block animations a record's block-animation byte starts in a room of <paramref name="area"/>, in ascending

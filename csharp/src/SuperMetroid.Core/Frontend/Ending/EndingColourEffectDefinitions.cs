@@ -2,7 +2,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Palette objects spawned by the ending's scene steps.</summary>
+/// <summary>The colour effects the ending's scenes start.</summary>
 internal static class EndingColourEffectDefinitions
 {
     /// <summary>Fades the zoomed-out exploding Zebes.</summary>
@@ -27,8 +27,8 @@ internal static class EndingColourEffectDefinitions
     public const ColourEffectId GunshipEmergence = ColourEffectId.GunshipEmergingFromZebesExplosion;
 
     /// <summary>
-    /// The colours whose first is the space behind the exploding planet (#1512): a record of them that writes that colour
-    /// shows it as the ending's backdrop.
+    /// The colours whose first is the space behind the exploding planet (#1512): a frame of their effect that changes that
+    /// colour shows it as the ending's backdrop.
     /// </summary>
     public const ColourEffectColours SpaceColours = ColourEffectColours.SpaceDuringZebesExplosion;
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public enum WalkingSpacePirateAction
 {
     /// <summary>The shared empty behaviour copied by initialization and flinch animations.</summary>
-    NoOperation = 1,
+    NoOperation,
 
     /// <summary>Walk left, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
     WalkingLeft,

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public enum RioAction
 {
     /// <summary>Starts a dive when Samus is within a strict 160-world-pixel horizontal distance, selecting launch direction toward her.</summary>
-    WaitingForSamus = 1,
+    WaitingForSamus,
     /// <summary>Waits for the swoop animation's handshake, then installs the post-swoop idle animation and resumes proximity waiting.</summary>
     WaitingForLandingAnimation,
     /// <summary>Moves with signed 1/256-pixel velocities, subtracting 24 from Y velocity per AI update until homing begins or collision starts the bounce.</summary>

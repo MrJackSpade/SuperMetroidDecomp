@@ -67,7 +67,6 @@ internal static class PaletteFxNativeListAddresses
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.SamusLoadingGravitySuit, 5, 0xded3),
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.SamusLoadingGravitySuit, 7, 0xdf22),
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.PostCreditsSuperMetroidIcon, 0, 0xdf94),
-        new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.Nothing, 0, 0xe220),
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.GreyOutTourianStatueDraygon, 0, 0xe222),
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.GreyOutTourianStatueKraid, 0, 0xe22a),
         new PaletteFxNativeListAddressesEntry(ColourEffectAnimation.GreyOutTourianStatueRidley, 0, 0xe232),

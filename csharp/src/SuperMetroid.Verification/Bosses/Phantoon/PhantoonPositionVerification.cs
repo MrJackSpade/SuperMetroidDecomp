@@ -57,7 +57,7 @@ internal static class PhantoonPositionVerification
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();
         for (int frame = 0; frame < 1400; frame++)
         {

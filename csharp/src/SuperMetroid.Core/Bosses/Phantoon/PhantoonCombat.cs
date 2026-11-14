@@ -15,8 +15,6 @@ internal sealed class PhantoonCombat
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
-    private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes screen shake during Phantoon's death sequence.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
@@ -27,10 +25,9 @@ internal sealed class PhantoonCombat
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal PhantoonCombat(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
-        _projectiles = projectiles;
         _earthquake = earthquake;
         _audio = audio;
         _collision = collision;
@@ -64,26 +61,24 @@ internal sealed class PhantoonCombat
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _projectiles, _audio, _deathsAndDrops, _encounter,
+    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops, _encounter,
         () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableShot));
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one runs the destroyable
     /// flame's idle animation, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _projectiles, _audio, _deathsAndDrops, _encounter,
+    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops, _encounter,
         () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
 
     /// <summary>A Phantoon flame: every flame's frame behaviour, from the intro's wait and orbit to the rage and spiral, and the flame animations' cues.</summary>
     /// <param name="room">The loaded room, whose definitions name the flames' drops.</param>
-    /// <param name="projectiles">The enemy projectiles, whose frame counter times the orbits and the casual flames' drift.</param>
     /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="encounter">Phantoon's fight state, whose body the orbiting flames circle.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
     private sealed class PhantoonFlameBehavior(
         EnemyRoomBinding room,
-        EnemyProjectileEngine projectiles,
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
         PhantoonEncounter encounter,
@@ -101,7 +96,7 @@ internal sealed class PhantoonCombat
             }
             else if (motion == EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit)
             {
-                RunPhantoonStartingFlameOrbit(flame);
+                RunPhantoonStartingFlameOrbit(flame, context.FrameCounter);
             }
             else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameFall)
             {
@@ -109,7 +104,7 @@ internal sealed class PhantoonCombat
             }
             else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameLanding)
             {
-                RunPhantoonCasualFlameImpactPause(flame, projectiles.CurrentFrame16);
+                RunPhantoonCasualFlameImpactPause(flame, context.FrameCounter);
             }
             else if (motion == EnemyProjectileFrameBehavior.PhantoonCasualFlameBounce)
             {
@@ -162,8 +157,8 @@ internal sealed class PhantoonCombat
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
 
-        /// <summary>Advances an intro flame around Phantoon's body.</summary>
-        private void RunPhantoonStartingFlameOrbit(EnemyProjectile flame)
+        /// <summary>Advances an intro flame around Phantoon's body; <paramref name="frameCounter"/> times its orbit's closing.</summary>
+        private void RunPhantoonStartingFlameOrbit(EnemyProjectile flame, int frameCounter)
         {
             if (encounter.Phantoon is not { } state)
             {
@@ -177,7 +172,7 @@ internal sealed class PhantoonCombat
                 orbit.StartDelay--;
             }
             // The orbit reads the frame counter that wraps at 65536.
-            else if (PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(projectiles.CurrentFrame16))
+            else if (PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
             {
                 orbit.Radius--;
                 if (orbit.Radius == 0)

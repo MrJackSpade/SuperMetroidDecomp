@@ -122,17 +122,18 @@ public sealed class HudState
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
 
-        // The minimap update returns rather than indexing unrelated map memory if Samus is outside
-        // the active room. The 16-pixel comparison consumes the same positions as collision.
+        // The minimap does nothing while Samus is outside the active room. The 16-pixel comparison consumes the same
+        // positions as collision.
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
         // One area-map tile represents one 256x256 room screen. The Y formula has
         // an intentional +1 because the HUD map convention places the room definition's Y one
         // row above the screen containing Samus.
-        int centerX = (frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X)) & 63;
+        // A room running past the map's right edge wraps to its left edge (AreaMapSize.WrapColumn).
+        int centerX = AreaMapSize.WrapColumn(frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X));
         int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y) + 1;
-        if ((uint)centerY >= 32)
+        if (!AreaMapSize.ContainsRow(centerY))
             return;
 
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
@@ -149,8 +150,8 @@ public sealed class HudState
             for (int outputX = 0; outputX < columns; outputX++)
             {
                 int destination = outputY * columns + outputX;
-                int mapX = (centerX + outputX - 2) & 63;
-                if ((uint)mapY >= 32)
+                int mapX = AreaMapSize.WrapColumn(centerX + outputX - 2);
+                if (!AreaMapSize.ContainsRow(mapY))
                 {
                     cells[destination] = MinimapHiddenCell.Instance;
                     continue;

@@ -32,7 +32,7 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MiniKraid);
         RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.PirateGreenWalking);
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
 
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
         pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));

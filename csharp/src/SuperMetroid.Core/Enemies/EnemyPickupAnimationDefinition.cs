@@ -3,6 +3,6 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One fixed pickup animation choice.</summary>
-/// <param name="Animation">The kind's drop animation, or none for the table's empty first entry.</param>
+/// <param name="Animation">The kind's drop animation.</param>
 internal readonly record struct EnemyPickupAnimationDefinition(
-    EnemyDeathProjectileSegment? Animation);
+    EnemyDeathProjectileSegment Animation);

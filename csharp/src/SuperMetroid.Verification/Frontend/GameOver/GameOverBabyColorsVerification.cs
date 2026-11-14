@@ -16,13 +16,13 @@ internal static class GameOverBabyColorsVerification
     /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies ink and phase bounds and content identity.</summary>
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
-        var palettes = new Dictionary<GameOverBabyPalette, ushort[]>();
+        var palettes = new Dictionary<GameOverBabyColouring, ushort[]>();
         for (int phase = 0; phase < 4; phase++)
         {
             var colors = new ushort[16];
             for (int ink = 0; ink < 16; ink++)
                 colors[ink] = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
-            palettes.Add((GameOverBabyPalette)phase, colors);
+            palettes.Add((GameOverBabyColouring)phase, colors);
         }
         var catalog = new GameOverBabyPaint(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
         byte[] json = GameOverPresentationExtractor.Extract(rom);
@@ -38,20 +38,20 @@ internal static class GameOverBabyColorsVerification
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544).
             RgbColor[] shaded = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ByComposedIndex(babySheet,
-                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyPalette)phase)).KeyColours(babySheet));
-            RgbColor[] loaded = presentation.BabyPaint.Colours((GameOverBabyPalette)phase);
+                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyColouring)phase)).KeyColours(babySheet));
+            RgbColor[] loaded = presentation.BabyPaint.Colours((GameOverBabyColouring)phase);
             for (int ink = 0; ink < 16; ink++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
-                AssertEqual(expected, catalog.Read((GameOverBabyPalette)phase, ink), "original Baby color");
+                AssertEqual(expected, catalog.Read((GameOverBabyColouring)phase, ink), "original Baby color");
                 AssertEqual(expected, loaded[ink], "Baby colours the import shades the sheet in");
                 if (ink != 0 && SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.KeyComposedAs(babySheet, 64 + ink) is not null)
                     AssertEqual(expected, shaded[64 + ink], "installed Baby shade");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read(GameOverBabyPalette.Idle, invalid), "Baby ink bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read(GameOverBabyColouring.Idle, invalid), "Baby ink bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read((GameOverBabyPalette)invalid, 0), "Baby phase bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read((GameOverBabyColouring)invalid, 0), "Baby phase bounds");
     }
 }

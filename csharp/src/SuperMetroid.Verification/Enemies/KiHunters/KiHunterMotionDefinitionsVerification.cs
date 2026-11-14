@@ -58,7 +58,7 @@ internal static class KiHunterMotionDefinitionsVerification
             SignedSixteenSixteen actual = SignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
             uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SixteenSixteenWords.Compose(high, low)));
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actual.UnsignedWholePixels, "Native gravity whole carry");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), actual.UnsignedWholePixels, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         AssertEqual(32768, arcChanges, "Detached orbit changes arc for exactly half of all advanced angles");

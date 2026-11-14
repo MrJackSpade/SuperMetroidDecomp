@@ -230,7 +230,7 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // The turning handler calls the complete X movement before
+        // The turn runs the complete X movement before
         // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
         // add speed; it either clears an unowned pair or preserves an already established
         // momentum pair for this final movement frame. The unconditional cancellation and

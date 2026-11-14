@@ -20,15 +20,15 @@ internal static class FirefleaFxDefinitions
     /// </summary>
     internal static readonly ImmutableArray<int> DarknessLevels = [0, 6, 12, 18, 24, 25, SixthDeathFaintDarknessLevel];
 
-    /// <summary>Six effect passes per flashing shade.</summary>
+    /// <summary>Six effect passes per flash phase.</summary>
     internal const int FlashDuration = 6;
 
-    /// <summary>Twelve entries before the flashing cycle wraps.</summary>
+    /// <summary>The twelve phases of the flash cycle, which then starts again from the first.</summary>
     internal const int FlashCount = 12;
 
     /// <summary>The darkness step, five deaths, from which the room stops flashing.</summary>
     internal const int SteadyDarknessStep = 5;
 
-    /// <summary>The fixed flash step used at maximum darkness.</summary>
-    internal const int SteadyFlashIndex = 6;
+    /// <summary>The flash phase the room holds from the deepest darkness on: the cycle's brightest.</summary>
+    internal const int SteadyFlashPhase = 6;
 }

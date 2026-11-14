@@ -31,19 +31,21 @@ internal static class IntroRinkaDefinitionsVerification
                 $"intro Rinka actor {index} instruction list");
         }
 
-        for (int parameter = 0; parameter < IntroRinkaDefinitions.RinkaCount; parameter++)
+        IntroRinkaLaunch[] launches = [.. IntroRinkaDefinitions.StrikingPair, .. IntroRinkaDefinitions.MissingPair];
+        AssertEqual(IntroRinkaDefinitions.RinkaCount, launches.Length, "the spawner launches four Rinkas");
+        for (int launch = 0; launch < launches.Length; launch++)
         {
-            IntroRinkaPhysicalDefinition actual = IntroRinkaLaunches.Rinka(parameter);
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + parameter * 2)),
-                actual.Position.X, $"intro Rinka {parameter} initial X");
-            AssertEqual(unchecked((ushort)(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + parameter * 2)) - 8)),
-                actual.Position.Y, $"intro Rinka {parameter} biased initial Y");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + parameter * 2))),
-                actual.XWholeVelocity, $"intro Rinka {parameter} signed X whole velocity");
+            IntroRinkaLaunch actual = launches[launch];
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + launch * 2)),
+                actual.Position.X, $"intro Rinka {launch} initial X");
+            AssertEqual(unchecked((ushort)(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + launch * 2)) - 8)),
+                actual.Position.Y, $"intro Rinka {launch} biased initial Y");
+            // The cartridge adds a half-pixel fraction to each Rinka's signed whole-pixel sideways word.
+            AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + launch * 2))), 0x8000),
+                actual.Drift, $"intro Rinka {launch} sideways drift");
+            AssertEqual(launch == 0 ? CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus,
+                actual.Flight, $"intro Rinka {launch} strikes Samus only when launched first");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroRinkaLaunches.Rinka(IntroRinkaDefinitions.RinkaCount),
-            "intro Rinka definition boundary");
 
         var guarded = NewIntroRinkaDefinitionGuard(retail);
         var system = new IntroRinkaSystem();

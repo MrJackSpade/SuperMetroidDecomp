@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The enemies' colour effect glows and flashes (#1512): the room's colour effect handler hands each record of an enemy's colour
+/// The enemies' colour effect glows and flashes (#1512): the room's colour effects hand each record of an enemy's colour
 /// group to the enemies that show it.
 /// </summary>
 internal interface IEnemyColourEffectShows

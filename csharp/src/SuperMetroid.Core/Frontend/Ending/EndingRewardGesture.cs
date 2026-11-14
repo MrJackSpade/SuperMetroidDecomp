@@ -52,7 +52,7 @@ internal sealed class EndingRewardGesture
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:
@@ -83,7 +83,7 @@ internal sealed class EndingRewardGesture
             case CinematicSpriteCueKind.StartZebesExplosion:
             case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The reward gesture programs publish no {cue} cue.");
+                throw new InvalidOperationException($"The reward gesture's animations publish no {cue} cue.");
         }
     }
 

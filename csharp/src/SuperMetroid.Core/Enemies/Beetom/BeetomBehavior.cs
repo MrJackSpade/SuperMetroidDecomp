@@ -44,7 +44,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         _inheritance = inheritance;
     }
 
-    /// <summary>Carries out one cue of the Beetom's animations: off-screen processing, or the drain's no-op stub.</summary>
+    /// <summary>Carries out one cue of the Beetom's animations: whether it keeps processing off screen.</summary>
     private static BeetomSegment? ApplyBeetomCue(RoomEnemySlot slot, BeetomCue cue)
     {
         switch (cue.Kind)
@@ -54,10 +54,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case BeetomCueKind.StopProcessingOffScreen:
                 slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
-                break;
-            case BeetomCueKind.Nothing:
-                // Beetom's initial drain animation calls a cue that does nothing before it falls through into the looping
-                // blood-spray frames. It changes no state.
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BeetomCueKind)} {cue.Kind}.");

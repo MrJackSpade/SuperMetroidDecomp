@@ -171,7 +171,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequireKiHunterSamus(samus);
                 StartKiHunterGroundJump(actor, state, samus);
                 return;
-            case KiHunterAction.NoOp:
+            case KiHunterAction.AnimatingOnGround:
                 return;
             case KiHunterAction.GroundJump:
                 RequireKiHunterLevel(level);
@@ -385,7 +385,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         SamusState samus)
     {
-        state.Action = KiHunterAction.NoOp;
+        state.Action = KiHunterAction.AnimatingOnGround;
         int random = _room.Random.Read();
         bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
@@ -417,7 +417,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
-                state.Action = KiHunterAction.NoOp;
+                state.Action = KiHunterAction.AnimatingOnGround;
                 state.WaitTimer = KiHunterGroundWaitFrames;
                 StartKiHunterAnimation(
                     body,
@@ -470,7 +470,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             samusRight
                 ? KiHunterSegment.SpitRight
                 : KiHunterSegment.SpitLeft);
-        state.Action = KiHunterAction.NoOp;
+        state.Action = KiHunterAction.AnimatingOnGround;
     }
 
     /// <summary>Moves attached wings with the body.</summary>
@@ -496,7 +496,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
+                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement?.ToString() ?? "none"}.");
         }
     }
 

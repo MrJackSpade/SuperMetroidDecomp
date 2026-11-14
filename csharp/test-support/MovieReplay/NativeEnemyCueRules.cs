@@ -9,7 +9,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </param>
 /// <param name="Omitted">
 /// Whether a native instruction has no event in the typed animations because its only effect is presentation the port
-/// does not keep (#1602); the oracle reads past it without a beat. Null when the owner omits none.
+/// does not keep (#1602) or because it has none (#1803); the oracle reads past it without a beat. Null when the owner
+/// omits none.
 /// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,

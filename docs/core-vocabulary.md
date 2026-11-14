@@ -184,6 +184,14 @@ Core names the action, phase or movement that runs, the room binding that suppli
 value differs, and the enemy, its part, its partner or its place in the room's list. Indirect G-Mode, the verb (`the
 death records the drop origin`), a record of something, an enemy's record and a record alone stay English.
 
+SME6454 also reads the original's routine handlers in every type (#1828), spaced or hyphenated: a handler call (`the
+extra sound-handler call`, `two handler calls`) and a music, sound or sound-effect, colour-effect, timer, sprite or state
+handler (`the music handler's fetch`, `the colour effect handler`, `Samus's timer handler`, `the generic sprite handler`,
+`separately run state handlers`). Core names the queue's pass (`MusicQueuePasses`, `SoundQueuePasses`, a music-queue
+pass), whether the effects run (`ColourEffectsRun`, `StopColourEffects`), the countdown's update (`RunEscapeTimer`), the
+actor's frame or Samus's input or movement phase, and a control lock by what it stops (`LockOutPlayer`, `LockAtStation`).
+A handler alone or of another kind (an exception or event handler), calling a handler and a call alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

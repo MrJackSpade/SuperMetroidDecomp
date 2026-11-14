@@ -14,7 +14,7 @@ internal static class EndingPaletteCrossfadeAccess
     private const int LayersPerStep = 2;
 
     /// <summary>The colours of the whole crossfade resource.</summary>
-    private const int ColourCount = EndingLogoDefinitions.PaletteSteps * LayersPerStep * EndingLogoCrossfadeColours.ColoursPerLayer;
+    private const int ColourCount = EndingLogoDefinitions.CrossfadeSteps * LayersPerStep * EndingLogoCrossfadeColours.ColoursPerLayer;
 
     /// <summary>An installed crossfade palette's colours by resource position.</summary>
     extension(EndingPalette self)

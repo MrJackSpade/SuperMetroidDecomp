@@ -19,7 +19,7 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Current and acquired energy, ammunition, and reserve quantities.</summary>
     public required SaveResourcesJsonDocument Resources { get; init; }
 
-    /// <summary>Collected and equipped item/beam bit sets.</summary>
+    /// <summary>The collected and equipped items and beams.</summary>
     public required SaveInventoryJsonDocument Inventory { get; init; }
 
     /// <summary>The four-component gameplay clock.</summary>
@@ -28,7 +28,10 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>The seven configurable gameplay actions as controller button masks.</summary>
     public required SaveControllerJsonDocument Controller { get; init; }
 
-    /// <summary>Persistent world events, room bits, station bits, and explored map tiles.</summary>
+    /// <summary>
+    /// Persistent progress: story events, destroyed Zebetites, each area's defeated bosses, collected items, opened doors,
+    /// used stations, acquired maps and explored map cells.
+    /// </summary>
     public required SaveProgressionJsonDocument Progression { get; init; }
 
     /// <summary>The reserve tanks' mode: none, auto or manual.</summary>

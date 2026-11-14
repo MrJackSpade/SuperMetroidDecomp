@@ -35,7 +35,7 @@ internal static class PermanentMessageFixtureVerification
 
         var titles = Read(GameplayMessageTitleDefinitions.FileName);
         SetBorder(titles);
-        var energy = titles.Required("titles").Required(GameplayMessageIds.EnergyTank.ToString());
+        var energy = titles.Required("titles").Required(GameplayMessageId.EnergyTank.ToString());
         energy["text"] = "TEST";
         energy["palette"] = 6;
 
@@ -48,13 +48,13 @@ internal static class PermanentMessageFixtureVerification
                 >= (32 - GameplayMessagePanelDefinitions.OuterRightColumns));
             template.Add(Cell(transparent ? GameplayMessageTitleDefinitions.TransparentTile.PackedWord : 0x3801));
         }
-        panels.Required("panels").Required(GameplayMessageIds.MissileTank.ToString())["template"] = template;
+        panels.Required("panels").Required(GameplayMessageId.MissileTank.ToString())["template"] = template;
 
         var notices = Read(GameplayMessageNoticeDefinitions.FileName);
         SetBorder(notices);
         var noticeTemplate = new JsonArray();
         for (int cell = 0; cell < 96; cell++) noticeTemplate.Add(Cell(0x3820 + cell / 32));
-        notices.Required("notices").Required(GameplayMessageIds.MapDataAccessCompleted.ToString())["template"] = noticeTemplate;
+        notices.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString())["template"] = noticeTemplate;
 
         return new GameplayMessageArtwork(GameplayMessageTitlePresentation.Load(Stream(titles)),
             GameplayMessagePanelPresentation.Load(Stream(panels)),

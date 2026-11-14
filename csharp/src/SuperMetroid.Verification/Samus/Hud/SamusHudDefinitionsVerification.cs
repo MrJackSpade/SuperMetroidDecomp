@@ -69,7 +69,7 @@ internal static class SamusHudDefinitionsVerification
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;
                 metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
-                if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
+                if (locked) samus.Control.LockOutPlayer(); else samus.Control.Unlock();
                 samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is SamusHudSelectionMode.Standard or SamusHudSelectionMode.Grapple or SamusHudSelectionMode.DraygonHeld ||

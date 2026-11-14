@@ -173,14 +173,14 @@ internal static void VerifySamusStoredShineAndShinespark()
         AssertEqual(1, directional.AudioRequests.CountOf(RoomSound.Shinespark),
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} queues one launch sound");
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
-        uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
-        uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
+        FixedCoordinate directionalXBefore = directional.Kinematics.Position.X;
+        FixedCoordinate directionalYBefore = directional.Kinematics.Position.Y;
         directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { FrameCounter = 0, Projectiles = Shots() });
         AssertEqual(expectedPhase, directional.Shinespark.Phase,
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} installs expected shinespark handler");
-        AssertEqual(expectsHorizontal, directional.Kinematics.Position.X.RawValue != directionalXBefore,
+        AssertEqual(expectsHorizontal, directional.Kinematics.Position.X != directionalXBefore,
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} horizontal-axis dispatch moves X");
-        AssertEqual(expectsVertical, directional.Kinematics.Position.Y.RawValue != directionalYBefore,
+        AssertEqual(expectsVertical, directional.Kinematics.Position.Y != directionalYBefore,
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} vertical-axis dispatch moves Y");
         if (expectsHorizontal)
         {
@@ -215,9 +215,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         SamusPoseId.ShinesparkVerticalRightPose);
     externallyReversedSpark.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
-    uint reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y.RawValue;
+    FixedCoordinate reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y;
     externallyReversedSpark.Shinespark.Step(new SamusTerrain { Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { FrameCounter = 0, Projectiles = Shots() });
-    AssertEqual(0x0000d800, unchecked((int)(externallyReversedSpark.Kinematics.Position.Y.RawValue - reversedSparkYBefore)),
+    AssertEqual(SixteenSixteenWords.ToDisplacement(0x0000d800), externallyReversedSpark.Kinematics.Position.Y - reversedSparkYBefore,
         "positive external Y reverses vertical shinespark after native speed negation");
     AssertEqual(160, externallyReversedSpark.Position.Y.Whole,
         "subpixel shinespark reversal retains the whole Y coordinate");
@@ -289,10 +289,10 @@ internal static void VerifySamusStoredShineAndShinespark()
     var horizontalShots = Shots();
     var shineBombObjects = RoomObjectFixtures.Unbound();
 
-    uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
+    FixedCoordinate firstYBefore = horizontal.Kinematics.Position.Y;
     horizontal.Shinespark.Step(new SamusTerrain { Level = empty, RoomObjects = shineBombObjects }, horizontal, new ShinesparkFrame { FrameCounter = 4, Projectiles = horizontalShots });
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
-        horizontal.Kinematics.Position.Y.RawValue == firstYBefore,
+        horizontal.Kinematics.Position.Y == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
     AssertSequenceEqual(new[] { new Position16<RoomBlocks>(10, 9) }, shineBombObjects.ActiveObjectBlocks,
         "horizontal spark breaks the BTS-7 block");
@@ -311,9 +311,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(SamusContactDamageIndex.Shinespark, horizontal.HorizontalSpeed.ContactDamageIndex,
         "active spark publishes contact damage two");
 
-    uint lowEnergyXBefore = horizontal.Kinematics.Position.X.RawValue;
+    FixedCoordinate lowEnergyXBefore = horizontal.Kinematics.Position.X;
     horizontal.Shinespark.Step(new SamusTerrain { Level = empty }, horizontal, new ShinesparkFrame { FrameCounter = 5, Projectiles = horizontalShots });
-    AssertTrue(horizontal.Kinematics.Position.X.RawValue != lowEnergyXBefore && horizontal.Health == 29,
+    AssertTrue(horizontal.Kinematics.Position.X != lowEnergyXBefore && horizontal.Health == 29,
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
         "low energy installs crash handler");

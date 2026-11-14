@@ -70,8 +70,8 @@ internal static class SpikeShinesparkSuitVerification
         var shortRecovery = new SamusReserveAutoRecoveryState();
         shortRecovery.Begin(frozenSamus);
         frozenRuntime.Freeze.GameplayTimeFrozen = true;
-        uint frozenX = frozenSamus.Kinematics.Position.X.RawValue;
-        uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
+        uint frozenX = SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.X);
+        uint frozenY = SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y);
         int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
@@ -80,7 +80,7 @@ internal static class SpikeShinesparkSuitVerification
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
         AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
-            new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
+            new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y)),
             "Reserve command zero freezes spike-knockback position");
         AssertEqual(new AnimationResult(frozenAnimationFrame, frozenAnimationTimer),
             new AnimationResult(frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),

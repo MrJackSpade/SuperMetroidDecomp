@@ -2,21 +2,19 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Compiled behavior selectors used by the Ceres door initializer.
+/// What each kind of Ceres door and wall does once it is placed in its room: the behaviour it runs and the animation it
+/// starts in.
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {
 
     /// <summary>
-    /// The per-variant behaviour and animation choices
-    /// of the Ceres door initializer.
-    /// Population variants 0..6 select, in order, the animations for the
-    /// normal right/left, pre-explosion, Ridley-room, invisible-wall, and
-    /// two mode-7 wall animations; variant seven is outside the table.
-    /// The separate main behaviour is the escape earthquake for
-    /// variants 0, 1, and 4; the rotating elevator room's default for 2; Ridley's-room earthquake for 3; and the rotating-floor wall for 5
-    /// and 6. Those aliases classify authored behavior, rather than a
-    /// numeric progression.
+    /// Each kind of Ceres door and wall, with the behaviour it runs and the animation it starts in. The ordinary doors
+    /// facing right and left and the rotating elevator room's invisible wall shake the screen while Ceres
+    /// self-destructs; the door of Ridley's room shakes it in Ridley's room; the overlay the rotating elevator room
+    /// shows before the explosion keeps that room's default behaviour; and the left and right walls beside Ridley's
+    /// rotating escape floor run as that floor's walls. Several kinds share a behaviour because the game authored them
+    /// alike, not because the kinds follow one another.
     /// </summary>
     internal static readonly IReadOnlyDictionary<CeresDoorVariant, CeresDoorInitializationDefinition> Initializations =
         new Dictionary<CeresDoorVariant, CeresDoorInitializationDefinition>

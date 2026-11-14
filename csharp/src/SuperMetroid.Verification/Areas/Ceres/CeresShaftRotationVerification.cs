@@ -42,7 +42,7 @@ internal static class CeresShaftRotationVerification
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);
                 updates++;
             }
-            AssertEqual(phaseWord & 127, state.RotationStep, "shaft turn step every frame");
+            AssertEqual(phaseWord & 127, state.TurnPlace, "shaft turn place every frame");
             AssertEqual(phaseWord >= 32768 ? CeresShaftSweep.Backward : CeresShaftSweep.Forward, state.Sweep, "shaft sweep direction every frame");
             AssertEqual(phaseWord, carryover.Countdown.RawValue, "shaft turn step the following room inherits, as the native phase word");
         }

@@ -58,10 +58,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 CountdownStep step = state.ActivationDelay.Decrement();
                 state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
-                    return countDown.Target;
+                    return countDown.Dormant;
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
-                return countDown.Alternate;
+                return countDown.Puffing;
             }
             case CeresSteamCue.Signal { Kind: CeresSteamCueKind.Appear }:
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);

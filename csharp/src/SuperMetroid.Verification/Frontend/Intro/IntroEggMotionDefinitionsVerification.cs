@@ -69,10 +69,11 @@ internal static class IntroEggMotionDefinitionsVerification
                 $"Egg fragment {fragments[index]} initial Y");
         }
         Compare(0x8ba9ea, fragments.Count, index => IntroEggMotion.FragmentX(fragments[index]));
-        Compare(0x8baa02, 41, frame => IntroEggMotion.FragmentY(frame, pastCurve));
-        Compare(0x8bab35, 5, IntroEggMotion.SlimeX);
-        Compare(0x8bab49, 62, frame => IntroEggMotion.SlimeY(frame, true));
-        Compare(0x8bac41, 69, frame => IntroEggMotion.SlimeY(frame, false));
+        Compare(0x8baa02, 41, frame => IntroEggMotion.FragmentFallSpeed(frame, pastCurve));
+        // The cartridge's fifth slime speed belongs to no drop the Baby sheds.
+        Compare(0x8bab35, IntroEggMotionDefinitions.SlimeLaunches.Count, index => IntroEggMotionDefinitions.SlimeLaunches[index].Drift);
+        Compare(0x8bab49, 62, IntroEggMotionDefinitions.ShallowSlimeFall.Speed);
+        Compare(0x8bac41, 69, IntroEggMotionDefinitions.SteepSlimeFall.Speed);
         var guarded = NewEggMotionGuard(rom);
         uint Move(uint position, int address) => unchecked(position + ((uint)Word(address) << 16) + Word(address + 2));
         int checkedFrames = 0;
@@ -82,11 +83,11 @@ internal static class IntroEggMotionDefinitionsVerification
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
+                object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), IntroEggMotionDefinitions.SlimeLaunches[actorIndex]);
                 IntroDiscoverySprite sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
-                uint x = new FixedCoordinate(sprite.WholePosition.X, fraction).RawValue;
-                uint y = new FixedCoordinate(sprite.WholePosition.Y, fraction).RawValue;
+                uint x = SixteenSixteenWords.Compose(sprite.WholePosition.X, fraction);
+                uint y = SixteenSixteenWords.Compose(sprite.WholePosition.Y, fraction);
                 bool motion = true;
                 int motionFrame = 0;
                 int frames = 0;
@@ -102,9 +103,9 @@ internal static class IntroEggMotionDefinitionsVerification
                     }
                     if (actor is IntroEggParticle particle) particle.Step();
                     else ((IntroEggSlimeDrop)actor).Step();
-                    AssertEqual(FixedCoordinate.WholeOf(unchecked((int)x)), sprite.WholePosition.X, "Egg actor whole X each frame");
+                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(x), sprite.WholePosition.X, "Egg actor whole X each frame");
                     AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
-                    AssertEqual(FixedCoordinate.WholeOf(unchecked((int)y)), sprite.WholePosition.Y, "Egg actor whole Y each frame");
+                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(y), sprite.WholePosition.Y, "Egg actor whole Y each frame");
                     AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
                     checkedFrames++;
                 }
@@ -113,10 +114,10 @@ internal static class IntroEggMotionDefinitionsVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition((IntroEggShellFragment)fragments.Count),
             "Fragment initial position rejects an undefined fragment");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentY(41, pastCurve), "Fragment curve boundary after native overread");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(62, true), "Odd slime curve boundary");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(69, false), "Even slime curve boundary");
-        Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentFallSpeed(41, pastCurve), "Fragment curve boundary after native overread");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.ShallowSlimeFall.Speed(62), "Shallow slime curve boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SteepSlimeFall.Speed(69), "Steep slime curve boundary");
+        Console.WriteLine($"Egg motion definitions: twelve position words, 364 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
     /// <summary>Reads native egg motion bytes solely as the cartridge comparison oracle.</summary>

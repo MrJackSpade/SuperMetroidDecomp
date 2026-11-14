@@ -61,7 +61,7 @@ internal static class EndingSnapshotTestsVerification
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Stage.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Stage.Phase, tick);
-                if (legacy.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
+                if (legacy.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = Live();

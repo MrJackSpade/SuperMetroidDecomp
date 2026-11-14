@@ -128,9 +128,8 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// Publishes a shot/bomb/grapple reaction at a Chozo orb or concealed item block.
-    /// The projectile family is retained for diagnostics; the item's shot setup accepts any
-    /// collision producer and reduces it to the same trigger.
+    /// Triggers the Chozo orb or concealed item block at <paramref name="block"/> that a shot, bomb or grapple reached:
+    /// whatever reached it, the item responds with the same trigger.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
@@ -378,27 +377,27 @@ internal sealed class CollectibleObjects
     /// <summary>Selects the message shown synchronously after a permanent pickup.</summary>
     private static GameplayMessageId PickupMessage(InWorldCollectibleKind kind) => kind switch
     {
-        InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
-        InWorldCollectibleKind.MissileTank => GameplayMessageIds.MissileTank,
-        InWorldCollectibleKind.SuperMissileTank => GameplayMessageIds.SuperMissileTank,
-        InWorldCollectibleKind.PowerBombTank => GameplayMessageIds.PowerBombTank,
-        InWorldCollectibleKind.GrappleBeam => GameplayMessageIds.GrappleBeam,
-        InWorldCollectibleKind.XrayScope => GameplayMessageIds.XrayScope,
-        InWorldCollectibleKind.VariaSuit => GameplayMessageIds.VariaSuit,
-        InWorldCollectibleKind.SpringBall => GameplayMessageIds.SpringBall,
-        InWorldCollectibleKind.MorphBall => GameplayMessageIds.MorphBall,
-        InWorldCollectibleKind.ScrewAttack => GameplayMessageIds.ScrewAttack,
-        InWorldCollectibleKind.HiJumpBoots => GameplayMessageIds.HiJumpBoots,
-        InWorldCollectibleKind.SpaceJump => GameplayMessageIds.SpaceJump,
-        InWorldCollectibleKind.SpeedBooster => GameplayMessageIds.SpeedBooster,
-        InWorldCollectibleKind.ChargeBeam => GameplayMessageIds.ChargeBeam,
-        InWorldCollectibleKind.IceBeam => GameplayMessageIds.IceBeam,
-        InWorldCollectibleKind.WaveBeam => GameplayMessageIds.WaveBeam,
-        InWorldCollectibleKind.SpazerBeam => GameplayMessageIds.SpazerBeam,
-        InWorldCollectibleKind.PlasmaBeam => GameplayMessageIds.PlasmaBeam,
-        InWorldCollectibleKind.Bombs => GameplayMessageIds.Bombs,
-        InWorldCollectibleKind.GravitySuit => GameplayMessageIds.GravitySuit,
-        InWorldCollectibleKind.ReserveTank => GameplayMessageIds.ReserveTank,
+        InWorldCollectibleKind.EnergyTank => GameplayMessageId.EnergyTank,
+        InWorldCollectibleKind.MissileTank => GameplayMessageId.MissileTank,
+        InWorldCollectibleKind.SuperMissileTank => GameplayMessageId.SuperMissileTank,
+        InWorldCollectibleKind.PowerBombTank => GameplayMessageId.PowerBombTank,
+        InWorldCollectibleKind.GrappleBeam => GameplayMessageId.GrappleBeam,
+        InWorldCollectibleKind.XrayScope => GameplayMessageId.XrayScope,
+        InWorldCollectibleKind.VariaSuit => GameplayMessageId.VariaSuit,
+        InWorldCollectibleKind.SpringBall => GameplayMessageId.SpringBall,
+        InWorldCollectibleKind.MorphBall => GameplayMessageId.MorphBall,
+        InWorldCollectibleKind.ScrewAttack => GameplayMessageId.ScrewAttack,
+        InWorldCollectibleKind.HiJumpBoots => GameplayMessageId.HiJumpBoots,
+        InWorldCollectibleKind.SpaceJump => GameplayMessageId.SpaceJump,
+        InWorldCollectibleKind.SpeedBooster => GameplayMessageId.SpeedBooster,
+        InWorldCollectibleKind.ChargeBeam => GameplayMessageId.ChargeBeam,
+        InWorldCollectibleKind.IceBeam => GameplayMessageId.IceBeam,
+        InWorldCollectibleKind.WaveBeam => GameplayMessageId.WaveBeam,
+        InWorldCollectibleKind.SpazerBeam => GameplayMessageId.SpazerBeam,
+        InWorldCollectibleKind.PlasmaBeam => GameplayMessageId.PlasmaBeam,
+        InWorldCollectibleKind.Bombs => GameplayMessageId.Bombs,
+        InWorldCollectibleKind.GravitySuit => GameplayMessageId.GravitySuit,
+        InWorldCollectibleKind.ReserveTank => GameplayMessageId.ReserveTank,
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 }

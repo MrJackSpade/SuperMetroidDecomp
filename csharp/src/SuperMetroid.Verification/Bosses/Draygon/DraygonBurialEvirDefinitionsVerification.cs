@@ -105,7 +105,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         fixedPosition = add
             ? unchecked(fixedPosition + magnitude)
             : unchecked(fixedPosition - magnitude);
-        return new AddDraygonBurialSubspeedResult(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition));
+        return new AddDraygonBurialSubspeedResult((ushort)SixteenSixteenWords.WholeOf(fixedPosition), unchecked((ushort)fixedPosition));
     }
 
     /// <summary>Rejects gameplay reads from the three migrated bank-$A5 burial tables.</summary>

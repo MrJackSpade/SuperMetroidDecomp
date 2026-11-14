@@ -20,7 +20,8 @@ internal static class RoomSetupCodeCatalogVerification
     /// <summary>
     /// Audits every state reachable from the retail room headers and proves every nonzero setup callback the cartridge
     /// stores belongs to the import's bank-$8F catalog, every catalogued routine occurs, each acting behaviour has one
-    /// routine, and exactly the routines that return at once decode to <see cref="RoomSetupBehavior.None"/> (#1787).
+    /// routine, and exactly the routines that return at once or act only on the room's display decode to
+    /// <see cref="RoomSetupBehavior.None"/> (#1787, #1827).
     /// </summary>
     internal static void VerifyRoomSetupCodeCatalog()
     {
@@ -67,8 +68,14 @@ internal static class RoomSetupCodeCatalogVerification
         foreach ((ushort pointer, RoomSetupBehavior callback) in routines)
         {
             AssertEqual(callback == RoomSetupBehavior.None,
-                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
-                $"room-setup routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once");
+                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer) ||
+                    RoomBehaviorDefinitions.DisplayOnlySetupRoutines.Contains(pointer),
+                $"room-setup routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once or acts only on the display");
+        }
+        foreach (ushort pointer in RoomBehaviorDefinitions.DisplayOnlySetupRoutines)
+        {
+            AssertTrue(!SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
+                $"display-only room-setup routine $8F:{pointer:X4} does not return at once");
         }
 
         foreach (ushort pointer in retailSetupPointers)

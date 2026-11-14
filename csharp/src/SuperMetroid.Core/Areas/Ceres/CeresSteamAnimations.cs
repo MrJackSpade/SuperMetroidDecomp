@@ -15,19 +15,19 @@ internal static class CeresSteamAnimations
     internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCue> Segments { get; } = new(
         new Dictionary<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCue>[]>
     {
-        [P.Up] =
+        [P.UpDormant] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamUp, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.Up, P.UpLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.UpDormant, P.UpPuffing)),
         ],
-        [P.UpLoop] =
+        [P.UpResting] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamUp, 64),
             Cue(new CeresSteamCue.Signal(K.Appear)),
         ],
-        [P.UpLoop2] =
+        [P.UpPuffing] =
         [
             Show(EnemyFrameId.CeresSteamUp, 3),
             Show(EnemyFrameId.CeresSteamUpSecond, 3),
@@ -37,19 +37,19 @@ internal static class CeresSteamAnimations
             Show(EnemyFrameId.CeresSteamUpSixth, 3),
             Show(EnemyFrameId.CeresSteamUpSeventh, 3),
         ],
-        [P.Left] =
+        [P.LeftDormant] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamLeft, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.Left, P.LeftLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.LeftDormant, P.LeftPuffing)),
         ],
-        [P.LeftLoop] =
+        [P.LeftResting] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamLeft, 64),
             Cue(new CeresSteamCue.Signal(K.Appear)),
         ],
-        [P.LeftLoop2] =
+        [P.LeftPuffing] =
         [
             Show(EnemyFrameId.CeresSteamLeft, 3),
             Show(EnemyFrameId.CeresSteamLeftSecond, 3),
@@ -59,19 +59,19 @@ internal static class CeresSteamAnimations
             Show(EnemyFrameId.CeresSteamLeftSixth, 3),
             Show(EnemyFrameId.CeresSteamLeftSeventh, 3),
         ],
-        [P.Down] =
+        [P.DownDormant] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamDown, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.Down, P.DownLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.DownDormant, P.DownPuffing)),
         ],
-        [P.DownLoop] =
+        [P.DownResting] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamDown, 64),
             Cue(new CeresSteamCue.Signal(K.Appear)),
         ],
-        [P.DownLoop2] =
+        [P.DownPuffing] =
         [
             Show(EnemyFrameId.CeresSteamDown, 3),
             Show(EnemyFrameId.CeresSteamDownSecond, 3),
@@ -81,19 +81,19 @@ internal static class CeresSteamAnimations
             Show(EnemyFrameId.CeresSteamDownSixth, 3),
             Show(EnemyFrameId.CeresSteamDownSeventh, 3),
         ],
-        [P.Right] =
+        [P.RightDormant] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamRight, 1),
-            Cue(new CeresSteamCue.CountDownToActivation(P.Right, P.RightLoop2)),
+            Cue(new CeresSteamCue.CountDownToActivation(P.RightDormant, P.RightPuffing)),
         ],
-        [P.RightLoop] =
+        [P.RightResting] =
         [
             Cue(new CeresSteamCue.Signal(K.Vanish)),
             Show(EnemyFrameId.CeresSteamRight, 64),
             Cue(new CeresSteamCue.Signal(K.Appear)),
         ],
-        [P.RightLoop2] =
+        [P.RightPuffing] =
         [
             Show(EnemyFrameId.CeresSteamRight, 3),
             Show(EnemyFrameId.CeresSteamRightSecond, 3),
@@ -105,21 +105,24 @@ internal static class CeresSteamAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation each segment starts: a dormant vent waits, then rests and puffs in turn; a resting or puffing vent
+    /// goes on resting and puffing in turn for good.
+    /// </summary>
     internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
-        [P.Up] = new([new(P.Up, 0, 3, 1), new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpLoop] = new([new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLoop2] = new([new(P.UpLoop2, 0, 7, 1), new(P.UpLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Left] = new([new(P.Left, 0, 3, 1), new(P.LeftLoop, 0, 3, 1), new(P.LeftLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.LeftLoop] = new([new(P.LeftLoop, 0, 3, 1), new(P.LeftLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.LeftLoop2] = new([new(P.LeftLoop2, 0, 7, 1), new(P.LeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Down] = new([new(P.Down, 0, 3, 1), new(P.DownLoop, 0, 3, 1), new(P.DownLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.DownLoop] = new([new(P.DownLoop, 0, 3, 1), new(P.DownLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownLoop2] = new([new(P.DownLoop2, 0, 7, 1), new(P.DownLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Right] = new([new(P.Right, 0, 3, 1), new(P.RightLoop, 0, 3, 1), new(P.RightLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RightLoop] = new([new(P.RightLoop, 0, 3, 1), new(P.RightLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RightLoop2] = new([new(P.RightLoop2, 0, 7, 1), new(P.RightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpDormant] = new([new(P.UpDormant, 0, 3, 1), new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.UpResting] = new([new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpPuffing] = new([new(P.UpPuffing, 0, 7, 1), new(P.UpResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftDormant] = new([new(P.LeftDormant, 0, 3, 1), new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LeftResting] = new([new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.LeftPuffing] = new([new(P.LeftPuffing, 0, 7, 1), new(P.LeftResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DownDormant] = new([new(P.DownDormant, 0, 3, 1), new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DownResting] = new([new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DownPuffing] = new([new(P.DownPuffing, 0, 7, 1), new(P.DownResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RightDormant] = new([new(P.RightDormant, 0, 3, 1), new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RightResting] = new([new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RightPuffing] = new([new(P.RightPuffing, 0, 7, 1), new(P.RightResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

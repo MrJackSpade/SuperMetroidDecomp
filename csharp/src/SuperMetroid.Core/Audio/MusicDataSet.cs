@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Audio;
 /// The music data sets: the songs and instruments one stretch of the game plays from, each installed as a clip set.
 /// Exactly one is loaded at a time. Changing it is a clip-set switch: the song stops, music and sounds play from the new
 /// set's clips, and the sound libraries take no requests for the downtime
-/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> describes (every library's request is withdrawn for
-/// eight sound-handler calls, and the sound acceptance clock drops the requests not yet taken,
+/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> describes (every library's request is withdrawn for
+/// eight sound-queue passes, and the sound acceptance clock drops the requests not yet taken,
 /// <see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>). Before any is loaded only the shared sounds play,
 /// which is represented as no data set (null).
 /// </summary>

@@ -11,6 +11,4 @@ public enum MochtroidMovementMode
     NotTouchingSamus,
     /// <summary>Moves one pixel per axis toward Samus while contact is republished.</summary>
     TouchingSamus,
-    /// <summary>Runs the shipped but unreferenced four-direction shake movement.</summary>
-    Shaking,
 }

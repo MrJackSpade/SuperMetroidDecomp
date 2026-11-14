@@ -106,7 +106,7 @@ internal sealed class IntroScientistCutsceneState
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:
@@ -137,7 +137,7 @@ internal sealed class IntroScientistCutsceneState
             case CinematicSpriteCueKind.StartZebesExplosion:
             case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The scientist-scene Baby programs publish no {cue} cue.");
+                throw new InvalidOperationException($"The scientist scene Baby's animations publish no {cue} cue.");
         }
     }
 }

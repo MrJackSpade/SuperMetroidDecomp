@@ -141,7 +141,7 @@ public static class TourianRoomStateDefinitions
 
     /// <summary>The Tourian Escape room's state 4.</summary>
     public static RoomStateSettings TourianEscape4 { get; } =
-        new(nameof(TourianEscape4), RoomLevelDefinitions.TourianEscape4, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ToruianEscaper4, RoomEnemyPopulationDefinitions.TourianEscape4, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape4, null, RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape4, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoom, RoomSetupBehavior.MediumHorizontalShakingWithRisingLava);
+        new(nameof(TourianEscape4), RoomLevelDefinitions.TourianEscape4, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ToruianEscaper4, RoomEnemyPopulationDefinitions.TourianEscape4, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape4, null, RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape4, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoom, RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid);
 
 
     /// <summary>The Upper Tourian Save room's state.</summary>

@@ -63,7 +63,7 @@ internal static class RoomBehaviorDefinitionsAccess
         [0xc91f] = RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking,
         [0xc933] = RoomSetupBehavior.SetLightHorizontalRoomShaking,
         [0xc946] = RoomSetupBehavior.SetMediumHorizontalRoomShaking,
-        [0xc953] = RoomSetupBehavior.MediumHorizontalShakingWithRisingLava,
+        [0xc953] = RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid,
         [0xc96e] = RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze,
         [0xc976] = RoomSetupBehavior.SpawnCeresHaze,
         [0xc97b] = RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,

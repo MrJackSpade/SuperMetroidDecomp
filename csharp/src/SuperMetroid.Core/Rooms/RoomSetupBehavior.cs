@@ -41,9 +41,9 @@ public enum RoomSetupBehavior
     SetMediumHorizontalRoomShaking,
     /// <summary>
     /// Starts medium horizontal shaking in the escape room before the old Tourian escape shaft and places the room object
-    /// that starts its lava rising once Samus passes its trigger point.
+    /// that starts its acid rising once Samus passes its trigger point (#1800).
     /// </summary>
-    MediumHorizontalShakingWithRisingLava,
+    MediumHorizontalShakingWithRisingAcid,
     /// <summary>Seals the Ceres door and spawns haze.</summary>
     TurnCeresDoorToSolidBlocksAndSpawnHaze,
     /// <summary>Spawns the Ceres room haze during setup.</summary>

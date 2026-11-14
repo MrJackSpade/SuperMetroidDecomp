@@ -371,7 +371,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] KagoProjectiles =
     [
-        EnemyProjectileFrameId.KraidRockSharedPoseFirst,
+        EnemyProjectileFrameId.KraidRock,
         EnemyProjectileFrameId.KagoBugLandedFirst,
         EnemyProjectileFrameId.KagoBugLandedSecond,
         EnemyProjectileFrameId.KagoBugFalling,
@@ -1341,13 +1341,13 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/Kraid/KraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] KraidSharedProjectiles =
     [
-        EnemyProjectileFrameId.KraidRockSharedPoseFirst,
+        EnemyProjectileFrameId.KraidRock,
         EnemyProjectileFrameId.KraidRockRisingRightPose,
-        EnemyProjectileFrameId.KraidRockSharedPoseFifth,
-        EnemyProjectileFrameId.KraidRockSpitRockShotSecond,
-        EnemyProjectileFrameId.KraidRockSpitRockShotThird,
-        EnemyProjectileFrameId.KraidRockSpitRockShotFourth,
-        EnemyProjectileFrameId.KraidRockSpitRockShotFifth,
+        EnemyProjectileFrameId.KraidRockBurstFirst,
+        EnemyProjectileFrameId.KraidRockBurstSecond,
+        EnemyProjectileFrameId.KraidRockBurstThird,
+        EnemyProjectileFrameId.KraidRockBurstFourth,
+        EnemyProjectileFrameId.KraidRockBurstFifth,
         EnemyProjectileFrameId.MiscDustElbowChargeParticleFirst,
         EnemyProjectileFrameId.MiscDustElbowChargeParticleSecond,
         EnemyProjectileFrameId.MiscDustElbowChargeParticleThird,

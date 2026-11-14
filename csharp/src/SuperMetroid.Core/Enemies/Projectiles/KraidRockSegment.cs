@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Kraid's rock projectile animations, which the Kago bug's initial pose shares.</summary>
+/// <summary>Kraid's rock projectile animations.</summary>
 public enum KraidRockSegment
 {
-    /// <summary>One still pose, shared by the spat, ceiling and left rising rocks and the Kago bug.</summary>
+    /// <summary>The rock's still pose, shared by the spat, ceiling and left rising rocks.</summary>
     SharedPose,
     /// <summary>The right rising rock's still pose.</summary>
     RisingRightPose,

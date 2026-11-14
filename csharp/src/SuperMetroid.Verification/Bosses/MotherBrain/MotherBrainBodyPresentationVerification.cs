@@ -67,7 +67,7 @@ internal static class MotherBrainBodyPresentationVerification
                 baseline.Draw();
             }
         }
-        AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
+        AssertTrue(baseline.BodyOrigins.Count > 0, "production body bytecode actually moves and places her body");
         // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
         // boss artwork is composed, so the enemy artwork is not read again for it.
         AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),

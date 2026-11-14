@@ -166,8 +166,8 @@ internal sealed class CrocomireBridgeCollapse
     /// Hides his body from the body row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
     /// sinks (#1515): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
-    private void HideCrocomireSunkenBody() =>
-        _bodyLayer.HideCrocomireBodyFrom(CoordinateAxis.Wrap(_bodyLayer.Placement.Y + SinkRowDepth));
+    private void HideCrocomireSunkenBody(CrocomireEnemyState state) =>
+        _bodyLayer.HideCrocomireBodyFrom(_bodyLayer.BodyRowAt(state.Camera.Y + SinkRowDepth));
 
     /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
     private const int SinkRowDepth = 288;
@@ -217,7 +217,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Crocomire's exact fixed-point sinking fall.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion();
         state.DamageReactionPending = false;
         _bodyLayer.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
@@ -231,7 +231,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        HideCrocomireSunkenBody();
+        HideCrocomireSunkenBody(state);
         body.AnimationClock.ShowsNewFrame = false;
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
@@ -252,7 +252,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Runs Crocomire's fixed-point rise exactly as the game does.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion();
         RoomEnemySlot body = state.Body;
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {

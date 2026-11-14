@@ -24,8 +24,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal bool BodyFrameShowsNothing => Inner.FrameShowsNothing(Body);
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
         internal MotherBrainEnemyState State { get; }
-        /// <summary>The BG2 scroll placing the body after each production step that has taken BG2 over (#1356).</summary>
-        internal List<Position16<BackgroundPixels>> ScrollCalls { get; } = [];
+        /// <summary>Where her body lies in the room after each production step that has placed it (#1356, #1802).</summary>
+        internal List<Position16<RoomPixels>> BodyOrigins { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
 
@@ -67,7 +67,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
             if (State.PlacesBodyLayer)
-                ScrollCalls.Add(State.BodyLayerPlacement);
+                BodyOrigins.Add(State.BodyOrigin);
         }
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>

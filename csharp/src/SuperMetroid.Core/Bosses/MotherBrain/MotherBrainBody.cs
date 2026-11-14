@@ -343,24 +343,23 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body and background movement. The signed Y displacement is added
-    /// to the actor and subtracted from the background, keeping the large background body art
-    /// rigidly attached to its small sprite hitbox record. X movement happens before this call,
-    /// so the derived scroll must sample the already-updated body X.
+    /// Body movement. The signed Y displacement moves the actor and her body alike, keeping the large body art rigidly
+    /// attached to its small sprite hitbox record (#1802). X movement happens before this call, so her body's area,
+    /// which lies 34 pixels left of her, follows the already-updated body X.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain body bytecode ran without its multipart encounter state.");
         state.Body.Position += displacement;
-        PlaceMotherBrainBodyLayer(state, new(
-            CoordinateAxis.Wrap(34 - state.Body.Position.X.Whole),
-            CoordinateAxis.Wrap(state.BodyLayerPlacement.Y - displacement.Y)));
+        PlaceMotherBrainBody(state, new(
+            CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34),
+            CoordinateAxis.Wrap(state.BodyOrigin.Y + displacement.Y)));
     }
 
     /// <summary>
-    /// Posture-transition variant. Its horizontal argument is a scroll bias, not
-    /// actor displacement; only Y changes the physical body coordinate.
+    /// Posture-transition variant. Its horizontal argument moves her body's area right against her, not the actor;
+    /// only Y changes the physical body coordinate (#1802).
     /// </summary>
     private void MoveMotherBrainBodyWithScrollBias(
         int yDisplacement,
@@ -369,9 +368,9 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
         state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole + yDisplacement);
-        PlaceMotherBrainBodyLayer(state, new(
-            CoordinateAxis.Wrap(34 + horizontalScrollBias - state.Body.Position.X.Whole),
-            CoordinateAxis.Wrap(state.BodyLayerPlacement.Y - yDisplacement)));
+        PlaceMotherBrainBody(state, new(
+            CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34 - horizontalScrollBias),
+            CoordinateAxis.Wrap(state.BodyOrigin.Y + yDisplacement)));
     }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
@@ -385,12 +384,15 @@ internal sealed class MotherBrainBody
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
 
-    /// <summary>Places her body layer for the current motion; the displayed frame publishes it with her body (#1356).</summary>
-    internal static void PlaceMotherBrainBodyLayer(
+    /// <summary>
+    /// Places her body's area's top-left corner on room pixel <paramref name="origin"/> for the current motion; the displayed
+    /// frame publishes it with her body (#1356, #1802).
+    /// </summary>
+    internal static void PlaceMotherBrainBody(
         MotherBrainEnemyState state,
-        Position16<BackgroundPixels> placement)
+        Position16<RoomPixels> origin)
     {
-        state.BodyLayerPlacement = placement;
+        state.BodyOrigin = origin;
         state.PlacesBodyLayer = true;
     }
 

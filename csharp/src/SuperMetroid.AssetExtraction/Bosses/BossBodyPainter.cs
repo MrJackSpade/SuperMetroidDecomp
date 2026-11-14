@@ -59,7 +59,9 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         bool shows = ShowsAnything(frame);
         string? picture = shows ? AddPicture(frame) : null;
         BossBodyDepth? depth = shows ? DepthOf(frame) : null;
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), depth) { Dissolving = frame.Dissolving }))
+        // A frame lying lower on the body's area than its cells carries those rows in where its picture lies (#1802).
+        Position16<BackgroundPixels> corner = CornerOf(frame.Cells) + new Offset16<BackgroundPixels>(0, frame.LoweredPixels);
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, corner, depth) { Dissolving = frame.Dissolving }))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 

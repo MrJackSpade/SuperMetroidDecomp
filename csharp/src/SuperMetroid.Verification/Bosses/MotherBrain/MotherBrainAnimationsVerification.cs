@@ -135,7 +135,7 @@ internal static class MotherBrainAnimationsVerification
     private static void VerifyBodyMoves()
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-        var scrolls = new List<Position16<BackgroundPixels>>();
+        var bodyOrigins = new List<Position16<RoomPixels>>();
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodySegment program)
@@ -145,7 +145,7 @@ internal static class MotherBrainAnimationsVerification
             {
                 enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
                 if (state.PlacesBodyLayer)
-                    scrolls.Add(state.BodyLayerPlacement);
+                    bodyOrigins.Add(state.BodyOrigin);
             }
         }
         Run(MotherBrainBodySegment.WalkForwardReallyFast);
@@ -159,7 +159,7 @@ internal static class MotherBrainAnimationsVerification
         Run(MotherBrainBodySegment.StandAfterCrouchSlow);
         AssertEqual(origin, state.Body.Position.Whole, "the slow stand-up raises the body again");
         AssertEqual(MotherBrainBodyPose.Standing, state.Pose, "the slow stand-up ends standing");
-        AssertTrue(scrolls.Count > 0, "every body move publishes the BG2 scroll that keeps the body art aligned");
+        AssertTrue(bodyOrigins.Count > 0, "every body move places her body where it keeps the body art aligned");
     }
 
     /// <summary>

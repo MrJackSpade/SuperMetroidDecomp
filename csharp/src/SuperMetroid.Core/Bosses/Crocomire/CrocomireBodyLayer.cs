@@ -27,10 +27,10 @@ internal sealed class CrocomireBodyLayer
     }
 
     /// <summary>
-    /// Where Crocomire's body shows against the screen: the pixel of his body's area at the screen's top-left. His sinking,
-    /// hiding and melt reckon his body's rows from it; the frame places his body in the room with it (#1617).
+    /// Where Crocomire's body lies in the room (#1617, #1802): the room pixel his body's parts' area's top-left corner lies on,
+    /// which follows him. His sinking, hiding and melt reckon his body's rows from it.
     /// </summary>
-    public Position16<BackgroundPixels> Placement { get; internal set; }
+    public Position16<RoomPixels> BodyOrigin { get; private set; }
 
     /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
@@ -57,17 +57,23 @@ internal sealed class CrocomireBodyLayer
     /// </summary>
     internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().ShowAbove(top);
 
-    /// <summary>Levels the melt's stretch: every line of his body layer shows <paramref name="verticalScroll"/> (#1468).</summary>
-    /// <param name="verticalScroll">The vertical scroll every line shows.</param>
-    internal void LevelCrocomireMeltDistortion(int verticalScroll) =>
-        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(verticalScroll);
+    /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802).</summary>
+    internal void LevelCrocomireMeltDistortion() =>
+        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(BodyOrigin.Y);
 
-    /// <summary>Places his body layer vertically at the body, then falls through into the horizontal placement.</summary>
+    /// <summary>The row of his body's area that lies on room row <paramref name="roomRow"/>, wrapping as the area's rows do.</summary>
+    internal int BodyRowAt(int roomRow) => CoordinateAxis.Wrap(roomRow - BodyOrigin.Y);
+
+    /// <summary>
+    /// Places his body's area vertically at the body, then falls through into the horizontal placement. His room is one
+    /// screen tall and every screen of it keeps the camera at the room's top row, so his body's area lies as far above him in
+    /// the room as it lies above him on the screen. The frames some poses show lower on the area carry those rows
+    /// themselves, as the import placed them (#1802).
+    /// </summary>
     internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        Placement = Placement.WithY(CrocomireBodyLayerAlignment.VerticalPlacement(
-            body.Position.Y.Whole, body.Frame));
+        BodyOrigin = BodyOrigin.WithY(CoordinateAxis.Wrap(body.Position.Y.Whole - CrocomireBodyAreaDefinitions.AboveBody));
         PlaceCrocomireTongueAndBodyLayerHorizontally(state);
     }
 
@@ -85,22 +91,25 @@ internal sealed class CrocomireBodyLayer
             tongue.Position = tongue.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + offset), body.Position.Y.Whole));
         }
 
-        // His body's area lies 51 pixels left of him; it shows only while he is near the screen, within 128 pixels of either
-        // edge and 284 of the screen's left edge plus 51; farther away it shows nothing (#1617).
+        // His body's area lies 51 pixels left of him (#1802); it shows only while he is near the screen, within 128 pixels of
+        // either edge and 284 of the screen's left edge plus 51; farther away it shows nothing (#1617).
         bool onScreen = CoordinateAxis.Difference(body.Position.X.Whole, state.Camera.X) >= 0
             ? CoordinateAxis.Difference(body.Position.X.Whole - 128, (state.Camera.X + 256)) < 0
             : CoordinateAxis.AsSigned(body.Position.X.Whole + 128 - state.Camera.X) >= 0;
-        Placement = Placement.WithX(CoordinateAxis.Wrap(state.Camera.X - body.Position.X.Whole + 51));
-        ShowsBody = onScreen && CoordinateAxis.Distance(state.Camera.X + 51, body.Position.X.Whole) < 284;
+        BodyOrigin = BodyOrigin.WithX(CoordinateAxis.Wrap(body.Position.X.Whole - CrocomireBodyAreaDefinitions.LeftOfBody));
+        ShowsBody = onScreen && CoordinateAxis.Distance(state.Camera.X + CrocomireBodyAreaDefinitions.LeftOfBody, body.Position.X.Whole) < 284;
     }
 
     /// <summary>Whether his body shows: only while he is near the screen (#1617); farther away it shows nothing.</summary>
     public bool ShowsBody { get; private set; } = true;
 
-    /// <summary>Pins his body's area's top-left corner to the screen's top-left, where the defeated room shows it.</summary>
-    internal void PinToScreen()
+    /// <summary>
+    /// Pins his body's area's top-left corner to the screen's top-left, where the defeated room shows it: the room pixel the
+    /// camera <paramref name="state"/>'s main update saw shows there (#1802).
+    /// </summary>
+    internal void PinToScreen(CrocomireEnemyState state)
     {
-        Placement = Position16<BackgroundPixels>.Zero;
+        BodyOrigin = state.Camera;
         ShowsBody = true;
     }
 

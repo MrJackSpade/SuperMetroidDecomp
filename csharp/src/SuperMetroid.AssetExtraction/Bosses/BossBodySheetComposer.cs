@@ -213,7 +213,10 @@ internal static class BossBodySheetComposer
             written.Add(frame.Key, cells);
         }
         return written.Keys.OrderBy(frame => frame.ToString(), StringComparer.Ordinal)
-            .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame)));
+            .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame))
+            {
+                LoweredPixels = BossBodySourceDefinitions.FramesLowered.GetValueOrDefault(frame),
+            });
 
         // The frame's cells written over the whole frame it is drawn over, with the part that fills its gap written over them.
         SortedDictionary<int, BackgroundTile> Whole(EnemyFrameId frame)

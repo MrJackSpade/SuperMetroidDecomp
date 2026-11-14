@@ -79,7 +79,7 @@ internal sealed class MotherBrainRainbowAndDeath
             step.PhaseAfter == MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody;
         if (bodyFade)
         {
-            // ADF41C flickers the body and the background together on every call, not just palette ticks.
+            // Her death flickers the body and the background together on every update, not just on colour steps.
             state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
@@ -120,7 +120,9 @@ internal sealed class MotherBrainRainbowAndDeath
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterMessageId.Zebes))
                 : new(EscapeTypewriterMessageId.Zebes);
-            state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
+            // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
+            // (#1802).
+            state.BodyOrigin = Position16<RoomPixels>.Zero;
         }
         if (step.EscapeDoorExplosion is { } doorDust)
         {

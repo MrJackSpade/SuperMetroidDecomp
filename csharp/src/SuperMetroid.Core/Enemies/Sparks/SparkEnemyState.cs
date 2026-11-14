@@ -14,6 +14,9 @@ public sealed class SparkEnemyState
     public int BaseActionTime { get; internal set; }
 
 
-    /// <summary>The countdown, decremented and then tested for zero as the game does: reaching zero expires it, and one that starts from zero wraps instead.</summary>
+    /// <summary>
+    /// The countdown to the Spark's next action, from its base time: the update whose step would reach zero expires it.
+    /// Only an always-active Spark has a base time of zero, and it never counts down (#1846).
+    /// </summary>
     public int ActionTimer { get; internal set; }
 }

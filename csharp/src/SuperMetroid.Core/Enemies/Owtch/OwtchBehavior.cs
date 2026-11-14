@@ -37,7 +37,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
-    private const int OwtchMaximumBurialDepth = 16;
+    private const int OwtchMaximumBurialDepth = OwtchEnemyState.OwtchMaximumBurialDepth;
 
     /// <summary>Initializes the Owtch.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)

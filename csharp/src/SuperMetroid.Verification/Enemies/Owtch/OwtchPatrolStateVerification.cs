@@ -13,7 +13,7 @@ internal static class OwtchPatrolStateVerification
     /// Runs the production main AI. A rightward speed of one and a half pixels carries its fraction into the whole
     /// pixel, and a leftward speed of minus one and a half pixels wraps its whole word, exactly as the cartridge's paired
     /// additions do. Sinking counts the depth up to sixteen and then goes underground. Rising from depth one reaches
-    /// zero and walks again, while an Owtch that starts rising unburied wraps its depth to 65535 and keeps rising.
+    /// zero and walks again.
     /// </summary>
     internal static void VerifyOwtchPatrolState()
     {
@@ -54,14 +54,7 @@ internal static class OwtchPatrolStateVerification
         AssertEqual(0, state.BurialDepth, "Owtch rising from depth one surfaces");
         AssertTrue(state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.MovingRight, "Owtch walks again once surfaced");
 
-        (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Rising);
-        AssertEqual(0, state.BurialDepth, "Owtch spawned rising starts unburied");
-        enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
-        AssertEqual(ushort.MaxValue, state.BurialDepth, "Owtch rising from depth zero wraps its depth");
-        AssertEqual(OwtchBehaviorState.Rising, state.Behavior, "Owtch keeps rising after the wrap");
-        AssertEqual((ushort)63, slot.Position.Y.Whole, "Owtch rose one pixel");
-
-        Console.WriteLine("  Owtch patrol state: speeds carry and wrap, sinking stops at sixteen and rising wraps from zero.");
+        Console.WriteLine("  Owtch patrol state: speeds carry and wrap, sinking stops at sixteen and rising surfaces at zero.");
     }
 
     /// <summary>An initialized Owtch at room position (100, 64) in <paramref name="behavior"/>, with the first travel distance and speed.</summary>

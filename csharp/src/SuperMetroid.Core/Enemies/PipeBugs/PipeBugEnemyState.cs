@@ -41,24 +41,21 @@ public sealed class PipeBugEnemyState
     public PipeBugSegment InstalledAnimation { get; internal set; }
 
     /// <summary>
-    /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping
-    /// to zero past it, as the game's counter does. It returns to zero only when the member departs, so a member
-    /// reset off screen keeps its count into the next rise; <see cref="HasReachedStaggerTarget"/> compares it with
-    /// the target by their wrapped difference read as signed.
+    /// A Norfair formation member's stagger count, the updates it has risen and waited. It returns to zero only when the
+    /// member departs on reaching its <see cref="StaggerTarget"/>, so a member reset off screen keeps its count into the
+    /// next rise; it never passes the largest target by more than its rise, far short of where the game's sixteen-bit
+    /// count would wrap (#1846).
     /// </summary>
     public int FormationCounter { get; internal set; }
 
-    /// <summary>The largest <see cref="FormationCounter"/>; counting one more wraps to zero.</summary>
-    internal const int LargestCount = 65535;
-
-    /// <summary>Counts one formation update, wrapping from <see cref="LargestCount"/> to zero.</summary>
-    internal void CountFormationTick() => FormationCounter = FormationCounter == LargestCount ? 0 : FormationCounter + 1;
+    /// <summary>Counts one formation update.</summary>
+    internal void CountFormationTick() => FormationCounter++;
 
     /// <summary>
     /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the game does by
     /// their difference wrapped to sixteen bits and read as signed.
     /// </summary>
-    internal bool HasReachedStaggerTarget => CoordinateAxis.Difference(FormationCounter, StaggerTarget) >= 0;
+    internal bool HasReachedStaggerTarget => FormationCounter >= StaggerTarget;
 
     /// <summary>
     /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring

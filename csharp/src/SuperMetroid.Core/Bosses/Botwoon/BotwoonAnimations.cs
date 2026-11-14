@@ -105,8 +105,8 @@ internal static class BotwoonAnimations
     private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] ProjectileBeats(BotwoonBodyAnimationSegment segment) => segment.Kind switch
     {
         BotwoonBodyAnimationSegmentKind.Body => BodyLink(segment.Facing),
-        BotwoonBodyAnimationSegmentKind.Tail => [SegmentFrame(new(BotwoonProjectileFrameKind.Tail, segment.Facing, 0), 1)],
-        BotwoonBodyAnimationSegmentKind.Hidden => [SegmentFrame(new(BotwoonProjectileFrameKind.Hidden, CompassDirection.Up, 0), 1)],
+        BotwoonBodyAnimationSegmentKind.Tail => [SegmentFrame(BotwoonProjectileFrame.Tail(segment.Facing), 1)],
+        BotwoonBodyAnimationSegmentKind.Hidden => [SegmentFrame(BotwoonProjectileFrame.Hidden, 1)],
         BotwoonBodyAnimationSegmentKind.Spit => SpitCycle(),
         _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon segment program."),
     };
@@ -136,14 +136,14 @@ internal static class BotwoonAnimations
     private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] BodyLink(CompassDirection facing) =>
     [
         .. Enumerable.Range(0, BodyPhaseCount).Select(phase =>
-            SegmentFrame(new(BotwoonProjectileFrameKind.Body, facing, phase), BodyFrameDuration)),
+            SegmentFrame(BotwoonProjectileFrame.Body(facing, phase), BodyFrameDuration)),
     ];
 
     /// <summary>The spit's five cycling frames.</summary>
     private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] SpitCycle() =>
     [
         .. Enumerable.Range(0, SpitPhaseCount).Select(phase =>
-            SegmentFrame(new(BotwoonProjectileFrameKind.Spit, CompassDirection.Up, phase), SpitFrameDuration)),
+            SegmentFrame(BotwoonProjectileFrame.Spit(phase), SpitFrameDuration)),
     ];
 
     /// <summary>Shows head frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

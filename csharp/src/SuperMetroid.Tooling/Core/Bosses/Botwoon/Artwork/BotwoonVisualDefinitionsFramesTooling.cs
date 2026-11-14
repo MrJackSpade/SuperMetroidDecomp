@@ -14,11 +14,11 @@ internal static class BotwoonVisualDefinitionsFramesTooling
         internal static IReadOnlyList<BotwoonProjectileFrame> ProjectileFrames =>
         [
             .. BotwoonVisualToolingDefinitions.PhysicalOrder.SelectMany(facing => Enumerable.Range(0, BotwoonAnimations.BodyPhaseCount)
-                .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Body, facing, phase))),
-            .. BotwoonVisualDefinitions.TailOrder.Select(facing => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Tail, facing, 0)),
-            new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Hidden, CompassDirection.Up, 0),
+                .Select(phase => BotwoonProjectileFrame.Body(facing, phase))),
+            .. BotwoonVisualDefinitions.TailOrder.Select(BotwoonProjectileFrame.Tail),
+            BotwoonProjectileFrame.Hidden,
             .. Enumerable.Range(0, BotwoonAnimations.SpitPhaseCount)
-                .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Spit, CompassDirection.Up, phase)),
+                .Select(BotwoonProjectileFrame.Spit),
         ];
 
         /// <summary>The tail facings in the cartridge's tail program order, from up counterclockwise to up-right.</summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 public enum AlcoonAction
 {
     /// <summary>Starts the emergence jump when Samus is strictly within 80 horizontal pixels and 32 pixels of the previously discovered landing Y.</summary>
-    WaitingForSamus = 1,
+    WaitingForSamus,
     /// <summary>Integrates upward vertical motion with half-pixel acceleration until the whole velocity becomes nonnegative, then selects the falling pose.</summary>
     EmergingRising,
     /// <summary>Descends through the terrain collision mover, then faces Samus and begins walking with one walking cycle remaining.</summary>

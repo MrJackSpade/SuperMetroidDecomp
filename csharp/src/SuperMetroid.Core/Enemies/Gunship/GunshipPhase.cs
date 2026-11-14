@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal enum GunshipPhase
 {
     /// <summary>High-altitude post-Ceres descent.</summary>
-    DescendAfterCeres = 1,
+    DescendAfterCeres,
     /// <summary>Landing brake phase.</summary>
     ApplyLandingBrakes,
     /// <summary>Wait for the landing entrance to open.</summary>

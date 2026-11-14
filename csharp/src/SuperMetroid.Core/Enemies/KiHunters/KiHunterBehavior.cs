@@ -496,7 +496,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
+                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement?.ToString() ?? "none"}.");
         }
     }
 

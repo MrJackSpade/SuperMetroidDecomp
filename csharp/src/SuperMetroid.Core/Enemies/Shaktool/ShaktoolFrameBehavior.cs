@@ -10,7 +10,7 @@ public enum ShaktoolFrameBehavior
     /// The segment does not move itself: the anchoring saw always, and every segment while its collision response plays,
     /// until the response's reset restores each segment's own motion.
     /// </summary>
-    Idle = 1,
+    Idle,
     /// <summary>Positions an arm relative to the preceding segment, then advances its neighbour angle by the curling flags.</summary>
     OrbitPreviousSegment,
     /// <summary>Moves the middle segment as an arm and picks one of eight head poses from the adjacent segment angles and the flip flag.</summary>

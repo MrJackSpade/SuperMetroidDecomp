@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal enum DeadTorizoPhase
 {
     /// <summary>Holds the intact corpse before its contact or shot trigger.</summary>
-    Wait = 1,
+    Wait,
 
     /// <summary>Counts the contact delay before entering the rotting phase.</summary>
     PreRot,

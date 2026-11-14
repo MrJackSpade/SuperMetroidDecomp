@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 public enum MamaTurtleAction
 {
     /// <summary>Links the four following Baby Turtle slots to their parent.</summary>
-    Initial = 1,
+    Initial,
     /// <summary>Inert state used after parent/child setup.</summary>
     Idle,
     /// <summary>Waits asleep until the shared wake counter is cleared.</summary>

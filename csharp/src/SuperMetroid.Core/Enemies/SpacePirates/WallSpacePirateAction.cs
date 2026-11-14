@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public enum WallSpacePirateAction
 {
     /// <summary>Watch Samus while continuing the left-wall climbing animation.</summary>
-    ClimbingLeftWall = 1,
+    ClimbingLeftWall,
 
     /// <summary>The attack animation owns presentation until it prepares a rightward jump.</summary>
     AttackAnimationOnLeftWall,

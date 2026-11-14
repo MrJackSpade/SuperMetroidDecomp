@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 public enum YardMovement
 {
     /// <summary>Empty behaviour: main movement remains idle until an animation cue installs a movement behaviour.</summary>
-    AwaitingAnimationCue = 1,
+    AwaitingAnimationCue,
     /// <summary>Probes the current attachment surface while hidden and drops Yard if support disappears.</summary>
     Hiding,
     /// <summary>Floor-attached leftward crawl using horizontal surface and corner probes.</summary>

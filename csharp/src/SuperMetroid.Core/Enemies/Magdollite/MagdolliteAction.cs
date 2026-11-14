@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 public enum MagdolliteAction
 {
     /// <summary>Faces Samus and submerges when the hand cooldown has expired and Samus is within the configured horizontal range.</summary>
-    HeadWaiting = 1,
+    HeadWaiting,
     /// <summary>Waits for the head's submerge animation to finish, then releases the arm to grow.</summary>
     HeadWaitingForAttackAnimation,
     /// <summary>Waits for the arm to land, then selects the facing-dependent head emergence animation.</summary>

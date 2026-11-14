@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 public enum SparkAction
 {
     /// <summary>Returns immediately, leaving the continuously active animation in control.</summary>
-    AlwaysActive = 1,
+    AlwaysActive,
 
     /// <summary>Counts down the intangible interval before starting the flicker-on animation.</summary>
     IntermittentInactive,

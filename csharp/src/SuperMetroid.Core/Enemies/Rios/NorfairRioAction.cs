@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public enum NorfairRioAction
 {
     /// <summary>Follows the preceding parent using its signed animation-authored Y offset, hides for parent freeze/idle, and deletes the follower when the parent dies.</summary>
-    FollowParent = 1,
+    FollowParent,
     /// <summary>Admits an attack when either half of the random sample is odd and Samus is strictly within 192 horizontal room pixels, sampling a launch velocity from that sample.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for the animation handshake, then installs descending artwork, enters the dive, and requests the enemy-library dive sound.</summary>

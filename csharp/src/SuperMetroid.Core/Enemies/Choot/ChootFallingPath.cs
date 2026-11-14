@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal enum ChootFallingPath
 {
     /// <summary>Normal falling motion.</summary>
-    Normal = 1,
+    Normal,
     /// <summary>Wide falling motion.</summary>
     Wide,
     /// <summary>Very wide falling motion.</summary>

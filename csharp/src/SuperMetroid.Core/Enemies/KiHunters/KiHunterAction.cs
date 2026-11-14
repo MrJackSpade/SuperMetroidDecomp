@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 public enum KiHunterAction
 {
     /// <summary>Patrols within the spawn-height band, reflects movement on collision, and starts a swoop toward nearby Samus below.</summary>
-    FlyingPatrol = 1,
+    FlyingPatrol,
     /// <summary>Follows an accelerating elliptic dive, changing art at the swipe angle and backing off on collision.</summary>
     Swooping,
     /// <summary>Moves upward away from a blocked dive until collision or passage above the spawn Y restores patrol.</summary>

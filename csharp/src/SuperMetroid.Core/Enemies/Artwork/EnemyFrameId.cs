@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public enum EnemyFrameId
 {
     /// <summary>Boyon: idle loop, first frame.</summary>
-    BoyonIdleLoopFirst = 1,
+    BoyonIdleLoopFirst,
     /// <summary>Boyon: idle loop, second frame.</summary>
     BoyonIdleLoopSecond,
     /// <summary>Boyon: idle loop, third frame.</summary>

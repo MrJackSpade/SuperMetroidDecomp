@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 public enum GrowingShutterAction
 {
     /// <summary>Checks its activation wait before decrementing; zero starts upward growth.</summary>
-    WaitToGrowUpForTimer = 1,
+    WaitToGrowUpForTimer,
     /// <summary>Starts upward growth when Samus's absolute horizontal distance is strictly below its activation distance.</summary>
     WaitToGrowUpForProximity,
     /// <summary>Starts downward growth at its strict horizontal activation distance.</summary>

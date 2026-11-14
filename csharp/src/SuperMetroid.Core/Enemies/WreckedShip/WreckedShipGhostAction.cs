@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 public enum WreckedShipGhostAction
 {
     /// <summary>Brightens the ghost's colours toward white while advancing the flicker.</summary>
-    BrighteningAndFlickering = 1,
+    BrighteningAndFlickering,
     /// <summary>Fades from white to the ghost's own colours while flickering.</summary>
     FadingToGhostColours,
     /// <summary>Waits for the post-visible fade to reach white before hiding.</summary>

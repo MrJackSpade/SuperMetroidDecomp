@@ -310,9 +310,13 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<PipeBugEnemyState>())];
 
-        /// <summary>Typed Ki-Hunter state for every body and wing physical enemy slot.</summary>
-        internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<KiHunterEnemyState>())];
+        /// <summary>The Ki-Hunter body state of each slot that holds a body.</summary>
+        internal IReadOnlyList<KiHunterBodyState?> KiHunterBodyStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<KiHunterBodyState>())];
+
+        /// <summary>The Ki-Hunter wing state of each slot that holds wings.</summary>
+        internal IReadOnlyList<KiHunterWingState?> KiHunterWingStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<KiHunterWingState>())];
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<ChootEnemyState?> ChootStates =>

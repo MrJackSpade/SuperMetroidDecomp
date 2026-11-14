@@ -49,14 +49,27 @@ public sealed class CrawlerEnemyState
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
     public CrawlerAction? NonFallingAction { get; internal set; }
+    /// <summary>The number of successive missed surface probes at which the crawler stops turning and falls.</summary>
+    internal const int MissedProbesBeforeFalling = 4;
+
     /// <summary>
-    /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
-    /// reset it, and the fourth miss selects falling rather than another outside-corner turn. The
-    /// setter accepts every count to 65535 so the turns' wrapped increment is preserved exactly.
+    /// Count of successive updates whose attachment probe misses the surface, 0 through
+    /// <see cref="MissedProbesBeforeFalling"/>: contact and landing reset it, and the fourth miss selects falling rather
+    /// than another outside-corner turn.
     /// </summary>
     public int ConsecutiveTurnCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
+    }
+
+    /// <summary>
+    /// Counts one more missed surface probe and reports whether the crawler has now missed enough in a row to fall
+    /// instead of turning the outside corner.
+    /// </summary>
+    internal bool MissedSurfaceTooOften()
+    {
+        ConsecutiveTurnCounter++;
+        return ConsecutiveTurnCounter >= MissedProbesBeforeFalling;
     }
 }

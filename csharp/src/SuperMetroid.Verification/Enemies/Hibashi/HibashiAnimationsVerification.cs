@@ -20,13 +20,12 @@ internal static class HibashiAnimationsVerification
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    AssertEqual(instruction.Value, cue.Value, $"{at}: value");
-                    for (int index = 0; index < operands.Length; index++)
-                        AssertEqual(operands[index], instruction.Operands[index] switch
-                    {
-                        'V' => cue.Value,
-                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                    }, $"{at}: operand {index}");
+                    // A rising cue's native routine is the step's own: the cue applies the step the routine's place names.
+                    HibashiEruptionStep? expectedStep = instruction.Kind == HibashiCueKind.EruptionStep
+                        ? HibashiDefinitions.EruptionSteps[instruction.Value]
+                        : null;
+                    AssertEqual(expectedStep, cue.Step, $"{at}: eruption step");
+                    AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Hibashi animations: {Entries.Length} segments ({beats} beats) and {HibashiAnimations.StartingAt.Count} animations match bank $A6.");
     }

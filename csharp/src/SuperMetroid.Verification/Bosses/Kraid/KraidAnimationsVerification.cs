@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -307,12 +308,14 @@ internal static class KraidAnimationsVerification
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidCeilingRock, KraidRockSegment.SharedPose),
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockSegment.SharedPose),
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockSegment.RisingRightPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KagoBug, KraidRockSegment.SharedPose),
                  })
         {
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);
             AssertTrue(projectile.Animation is KraidRockAnimation started && started.Program == program, $"{kind} starts the {program} program");
         }
+        EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KagoBug);
+        AssertTrue(bug.Animation is KagoBugProjectileAnimation { PlayingSegment: KagoBugProjectileSegment.Waiting },
+            "a new Kago bug starts its own waiting animation");
     }
 
     /// <summary>Runs Kraid's part program parity check against the repository cartridge.</summary>

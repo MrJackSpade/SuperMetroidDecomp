@@ -37,9 +37,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation);
 
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
-        state.Speeds = new EnemyLinearSpeedRow(settings.Speed, SignedSixteenSixteen.Zero - settings.Speed);
+        state.Speed = settings.Speed;
         state.SpeedSign = settings.SpeedSign;
-        state.AngularSpeed = TurnPerUpdate(state.Speeds.Toward(state.SpeedSign));
+        state.AngularSpeed = TurnPerUpdate(state.Velocity);
         state.Radius = settings.Radius;
 
         if (state.UsesCircularMovement)
@@ -78,11 +78,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.AdvanceY(state.Speeds.Toward(state.SpeedSign));
+        slot.Position = slot.Position.AdvanceY(state.Velocity);
 
         // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
         // bounds comparisons. The actor is intentionally allowed to overshoot before its
-        // speed reverses to the row's other sign.
+        // speed reverses.
         bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
         bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
         if (crossedMinimum || reachedMaximum)
@@ -116,9 +116,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                 FirefleaTouchDeathExplosion.AfterSurvivedTouch(slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
         else
         {
-            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the cleared
-            // slot. It spawns at (0,0) with the slot's current definition (zero, or the placeholder), clears any placeholder,
-            // and counts a second kill.
+            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the emptied
+            // place. The second explosion appears at the room's top-left corner for whatever the place now holds (nothing,
+            // or the respawn placeholder), clears that placeholder, and counts a second kill.
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
                 FirefleaTouchDeathExplosion.AfterKillingTouch(EnemyDeathExplosionDefinitions.AuthoredOrder));
         }

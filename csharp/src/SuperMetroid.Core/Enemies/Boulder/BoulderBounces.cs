@@ -3,10 +3,13 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <summary>Chooses the quadratic curve of a Boulder's next bounce.</summary>
 public static class BoulderBounces
 {
-    /// <summary>The curve place for the impact with <paramref name="remainingBounces"/> bounces left.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="remainingBounces"/> is outside zero through two.</exception>
-    public static QuadraticSpeedCurvePlace StartingPlace(int remainingBounces) =>
-        (uint)remainingBounces < (uint)BoulderBounceDefinitions.StartingPlaces.Length
-            ? BoulderBounceDefinitions.StartingPlaces[remainingBounces]
-            : throw new ArgumentOutOfRangeException(nameof(remainingBounces));
+    /// <summary>The number of ground impacts after which the Boulder stops bouncing and rolls.</summary>
+    public static int ImpactCount => BoulderBounceDefinitions.ImpactRestarts.Length;
+
+    /// <summary>The curve place the impact after <paramref name="impactsSoFar"/> earlier ones restarts the bounce from.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="impactsSoFar"/> is outside zero through two.</exception>
+    public static QuadraticSpeedCurvePlace RestartPlace(int impactsSoFar) =>
+        (uint)impactsSoFar < (uint)BoulderBounceDefinitions.ImpactRestarts.Length
+            ? BoulderBounceDefinitions.ImpactRestarts[impactsSoFar]
+            : throw new ArgumentOutOfRangeException(nameof(impactsSoFar));
 }

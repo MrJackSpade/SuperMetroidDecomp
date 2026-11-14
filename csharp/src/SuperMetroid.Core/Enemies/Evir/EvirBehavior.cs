@@ -97,8 +97,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The body bobs down at its speed and up at the same speed.
             SignedSixteenSixteen speed = slot.SpawnSettings<EvirSpawnSettings>().Speed;
-            state.DownVelocity = speed;
-            state.UpVelocity = SignedSixteenSixteen.Zero - speed;
+            state.BobbingSpeed = speed;
             state.MovementTimer = ReadFirstHalfCycle(speed);
         }
 
@@ -203,7 +202,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!projectileState.Regenerating)
             SetEvirBodyFacing(slot, state, samus);
 
-        slot.Position = slot.Position.AdvanceY(state.MovingDown ? state.DownVelocity : state.UpVelocity);
+        slot.Position = slot.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
 
         // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
         // whole authored direction-change period, whatever first half-cycle initialization's aliasing bug chose.

@@ -43,11 +43,19 @@ public sealed class FirefleaEnemyState
     /// <summary>Lower extent of vertical motion, the spawn Y plus the radius with room-coordinate wraparound; only its Y is meaningful. Reaching or passing it, by the wrapped spatial difference, reverses speed without clamping.</summary>
     public Position16<RoomPixels> MaximumYExtent { get; internal set; }
 
-    /// <summary>The speed the Fireflea moves at, from its spawn settings, and its negation.</summary>
-    public EnemyLinearSpeedRow Speeds { get; internal set; }
+    /// <summary>The speed the Fireflea moves at, from its spawn settings, toward increasing coordinates.</summary>
+    public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>Which of its speeds the Fireflea moves at; vertical movement reverses it at each extent.</summary>
+    /// <summary>Which way the Fireflea moves at its speed; vertical movement reverses it at each extent.</summary>
     internal EnemySpeedSign SpeedSign { get; set; }
+
+    /// <summary>The Fireflea's speed in the direction <see cref="SpeedSign"/> names: the speed itself or its negation.</summary>
+    internal SignedSixteenSixteen Velocity => SpeedSign switch
+    {
+        EnemySpeedSign.Positive => Speed,
+        EnemySpeedSign.Negative => -Speed,
+        _ => throw new InvalidOperationException($"Undefined enemy speed sign {SpeedSign}."),
+    };
 
     /// <summary>Whether the spawn settings choose circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
     public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Path == FirefleaPath.Circling;

@@ -14,6 +14,8 @@ internal static class KagoBugProjectileNativeListAddresses
     internal static readonly NativeProgramEntry<KagoBugProjectileSegment>[] Entries =
     [
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.SharedDelete, 0x84fc),
+        // A new bug waits on the list Kraid's rocks share; the port gives it its own animation of that pose.
+        new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Waiting, 0x9c7d),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Landed, 0xd03c),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Falling, 0xd04a),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.JumpStart, 0xd052),

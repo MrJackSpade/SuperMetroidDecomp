@@ -20,8 +20,8 @@ public sealed class NorfairLavaJumpingEnemyState
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 1/256-pixel vertical velocity. Gravity adds to it, and the jump compares it unsigned with the animation
-    /// switch velocity (<see cref="ApplyGravity"/>), and the follower shows only while it is negative.
+    /// Signed vertical velocity in pixels per update. Gravity adds to it (<see cref="ApplyGravity"/>), the jump flips once
+    /// the rise has slowed to the animation switch velocity, and the follower shows only while it is rising.
     /// </summary>
     public SignedEightEight YVelocity { get; internal set; }
 

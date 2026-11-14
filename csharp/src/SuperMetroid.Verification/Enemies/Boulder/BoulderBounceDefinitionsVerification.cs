@@ -21,27 +21,30 @@ internal static class BoulderBounceDefinitionsVerification
         var state = new BoulderEnemyState();
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);
-        for (ushort counter = 0; counter <= 2; counter++)
+        for (int impactsSoFar = 0; impactsSoFar < BoulderBounces.ImpactCount; impactsSoFar++)
         {
-            int address = 0xa686f1 + (counter - 1) * 2;
+            // The cartridge's table is indexed by the bounces left, two for the first impact and zero for the last.
+            int bouncesLeft = BoulderBounces.ImpactCount - 1 - impactsSoFar;
+            int address = 0xa686f1 + (bouncesLeft - 1) * 2;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual((int)expected, BoulderBounces.StartingPlace(counter).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
+            AssertEqual((int)expected, BoulderBounces.RestartPlace(impactsSoFar).InTwoHundredFiftySixthsOfMark, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
-            state.BounceCounter = counter;
+            state.ImpactsSoFar = impactsSoFar;
             state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromMarks(32);
             state.Action = BoulderAction.Falling;
             fall(actor, state, level);
             AssertEqual((int)expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfMark, "Boulder real collision installs compiled sample without bus");
-            AssertEqual(counter - 1, state.BounceCounter, "Boulder bounce count after the impact, minus one after the last");
-            AssertEqual(counter == 0 ? BoulderAction.Rolling : BoulderAction.Rebound,
+            AssertEqual(impactsSoFar + 1, state.ImpactsSoFar, "Boulder counts the impact");
+            bool last = impactsSoFar == BoulderBounces.ImpactCount - 1;
+            AssertEqual(last ? BoulderAction.Rolling : BoulderAction.Rebound,
                 state.Action, "Boulder last collision enters rolling");
-            if (counter == 0)
+            if (last)
             {
                 AssertEqual(actor.Position.Y, state.PreviousY, "Boulder rolling Y and subpixel handoff");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.StartingPlace(3), "Boulder unsupported bounce count");
-        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.StartingPlace(ushort.MaxValue), "Boulder underflow is not another bounce");
+        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.RestartPlace(BoulderBounces.ImpactCount), "Boulder has no impact after rolling");
+        AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounces.RestartPlace(-1), "Boulder has no impact before the first");
         Console.WriteLine("Boulder bounce definitions: all three native words and real solid-floor collisions match without a bus, including the zero-to-minus-one rolling handoff.");
     }
 }

@@ -291,16 +291,20 @@ internal static class NativeEnemyFamilyStateImport
             sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = unchecked((short)words.F);
         }
-        if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
+        if (slot.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
-            kiHunterRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
-            kiHunterRecord.SwoopTarget = new(words.B, 0);
-            kiHunterRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            kiHunterRecord.SwoopOrigin = new(0, words.C);
-            kiHunterRecord.DetachedSpeedAccumulator = words.D;
-            kiHunterRecord.AnimationChangeAngle = words.E;
-            kiHunterRecord.SwoopAngle = words.F;
-            kiHunterRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
+            kiHunterBodyRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterBodyRecord.SwoopTarget = new(words.B, 0);
+            kiHunterBodyRecord.SwoopOrigin = new(0, words.C);
+            kiHunterBodyRecord.AnimationChangeAngle = words.E;
+            kiHunterBodyRecord.SwoopAngle = words.F;
+        }
+        if (slot.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
+        {
+            kiHunterWingRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
+            kiHunterWingRecord.DetachedSpeedAccumulator = words.D;
+            kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
@@ -394,8 +398,8 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
-            cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));
-            cacatacRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
+            // The record holds the speed and its negation for walking left; the speed alone is the state.
+            cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
             cacatacRecord.Direction = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection");
             cacatacRecord.Action = words.E == 0 ? null : CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
         }
@@ -462,7 +466,8 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.Action = words.A == 0 ? null : BoulderNativeWords.BoulderActions.Decode(words.A, "recorded BoulderAction");
             boulderRecord.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
             boulderRecord.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.C);
-            boulderRecord.BounceCounter = unchecked((short)words.D);
+            // The record counts the bounces left, two before the first impact and minus one once rolling.
+            boulderRecord.ImpactsSoFar = BoulderBounces.ImpactCount - 1 - unchecked((short)words.D);
             boulderRecord.Roll = words.E switch
             {
                 0 => BoulderRoll.Right,
@@ -630,15 +635,11 @@ internal static class NativeEnemyFamilyStateImport
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnHeight = new Position16<RoomPixels>(0, words.D);
         }
-        if (enemies.AtomicStates[index] is { } atomic)
-        {
-            atomic.VerticalMovement = words.A == 0 ? null : AtomicNativeWords.AtomicVerticalMovements.Decode(words.A, "recorded AtomicVerticalMovement");
-            atomic.HorizontalMovement = words.B == 0 ? null : AtomicNativeWords.AtomicHorizontalMovements.Decode(words.B, "recorded AtomicHorizontalMovement");
-        }
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
             alcoon.Action = words.A == 0 ? null : AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
-            alcoon.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.D, 0, words.B, words.C);
+            alcoon.WalkingSpeed = CoordinateAxis.AsSigned(words.D);
+            alcoon.VerticalVelocity = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.B), words.C);
             alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)

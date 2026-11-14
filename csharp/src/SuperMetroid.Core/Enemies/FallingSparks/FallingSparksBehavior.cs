@@ -56,13 +56,13 @@ internal sealed class FallingSparksBehavior
     private const int FallingSparkImpactDriftScale = 4;
 
     /// <summary>The fraction of a pixel a falling spark's vertical speed gains each falling update: a quarter pixel.</summary>
-    private const int FallingSparkGravity = 16384;
+    private static readonly SignedSixteenSixteen FallingSparkGravity = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64);
 
     /// <summary>The whole-pixel vertical speed a falling spark's speed stops rising at.</summary>
     private const int FallingSparkTerminalWholeSpeed = 4;
 
     /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
-    private static readonly SignedSixteenSixteen FallingSparkImpactBounce = SignedSixteenSixteen.FromParts(-1, 32768);
+    private static readonly SignedSixteenSixteen FallingSparkImpactBounce = -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Runs the falling spark's per-frame behaviour.</summary>
     internal void RunFallingSparkFrameBehavior(
@@ -86,7 +86,7 @@ internal sealed class FallingSparksBehavior
 
             // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
             // whole speed by one.
-            SignedSixteenSixteen accelerated = spark.VerticalSpeed + SignedSixteenSixteen.FromParts(0, FallingSparkGravity);
+            SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkGravity;
 
             // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
             // increment, giving the slightly asymmetric cap.
@@ -120,8 +120,8 @@ internal sealed class FallingSparksBehavior
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
-        // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does: the unauthored launch the
-        // last random selection reads is any displacement, so its quadruple can pass the type's range.
+        // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
+        // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         spark.HorizontalStep *= FallingSparkImpactDriftScale;
 

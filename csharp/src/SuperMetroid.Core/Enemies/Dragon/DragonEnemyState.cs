@@ -26,10 +26,10 @@ public sealed class DragonEnemyState
     public DragonAction? Action { get; internal set; }
 
     /// <summary>The animation main AI asks for.</summary>
-    public DragonAnimationSelector RequestedAnimation { get; internal set; }
+    internal DragonSegment RequestedAnimation { get; set; }
 
     /// <summary>The animation already installed; a request for it installs nothing unless <see cref="ReinstallRequested"/>.</summary>
-    public DragonAnimationSelector InstalledAnimation { get; internal set; }
+    internal DragonSegment InstalledAnimation { get; set; }
 
     /// <summary>
     /// Whether the next install restarts the requested animation even when it is already installed: each fireball

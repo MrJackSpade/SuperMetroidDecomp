@@ -33,7 +33,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })
         {
-            state.Velocity = state.Velocity.WithWholeX(direction);
+            state.WalkingSpeed = direction;
             foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
                 enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
         }

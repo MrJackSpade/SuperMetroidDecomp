@@ -63,7 +63,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             Bouncing = false,
             BaselineCurvePlace = BoyonCurvePlace.Top,
             BounceDisabled = false,
-            SpeedMultiplierMirror = 0,
             IdleDisabled = false,
             BounceSpeedCalculated = false,
         };
@@ -87,7 +86,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.SpeedMultiplierMirror = state.SpeedMultiplier;
         bool samusIsClose = IsBoyonSamusWithinHorizontalRange(slot, samus);
         if (samusIsClose)
         {
@@ -113,9 +111,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The speed multiplier is restored from its copy before the bounce moves, so an animation
-        // cue during this frame cannot change the current displacement.
-        state.SpeedMultiplier = state.SpeedMultiplierMirror;
         switch (state.BounceMovement)
         {
             case BoyonBounceMovement.Falling:

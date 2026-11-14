@@ -29,7 +29,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         .. Entries.Select(entry => new NativeEnemySpritemapDefinition(
             Bank, checked((ushort)entry.Frame), entry.Name)),
         new(Bank, 0xee3c, "dead_sidehopper_hop_body"),
-        new(Bank, 0xee61, "dead_sidehopper_hop_alt"),
+        new(Bank, 0xee61, "dead_sidehopper_hop_crouched"),
         new(Bank, 0xee86, "dead_sidehopper_idle"),
         new(Bank, 0xed25, "dead_sidehopper_corpse"),
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),

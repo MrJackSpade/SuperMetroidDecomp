@@ -50,9 +50,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
         if (state.IsFollower)
         {
-            // The retail population always places this cosmetic second half immediately
-            // after its moving parent. Its main AI relies on aliasing across those two
-            // neighbouring enemies, so reject reordered/custom populations explicitly.
+            // The retail population always places this cosmetic second half immediately after its moving parent, which
+            // it finds when it is placed and follows from then on; a population that places anything else there is
+            // refused.
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
             _parentStates.Place(slot, GetPrecedingNorfairLavaJumpingEnemySlot(slot).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
@@ -96,8 +96,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
-                // The game compares the velocity unsigned, which holds only for a rising velocity of -1024 or
-                // slower: starting jump velocities are near -2048, so the switch comes before the arc apex.
+                // The flip starts once the rise has slowed to four pixels an update. Jumps start rising at about eight,
+                // so the flip always comes before the top of the arc.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
                     StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Jump);

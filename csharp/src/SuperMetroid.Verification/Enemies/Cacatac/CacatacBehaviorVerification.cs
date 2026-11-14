@@ -74,7 +74,7 @@ internal static class CacatacBehaviorVerification
         AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");
         AssertEqual(new Position16<RoomPixels>(24, 112), state.RightPatrolLimit, "Cacatac right limit is one block right of spawn");
 
-        state.LeftVelocity = SignedSixteenSixteen.Zero - oneAndAHalfPixels;
+        state.Speed = oneAndAHalfPixels;
         slot.Position = slot.Position.WithFractionX(checked(halfPixel));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
         AssertEqual(new FixedCoordinate(7, 0), slot.Position.X, "Cacatac leftward step borrows its fraction");
@@ -89,7 +89,6 @@ internal static class CacatacBehaviorVerification
         AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
         AssertEqual(CacatacAction.MovingRight, state.Action, "Cacatac patrols right after the turn");
 
-        state.RightVelocity = oneAndAHalfPixels;
         slot.Position = slot.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
         AssertEqual(new FixedCoordinate(24, 0), slot.Position.X, "Cacatac rightward step carries its fraction into the whole X");

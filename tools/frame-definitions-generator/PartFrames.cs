@@ -172,23 +172,23 @@ internal sealed record PartFrameConfiguration(
         new("DeadTourianBehavior", null, null, "DeadTourianAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["CorpseZoomer"] = ["ZoomerCorpse0", "ZoomerCorpse1", "ZoomerCorpse2"],
-                ["CorpseRipper"] = ["RipperCorpse0", "RipperCorpse1"],
-                ["CorpseSkree"] = ["SkreeCorpse0", "SkreeCorpse1", "SkreeCorpse2"],
+                ["CorpseZoomer"] = ["ZoomerCorpseOnItsBack", "ZoomerCorpseUpright"],
+                ["CorpseRipper"] = ["RipperCorpseLevel", "RipperCorpseTilted"],
+                ["CorpseSkree"] = ["SkreeCorpse"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the four
-        // programs its own selector table names (#1513).
+        // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the three
+        // programs its own selector table names (#1513; the stop animation the AI never selects is gone, #1838).
         new("SkreeBehavior", null, null, "SkreeMetareeAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Skree"] = ["SkreeIdling", "SkreePreparingAttack", "SkreeDiving", "SkreeStopAnimating"],
+                ["Skree"] = ["SkreeIdling", "SkreePreparingAttack", "SkreeDiving"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         new("MetareeBehavior", null, null, "SkreeMetareeAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving", "MetareeStopAnimating"],
+                ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A hopper runs the programs of the kind its definition is (HopperKindDefinitions: the Tourian Sidehopper is a large
@@ -262,14 +262,14 @@ internal sealed record PartFrameConfiguration(
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Each Ripper runs its own pair of moving programs; only the GRipper's and Ripper II's reactions pin their shared
-        // frozen frames.
+        // The GRipper and the Ripper run their own pair of moving programs and the Ripper II plays the GRipper's (#1842);
+        // only the GRipper's and Ripper II's reactions pin their shared frozen frames.
         new("RipperBehavior", null, null, "RipperAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["GRipper"] = ["GRipperMovingLeft", "GRipperMovingRight"],
                 ["Ripper"] = ["RipperMovingLeft", "RipperMovingRight"],
-                ["Ripper2"] = ["Ripper2MovingLeft", "Ripper2MovingRight"],
+                ["Ripper2"] = ["GRipperMovingLeft", "GRipperMovingRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
         {

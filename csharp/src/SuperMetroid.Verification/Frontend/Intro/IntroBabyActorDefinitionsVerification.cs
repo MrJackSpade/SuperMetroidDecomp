@@ -68,12 +68,12 @@ internal static class IntroBabyActorDefinitionsVerification
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
         RoomTerrainBlock[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(new SharedRandom(), 
-            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
             shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
-            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
             shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
         for (int block = 0; block < nativeCollision.Length; block++)
             AssertEqual(nativeCollision[block], discovery.Level.GetCollisionBlockByIndex(block).Terrain,

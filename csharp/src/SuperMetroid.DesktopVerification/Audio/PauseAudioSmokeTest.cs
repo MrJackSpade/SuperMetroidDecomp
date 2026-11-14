@@ -158,7 +158,7 @@ public static class PauseAudioSmokeTest
         var system = new SharedGameState(new SharedRandom());
         system.RecordBossesDefeated(0, DefeatedBosses.AreaTorizo);
         system.MarkSaveStationUsed(0, 0);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Health = 99,
             MaxHealth = 99,

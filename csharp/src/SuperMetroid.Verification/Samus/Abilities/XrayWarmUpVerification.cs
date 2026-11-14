@@ -61,7 +61,7 @@ internal static class XrayWarmUpVerification
     /// <summary>A standing, right-facing Samus whose X-ray has just been admitted.</summary>
     private static SamusState BeginXray()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
             new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.FacingRightNormalPose,

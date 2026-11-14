@@ -46,7 +46,7 @@ internal static class SuitPickupPeriodicDamageVerification
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
         // after the transformation.
-        var reference = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var reference = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             MaxHealth = samus.MaxHealth,
             Health = samus.Health,

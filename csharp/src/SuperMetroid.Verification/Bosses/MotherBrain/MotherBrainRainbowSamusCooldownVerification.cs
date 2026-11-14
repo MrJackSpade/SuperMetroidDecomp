@@ -18,7 +18,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
     internal static void VerifyMotherBrainRainbowSamusCooldown()
     {
         var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState())
         {
             Health = 999,
             Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),

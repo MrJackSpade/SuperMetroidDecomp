@@ -64,8 +64,8 @@ internal static class ChozoGrabAnimationVerification
         // The waking statue's named screens are the Bowling Alley's original scroll cells 7 and 8 (green), then 13 and 14
         // (blue) (#1622).
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
-        AssertTrue(scrolls.ReadState(7) == RoomScrollState.Open && scrolls.ReadState(8) == RoomScrollState.Open
-            && scrolls.ReadState(13) == RoomScrollState.OpenAlignedToTop && scrolls.ReadState(14) == RoomScrollState.OpenAlignedToTop,
+        AssertTrue(scrolls.ReadScreen(new(1, 1)) == RoomScrollState.Open && scrolls.ReadScreen(new(2, 1)) == RoomScrollState.Open
+            && scrolls.ReadScreen(new(1, 2)) == RoomScrollState.OpenAlignedToTop && scrolls.ReadScreen(new(2, 2)) == RoomScrollState.OpenAlignedToTop,
             "the waking statue opens the second row's second and third screens green and the two below them blue");
         AssertEqual(2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
@@ -103,8 +103,8 @@ internal static class ChozoGrabAnimationVerification
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
         // The release's named screens are the original scroll cells 6 through 10 (closed), 13 (blue) and 14 (closed).
-        AssertTrue(Enumerable.Range(6, 5).All(cell => scrolls.ReadState(cell) == RoomScrollState.Closed)
-            && scrolls.ReadState(13) == RoomScrollState.OpenAlignedToTop && scrolls.ReadState(14) == RoomScrollState.Closed,
+        AssertTrue(Enumerable.Range(0, 5).All(column => scrolls.ReadScreen(new(column, 1)) == RoomScrollState.Closed)
+            && scrolls.ReadScreen(new(1, 2)) == RoomScrollState.OpenAlignedToTop && scrolls.ReadScreen(new(2, 2)) == RoomScrollState.Closed,
             "the release closes the second row's first five screens, opens the third row's second blue and closes its third");
         AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !samus.Control.InputLocked && runtime.Player.GroundedSamusMovementEnabled,
             "native release restores handlers and movement");

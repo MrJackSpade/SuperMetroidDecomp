@@ -28,7 +28,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
     };
@@ -157,7 +157,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
 
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Health = 999,
         Missiles = 80,
@@ -275,7 +275,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that
     // `$A9:C4E8` loads literal zero even when a different HUD item made the prior CMP fail.
-    var low = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var low = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Health = 699,
         Missiles = 1,

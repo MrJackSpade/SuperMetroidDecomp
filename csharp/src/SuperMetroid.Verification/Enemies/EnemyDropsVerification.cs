@@ -388,7 +388,7 @@ internal static class EnemyDropsVerification
     }
 
     /// <summary>Creates a centered Samus fixture with full ordinary energy for pickup comparisons.</summary>
-    internal static SamusState CreateDropTestSamus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    internal static SamusState CreateDropTestSamus() => new(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Position = new(new(100, 0), new(100, 0)),
         Health = 99,

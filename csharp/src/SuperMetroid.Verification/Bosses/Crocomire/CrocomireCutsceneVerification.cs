@@ -108,7 +108,7 @@ internal static class CrocomireCutsceneVerification
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
@@ -190,12 +190,13 @@ internal static class CrocomireCutsceneVerification
             body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
             enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
             string room = defeated ? "a defeated room" : "a living fight";
-            for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
+            RoomScrollState[] kept = scrolls.KeptStates;
+            for (int cell = 0; cell < kept.Length; cell++)
             {
                 RoomScrollState expected = defeated
                     ? cell < 4 ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Open
                     : cell < 2 ? RoomScrollState.Closed : RoomScrollState.Open;
-                AssertEqual(expected, scrolls.ReadState(cell), $"{room} leaves cell {cell} {expected}");
+                AssertEqual(expected, kept[cell], $"{room} leaves cell {cell} {expected}");
             }
         }
         Console.WriteLine("  Crocomire arena scrolls: the living fight closes cells 0 and 1, a defeated room opens cells 0 to 3.");

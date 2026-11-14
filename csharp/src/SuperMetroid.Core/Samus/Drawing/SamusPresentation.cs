@@ -356,7 +356,7 @@ internal sealed class SamusPresentation
         Ensure.NotNull(sprites);
 
         // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
-        int pictureFrame = SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame);
+        int pictureFrame = SamusShownFrames.Of(samus.FramesBeyondAnimation).PictureFrame(samus.Pose, samus.AnimationFrame);
 
         // The draw applies invincibility flicker to the body frames, not to
         // animation or graphics streaming as a whole. An odd frame hides ordinary invincible

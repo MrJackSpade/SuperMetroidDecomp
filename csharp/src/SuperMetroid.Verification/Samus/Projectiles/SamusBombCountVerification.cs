@@ -61,7 +61,7 @@ internal static class SamusBombCountVerification
     /// <summary>A morphed Samus with bombs, standing in the open.</summary>
     private static SamusState MorphedSamus()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,

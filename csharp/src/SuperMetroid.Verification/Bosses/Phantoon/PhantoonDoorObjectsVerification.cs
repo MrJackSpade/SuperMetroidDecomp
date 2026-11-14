@@ -150,7 +150,7 @@ internal static class PhantoonDoorObjectsVerification
         // The power's return scatters Phantoon's drops, which choose by Samus's health and ammunition and redraw a zero
         // roll, so the fixture's random source yields a nonzero roll.
         enemies.VerificationServices().NextRandom = () => 0x5a5a;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(),
+        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState()) { Health = 99, MaxHealth = 99 });
         // The boss bit is the room services' to keep; this fixture has none, so the bit counts as already set.
         state.BossDefeatPersisted = true;

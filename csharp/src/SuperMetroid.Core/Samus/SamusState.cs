@@ -464,13 +464,13 @@ public sealed class SamusState
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
     internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
         AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        AnimationContinuation);
+        FramesBeyondAnimation);
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
+    internal FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
     /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
@@ -518,15 +518,15 @@ public sealed class SamusState
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
-    /// <param name="animationContinuation">What an animation frame past her pose's animation reads, the session's installed service.</param>
+    /// <param name="framesBeyondAnimation">What an animation frame past her pose's animation reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
-    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
+    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
         SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge)
     {
         BeamCharge = Ensure.NotNull(beamCharge);
-        AnimationContinuation = Ensure.NotNull(animationContinuation);
+        FramesBeyondAnimation = Ensure.NotNull(framesBeyondAnimation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
         HorizontalSpeed = new SamusHorizontalSpeedState(compatibility.WaterSpeedsInAir);

@@ -34,15 +34,15 @@ internal static class MotherBrainFakeDeathLockVerification
         // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "Mother Brain's room is one row of four screens");
-        for (int cell = 0; cell < 4; cell++)
-            scrolls.SetCell(cell, RoomScrollState.Open);
+        foreach (Position16<RoomScreens> screen in scrolls.Screens)
+            scrolls.SetLogicalState(screen, RoomScrollState.Open);
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
             "the descent locks Samus with command zero's stationary handlers");
-        for (int cell = 0; cell < 4; cell++)
-            AssertEqual(cell == 1 ? RoomScrollState.Closed : RoomScrollState.Open, scrolls.ReadState(cell),
-                $"the arena lock closes only the second screen, leaving cell {cell} as it was");
+        foreach (Position16<RoomScreens> screen in scrolls.Screens)
+            AssertEqual(screen == new Position16<RoomScreens>(1, 0) ? RoomScrollState.Closed : RoomScrollState.Open, scrolls.ReadScreen(screen),
+                $"the arena lock closes only the second screen, leaving screen {screen} as it was");
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
         state.PhaseTimer = 0;

@@ -18,12 +18,12 @@ public sealed class RoomScrollGrid
     public const int KeptCellCount = 50;
 
     /// <summary>The session's kept scroll cells, of which this room's are the first.</summary>
-    private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _cells;
+    internal ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeptCells { get; }
 
     /// <summary>Validates the room's screen dimensions within the kept cells.</summary>
     private RoomScrollGrid(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, Extent16<RoomScreens> size)
     {
-        _cells = Ensure.NotNull(cells);
+        KeptCells = Ensure.NotNull(cells);
         if (size.X == 0 || size.Y == 0 || size.X * size.Y > cells.Count)
             throw new ArgumentOutOfRangeException(nameof(size));
 
@@ -101,12 +101,8 @@ public sealed class RoomScrollGrid
     {
         if (!Size.Contains(screen))
             throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen lies outside the room.");
-        return _cells.Read(Size.RowMajorIndex(screen));
+        return KeptCells.Read(Size.RowMajorIndex(screen));
     }
-
-    /// <summary>The state of kept cell <paramref name="index"/>, the room's own or one past it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index lies outside the kept cells.</exception>
-    public RoomScrollState ReadState(int index) => _cells.Read(index);
 
     /// <summary>
     /// The scroll state a camera check reads at the cell a scroll calculation selects.
@@ -118,18 +114,7 @@ public sealed class RoomScrollGrid
     /// clamping to a cell.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The index is negative, or past every stored map.</exception>
-    public RoomScrollState ReadCameraState(int index) => _cells.ReadForCamera(index);
-
-    /// <summary>
-    /// Sets kept cell <paramref name="index"/>, the room's own or one past it, by its place among the kept cells. Gameplay
-    /// names screens instead (<see cref="SetScreen"/>, <see cref="SetLogicalState"/>).
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index lies outside the kept cells, or the state is not a scroll state.</exception>
-    public void SetCell(int index, RoomScrollState state)
-    {
-        Validate(state, nameof(state));
-        _cells.Write(index, state);
-    }
+    public RoomScrollState ReadCameraState(int index) => KeptCells.ReadForCamera(index);
 
     /// <summary>
     /// Sets the screen at <paramref name="screen"/>, in one of the room's columns and in one of its rows or a row past them,
@@ -143,7 +128,8 @@ public sealed class RoomScrollGrid
     {
         if (screen.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
-        SetCell(screen.Y * Size.X + screen.X, state);
+        Validate(state, nameof(state));
+        KeptCells.Write(screen.Y * Size.X + screen.X, state);
     }
 
     /// <summary>Updates one of the room's screens, as enemies, room objects and the title demonstrations do.</summary>
@@ -153,7 +139,7 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
         Validate(state, nameof(state));
-        _cells.Write(screen.Y * Size.X + screen.X, state);
+        KeptCells.Write(screen.Y * Size.X + screen.X, state);
     }
 
     /// <summary>Rejects a value that is not one of the three scroll states.</summary>

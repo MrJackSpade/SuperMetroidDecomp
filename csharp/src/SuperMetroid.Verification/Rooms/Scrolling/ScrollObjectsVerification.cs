@@ -39,7 +39,7 @@ internal static class ScrollObjectsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population, screens: new Extent16<RoomScreens>(2, 2)), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population, screens: new Extent16<RoomScreens>(2, 2)), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, roomObjects.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
@@ -76,7 +76,7 @@ internal static class ScrollObjectsVerification
             { new VerifyRoomScrollObjectsCase(40, 21, false), new VerifyRoomScrollObjectsCase(72, 21, false),
               new VerifyRoomScrollObjectsCase(56, 7, false), new VerifyRoomScrollObjectsCase(56, 21, true) })
         {
-            var insideSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
+            var insideSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, roomObjects: roomObjects);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
@@ -91,7 +91,7 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(1),
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(1, 0)),
             "scroll program mutates active room grid");
         AssertTrue(!roomObjects.ScrollObjectTriggered(origin),
             "scroll object returns to resident sleep after program terminator");
@@ -99,7 +99,7 @@ internal static class ScrollObjectsVerification
         // Place a seven-pixel-tall test body immediately left of the right extension. The
         // normal horizontal scanner reaches type five, follows signed BTS `$FF` to the
         // origin, and executes the same `$B393` wakeup—there is no route-specific callback.
-        scrolls.SetCell(1, RoomScrollState.Closed);
+        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
         var body = new SamusKinematicsState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -111,17 +111,17 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(1),
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(1, 0)),
             "extension-triggered contact executes the same scroll program");
 
         // Repeat the identical contact through the public Morph Ball wrapper. This guards
         // the composition seam that originally dropped RoomObjectSystem while ordinary Samus
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
-        scrolls.SetCell(1, RoomScrollState.Closed);
+        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.MorphBallGroundRightPose),
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-        var ball = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var ball = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -140,7 +140,7 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(1),
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(1, 0)),
             "Morph Ball scroll contact executes resident bank-$8F program");
 
         // Reproduce the recorded block-940 failure through the distinct `$90:E032`
@@ -148,8 +148,8 @@ internal static class ScrollObjectsVerification
         // above the resident trigger and must resolve it back to the same `$B703` owner.
         // Ordinary Morph Ball movement already forwards that owner; this assertion guards
         // the special movement-handler composition seam used only during bomb-jump ascent.
-        scrolls.SetCell(1, RoomScrollState.Closed);
-        var bombJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        scrolls.SetLogicalState(new(1, 0), RoomScrollState.Closed);
+        var bombJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.Bombs,

@@ -39,16 +39,16 @@ internal static class CompiledScrollObjectProgramsVerification
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new RoomTerrainBlock[width * 64], new RoomBlockBehavior[width * 64], new RoomBlockAppearance[width * 64]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationDefinitions.Get(0x8230), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationDefinitions.Get(0x8230), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(),
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.Closed);
-        scrolls.SetCell(0, RoomScrollState.Closed);
+        scrolls.SetLogicalState(new(0, 0), RoomScrollState.Closed);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(8, 13)),
             "retail scroll trigger wakes at its authored coordinate");
         roomObjects.Step(level, scrolls);
-        AssertEqual(RoomScrollState.Open, scrolls.ReadState(0),
+        AssertEqual(RoomScrollState.Open, scrolls.ReadScreen(new(0, 0)),
             "compiled retail scroll program mutates the intended cell");
         AssertTrue(!roomObjects.ScrollObjectTriggered(new(8, 13)),
             "retail scroll trigger returns to resident sleep");

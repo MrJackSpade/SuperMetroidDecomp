@@ -254,7 +254,7 @@ internal static class VerificationHelpersVerification
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = pose,
         Position = FixedPosition<RoomPixels>.FromWhole(position),

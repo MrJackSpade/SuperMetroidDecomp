@@ -264,7 +264,7 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
+        _player.Samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
@@ -301,7 +301,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
         // Initialization clears Pose; the model's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
@@ -1141,7 +1141,7 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
+        _player.Samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,

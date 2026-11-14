@@ -164,7 +164,7 @@ internal static class BoyonBehaviorVerification
 
     /// <summary>Samus standing on the Boyon, within its trigger range.</summary>
     private static SamusState SamusAt(RoomEnemySlot slot) =>
-        new(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        new(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole),
         };

@@ -48,9 +48,9 @@ internal static class SamusAnimationDelayDefinitionsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.AnimationForPose(adjacent),
                 $"pose {adjacent} has no animation program");
 
-        VerifyAnimationContinuation(cartridge);
+        VerifyFramesBeyondAnimation(cartridge);
 
-        var flashbackSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var flashbackSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
@@ -66,9 +66,9 @@ internal static class SamusAnimationDelayDefinitionsVerification
     /// program into nothing. The Mother Brain glitch movie's update 1947 is the recorded case: the right-facing drained
     /// standing pose at frame 11 plays the left-facing program's frame 3 (#1473).
     /// </summary>
-    private static void VerifyAnimationContinuation(IImportCartridgeSource cartridge)
+    private static void VerifyFramesBeyondAnimation(IImportCartridgeSource cartridge)
     {
-        var continuation = InstalledFixtures.AnimationContinuation;
+        var continuation = InstalledFixtures.FramesBeyondAnimation;
         int[] starts = [.. Enumerable.Range(0, SamusAnimationProgramCodec.PoseCount)
             .Select(number => SamusAnimationProgramCodec.ProgramStart(cartridge, number))];
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)

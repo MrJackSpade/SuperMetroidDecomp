@@ -117,7 +117,7 @@ internal static class ChargeFlareDefinitionsVerification
                  })
         {
             var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-            var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge) { HyperBeamEnabled = true };
             hyper.Charge.StartHyperBeamFlare();
             ushort[] expectedPhases = [.. startPhases.Select(phase => (ushort)phase)], expectedHolds = [.. startHolds];

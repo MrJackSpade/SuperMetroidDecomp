@@ -42,7 +42,7 @@ internal static class SamusBodySheetComposer
         var blank = new List<string>();
         var overlaid = new Dictionary<SpriteArtwork, SpriteArtwork>(ReferenceEqualityComparer.Instance);
         var colourings = new Dictionary<string, PictureShade[]>(StringComparer.Ordinal);
-        foreach (SheetBody body in Bodies(characters.Body, characters.Body.InstalledBody(inputs.AnimationContinuation)))
+        foreach (SheetBody body in Bodies(characters.Body, characters.Body.InstalledBody(inputs.FramesBeyondAnimation)))
         {
             if (body.Picture is not { } picture)
             {

@@ -13,7 +13,7 @@ internal static class RoomScrollGridAccess
         /// copies the whole table unconditionally, so edge reads can observe data following a shorter table rather than
         /// an invented red padding.
         /// </summary>
-        internal RoomScrollState[] KeptStates => [.. Enumerable.Range(0, RoomScrollGrid.KeptCellCount).Select(self.ReadState)];
+        internal RoomScrollState[] KeptStates => [.. Enumerable.Range(0, self.KeptCells.Count).Select(self.KeptCells.Read)];
     }
 
     /// <summary>Builds grids for checks.</summary>

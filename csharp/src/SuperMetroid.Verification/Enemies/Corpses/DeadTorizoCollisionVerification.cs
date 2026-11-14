@@ -28,7 +28,7 @@ internal static class DeadTorizoCollisionVerification
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(slot.Contact.HasAny(EnemyContact.SolidToSamus),
                 "Native initial solidity must be retained.");
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(90, 100));
             samus.Kinematics.Radius = new(8, 16);
             Require(Probe().Collided, "Approaching the intact corpse must initially collide.");

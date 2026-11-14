@@ -846,7 +846,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         var cgram = new SnesCgram();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99 };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99 };
         paletteFx.Start(definition: 0xf761, equippedItems: 0);
         paletteFx.Start(definition: 0xf785, equippedItems: 0);
 

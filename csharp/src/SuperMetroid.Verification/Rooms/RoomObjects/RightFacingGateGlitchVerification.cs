@@ -94,7 +94,7 @@ internal static class RightFacingGateGlitchVerification
         var gameStateByColumn = new SharedGameState[gateX - firstX];
         // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
         // own thread, as timed shared fixture loads; the workers then only read them.
-        SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> animationContinuation = InstalledFixtures.AnimationContinuation;
+        SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation = InstalledFixtures.FramesBeyondAnimation;
         _ = CreateProjectileFixture();
         _ = CreateBombFixture();
         // Each launch column runs on its own worker with its own levels and VRAM (#1532): a position reads only the
@@ -116,7 +116,7 @@ internal static class RightFacingGateGlitchVerification
             {
                 level.RestoreFrom(pristine);
                 AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
-                var samus = new SamusState(animationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+                var samus = new SamusState(framesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
                 {
                     Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                     PoseId = SamusPoseId.FacingRightNormalPose,

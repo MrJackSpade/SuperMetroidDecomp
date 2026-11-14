@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -14,5 +14,5 @@ internal static class ShitroidVisualDefinitions
     internal static ushort[] Spritemaps() => [.. Enum.GetValues<ShitroidSegment>()
         .SelectMany(program => ShitroidAnimations.Segments.Beats(program))
         .OfType<AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame>()
-        .Select(beat => BabyMetroidVisualToolingDefinitions.Spritemap(beat.Shown.Index))];
+        .Select(beat => BabyMetroidVisualToolingDefinitions.Spritemap(beat.Shown))];
 }

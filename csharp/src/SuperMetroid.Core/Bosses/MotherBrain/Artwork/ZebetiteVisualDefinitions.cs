@@ -9,15 +9,15 @@ internal static class ZebetiteVisualDefinitions
     /// <summary>The installed frame each <see cref="ZebetiteFrame"/> shows.</summary>
     internal static EnemyFrameTable<ZebetiteFrame> ShownFrames { get; } = new()
     {
-        { new(Index: 0), EnemyFrameId.ZebetiteFirst },
-        { new(Index: 1), EnemyFrameId.ZebetiteSecond },
-        { new(Index: 2), EnemyFrameId.ZebetiteThird },
-        { new(Index: 3), EnemyFrameId.ZebetiteFourth },
-        { new(Index: 4), EnemyFrameId.ZebetiteFifth },
-        { new(Index: 5), EnemyFrameId.ZebetiteSixth },
-        { new(Index: 6), EnemyFrameId.ZebetiteSeventh },
-        { new(Index: 7), EnemyFrameId.ZebetiteEighth },
-        { new(Index: 8), EnemyFrameId.ZebetiteNinth },
-        { new(Index: 9), EnemyFrameId.ZebetiteTenth },
+        { ZebetiteFrame.LargeAtLeast800, EnemyFrameId.ZebetiteFirst },
+        { ZebetiteFrame.LargeAtLeast600, EnemyFrameId.ZebetiteSecond },
+        { ZebetiteFrame.LargeAtLeast400, EnemyFrameId.ZebetiteThird },
+        { ZebetiteFrame.LargeAtLeast200, EnemyFrameId.ZebetiteFourth },
+        { ZebetiteFrame.LargeBelow200, EnemyFrameId.ZebetiteFifth },
+        { ZebetiteFrame.SplitAtLeast800, EnemyFrameId.ZebetiteSixth },
+        { ZebetiteFrame.SplitAtLeast600, EnemyFrameId.ZebetiteSeventh },
+        { ZebetiteFrame.SplitAtLeast400, EnemyFrameId.ZebetiteEighth },
+        { ZebetiteFrame.SplitAtLeast200, EnemyFrameId.ZebetiteNinth },
+        { ZebetiteFrame.SplitBelow200, EnemyFrameId.ZebetiteTenth },
     };
 }

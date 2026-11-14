@@ -6,11 +6,21 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The falling tubes' typed animations (#641, #1600).</summary>
 internal static class MotherBrainTubeAnimations
 {
+    /// <summary>The pose each piece shows.</summary>
+    private static readonly Dictionary<MotherBrainTubePiece, MotherBrainTubeFrame> PoseOf = new()
+    {
+        [MotherBrainTubePiece.BottomLeft] = MotherBrainTubeFrame.BottomLeft,
+        [MotherBrainTubePiece.BottomRight] = MotherBrainTubeFrame.BottomRight,
+        [MotherBrainTubePiece.BottomMiddleLeft] = MotherBrainTubeFrame.BottomMiddleLeft,
+        [MotherBrainTubePiece.BottomMiddleRight] = MotherBrainTubeFrame.BottomMiddleRight,
+        [MotherBrainTubePiece.Main] = MotherBrainTubeFrame.Main,
+    };
+
     /// <summary>Every piece's segment: its pose for one update.</summary>
     internal static AnimationSegments<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue> Segments { get; } = new(
         Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece, piece => new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>[]
         {
-            new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>.Frame(new MotherBrainTubeFrame(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece)), 1),
+            new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>.Frame(PoseOf[piece], 1),
         }));
 
     /// <summary>Each piece's animation: its pose, which the script's sleep then keeps.</summary>

@@ -9,9 +9,9 @@ internal static class ShitroidAnimations
     internal static AnimationSegments<ShitroidSegment, BabyMetroidFrame, ShitroidCue> Segments { get; } = new(
         new Dictionary<ShitroidSegment, AnimationBeat<BabyMetroidFrame, ShitroidCue>[]>
     {
-        [ShitroidSegment.FinishDraining] = [Show(2, 128), Show(1, 16)],
-        [ShitroidSegment.Normal] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
-        [ShitroidSegment.LatchedOn] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
+        [ShitroidSegment.FinishDraining] = [Show(BabyMetroidFrame.WideOpen, 128), Show(BabyMetroidFrame.HalfOpen, 16)],
+        [ShitroidSegment.Normal] = [Show(BabyMetroidFrame.Closed, 16), Show(BabyMetroidFrame.HalfOpen, 16), Show(BabyMetroidFrame.WideOpen, 16), Show(BabyMetroidFrame.HalfOpen, 16)],
+        [ShitroidSegment.LatchedOn] = [Show(BabyMetroidFrame.Closed, 8), Show(BabyMetroidFrame.HalfOpen, 8), Show(BabyMetroidFrame.WideOpen, 5), Show(BabyMetroidFrame.HalfOpen, 2)],
         [ShitroidSegment.Remorse] = Remorse(),
     });
 
@@ -50,13 +50,13 @@ internal static class ShitroidAnimations
     }
 
     /// <summary>The pulse's pose order: closed, half open, wide open, half open.</summary>
-    private static int PulsePose(int step) => (step % 4) switch
-    {
-        3 => 1,
-        int pose => pose,
-    };
+    private static BabyMetroidFrame[] Pulse =>
+        [BabyMetroidFrame.Closed, BabyMetroidFrame.HalfOpen, BabyMetroidFrame.WideOpen, BabyMetroidFrame.HalfOpen];
 
-    /// <summary>Shows pose <paramref name="index"/>.</summary>
-    private static AnimationBeat<BabyMetroidFrame, ShitroidCue> Show(int index, int duration) =>
-        new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame(new BabyMetroidFrame(index), duration);
+    /// <summary>The pulse's pose at <paramref name="step"/>, repeating every four steps.</summary>
+    private static BabyMetroidFrame PulsePose(int step) => Pulse[step % Pulse.Length];
+
+    /// <summary>Shows pose <paramref name="pose"/>.</summary>
+    private static AnimationBeat<BabyMetroidFrame, ShitroidCue> Show(BabyMetroidFrame pose, int duration) =>
+        new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Frame(pose, duration);
 }

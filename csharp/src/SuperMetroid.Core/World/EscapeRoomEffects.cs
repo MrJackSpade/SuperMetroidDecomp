@@ -50,7 +50,7 @@ internal sealed class EscapeRoomEffects
                 RoomSetupBehavior.RunStatueUnlockingAnimations or
                 RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile or
                 RoomSetupBehavior.SetupShaktoolRoomObject or
-                RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause or RoomSetupBehavior.SetCollectedMap or
+                RoomSetupBehavior.SetCollectedMap or
                 RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
                 RoomSetupBehavior.SpawnCeresRidleyArenaHaze => null,
             _ => throw new InvalidOperationException($"Undefined room setup {setup}."),

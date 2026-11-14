@@ -435,9 +435,6 @@ internal static class ColourEffectAnimations
             F(12, 1),
             F(13, 1),
         ],
-        [A.Nothing] =
-        [
-        ],
         [A.GreyOutTourianStatueDraygon] =
         [
             E(new ColourEffectCue.SetColours(ColourEffectColours.DraygonStatue)),
@@ -964,7 +961,6 @@ internal static class ColourEffectAnimations
         [A.SamusLoadingVariaSuit] = new([new(A.SamusLoadingVariaSuit, 0, 1, 1), new(A.SamusLoadingVariaSuit, 1, 2, 36), new(A.SamusLoadingVariaSuit, 3, 2, 3), new(A.SamusLoadingVariaSuit, 5, 2, 3), new(A.SamusLoadingVariaSuit, 7, 2, 2), new(A.SamusLoadingVariaSuit, 9, 1, 1)], AnimationEnd.Stops),
         [A.SamusLoadingGravitySuit] = new([new(A.SamusLoadingGravitySuit, 0, 1, 1), new(A.SamusLoadingGravitySuit, 1, 2, 36), new(A.SamusLoadingGravitySuit, 3, 2, 3), new(A.SamusLoadingGravitySuit, 5, 2, 3), new(A.SamusLoadingGravitySuit, 7, 2, 2), new(A.SamusLoadingGravitySuit, 9, 1, 1)], AnimationEnd.Stops),
         [A.PostCreditsSuperMetroidIcon] = new([new(A.PostCreditsSuperMetroidIcon, 0, 15, 1)], AnimationEnd.Stops),
-        [A.Nothing] = new([], AnimationEnd.Stops),
         [A.GreyOutTourianStatueDraygon] = new([new(A.GreyOutTourianStatueDraygon, 0, 1, 1), new(A.GreyOutTourianStatueDraygon, 1, 8, 1)], AnimationEnd.Stops),
         [A.GreyOutTourianStatueKraid] = new([new(A.GreyOutTourianStatueKraid, 0, 1, 1), new(A.GreyOutTourianStatueKraid, 1, 8, 1)], AnimationEnd.Stops),
         [A.GreyOutTourianStatueRidley] = new([new(A.GreyOutTourianStatueRidley, 0, 1, 1), new(A.GreyOutTourianStatueRidley, 1, 8, 1)], AnimationEnd.Stops),

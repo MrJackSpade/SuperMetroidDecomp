@@ -472,7 +472,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The one-eighth-pixel fraction step carries into the whole pixels; both are one 1/65536-pixel add.
             state.Velocity = state.Velocity.WithY(
-                state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
+                state.Velocity.Y + SignedSixteenSixteen.FromSixteenthsOfPixel(2));
         }
 
         // Only the whole part is passed to the downward move; the fraction influences later

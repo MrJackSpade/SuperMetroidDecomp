@@ -74,10 +74,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>The left patrol step: the right step mirrored one 65536th of a pixel further left.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement = SignedSixteenSixteen.FromParts(-1, 51199);
     /// <summary>The right patrol step, seven thirty-seconds of a pixel.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromParts(0, 14336);
+    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(56);
+    /// <summary>The left patrol step: the right step mirrored, and one 65536th of a pixel further left.</summary>
+    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement =
+        -WalkingPirateRightStepDisplacement - SignedSixteenSixteen.FromParts(0, 1);
     /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
     /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>

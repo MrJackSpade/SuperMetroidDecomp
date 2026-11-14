@@ -87,9 +87,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the Shitroid victim layout.</summary>
     private void InitializeShitroidVictimSidehopper(RoomEnemySlot slot)
     {
-        // The mask clears the solid bit and any inherited process-offscreen bit,
-        // then explicitly reinstalls only process-offscreen. Do not replace this with an
-        // enum union: preserving the unrelated population-property bits is observable.
+        // The victim stops being solid to Samus and is processed off screen; the other contact and processing
+        // properties the room's population gave it stay as they were, which is observable.
         slot.Contact = slot.Contact.Without(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         // The victim's room lists the Shitroid first; a Shitroid that starts hidden has already fed, so the victim is gone.

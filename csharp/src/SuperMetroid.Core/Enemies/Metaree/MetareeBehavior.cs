@@ -34,15 +34,15 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
     private const int MetareeHorizontalActivationDistance = 72;
     /// <summary>Unsigned Y separation divisor used to choose the dive speed.</summary>
-    private const int MetareeDiveDivisorNtsc = 24;
+    private const int MetareeDiveDivisor = 24;
     /// <summary>Whole-pixel downward speed added even for zero vertical separation.</summary>
     private const int MetareeMinimumYVelocity = 4;
     /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
     private const int MetareeHorizontalDiveSpeed = 2;
     /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
-    private const int MetareeBurrowLifetimeNtsc = 21;
+    private const int MetareeBurrowLifetime = 21;
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
-    private const int MetareeParticleFrameNtsc = 8;
+    private const int MetareeParticleFrame = 8;
 
     /// <summary>Starts the idle animation directly and initializes the slot's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
@@ -120,7 +120,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // above Metaree, this deliberately creates the game's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
-        state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
+        state.YVelocity = verticalDifference / MetareeDiveDivisor + MetareeMinimumYVelocity;
         state.RequestedAnimation = SkreeMetareeAnimationPhase.PreparingAttack;
         StartRequestedMetareeAnimation(slot, state);
         state.Action = MetareeAction.PreparingAttack;
@@ -150,7 +150,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The game reloads this every airborne frame. It becomes a countdown only after
         // the attachment probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = MetareeBurrowLifetimeNtsc;
+        state.BurrowTimer = MetareeBurrowLifetime;
 
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
@@ -183,7 +183,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer == MetareeParticleFrameNtsc)
+        if (state.BurrowTimer == MetareeParticleFrame)
             _projectiles.SpawnMetalParticleBurst(slot, MetareeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }

@@ -24,7 +24,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
+    /// <summary>Binds slot and collision owners for the Evir's three listed parts.</summary>
     internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -87,8 +87,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (isArms)
         {
-            // The second record is not a second creature. It is the arms, which always
-            // reads facing and position from the immediately prior body record.
+            // The second listed enemy is not a second creature. It is the arms, which always
+            // read facing and position from the body listed immediately before them.
             PositionEvirArms(slot, state, update: EvirArmsUpdate.Initialization);
         }
         else
@@ -128,7 +128,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
                     ? 0
                     : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
-                // The game reads the enemy's colour selection as the count: the empty record's is zero, an Evir spit's
+                // The game reads the enemy's colour selection as the count: an empty place's is zero, an Evir spit's
                 // gives the retail rooms' half-cycle.
                 EvirHalfCycleSourceField.SpitColours => enemy.DefinitionId == EnemyDefinitionId.None
                     ? 0
@@ -524,8 +524,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
-        // The game compares the following-but-one record's action with the moving spit's. In the retail
-        // Evir rooms that record is an Evir or an empty slot, never another species.
+        // The game compares the action of the enemy listed two places on with the moving spit's. In the retail
+        // Evir rooms that place holds an Evir or nothing, never another species.
         if (secondRelative.SpeciesState<EvirEnemyState>()?.Action != EvirAction.ProjectileMoving)
         {
             secondRelative.FrozenTimer = actor.FrozenTimer;

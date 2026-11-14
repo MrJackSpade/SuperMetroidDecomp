@@ -51,7 +51,7 @@ internal sealed class BombTorizoHandObjects
         Ensure.NotNull(bosses);
         if (bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
-            // The setup removes the hand at once, so the next population record may take its place.
+            // The setup removes the hand at once, so the next population entry may take its place.
             slot.Delete();
             return;
         }

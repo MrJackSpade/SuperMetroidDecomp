@@ -39,7 +39,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EscapeDachoraPixelsPerCue = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
-    /// <summary>One unit of 1/65536-pixel downward acceleration applied during Etecoon's exit.</summary>
+    /// <summary>The one whole pixel an exiting Etecoon probes downward each update, which settles it on the room's floor.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
     /// <summary>Signed 1/65536-pixel horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);

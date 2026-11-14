@@ -96,7 +96,7 @@ internal static class RidleyExplosionDefinitions
 
     /// <summary>
     /// The body-relative position and pose of each body fragment by facing, loaded by the breakup initializer; a
-    /// right-facing record mirrors the left-facing one's X.
+    /// right-facing placement mirrors the left-facing one's X.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition> BodyParts =
         new Dictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition>

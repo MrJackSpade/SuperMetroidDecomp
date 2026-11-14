@@ -15,7 +15,7 @@ public sealed class YardEnemyState
     public EightEightVector<RoomPixels> CrawlingVelocity { get; internal set; }
 
     /// <summary>
-    /// Airborne animation facing, selected from the eight surface-direction records.
+    /// Airborne animation facing, selected from the eight surface directions.
     /// </summary>
     public YardAirborneFacing AirborneFacingDirection { get; internal set; }
 

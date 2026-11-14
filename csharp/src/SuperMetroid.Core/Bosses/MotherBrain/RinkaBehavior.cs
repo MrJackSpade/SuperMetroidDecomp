@@ -115,7 +115,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(slot))
             ReserveSpecialRinkaSpawn(slot, state);
 
-        // The spawn record is separate and survives clearing the common
+        // The population entry is separate and survives clearing the common
         // actor. Special spawn selection deliberately mutates that snapshot; ordinary
         // Rinkas continue to return to their original population coordinate.
         slot.Position = slot.Position.WithWhole(new(slot.Spawn.Population.Position.X, slot.Spawn.Population.Position.Y));

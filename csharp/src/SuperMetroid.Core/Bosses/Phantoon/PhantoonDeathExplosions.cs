@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Reads Phantoon's death explosion requests in record order.</summary>
+/// <summary>Reads Phantoon's death explosion requests in authored order.</summary>
 public static class PhantoonDeathExplosions
 {
     /// <summary>Signed X/Y offsets, misc-dust explosion animation, and delay until the next request.</summary>

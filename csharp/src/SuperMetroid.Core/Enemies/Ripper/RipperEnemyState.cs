@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The state of one Ripper, GRipper or Ripper II: its flying animation, its patrol velocity, its linear-speed record,
+/// The state of one Ripper, GRipper or Ripper II: its flying animation, its patrol velocity, its linear speed row,
 /// and GRipper's two patrol bounds. All are the enemy's own: setup starts the animation for every variant and writes
 /// the bounds for the GRipper, the only variant that reads them, so nothing a previous occupant of the slot left
 /// reaches a new one.

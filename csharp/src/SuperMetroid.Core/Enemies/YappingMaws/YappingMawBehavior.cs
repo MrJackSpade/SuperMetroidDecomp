@@ -336,7 +336,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionSamusInYappingMaw(slot, state, samus);
     }
 
-    /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
+    /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the speed row.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
         state.Extension += state.QuadraticSpeedRow.Row.Toward(state.QuadraticSpeedSign);
@@ -572,7 +572,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
-        int signedSample = -Trigonometry.SignedSixteenBitSine(angle);
+        int signedSample = -Trigonometry.FineSignedSine(angle);
         int sampleWhole = UnsignedEightEight.Whole(Math.Abs(signedSample));
         int product = sampleWhole * ShortCircleProduct.RadiusInUse(length);
         return 2 * WholePixelsRoundedDown(signedSample < 0 ? -product : product);

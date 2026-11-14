@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonDeath
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomSpriteObjects _spriteObjects;

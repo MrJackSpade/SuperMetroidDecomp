@@ -5,7 +5,7 @@ public static class BoulderBounceDefinitions
 {
     /// <summary>
     /// The bounce clock's place each impact restarts it from, indexed by the remaining bounce count: the last impact
-    /// installs the table's start before the counter passes below zero into rolling, the others records 16 and 24.
+    /// installs the table's start before the counter passes below zero into rolling, the others rows 16 and 24.
     /// </summary>
     /// <remarks>
     /// #625 / #647 retained table: all three speeds are

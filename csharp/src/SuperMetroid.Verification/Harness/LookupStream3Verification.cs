@@ -1296,7 +1296,7 @@ internal static class LookupStream3Verification
             }
         }
         var stock = Load(document);
-        void CheckBeam(MotherBrainRainbowPalettePresentation palette)
+        void CheckBeam(MotherBrainRainbowBeamColours palette)
         {
             for (int index = 0; index < 38; index++)
                 AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamColor(index),
@@ -1304,7 +1304,7 @@ internal static class LookupStream3Verification
             AssertEqual(38, palette.BeamCycleLength, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
-        MotherBrainRainbowPalettePresentation beam = MotherBrainBeamColourFile.Read(
+        MotherBrainRainbowBeamColours beam = MotherBrainBeamColourFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, ArtworkJson.Options)));
         CheckBeam(beam);
         foreach (int invalid in new[] { -1, 38, int.MaxValue })

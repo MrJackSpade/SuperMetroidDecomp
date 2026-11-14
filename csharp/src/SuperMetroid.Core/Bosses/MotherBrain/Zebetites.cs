@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.ZebetiteDefinitions;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Tourian's Zebetites: each active generation's barriers, the spawn record of each half, and where each half stands.</summary>
+/// <summary>Tourian's Zebetites: each active generation's barriers, the population entry of each half, and where each half stands.</summary>
 internal static class Zebetites
 {
     /// <summary>
@@ -17,7 +17,7 @@ internal static class Zebetites
         if ((uint)generation >= PersistentProgress.ZebetiteCount)
         {
             throw new InvalidDataException(
-                $"Zebetite generation {generation} exceeds its four active records.");
+                $"Zebetite generation {generation} exceeds its four active generations.");
         }
 
         // Alternating single barriers and split pairs share a horizontal centerline.
@@ -32,7 +32,7 @@ internal static class Zebetites
             111 + separation);
     }
 
-    /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>
+    /// <summary>Returns the exact embedded population entry of the primary or linked half.</summary>
     internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half) =>
         SpawnPopulations.TryGetValue(half, out RoomEnemyPlacement placement)
             ? placement

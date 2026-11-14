@@ -25,7 +25,7 @@ public sealed class CrocomireEnemyState
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
 
-    /// <summary>Physical body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
+    /// <summary>Crocomire's body, owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>The body's playing animation and where it stands; before the first start, the initial animation.</summary>
     internal AnimationPlayback<CrocomireBodySegment> BodyPlayback { get; set; } =
@@ -52,7 +52,7 @@ public sealed class CrocomireEnemyState
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Physical tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
+    /// <summary>Crocomire's tongue, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>

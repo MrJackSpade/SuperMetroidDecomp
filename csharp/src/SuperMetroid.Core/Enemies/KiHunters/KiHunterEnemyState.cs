@@ -25,7 +25,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>
     /// A detached wing's place along the shared quadratic speed table: reset to <see cref="DetachedSpeedReset"/> at each
-    /// arc and lowered by a record and a half per update, landing on record one when the step would go below the start,
+    /// arc and lowered by a row and a half per update, landing on row one when the step would go below the start,
     /// so it stays within the table.
     /// </summary>
     public EnemyQuadraticSpeedIndex DetachedSpeedIndex { get; internal set; }
@@ -84,7 +84,7 @@ public sealed class KiHunterEnemyState
     /// <summary>A body's upper patrol boundary, sixteen pixels above its spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }
     /// <summary>
-    /// A detached wing's speed-index reset, computed at detachment by stepping a record and a half at a time until the
+    /// A detached wing's speed-index reset, computed at detachment by stepping a row and a half at a time until the
     /// quadratic speed sum reaches its threshold, and reapplied at each arc change; within the table.
     /// </summary>
     public EnemyQuadraticSpeedIndex DetachedSpeedReset { get; internal set; }

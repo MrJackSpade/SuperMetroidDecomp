@@ -16,30 +16,30 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class FamilyTrigonometryVerification
 {
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
-    internal static void VerifySignedSixteenBitSineDefinitions(CartridgeImportAddressSpace rom)
+    internal static void VerifyFineSignedSineDefinitions(CartridgeImportAddressSpace rom)
     {
         Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new TrigonometryAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
-            int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
-            short original = unchecked((short)(LittleEndianBytes.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, Trigonometry.SignedSixteenBitSine(new TrigonometryAngle((byte)angle)), "signed 16-bit sample");
+            int address = EnemyMathReferenceData.FineSignedSine + angle * 2;
+            short original = unchecked((short)(LittleEndianBytes.Word(FineSignedSineDefinitionsRomByte(rom, address), FineSignedSineDefinitionsRomByte(rom, address + 1))));
+            AssertEqual(original, Trigonometry.FineSignedSine(new TrigonometryAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
 
     /// <summary>Reads a native sine-table byte for the signed-sample oracle.</summary>
-    private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FineSignedSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
     internal static void VerifyCompiledFamilyTrigonometry(CartridgeImportAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(LittleEndianBytes.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
         short[] native = Enumerable.Range(0, 256)
-            .Select(i => Read(EnemyMathReferenceData.SignedSixteenBitSine + i * 2)).ToArray();
+            .Select(i => Read(EnemyMathReferenceData.FineSignedSine + i * 2)).ToArray();
         short[] orbit = Enumerable.Range(0, 320)
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
-        Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
+        Suite(nameof(VerifyFineSignedSineDefinitions), () => VerifyFineSignedSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
         var mawX = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawX(new TrigonometryAngle(unchecked((byte)angle)), length)));
         var mawY = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawY(new TrigonometryAngle(unchecked((byte)angle)), length)));

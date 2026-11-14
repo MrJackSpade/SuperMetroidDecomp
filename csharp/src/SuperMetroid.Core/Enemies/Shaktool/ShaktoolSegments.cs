@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolSegments
 {
     /// <summary>Returns one of the seven physical linked-segment definitions.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the seven records.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the seven segments.</exception>
     internal static ShaktoolSegmentDefinition ForIndex(int index) =>
         (uint)index < (uint)ShaktoolSegmentDefinitions.Segments.Length
             ? ShaktoolSegmentDefinitions.Segments[index]

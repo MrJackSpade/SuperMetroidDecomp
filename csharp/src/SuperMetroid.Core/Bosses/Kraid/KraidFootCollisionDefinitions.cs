@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's physical foot components for its walk frames and the small-Kraid initial frame. The sprite records are
+/// Kraid's physical foot components for its walk frames and the small-Kraid initial frame. The pictures are
 /// presentation; these offsets and the one shared hitbox govern collision.
 /// </summary>
 internal static class KraidFootCollisionDefinitions

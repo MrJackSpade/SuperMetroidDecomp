@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The part a Magdollite placement spawns as. Retail always allocates these
-/// records consecutively as head, rising body, then tracking overlay. The names describe
+/// The part a Magdollite placement spawns as. Retail always lists these
+/// parts consecutively as head, rising body, then tracking overlay. The names describe
 /// ownership; they do not collapse the three listed enemies into one actor.
 /// </summary>
 public enum MagdollitePart

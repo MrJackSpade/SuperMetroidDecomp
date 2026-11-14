@@ -309,7 +309,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the hand beam's charging initializer. The body record—not the articulated
+    /// Runs the hand beam's charging initializer. The body—not the articulated
     /// head—is the source: its extended map puts the hand at (+64,-48).
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
@@ -345,7 +345,7 @@ internal sealed class MotherBrainBody
     /// <summary>
     /// Body and background movement. The signed Y displacement is added
     /// to the actor and subtracted from the background, keeping the large background body art
-    /// rigidly attached to its small sprite hitbox record. X movement happens before this call,
+    /// rigidly attached to its small sprite hitbox. X movement happens before this call,
     /// so the derived scroll must sample the already-updated body X.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)

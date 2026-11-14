@@ -2,8 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its extra values. They are named here instead of sharing storage between
-/// three neighboring records.
+/// The state of one Magdollite part, with its extra values. They are named here for each of the three
+/// neighbouring parts.
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
@@ -23,7 +23,7 @@ public sealed class MagdolliteEnemyState
 
     /// <summary>
     /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine
-    /// <see cref="MagdolliteRise.Phase"/> records. It steps by one as the arm rises past each phase's threshold and
+    /// <see cref="MagdolliteRise.Phase"/> phases. It steps by one as the arm rises past each phase's threshold and
     /// back as it sinks.
     /// </summary>
     public int BodyPhase { get; internal set; }

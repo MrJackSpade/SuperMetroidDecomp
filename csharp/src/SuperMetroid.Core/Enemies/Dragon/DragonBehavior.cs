@@ -135,7 +135,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.Action = DragonAction.Rising;
 
         // The wait records the sign of (Samus X - body X) as the body's facing. The following animation
-        // choices use that sign to select even/odd left/right table entries for both physical records.
+        // choices use that sign to select even/odd left/right table entries for both the body and its wing.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
         bodyState.RequestedAnimation = DragonPhases.WithFacing(
@@ -214,7 +214,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Action = DragonAction.WaitToRise;
         }
 
-        // As with rising, the regionalized 1/65536-pixel displacement is exactly one pixel.
+        // As with rising, the sink moves exactly one whole pixel each update.
         RoomEnemySlot wing = GetDragonWing(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);
@@ -235,7 +235,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the shared tail after touch, shot, or power-bomb common AI. A dead
     /// body deletes its wing; a surviving body mirrors every timer and handler that affects
-    /// visible hurt and freeze rendering into that cosmetic record.
+    /// visible hurt and freeze rendering into that wing, which only shows.
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemySlot actor)
     {
@@ -268,7 +268,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RequestedAnimation)));
     }
 
-    /// <summary>Requires the wing the Dragon body found when it was placed, still holding its authored wing record.</summary>
+    /// <summary>Requires the wing the Dragon body found when it was placed, still holding its authored wing.</summary>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
         RoomEnemySlot wing = _partners.Of(body).Wing
@@ -277,7 +277,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             wing.SpawnSettings<DragonSpawnSettings>().Part != DragonPart.Wing)
         {
             throw new InvalidDataException(
-                $"Dragon body slot {body.SlotIndex} is not followed by its retail wing record.");
+                $"Dragon body slot {body.SlotIndex} is not followed by its retail wing.");
         }
         return wing;
     }

@@ -20,7 +20,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>
     /// Signed beam-explosion positions. The index increments before
-    /// lookup, so its initial zero value selects the second record.
+    /// lookup, so its initial zero value selects the second position.
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] ExplosionOffsets =
         [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];

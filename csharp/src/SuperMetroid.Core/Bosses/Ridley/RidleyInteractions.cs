@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health palette.</summary>
 internal static class RidleyInteractions
 {
-    /// <summary>Includes both Ceres and Lower Norfair Ridley definition records.</summary>
+    /// <summary>Includes both the Ceres and the Lower Norfair Ridley definitions.</summary>
     internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 

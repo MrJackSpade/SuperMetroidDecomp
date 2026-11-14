@@ -46,7 +46,7 @@ internal static class EnemyRuleRangesVerification
         for (int raw = 0; raw < 256; raw++)
         {
             var angle = new TrigonometryAngle(raw);
-            int signedSample = Trigonometry.SignedSixteenBitSine(TrigonometryAngle.Wrapped(-raw));
+            int signedSample = Trigonometry.FineSignedSine(TrigonometryAngle.Wrapped(-raw));
             int sampleWhole = Math.Abs(signedSample) / 256;
             foreach (int length in lengths)
             {

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
-/// The state of one Hibashi part. Every shipped pillar uses two consecutive records: part zero owns art and timing,
+/// The state of one Hibashi part. Every shipped pillar lists two consecutive parts: part zero owns art and timing,
 /// while the nonzero part is the invisible collision body manipulated by part zero.
 /// </summary>
 public sealed class HibashiEnemyState

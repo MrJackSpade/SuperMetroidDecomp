@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamEffect
 {
     /// <summary>Host-owned visual colors; the beam geometry and update cadence stay logic.</summary>
-    public MotherBrainRainbowPalettePresentation? PresentationColors { get; set; }
+    public MotherBrainRainbowBeamColours? PresentationColors { get; set; }
     /// <summary>Whether the last simulation update showed the beam; a hidden beam shows nothing.</summary>
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
@@ -61,6 +61,6 @@ public sealed class MotherBrainRainbowBeamEffect
     }
 
     /// <summary>The installed colour cycle; fails if rainbow presentation colours were never bound.</summary>
-    private MotherBrainRainbowPalettePresentation Colours => PresentationColors ?? throw new InvalidOperationException(
+    private MotherBrainRainbowBeamColours Colours => PresentationColors ?? throw new InvalidOperationException(
         "Mother Brain rainbow beam requires installed colors.");
 }

@@ -60,8 +60,8 @@ internal sealed class MotherBrainThirdPhaseDeath
 
     /// <summary>
     /// One value under three names: the ascent dust's body
-    /// sub-phase timer, the seven-record death-explosion index and the
-    /// four-record escape-door dust index. Each effect inherits the value
+    /// sub-phase timer, the death-explosion index over seven positions and the
+    /// escape-door dust index over four. Each effect inherits the value
     /// the previous one left unless code explicitly clears it.
     /// </summary>
     public int DeathAndEscapeExplosionIndex { get; internal set; }

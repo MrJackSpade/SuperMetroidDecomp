@@ -17,7 +17,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common, _bossArtwork);
 
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
     private readonly EnemyFrameContext _frameContext;

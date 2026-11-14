@@ -8,7 +8,7 @@ public static class KraidBodyContour
 
     /// <summary>
     /// Each left edge is paired
-    /// with the next record's top boundary. The final signed minimum terminates
+    /// with the next ledge's top boundary. The final signed minimum terminates
     /// the contour for every signed relative Y coordinate.
     /// </summary>
     /// <remarks>

@@ -147,7 +147,7 @@ internal sealed class MotherBrainCombat
     /// Runs the later forms of the head's shot AI plus the phase-two/three common no-death damage tail.
     /// Form one (the fake-death interval) still runs the recoil bookkeeping but converts the
     /// projectile into a dud. Forms two and later apply ordinary vulnerability damage while
-    /// deliberately leaving the multipart boss records alive at zero health for body AI.
+    /// deliberately leaving the boss's parts alive at zero health for body AI.
     /// </summary>
     internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,

@@ -15,7 +15,7 @@ internal sealed class EnemyAudioQueue
 {
     /// <summary>
     /// The update's audio requests the enemies' requests join: the runtime's, once it points the room's systems at it; the
-    /// enemies' own record before that.
+    /// enemies' own requests before that.
     /// </summary>
     internal GameplayAudioRequests Requests { get; private set; } = new();
 

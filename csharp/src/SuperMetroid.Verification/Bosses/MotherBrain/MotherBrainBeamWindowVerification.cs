@@ -31,7 +31,7 @@ internal static class MotherBrainBeamWindowVerification
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
                 ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
         paletteDocument["cycle"] = cycle;
-        MotherBrainRainbowPalettePresentation installedColours = MotherBrainBeamColourFile.Read(new MemoryStream(
+        MotherBrainRainbowBeamColours installedColours = MotherBrainBeamColourFile.Read(new MemoryStream(
             System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
         AssertTrue(beam.RenderSnapshot is null, "the beam shows nothing before it first aims");

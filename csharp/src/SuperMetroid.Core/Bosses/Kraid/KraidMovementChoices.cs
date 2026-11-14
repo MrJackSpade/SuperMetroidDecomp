@@ -27,9 +27,9 @@ public static class KraidMovementChoices
     }
 
     /// <summary>
-    /// Kraid's movement position/choice records and their target/timer pairs.
+    /// Kraid's movement positions and choices and their target/timer pairs.
     /// Unlisted positions select the 352 row. RNG choices four through seven
-    /// all select its final record, preserving the half-probability choice.
+    /// all select its final destination, preserving the half-probability choice.
     /// </summary>
     /// <remarks>
     /// Position and weighted branch select named movement destinations, not a sampled
@@ -39,7 +39,7 @@ public static class KraidMovementChoices
     /// </remarks>
     public static KraidMovementChoice Select(int position, int random)
     {
-        // The movement record search ends on the starting row for every unlisted position.
+        // The movement destination search ends on the starting row for every unlisted position.
         Destination row = Destination.SearchOrder.FirstOrDefault(destination => destination.X == position) ?? Destination.Starting;
         int choice = Math.Min(KraidRandomDefinitions.MovementChoice.Of(random), 4);
         Destination target = choice switch

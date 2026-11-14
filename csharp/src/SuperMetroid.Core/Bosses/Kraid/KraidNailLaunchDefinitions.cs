@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The launch speeds of Kraid's paired fingernails.</summary>
 /// <remarks>
-/// The two nail launch tables select four records each. All four RNG choices within each table are identical:
+/// The two nail launch tables select four launches each. All four RNG choices within each table are identical:
 /// X=-1, fractions zero, and Y opposite the sibling's sign. RNG remains relevant to spawn-mode selection.
 /// </remarks>
 public static class KraidNailLaunchDefinitions

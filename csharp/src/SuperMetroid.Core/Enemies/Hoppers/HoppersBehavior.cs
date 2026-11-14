@@ -92,7 +92,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             curvePlaceStep: 4);
     }
 
-    /// <summary>Runs the Hopper's main AI and every indirect target.</summary>
+    /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -293,7 +293,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The game caps the returning record by whether its wrapped difference from the cap is negative; both stay
+        // The game caps the returning speed row by whether its wrapped difference from the cap is negative; both stay
         // far inside the signed range, so that is the ordinary minimum.
         state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(
             state.YSpeedCurvePlace + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedCurvePlaceDelta),

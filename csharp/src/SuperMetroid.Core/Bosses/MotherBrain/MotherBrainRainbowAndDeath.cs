@@ -188,7 +188,7 @@ internal sealed class MotherBrainRainbowAndDeath
             throw new InvalidOperationException(
                 "Mother Brain entered a rainbow phase without its live sequence owner.");
 
-        // The body animation and articulated-head AI ran through the physical room records on
+        // The body animation and articulated-head AI ran through her body and brain on
         // previous frames. Import that state before dispatch so walk completion and neck
         // aiming are decided from the same state the game would read.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);

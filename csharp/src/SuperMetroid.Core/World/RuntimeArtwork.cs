@@ -59,7 +59,7 @@ internal sealed class RuntimeArtwork
             _hud.BindPresentation(value?.GameplayHud);
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
+            _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowBeamColours;
             _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
         }

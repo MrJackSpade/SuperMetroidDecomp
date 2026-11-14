@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>A barrier generation's form. Its value is arbitrary; verification's view encodes it as the flag the game's own record carries (#1413).</summary>
+/// <summary>A barrier generation's form. Its value is arbitrary; verification's view encodes it as the flag the game keeps for it (#1413).</summary>
 [Flags]
 public enum ZebetiteGenerationFlags
 {

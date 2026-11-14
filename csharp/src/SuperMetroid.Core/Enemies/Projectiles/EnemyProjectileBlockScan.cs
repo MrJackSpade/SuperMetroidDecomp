@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <para>
 /// Evidence: the original's horizontal and vertical enemy projectile moves count the blocks to test as the span's last
 /// pixel less its first pixel's block start, a difference counted within 65536, over 16, and test one block more than that; they
-/// name the blocks as <see cref="BlockScanCycle"/> records, stepping a row down a column or a block along a row.
+/// name the blocks as <see cref="BlockScanCycle"/> steps, stepping a row down a column or a block along a row.
 /// </para>
 /// </remarks>
 /// <param name="First">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>

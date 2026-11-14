@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonTurrets
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
+    /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;

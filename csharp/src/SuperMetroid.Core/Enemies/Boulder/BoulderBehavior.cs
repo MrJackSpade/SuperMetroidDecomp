@@ -44,22 +44,22 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId BoulderBreakSound =
         EnemySoundEffectDefinitions.BoulderBreakSound;
 
-    /// <summary>Bounce-clock place the first rebound starts from: quadratic-speed record 32.</summary>
+    /// <summary>Bounce-clock place the first rebound starts from: quadratic speed row 32.</summary>
     private static readonly EnemyQuadraticSpeedIndex FirstReboundBounceSpeed = EnemyQuadraticSpeedIndex.FromRows(32);
 
-    /// <summary>Change in the bounce clock per falling or rebounding update: one quadratic-speed record.</summary>
+    /// <summary>Change in the bounce clock per falling or rebounding update: one quadratic speed row.</summary>
     private static readonly EnemyQuadraticSpeedIndex BounceSpeedStep = EnemyQuadraticSpeedIndex.FromRows(1);
 
-    /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: quadratic-speed record 80.</summary>
+    /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: quadratic speed row 80.</summary>
     private static readonly EnemyQuadraticSpeedIndex MaximumBouncingSpeed = EnemyQuadraticSpeedIndex.FromRows(80);
 
-    /// <summary>Change in the travel clock per bouncing update, an eighth of a record.</summary>
+    /// <summary>Change in the travel clock per bouncing update, an eighth of a row.</summary>
     private static readonly EnemyQuadraticSpeedIndex BouncingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(32);
 
-    /// <summary>Change in the travel clock per rolling update, a quarter of a record.</summary>
+    /// <summary>Change in the travel clock per rolling update, a quarter of a row.</summary>
     private static readonly EnemyQuadraticSpeedIndex RollingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(64);
 
-    /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
+    /// <summary>Largest travel clock while rolling: quadratic speed row 64.</summary>
     private static readonly EnemyQuadraticSpeedIndex MaximumRollingTravelSpeed = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Reads both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
@@ -189,7 +189,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
-        // The game subtracts one record and checks whether the result is negative, storing zero in place of a
+        // The game subtracts one row and checks whether the result is negative, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
         EnemyQuadraticSpeedIndex slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
         if (slowed.IsNegative)
@@ -237,8 +237,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The falling clock is not capped: its next read selects the following quadratic record, and the table
-        // rejects record 95 before the clock could approach the limit of its range.
+        // The falling clock is not capped: its next read selects the following quadratic speed row, and the table
+        // rejects row 95 before the clock could approach the limit of its range.
         state.BounceSpeedAccumulator += BounceSpeedStep;
         AddBoulderHorizontalVelocity(slot, state);
         state.TravelSpeedAccumulator = AddAndCap(

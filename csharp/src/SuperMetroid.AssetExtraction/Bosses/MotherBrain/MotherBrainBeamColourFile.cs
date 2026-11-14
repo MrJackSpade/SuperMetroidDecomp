@@ -21,7 +21,7 @@ public static class MotherBrainBeamColourFile
     /// <summary>The document holding <paramref name="colours"/>.</summary>
     /// <param name="colours">The beam backdrop's first colour and its cycle.</param>
     /// <returns>UTF-8 JSON bytes for <see cref="FileName"/>.</returns>
-    public static byte[] Write(MotherBrainRainbowPalettePresentation colours)
+    public static byte[] Write(MotherBrainRainbowBeamColours colours)
     {
         Ensure.NotNull(colours);
         return JsonSerializer.SerializeToUtf8Bytes(new MotherBrainBeamColourDocument
@@ -38,7 +38,7 @@ public static class MotherBrainBeamColourFile
     /// <exception cref="InvalidDataException">
     /// The JSON is malformed, names another version, holds no cycle colour, or a channel is outside 0..31.
     /// </exception>
-    public static MotherBrainRainbowPalettePresentation Read(Stream json)
+    public static MotherBrainRainbowBeamColours Read(Stream json)
     {
         Ensure.NotNull(json);
         MotherBrainBeamColourDocument document = JsonAssetDocument.Read<MotherBrainBeamColourDocument>(
@@ -47,7 +47,7 @@ public static class MotherBrainBeamColourFile
             throw new InvalidDataException($"Mother Brain beam colours require version {Version}.");
         if (document.Cycle is not { Length: > 0 })
             throw new InvalidDataException("Mother Brain beam colours require at least one cycle colour.");
-        return new MotherBrainRainbowPalettePresentation(Compile(document.First, "first"),
+        return new MotherBrainRainbowBeamColours(Compile(document.First, "first"),
             [.. document.Cycle.Select((colour, index) => Compile(colour, $"cycle {index}"))]);
     }
 

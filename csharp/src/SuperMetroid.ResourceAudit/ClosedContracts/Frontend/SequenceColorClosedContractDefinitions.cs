@@ -7,9 +7,9 @@ internal static class SequenceColorClosedContractDefinitions
     /// complete presentation domains, with their source dependencies.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation", "mother-brain-rainbow-v3-complete-sequences",
+        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowBeamColours", "mother-brain-rainbow-v3-complete-sequences",
             ["BeamColor"],
-            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"),
+            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowBeamColours.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBeamDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainDeathColorCatalog", "mother-brain-death-v1-complete-color-rows",
             ["BodyColor", "LegColor", "CorpseColor"],

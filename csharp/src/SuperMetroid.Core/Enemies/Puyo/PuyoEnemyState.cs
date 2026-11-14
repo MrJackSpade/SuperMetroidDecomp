@@ -36,7 +36,7 @@ public sealed class PuyoEnemyState
     /// </summary>
     public PuyoHopType CurrentHop { get; internal set; }
 
-    /// <summary>The record selected for the next hop.</summary>
+    /// <summary>The hop selected for the next jump.</summary>
     public PuyoHopType HopType { get; internal set; }
 
     /// <summary>
@@ -68,7 +68,7 @@ public sealed class PuyoEnemyState
     /// A step that leaves the first row through <see cref="LargestYSpeedCurvePlace"/> (the game checks whether it is negative) restarts
     /// the fall at the first row: the apex while rising, and a restart of an overlong fall.
     /// </summary>
-    /// <param name="delta">The hop record's index step, at most three whole rows.</param>
+    /// <param name="delta">The hop's speed row step, at most three whole rows.</param>
     internal void StepAirborneIndex(EnemyQuadraticSpeedIndex delta)
     {
         YSpeedCurvePlace = Falling ? YSpeedCurvePlace + delta : YSpeedCurvePlace - delta;

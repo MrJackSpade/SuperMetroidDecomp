@@ -72,7 +72,7 @@ internal sealed class KraidRise
             ShowKraidRoomBackdrop();
             _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
             // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
-            // the death's four-update wait. The other seven physical records take their own dead initializer and
+            // the death's four-update wait. Kraid's other seven parts take their own dead initializer and
             // remain deleted as in the game.
             state.BodyState.Phase = KraidPhase.DeathHideUpperBody;
             return;

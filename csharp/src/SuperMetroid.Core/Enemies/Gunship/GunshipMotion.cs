@@ -14,12 +14,12 @@ internal static class GunshipMotion
     }
 
     /// <summary>The idle bob's timer and delta at <paramref name="phase"/>; validated before selecting.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="phase"/> is past the four-record cycle.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="phase"/> is past the four-phase cycle.</exception>
     internal static GunshipIdleBobDefinition IdleBob(int phase)
     {
         if (phase >= GunshipMotionDefinitions.IdleBobs.Length)
             throw new InvalidDataException(
-                $"Gunship idle-bob phase {phase} exceeds its four-record cycle.");
+                $"Gunship idle-bob phase {phase} exceeds its four-phase cycle.");
         return GunshipMotionDefinitions.IdleBobs[phase];
     }
 }

@@ -3970,7 +3970,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(signedOracle.Rom)),
             "Signed sine oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(signedOracle, definitionsOnly: true));
-        Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(signedOracle));
+        Suite(nameof(VerifyFineSignedSineDefinitions), () => VerifyFineSignedSineDefinitions(signedOracle));
         Console.WriteLine("Signed sine review: 320 signed words and 256 sixteen-bit words pass.");
         return 0;
     }

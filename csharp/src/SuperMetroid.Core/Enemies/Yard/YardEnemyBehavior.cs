@@ -259,11 +259,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X, 7))
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, 7))
             : EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y, 7));
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, 7));
         if (!stillAttached)
             DropYard(slot, state);
     }
@@ -291,11 +291,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.X, 1))
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, 1))
             : _terrain.MoveEnemyVertically(
                 level,
                 slot,
-                CrawlersBehavior.Shift8AddMagnitude(state.CrawlingVelocity.Y, 1));
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, 1));
         slot.Position -= turn.Lookahead;
 
         if (!surfaceCollision)

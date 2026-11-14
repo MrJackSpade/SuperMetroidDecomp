@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>Compiled fixed initialization records for the Ceres steam actor.</summary>
+/// <summary>Compiled fixed initialization values for the Ceres steam actor.</summary>
 public static class CeresSteamDefinitions
 {
     /// <summary>The random selection the initializer draws for a vent's activation delay, before adding one: 32 delays.</summary>

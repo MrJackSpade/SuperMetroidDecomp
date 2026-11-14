@@ -34,7 +34,7 @@ internal static class RidleyBreakup
 
     /// <summary>
     /// Selects the body-relative position and pose the breakup initializer
-    /// loads. Facing zero selects the left-facing record.
+    /// loads. Facing zero selects the left-facing placement.
     /// </summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(RidleyExplosionPart parameter, bool facingRight) =>
         BodyParts.TryGetValue(new RidleyExplosionPartFacing(parameter, facingRight), out RidleyExplosionBodyPartDefinition part)

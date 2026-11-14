@@ -7,7 +7,7 @@ public sealed class BoulderEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoulderSegment> Playback { get; set; }
 
-    /// <summary>Current indirect AI target.</summary>
+    /// <summary>The action the Boulder runs each update.</summary>
     public BoulderAction? Action { get; internal set; }
 
     /// <summary>
@@ -16,13 +16,13 @@ public sealed class BoulderEnemyState
     internal static readonly EnemyQuadraticSpeedIndex LargestTravelSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(80);
 
     /// <summary>
-    /// The largest bounce clock: the quadratic table rejects the record past it before another increment.
+    /// The largest bounce clock: the quadratic table rejects the row past it before another increment.
     /// </summary>
     internal static readonly EnemyQuadraticSpeedIndex LargestBounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(EnemyQuadraticSpeedDefinitions.RowCount);
 
     /// <summary>
-    /// The travel acceleration clock along the quadratic speed table: advanced by 32 or 64 256ths of a record per update
-    /// and capped at record 80 or 64, so it stays within the start through record 80; its whole records select the speed. It
+    /// The travel acceleration clock along the quadratic speed table: advanced by 32 or 64 256ths of a row per update
+    /// and capped at row 80 or 64, so it stays within the start through row 80; its whole rows select the speed. It
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
     /// an independent clock rather than one axis of a velocity.
     /// </summary>
@@ -35,8 +35,8 @@ public sealed class BoulderEnemyState
     /// <summary>
     /// The bounce acceleration clock along the quadratic speed table: the running sum for the initial fall and the
     /// rebound arcs, with its own steps, caps and resets. A rebound that would take it below the start clamps it to the
-    /// start, and the uncapped falling increment cannot pass record 95 because the quadratic table rejects that record
-    /// before another increment, so it stays within the start through record 95.
+    /// start, and the uncapped falling increment cannot pass row 95 because the quadratic table rejects that row
+    /// before another increment, so it stays within the start through row 95.
     /// </summary>
     public EnemyQuadraticSpeedIndex BounceSpeedAccumulator
     {

@@ -90,9 +90,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state);
 
-        // The initializer sets the animating property. The enemy animation pass also uses the
-        // same bit to admit the authored animation, so retain the authored
-        // bit instead of inferring animation activity from the population record.
+        // The initializer sets the animating property, which the enemy animation pass reads before it plays the
+        // authored animation, so the Etecoon animates whether or not its population entry set it.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(slot, EtecoonAnimations.StartingWith(EtecoonSegment.Initial));
@@ -277,7 +276,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.HitCeiling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Waits 32 calls before choosing a left or right wall run from the stored facing bit.</summary>
+    /// <summary>Waits 32 updates before running to the left or right wall, whichever way it was heading.</summary>
     private static void RunEtecoonFaceSamusPause(
         RoomEnemySlot slot,
         EtecoonEnemyState state)

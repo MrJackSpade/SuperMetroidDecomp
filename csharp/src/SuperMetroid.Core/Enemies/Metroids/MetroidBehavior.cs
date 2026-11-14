@@ -316,7 +316,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Movement == MetroidMovement.AttachedToSamus)
         {
             // The bomb collision pass presents the exploding power bomb as its explosion;
-            // its earlier expansion record is not what the Metroid's shot reaction tests.
+            // its earlier expansion is not what the Metroid's shot reaction tests.
             if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
             return;
@@ -419,7 +419,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
-        // Drawing reads the selected record even while animation is disabled.
+        // Drawing shows the selected frame even while animation is disabled.
         // Show the frozen animation's first frame without resetting the retained timer.
         outerBody.ShowFirstFrameKeepingTimer(frozenSegment);
     }

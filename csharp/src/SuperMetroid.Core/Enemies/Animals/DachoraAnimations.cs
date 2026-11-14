@@ -182,8 +182,8 @@ internal static class DachoraAnimations
             P.IdleRight or
             P.BlinkRight or
             P.EchoRight or
-            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation does not sleep."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation does not sleep."),
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

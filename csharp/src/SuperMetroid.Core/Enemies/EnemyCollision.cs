@@ -220,7 +220,7 @@ internal sealed class EnemyCollision
                     continue;
 
                 // Bomb, power-bomb, and pseudo-screw actors share the projectile slot array,
-                // but ordinary enemy shot AI never treats them as beam/missile records.
+                // but ordinary enemy shot AI never treats them as beams or missiles.
                 // Yard and Metroid are the exceptions: their private handlers treat
                 // bomb-family impacts as physical kicks or escapes.
                 if (!reaction.AdmitsBombFamilies &&
@@ -908,7 +908,7 @@ internal sealed class EnemyCollision
     /// <summary>
     /// Handles Samus touching one already-overlapping ordinary actor. A zero contact index
     /// damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
-    /// their own entries from the enemy's vulnerability record and damage the actor.
+    /// their own entries from the enemy's vulnerabilities and damage the actor.
     /// </summary>
     internal void ResolveNormalEnemyTouch(
         RoomEnemySlot enemy,

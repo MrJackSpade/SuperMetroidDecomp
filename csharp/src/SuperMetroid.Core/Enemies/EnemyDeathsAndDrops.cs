@@ -23,7 +23,7 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies RNG and enemy definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
+    /// <summary>Reinitializes a respawned enemy from its saved population entry.</summary>
     private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Receives the pickup and death sounds, each queued as the drop or death animation makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -116,7 +116,7 @@ internal sealed class EnemyDeathsAndDrops
         if (respawns)
         {
             // The respawn placeholder keeps the enemy's place in the room's listing taken until the
-            // explosion's respawn cue rebuilds the enemy from its population record.
+            // explosion's respawn cue rebuilds the enemy from its population entry.
             InstallRespawnPlaceholder(enemy);
         }
         _roomStatus.RecordKill();
@@ -595,6 +595,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
+    /// <param name="pastCue">The place just past the cue; a death or drop cue does not continue from it.</param>
     public AnimationContinuation<EnemyDeathProjectileSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue,
         AnimationPlayback<EnemyDeathProjectileSegment> pastCue) =>
         ApplyEnemyDeathProjectileCue(context.Projectile, cue) is { } converted

@@ -298,7 +298,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower) => _parents.Of(follower);
 
-    /// <summary>Requires a flame follower to directly follow a primary Geruta population record.</summary>
+    /// <summary>Requires a flame follower to directly follow a primary Geruta population entry.</summary>
     private void ValidateNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
@@ -307,7 +307,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Norfair Rio follower in slot {follower.SlotIndex} must immediately follow " +
-                "a parent record of the same definition.");
+                "a parent of the same definition.");
         }
     }
 

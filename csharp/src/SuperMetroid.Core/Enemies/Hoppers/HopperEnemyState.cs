@@ -29,7 +29,7 @@ public sealed class HopperEnemyState
     public int XVelocity { get; internal set; }
 
     /// <summary>
-    /// The record step, 3 for small hops or 4 for big hops, subtracted while moving away from the attachment surface
+    /// The speed row step, 3 for small hops or 4 for big hops, subtracted while moving away from the attachment surface
     /// and added while returning.
     /// </summary>
     public int YSpeedCurvePlaceDelta { get; internal set; }

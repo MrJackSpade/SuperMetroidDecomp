@@ -275,7 +275,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
-                    // The logo starts its fade as it first shows; the effect shows its first record when the colour
+                    // The logo starts its fade as it first shows; the effect shows its first shade when the colour
                     // effects step at the end of this update, so the logo first shows black.
                     colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, 0);
                 }
@@ -415,7 +415,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>
     /// The floor's shading (#1512, #1597): the shade of the record each running console light shows, the tube light's then
     /// the displays', which recolour different colours of the floor. Lights the skip has just restarted show the floor's
-    /// own colours until they show their first record.
+    /// own colours until they show their first shade.
     /// </summary>
     internal PictureShading FloorShading
     {

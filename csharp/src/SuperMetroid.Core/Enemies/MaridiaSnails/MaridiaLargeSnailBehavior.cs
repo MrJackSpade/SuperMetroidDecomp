@@ -227,7 +227,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BouncePhase)
         {
             case MaridiaLargeSnailBouncePhase.Falling:
-                // The record stays within 3712 256ths of a record below the start through record 64, so the game's
+                // The place stays within 3712 256ths of a row below the start through row 64, so the game's
                 // signed comparisons are ordinary comparisons.
                 state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(
                     state.YSpeedCurvePlace + MaridiaLargeSnailBounceAcceleration,
@@ -242,7 +242,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 }
 
                 state.RemainingBounces--;
-                // An impact that leaves the record below zero ends the bounces; the negative record is kept.
+                // An impact that leaves the place below zero ends the bounces; the negative place is kept.
                 state.YSpeedCurvePlace -= MaridiaLargeSnailImpactIndexLoss;
                 if (state.YSpeedCurvePlace.IsNegative)
                     state.RemainingBounces = 0;
@@ -258,8 +258,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     return;
                 }
 
-                // The rising half reads the negative member of the same quadratic row. The record is not
-                // negative here, so its whole records are the row the game selects by the speed's magnitude.
+                // The rising half reads the negative member of the same quadratic row. The place is not
+                // negative here, so its whole rows are the row the game selects by the speed's magnitude.
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,

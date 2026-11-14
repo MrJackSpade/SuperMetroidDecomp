@@ -352,7 +352,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Copies the definition record a projectile spawn installs.
+    /// Copies the definition a projectile spawn installs.
     /// Family initializers may then replace fields exactly as their
     /// authored initializer does; centralizing the copy prevents each projectile kind
     /// from inventing subtly different radius/property semantics.

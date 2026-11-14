@@ -16,7 +16,7 @@ public sealed class ZebetiteEnemyState
         IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
     }
 
-    /// <summary>The indirect main-AI entry, independent for each physical half.</summary>
+    /// <summary>The action this half runs each update, independent of the other half's.</summary>
     public ZebetiteAction? Action { get; internal set; }
 
     /// <summary>

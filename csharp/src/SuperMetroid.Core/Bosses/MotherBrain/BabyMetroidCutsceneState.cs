@@ -159,7 +159,7 @@ public sealed class BabyMetroidCutsceneState
     public bool IsDeleted => Presence.HasAny(EnemyPresence.Deleted);
 
     /// <summary>
-    /// Initializes the Baby. The population record supplies its properties; initialization
+    /// Initializes the Baby. The population entry supplies its properties; initialization
     /// adds two more, overwrites the population coordinates, and waits at X/Y
     /// 320/96 before beginning the dash. Neither enemy loading nor this
     /// initializer writes the fractions, so the Baby keeps those of its slot's previous

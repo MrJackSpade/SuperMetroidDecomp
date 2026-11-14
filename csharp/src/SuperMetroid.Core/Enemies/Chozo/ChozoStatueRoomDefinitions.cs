@@ -67,24 +67,24 @@ internal static class ChozoStatueRoomDefinitions
     public static readonly Position16<RoomBlocks> LowerNorfairHandBlock = new(12, 29);
 
     /// <summary>
-    /// The Bowling Alley screens the Wrecked Ship statue's waking makes green, in the order it writes them: the second and
-    /// third screens of the room's second row.
+    /// The Bowling Alley screens the Wrecked Ship statue's waking opens to the camera, in the order it opens them: the second
+    /// and third screens of the room's second row.
     /// </summary>
     public static readonly IReadOnlyList<Position16<RoomScreens>> WakingOpenScreens = [new(1, 1), new(2, 1)];
 
     /// <summary>
-    /// The Bowling Alley screens the Wrecked Ship statue's waking then makes blue, in the order it writes them: the second
-    /// and third screens of the room's third row, below the green ones.
+    /// The Bowling Alley screens the Wrecked Ship statue's waking then opens with the camera aligned to their top, in the
+    /// order it opens them: the second and third screens of the room's third row, below the open ones.
     /// </summary>
     public static readonly IReadOnlyList<Position16<RoomScreens>> WakingTopAlignedScreens = [new(1, 2), new(2, 2)];
 
     /// <summary>
-    /// The Bowling Alley screens the Wrecked Ship statue's release closes, in the order it writes them: the first five
+    /// The Bowling Alley screens the Wrecked Ship statue's release closes, in the order it closes them: the first five
     /// screens of the room's second row.
     /// </summary>
     public static readonly IReadOnlyList<Position16<RoomScreens>> ReleaseClosedScreens = [new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1)];
 
-    /// <summary>The Bowling Alley screen the Wrecked Ship statue's release then makes blue: the third row's second screen.</summary>
+    /// <summary>The Bowling Alley screen the Wrecked Ship statue's release then opens with the camera aligned to its top: the third row's second screen.</summary>
     public static readonly Position16<RoomScreens> ReleaseTopAlignedScreen = new(1, 2);
 
     /// <summary>The Bowling Alley screen the Wrecked Ship statue's release closes last: the third row's third screen.</summary>

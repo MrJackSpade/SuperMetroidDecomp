@@ -164,7 +164,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     /// <summary>
     /// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which the import pre-colours her sheets
     /// and body layer from (#1512). The game works with her beam backdrop's colours alone, installed by purpose
-    /// (<see cref="AreaMapPresentation.MotherBrainRainbowPalette"/>, #1637).
+    /// (<see cref="AreaMapPresentation.MotherBrainRainbowBeamColours"/>, #1637).
     /// </summary>
     public InstalledMotherBrainRainbowPalette MotherBrainRainbowColours { get; }
 

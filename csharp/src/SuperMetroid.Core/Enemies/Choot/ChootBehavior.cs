@@ -151,7 +151,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
-    /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
+    /// they cover the requested height. The table ends at row 94, so the result is an even index from 2 to 94.
     /// </summary>
     private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {

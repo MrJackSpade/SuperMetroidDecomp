@@ -34,6 +34,6 @@ internal static class MotherBrainBeamColourExtractor
         if (cartridge.ReadCartridgeWord(MotherBrainSourceDefinitions.Beam.ColorTable +
             cycle.Length * MotherBrainSourceDefinitions.Beam.ColorEntryBytes) != ushort.MaxValue)
             throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
-        return MotherBrainBeamColourFile.Write(new MotherBrainRainbowPalettePresentation(MotherBrainSourceDefinitions.Beam.InitialColor, cycle));
+        return MotherBrainBeamColourFile.Write(new MotherBrainRainbowBeamColours(MotherBrainSourceDefinitions.Beam.InitialColor, cycle));
     }
 }

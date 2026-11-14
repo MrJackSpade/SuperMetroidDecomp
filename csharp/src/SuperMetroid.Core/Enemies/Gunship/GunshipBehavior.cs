@@ -32,7 +32,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     private readonly EnemyAudioQueue _audio;
     /// <summary>Creates gunship dust during takeoff.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies room events and the bus used by Samus pose setup.</summary>
+    /// <summary>The loaded room's bindings: its events and the game-state services that set up Samus's pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;

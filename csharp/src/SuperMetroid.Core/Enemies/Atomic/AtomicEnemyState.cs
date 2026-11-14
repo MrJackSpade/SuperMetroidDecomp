@@ -2,8 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// The state of one Atomic: its two movement selections and its two speeds. Both speeds come whole from the shared
-/// linear-speed record; in particular the negative one is the table's own value, not a negation of the positive one.
+/// The state of one Atomic: its two movement selections and its two speeds. Both speeds come whole from a row of the shared
+/// linear speed table; in particular the negative one is the table's own value, not a negation of the positive one.
 /// </summary>
 public sealed class AtomicEnemyState
 {

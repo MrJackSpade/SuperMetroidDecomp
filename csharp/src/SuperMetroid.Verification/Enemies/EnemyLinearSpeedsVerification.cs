@@ -41,7 +41,7 @@ internal static class EnemyLinearSpeedsVerification
             slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires c.");
-            AssertEqual(expected, new EnemyLinearSpeedRow(c.RightVelocity, c.LeftVelocity), "Cacatac native speed setup");
+            AssertEqual(expected, new EnemyLinearSpeedRow(c.Speed, -c.Speed), "Cacatac native speed setup, negated for walking left");
             slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);

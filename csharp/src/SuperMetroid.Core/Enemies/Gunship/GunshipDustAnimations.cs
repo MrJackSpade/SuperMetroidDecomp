@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustSegment;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
@@ -10,22 +11,22 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipDustAnimations
 {
     /// <summary>Every dust animation.</summary>
-    internal static AnimationSegments<GunshipDustSegment, GunshipDustFrame, GunshipDustCue> Segments { get; } = new(
-        new Dictionary<GunshipDustSegment, AnimationBeat<GunshipDustFrame, GunshipDustCue>[]>
+    internal static AnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments { get; } = new(
+        new Dictionary<GunshipDustSegment, AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[]>
     {
         [P.RightInner] =
         [
         ],
         [P.RightInnerLoop] =
         [
-            Show(P.RightInnerLoop, 0, 8),
-            Show(P.RightInnerLoop, 1, 8),
-            Show(P.RightInnerLoop, 2, 9),
-            Show(P.RightInnerLoop, 3, 9),
-            Show(P.RightInnerLoop, 4, 10),
-            Show(P.RightInnerLoop, 5, 10),
-            Show(P.RightInnerLoop, 6, 10),
-            Show(P.RightInnerLoop, 7, 10),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopFirst, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopSecond, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopThird, 9),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopFourth, 9),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopFifth, 10),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopSixth, 10),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopSeventh, 10),
+            Show(EnemyProjectileFrameId.GunshipDustRightInnerLoopEighth, 10),
             Cue(GunshipDustCue.Delete),
         ],
         [P.RightMiddle] =
@@ -33,14 +34,14 @@ internal static class GunshipDustAnimations
         ],
         [P.RightMiddleLoop] =
         [
-            Show(P.RightMiddleLoop, 0, 6),
-            Show(P.RightMiddleLoop, 1, 6),
-            Show(P.RightMiddleLoop, 2, 7),
-            Show(P.RightMiddleLoop, 3, 7),
-            Show(P.RightMiddleLoop, 4, 8),
-            Show(P.RightMiddleLoop, 5, 8),
-            Show(P.RightMiddleLoop, 6, 8),
-            Show(P.RightMiddleLoop, 7, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopFirst, 6),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopSecond, 6),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopThird, 7),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopFourth, 7),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopFifth, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopSixth, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopSeventh, 8),
+            Show(EnemyProjectileFrameId.GunshipDustRightMiddleLoopEighth, 8),
             Cue(GunshipDustCue.Delete),
         ],
         [P.RightOuter] =
@@ -48,13 +49,13 @@ internal static class GunshipDustAnimations
         ],
         [P.RightOuterLoop] =
         [
-            Show(P.RightOuterLoop, 0, 11),
-            Show(P.RightOuterLoop, 1, 11),
-            Show(P.RightOuterLoop, 2, 12),
-            Show(P.RightOuterLoop, 3, 12),
-            Show(P.RightOuterLoop, 4, 13),
-            Show(P.RightOuterLoop, 5, 13),
-            Show(P.RightOuterLoop, 6, 13),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopFirst, 11),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopSecond, 11),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopThird, 12),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopFourth, 12),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopFifth, 13),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopSixth, 13),
+            Show(EnemyProjectileFrameId.GunshipDustRightOuterLoopSeventh, 13),
             Cue(GunshipDustCue.Delete),
         ],
         [P.LeftInner] =
@@ -62,14 +63,14 @@ internal static class GunshipDustAnimations
         ],
         [P.LeftInnerLoop] =
         [
-            Show(P.LeftInnerLoop, 0, 8),
-            Show(P.LeftInnerLoop, 1, 8),
-            Show(P.LeftInnerLoop, 2, 9),
-            Show(P.LeftInnerLoop, 3, 9),
-            Show(P.LeftInnerLoop, 4, 10),
-            Show(P.LeftInnerLoop, 5, 10),
-            Show(P.LeftInnerLoop, 6, 10),
-            Show(P.LeftInnerLoop, 7, 10),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopFirst, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopSecond, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopThird, 9),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopFourth, 9),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopFifth, 10),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopSixth, 10),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopSeventh, 10),
+            Show(EnemyProjectileFrameId.GunshipDustLeftInnerLoopEighth, 10),
             Cue(GunshipDustCue.Delete),
         ],
         [P.LeftMiddle] =
@@ -77,14 +78,14 @@ internal static class GunshipDustAnimations
         ],
         [P.LeftMiddleLoop] =
         [
-            Show(P.LeftMiddleLoop, 0, 6),
-            Show(P.LeftMiddleLoop, 1, 6),
-            Show(P.LeftMiddleLoop, 2, 7),
-            Show(P.LeftMiddleLoop, 3, 7),
-            Show(P.LeftMiddleLoop, 4, 8),
-            Show(P.LeftMiddleLoop, 5, 8),
-            Show(P.LeftMiddleLoop, 6, 8),
-            Show(P.LeftMiddleLoop, 7, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopFirst, 6),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopSecond, 6),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopThird, 7),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopFourth, 7),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopFifth, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopSixth, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopSeventh, 8),
+            Show(EnemyProjectileFrameId.GunshipDustLeftMiddleLoopEighth, 8),
             Cue(GunshipDustCue.Delete),
         ],
         [P.LeftOuter] =
@@ -92,13 +93,13 @@ internal static class GunshipDustAnimations
         ],
         [P.LeftOuterLoop] =
         [
-            Show(P.LeftOuterLoop, 0, 11),
-            Show(P.LeftOuterLoop, 1, 11),
-            Show(P.LeftOuterLoop, 2, 12),
-            Show(P.LeftOuterLoop, 3, 12),
-            Show(P.LeftOuterLoop, 4, 13),
-            Show(P.LeftOuterLoop, 5, 13),
-            Show(P.LeftOuterLoop, 6, 13),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopFirst, 11),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopSecond, 11),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopThird, 12),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopFourth, 12),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopFifth, 13),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopSixth, 13),
+            Show(EnemyProjectileFrameId.GunshipDustLeftOuterLoopSeventh, 13),
             Cue(GunshipDustCue.Delete),
         ],
     });
@@ -117,9 +118,9 @@ internal static class GunshipDustAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<GunshipDustSegment> StartingWith(GunshipDustSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="segment"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustSegment segment, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(segment, phase), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Event(cue);
 }

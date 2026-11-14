@@ -13,8 +13,8 @@ internal sealed record DeadSidehopperBehaviorDependencies
     /// <summary>Terrain.</summary>
     public required EnemyTerrain Terrain { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
+    /// <summary>The room's Shitroid's feeding, which tells the victim whether it is already gone.</summary>
+    public required IShitroidFeeding Shitroid { get; init; }
 
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }

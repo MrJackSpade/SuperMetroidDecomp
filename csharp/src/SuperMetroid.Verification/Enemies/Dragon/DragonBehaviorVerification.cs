@@ -19,30 +19,30 @@ internal static class DragonBehaviorVerification
     /// </summary>
     internal static void VerifyDragonBehavior()
     {
-        foreach (DragonAnimationSelector selector in Enum.GetValues<DragonAnimationSelector>())
+        foreach (DragonSegment selector in Enum.GetValues<DragonSegment>())
         {
-            DragonSegment program = DragonPhases.Animation(selector);
+            DragonSegment program = selector;
             (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
             ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)
             {
-                case DragonAnimationSelector.IdleFacingLeft or DragonAnimationSelector.IdleFacingRight:
+                case DragonSegment.IdleFacingLeft or DragonSegment.IdleFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([poses[0], poses[0]], [1, 1]),
                         EnemyInstructionRunner.ShownFrames(slot, 3), $"Dragon {program} pose");
                     break;
-                case DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight:
+                case DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Segments, program, DragonFrameToolingDefinitions.Spritemap),
                         EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Segments, program)), $"Dragon {program} loop");
                     break;
-                case DragonAnimationSelector.AttackingFacingLeft:
-                case DragonAnimationSelector.AttackingFacingRight:
+                case DragonSegment.AttackingFacingLeft:
+                case DragonSegment.AttackingFacingRight:
                 default:
                     int[] holds = [32, 3, 7, 3, 1];
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. poses, poses[^1]], [.. holds, 1]),
                         EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 2), $"Dragon {program} poses");
                     break;
             }
-            bool attacks = selector is DragonAnimationSelector.AttackingFacingLeft or DragonAnimationSelector.AttackingFacingRight;
+            bool attacks = selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight;
             AssertEqual(attacks, state.AnimationFinished, $"Dragon {program} attack-completion cue");
         }
         Console.WriteLine("  Dragon behavior: both idles, both wing loops and both attacks with their completion cue pass.");
@@ -71,7 +71,7 @@ internal static class DragonBehaviorVerification
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Action = DragonAction.Attacking;
-            body.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
+            body.RequestedAnimation = DragonSegment.AttackingFacingLeft;
             body.AttackCounter = 3;
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
@@ -83,13 +83,13 @@ internal static class DragonBehaviorVerification
     }
 
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>
-    private static InstallResult Install(DragonAnimationSelector selector)
+    private static InstallResult Install(DragonSegment selector)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
         enemies.DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
         state.ReinstallRequested = true;

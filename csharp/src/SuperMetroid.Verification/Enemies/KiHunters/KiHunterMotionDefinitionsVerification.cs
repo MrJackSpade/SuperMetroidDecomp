@@ -20,13 +20,13 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(low, KiHunterMotionDefinitions.Gravity.Fraction, "Native KiHunter fractional acceleration");
         AssertEqual(high, KiHunterMotionDefinitions.Gravity.UnsignedWholePixels, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
-        var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
+        var orbit = new Action<RoomEnemySlot, KiHunterWingState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleCosinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
         var slot = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
-        var state = new KiHunterEnemyState();
+        var state = new KiHunterWingState();
         // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
         const int speedReset = 10752;
         state.DetachedSpeedReset = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(speedReset);

@@ -20,7 +20,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core;
@@ -274,9 +274,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
                 index => EnemyProjectileProgramFrameSources.Operand(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
             ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, SaveStationElectricityAnimations.Segments.Frames),
-            new TorizoFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-                GunshipDustVisualDefinitions.Frames.Count,
-                index => EnemyProjectileProgramFrameSources.Operand(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
+            ShownFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud, GunshipDustAnimations.Segments.Frames),
             ShownFamily("falling spark", RoomEnemyProjectileKind.FallingSpark, FallingSparkAnimations.Segments.Frames),
             ShownFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, MagdolliteLavaAnimations.Segments.Frames),
             ShownFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustAnimations.Segments.Frames),

@@ -8,6 +8,8 @@ internal enum KagoBugProjectileSegment
 {
     /// <summary>The shared delete animation.</summary>
     SharedDelete,
+    /// <summary>The still pose a new bug holds while it waits to make its first jump.</summary>
+    Waiting,
     /// <summary>The landed animation.</summary>
     Landed,
     /// <summary>The falling animation.</summary>

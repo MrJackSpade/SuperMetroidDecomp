@@ -22,7 +22,7 @@ internal static class HibashiDefinitionsVerification
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.HibashiBehavior.InitializeHibashi;
-        Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
+        Action<RoomEnemySlot, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
 
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
@@ -35,16 +35,17 @@ internal static class HibashiDefinitionsVerification
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
-        for (int frameIndex = 0; frameIndex < 22; frameIndex++)
+        AssertEqual(22, HibashiDefinitions.EruptionSteps.Length, "Hibashi eruption steps");
+        for (int frameIndex = 0; frameIndex < HibashiDefinitions.EruptionSteps.Length; frameIndex++)
         {
-            HibashiActivityDefinition frame = HibashiEruption.ActivityFrame(frameIndex);
+            HibashiEruptionStep frame = HibashiDefinitions.EruptionSteps[frameIndex];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
                 $"Hibashi Y radius {frameIndex}");
 
             hitbox.Radius = hitbox.Radius.WithX(0);
-            applyFrame(graphics, frameIndex);
+            applyStep(graphics, frame);
             AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.Position.Y.Whole,
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,
@@ -53,12 +54,6 @@ internal static class HibashiDefinitionsVerification
                 $"Hibashi production X radius {frameIndex}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(-1),
-            "Hibashi negative activity index");
-        AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(22),
-            "Hibashi activity index beyond authored table");
-        AssertThrows<ArgumentOutOfRangeException>(() => applyFrame(graphics, 22),
-            "Hibashi production activity index beyond authored table");
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

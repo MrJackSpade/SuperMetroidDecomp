@@ -70,7 +70,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
-        state.BounceCounter = 2;
+        state.ImpactsSoFar = 0;
         state.Action = BoulderAction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
@@ -226,10 +226,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
             state.Action = BoulderAction.Rebound;
 
-            // The third impact still installs the leading zero sample before the counter
-            // goes below zero. Preserve that write even though this impact enters rolling.
-            state.BounceSpeedAccumulator = BoulderBounces.StartingPlace(state.BounceCounter);
-            if (--state.BounceCounter < 0)
+            // The third impact still restarts the bounce clock, at the curve's start, even though it enters rolling.
+            state.BounceSpeedAccumulator = BoulderBounces.RestartPlace(state.ImpactsSoFar);
+            if (++state.ImpactsSoFar == BoulderBounces.ImpactCount)
             {
                 state.PreviousY = slot.Position.Y;
                 state.Action = BoulderAction.Rolling;

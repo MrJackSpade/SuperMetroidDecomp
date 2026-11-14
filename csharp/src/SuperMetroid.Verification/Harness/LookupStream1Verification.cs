@@ -1116,17 +1116,15 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForSlot(invalid), "spread native slot rejection");
-        for (int index = 0; index < 22; index++)
+        for (int index = 0; index < HibashiDefinitions.EruptionSteps.Length; index++)
         {
-            var frame = HibashiEruption.ActivityFrame(index);
+            var frame = HibashiDefinitions.EruptionSteps[index];
             AssertEqual(Word(0xa68dbb + index * 2), frame.YOffset, "Hibashi native collision rise");
             AssertEqual(Word(0xa68de7 + index * 2), frame.YRadius, "Hibashi native collision radius");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 22, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(invalid), "Hibashi native frame rejection");
         for (ushort selector = 0; selector < 6; selector++)
         {
-            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Animation(DragonNativeWords.AnimationSelectors.Decode(selector, "Dragon animation ordinal"))), "Dragon native phase/facing program");
+            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, DragonNativeWords.Animations.Decode(selector, "Dragon animation ordinal")), "Dragon native phase/facing program");
             var role = EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(selector));
             int offset = selector & ~1;
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
@@ -1137,7 +1135,7 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
         {
-            AssertEqual(false, DragonNativeWords.AnimationSelectors.TryDecode(invalid, out _), "Dragon invalid selector rejection");
+            AssertEqual(false, DragonNativeWords.Animations.TryDecode(invalid, out _), "Dragon invalid selector rejection");
             AssertThrows<InvalidDataException>(() => EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(invalid)), "Etecoon invalid role rejection");
         }
     }

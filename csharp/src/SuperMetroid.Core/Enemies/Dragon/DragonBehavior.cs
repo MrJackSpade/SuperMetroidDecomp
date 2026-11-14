@@ -68,19 +68,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The wing begins on the left-facing wings animation and never runs body AI.
             // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
-            state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
-            state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
-            state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
-                DragonAnimationSelector.WingsFacingLeft)), AnimationPlace.StartOfAnimation);
+            state.RequestedAnimation = DragonSegment.WingsFacingLeft;
+            state.InstalledAnimation = DragonSegment.WingsFacingLeft;
+            state.Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             state.Action = DragonAction.WingNoOp;
             return;
         }
 
-        state.RequestedAnimation = DragonAnimationSelector.IdleFacingLeft;
-        state.InstalledAnimation = DragonAnimationSelector.IdleFacingLeft;
-        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
-            DragonAnimationSelector.IdleFacingLeft)), AnimationPlace.StartOfAnimation);
+        state.RequestedAnimation = DragonSegment.IdleFacingLeft;
+        state.InstalledAnimation = DragonSegment.IdleFacingLeft;
+        state.Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation);
         state.Action = DragonAction.WaitToRise;
     }
 
@@ -134,8 +132,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Rising;
 
-        // The wait records the sign of (Samus X - body X) as the body's facing. The following animation
-        // choices use that sign to select even/odd left/right table entries for both the body and its wing.
+        // The body turns to face Samus, and the body and its wing each keep their animation while turning to that side.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
         bodyState.RequestedAnimation = DragonPhases.WithFacing(
@@ -264,8 +261,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimation = state.RequestedAnimation;
         state.ReinstallRequested = false;
-        state.Playback = EnemyAnimationPlayback.Start(slot, DragonAnimations.StartingWith(DragonPhases.Animation(
-            state.RequestedAnimation)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, DragonAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>Requires the wing the Dragon body found when it was placed, still holding its authored wing.</summary>

@@ -123,9 +123,9 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="EscapeAnimalDraw"/>.</summary>
     internal static IReadOnlyDictionary<EscapeAnimalDraw, SnesAddress> EscapeAnimal { get; } = new Dictionary<EscapeAnimalDraw, SnesAddress>
     {
-        [EscapeAnimalDraw.Frame0] = new(Bank, 0x925b),
-        [EscapeAnimalDraw.Frame1] = new(Bank, 0x9265),
-        [EscapeAnimalDraw.Frame2] = new(Bank, 0x926f),
+        [EscapeAnimalDraw.Cracking] = new(Bank, 0x925b),
+        [EscapeAnimalDraw.Breaking] = new(Bank, 0x9265),
+        [EscapeAnimalDraw.Crumbling] = new(Bank, 0x926f),
         [EscapeAnimalDraw.Blank] = new(Bank, 0x9279),
     };
 

@@ -10,4 +10,4 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 /// <param name="Wings">The wings.</param>
 /// <param name="BodyState">The body state.</param>
 /// <param name="WingState">The wing state.</param>
-internal readonly record struct CreatePairResult(RoomEnemySystem Enemies, RoomEnemySlot Body, RoomEnemySlot Wings, KiHunterEnemyState BodyState, KiHunterEnemyState WingState);
+internal readonly record struct CreatePairResult(RoomEnemySystem Enemies, RoomEnemySlot Body, RoomEnemySlot Wings, KiHunterBodyState BodyState, KiHunterWingState WingState);

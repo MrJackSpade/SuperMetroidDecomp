@@ -2,9 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The state of a hopper, with its seven extra values. These names keep the place along the quadratic speed curve
-/// where the game keeps one: replacing them with gravity fields would hide the buggy quadratic speed curve that defines the
-/// retail jump arc.
+/// The state of a hopper. Its hops follow places along the quadratic speed curve: replacing them with gravity fields would
+/// hide the quadratic speed curve that defines the retail jump arc.
 /// </summary>
 public sealed class HopperEnemyState
 {
@@ -25,7 +24,7 @@ public sealed class HopperEnemyState
             : value;
     }
 
-    /// <summary>Signed whole-pixel horizontal velocity; the fractional word is always zero. Only three or its negation is stored.</summary>
+    /// <summary>Signed whole-pixel horizontal velocity, with no fraction of a pixel: three pixels an update, either way.</summary>
     public int XVelocity { get; internal set; }
 
     /// <summary>

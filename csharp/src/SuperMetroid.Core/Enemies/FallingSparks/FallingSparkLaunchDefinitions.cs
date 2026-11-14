@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
-/// <summary>Falling-spark horizontal 1/65536-pixel deltas, not initial X/Y positions.</summary>
+/// <summary>The sideways drifts a falling spark can launch with.</summary>
 public static class FallingSparkLaunchDefinitions
 {
     /// <summary>The random field that chooses a launch: the sample divided by 4, modulo 8.</summary>

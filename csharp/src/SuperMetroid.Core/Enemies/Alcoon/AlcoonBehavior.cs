@@ -104,11 +104,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             AccelerateAlcoonY(state);
             GuardAlcoonJumpSimulation(++iterations, slot);
         }
-        while (state.Velocity.Y.WholePixels < 0);
+        while (state.VerticalVelocity.WholePixels < 0);
 
         while (true)
         {
-            SignedSixteenSixteen displacement = state.Velocity.Y;
+            SignedSixteenSixteen displacement = state.VerticalVelocity;
             if (_terrain.MoveEnemyVertically(level, slot, displacement))
                 break;
             AccelerateAlcoonY(state);
@@ -173,12 +173,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetupAlcoonJumpMovement(state);
         if (signedXDistance < 0)
         {
-            state.Velocity = state.Velocity.WithWholeX(-2);
+            state.WalkingSpeed = -2;
             StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
-            state.Velocity = state.Velocity.WithWholeX(2);
+            state.WalkingSpeed = 2;
             StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
@@ -190,14 +190,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
-        if (state.Velocity.Y.WholePixels < 0)
+        if (state.VerticalVelocity.WholePixels < 0)
             return;
 
         state.Action = AlcoonAction.EmergingFalling;
         StartAlcoonAnimation(
             slot,
             state,
-            state.Velocity.X.WholePixels < 0
+            state.WalkingSpeed < 0
                 ? AlcoonSegment.AirborneLeftLookingForward
                 : AlcoonSegment.AirborneRightLookingForward);
     }
@@ -214,7 +214,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Alcoon falling AI requires room collision data.");
 
-        SignedSixteenSixteen displacement = state.Velocity.Y;
+        SignedSixteenSixteen displacement = state.VerticalVelocity;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             AccelerateAlcoonY(state);
@@ -223,12 +223,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (CoordinateAxis.Precedes(samus.Position.X.Whole, slot.Position.X.Whole))
         {
-            state.Velocity = state.Velocity.WithWholeX(-2);
+            state.WalkingSpeed = -2;
             StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
-            state.Velocity = state.Velocity.WithWholeX(2);
+            state.WalkingSpeed = 2;
             StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
@@ -255,11 +255,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Distance(state.SpawnPosition.X, slot.Position.X.Whole) >= AlcoonHideXDistance)
         {
             state.Action = AlcoonAction.HidingRising;
-            state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
+            state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-4);
             StartAlcoonAnimation(
                 slot,
                 state,
-                state.Velocity.X.WholePixels < 0
+                state.WalkingSpeed < 0
                     ? AlcoonSegment.AirborneLeftLookingForward
                     : AlcoonSegment.AirborneRightLookingForward);
             return;
@@ -269,7 +269,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        bool movingLeft = state.Velocity.X.WholePixels < 0;
+        bool movingLeft = state.WalkingSpeed < 0;
         if (samusIsLeft != movingLeft)
             return;
 
@@ -287,7 +287,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
-        if (state.Velocity.Y.WholePixels >= 0)
+        if (state.VerticalVelocity.WholePixels >= 0)
             state.Action = AlcoonAction.HidingFalling;
     }
 
@@ -310,21 +310,21 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the jump to a twelve-pixel upward velocity and half-pixel acceleration.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.Velocity = new FixedVector<RoomPixels>(
-            SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-12, 0));
-        state.YAcceleration = SignedSixteenSixteen.FromParts(0, 32768);
+        state.WalkingSpeed = 0;
+        state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-12);
+        state.YAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
     }
 
-    /// <summary>Adds the per-slot 1/65536-pixel acceleration to Alcoon's vertical velocity.</summary>
+    /// <summary>Adds the Alcoon's acceleration to its vertical velocity.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.YAcceleration);
+        state.VerticalVelocity += state.YAcceleration;
     }
 
     /// <summary>Integrates vertical velocity without collision during airborne ascent or retreat.</summary>
     private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        slot.Position = slot.Position.AdvanceY(state.Velocity.Y);
+        slot.Position = slot.Position.AdvanceY(state.VerticalVelocity);
     }
 
     /// <summary>Rejects an initializer that cannot find a landing floor within the simulation bound.</summary>
@@ -351,7 +351,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = AlcoonAction.WalkingAndFiring;
         int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
         state.StepCounter = count == 0 ? 2 : count;
-        return state.Velocity.X.WholePixels < 0
+        return state.WalkingSpeed < 0
             ? AlcoonSegment.WalkingLeft
             : AlcoonSegment.WalkingRight;
     }
@@ -368,15 +368,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Alcoon movement cue requires room collision data.");
 
-        SignedSixteenSixteen displacement = state.Velocity.X;
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.WalkingSpeed);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
             return null;
         }
 
-        int oldVelocity = state.Velocity.X.WholePixels;
-        state.Velocity = state.Velocity.WithWholeX(-oldVelocity);
+        int oldVelocity = state.WalkingSpeed;
+        state.WalkingSpeed = -oldVelocity;
         return oldVelocity >= 0
             ? AlcoonSegment.WalkingLeftLoop
             : AlcoonSegment.WalkingRightLoop;
@@ -422,7 +422,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
-        bool movingLeft = state.Velocity.X.WholePixels < 0;
+        bool movingLeft = state.WalkingSpeed < 0;
 
         // Spawning copies the fireball's complete authored
         // definition before its initializer touches position, subposition, and velocity.

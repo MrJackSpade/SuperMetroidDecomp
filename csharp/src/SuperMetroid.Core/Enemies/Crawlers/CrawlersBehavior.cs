@@ -202,8 +202,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
-        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
+        if (state.MissedSurfaceTooOften())
         {
             BeginCrawlerFall(state);
             return;
@@ -240,8 +239,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
-        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
+        if (state.MissedSurfaceTooOften())
         {
             BeginCrawlerFall(state);
             return;
@@ -344,8 +342,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
-        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
+        if (state.MissedSurfaceTooOften())
         {
             BeginCrawlerFall(state);
             return;
@@ -382,8 +379,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
-        if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
+        if (state.MissedSurfaceTooOften())
         {
             BeginCrawlerFall(state);
             return;

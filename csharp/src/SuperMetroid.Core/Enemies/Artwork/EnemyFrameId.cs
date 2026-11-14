@@ -1612,8 +1612,6 @@ public enum EnemyFrameId
     NorfairLavaJumperJumpSeventh,
     /// <summary>The Norfair lava jumper: follower, first frame.</summary>
     NorfairLavaJumperFollowerFirst,
-    /// <summary>The Norfair lava jumper: follower, second frame.</summary>
-    NorfairLavaJumperFollowerSecond,
     /// <summary>The Norfair lava jumper: follower loop, first frame.</summary>
     NorfairLavaJumperFollowerLoopFirst,
     /// <summary>The Norfair lava jumper: follower loop, third frame.</summary>
@@ -1716,8 +1714,8 @@ public enum EnemyFrameId
     DeadSkreeCorpseThird,
     /// <summary>The dead Sidehopper: hop body.</summary>
     DeadSidehopperHopBody,
-    /// <summary>The dead Sidehopper: hop alt.</summary>
-    DeadSidehopperHopAlt,
+    /// <summary>The dead Sidehopper: hopping, crouched low with its legs spread.</summary>
+    DeadSidehopperHopCrouched,
     /// <summary>The dead Sidehopper: idle.</summary>
     DeadSidehopperIdle,
     /// <summary>The dead Sidehopper: corpse.</summary>

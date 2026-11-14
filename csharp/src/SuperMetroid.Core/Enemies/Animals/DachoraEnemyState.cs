@@ -2,12 +2,10 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The state of a Dachora body or echo. The speed, the phase countdown, the echo pacing countdown, the vertical
-/// acceleration and the echo lifetime are separate values. The game keeps the speed's whole pixels and the countdowns
-/// in one place, and the acceleration's fraction and the lifetime in another, but no meaning ever reads what another
-/// left: a body's countdown always runs out at zero before its speed is next read, so its run and its shinespark both
-/// start from rest (<see cref="StartBlinking"/>, <see cref="StartCharging"/>); the echo pacing countdown and the
-/// lifetime belong to echoes, which have no speed or acceleration.
+/// The state of a Dachora body or echo. A body waits at rest for Samus, blinks, runs, charges and shinesparks: its first
+/// run starts from rest because it has not moved before it, and its shinespark starts from rest because the charge stops
+/// it (<see cref="StartCharging"/>). The echo pacing countdown and the lifetime belong to echoes, which have no speed or
+/// acceleration.
 /// </summary>
 public sealed class DachoraEnemyState
 {
@@ -48,19 +46,14 @@ public sealed class DachoraEnemyState
     internal bool ShowsOnOddFrames { get; set; }
 
     /// <summary>
-    /// Starts the warning countdown before the first run. The run that follows starts from rest: the game counts
-    /// the countdown in the place of the speed's whole pixels, which the countdown leaves at zero, and keeps the fraction.
+    /// Starts the warning countdown before the first run. The Dachora has been waiting at rest since it was placed, so
+    /// the run that follows starts from rest.
     /// </summary>
     /// <param name="duration">The countdown, in updates.</param>
-    internal void StartBlinking(int duration)
-    {
-        PhaseTimer = duration;
-        Speed = Speed.WithWholePixels(0);
-    }
+    internal void StartBlinking(int duration) => PhaseTimer = duration;
 
     /// <summary>
-    /// Starts the shinespark charge countdown. The launch that follows starts from rest: the game counts the charge
-    /// in the place of the speed's whole pixels, which the countdown leaves at zero, and clears the fraction.
+    /// Starts the shinespark charge countdown. The charge stops the Dachora, so the launch that follows starts from rest.
     /// </summary>
     /// <param name="duration">The countdown, in updates.</param>
     internal void StartCharging(int duration)

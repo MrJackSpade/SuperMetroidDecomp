@@ -54,9 +54,9 @@ public static class RoomObjectRevealAndWallVisualFiles
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.SuperMissile } => "bombed-reveal-super-missile-block",
         RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> => "crateria-escape-passage-cleared",
         RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> => "old-tourian-escape-shaft-wall-opened",
-        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Frame0 } => "escape-animal-wall-frame-0",
-        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Frame1 } => "escape-animal-wall-frame-1",
-        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Frame2 } => "escape-animal-wall-frame-2",
+        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Cracking } => "escape-animal-wall-cracking",
+        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Breaking } => "escape-animal-wall-breaking",
+        RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Crumbling } => "escape-animal-wall-crumbling",
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Blank } => "escape-animal-wall-blank",
         _ => throw new InvalidDataException($"Reveal and wall draw {draw} has no visual ID."),
     };

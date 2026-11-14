@@ -875,9 +875,9 @@ internal sealed class RoomLoader
         // then draw over (#1349, #1467); every other room shows none (#1649).
         scope.Floor = assets.CreateFloor();
 
-        // Loading the FX definition selects the door-specific record, applies its palette
-        // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
-        // effect and block animation state before colour effects and enemies begin running.
+        // Loading the room's effect chooses the entering door's own effect where it has one, applies its colour blend,
+        // chooses the picture its overlay shows, and creates its distortion and block animation state before colour
+        // effects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
@@ -896,10 +896,10 @@ internal sealed class RoomLoader
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
-        // Loading reads the FX definition after room setup and before enemies. Its selected
-        // record names two independent effect lists. The palette half must
-        // be created on every shared room-load path; Landing Site's lightning replaces the
-        // colors used by the scrolling-sky horizon on the first gameplay update.
+        // Loading reads the room's effect after room setup and before enemies. The chosen effect names two independent
+        // lists, its overlay's effects and its colour effects. The colour effects must be created on every shared
+        // room-load path; Landing Site's lightning replaces the colours the scrolling sky's horizon shows on the first
+        // gameplay update.
         var roomColourEffects = ColourEffectSystem.ForRoom(
             _colourEffectSession,
             room.State.Fx,
@@ -930,12 +930,10 @@ internal sealed class RoomLoader
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
 
-        // The room-object loader walks this list once. Each record allocates
-        // the highest free one of forty IDs before its setup executes. Immediate
-        // deletion can therefore free that same ID for the next authored record, and enemy code
-        // can observe the resulting physical identity/argument ordering. All room families
-        // enter through this one parser; an unsupported definition throws with complete record
-        // context instead of being skipped by a collection of sibling scans.
+        // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
+        // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
+        // next placement, and enemies can observe which room object holds which place. Every room-object family enters
+        // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
         // The room's room-object system is built with its bindings, then one set of runtime services
         // serves the room's room objects and enemies.
         var progress = new RoomAreaProgress(_system, room.Area);

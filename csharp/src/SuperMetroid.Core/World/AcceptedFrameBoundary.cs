@@ -98,14 +98,14 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal void PublishWhileLoading() => PublishAcceptedFrame();
 
-    /// <summary>Publishes the frame's sprites, Samus's graphics, queued artwork and the rotating-view state, in that order.</summary>
+    /// <summary>
+    /// Latches what the frame shows: its finished sprites, its shown layers, the views' scrolls, the room's effects, the
+    /// bosses' displays and the room's planes with their pictures.
+    /// </summary>
     private void PublishAcceptedFrame()
     {
-        // Preserve this order: Samus's own frame graphics precede the rest of the
-        // queued artwork, and both precede controller latching. The finished sprite list is
-        // published immediately before Samus's graphics, and the turning floor's rotation
-        // after them. Retain both displayed values so rendering sees one coherent frame
-        // instead of combining old sprites with a newer room-main rotation.
+        // The whole display is latched before the controller is, and the finished sprites first among it, so rendering
+        // sees one coherent frame instead of combining old sprites with a newer room main's turning floor.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
@@ -153,7 +153,7 @@ internal sealed class AcceptedFrameBoundary
     {
         var room = _room.ActiveRoom;
         return new(
-            // Before the first room no FX record is selected and no effect blends.
+            // Before the first room no room effect is chosen and no effect blends.
             _room.FxOverlay?.Type ?? RoomFxType.None,
             _room.FxOverlay?.Blend,
             LatchedScrollingSky.Capture(_room.ScrollingSky),

@@ -18,23 +18,23 @@ internal sealed class EnemyColourEffectShows(
     /// <inheritdoc/>
     /// <remarks>
     /// The shutter flash shows on the destroyable shutters the room holds, and on nothing once both are destroyed, as the
-    /// record's colours are then shown by no draw. Mother Brain's exploded door's fragments are pre-coloured in their own
+    /// frame's colours are then shown by no draw. Mother Brain's exploded door's fragments are pre-coloured in their own
     /// colours and do not show it (#1544).
     /// </remarks>
-    public void Show(ColourEffectColours colours, ColourEffectFrame record)
+    public void Show(ColourEffectColours colours, ColourEffectFrame frame)
     {
         switch (colours)
         {
             case ColourEffectColours.TorizoBelly:
-                bombTorizo.ShowBellyGlow(record);
+                bombTorizo.ShowBellyGlow(frame);
                 return;
             case ColourEffectColours.RidleyStatue:
             case ColourEffectColours.PhantoonStatue:
-                statue.ShowStatueGreyOut(colours, record);
+                statue.ShowStatueGreyOut(colours, frame);
                 return;
             case ColourEffectColours.TourianShutters:
-                // The flash recolours the destroyable shutters in the first escape room, whose FX record also starts it.
-                ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, record);
+                // The flash recolours the destroyable shutters in the first escape room, whose room effect also starts it.
+                ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, frame);
                 return;
             case ColourEffectColours.GunshipGlow:
                 // The gunship's glow keeps the gunship whose placement started it and shows on it (#1783).

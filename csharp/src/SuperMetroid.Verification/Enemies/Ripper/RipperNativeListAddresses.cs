@@ -17,8 +17,6 @@ internal static class RipperNativeListAddresses
     [
         new NativeProgramEntry<RipperSegment>(RipperSegment.GRipperMovingLeft, 0xe19b),
         new NativeProgramEntry<RipperSegment>(RipperSegment.GRipperMovingRight, 0xe1af),
-        new NativeProgramEntry<RipperSegment>(RipperSegment.Ripper2MovingRight, 0xe2e0),
-        new NativeProgramEntry<RipperSegment>(RipperSegment.Ripper2MovingLeft, 0xe2f4),
         new NativeProgramEntry<RipperSegment>(RipperSegment.RipperMovingRight, 0xe477),
         new NativeProgramEntry<RipperSegment>(RipperSegment.RipperMovingLeft, 0xe48b),
     ];

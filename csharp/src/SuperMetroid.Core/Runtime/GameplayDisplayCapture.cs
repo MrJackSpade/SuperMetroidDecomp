@@ -355,13 +355,12 @@ public static class GameplayDisplayCapture
             _ => throw new InvalidOperationException($"Undefined X-ray room blend {mode}."),
         };
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) level = 0;
-        bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
+        // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
+        // the X-ray keeps the display until its last step finally unfreezes gameplay.
+        bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
         FramePaint paint = warmingUp ? basis.Paint
-            : basis.Paint.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
-        // Releasing Run merely advances the beam to RestoreFirstHalf. That
-        // phase closes the beam's window on the NEXT call and clears the backdrop;
-        // restoration keeps ownership until Finish finally unfreezes gameplay.
-        bool closed = warmingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
+            : basis.Paint.WithBackdrop(closing ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
+        bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {

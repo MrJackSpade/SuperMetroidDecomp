@@ -112,19 +112,19 @@ internal static class XrayInputVerification
         for (int frame = 0; frame < 2; frame++)
         {
             runtime.StepFrame(0);
-            var restoring = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-            AssertTrue(restoring.Layers[0] is GameplayBlendLayer, "BG2 restore retains X-ray layer ownership");
-            AssertTrue(((GameplayBlendLayer)restoring.Layers[0]).Window.IsClosed,
-                "deactivation closes the beam while BG2 restore completes");
-            AssertEqual(RgbColor.Black, restoring.Paint.Backdrop, "deactivation resets the backdrop before unfreezing");
+            var closing = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+            AssertTrue(closing.Layers[0] is GameplayBlendLayer, "the beam's closing retains X-ray layer ownership");
+            AssertTrue(((GameplayBlendLayer)closing.Layers[0]).Window.IsClosed,
+                "the beam's window stays closed until the beam's last step");
+            AssertEqual(RgbColor.Black, closing.Paint.Backdrop, "the closing resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
-        AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");
+        AssertTrue(!runtime.Freeze.TimeIsFrozen, "the beam's last step releases gameplay time");
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayBlendLayer,
-            "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
+            "the beam's last step still publishes X-ray blending before the next HDMA pass resets configuration");
         AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.Colour.FadeLevels.Red,
-            "phase five clears the non-Fireflea fixed color");
+            "the beam's last step clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
         AssertTrue(!GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers.Any(layer => layer is GameplayBlendLayer),

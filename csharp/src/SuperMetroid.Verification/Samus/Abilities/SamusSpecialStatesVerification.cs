@@ -522,11 +522,11 @@ internal static void VerifySamusXray()
     AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "left near-up angle selects looking-up art");
 
-    // Releasing Dash enters states three/four/five. State five restores ordinary left
-    // standing, requests palette restoration and sound ten, and unfreezes every subsystem.
+    // Releasing Dash starts the beam's two-update closing; its last step then restores ordinary left
+    // standing, requests palette restoration and the X-ray's ending sound, and unfreezes every subsystem.
     standing.Xray.StepBeam(standing, 0);
-    AssertEqual(XrayBeamPhase.RestoreFirstHalf, standing.Xray.BeamPhase,
-        "Dash release starts first BG2 restore");
+    AssertEqual(XrayBeamPhase.Closing, standing.Xray.BeamPhase,
+        "Dash release starts the beam's closing");
     standing.Xray.StepBeam(standing, 0);
     standing.Xray.StepBeam(standing, 0);
     XrayBeamStepResult finished = standing.Xray.StepBeam(standing, 0);

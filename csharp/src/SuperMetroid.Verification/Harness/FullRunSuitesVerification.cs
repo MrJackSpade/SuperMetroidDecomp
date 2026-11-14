@@ -1089,6 +1089,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayClosingVerification.VerifyXrayClosing),
+            SuperMetroid.Verification.Samus.Abilities.XrayClosingVerification.VerifyXrayClosing),
         // X-ray's drained refusal against the original's test (#1692).
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
             SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),

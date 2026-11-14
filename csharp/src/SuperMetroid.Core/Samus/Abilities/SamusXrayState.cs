@@ -34,7 +34,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// True when Reserve recovery cleared the shared freeze flag underneath X-Ray's
-    /// still-live phase-five cone effect. The effect deliberately cannot clean itself up.
+    /// still-live finishing beam. The effect deliberately cannot clean itself up.
     /// </summary>
     public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
@@ -73,8 +73,14 @@ public sealed class SamusXrayState
     /// </summary>
     public XrayWarmUp WarmUp { get; internal set; }
 
-    /// <summary>Values zero through five are the beam's six phases.</summary>
+    /// <summary>The beam's phase once its warm-up is over.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
+
+    /// <summary>
+    /// The beam's closing: the updates of frozen time it spends after Run's release before its last step releases Samus;
+    /// over whenever the beam is not closing.
+    /// </summary>
+    public XrayClosing Closing { get; private set; }
 
     /// <summary>Right-facing angles occupy 0-127, left 128-255.</summary>
     public RotationAngle Angle { get; private set; }
@@ -159,8 +165,8 @@ public sealed class SamusXrayState
             ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
-        // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
-        // observe a nonzero freeze flag. Its phase-five cleanup immediately
+        // A second X-Ray setup under direct G-Mode makes the stranded finishing beam
+        // observe a nonzero freeze flag. Its last step immediately
         // restores the four suspended subsystems. Represent the two cone effects
         // at their shared observable boundary instead of inventing gate-specific state.
         if (cancellingDirectGMode)
@@ -206,6 +212,7 @@ public sealed class SamusXrayState
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         WarmUp = XrayWarmUp.Started;
         BeamPhase = XrayBeamPhase.NoBeam;
+        Closing = XrayClosing.Over;
         TimeIsFrozen = true;
         SuspendedSubsystems = XraySuspendedSubsystems.All;
         IsActive = true;
@@ -224,7 +231,7 @@ public sealed class SamusXrayState
 
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with frame two and a 63-tick timer, installs the dedicated handler pair, starts the
-        // visor palette, clears beam-flare state, and queues activation sound nine.
+        // visor palette, clears beam-flare state, and plays the X-ray's starting sound.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
         SpecialPaletteKind = SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
@@ -255,7 +262,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models the shared freeze flag being set when automatic
-    /// Reserve recovery begins. A stranded phase-five X-Ray object from Reserve Mode sees
+    /// Reserve recovery begins. A stranded finishing X-Ray beam from Reserve Mode sees
     /// this second trigger and can execute its forced-stand cleanup on the following frame.
     /// </summary>
     internal void FreezeSharedTimeForReserveRecovery()
@@ -266,7 +273,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models the Reserve recovery state clearing the shared freeze flag before restoring ordinary
-    /// Samus handlers. X-Ray phase five observes zero and therefore leaves its cone effect
+    /// Samus handlers. The X-Ray beam's last step observes time running and therefore leaves its cone effect
     /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
     /// </summary>
     internal void ClearSharedFreezeForReserveMode()
@@ -288,6 +295,7 @@ public sealed class SamusXrayState
         OwnsSamusControl = false;
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
+        Closing = XrayClosing.Over;
         Angle = RotationAngle.Zero;
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
@@ -399,7 +407,7 @@ public sealed class SamusXrayState
 
         if (!WarmUp.IsOver)
         {
-            // The warm-up's last update hands over to the beam's own step, whose phase zero first runs on the
+            // The warm-up's last update hands over to the beam's own step, whose no-beam phase first runs on the
             // following update.
             WarmUp = WarmUp.Spend();
             return SnapshotBeamStep(phaseAtStart, completed: false);
@@ -409,13 +417,16 @@ public sealed class SamusXrayState
         switch (BeamPhase)
         {
             case XrayBeamPhase.NoBeam:
-                BeamPhase = holdingDash ? XrayBeamPhase.Widening : XrayBeamPhase.RestoreFirstHalf;
+                if (holdingDash)
+                    BeamPhase = XrayBeamPhase.Widening;
+                else
+                    StartClosing();
                 break;
 
             case XrayBeamPhase.Widening:
                 if (!holdingDash)
                 {
-                    BeamPhase = XrayBeamPhase.RestoreFirstHalf;
+                    StartClosing();
                     break;
                 }
 
@@ -434,7 +445,7 @@ public sealed class SamusXrayState
             case XrayBeamPhase.Full:
                 if (!holdingDash)
                 {
-                    BeamPhase = XrayBeamPhase.RestoreFirstHalf;
+                    StartClosing();
                     break;
                 }
 
@@ -446,20 +457,17 @@ public sealed class SamusXrayState
                     Angle = AimedDown(Angle, AngularWidth);
                 break;
 
-            case XrayBeamPhase.RestoreFirstHalf:
-                // The game's states three/four would wait while the artwork queue lacks room; the managed queue
-                // always has room for these restorations, so each restore half completes in one call.
-                BeamPhase = XrayBeamPhase.RestoreSecondHalf;
-                break;
-
-            case XrayBeamPhase.RestoreSecondHalf:
-                BeamPhase = XrayBeamPhase.Finish;
+            case XrayBeamPhase.Closing:
+                // Each closing update keeps time frozen and Samus held; the update after the last releases her.
+                Closing = Closing.Spend();
+                if (Closing.IsOver)
+                    BeamPhase = XrayBeamPhase.Finish;
                 break;
 
             case XrayBeamPhase.Finish:
-                // The phase-five cleanup performs every cleanup write only while the shared freeze
+                // The beam's last step performs every cleanup write only while the shared freeze
                 // flag is set. Automatic Reserve completion clears that flag first;
-                // phase five then remains installed forever and produces greyout mode.
+                // the finishing beam then remains installed forever and produces greyout mode.
                 if (TimeIsFrozen)
                     Finish(samus);
                 break;
@@ -511,7 +519,7 @@ public sealed class SamusXrayState
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {
-            // Widening shows shades 0,1,2 and then pins the last until state two is observed.
+            // Widening shows shades 0,1,2 and then pins the last until the full beam is observed.
             if (VisorShade < XrayScopeDefinitions.Palette.WideningFinalShade)
                 VisorShade++;
         }
@@ -634,6 +642,7 @@ public sealed class SamusXrayState
         OwnsSamusControl = false;
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
+        Closing = XrayClosing.Over;
         Angle = RotationAngle.Zero;
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
@@ -675,6 +684,13 @@ public sealed class SamusXrayState
             SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => XrayPosture.Disallowed,
         _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
     };
+
+    /// <summary>Starts the beam's closing on the update its step reads Run released.</summary>
+    private void StartClosing()
+    {
+        BeamPhase = XrayBeamPhase.Closing;
+        Closing = XrayClosing.Started;
+    }
 
     /// <summary>Records the starting beam phase separately from whether this call removed the effect.</summary>
     private static XrayBeamStepResult SnapshotBeamStep(

@@ -397,8 +397,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
-        private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((encounter.SporeSpawn
+        /// <summary>The colours newly spawned spores share: his body's colours as they show now (#1512).</summary>
+        private SpriteGraphics SporeSpawnSporeColours => SpriteGraphics.SharedIn((encounter.SporeSpawn
             ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
 
         /// <summary>Spawns one spore projectile and runs its initializer.</summary>
@@ -412,7 +412,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 spore,
                 RoomEnemyProjectileKind.SporeSpawnSpore,
                 Spores,
-                SporeSpawnGraphicsIndex);
+                SporeSpawnSporeColours);
             spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
             spore.Position = spore.Position.WithWhole(position);
 

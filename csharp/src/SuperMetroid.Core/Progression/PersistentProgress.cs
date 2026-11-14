@@ -63,12 +63,7 @@ public sealed class PersistentProgress
     public DefeatedBosses BossesDefeatedIn(AreaId area) => _defeatedBosses[AreaIds.Require(area)];
 
     /// <summary>Replaces the bosses defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> names a boss the game does not name.</exception>
-    public void SetDefeatedBosses(AreaId area, DefeatedBosses bosses)
-    {
-        ProvenDefeatedBosses.Validate(bosses, $"{area}'s defeated bosses");
-        _defeatedBosses[AreaIds.Require(area)] = bosses;
-    }
+    public void SetDefeatedBosses(AreaId area, DefeatedBosses bosses) => _defeatedBosses[AreaIds.Require(area)] = bosses;
 
     /// <summary>Whether <paramref name="area"/>'s map has been acquired.</summary>
     public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.Require(area)];

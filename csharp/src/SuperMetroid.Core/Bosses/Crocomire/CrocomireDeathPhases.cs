@@ -4,8 +4,59 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public static class CrocomireDeathPhases
 {
     /// <summary>
-    /// The phase after <paramref name="phase"/> in the death sequence's declared order, which a finishing phase hands
-    /// over to. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last phase and has no successor.
+    /// The phase each finishing phase hands over to. The inert corpse, the pinned already-defeated room and the river
+    /// detour never hand over, so they have none.
     /// </summary>
-    public static CrocomireDeathPhase Next(this CrocomireDeathPhase phase) => EnumOrder.Next(phase);
+    private static readonly Dictionary<CrocomireDeathPhase, CrocomireDeathPhase> Successors = new()
+    {
+        [CrocomireDeathPhase.Fighting] = CrocomireDeathPhase.CrumbleBridgeAndSink,
+        [CrocomireDeathPhase.CrumbleBridgeAndSink] = CrocomireDeathPhase.FirstSubmergedPause,
+        [CrocomireDeathPhase.FirstSubmergedPause] = CrocomireDeathPhase.FirstHopRise,
+        [CrocomireDeathPhase.FirstHopRise] = CrocomireDeathPhase.FirstHopSink,
+        [CrocomireDeathPhase.FirstHopSink] = CrocomireDeathPhase.SecondSubmergedPause,
+        [CrocomireDeathPhase.SecondSubmergedPause] = CrocomireDeathPhase.SecondHopRise,
+        [CrocomireDeathPhase.SecondHopRise] = CrocomireDeathPhase.SecondHopSink,
+        [CrocomireDeathPhase.SecondHopSink] = CrocomireDeathPhase.InstallFirstMeltImage,
+        [CrocomireDeathPhase.InstallFirstMeltImage] = CrocomireDeathPhase.BeginFirstMeltPass,
+        [CrocomireDeathPhase.BeginFirstMeltPass] = CrocomireDeathPhase.ShowFirstMeltBands,
+        [CrocomireDeathPhase.ShowFirstMeltBands] = CrocomireDeathPhase.ThirdHopRise,
+        [CrocomireDeathPhase.ThirdHopRise] = CrocomireDeathPhase.StartFirstDissolve,
+        [CrocomireDeathPhase.StartFirstDissolve] = CrocomireDeathPhase.DissolveFirstImage,
+        [CrocomireDeathPhase.DissolveFirstImage] = CrocomireDeathPhase.ClearFirstMeltImage,
+        [CrocomireDeathPhase.ClearFirstMeltImage] = CrocomireDeathPhase.FourthHopSink,
+        [CrocomireDeathPhase.FourthHopSink] = CrocomireDeathPhase.ThirdSubmergedPause,
+        [CrocomireDeathPhase.ThirdSubmergedPause] = CrocomireDeathPhase.FourthHopRise,
+        [CrocomireDeathPhase.FourthHopRise] = CrocomireDeathPhase.FifthHopSink,
+        [CrocomireDeathPhase.FifthHopSink] = CrocomireDeathPhase.FourthSubmergedPause,
+        [CrocomireDeathPhase.FourthSubmergedPause] = CrocomireDeathPhase.FifthHopRise,
+        [CrocomireDeathPhase.FifthHopRise] = CrocomireDeathPhase.SixthHopSink,
+        [CrocomireDeathPhase.SixthHopSink] = CrocomireDeathPhase.InstallSecondMeltImage,
+        [CrocomireDeathPhase.InstallSecondMeltImage] = CrocomireDeathPhase.BeginSecondMeltPass,
+        [CrocomireDeathPhase.BeginSecondMeltPass] = CrocomireDeathPhase.ShowSecondMeltBands,
+        [CrocomireDeathPhase.ShowSecondMeltBands] = CrocomireDeathPhase.ShippedSpacer,
+        [CrocomireDeathPhase.ShippedSpacer] = CrocomireDeathPhase.SixthHopRise,
+        [CrocomireDeathPhase.SixthHopRise] = CrocomireDeathPhase.StartSecondDissolve,
+        [CrocomireDeathPhase.StartSecondDissolve] = CrocomireDeathPhase.DissolveSecondImage,
+        [CrocomireDeathPhase.DissolveSecondImage] = CrocomireDeathPhase.ClearSecondMeltImage,
+        [CrocomireDeathPhase.ClearSecondMeltImage] = CrocomireDeathPhase.FinalSink,
+        [CrocomireDeathPhase.FinalSink] = CrocomireDeathPhase.WaitForSamusAtWall,
+        [CrocomireDeathPhase.WaitForSamusAtWall] = CrocomireDeathPhase.RumbleHiddenWall,
+        [CrocomireDeathPhase.RumbleHiddenWall] = CrocomireDeathPhase.BreakSpikeWall,
+        [CrocomireDeathPhase.BreakSpikeWall] = CrocomireDeathPhase.DelaySkeletonFall,
+        [CrocomireDeathPhase.DelaySkeletonFall] = CrocomireDeathPhase.ArcSkeletonIntoArena,
+        [CrocomireDeathPhase.ArcSkeletonIntoArena] = CrocomireDeathPhase.WaitForSkeletonTerminalImage,
+        [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = CrocomireDeathPhase.ClearWallAndOpenScrolls,
+        [CrocomireDeathPhase.ClearWallAndOpenScrolls] = CrocomireDeathPhase.WaitForStableSkeleton,
+        [CrocomireDeathPhase.WaitForStableSkeleton] = CrocomireDeathPhase.WaitOneUpdate,
+        [CrocomireDeathPhase.WaitOneUpdate] = CrocomireDeathPhase.PublishDefeatAndRestoreMusic,
+        [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = CrocomireDeathPhase.InertCorpse,
+        [CrocomireDeathPhase.DefeatedRoomAdvance] = CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement,
+    };
+
+    /// <summary>The phase <paramref name="phase"/> hands over to when it finishes.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="phase"/> never hands over.</exception>
+    public static CrocomireDeathPhase Next(this CrocomireDeathPhase phase) =>
+        Successors.TryGetValue(phase, out CrocomireDeathPhase next)
+            ? next
+            : throw new InvalidOperationException($"Crocomire's death phase {phase} hands over to no other phase.");
 }

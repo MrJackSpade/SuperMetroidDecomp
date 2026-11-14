@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Fake Kraid's three body-spike ports, each launching from its own spike clock. Main AI visits the clocks in the
-/// declared order, one per frame, wrapping from the last to the first; nothing else reads the values.
+/// Fake Kraid's three body-spike ports, each launching from its own spike clock. Main AI visits the clocks top, middle,
+/// bottom, one per frame, then the top again; nothing reads the values or their order.
 /// </summary>
 internal enum FakeKraidSpikeRow
 {

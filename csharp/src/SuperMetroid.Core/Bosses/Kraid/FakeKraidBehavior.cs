@@ -136,7 +136,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Main AI moves on to the next port's clock before acting on this one.
         FakeKraidSpikeRow row = state.NextSpikeRow;
-        state.NextSpikeRow = EnumOrder.NextWrapping(row);
+        state.NextSpikeRow = row switch
+        {
+            FakeKraidSpikeRow.Top => FakeKraidSpikeRow.Middle,
+            FakeKraidSpikeRow.Middle => FakeKraidSpikeRow.Bottom,
+            FakeKraidSpikeRow.Bottom => FakeKraidSpikeRow.Top,
+            _ => throw new InvalidOperationException($"Undefined {nameof(FakeKraidSpikeRow)} {row}."),
+        };
         int timer = state.SpikeTimers[row];
         if (timer != 0)
         {

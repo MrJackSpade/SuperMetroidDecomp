@@ -515,26 +515,24 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>
-    private static DachoraSegment FasterDachoraRun(DachoraSegment segment) => segment switch
+    /// <summary>
+    /// The faster clone of each run loop that speeds up, where the speed-up jump lands at the same pose. The very fast
+    /// runs are the fastest.
+    /// </summary>
+    private static readonly Dictionary<DachoraSegment, DachoraSegment> FasterRuns = new()
     {
-        DachoraSegment.RunningLeft
-            or DachoraSegment.RunningLeftFast
-            or DachoraSegment.RunningRight
-            or DachoraSegment.RunningRightFast => EnumOrder.Next(segment),
-        DachoraSegment.RunningLeftVeryFast or
-            DachoraSegment.IdleLeft or
-            DachoraSegment.BlinkLeft or
-            DachoraSegment.EchoLeft or
-            DachoraSegment.FallingLeft or
-            DachoraSegment.RunningRightVeryFast or
-            DachoraSegment.IdleRight or
-            DachoraSegment.BlinkRight or
-            DachoraSegment.ChargeRight or
-            DachoraSegment.EchoRight or
-            DachoraSegment.FallingRight => throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run."),
-        _ => throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run."),
+        [DachoraSegment.RunningLeft] = DachoraSegment.RunningLeftFast,
+        [DachoraSegment.RunningLeftFast] = DachoraSegment.RunningLeftVeryFast,
+        [DachoraSegment.RunningRight] = DachoraSegment.RunningRightFast,
+        [DachoraSegment.RunningRightFast] = DachoraSegment.RunningRightVeryFast,
     };
+
+    /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="segment"/> has no faster run.</exception>
+    private static DachoraSegment FasterDachoraRun(DachoraSegment segment) =>
+        FasterRuns.TryGetValue(segment, out DachoraSegment faster)
+            ? faster
+            : throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run.");
 
     /// <summary>Uses wrapped signed positions and a strict proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>

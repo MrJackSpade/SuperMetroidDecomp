@@ -201,7 +201,10 @@ internal sealed class MotherBrainBody
                 return;
             }
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
-                state.HandBeamPhase = MotherBrainHandBeamPhases.Next(state.HandBeamPhase);
+                // The hand beam's hold has elapsed: firing finishes. Only the firing phase plays this animation.
+                state.HandBeamPhase = state.HandBeamPhase == MotherBrainHandBeamPhase.Firing
+                    ? MotherBrainHandBeamPhase.Finish
+                    : throw new InvalidOperationException($"Mother Brain's hand beam finished firing in phase {state.HandBeamPhase}.");
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyCueKind)} {cue}.");

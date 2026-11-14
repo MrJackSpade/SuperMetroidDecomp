@@ -33,7 +33,7 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.Oum] = 2048,
         [EnemyDefinitionId.Choot] = 1024,
         [EnemyDefinitionId.GRipper] = 1024,
-        [EnemyDefinitionId.Ripper2] = 1024,
+        [EnemyDefinitionId.RipperII] = 1024,
         [EnemyDefinitionId.Ripper] = 1024,
         [EnemyDefinitionId.Dragon] = 1536,
         [EnemyDefinitionId.ShutterGrowing] = 1024,

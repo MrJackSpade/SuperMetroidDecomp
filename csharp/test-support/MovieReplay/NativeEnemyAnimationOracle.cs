@@ -15,10 +15,20 @@ internal static class NativeEnemyAnimationOracle
     /// <summary>The longest duration a native frame instruction gives, which a list follows with its sleep to hold a frame.</summary>
     private const ushort NativeHeldFrameDuration = 0x7fff;
 
-    /// <summary>The native entry of <paramref name="segment"/>.</summary>
+    /// <summary>
+    /// The native entry of <paramref name="segment"/>: the first of its lists, where the cartridge repeats the segment's
+    /// list under more than one entry (#1842).
+    /// </summary>
     internal static ushort EntryOf<TSegment>(NativeProgramEntry<TSegment>[] entries, TSegment segment)
         where TSegment : struct, Enum =>
-        entries.Single(item => EqualityComparer<TSegment>.Default.Equals(item.Program, segment)).Entry;
+        entries.First(item => EqualityComparer<TSegment>.Default.Equals(item.Program, segment)).Entry;
+
+    /// <summary>The segment whose native list starts at <paramref name="entry"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="entry"/> starts no segment's list.</exception>
+    internal static TSegment SegmentOf<TSegment>(NativeProgramEntry<TSegment>[] entries, ushort entry)
+        where TSegment : struct, Enum =>
+        Ensure.NotNull(entries).Where(item => item.Entry == entry).Select(item => (TSegment?)item.Program).SingleOrDefault()
+            ?? throw new InvalidDataException($"${entry:X4} is no {typeof(TSegment).Name}'s native entry.");
 
     /// <summary>
     /// Compares every segment with its native list and every animation with the lists' control flow, and returns the
@@ -73,18 +83,38 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(segments);
         Ensure.NotNull(rules);
         RequireAuthoredOrder(entries);
-        return entries.ToDictionary(entry => entry.Program,
-            entry => Read(cartridge, bank, entries, segments, spritemap, rules, entry.Program, entry.Entry));
+        // A segment the cartridge repeats under more than one entry (#1842) is its first list; every repeat is read
+        // against the same beats and must run on, branch, count and end as that list does.
+        var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
+        foreach (NativeProgramEntry<TSegment> entry in entries)
+        {
+            NativeEnemyList<TSegment> list = Read(cartridge, bank, entries, segments, spritemap, rules, entry.Program, entry.Entry);
+            if (!lists.TryGetValue(entry.Program, out NativeEnemyList<TSegment>? first))
+            {
+                lists.Add(entry.Program, list);
+                continue;
+            }
+            VerificationAssertions.AssertTrue(list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)),
+                $"{entry.Program}'s repeated native list at ${entry.Entry:X4} continues as its first list does");
+        }
+        return lists;
+
+        static NativeEnemyControl<TSegment> Shape(NativeEnemyControl<TSegment> control) => control with { Address = 0 };
     }
 
-    /// <summary>Requires one native entry per segment, in the segments' declared (authored) order.</summary>
+    /// <summary>
+    /// Requires every segment to have a native entry and the segments' first entries to follow their declared (authored)
+    /// order. A segment whose list the cartridge repeats under more entries (#1842) lists each repeat where the cartridge
+    /// places it.
+    /// </summary>
     internal static void RequireAuthoredOrder<TSegment>(NativeProgramEntry<TSegment>[] entries)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(entries);
-        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, entries.Length, $"every typed {typeof(TSegment).Name} has a native entry");
-        for (int index = 0; index < entries.Length; index++)
-            VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>()[index], entries[index].Program, $"the {typeof(TSegment).Name} values are declared in authored order");
+        TSegment[] firsts = [.. entries.Select(entry => entry.Program).Distinct()];
+        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, firsts.Length, $"every typed {typeof(TSegment).Name} has a native entry");
+        for (int index = 0; index < firsts.Length; index++)
+            VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>()[index], firsts[index], $"the {typeof(TSegment).Name} values are declared in authored order");
     }
 
     /// <summary>

@@ -7,6 +7,6 @@ internal enum RipperPart
     GRipper,
     /// <summary>The <see cref="EnemyDefinitionId.Ripper"/> occupant.</summary>
     Ripper,
-    /// <summary>The <see cref="EnemyDefinitionId.Ripper2"/> occupant.</summary>
-    Ripper2,
+    /// <summary>The <see cref="EnemyDefinitionId.RipperII"/> occupant.</summary>
+    RipperII,
 }

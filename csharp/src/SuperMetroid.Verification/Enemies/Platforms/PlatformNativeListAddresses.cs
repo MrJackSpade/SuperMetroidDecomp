@@ -13,17 +13,20 @@ internal static class PlatformNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa3;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
+    /// <summary>
+    /// Each typed program's native entry point, in authored order. The cartridge repeats the Kamer's two headings and its
+    /// loop for its moving and its still animations; each repeat is the same typed segment (#1842).
+    /// </summary>
     internal static readonly NativeProgramEntry<PlatformSegment>[] Entries =
     [
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerMovingLeft, 0x9bbb),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerMovingLeftLoop, 0x9bbd),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerMovingRight, 0x9bd1),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerMovingRightLoop, 0x9bd3),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerStillLeft, 0x9be7),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerStillLeftLoop, 0x9be9),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerStillRight, 0x9bfd),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerStillRightLoop, 0x9bff),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingLeft, 0x9bbb),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bbd),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingRight, 0x9bd1),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bd3),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingLeft, 0x9be7),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9be9),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingRight, 0x9bfd),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bff),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeft, 0x9c13),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeftLoop, 0x9c15),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingRight, 0x9c29),

@@ -15,11 +15,10 @@ public sealed class MetareeEnemyState
     /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>
     public MetareeAction? Action { get; internal set; }
 
-    /// <summary>Animation phase requested by AI.</summary>
-    public SkreeMetareeAnimationPhase RequestedAnimation { get; internal set; }
-
-    /// <summary>Animation phase currently installed.</summary>
-    public SkreeMetareeAnimationPhase InstalledAnimation { get; internal set; }
+    /// <summary>
+    /// The animation the AI last started: idling, preparing to attack or diving. Asking for it again leaves it playing.
+    /// </summary>
+    internal SkreeMetareeSegment InstalledAnimation { get; set; }
 
     /// <summary>Set by the launch crouch's finishing cue.</summary>
     public bool AttackReady { get; internal set; }

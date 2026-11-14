@@ -14,7 +14,7 @@ internal sealed class FrameDrawings
     /// <summary>Every catalogue entry with the frames it lists resolved, its sprite objects' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
         new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.SpriteObjects.SelectMany(kind =>
-            RoomSpriteObjectAnimations.Segments.FramesOf(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Animations[kind]))).Select(RoomSpriteObjectVisualDefinitions.ShownFrames.Of))),
+            RoomSpriteObjectAnimations.Segments.FramesOf(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Animations[kind]))).Select(picture => picture.RequireEnemyFrame()))),
         new HashSet<EnemyProjectileFrameId>(drawing.Projectiles)))];
 
     /// <summary>The entries listing the frame.</summary>

@@ -48,15 +48,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             BurrowTimer = 0,
             Action = MetareeAction.Idling,
-            RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
-            InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
+            InstalledAnimation = SkreeMetareeSegment.MetareeIdling,
             AttackReady = false,
             YVelocity = 0,
         };
         slot.SetSpeciesState(state);
 
-        // The initializer starts the idle animation directly rather than going through the change detector,
-        // because the requested and the started animation both begin as idling.
+        // The initializer starts the idle animation directly rather than through StartMetareeAnimation, which would
+        // leave the idle animation it records as installed unstarted.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
@@ -114,8 +113,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.YVelocity = MetareeDiveSpeed.Of(slot.Position.Y.Whole, samus.Position.Y.Whole);
-        state.RequestedAnimation = SkreeMetareeAnimationPhase.PreparingAttack;
-        StartRequestedMetareeAnimation(slot, state);
+        StartMetareeAnimation(slot, state, SkreeMetareeSegment.MetareePreparingAttack);
         state.Action = MetareeAction.PreparingAttack;
     }
 
@@ -126,8 +124,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.AttackReady = false;
-        state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
-        StartRequestedMetareeAnimation(slot, state);
+        StartMetareeAnimation(slot, state, SkreeMetareeSegment.MetareeDiving);
         state.Action = MetareeAction.LaunchedAttack;
 
         // The dive sound is requested as the attack launches.
@@ -181,17 +178,17 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
-    /// <summary>Changes the segment only when the requested animation phase differs from the installed one.</summary>
-    internal static void StartRequestedMetareeAnimation(
+    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    internal static void StartMetareeAnimation(
         RoomEnemySlot slot,
-        MetareeEnemyState state)
+        MetareeEnemyState state,
+        SkreeMetareeSegment animation)
     {
-        SkreeMetareeAnimationPhase requested = state.RequestedAnimation;
-        if (requested == state.InstalledAnimation)
+        if (animation == state.InstalledAnimation)
             return;
 
-        state.InstalledAnimation = requested;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareeAnimationChoices.MetareeAnimation(requested)));
+        state.InstalledAnimation = animation;
+        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(animation));
     }
 
     /// <summary>Runs Metaree's main AI.</summary>

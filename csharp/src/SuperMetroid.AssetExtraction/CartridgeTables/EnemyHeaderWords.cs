@@ -44,7 +44,7 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.Oum] = 0xd37f,
         [EnemyDefinitionId.Choot] = 0xd3bf,
         [EnemyDefinitionId.GRipper] = 0xd3ff,
-        [EnemyDefinitionId.Ripper2] = 0xd43f,
+        [EnemyDefinitionId.RipperII] = 0xd43f,
         [EnemyDefinitionId.Ripper] = 0xd47f,
         [EnemyDefinitionId.Dragon] = 0xd4bf,
         [EnemyDefinitionId.ShutterGrowing] = 0xd4ff,

@@ -1,25 +1,24 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
-/// <summary>Fixed authored definitions shared by the three Pipe Bug families.</summary>
+/// <summary>
+/// The Norfair Pipe Bug formation's roles (#1840). Each member departs when its formation count reaches its target,
+/// centred on the leader's 104, eight updates per place above or below it; the European release shifts the same targets
+/// down 32 updates.
+/// </summary>
 internal static class PipeBugDefinitions
 {
-    /// <summary>
-    /// The formation initializer assigns formation release counters centered on 104,
-    /// eight ticks per vertical rank. Listing order is center, upper-near,
-    /// upper-far, lower-near, lower-far; the European release shifts the same sequence down 32 ticks.
-    /// </summary>
-    internal static readonly int[] NorfairStaggerTargets = [104, 96, 88, 112, 120];
+    /// <summary>The leader: it holds its height after rising and departs at 104.</summary>
+    internal static readonly NorfairPipeBugRole LeaderRole = new(104, PipeBugAction.NorfairLeaderStagger);
 
-    /// <summary>
-    /// The formation initializer assigns each formation slot its center/upper/lower movement
-    /// action. These are semantic role branches, not ordinal positions.
-    /// </summary>
-    internal static readonly PipeBugAction[] NorfairPostRiseActions =
-    [
-        PipeBugAction.NorfairLeaderStagger,
-        PipeBugAction.NorfairUpperNearStagger,
-        PipeBugAction.NorfairUpperFarStagger,
-        PipeBugAction.NorfairLowerNearStagger,
-        PipeBugAction.NorfairLowerFarStagger,
-    ];
+    /// <summary>The member just above the leader: it rises 16 pixels further and departs at 96.</summary>
+    internal static readonly NorfairPipeBugRole UpperNearRole = new(96, PipeBugAction.NorfairUpperNearStagger);
+
+    /// <summary>The member farthest above the leader: it rises 32 pixels further and departs at 88.</summary>
+    internal static readonly NorfairPipeBugRole UpperFarRole = new(88, PipeBugAction.NorfairUpperFarStagger);
+
+    /// <summary>The member just below the leader: it sinks 16 pixels back and departs at 112.</summary>
+    internal static readonly NorfairPipeBugRole LowerNearRole = new(112, PipeBugAction.NorfairLowerNearStagger);
+
+    /// <summary>The member farthest below the leader: it sinks 32 pixels back and departs at 120.</summary>
+    internal static readonly NorfairPipeBugRole LowerFarRole = new(120, PipeBugAction.NorfairLowerFarStagger);
 }

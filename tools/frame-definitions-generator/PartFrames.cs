@@ -177,18 +177,18 @@ internal sealed record PartFrameConfiguration(
                 ["CorpseSkree"] = ["SkreeCorpse0", "SkreeCorpse1", "SkreeCorpse2"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the four
-        // programs its own selector table names (#1513).
+        // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the three
+        // animations its own AI starts (#1513, #1810).
         new("SkreeBehavior", null, null, "SkreeMetareeAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Skree"] = ["SkreeIdling", "SkreePreparingAttack", "SkreeDiving", "SkreeStopAnimating"],
+                ["Skree"] = ["SkreeIdling", "SkreePreparingAttack", "SkreeDiving"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         new("MetareeBehavior", null, null, "SkreeMetareeAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving", "MetareeStopAnimating"],
+                ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A hopper runs the programs of the kind its definition is (HopperKindDefinitions: the Tourian Sidehopper is a large
@@ -220,7 +220,7 @@ internal sealed record PartFrameConfiguration(
         new("PlatformsBehavior", null, null, "PlatformAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Kamer2"] = ["KamerMovingLeft", "KamerMovingRight", "KamerStillLeft", "KamerStillRight"],
+                ["Kamer2"] = ["KamerHeadingLeft", "KamerHeadingRight"],
                 ["Tripper"] = ["TripperMovingLeft", "TripperMovingRight", "TripperStillMovingLeft", "TripperStillMovingRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
@@ -269,14 +269,14 @@ internal sealed record PartFrameConfiguration(
             {
                 ["GRipper"] = ["GRipperMovingLeft", "GRipperMovingRight"],
                 ["Ripper"] = ["RipperMovingLeft", "RipperMovingRight"],
-                ["Ripper2"] = ["Ripper2MovingLeft", "Ripper2MovingRight"],
+                ["RipperII"] = ["GRipperMovingLeft", "GRipperMovingRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
         {
             CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["RipperSharedFrozenLeft"] = ["GRipper", "Ripper2"],
-                ["RipperSharedFrozenRight"] = ["GRipper", "Ripper2"],
+                ["RipperSharedFrozenLeft"] = ["GRipper", "RipperII"],
+                ["RipperSharedFrozenRight"] = ["GRipper", "RipperII"],
             },
         },
         // A Ki-Hunter's body flies, swoops, hops, lands and spits; its wings follow it, or fly off detached.

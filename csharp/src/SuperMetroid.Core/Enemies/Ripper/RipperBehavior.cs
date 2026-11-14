@@ -80,7 +80,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ripper II.</summary>
-    internal static void InitializeRipper2(RoomEnemySlot slot)
+    internal static void InitializeRipperII(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
@@ -92,7 +92,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ripper II's main AI.</summary>
-    private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
+    private void RunRipperIIMain(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
         SignedSixteenSixteen displacement = state.XVelocity;
@@ -150,7 +150,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
     /// frozen frame when the projectile that hit it actually froze it.
     /// </summary>
-    private static void ResolveGRipperRipper2ShotAfterCommon(RoomEnemySlot slot)
+    private static void ResolveGRipperRipperIIShotAfterCommon(RoomEnemySlot slot)
     {
         if (slot.FrozenTimer == 0)
             return;
@@ -211,7 +211,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
     internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGRipperRipperIIShotAfterCommon(c.Enemy),
     };
 
     /// <summary>Runs GRipper's main AI.</summary>
@@ -220,10 +220,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RunGRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
-    /// <summary>Runs Ripper2's main AI.</summary>
-    internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    /// <summary>Runs RipperII's main AI.</summary>
+    internal void RunRipperIIMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRipper2Main(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
+        RunRipperIIMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
     /// <summary>Runs Ripper's main AI.</summary>
@@ -235,6 +235,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
     internal static EnemyShotReaction RipperShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGRipperRipperIIShotAfterCommon(c.Enemy),
     };
 }

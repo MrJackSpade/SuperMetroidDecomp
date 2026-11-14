@@ -110,12 +110,13 @@ internal sealed class RoomSpriteObjects
                 CoordinateAxis.Difference(spawned.Position.Whole.X, camera.X),
                 CoordinateAxis.Difference(spawned.Position.Whole.Y, camera.Y));
 
-            if (RoomSpriteObjectVisualDefinitions.SamusHitBursts.Contains(spawned.Kind))
+            // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
+            if (spawned.Frame.HitBurst is { } burst)
             {
-                hitBursts.Draw(sprites, instance++, RoomSpriteObjectVisualDefinitions.HitBurstPictures[spawned.Frame], screen);
+                hitBursts.Draw(sprites, instance++, burst, screen);
                 continue;
             }
-            EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(spawned.Frame);
+            EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, instance++),
                 EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, spawned.Graphics);
         }

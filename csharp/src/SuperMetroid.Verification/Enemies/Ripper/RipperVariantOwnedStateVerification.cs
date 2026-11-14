@@ -17,11 +17,11 @@ internal static class RipperVariantOwnedStateVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Ripper2, slot.Definition);
+        slot.Bind(EnemyDefinitionId.RipperII, slot.Definition);
         const int speedRecord = 3;
-        slot.SetSpawnParameter1(EnemyDefinitionId.Ripper2, speedRecord);
-        slot.SetSpawnParameter2(EnemyDefinitionId.Ripper2, 0);
-        RipperBehavior.InitializeRipper2(slot);
+        slot.SetSpawnParameter1(EnemyDefinitionId.RipperII, speedRecord);
+        slot.SetSpawnParameter2(EnemyDefinitionId.RipperII, 0);
+        RipperBehavior.InitializeRipperII(slot);
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 

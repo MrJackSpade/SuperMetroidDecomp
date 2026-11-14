@@ -9,11 +9,32 @@ public static class PowampMotionDefinitions
     /// <summary>The triangle wave's offset at each phase, centered at phases zero and six.</summary>
     internal static readonly int[] WiggleOffsets = [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1];
 
-    /// <summary>The balloon's rising Y offsets: four pixels higher per inflation pose.</summary>
-    internal static readonly int[] RisingBalloonOffsets = [-12, -16, -20];
+    /// <summary>The balloon's poses in the order it shows them while inflating.</summary>
+    internal static readonly IReadOnlyList<PowampBalloonPose> InflatingPoses = [PowampBalloonPose.Deflated, PowampBalloonPose.Halfway, PowampBalloonPose.Full];
 
-    /// <summary>The balloon's sinking Y offsets: four pixels lower per inflation pose.</summary>
-    internal static readonly int[] SinkingBalloonOffsets = [-20, -16, -12];
+    /// <summary>The balloon's poses in the order it shows them while sinking.</summary>
+    internal static readonly IReadOnlyList<PowampBalloonPose> SinkingPoses = [PowampBalloonPose.Full, PowampBalloonPose.Halfway, PowampBalloonPose.Deflated];
+
+    /// <summary>How far above the body the balloon sits in each pose: four pixels higher per pose it inflates.</summary>
+    internal static readonly IReadOnlyDictionary<PowampBalloonPose, int> BalloonHeights = new Dictionary<PowampBalloonPose, int>
+    {
+        [PowampBalloonPose.Deflated] = -12,
+        [PowampBalloonPose.Halfway] = -16,
+        [PowampBalloonPose.Full] = -20,
+    };
+
+    /// <summary>
+    /// Where each balloon animation starts the balloon's sequence (#1845): inflating from deflated or from halfway, which
+    /// counts the deflated pose as shown, and sinking from full or from deflated, which counts the full and halfway poses as
+    /// shown.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<PowampSegment, PowampBalloonInflation> BalloonAnimationStarts = new Dictionary<PowampSegment, PowampBalloonInflation>
+    {
+        [PowampSegment.BalloonInflatingFromDeflated] = new(PowampBalloonSequence.Inflating, PosesShown: 0),
+        [PowampSegment.BalloonInflatingFromHalfway] = new(PowampBalloonSequence.Inflating, PosesShown: 1),
+        [PowampSegment.BalloonStartSinking] = new(PowampBalloonSequence.Sinking, PosesShown: 0),
+        [PowampSegment.BalloonDeflated] = new(PowampBalloonSequence.Sinking, PosesShown: 2),
+    };
 
     /// <summary>
     /// The order a burst fires its eight spikes in, anticlockwise from up and left round to straight up; each spike takes
@@ -42,12 +63,12 @@ public static class PowampMotionDefinitions
         };
 
     /// <summary>
-    /// The inflate stage a sinking balloon restarts when Powamp dies, by the sinking poses it had shown: after two it
-    /// restarts inflating from halfway, after three from deflated. One that had shown a single sinking pose keeps sinking.
+    /// The inflate stage a sinking balloon restarts when Powamp dies, by the pose it has sunk to (#1839): sunk halfway it
+    /// restarts inflating from halfway, sunk deflated from deflated. One still full keeps sinking.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<int, PowampSegment> SunkBalloonRestarts = new Dictionary<int, PowampSegment>
+    internal static readonly IReadOnlyDictionary<PowampBalloonPose, PowampSegment> SunkBalloonRestarts = new Dictionary<PowampBalloonPose, PowampSegment>
     {
-        [2] = PowampSegment.BalloonInflatingFromHalfway,
-        [3] = PowampSegment.BalloonInflatingFromDeflated,
+        [PowampBalloonPose.Halfway] = PowampSegment.BalloonInflatingFromHalfway,
+        [PowampBalloonPose.Deflated] = PowampSegment.BalloonInflatingFromDeflated,
     };
 }

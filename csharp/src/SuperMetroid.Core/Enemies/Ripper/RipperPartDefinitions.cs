@@ -8,6 +8,6 @@ internal static class RipperPartDefinitions
     {
         [EnemyDefinitionId.GRipper] = RipperPart.GRipper,
         [EnemyDefinitionId.Ripper] = RipperPart.Ripper,
-        [EnemyDefinitionId.Ripper2] = RipperPart.Ripper2,
+        [EnemyDefinitionId.RipperII] = RipperPart.RipperII,
     };
 }

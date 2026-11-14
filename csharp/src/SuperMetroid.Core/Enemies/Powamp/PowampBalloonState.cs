@@ -1,7 +1,27 @@
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
-/// <summary>Whether a Powamp balloon is sinking, and how many poses it shows.</summary>
-/// <param name="Sinking">The sinking.</param>
-/// <param name="ShownPoses">The shown poses.</param>
-[IndependentFlag("whether the balloon program is a sinking one, a fact of the running animation program")]
-internal readonly record struct PowampBalloonState(bool Sinking, int ShownPoses);
+/// <summary>
+/// The state of a Powamp's balloon (#1845), the half its body moves: where it spawned, how far a grapple lifts the pair,
+/// and its inflate or sink animation with the pose it stands at.
+/// </summary>
+public sealed class PowampBalloonState
+{
+    /// <summary>The balloon's inflate or sink animation and where it stands in it (#1600).</summary>
+    internal AnimationPlayback<PowampSegment> Playback { get; set; }
+
+    /// <summary>Where the balloon's inflate or sink sequence stands, recorded as the animation shows each pose.</summary>
+    public PowampBalloonInflation Inflation { get; internal set; }
+
+    /// <summary>The balloon's original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations.</summary>
+    public Position16<RoomPixels> Spawn { get; internal set; }
+
+    /// <summary>
+    /// The balloon's grappled rise in room pixels, copied from its spawn settings and subtracted from the balloon's spawn
+    /// Y, wrapping at the room's top edge, to obtain the grappled body's target.
+    /// </summary>
+    public int GrappleTravelDistance { get; internal set; }
+
+    /// <summary>Whether touch and shot AI are refused: from spawn for a balloon with a nonzero grapple travel distance.</summary>
+    public bool RefusesContact { get; internal set; }
+}

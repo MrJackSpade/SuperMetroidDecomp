@@ -41,7 +41,7 @@ public static class SamusPaletteDefinitions
         public const int SpeedBoostFlashShade = 3;
     }
 
-    /// <summary>Palette object spawned with the Hyper Beam.</summary>
+    /// <summary>The colour effect the Hyper Beam starts when Samus receives it.</summary>
     public static class HyperBeamFx
     {
         /// <summary>How the Hyper Beam's colour effect starts: plainly.</summary>
@@ -57,27 +57,12 @@ public static class SamusPaletteDefinitions
         public const int WhiteoutShadeCount = 22;
     }
 
-    /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
+    /// <summary>Two independently timed colour cycles used by Crystal Flash.</summary>
     /// <remarks>
-    /// The stock body colors are six ten-colour cycle steps,
-    /// <c>r = 0..5</c>. The first colour is always
-    /// 14336; the other nine in each step are the same grayscale colour
-    /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
-    /// levels 16, 19, 23, 27, 23, 19 and matches all 60 colours in the
-    /// authored data. The body colour animation selects steps
-    /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
-    /// the following six bubble colors have a separate cursor and timer.
-    /// Keep both streams live for the stock presentation. Body-color
-    /// investigation: #625 / #902.
-    /// The six bubble colors follow each step's ten body colors.
-    /// For bubble color <c>c = 0..5</c>, let
-    /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
-    /// The stock colour is 32767 less 1056 times <c>q</c>, except
-    /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
-    /// All 36 colours, including that authored exception, match the
-    /// authored data. The bubble cursor visits steps 0..5 and wraps
-    /// independently of the body steps. Bubble-color investigation:
-    /// #625 / #903.
+    /// Samus's body brightens through six grey shades and dims back again, ten steps in all; the bubble around her cycles
+    /// its own six shades on a separate timer, wrapping independently of the body. Both cycles stay live while Crystal
+    /// Flash runs. The shades themselves are installed colours (the import's Crystal Flash colour format describes
+    /// how they derive from the original's data; #625, #902, #903).
     /// </remarks>
     public static class CrystalFlash
     {

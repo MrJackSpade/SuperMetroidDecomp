@@ -158,7 +158,7 @@ internal static class SamusPoseMetadata
     /// Applies the pose part of the setup for the Zebes start:
     /// the suit's front-view pose and its initialization. Unlike
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
-    /// Samus nor clears motion. Callers own the palette object and the special frame.
+    /// Samus nor clears motion. Callers own the suit's colours and the special frame.
     /// </summary>
     public static void ApplyZebesStartPoseSetup(SamusState samus)
     {

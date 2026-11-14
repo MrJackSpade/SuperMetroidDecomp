@@ -6,8 +6,8 @@ using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Hyper Beam colour effect, the projectile palette cycle
-/// installed when Samus receives the Hyper Beam.
+/// The Hyper Beam colour effect, the projectile colour cycle
+/// started when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
 /// The state retains the animation position and timer. Fixed animation control is
@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class HyperBeamColourEffectState
 {
-    /// <summary>The colours the Hyper Beam palette animation names, which its object checks the animation against.</summary>
+    /// <summary>The colours the Hyper Beam's colour animation names, which the effect checks the animation against.</summary>
     private const ColourEffectColours AnimationColours = ColourEffectColours.HyperBeam;
 
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
@@ -26,17 +26,17 @@ public sealed class HyperBeamColourEffectState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Per-object frame hold. Spawn initializes it to one; the effect
-    /// decrements before testing, so the first palette record executes on its first call.
+    /// The current shade's remaining hold. Spawn initializes it to one; the effect
+    /// decrements before testing, so the first shade shows on its first update.
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The cycle position of the last palette record written, or none before its first update.</summary>
+    /// <summary>The cycle position of the last shade shown, or none before its first update.</summary>
     public int? CurrentFrameIndex { get; private set; }
 
     /// <summary>
-    /// Performs the palette effect's spawn-time state initialization for
-    /// the Hyper Beam palette object. No colors are copied until the global handler runs.
+    /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
+    /// (<see cref="Step"/>).
     /// </summary>
     public void Spawn()
     {
@@ -49,7 +49,7 @@ public sealed class HyperBeamColourEffectState
         Place = AnimationPlace.StartOfAnimation;
     }
 
-    /// <summary>Runs one step of the colour effect for the Hyper Beam object.</summary>
+    /// <summary>Runs one update of the Hyper Beam's colour effect.</summary>
     public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);

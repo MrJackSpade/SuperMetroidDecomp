@@ -61,8 +61,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         var state = new MaridiaLargeSnailEnemyState
         {
-            RequestedAnimation = MaridiaLargeSnailAnimation.FacingRightIdle,
-            InstalledAnimation = MaridiaLargeSnailAnimation.FacingRightIdle,
+            RequestedAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
+            InstalledAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
             AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
@@ -452,8 +452,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailAnimationChoices
-            .Animation(state.RequestedAnimation)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, MaridiaLargeSnailAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>

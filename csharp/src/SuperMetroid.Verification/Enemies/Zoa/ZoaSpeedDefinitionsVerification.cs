@@ -40,11 +40,11 @@ internal static class ZoaSpeedDefinitionsVerification
         {
             int magnitude = Record(stage);
             state.LaunchSpeed = speeds[stage];
-            foreach (ZoaAnimationSelector direction in new[] { ZoaAnimationSelector.ShootingFacingLeft, ZoaAnimationSelector.ShootingFacingRight })
+            foreach (ZoaSegment direction in new[] { ZoaSegment.FacingLeftShooting, ZoaSegment.FacingRightShooting })
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
                 state.RequestedAnimation = state.InstalledAnimation = direction;
-                int displacement = direction == ZoaAnimationSelector.ShootingFacingLeft ? -magnitude : magnitude;
+                int displacement = direction == ZoaSegment.FacingLeftShooting ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
                 {
                     actor.Position = new(new(128, (ushort)fraction), new(128, 123));
@@ -62,7 +62,7 @@ internal static class ZoaSpeedDefinitionsVerification
         // writes only the whole words, so both subpixel fractions carry into the next flight.
         state.LaunchSpeed = SignedSixteenSixteen.Zero;
         state.RequestedAnimation = state.InstalledAnimation =
-            ZoaAnimationSelector.ShootingFacingLeft;
+            ZoaSegment.FacingLeftShooting;
         state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));
         int resetDisplacement = -Record(0);

@@ -1,23 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>Chooses a Zoa's animation by its facing and movement (#1624), and the segment each animation plays.</summary>
+/// <summary>Chooses a Zoa's animation by its facing and movement (#1624, #1810).</summary>
 internal static class ZoaAnimationChoices
 {
-    /// <summary>The animation <paramref name="selector"/> plays.</summary>
-    internal static ZoaSegment Animation(ZoaAnimationSelector selector) =>
-        ZoaAnimationDefinitions.Animations.TryGetValue(selector, out ZoaSegment segment)
-            ? segment
-            : throw new ArgumentOutOfRangeException(nameof(selector), selector, $"Undefined {nameof(ZoaAnimationSelector)}.");
-
     /// <summary>The rising animation facing right or left.</summary>
-    internal static ZoaAnimationSelector Rising(bool facingRight) =>
-        facingRight ? ZoaAnimationSelector.RisingFacingRight : ZoaAnimationSelector.RisingFacingLeft;
+    internal static ZoaSegment Rising(bool facingRight) =>
+        facingRight ? ZoaSegment.FacingRightRising : ZoaSegment.FacingLeftRising;
 
-    /// <summary>The shooting animation with <paramref name="selector"/>'s facing.</summary>
-    internal static ZoaAnimationSelector ShootingWithSameFacing(ZoaAnimationSelector selector) => selector switch
+    /// <summary>The shooting animation with <paramref name="animation"/>'s facing.</summary>
+    internal static ZoaSegment ShootingWithSameFacing(ZoaSegment animation) => animation switch
     {
-        ZoaAnimationSelector.RisingFacingLeft or ZoaAnimationSelector.ShootingFacingLeft => ZoaAnimationSelector.ShootingFacingLeft,
-        ZoaAnimationSelector.RisingFacingRight or ZoaAnimationSelector.ShootingFacingRight => ZoaAnimationSelector.ShootingFacingRight,
-        _ => throw new ArgumentOutOfRangeException(nameof(selector), selector, $"Undefined {nameof(ZoaAnimationSelector)}."),
+        ZoaSegment.FacingLeftRising or ZoaSegment.FacingLeftShooting => ZoaSegment.FacingLeftShooting,
+        ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting => ZoaSegment.FacingRightShooting,
+        _ => throw new ArgumentOutOfRangeException(nameof(animation), animation, $"Undefined {nameof(ZoaSegment)}."),
     };
 }

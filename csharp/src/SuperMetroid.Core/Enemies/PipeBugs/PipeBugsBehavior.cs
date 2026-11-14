@@ -65,11 +65,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Action = PipeBugAction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
-        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
-        state.InstalledAnimation = PipeBugAnimationSelector.RisingFacingLeft;
-        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugAnimationChoices.BrinstarAnimation(
-            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            PipeBugAnimationSelector.RisingFacingLeft)), AnimationPlace.StartOfAnimation);
+        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
+        state.InstalledAnimation = state.RequestedAnimation;
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.RequestedAnimation), AnimationPlace.StartOfAnimation);
+    }
+
+    /// <summary>Whether the Brinstar Pipe Bug in <paramref name="slot"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
+    private static bool IsStrong(RoomEnemySlot slot) =>
+        slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong;
     }
 
     /// <summary>Initializes the Norfair Pipe Bug.</summary>
@@ -235,7 +238,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.AnimationClock.ClearRepeats();
         state.RequestedAnimation = PipeBugAnimationChoices.Rising(
-            state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+            IsStrong(slot), state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
@@ -280,7 +283,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // This apparently strange assignment is literal game behaviour: the game
         // stores the integer spawn Y as both whole and fraction rather than clearing the fraction.
         slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
-        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
+        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
@@ -295,9 +298,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(PipeBugAnimationChoices.BrinstarAnimation(
-            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            state.RequestedAnimation)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>

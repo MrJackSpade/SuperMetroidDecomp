@@ -36,14 +36,26 @@ internal static class PipeBugsNativeWords
     });
 
     /// <summary>
-    /// The Brinstar animation-table index naming each <see cref="PipeBugAnimationSelector"/>: bit zero is the shooting
-    /// animation and bit one the right facing.
+    /// The Brinstar animation-table index naming each Zeb animation: bit zero is the shooting animation and bit one the
+    /// right facing.
     /// </summary>
-    internal static readonly NativeWordIdentities<PipeBugAnimationSelector> BrinstarAnimations = new(new Dictionary<PipeBugAnimationSelector, ushort>
+    private static readonly NativeWordIdentities<PipeBugSegment> ZebAnimations = new(new Dictionary<PipeBugSegment, ushort>
     {
-        [PipeBugAnimationSelector.RisingFacingLeft] = 0,
-        [PipeBugAnimationSelector.ShootingFacingLeft] = 1,
-        [PipeBugAnimationSelector.RisingFacingRight] = 2,
-        [PipeBugAnimationSelector.ShootingFacingRight] = 3,
+        [PipeBugSegment.ZebRisingLeft] = 0,
+        [PipeBugSegment.ZebShootingLeft] = 1,
+        [PipeBugSegment.ZebRisingRight] = 2,
+        [PipeBugSegment.ZebShootingRight] = 3,
     });
+
+    /// <summary>The same index naming each Zebbo animation, read through the strong bug's table.</summary>
+    private static readonly NativeWordIdentities<PipeBugSegment> ZebboAnimations = new(new Dictionary<PipeBugSegment, ushort>
+    {
+        [PipeBugSegment.ZebboRisingLeft] = 0,
+        [PipeBugSegment.ZebboShootingLeft] = 1,
+        [PipeBugSegment.ZebboRisingRight] = 2,
+        [PipeBugSegment.ZebboShootingRight] = 3,
+    });
+
+    /// <summary>The animation-table indexes of a strong Zebbo's or an ordinary Zeb's animations.</summary>
+    internal static NativeWordIdentities<PipeBugSegment> BrinstarAnimations(bool strong) => strong ? ZebboAnimations : ZebAnimations;
 }

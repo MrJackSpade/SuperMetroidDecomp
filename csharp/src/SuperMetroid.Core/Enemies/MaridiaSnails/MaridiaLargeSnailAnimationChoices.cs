@@ -1,16 +1,10 @@
-using A = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailAnimation;
+using A = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailSegment;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>Chooses Oum's animation by its facing and action (#1624), and the segment each animation plays.</summary>
+/// <summary>Chooses Oum's animation by its facing and action (#1624, #1810).</summary>
 internal static class MaridiaLargeSnailAnimationChoices
 {
-    /// <summary>The segment of <paramref name="animation"/>.</summary>
-    internal static MaridiaLargeSnailSegment Animation(A animation) =>
-        MaridiaLargeSnailAnimationDefinitions.Animations.TryGetValue(animation, out MaridiaLargeSnailSegment segment)
-            ? segment
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, $"Undefined {nameof(MaridiaLargeSnailAnimation)}.");
-
     /// <summary>The idle animation facing left or right.</summary>
     internal static A Idle(bool facingLeft) => facingLeft ? A.FacingLeftIdle : A.FacingRightIdle;
 

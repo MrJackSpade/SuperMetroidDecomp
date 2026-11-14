@@ -368,9 +368,11 @@ internal static class NativeSnapshotImport
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = unchecked((short)words.D);
-                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(words.E, "recorded Pipe Bug requested animation");
+                bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
+                    == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
+                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
-                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(
+                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(
                     W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64), "recorded Pipe Bug installed animation");
             }
         }

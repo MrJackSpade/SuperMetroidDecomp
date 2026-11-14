@@ -42,8 +42,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ZoaEnemyState
         {
             Action = ZoaAction.WaitForSamus,
-            RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft,
-            InstalledAnimation = ZoaAnimationSelector.ShootingFacingLeft,
+            RequestedAnimation = ZoaSegment.FacingLeftShooting,
+            InstalledAnimation = ZoaSegment.FacingLeftShooting,
             LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = slot.Position.Whole,
         };
@@ -51,7 +51,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer starts the left-facing shooting animation directly and records it as started, so asking for it
         // again at rest starts nothing.
-        state.Playback = new(ZoaAnimations.StartingWith(ZoaAnimationChoices.Animation(ZoaAnimationSelector.ShootingFacingLeft)), AnimationPlace.StartOfAnimation);
+        state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -131,7 +131,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Shooting facing left travels left; any other animation travels right. The shooting animation's cues change the
         // speed at its 64-, 8- and 48-update marks.
-        SignedSixteenSixteen xDisplacement = state.RequestedAnimation == ZoaAnimationSelector.ShootingFacingLeft
+        SignedSixteenSixteen xDisplacement = state.RequestedAnimation == ZoaSegment.FacingLeftShooting
             ? -speed
             : speed;
         slot.Position = slot.Position.AdvanceX(xDisplacement);
@@ -147,7 +147,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // rise and the shot carry into the next flight.
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
-        state.RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft;
+        state.RequestedAnimation = ZoaSegment.FacingLeftShooting;
         SetZoaAnimation(slot, state);
         state.Action = ZoaAction.WaitForSamus;
     }
@@ -158,7 +158,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, ZoaAnimations.StartingWith(ZoaAnimationChoices.Animation(state.RequestedAnimation)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, ZoaAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>Runs Zoa's main AI.</summary>

@@ -9,10 +9,10 @@ public enum EndingFloorShot
 {
     /// <summary>The phase shows no floor.</summary>
     None,
-    /// <summary>The first escape backdrop.</summary>
-    EscapeA,
-    /// <summary>The second escape backdrop.</summary>
-    EscapeB,
+    /// <summary>The escape through the side clouds, over the exploding planet's lava and crust.</summary>
+    SideCloudEscape,
+    /// <summary>The escape between the top and bottom clouds, through the grey clouds.</summary>
+    TopAndBottomCloudEscape,
     /// <summary>Zebes exploding.</summary>
     PlanetExplosion,
     /// <summary>The gunship flying away from the explosion.</summary>

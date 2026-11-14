@@ -190,7 +190,7 @@ internal static class EndingPaletteArtworkVerification
         foreach (EndingCreditsPhase phase in new[]
         {
             EndingCreditsPhase.WaitForEscapeMusic,
-            EndingCreditsPhase.FadeInEscapeSceneB,
+            EndingCreditsPhase.FadeInTopAndBottomCloudEscape,
             EndingCreditsPhase.FadeInZebesExplosion,
             EndingCreditsPhase.ZebesExplosionHold,
             EndingCreditsPhase.PlanetEscapeFast,

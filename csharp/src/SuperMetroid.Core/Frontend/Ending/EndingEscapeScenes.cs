@@ -35,15 +35,15 @@ internal sealed class EndingEscapeScenes
         _artwork = artwork;
     }
 
-    /// <summary>Loads the first cloud scene, resets its turning-floor transform and queues escape music.</summary>
-    internal void SetupEscapeSceneA()
+    /// <summary>Loads the side-cloud escape, resets its turning-floor transform and queues escape music.</summary>
+    internal void SetupSideCloudEscape()
     {
         _stage.LoadColours(EndingColourLoad.Escape);
         sprites.Clear();
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
+        _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightLeading, EndingSpriteRole.SideCloudRightLeading);
+        _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftLeading, EndingSpriteRole.SideCloudLeftLeading);
+        _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
+        _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
@@ -57,22 +57,22 @@ internal sealed class EndingEscapeScenes
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
-    /// <summary>Installs the second cloud backdrop and grey-cloud palette effect before its fade-in.</summary>
-    internal void SetupEscapeSceneB()
+    /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud palette effect before its fade-in.</summary>
+    internal void SetupTopAndBottomCloudEscape()
     {
         _stage.ResetColourEffects();
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.GreyClouds, 0);
         sprites.Clear();
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
-        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
+        _stage.SpawnSprite(EndingActorDefinitions.TopCloudPattern, EndingSpriteRole.TopCloudPattern);
+        _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
+        _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
+        _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
-        _stage.Phase = EndingCreditsPhase.FadeInEscapeSceneB;
+        _stage.Phase = EndingCreditsPhase.FadeInTopAndBottomCloudEscape;
     }
 
     /// <summary>Advances each cloud's zoom-relative motion and its private cue stream.</summary>
@@ -203,8 +203,8 @@ internal sealed class EndingEscapeScenes
             case CinematicSpriteCueKind.SpawnInitialExplosionWave:
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
             case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnRinkas0And1:
-            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
+            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
             case CinematicSpriteCueKind.SpawnSuitedJump:
             case CinematicSpriteCueKind.SpawnSuitlessJump:
             case CinematicSpriteCueKind.StartFlyingToZebes:

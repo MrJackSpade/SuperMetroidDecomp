@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightSprit
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
@@ -109,8 +110,8 @@ internal static class CeresFlightArtworkVerification
         for (int index = 0; index < document.Actors.Length; index++)
         {
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
-            AssertEqual(source.Id, document.Actors[index].Id,
-                $"Ceres flight actor {index} retains its native role");
+            AssertEqual(source.Role, document.Actors[index].Role,
+                $"Ceres flight actor {index} retains its role");
             // The installed positions are signed (#1627): an operand of 65504 places the actor 32 pixels left of the origin.
             AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
@@ -122,12 +123,12 @@ internal static class CeresFlightArtworkVerification
                 $"Ceres flight actor {index} Y is the cartridge operand as a signed position");
         }
 
-        document.Actors[0] = document.Actors[0] with { Id = "wrong-actor" };
+        document.Actors[0] = document.Actors[0] with { Role = CeresRearViewActorRole.RearStars };
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
             CeresFlightActorLayoutFile.Write(invalid, document);
             _ = CeresFlightActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
-        }, "Ceres flight layout rejects missing or reordered actor identities on read");
+        }, "Ceres flight layout rejects a missing or repeated actor role on read");
     }
 }

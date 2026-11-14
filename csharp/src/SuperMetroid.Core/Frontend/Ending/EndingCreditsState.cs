@@ -120,7 +120,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     setupFrameWaits++;
                     return;
                 }
-                EscapeScenes.SetupEscapeSceneA();
+                EscapeScenes.SetupSideCloudEscape();
                 break;
 
             case EndingCreditsPhase.WaitForEscapeMusic:
@@ -130,52 +130,52 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, 0);
                     Stage.Brightness = 0;
                     Stage.RestartFadeCadence();
-                    Stage.Phase = EndingCreditsPhase.FadeInEscapeSceneA;
+                    Stage.Phase = EndingCreditsPhase.FadeInSideCloudEscape;
                 }
                 break;
 
-            case EndingCreditsPhase.FadeInEscapeSceneA:
+            case EndingCreditsPhase.FadeInSideCloudEscape:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeIn())
-                    Stage.Phase = EndingCreditsPhase.EscapeSceneA;
+                    Stage.Phase = EndingCreditsPhase.SideCloudEscape;
                 break;
 
-            case EndingCreditsPhase.EscapeSceneA:
+            case EndingCreditsPhase.SideCloudEscape:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.RestartFadeCadence();
-                    Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
+                    Stage.Phase = EndingCreditsPhase.FadeOutSideCloudEscape;
                 }
                 break;
 
-            case EndingCreditsPhase.FadeOutEscapeSceneA:
+            case EndingCreditsPhase.FadeOutSideCloudEscape:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeOut())
-                    EscapeScenes.SetupEscapeSceneB();
+                    EscapeScenes.SetupTopAndBottomCloudEscape();
                 break;
 
-            case EndingCreditsPhase.FadeInEscapeSceneB:
+            case EndingCreditsPhase.FadeInTopAndBottomCloudEscape:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeIn())
-                    Stage.Phase = EndingCreditsPhase.EscapeSceneB;
+                    Stage.Phase = EndingCreditsPhase.TopAndBottomCloudEscape;
                 break;
 
-            case EndingCreditsPhase.EscapeSceneB:
+            case EndingCreditsPhase.TopAndBottomCloudEscape:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.RestartFadeCadence();
-                    Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
+                    Stage.Phase = EndingCreditsPhase.FadeOutTopAndBottomCloudEscape;
                 }
                 break;
 
-            case EndingCreditsPhase.FadeOutEscapeSceneB:
+            case EndingCreditsPhase.FadeOutTopAndBottomCloudEscape:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeOut())

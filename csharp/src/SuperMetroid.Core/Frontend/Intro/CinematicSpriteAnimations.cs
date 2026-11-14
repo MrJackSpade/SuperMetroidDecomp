@@ -59,7 +59,7 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.SpawnParticles)),
             Show(S.EggRemnant1, 10),
         ],
-        [P.MetroidEggHatchedFrame2] =
+        [P.MetroidEggRemnantsSettling] =
         [
             Show(S.EggRemnant2, 10),
             Show(S.EggRemnant3, 10),
@@ -206,54 +206,54 @@ internal static class CinematicSpriteAnimations
             Show(S.LargeBlast3, 5),
             Show(S.Blank, 8),
         ],
-        [P.MetroidEggParticle1] =
+        [P.MetroidEggShellUpperLeft] =
         [
-            Show(S.EggFragment0, 1),
+            Show(S.EggShellUpperLeft, 1),
         ],
-        [P.MetroidEggParticle2] =
+        [P.MetroidEggShellUpperRight] =
         [
-            Show(S.EggFragment1, 1),
+            Show(S.EggShellUpperRight, 1),
         ],
-        [P.MetroidEggParticle3] =
+        [P.MetroidEggShellLeft] =
         [
-            Show(S.EggFragment2, 1),
+            Show(S.EggShellLeft, 1),
         ],
-        [P.MetroidEggParticle4] =
+        [P.MetroidEggShellCentre] =
         [
-            Show(S.EggFragment3, 1),
+            Show(S.EggShellCentre, 1),
         ],
-        [P.MetroidEggParticle5] =
+        [P.MetroidEggShellRight] =
         [
-            Show(S.EggFragment4, 1),
+            Show(S.EggShellRight, 1),
         ],
-        [P.MetroidEggParticle6] =
+        [P.MetroidEggShellLower] =
         [
-            Show(S.EggFragment5, 1),
+            Show(S.EggShellLower, 1),
         ],
-        [P.MetroidEggParticle7] =
+        [P.MetroidEggSlimeDrop] =
         [
             Show(S.SlimeMoving, 1),
         ],
-        [P.MetroidEggParticleHitGround] =
+        [P.MetroidEggSlimeImpact] =
         [
             Show(S.SlimeImpact0, 10),
             Show(S.SlimeImpact1, 10),
             Show(S.SlimeImpact2, 10),
             Show(S.SlimeImpact3, 10),
         ],
-        [P.ZebesStarSheet0] =
+        [P.ZebesStarsUpperLeft] =
         [
             Show(S.ZebesStarsUpperLeft, 10),
         ],
-        [P.ZebesStarSheet1] =
+        [P.ZebesStarsUpperRight] =
         [
             Show(S.ZebesStarsUpperRight, 10),
         ],
-        [P.ZebesStarSheet2] =
+        [P.ZebesStarsLowerLeft] =
         [
             Show(S.ZebesStarsLowerLeft, 10),
         ],
-        [P.ZebesStarSheet3] =
+        [P.ZebesStarsLowerRight] =
         [
             Show(S.ZebesStarsLowerRight, 10),
         ],
@@ -298,9 +298,9 @@ internal static class CinematicSpriteAnimations
         [P.IntroRinkaSpawner] =
         [
             Show(S.Blank, 74),
-            Cue(new(K.SpawnRinkas0And1)),
+            Cue(new(K.SpawnStrikingRinkaPair)),
             Show(S.Blank, 128),
-            Cue(new(K.SpawnRinkas2And3)),
+            Cue(new(K.SpawnMissingRinkaPair)),
         ],
         [P.CeresStationBlast] =
         [
@@ -514,29 +514,29 @@ internal static class CinematicSpriteAnimations
             Show(S.EscapePod2, 1),
             Show(S.EscapePod3, 1),
         ],
-        [P.EndingCloud0] =
+        [P.EndingTopCloudPattern] =
         [
-            Show(S.CloudSceneBUpperA, 1),
+            Show(S.TopCloudPattern, 1),
         ],
-        [P.EndingCloud1] =
+        [P.EndingTopCloudEdge] =
         [
-            Show(S.CloudSceneBUpperB, 1),
+            Show(S.TopCloudEdge, 1),
         ],
-        [P.EndingCloud2] =
+        [P.EndingBottomCloudEdge] =
         [
-            Show(S.CloudSceneBLowerA, 1),
+            Show(S.BottomCloudEdge, 1),
         ],
-        [P.EndingCloud3] =
+        [P.EndingBottomCloudPattern] =
         [
-            Show(S.CloudSceneBLowerB, 1),
+            Show(S.BottomCloudPattern, 1),
         ],
-        [P.EndingCloud4] =
+        [P.EndingRightSideCloud] =
         [
-            Show(S.CloudSceneARight, 1),
+            Show(S.RightSideCloud, 1),
         ],
-        [P.EndingCloud5] =
+        [P.EndingLeftSideCloud] =
         [
-            Show(S.CloudSceneALeft, 1),
+            Show(S.LeftSideCloud, 1),
         ],
         [P.SuitlessIdle] =
         [
@@ -710,8 +710,8 @@ internal static class CinematicSpriteAnimations
         [P.IntroMotherBrainStartPage2] = new([new(P.IntroMotherBrainStartPage2, 0, 2, 1), new(P.IntroMotherBrainPageTwo, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.IntroMotherBrainPageTwo] = new([new(P.IntroMotherBrainPageTwo, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MetroidEgg] = new([new(P.MetroidEgg, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggHatching] = new([new(P.MetroidEggHatching, 0, 1, 1), new(P.MetroidEggShaking, 0, 4, 4), new(P.MetroidEggShaking, 4, 9, 1), new(P.MetroidEggHatchedFrame2, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.MetroidEggHatchedFrame2] = new([new(P.MetroidEggHatchedFrame2, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MetroidEggHatching] = new([new(P.MetroidEggHatching, 0, 1, 1), new(P.MetroidEggShaking, 0, 4, 4), new(P.MetroidEggShaking, 4, 9, 1), new(P.MetroidEggRemnantsSettling, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.MetroidEggRemnantsSettling] = new([new(P.MetroidEggRemnantsSettling, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.MetroidEggHatched] = new([new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.BabyMetroidBeingDelivered] = new([new(P.BabyMetroidBeingDeliveredLoop, 0, 4, 10), new(P.BabyMetroidBeingDeliveredLoop, 4, 1, 1), new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
         [P.BabyMetroidDelivered] = new([new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -732,18 +732,18 @@ internal static class CinematicSpriteAnimations
         [P.CeresSmallExplosion] = new([new(P.CeresSmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.CeresRepeatingSmallExplosion] = new([new(P.CeresRepeatingSmallExplosionLoop, 0, 7, 6)], AnimationEnd.Stops),
         [P.CeresLargeExplosion] = new([new(P.CeresLargeExplosionLoop, 0, 5, 7)], AnimationEnd.Stops),
-        [P.MetroidEggParticle1] = new([new(P.MetroidEggParticle1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle2] = new([new(P.MetroidEggParticle2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle3] = new([new(P.MetroidEggParticle3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle4] = new([new(P.MetroidEggParticle4, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle5] = new([new(P.MetroidEggParticle5, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle6] = new([new(P.MetroidEggParticle6, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticle7] = new([new(P.MetroidEggParticle7, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidEggParticleHitGround] = new([new(P.MetroidEggParticleHitGround, 0, 4, 1)], AnimationEnd.Stops),
-        [P.ZebesStarSheet0] = new([new(P.ZebesStarSheet0, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebesStarSheet1] = new([new(P.ZebesStarSheet1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebesStarSheet2] = new([new(P.ZebesStarSheet2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZebesStarSheet3] = new([new(P.ZebesStarSheet3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellUpperLeft] = new([new(P.MetroidEggShellUpperLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellUpperRight] = new([new(P.MetroidEggShellUpperRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellLeft] = new([new(P.MetroidEggShellLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellCentre] = new([new(P.MetroidEggShellCentre, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellRight] = new([new(P.MetroidEggShellRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggShellLower] = new([new(P.MetroidEggShellLower, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggSlimeDrop] = new([new(P.MetroidEggSlimeDrop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidEggSlimeImpact] = new([new(P.MetroidEggSlimeImpact, 0, 4, 1)], AnimationEnd.Stops),
+        [P.ZebesStarsUpperLeft] = new([new(P.ZebesStarsUpperLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarsUpperRight] = new([new(P.ZebesStarsUpperRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarsLowerLeft] = new([new(P.ZebesStarsLowerLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ZebesStarsLowerRight] = new([new(P.ZebesStarsLowerRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CeresStars] = new([new(P.CeresStars, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroMotherBrainExplosionBig] = new([new(P.IntroMotherBrainExplosionBig, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroMotherBrainExplosionSmall] = new([new(P.IntroMotherBrainExplosionSmall, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
@@ -781,12 +781,12 @@ internal static class CinematicSpriteAnimations
         [P.ClearTimeDigit9] = new([new(P.ClearTimeDigit9, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ClearTimeColon] = new([new(P.ClearTimeColon, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.EndingAnimalEscape] = new([new(P.EndingAnimalEscape, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud0] = new([new(P.EndingCloud0, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud1] = new([new(P.EndingCloud1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud2] = new([new(P.EndingCloud2, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud3] = new([new(P.EndingCloud3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud4] = new([new(P.EndingCloud4, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EndingCloud5] = new([new(P.EndingCloud5, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingTopCloudPattern] = new([new(P.EndingTopCloudPattern, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingTopCloudEdge] = new([new(P.EndingTopCloudEdge, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingBottomCloudEdge] = new([new(P.EndingBottomCloudEdge, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingBottomCloudPattern] = new([new(P.EndingBottomCloudPattern, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingRightSideCloud] = new([new(P.EndingRightSideCloud, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EndingLeftSideCloud] = new([new(P.EndingLeftSideCloud, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SuitlessIdle] = new([new(P.SuitlessIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SuitlessLegsIdle] = new([new(P.SuitlessLegsIdle, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HairRelease] = new([new(P.HairRelease, 0, 11, 1)], AnimationEnd.Stops),
@@ -827,8 +827,8 @@ internal static class CinematicSpriteAnimations
         new Dictionary<CinematicSpriteSegment, CinematicSpriteSegment>
     {
         [P.IntroMotherBrainStartPage2] = P.IntroMotherBrainPageTwo,
-        [P.MetroidEggShaking] = P.MetroidEggHatchedFrame2,
-        [P.MetroidEggHatchedFrame2] = P.MetroidEggHatched,
+        [P.MetroidEggShaking] = P.MetroidEggRemnantsSettling,
+        [P.MetroidEggRemnantsSettling] = P.MetroidEggHatched,
         [P.BabyMetroidBeingDeliveredLoop] = P.BabyMetroidDelivered,
         [P.BabyMetroidBeingExaminedLoop] = P.BabyMetroidExamined,
         [P.IntroRinka] = P.IntroRinkaMoving,

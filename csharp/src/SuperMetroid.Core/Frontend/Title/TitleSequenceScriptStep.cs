@@ -8,14 +8,14 @@ internal enum TitleSequenceScriptStep
     Delete = 1,
 
     /// <summary>Starts the lower pan.</summary>
-    TriggerScene0,
+    StartLowerPan,
 
     /// <summary>Starts the upper pan.</summary>
-    TriggerScene1,
+    StartUpperPan,
 
     /// <summary>Starts the downward pan.</summary>
-    TriggerScene2,
+    StartDownwardPan,
 
     /// <summary>Starts the final zoom.</summary>
-    TriggerScene3,
+    StartFinalZoom,
 }

@@ -167,8 +167,8 @@ internal static class EndingCreditsPresentation
     private static EndingSpriteLayer LayerOf(EndingSpriteRole role) => role switch
     {
         EndingSpriteRole.ExplosionStars or EndingSpriteRole.ExplosionStarsRight or EndingSpriteRole.ExplosionStarsLeft => EndingSpriteLayer.Stars,
-        EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudRightB or EndingSpriteRole.CloudLeftB
-            or EndingSpriteRole.CloudTopA or EndingSpriteRole.CloudTopB or EndingSpriteRole.CloudBottomA or EndingSpriteRole.CloudBottomB
+        EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudLeftLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.SideCloudLeftTrailing
+            or EndingSpriteRole.TopCloudPattern or EndingSpriteRole.TopCloudEdge or EndingSpriteRole.BottomCloudEdge or EndingSpriteRole.BottomCloudPattern
             or EndingSpriteRole.ExplodingZebes or EndingSpriteRole.ExplosionLava or EndingSpriteRole.ExplosionGlow
             or EndingSpriteRole.ExplosionSilhouette or EndingSpriteRole.ExplosionAfterglow or EndingSpriteRole.OperationWasText
             or EndingSpriteRole.CompletedSuccessfullyText or EndingSpriteRole.ClearTimeText or EndingSpriteRole.ClearTimeDigit

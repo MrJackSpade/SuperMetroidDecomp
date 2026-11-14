@@ -50,8 +50,8 @@ internal sealed class IntroCeresFlightState
     /// lowered one level every other update in the final fade, stopping at zero.
     /// </summary>
     private int brightness;
-    /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
-    internal IntroDiscoverySprite[] RearViewActors { get; private set; } = [];
+    /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
+    internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>
     /// The steps left of the rear-view flash's white wash (<see cref="WhiteWash"/>): all of them when the rear view starts,
     /// one fewer each update, stopping at none.
@@ -244,8 +244,8 @@ internal sealed class IntroCeresFlightState
         CinematicSpriteSheet? spriteArtwork = flightSprites is null ? null
             : new CinematicSpriteSheet(flightSprites, CinematicSpriteFamily.CeresFlight, ActorShading);
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
-            foreach (IntroDiscoverySprite actor in RearViewActors)
-                actor.Draw(objects, installedArt: spriteArtwork);
+            foreach (CeresRearViewActor actor in RearViewActors)
+                actor.Sprite.Draw(objects, installedArt: spriteArtwork);
         else stars.Draw(objects, installedArt: spriteArtwork);
         objects.FinishFrame();
     }
@@ -276,15 +276,14 @@ internal sealed class IntroCeresFlightState
         background = new(new(CoordinateAxis.Wrap(-32), 0), new(CoordinateAxis.Wrap(-128), 0));
         angle = RotationAngle.FromSteps(32);
 
-        // These five slots are the exact spawn order. Their visual animations
+        // The actors spawn, update and draw in their spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply behaviour identity,
         // initializer results and the physical motion applied by StepRearViewActors.
-        // Each actor starts at its installed placement (#1596).
+        // Each actor starts at its role's installed placement (#1596).
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
             "The Ceres approach's rear view requires the installed actor placements.");
-        RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
-            .Select(index => CreateActor(CeresFlightActors.RearViewActor(index), layout[index].Position))
-            .ToArray();
+        RearViewActors = [.. CeresFlightActorDefinitions.RearViewSpawnOrder
+            .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Position)))];
 
         // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
         // white and takes one step off the wash per frame until black.
@@ -391,15 +390,13 @@ internal sealed class IntroCeresFlightState
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
-        for (int index = 0; index < RearViewActors.Length; index++)
+        foreach ((CeresRearViewActorRole role, IntroDiscoverySprite actor) in RearViewActors)
         {
-            IntroDiscoverySprite actor = RearViewActors[index];
-            CeresFlightActorDefinition definition =
-                CeresFlightActors.RearViewActor(index);
+            CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
             if (actor.FrameBehavior != definition.ActiveFrameBehavior)
             {
                 throw new InvalidDataException(
-                    $"Ceres flight actor {index} names invalid frame behaviour " +
+                    $"The Ceres flight's {role} actor names invalid frame behaviour " +
                     $"{actor.FrameBehavior}.");
             }
             if (definition.WrapX)

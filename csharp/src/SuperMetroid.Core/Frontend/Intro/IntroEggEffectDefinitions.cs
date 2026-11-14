@@ -3,19 +3,27 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Fixed cinematic-object definitions for egg shell fragments and slime drops.</summary>
 internal static class IntroEggEffectDefinitions
 {
-
-    /// <summary>Number of shell-fragment definitions.</summary>
-    public const int ParticleCount = 6;
+    /// <summary>The shell's pieces in the order the hatching egg spawns them, which is the order they update and draw in.</summary>
+    internal static IReadOnlyList<IntroEggShellFragment> ShellFragments { get; } =
+    [
+        IntroEggShellFragment.UpperLeft, IntroEggShellFragment.UpperRight, IntroEggShellFragment.Left,
+        IntroEggShellFragment.Centre, IntroEggShellFragment.Right, IntroEggShellFragment.Lower,
+    ];
 
     /// <summary>Number of slime drops allocated by the confused-baby frame behaviour.</summary>
     public const int SlimeDropCount = 4;
 
-    /// <summary>The six particles' animations, indexed by particle.</summary>
-    internal static readonly CinematicSpriteSegment[] ParticleAnimations =
-    [
-        CinematicSpriteSegment.MetroidEggParticle1, CinematicSpriteSegment.MetroidEggParticle2, CinematicSpriteSegment.MetroidEggParticle3,
-        CinematicSpriteSegment.MetroidEggParticle4, CinematicSpriteSegment.MetroidEggParticle5, CinematicSpriteSegment.MetroidEggParticle6,
-    ];
+    /// <summary>The animation each piece of the shell shows.</summary>
+    internal static IReadOnlyDictionary<IntroEggShellFragment, CinematicSpriteSegment> ShellFragmentAnimations { get; } =
+        new Dictionary<IntroEggShellFragment, CinematicSpriteSegment>
+        {
+            [IntroEggShellFragment.UpperLeft] = CinematicSpriteSegment.MetroidEggShellUpperLeft,
+            [IntroEggShellFragment.UpperRight] = CinematicSpriteSegment.MetroidEggShellUpperRight,
+            [IntroEggShellFragment.Left] = CinematicSpriteSegment.MetroidEggShellLeft,
+            [IntroEggShellFragment.Centre] = CinematicSpriteSegment.MetroidEggShellCentre,
+            [IntroEggShellFragment.Right] = CinematicSpriteSegment.MetroidEggShellRight,
+            [IntroEggShellFragment.Lower] = CinematicSpriteSegment.MetroidEggShellLower,
+        };
 
     /// <summary>The shared egg-slime initialization, motion, and animation definition.</summary>
     /// <remarks>
@@ -28,5 +36,5 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent data.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>
-        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteSegment.MetroidEggParticle7);
+        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteSegment.MetroidEggSlimeDrop);
 }

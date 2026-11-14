@@ -3,22 +3,22 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The ending's cinematic actors, by what each shows and how it moves.</summary>
 internal enum EndingSpriteRole
 {
-    /// <summary>First right-moving cloud in escape scene A.</summary>
-    CloudRightA,
-    /// <summary>First left-moving cloud in escape scene A.</summary>
-    CloudLeftA,
-    /// <summary>Second right-moving cloud in escape scene A.</summary>
-    CloudRightB,
-    /// <summary>Second left-moving cloud in escape scene A.</summary>
-    CloudLeftB,
-    /// <summary>Upper cloud actor in the second escape backdrop.</summary>
-    CloudTopA,
-    /// <summary>Other upper cloud actor in the second escape backdrop.</summary>
-    CloudTopB,
-    /// <summary>Lower cloud actor in the second escape backdrop.</summary>
-    CloudBottomA,
-    /// <summary>Other lower cloud actor in the second escape backdrop.</summary>
-    CloudBottomB,
+    /// <summary>The side-cloud escape's right cloud that enters first, moving up and left.</summary>
+    SideCloudRightLeading,
+    /// <summary>The side-cloud escape's left cloud that enters first, moving down and right.</summary>
+    SideCloudLeftLeading,
+    /// <summary>The side-cloud escape's right cloud that follows below the leading one.</summary>
+    SideCloudRightTrailing,
+    /// <summary>The side-cloud escape's left cloud that follows above the leading one.</summary>
+    SideCloudLeftTrailing,
+    /// <summary>The top-and-bottom-cloud escape's upper cloud pattern, above its edge.</summary>
+    TopCloudPattern,
+    /// <summary>The edge of the top-and-bottom-cloud escape's upper clouds.</summary>
+    TopCloudEdge,
+    /// <summary>The edge of the top-and-bottom-cloud escape's lower clouds.</summary>
+    BottomCloudEdge,
+    /// <summary>The top-and-bottom-cloud escape's lower cloud pattern, below its edge.</summary>
+    BottomCloudPattern,
     /// <summary>Primary planet actor whose animation controls subordinate explosion layers.</summary>
     ExplodingZebes,
     /// <summary>Lava layer deleted when the primary planet actor ends.</summary>

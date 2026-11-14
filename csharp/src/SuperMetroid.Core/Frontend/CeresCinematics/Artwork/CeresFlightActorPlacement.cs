@@ -8,8 +8,9 @@ public sealed record CeresFlightActorPlacement
     [System.Text.Json.Serialization.JsonIgnore]
     public Position16<ScreenPixels> Position => Position16<ScreenPixels>.Wrapped(X, Y);
 
-    /// <summary>Case-sensitive actor-role identity required to match its spawn-order slot, not an editable animation or behavior selector.</summary>
-    public required string Id { get; init; }
+    /// <summary>The actor the placement places, by what it shows (#1768): its installed key, not an editable animation or behavior selector.</summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<CeresRearViewActorRole>))]
+    public required CeresRearViewActorRole Role { get; init; }
     /// <summary>Initial whole-pixel screen X, -32768 through 32767: negative lies left of the screen, such as -32 (#1627).</summary>
     public required int X { get; init; }
     /// <summary>Initial whole-pixel screen Y, -32768 through 32767: negative lies above the screen (#1627), without restricting the actor to the visible viewport.</summary>

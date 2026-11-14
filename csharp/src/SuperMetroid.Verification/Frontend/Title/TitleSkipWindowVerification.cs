@@ -18,13 +18,13 @@ internal static class TitleSkipWindowVerification
     private static readonly HashSet<TitleSequencePhase> AcceptingSteps =
     [
         TitleSequencePhase.YearText,
-        TitleSequencePhase.SceneZeroPan,
+        TitleSequencePhase.LowerPan,
         TitleSequencePhase.NintendoText,
-        TitleSequencePhase.SceneOnePan,
+        TitleSequencePhase.UpperPan,
         TitleSequencePhase.PresentsText,
-        TitleSequencePhase.SceneTwoPan,
+        TitleSequencePhase.DownwardPan,
         TitleSequencePhase.MetroidThreeText,
-        TitleSequencePhase.SceneThreeZoom,
+        TitleSequencePhase.FinalZoom,
     ];
 
     /// <summary>The buttons whose new presses the original's skip check reads.</summary>
@@ -56,7 +56,7 @@ internal static class TitleSkipWindowVerification
         // The final zoom reaches the floor's own size and completes on its next acting update, two updates later.
         int ownSize = natural.FindIndex(update => update.Zoom >= FloorZoom.OwnSize);
         int logo = natural.FindIndex(update => update.Phase == TitleSequencePhase.TitleLogoFade);
-        AssertEqual(TitleSequencePhase.SceneThreeZoom, natural[ownSize].Phase, "the zoom reaches the floor's own size during the final zoom");
+        AssertEqual(TitleSequencePhase.FinalZoom, natural[ownSize].Phase, "the zoom reaches the floor's own size during the final zoom");
         AssertEqual(ownSize + 2, logo, "the final zoom completes on the second update after the floor reaches its own size");
 
         int cases = 0;

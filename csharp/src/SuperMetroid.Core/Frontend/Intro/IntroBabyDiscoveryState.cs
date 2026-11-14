@@ -225,10 +225,9 @@ internal sealed class IntroBabyDiscoveryState
         switch (cue)
         {
             case CinematicSpriteCueKind.SpawnParticles:
-                // The six particle spawns use six consecutive definitions
-                // and fragments zero through five, in this exact order.
-                for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
-                    eggParticles.Add(new IntroEggParticle(index, shellFallPastCurve));
+                // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
+                foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
+                    eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.EggHatch,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
@@ -262,8 +261,8 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
             case CinematicSpriteCueKind.SpawnMinutesTens:
             case CinematicSpriteCueKind.SpawnMinutesUnits:
-            case CinematicSpriteCueKind.SpawnRinkas0And1:
-            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
+            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
             case CinematicSpriteCueKind.SpawnSuitedJump:
             case CinematicSpriteCueKind.SpawnSuitlessJump:
             case CinematicSpriteCueKind.StartFlyingToZebes:
@@ -285,9 +284,9 @@ internal sealed class IntroBabyDiscoveryState
         {
             case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
                 // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
-                // the egg's animation is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
+                // the egg's animation is then MetroidEggRemnantsSettling or a later one, so the baby starts moving on that
                 // exact handoff.
-                if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggHatchedFrame2 or
+                if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggRemnantsSettling or
                     CinematicSpriteSegment.MetroidEggHatched or CinematicSpriteSegment.Delete)
                 {
                     confusedBaby.InstallFrameBehavior(

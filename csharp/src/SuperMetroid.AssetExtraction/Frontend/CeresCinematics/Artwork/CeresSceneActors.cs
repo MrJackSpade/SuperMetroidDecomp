@@ -19,9 +19,9 @@ internal static class CeresSceneActors
         const string scene = "The Ceres flight";
         var poses = new Dictionary<CinematicSpritePose, CeresSpriteColouring>();
         Add(poses, scene, CeresFlightActorDefinitions.FrontStars.Animation, CeresFlightActorDefinitions.FrontStars.Colouring);
-        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
+        foreach (CeresRearViewActorRole role in CeresFlightActorDefinitions.RearViewSpawnOrder)
         {
-            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
+            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(role);
             Add(poses, scene, actor.Animation, actor.Colouring);
         }
         return poses;
@@ -36,9 +36,9 @@ internal static class CeresSceneActors
     {
         const string scene = "The Ceres destruction";
         var poses = new Dictionary<CinematicSpritePose, CeresSpriteColouring>();
-        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+        foreach (CeresDestructionActorRole role in CeresDestructionActorDefinitions.DestructionSpawnOrder)
         {
-            CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(index);
+            CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(role);
             Add(poses, scene, actor.Animation, actor.Colouring);
         }
         Add(poses, scene, CeresExplosionDefinitions.InitialActor.Animation, CeresSpriteColouring.Explosions);
@@ -57,12 +57,11 @@ internal static class CeresSceneActors
     {
         const string scene = "The Zebes reveal";
         var poses = new Dictionary<CinematicSpritePose, CeresSpriteColouring>();
-        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
+        foreach (ZebesRevealActorRole role in CeresDestructionActorDefinitions.RevealSpawnOrder.Append(ZebesRevealActorRole.JapaneseSubtitle))
         {
-            CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
+            CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(role);
             Add(poses, scene, actor.Animation, actor.Colouring);
         }
-        Add(poses, scene, CeresDestructionActorDefinitions.ZebesSubtitle.Animation, CeresDestructionActorDefinitions.ZebesSubtitle.Colouring);
         return poses;
     }
 

@@ -49,7 +49,7 @@ internal static class IntroEggMotion
     }
 
     /// <summary>
-    /// Shell gravity step <paramref name="frame"/>: the bounded curve's 38 records, then the steps fragments zero and one
+    /// Shell gravity step <paramref name="frame"/>: the bounded curve's 38 records, then the steps the upper fragments
     /// read past it before the ground test deletes them, from <paramref name="pastCurve"/>. Negative frames throw.
     /// </summary>
     /// <param name="frame">The frames the fragment has fallen.</param>
@@ -66,25 +66,31 @@ internal static class IntroEggMotion
     /// respectively. The authored data
     /// gives source pairs (92,88), (99,88), (89,93),
     /// (96,91), (102,94), and (99,96); all twelve values match this
-    /// selector after the biases. The spawn step creates exactly indices
-    /// 0..5, and unknown indices throw. The irregular positions compose the
+    /// selector after the biases. The spawn step creates each fragment once,
+    /// and an unknown fragment throws. The irregular positions compose the
     /// shell artwork, so retaining six explicit pairs is clearer than a
     /// generated sequence or polynomial encoding.
     /// </remarks>
-    public static Position16<ScreenPixels> FragmentInitialPosition(int index) => Ensure.Element(FragmentInitialPositions, index);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
+    public static Position16<ScreenPixels> FragmentInitialPosition(IntroEggShellFragment fragment) =>
+        FragmentInitialPositions.TryGetValue(fragment, out Position16<ScreenPixels> position)
+            ? position : throw new ArgumentOutOfRangeException(nameof(fragment));
 
     /// <summary>Six signed 1/65536-pixel shell-fragment horizontal velocities.</summary>
     /// <remarks>
     /// Issues #625 and #976: the authored data
     /// match all six velocities, in pixels per frame:
     /// -0.75, 0.25, -0.5, -0.875, 0.5
-    /// and 0.125. The fragment motion indexes them by the immutable fragment number
-    /// 0..5; the caller adds the subpixels before the
+    /// and 0.125, in spawn order. The fragment motion selects them by the fragment,
+    /// which never changes; the caller adds the subpixels before the
     /// signed whole pixels and carries across. The directions and fractional
     /// speeds vary irregularly by shell piece, so retain the six authored
-    /// launch velocities. Unknown indices throw rather than read adjacent data.
+    /// launch velocities. An unknown fragment throws.
     /// </remarks>
-    public static SignedSixteenSixteen FragmentX(int index) => Ensure.Element(FragmentXVelocities, index);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
+    public static SignedSixteenSixteen FragmentX(IntroEggShellFragment fragment) =>
+        FragmentXVelocities.TryGetValue(fragment, out SignedSixteenSixteen velocity)
+            ? velocity : throw new ArgumentOutOfRangeException(nameof(fragment));
 
     /// <summary>Five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>

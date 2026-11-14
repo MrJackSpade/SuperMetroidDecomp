@@ -30,7 +30,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal2),
         TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal3),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.YearReveal4),
-        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene0),
+        TitleCardStep.Run(TitleSequenceScriptStep.StartLowerPan),
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
@@ -45,7 +45,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal6),
         TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal7),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.NintendoReveal8),
-        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene1),
+        TitleCardStep.Run(TitleSequenceScriptStep.StartUpperPan),
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
@@ -60,7 +60,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal6),
         TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal7),
         TitleCardStep.Show(CardHoldFrames, TitleSprite.PresentsReveal8),
-        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene2),
+        TitleCardStep.Run(TitleSequenceScriptStep.StartDownwardPan),
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
@@ -76,7 +76,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal7),
         TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal8),
         TitleCardStep.Show(MetroidThreeHoldFrames, TitleSprite.MetroidThreeReveal9),
-        TitleCardStep.Run(TitleSequenceScriptStep.TriggerScene3),
+        TitleCardStep.Run(TitleSequenceScriptStep.StartFinalZoom),
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 }

@@ -63,7 +63,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
-        var fragment = new IntroEggParticle(index: 0, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
+        var fragment = new IntroEggParticle(IntroEggShellFragment.UpperLeft, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
         fragment.Step();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
@@ -89,7 +89,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production egg effects never reread eleven native spritemaps");
 
-        document.Frames.Remove("fragment-0");
+        document.Frames.Remove("shell-upper-left");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

@@ -123,7 +123,7 @@ public static class SpriteSheetFiles
             EndingPictureSheetComposer.FrameNames(sheet),
         SpriteSheetId.TitleFloor => Enum.GetValues<TitleBabyPose>().Select(TitleFloors.BabyFrameName).Prepend(TitleFloors.FloorFrameName),
         SpriteSheetId.CeresFloor => Enum.GetValues<CeresFloorShot>().Select(CeresFloors.FrameName),
-        SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
+        SpriteSheetId.EndingSideCloudEscapeFloor or SpriteSheetId.EndingTopAndBottomCloudEscapeFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
             SpriteSheetId.EndingRewardIconFloor =>
             [EndingFloorDefinitions.FrameName],

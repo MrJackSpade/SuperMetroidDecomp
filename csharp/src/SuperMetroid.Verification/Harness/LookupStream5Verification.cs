@@ -1361,50 +1361,49 @@ internal static class LookupStream5Verification
     /// <summary>Compares compiled enemy actor layout arrays with their cartridge source bytes.</summary>
     internal static void VerifyLookupStream5ActorLayouts(ISnesAddressSpace rom)
     {
-        var flight = Enumerable.Range(0, 5).Select(index =>
-        {
-            var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
-            return new CeresFlightActorPlacement { Id = source.Id,
+        var flight = CeresCinematicSourceDefinitions.RearViewPlacements.Select(source =>
+            new CeresFlightActorPlacement { Role = source.Role,
                 X = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) };
-        }).ToArray();
+                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) }).ToArray();
         Check(flight, "CeresFlightActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresFlightActorLayoutFile.Write(encoded, new() { Version = CeresFlightActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresFlightActorPlacement>(index => layout[index], layout.ContentIdentity);
-        }, value => new LookupStream5Field(value.Id, value.X, value.Y));
-        var reveal = Enumerable.Range(0, CeresDestructionActorDefinitions.RevealPlacementCount).Select(index =>
-        {
-            var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
-            return new CeresRevealActorPlacement { Id = source.Id,
+            return new LookupStream5Load<CeresRearViewActorRole, CeresFlightActorPlacement>(role => layout[role], layout.ContentIdentity);
+        }, value => value.Role, value => new LookupStream5Field(value.Role.ToString(), value.X, value.Y));
+        var reveal = CeresCinematicSourceDefinitions.ZebesPlacements.Select(source =>
+            new CeresRevealActorPlacement { Role = source.Role,
                 X = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) };
-        }).ToArray();
+                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) }).ToArray();
         Check(reveal, "CeresRevealActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresRevealActorLayoutFile.Write(encoded, new() { Version = CeresRevealActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresRevealActorPlacement>(index => layout[index], layout.ContentIdentity);
-        }, value => new LookupStream5Field(value.Id, value.X, value.Y));
-        var destruction = Enumerable.Range(0, 3).Select(index =>
-        {
-            var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
-            return new CeresDestructionActorPlacement { Id = CeresDestructionActors.InitialPlacementId(index),
-                X = index == 2 ? CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8bbfa6)) : inherited.X, Y = inherited.Y };
-        }).ToArray();
+            return new LookupStream5Load<ZebesRevealActorRole, CeresRevealActorPlacement>(role => layout[role], layout.ContentIdentity);
+        }, value => value.Role, value => new LookupStream5Field(value.Role.ToString(), value.X, value.Y));
+        // The large and small asteroids start where the rear view's do; the stationary vortex has its own column.
+        CeresFlightActorPlacement Inherited(CeresRearViewActorRole role) => flight.Single(placement => placement.Role == role);
+        CeresDestructionActorPlacement[] destruction =
+        [
+            new() { Role = CeresDestructionActorRole.LargeAsteroids,
+                X = Inherited(CeresRearViewActorRole.LargeAsteroids).X, Y = Inherited(CeresRearViewActorRole.LargeAsteroids).Y },
+            new() { Role = CeresDestructionActorRole.SmallAsteroids,
+                X = Inherited(CeresRearViewActorRole.SmallAsteroids).X, Y = Inherited(CeresRearViewActorRole.SmallAsteroids).Y },
+            new() { Role = CeresDestructionActorRole.Vortex,
+                X = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8bbfa6)), Y = Inherited(CeresRearViewActorRole.Vortex).Y },
+        ];
         Check(destruction, "CeresDestructionActorLayout", values =>
         {
             using var encoded = new MemoryStream();
             CeresDestructionActorLayoutFile.Write(encoded, new() { Version = CeresDestructionActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayoutFile.Read(encoded);
-            return new LookupStream5Load<CeresDestructionActorPlacement>(index => layout[index], layout.ContentIdentity);
-        }, value => new LookupStream5Field(value.Id, value.X, value.Y));
+            return new LookupStream5Load<CeresDestructionActorRole, CeresDestructionActorPlacement>(role => layout[role], layout.ContentIdentity);
+        }, value => value.Role, value => new LookupStream5Field(value.Role.ToString(), value.X, value.Y));
         // #1627: the layouts hold signed screen pixels. A placement left of the screen stands at its wrapped screen position,
         // the signed range's ends are accepted and a coordinate past either end is rejected.
         CeresFlightActorPlacement left = flight[0] with { X = -32 };
@@ -1424,26 +1423,31 @@ internal static class LookupStream5Verification
 
         // Each layout's identity keeps the layout name it was installed under; #1452 renamed the types to the placements
         // they hold and kept those names.
-        static void Check<T>(T[] original, string identityName,
-            Func<T[], LookupStream5Load<T>> load,
+        static void Check<TRole, T>(T[] original, string identityName,
+            Func<T[], LookupStream5Load<TRole, T>> load,
+            Func<T, TRole> roleOf,
             Func<T, LookupStream5Field> fields)
+            where TRole : struct, Enum
         {
             var stock = load(original);
             Verify(stock, original);
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read((TRole)Enum.ToObject(typeof(TRole), -1)), "Ceres layout undefined role below");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Read((TRole)Enum.ToObject(typeof(TRole), Enum.GetValues<TRole>().Length)),
+                "Ceres layout undefined role above");
 
-            void Verify(LookupStream5Load<T> actual, T[] expected)
+            void Verify(LookupStream5Load<TRole, T> actual, T[] expected)
             {
-                for (int index = 0; index < expected.Length; index++)
-                    AssertEqual(fields(expected[index]), fields(actual.Read(index)), "Ceres complete selected placement");
+                foreach (T placement in expected)
+                    AssertEqual(fields(placement), fields(actual.Read(roleOf(placement))), "Ceres complete selected placement");
+                // The identity covers each role's placement in role order.
+                T[] byRole = [.. expected.OrderBy(roleOf)];
                 string identity = SelectedPresentationHash.Create(identityName, content =>
                 {
-                    content.Append("actors", expected.Length);
-                    foreach (T placement in expected)
+                    content.Append("actors", byRole.Length);
+                    foreach (T placement in byRole)
                     {
                         var value = fields(placement);
-                        content.Append("id", System.Text.Encoding.UTF8.GetBytes(value.Id));
+                        content.Append("role", System.Text.Encoding.UTF8.GetBytes(value.Role));
                         content.Append("x", value.X); content.Append("y", value.Y);
                     }
                 });

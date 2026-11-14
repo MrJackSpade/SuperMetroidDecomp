@@ -10,30 +10,30 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingActorDefinitions
 {
-    /// <summary>Yellow-cloud right actor: origin (320,192) pixels.</summary>
-    internal static readonly EndingSpriteDefinition EscapeACloudRightTop =
-        EndingSpriteDefinition.At(new(320, 192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud4);
-    /// <summary>Yellow-cloud left actor: origin (-64,64) pixels.</summary>
-    internal static readonly EndingSpriteDefinition EscapeACloudLeftTop =
-        EndingSpriteDefinition.At(new(-64, 64), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud5);
-    /// <summary>Yellow-cloud right actor's second placement: origin (320,448) pixels.</summary>
-    internal static readonly EndingSpriteDefinition EscapeACloudRightBottom =
-        EndingSpriteDefinition.At(new(320, 448), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud4);
-    /// <summary>Yellow-cloud left actor's second placement: origin (-64,-192) pixels.</summary>
-    internal static readonly EndingSpriteDefinition EscapeACloudLeftBottom =
-        EndingSpriteDefinition.At(new(-64, -192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud5);
-    /// <summary>First upper cloud, origin (128,-96).</summary>
-    internal static readonly EndingSpriteDefinition EscapeBCloudTopA =
-        EndingSpriteDefinition.At(new(128, -96), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud0);
-    /// <summary>Second upper cloud, origin (128,-32).</summary>
-    internal static readonly EndingSpriteDefinition EscapeBCloudTopB =
-        EndingSpriteDefinition.At(new(128, -32), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud1);
-    /// <summary>First lower cloud, origin (128,288).</summary>
-    internal static readonly EndingSpriteDefinition EscapeBCloudBottomA =
-        EndingSpriteDefinition.At(new(128, 288), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud2);
-    /// <summary>Second lower cloud, origin (128,352).</summary>
-    internal static readonly EndingSpriteDefinition EscapeBCloudBottomB =
-        EndingSpriteDefinition.At(new(128, 352), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud3);
+    /// <summary>The side-cloud escape's leading right cloud: origin (320,192) pixels.</summary>
+    internal static readonly EndingSpriteDefinition SideCloudRightLeading =
+        EndingSpriteDefinition.At(new(320, 192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingRightSideCloud);
+    /// <summary>The side-cloud escape's leading left cloud: origin (-64,64) pixels.</summary>
+    internal static readonly EndingSpriteDefinition SideCloudLeftLeading =
+        EndingSpriteDefinition.At(new(-64, 64), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingLeftSideCloud);
+    /// <summary>The side-cloud escape's right cloud trailing below the leading one: origin (320,448) pixels.</summary>
+    internal static readonly EndingSpriteDefinition SideCloudRightTrailing =
+        EndingSpriteDefinition.At(new(320, 448), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingRightSideCloud);
+    /// <summary>The side-cloud escape's left cloud trailing above the leading one: origin (-64,-192) pixels.</summary>
+    internal static readonly EndingSpriteDefinition SideCloudLeftTrailing =
+        EndingSpriteDefinition.At(new(-64, -192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingLeftSideCloud);
+    /// <summary>The top-and-bottom-cloud escape's upper cloud pattern, origin (128,-96).</summary>
+    internal static readonly EndingSpriteDefinition TopCloudPattern =
+        EndingSpriteDefinition.At(new(128, -96), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingTopCloudPattern);
+    /// <summary>The edge of the top-and-bottom-cloud escape's upper clouds, origin (128,-32).</summary>
+    internal static readonly EndingSpriteDefinition TopCloudEdge =
+        EndingSpriteDefinition.At(new(128, -32), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingTopCloudEdge);
+    /// <summary>The edge of the top-and-bottom-cloud escape's lower clouds, origin (128,288).</summary>
+    internal static readonly EndingSpriteDefinition BottomCloudEdge =
+        EndingSpriteDefinition.At(new(128, 288), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingBottomCloudEdge);
+    /// <summary>The top-and-bottom-cloud escape's lower cloud pattern, origin (128,352).</summary>
+    internal static readonly EndingSpriteDefinition BottomCloudPattern =
+        EndingSpriteDefinition.At(new(128, 352), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingBottomCloudPattern);
     /// <summary>Planet actor at (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplodingZebes =
         EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionPlanet);

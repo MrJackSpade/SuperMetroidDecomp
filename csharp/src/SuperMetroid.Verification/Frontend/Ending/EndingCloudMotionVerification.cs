@@ -10,12 +10,12 @@ internal static class EndingCloudMotionVerification
     /// <summary>Checks eight directions, threshold crossing without early movement, and twelve movement steps.</summary>
     internal static void VerifyEndingCloudMotion()
     {
-        foreach (EndingSpriteRole role in new[] { EndingSpriteRole.CloudRightA, EndingSpriteRole.CloudRightB,
-            EndingSpriteRole.CloudLeftA, EndingSpriteRole.CloudLeftB, EndingSpriteRole.CloudTopA,
-            EndingSpriteRole.CloudTopB, EndingSpriteRole.CloudBottomA, EndingSpriteRole.CloudBottomB })
+        foreach (EndingSpriteRole role in new[] { EndingSpriteRole.SideCloudRightLeading, EndingSpriteRole.SideCloudRightTrailing,
+            EndingSpriteRole.SideCloudLeftLeading, EndingSpriteRole.SideCloudLeftTrailing, EndingSpriteRole.TopCloudPattern,
+            EndingSpriteRole.TopCloudEdge, EndingSpriteRole.BottomCloudEdge, EndingSpriteRole.BottomCloudPattern })
         {
-            bool side = role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudLeftB;
-            bool negative = role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB or EndingSpriteRole.CloudBottomA or EndingSpriteRole.CloudBottomB;
+            bool side = role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.SideCloudLeftLeading or EndingSpriteRole.SideCloudLeftTrailing;
+            bool negative = role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.BottomCloudEdge or EndingSpriteRole.BottomCloudPattern;
             var sprite = new IntroDiscoverySprite(new(200, 200), EndingShades.Drawn(EndingSpriteColouring.Clouds), 0);
             var wrapper = new EndingSprite(sprite, role);
             EndingCloudMotion.Step(wrapper, FloorZoom.FromTwoHundredFiftySixths(side ? 95 : 176));

@@ -140,9 +140,9 @@ internal static class CinematicSheetColouringsVerification
     private static IEnumerable<CeresDrawnProgram> FlightActors()
     {
         yield return new(CeresFlightActorDefinitions.FrontStars.Animation, CeresFlightActorDefinitions.FrontStars.Colouring);
-        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
+        foreach (CeresRearViewActorRole role in CeresFlightActorDefinitions.RearViewSpawnOrder)
         {
-            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
+            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(role);
             yield return new(actor.Animation, actor.Colouring);
         }
     }
@@ -153,9 +153,9 @@ internal static class CinematicSheetColouringsVerification
     /// </summary>
     private static IEnumerable<CeresDrawnProgram> DestructionActors()
     {
-        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+        foreach (CeresDestructionActorRole role in CeresDestructionActorDefinitions.DestructionSpawnOrder)
         {
-            CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(index);
+            CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(role);
             yield return new(actor.Animation, actor.Colouring);
         }
         yield return new(CeresExplosionDefinitions.InitialActor.Animation, CeresSpriteColouring.Explosions);
@@ -167,13 +167,12 @@ internal static class CinematicSheetColouringsVerification
     /// <summary>The Zebes reveal's six actors, each in its definition's colouring.</summary>
     private static IEnumerable<CeresDrawnProgram> ZebesRevealActors()
     {
-        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
+        // With the Japanese subtitle the title spawns with Japanese text (#1733).
+        foreach (ZebesRevealActorRole role in Enum.GetValues<ZebesRevealActorRole>())
         {
-            CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
+            CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(role);
             yield return new(actor.Animation, actor.Colouring);
         }
-        // The Japanese subtitle the title spawns with Japanese text (#1733).
-        yield return new(CeresDestructionActorDefinitions.ZebesSubtitle.Animation, CeresDestructionActorDefinitions.ZebesSubtitle.Colouring);
     }
 
     /// <summary>The sprite sets outside <paramref name="sets"/> that <paramref name="frame"/>'s shown pixels ink, in rising order.</summary>

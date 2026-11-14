@@ -160,8 +160,8 @@ public static class EndingMode7ArtworkFiles
             throw new InvalidDataException($"Ending art manifest {manifestPath} does not describe this installation.");
 
         return new EndingFloorCharacters(
-            LoadScene(EndingFloorSceneId.EscapeA),
-            LoadScene(EndingFloorSceneId.EscapeB),
+            LoadScene(EndingFloorSceneId.SideCloudEscape),
+            LoadScene(EndingFloorSceneId.TopAndBottomCloudEscape),
             LoadScene(EndingFloorSceneId.PlanetExplosion),
             LoadRewardIcon());
 

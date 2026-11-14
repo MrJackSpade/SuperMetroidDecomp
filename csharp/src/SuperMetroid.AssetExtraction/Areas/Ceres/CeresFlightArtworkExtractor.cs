@@ -91,20 +91,17 @@ internal static class CeresFlightArtworkExtractor
         byte[] spritesFile = spritesJson.ToArray();
         // These positions are presentation operands in the five native initializers.
         // Keep their X/Y words editable while retaining each actor's motion in code.
-        var placements = new CeresFlightActorPlacement[
-            CeresFlightActorDefinitions.RearViewActorCount];
-        for (int index = 0; index < placements.Length; index++)
-        {
-            var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
-            int x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand);
-            int y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
-            placements[index] = new CeresFlightActorPlacement
+        CeresFlightActorPlacement[] placements =
+        [
+            .. CeresCinematicSourceDefinitions.RearViewPlacements.Select(source => new CeresFlightActorPlacement
             {
-                Id = source.Id, X = CoordinateAxis.AsSigned(x), Y = CoordinateAxis.AsSigned(y),
-            };
-        }
+                Role = source.Role,
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
+            }),
+        ];
         using var actorsJson = new MemoryStream();
         CeresFlightActorLayoutFile.Write(actorsJson, new CeresFlightActorLayoutDocument
         {

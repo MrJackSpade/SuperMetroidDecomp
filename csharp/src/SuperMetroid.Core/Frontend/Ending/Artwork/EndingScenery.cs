@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// </summary>
 public enum EndingScenery
 {
-    /// <summary>The first escape scene's turning floor: the clouds over the exploding planet's lava and crust.</summary>
-    EscapeSceneAFloor,
+    /// <summary>The side-cloud escape's turning floor: the clouds over the exploding planet's lava and crust.</summary>
+    SideCloudEscapeFloor,
 
-    /// <summary>The second escape scene's turning floor: the grey clouds.</summary>
-    EscapeSceneBFloor,
+    /// <summary>The top-and-bottom-cloud escape's turning floor: the grey clouds.</summary>
+    TopAndBottomCloudEscapeFloor,
 
     /// <summary>The turning floor the explosion's crossfade and hold show the planet on.</summary>
     PlanetExplosionFloor,

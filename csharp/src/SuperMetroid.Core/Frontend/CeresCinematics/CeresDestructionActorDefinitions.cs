@@ -5,20 +5,22 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
 internal static class CeresDestructionActorDefinitions
 {
-    /// <summary>Number of persistent scene actors allocated when the destruction begins.</summary>
-    public const int InitialActorCount = 3;
-
-    /// <summary>Number of reveal actors allocated when Zebes is revealed.</summary>
-    public const int ZebesActorCount = 6;
+    /// <summary>
+    /// The persistent actors behind the explosion in the order the destruction's setup spawns them, which is the order
+    /// they update in.
+    /// </summary>
+    internal static IReadOnlyList<CeresDestructionActorRole> DestructionSpawnOrder { get; } =
+        [CeresDestructionActorRole.LargeAsteroids, CeresDestructionActorRole.SmallAsteroids, CeresDestructionActorRole.Vortex];
 
     /// <summary>
-    /// The placements the Zebes reveal's layout holds: one for each of the <see cref="ZebesActorCount"/> actors the reveal
-    /// allocates, in spawn order, then the Japanese subtitle's, which the PLANET ZEBES title spawns with Japanese text.
+    /// The Zebes reveal's actors in the order its setup spawns them. The Japanese subtitle is not among them: the title
+    /// spawns it when Japanese text is selected.
     /// </summary>
-    public const int RevealPlacementCount = ZebesActorCount + 1;
-
-    /// <summary>The place of the Japanese subtitle's placement in the reveal's layout: after the six actors'.</summary>
-    public const int ZebesSubtitlePlacement = ZebesActorCount;
+    internal static IReadOnlyList<ZebesRevealActorRole> RevealSpawnOrder { get; } =
+    [
+        ZebesRevealActorRole.Planet, ZebesRevealActorRole.StarsUpperLeft, ZebesRevealActorRole.StarsUpperRight,
+        ZebesRevealActorRole.StarsLowerLeft, ZebesRevealActorRole.StarsLowerRight, ZebesRevealActorRole.Title,
+    ];
 
     /// <summary>The Zebes planet actor: its initializer,
     /// waiting behaviour and animation; its initializer's values set its placement/palette.
@@ -44,10 +46,16 @@ internal static class CeresDestructionActorDefinitions
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.ZebesJapaneseTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);
 
-    /// <summary>The four star sheets' animations, indexed by row-major quadrant.</summary>
-    internal static readonly CinematicSpriteSegment[] ZebesStarSheets =
-    [
-        CinematicSpriteSegment.ZebesStarSheet0, CinematicSpriteSegment.ZebesStarSheet1,
-        CinematicSpriteSegment.ZebesStarSheet2, CinematicSpriteSegment.ZebesStarSheet3,
-    ];
+    /// <summary>The animation each quarter of the reveal's star field shows.</summary>
+    internal static IReadOnlyDictionary<ZebesRevealActorRole, CinematicSpriteSegment> StarSheets { get; } =
+        new Dictionary<ZebesRevealActorRole, CinematicSpriteSegment>
+        {
+            [ZebesRevealActorRole.StarsUpperLeft] = CinematicSpriteSegment.ZebesStarsUpperLeft,
+            [ZebesRevealActorRole.StarsUpperRight] = CinematicSpriteSegment.ZebesStarsUpperRight,
+            [ZebesRevealActorRole.StarsLowerLeft] = CinematicSpriteSegment.ZebesStarsLowerLeft,
+            [ZebesRevealActorRole.StarsLowerRight] = CinematicSpriteSegment.ZebesStarsLowerRight,
+        };
+
+    /// <summary>The quarter of the star field whose leaving the screen ends the reveal and starts the game.</summary>
+    internal const ZebesRevealActorRole SceneCompletingStars = ZebesRevealActorRole.StarsLowerRight;
 }

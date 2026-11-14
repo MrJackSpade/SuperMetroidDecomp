@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// and each shows its own colours. A scene's whole screen of colours is every actor's and every scenery's own. Each listing
 /// follows the effect's documented subject and the scene that shows it: the planet's cue starts its fade-out and darkens its
 /// glow, the flyaway's setup starts the afterglow the finale spawned and the gunship's emergence, the logo's landing starts
-/// its glare; the first escape scene runs the lava and crust effects over its floor and the second the grey clouds over its
+/// its glare; the side-cloud escape runs the lava and crust effects over its floor and the top-and-bottom-cloud escape the grey clouds over its
 /// own, the explosion's crossfade fades the escape's far background out of the planet's floor, its burst and finale run
 /// their effects over the explosion's pictures, the whiteout's floor colour is the flyaway floor's, and the post-credits
 /// shot's floor is drawn in the shot's colours. No ending frame keeps its own colours in another actor's colour group but
@@ -34,7 +34,7 @@ internal static class EndingColourOwnerDefinitions
     /// <summary>Every background picture and floor: a scene's whole screen of colours.</summary>
     private static readonly ImmutableArray<EndingScenery> EveryScenery =
     [
-        EndingScenery.EscapeSceneAFloor, EndingScenery.EscapeSceneBFloor, EndingScenery.PlanetExplosionFloor,
+        EndingScenery.SideCloudEscapeFloor, EndingScenery.TopAndBottomCloudEscapeFloor, EndingScenery.PlanetExplosionFloor,
         EndingScenery.FlyawayFloor, EndingScenery.PostCreditsShotFloor, EndingScenery.ExplosionPictures,
         EndingScenery.CreditsRows, EndingScenery.WaitingBackdrop, EndingScenery.WavySamus, EndingScenery.PostCreditsText,
         EndingScenery.LogoPicture,
@@ -108,9 +108,9 @@ internal static class EndingColourOwnerDefinitions
             [ColourEffectColours.WideZebesExplosionBackground] = new([], [EndingScenery.ExplosionPictures]),
             [ColourEffectColours.ZebesExplosionFinale] = new([], [EndingScenery.ExplosionPictures]),
             [ColourEffectColours.SpaceDuringZebesExplosion] = new([], [EndingScenery.ExplosionPictures]),
-            [ColourEffectColours.ExplodingZebesLava] = new([], [EndingScenery.EscapeSceneAFloor]),
-            [ColourEffectColours.ExplodingZebesCrust] = new([], [EndingScenery.EscapeSceneAFloor]),
-            [ColourEffectColours.ExplodingZebesGreyClouds] = new([], [EndingScenery.EscapeSceneBFloor]),
+            [ColourEffectColours.ExplodingZebesLava] = new([], [EndingScenery.SideCloudEscapeFloor]),
+            [ColourEffectColours.ExplodingZebesCrust] = new([], [EndingScenery.SideCloudEscapeFloor]),
+            [ColourEffectColours.ExplodingZebesGreyClouds] = new([], [EndingScenery.TopAndBottomCloudEscapeFloor]),
             [ColourEffectColours.GunshipEmergingFromExplosion] = new([], [EndingScenery.FlyawayFloor]),
             [ColourEffectColours.ZebesPlanetAfterglow] = new([EndingSpriteColouring.ExplosionAfterglow], []),
             [ColourEffectColours.ZoomedOutExplodingZebes] = new([EndingSpriteColouring.ExplodingPlanet], []),

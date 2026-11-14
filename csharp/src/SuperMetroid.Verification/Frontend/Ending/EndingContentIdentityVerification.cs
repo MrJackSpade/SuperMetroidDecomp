@@ -36,8 +36,8 @@ internal static class EndingContentIdentityVerification
         }
         foreach (var native in new[]
         {
-            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.EscapeA, 0x8bd4b4, 0x8bd4d6, "escape-a"),
-            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.EscapeB, 0x8bd775, 0x8bd604, "escape-b"),
+            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.SideCloudEscape, 0x8bd4b4, 0x8bd4d6, "side-cloud-escape"),
+            new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.TopAndBottomCloudEscape, 0x8bd775, 0x8bd604, "top-and-bottom-cloud-escape"),
             new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
         })
         {
@@ -69,7 +69,7 @@ internal static class EndingContentIdentityVerification
         using var rewardPng = Png(3);
         EndingRewardIconArtwork reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
         var catalog = new EndingFloorCharacters(supplied[0], supplied[1], supplied[2], reward);
-        EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.EscapeA, EndingFloorSceneId.EscapeB, EndingFloorSceneId.PlanetExplosion];
+        EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.SideCloudEscape, EndingFloorSceneId.TopAndBottomCloudEscape, EndingFloorSceneId.PlanetExplosion];
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
@@ -199,7 +199,7 @@ internal static class EndingContentIdentityVerification
             }), RoomBackgroundTilemapFormat.BytesPerPage);
         }
 
-        MemoryStream Sprites(string family, IEnumerable<string> names)
+        MemoryStream Sprites(string family, IEnumerable<string> names, int version = 1)
         {
             var first = new SpriteVisualPart
             {
@@ -238,13 +238,13 @@ internal static class EndingContentIdentityVerification
                 }
                 frames.Add(key, parts);
             }
-            return Json(new { Version = 1, Frames = frames });
+            return Json(new { Version = version, Frames = frames });
         }
 
         var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
             .Select(index => Map("fragment-" + index, index)).ToArray();
         if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name), EndingCloudSpriteFormat.Version)), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")

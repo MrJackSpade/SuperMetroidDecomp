@@ -235,21 +235,22 @@ and scene handoffs remain compiled behavior.
 drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The game
 reads these colours and neither palette; edit them in place, each channel 0–31.
 `ceres-flight-actors.json` in the same directory exposes the five rear-view actors' initial 16-bit
-screen X/Y positions, in large-asteroid, station, small-asteroid, vortex, and
-rear-stars order. Their stock values come from the pinned cartridge's initializer
-operands. Keep the IDs and order; edit only `x`/`y`, then restart the scene. Actor speed, wrapping,
+screen X/Y positions, by role (LargeAsteroids, StationUnderAttack, SmallAsteroids, Vortex and
+RearStars). Their stock values come from the pinned cartridge's initializer
+operands. Keep one entry for each role; edit only `x`/`y`, then restart the scene. Actor speed, wrapping,
 instruction timing, and scene handoffs remain compiled.
 `ceres-destruction-actors.json` holds the initial 16-bit screen X/Y positions
-of the large asteroid, small asteroid, and vortex behind the station blast.
-Keep those three IDs and their order, and edit only `x`/`y`. The stock values come from the cartridge-checked
+of the large asteroids, small asteroids, and vortex behind the station blast, by role (LargeAsteroids,
+SmallAsteroids, Vortex). Keep one entry for each role, and edit only `x`/`y`. The stock values come from the cartridge-checked
 actor initializers; horizontal motion, wrapping, animation, and phase timing
 remain code-owned. Restart the scene to apply a placement edit.
 `ceres-zebes-reveal-actors.json` holds the initial 16-bit screen X/Y coordinates
-for the planet, four star sheets, and PLANET ZEBES title. Keep the six IDs and
-their order; edit only `x`/`y`, then restart
+for the planet, the four quarters of the star field, the PLANET ZEBES title and its Japanese subtitle, by role
+(Planet, StarsUpperLeft, StarsUpperRight, StarsLowerLeft, StarsLowerRight, Title, JapaneseSubtitle). Keep one entry
+for each role; edit only `x`/`y`, then restart
 the scene. These values are read from the pinned cartridge's actor initializer
 operands. The slide acceleration, visibility schedule, deletion, and phase
-handoff remain compiled. Missing, reordered, or malformed entries fail loudly.
+handoff remain compiled. Missing, repeated, or malformed entries fail loudly.
 Restored debugger states rebind these visuals without restarting the destruction or
 descent timeline.
 

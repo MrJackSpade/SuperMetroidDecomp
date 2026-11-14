@@ -319,14 +319,15 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="CeresDestructionActorPlacements"/>.</summary>
     extension(CeresDestructionActorPlacements placements)
     {
-        /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
+        /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresDestructionActorLayout", content =>
         {
-            content.Append("actors", CeresDestructionActorDefinitions.InitialActorCount);
-            for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
+            CeresDestructionActorRole[] roles = Enum.GetValues<CeresDestructionActorRole>();
+            content.Append("actors", roles.Length);
+            foreach (CeresDestructionActorRole role in roles)
             {
-                CeresDestructionActorPlacement placement = placements[index];
-                content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
+                CeresDestructionActorPlacement placement = placements[role];
+                content.Append("role", System.Text.Encoding.UTF8.GetBytes(role.ToString()));
                 content.Append("x", placement.X);
                 content.Append("y", placement.Y);
             }
@@ -336,14 +337,15 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="CeresFlightActorPlacements"/>.</summary>
     extension(CeresFlightActorPlacements placements)
     {
-        /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
+        /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightActorLayout", content =>
         {
-            content.Append("actors", CeresFlightActorDefinitions.RearViewActorCount);
-            for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
+            CeresRearViewActorRole[] roles = Enum.GetValues<CeresRearViewActorRole>();
+            content.Append("actors", roles.Length);
+            foreach (CeresRearViewActorRole role in roles)
             {
-                CeresFlightActorPlacement placement = placements[index];
-                content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
+                CeresFlightActorPlacement placement = placements[role];
+                content.Append("role", System.Text.Encoding.UTF8.GetBytes(role.ToString()));
                 content.Append("x", placement.X);
                 content.Append("y", placement.Y);
             }
@@ -353,14 +355,15 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="CeresRevealActorPlacements"/>.</summary>
     extension(CeresRevealActorPlacements placements)
     {
-        /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
+        /// <summary>Identity of each role's placement, in role order: the role and both initial visual coordinates.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("CeresRevealActorLayout", content =>
         {
-            content.Append("actors", CeresDestructionActorDefinitions.RevealPlacementCount);
-            for (int index = 0; index < CeresDestructionActorDefinitions.RevealPlacementCount; index++)
+            ZebesRevealActorRole[] roles = Enum.GetValues<ZebesRevealActorRole>();
+            content.Append("actors", roles.Length);
+            foreach (ZebesRevealActorRole role in roles)
             {
-                CeresRevealActorPlacement placement = placements[index];
-                content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
+                CeresRevealActorPlacement placement = placements[role];
+                content.Append("role", System.Text.Encoding.UTF8.GetBytes(role.ToString()));
                 content.Append("x", placement.X);
                 content.Append("y", placement.Y);
             }

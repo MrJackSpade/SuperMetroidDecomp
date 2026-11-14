@@ -58,25 +58,25 @@ public static class TitleSequenceDefinitions
     public static class Scenes
     {
         /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
-        public static readonly TitleFloorSceneDefinition SceneZero =
-            new(TitleSequencePhase.SceneZeroPan, FloorZoom.FromTwoHundredFiftySixths(72), new(315, 225));
+        public static readonly TitleFloorSceneDefinition LowerPan =
+            new(TitleSequencePhase.LowerPan, FloorZoom.FromTwoHundredFiftySixths(72), new(315, 225));
         /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
-        public static readonly TitleFloorSceneDefinition SceneOne =
-            new(TitleSequencePhase.SceneOnePan, FloorZoom.FromTwoHundredFiftySixths(96), new(44, -155));
+        public static readonly TitleFloorSceneDefinition UpperPan =
+            new(TitleSequencePhase.UpperPan, FloorZoom.FromTwoHundredFiftySixths(96), new(44, -155));
         /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
-        public static readonly TitleFloorSceneDefinition SceneTwo =
-            new(TitleSequencePhase.SceneTwoPan, FloorZoom.FromTwoHundredFiftySixths(96), new(-177, -160));
+        public static readonly TitleFloorSceneDefinition DownwardPan =
+            new(TitleSequencePhase.DownwardPan, FloorZoom.FromTwoHundredFiftySixths(96), new(-177, -160));
         /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
-        public static readonly TitleFloorSceneDefinition SceneThree =
-            new(TitleSequencePhase.SceneThreeZoom, FloorZoom.FromTwoHundredFiftySixths(67), new(0, 0));
-        /// <summary>The pan speed, 1.5 pixels per update; scenes zero and one pan left, scene two down.</summary>
+        public static readonly TitleFloorSceneDefinition FinalZoom =
+            new(TitleSequencePhase.FinalZoom, FloorZoom.FromTwoHundredFiftySixths(67), new(0, 0));
+        /// <summary>The pan speed, 1.5 pixels per update; the lower and upper pans go left, the downward pan down.</summary>
         public static SignedSixteenSixteen PanVelocity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(384);
         /// <summary>The lower pan's X threshold, -7 pixels; passing it starts the Nintendo card.</summary>
-        public const int SceneZeroEndX = -7;
+        public const int LowerPanEndX = -7;
         /// <summary>The upper pan's X threshold, -176 pixels; passing it starts the Presents card.</summary>
-        public const int SceneOneEndX = -176;
+        public const int UpperPanEndX = -176;
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
-        public const int SceneTwoEndY = 163;
+        public const int DownwardPanEndY = 163;
         /// <summary>The final zoom's step every second update, in 256ths of a floor pixel per screen pixel.</summary>
         public const int FinalZoomStep = 1;
         /// <summary>

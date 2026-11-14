@@ -194,10 +194,10 @@ internal static class FrontendSheetColouringsVerification
     /// <summary>The escapes' clouds, each in its definition's colouring.</summary>
     private static void CloudActors(Dictionary<string, HashSet<int>> sets)
     {
-        foreach (EndingSpriteDefinition cloud in (EndingSpriteDefinition[])[EndingActorDefinitions.EscapeACloudRightTop,
-            EndingActorDefinitions.EscapeACloudLeftTop, EndingActorDefinitions.EscapeACloudRightBottom,
-            EndingActorDefinitions.EscapeACloudLeftBottom, EndingActorDefinitions.EscapeBCloudTopA,
-            EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA, EndingActorDefinitions.EscapeBCloudBottomB])
+        foreach (EndingSpriteDefinition cloud in (EndingSpriteDefinition[])[EndingActorDefinitions.SideCloudRightLeading,
+            EndingActorDefinitions.SideCloudLeftLeading, EndingActorDefinitions.SideCloudRightTrailing,
+            EndingActorDefinitions.SideCloudLeftTrailing, EndingActorDefinitions.TopCloudPattern,
+            EndingActorDefinitions.TopCloudEdge, EndingActorDefinitions.BottomCloudEdge, EndingActorDefinitions.BottomCloudPattern])
             AddProgram(sets, CinematicSpriteFamily.EndingCloud, cloud.Animation, cloud.Colouring);
     }
 

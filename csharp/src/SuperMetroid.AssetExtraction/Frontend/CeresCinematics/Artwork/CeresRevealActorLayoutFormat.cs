@@ -4,10 +4,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 public static class CeresRevealActorLayoutFormat
 {
     /// <summary>
-    /// Supported schema revision, three, requiring the six actor roles in spawn order, then the Japanese subtitle, at signed
-    /// screen-pixel coordinates (#1627, #1733).
+    /// Supported schema revision, four, requiring one placement for each reveal role, the Japanese subtitle's among them,
+    /// each naming its role (#1768), at signed screen-pixel coordinates (#1627, #1733).
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
     /// <summary>JSON resource filename for the reveal actors' and the Japanese subtitle's initial screen coordinates.</summary>
     public const string FileName = "ceres-zebes-reveal-actors.json";
 }

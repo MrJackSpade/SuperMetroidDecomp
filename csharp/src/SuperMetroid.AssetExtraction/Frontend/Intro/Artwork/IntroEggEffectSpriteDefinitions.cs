@@ -10,12 +10,12 @@ internal static class IntroEggEffectSpriteDefinitions
     /// <summary>Ordered six shell fragments, one moving slime frame, and four impact frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("fragment-0", CinematicSpritePose.EggFragment0, 1),
-        new("fragment-1", CinematicSpritePose.EggFragment1, 1),
-        new("fragment-2", CinematicSpritePose.EggFragment2, 1),
-        new("fragment-3", CinematicSpritePose.EggFragment3, 1),
-        new("fragment-4", CinematicSpritePose.EggFragment4, 1),
-        new("fragment-5", CinematicSpritePose.EggFragment5, 1),
+        new("shell-upper-left", CinematicSpritePose.EggShellUpperLeft, 1),
+        new("shell-upper-right", CinematicSpritePose.EggShellUpperRight, 1),
+        new("shell-left", CinematicSpritePose.EggShellLeft, 1),
+        new("shell-centre", CinematicSpritePose.EggShellCentre, 1),
+        new("shell-right", CinematicSpritePose.EggShellRight, 1),
+        new("shell-lower", CinematicSpritePose.EggShellLower, 1),
         new("slime-moving", CinematicSpritePose.SlimeMoving, 1),
         new("slime-impact-0", CinematicSpritePose.SlimeImpact0, 1),
         new("slime-impact-1", CinematicSpritePose.SlimeImpact1, 1),

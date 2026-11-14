@@ -38,13 +38,13 @@ internal static class CeresCinematicSourceDefinitions
     /// The X/Y immediates of the flight's five rear-view actors' initializers ($8B:BE3B..BE5C), in spawn order; the
     /// last X word is a signed -32.
     /// </summary>
-    internal static IReadOnlyList<CinematicPlacementSourceDefinition> RearViewPlacements { get; } =
+    internal static IReadOnlyList<CinematicPlacementSourceDefinition<CeresRearViewActorRole>> RearViewPlacements { get; } =
     [
-        new(CeresFlightActors.RearViewPlacementId(0), 0xbf23),
-        new(CeresFlightActors.RearViewPlacementId(1), 0xbf4d),
-        new(CeresFlightActors.RearViewPlacementId(2), 0xbf77),
-        new(CeresFlightActors.RearViewPlacementId(3), 0xbfb4),
-        new(CeresFlightActors.RearViewPlacementId(4), 0xbea3),
+        new(CeresRearViewActorRole.LargeAsteroids, 0xbf23),
+        new(CeresRearViewActorRole.StationUnderAttack, 0xbf4d),
+        new(CeresRearViewActorRole.SmallAsteroids, 0xbf77),
+        new(CeresRearViewActorRole.Vortex, 0xbfb4),
+        new(CeresRearViewActorRole.RearStars, 0xbea3),
     ];
 
     /// <summary>
@@ -52,25 +52,25 @@ internal static class CeresCinematicSourceDefinitions
     /// small asteroids share the rear view's initializers, and the stationary vortex's parameter-zero branch loads its own
     /// X before the vortex's shared Y.
     /// </summary>
-    internal static IReadOnlyList<CinematicPlacementImmediates> DestructionPlacements { get; } =
+    internal static IReadOnlyList<CinematicPlacementImmediates<CeresDestructionActorRole>> DestructionPlacements { get; } =
     [
-        new(CeresDestructionActors.InitialPlacementId(0), 0xbf23, 0xbf29),
-        new(CeresDestructionActors.InitialPlacementId(1), 0xbf77, 0xbf7d),
-        new(CeresDestructionActors.InitialPlacementId(2), 0xbfa6, 0xbfba),
+        new(CeresDestructionActorRole.LargeAsteroids, 0xbf23, 0xbf29),
+        new(CeresDestructionActorRole.SmallAsteroids, 0xbf77, 0xbf7d),
+        new(CeresDestructionActorRole.Vortex, 0xbfa6, 0xbfba),
     ];
 
     /// <summary>
     /// The X/Y immediates of the Zebes reveal's six actors' initializers ($8B:C810..C831), in spawn order, then of the
     /// Japanese subtitle's initializer ($8B:C9E6), which the title spawns with Japanese text.
     /// </summary>
-    internal static IReadOnlyList<CinematicPlacementSourceDefinition> ZebesPlacements { get; } =
+    internal static IReadOnlyList<CinematicPlacementSourceDefinition<ZebesRevealActorRole>> ZebesPlacements { get; } =
     [
-        new(CeresDestructionActors.ZebesPlacementId(0), 0xc83c),
-        new(CeresDestructionActors.ZebesPlacementId(1), 0xc944),
-        new(CeresDestructionActors.ZebesPlacementId(2), 0xc958),
-        new(CeresDestructionActors.ZebesPlacementId(3), 0xc96c),
-        new(CeresDestructionActors.ZebesPlacementId(4), 0xc980),
-        new(CeresDestructionActors.ZebesPlacementId(5), 0xc993),
-        new(CeresDestructionActors.ZebesPlacementId(CeresDestructionActorDefinitions.ZebesSubtitlePlacement), 0xc9e7),
+        new(ZebesRevealActorRole.Planet, 0xc83c),
+        new(ZebesRevealActorRole.StarsUpperLeft, 0xc944),
+        new(ZebesRevealActorRole.StarsUpperRight, 0xc958),
+        new(ZebesRevealActorRole.StarsLowerLeft, 0xc96c),
+        new(ZebesRevealActorRole.StarsLowerRight, 0xc980),
+        new(ZebesRevealActorRole.Title, 0xc993),
+        new(ZebesRevealActorRole.JapaneseSubtitle, 0xc9e7),
     ];
 }

@@ -22,20 +22,20 @@ internal static class EndingCloudPlacementVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = AudioQueues.Standalone();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInTopAndBottomCloudEscape; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeInEscapeSceneB, ending.Stage.Phase, "cloud scene setup reached");
+        AssertEqual(EndingCreditsPhase.FadeInTopAndBottomCloudEscape, ending.Stage.Phase, "cloud scene setup reached");
         // $8B:D731 spawns EED3/EED9/EEDF/EEE5 with parameter zero.
         // F0B2/F0E1/F0E9/F0F1 therefore all use X=128 and these four Y origins.
         short[] nativeY = [-96, -32, 288, 352];
-        EndingSpriteRole[] roles = [EndingSpriteRole.CloudTopA, EndingSpriteRole.CloudTopB,
-            EndingSpriteRole.CloudBottomA, EndingSpriteRole.CloudBottomB];
-        EndingSpriteDefinition[] definitions = [EndingActorDefinitions.EscapeBCloudTopA,
-            EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA,
-            EndingActorDefinitions.EscapeBCloudBottomB];
+        EndingSpriteRole[] roles = [EndingSpriteRole.TopCloudPattern, EndingSpriteRole.TopCloudEdge,
+            EndingSpriteRole.BottomCloudEdge, EndingSpriteRole.BottomCloudPattern];
+        EndingSpriteDefinition[] definitions = [EndingActorDefinitions.TopCloudPattern,
+            EndingActorDefinitions.TopCloudEdge, EndingActorDefinitions.BottomCloudEdge,
+            EndingActorDefinitions.BottomCloudPattern];
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), EndingShades.Drawn(definition.Colouring),
                 definition.Animation), roles[index])).ToArray();
@@ -53,8 +53,8 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
-            if (ending.Stage.Phase is not (EndingCreditsPhase.FadeInEscapeSceneB or
-                EndingCreditsPhase.EscapeSceneB or EndingCreditsPhase.FadeOutEscapeSceneB))
+            if (ending.Stage.Phase is not (EndingCreditsPhase.FadeInTopAndBottomCloudEscape or
+                EndingCreditsPhase.TopAndBottomCloudEscape or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
                 break;
             steppedFrames++;
             for (int index = 0; index < actors.Length; index++)
@@ -108,12 +108,12 @@ internal static class EndingCloudPlacementVerification
     {
         var audio = AudioQueues.Standalone();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
-        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
+        for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.SideCloudEscape; frame++)
         {
             ending.Step();
             audio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Stage.Phase, "takeoff color-math scene reached");
+        AssertEqual(EndingCreditsPhase.SideCloudEscape, ending.Stage.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
         TurningFloorLayer shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<TurningFloorLayer>().First();
         if (checkWrapping)

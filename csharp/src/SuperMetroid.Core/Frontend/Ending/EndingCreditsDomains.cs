@@ -7,9 +7,9 @@ internal static class EndingCreditsDomains
     /// <summary>The artwork and animation family of a sprite role.</summary>
     internal static EndingSpriteFamily Family(this EndingSpriteRole role) => role switch
     {
-        EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudRightB or
-            EndingSpriteRole.CloudLeftB or EndingSpriteRole.CloudTopA or EndingSpriteRole.CloudTopB or
-            EndingSpriteRole.CloudBottomA or EndingSpriteRole.CloudBottomB => EndingSpriteFamily.Cloud,
+        EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudLeftLeading or EndingSpriteRole.SideCloudRightTrailing or
+            EndingSpriteRole.SideCloudLeftTrailing or EndingSpriteRole.TopCloudPattern or EndingSpriteRole.TopCloudEdge or
+            EndingSpriteRole.BottomCloudEdge or EndingSpriteRole.BottomCloudPattern => EndingSpriteFamily.Cloud,
         EndingSpriteRole.ExplodingZebes or EndingSpriteRole.ExplosionLava or EndingSpriteRole.ExplosionGlow or
             EndingSpriteRole.ExplosionStars or EndingSpriteRole.ExplosionSilhouette or
             EndingSpriteRole.ExplosionStarsRight or EndingSpriteRole.ExplosionStarsLeft or

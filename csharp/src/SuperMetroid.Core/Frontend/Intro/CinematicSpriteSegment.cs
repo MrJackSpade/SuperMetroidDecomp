@@ -15,8 +15,8 @@ internal enum CinematicSpriteSegment
     MetroidEggHatching,
     /// <summary>The Metroid egg's shaking and hatching frames.</summary>
     MetroidEggShaking,
-    /// <summary>The hatched egg's remaining frames before the third page.</summary>
-    MetroidEggHatchedFrame2,
+    /// <summary>The hatched egg's remnants settling, until the third page starts.</summary>
+    MetroidEggRemnantsSettling,
     /// <summary>The hatched egg.</summary>
     MetroidEggHatched,
     /// <summary>The Baby Metroid being delivered.</summary>
@@ -65,30 +65,30 @@ internal enum CinematicSpriteSegment
     CeresLargeExplosion,
     /// <summary>The repeating part of CeresLargeExplosion.</summary>
     CeresLargeExplosionLoop,
-    /// <summary>Metroid egg particle 1.</summary>
-    MetroidEggParticle1,
-    /// <summary>Metroid egg particle 2.</summary>
-    MetroidEggParticle2,
-    /// <summary>Metroid egg particle 3.</summary>
-    MetroidEggParticle3,
-    /// <summary>Metroid egg particle 4.</summary>
-    MetroidEggParticle4,
-    /// <summary>Metroid egg particle 5.</summary>
-    MetroidEggParticle5,
-    /// <summary>Metroid egg particle 6.</summary>
-    MetroidEggParticle6,
-    /// <summary>Metroid egg particle 7.</summary>
-    MetroidEggParticle7,
-    /// <summary>An egg particle hitting the ground.</summary>
-    MetroidEggParticleHitGround,
-    /// <summary>Zebes star sheet 0.</summary>
-    ZebesStarSheet0,
-    /// <summary>Zebes star sheet 1.</summary>
-    ZebesStarSheet1,
-    /// <summary>Zebes star sheet 2.</summary>
-    ZebesStarSheet2,
-    /// <summary>Zebes star sheet 3.</summary>
-    ZebesStarSheet3,
+    /// <summary>The piece at the upper left of the hatched egg's shell.</summary>
+    MetroidEggShellUpperLeft,
+    /// <summary>The piece at the upper right of the hatched egg's shell.</summary>
+    MetroidEggShellUpperRight,
+    /// <summary>The piece at the left of the hatched egg's shell.</summary>
+    MetroidEggShellLeft,
+    /// <summary>The piece at the centre of the hatched egg's shell.</summary>
+    MetroidEggShellCentre,
+    /// <summary>The piece at the right of the hatched egg's shell.</summary>
+    MetroidEggShellRight,
+    /// <summary>The piece at the bottom of the hatched egg's shell.</summary>
+    MetroidEggShellLower,
+    /// <summary>A drop of slime falling from the hatched egg.</summary>
+    MetroidEggSlimeDrop,
+    /// <summary>A drop of slime splashing on the ground.</summary>
+    MetroidEggSlimeImpact,
+    /// <summary>The upper-left quarter of the stars around Zebes.</summary>
+    ZebesStarsUpperLeft,
+    /// <summary>The upper-right quarter of the stars around Zebes.</summary>
+    ZebesStarsUpperRight,
+    /// <summary>The lower-left quarter of the stars around Zebes.</summary>
+    ZebesStarsLowerLeft,
+    /// <summary>The lower-right quarter of the stars around Zebes.</summary>
+    ZebesStarsLowerRight,
     /// <summary>The Ceres flight's star field.</summary>
     CeresStars,
     /// <summary>The intro Mother Brain's big explosion.</summary>
@@ -165,18 +165,18 @@ internal enum CinematicSpriteSegment
     ClearTimeColon,
     /// <summary>The animals escaping Zebes.</summary>
     EndingAnimalEscape,
-    /// <summary>Ending cloud 0.</summary>
-    EndingCloud0,
-    /// <summary>Ending cloud 1.</summary>
-    EndingCloud1,
-    /// <summary>Ending cloud 2.</summary>
-    EndingCloud2,
-    /// <summary>Ending cloud 3.</summary>
-    EndingCloud3,
-    /// <summary>Ending cloud 4.</summary>
-    EndingCloud4,
-    /// <summary>Ending cloud 5.</summary>
-    EndingCloud5,
+    /// <summary>The pattern of the upper clouds the gunship escapes between.</summary>
+    EndingTopCloudPattern,
+    /// <summary>The edge of the upper clouds the gunship escapes between.</summary>
+    EndingTopCloudEdge,
+    /// <summary>The edge of the lower clouds the gunship escapes between.</summary>
+    EndingBottomCloudEdge,
+    /// <summary>The pattern of the lower clouds the gunship escapes between.</summary>
+    EndingBottomCloudPattern,
+    /// <summary>A cloud passing on the right of the escaping gunship.</summary>
+    EndingRightSideCloud,
+    /// <summary>A cloud passing on the left of the escaping gunship.</summary>
+    EndingLeftSideCloud,
     /// <summary>The suitless Samus at rest.</summary>
     SuitlessIdle,
     /// <summary>The suitless Samus's legs at rest.</summary>

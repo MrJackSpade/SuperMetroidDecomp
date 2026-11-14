@@ -242,25 +242,25 @@ public sealed class TitleSequenceState : IFrontendScreen
                 StepTextSequence();
                 break;
 
-            case TitleSequencePhase.SceneZeroPan:
+            case TitleSequencePhase.LowerPan:
                 panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneZeroEndX)
+                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.LowerPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
-            case TitleSequencePhase.SceneOnePan:
+            case TitleSequencePhase.UpperPan:
                 panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneOneEndX)
+                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.UpperPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
-            case TitleSequencePhase.SceneTwoPan:
+            case TitleSequencePhase.DownwardPan:
                 panPosition = panPosition.WithY(panPosition.Y.MovedBy(TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.SceneTwoEndY)
+                if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;
 
-            case TitleSequencePhase.SceneThreeZoom:
+            case TitleSequencePhase.FinalZoom:
                 // The zoom acts only on every second update: it grows one step while the floor is smaller than its own
                 // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
                 // holds the floor's own size for two updates before the logo shows.
@@ -346,13 +346,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     private static bool AcceptsSkip(TitleSequencePhase phase) => phase switch
     {
         TitleSequencePhase.YearText or
-            TitleSequencePhase.SceneZeroPan or
+            TitleSequencePhase.LowerPan or
             TitleSequencePhase.NintendoText or
-            TitleSequencePhase.SceneOnePan or
+            TitleSequencePhase.UpperPan or
             TitleSequencePhase.PresentsText or
-            TitleSequencePhase.SceneTwoPan or
+            TitleSequencePhase.DownwardPan or
             TitleSequencePhase.MetroidThreeText or
-            TitleSequencePhase.SceneThreeZoom => true,
+            TitleSequencePhase.FinalZoom => true,
         TitleSequencePhase.TitleLogoFade or
             TitleSequencePhase.CopyrightFade or
             TitleSequencePhase.TitleScreenFadeIn or
@@ -507,30 +507,30 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             switch (cue)
             {
-                case TitleSequenceScriptStep.TriggerScene0:
-                    Phase = TitleSequencePhase.SceneZeroPan;
+                case TitleSequenceScriptStep.StartLowerPan:
+                    Phase = TitleSequencePhase.LowerPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneZero);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
                     return;
 
-                case TitleSequenceScriptStep.TriggerScene1:
-                    Phase = TitleSequencePhase.SceneOnePan;
+                case TitleSequenceScriptStep.StartUpperPan:
+                    Phase = TitleSequencePhase.UpperPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneOne);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
                     return;
 
-                case TitleSequenceScriptStep.TriggerScene2:
-                    Phase = TitleSequencePhase.SceneTwoPan;
+                case TitleSequenceScriptStep.StartDownwardPan:
+                    Phase = TitleSequencePhase.DownwardPan;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneTwo);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
                     return;
 
-                case TitleSequenceScriptStep.TriggerScene3:
-                    Phase = TitleSequencePhase.SceneThreeZoom;
+                case TitleSequenceScriptStep.StartFinalZoom:
+                    Phase = TitleSequencePhase.FinalZoom;
                     gradientEnabled = true;
                     floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     PhaseTimer = 0;
-                    ApplyScene(TitleSequenceDefinitions.Scenes.SceneThree);
+                    ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
                     return;
 
                 case TitleSequenceScriptStep.Delete:

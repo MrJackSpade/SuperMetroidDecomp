@@ -49,10 +49,10 @@ internal enum CinematicSpriteCueKind
     SpawnMinutesUnits,
     /// <summary>Spawns the hatching egg's particles.</summary>
     SpawnParticles,
-    /// <summary>Spawns the first pair of intro Rinkas.</summary>
-    SpawnRinkas0And1,
-    /// <summary>Spawns the second pair of intro Rinkas.</summary>
-    SpawnRinkas2And3,
+    /// <summary>Spawns the pair of intro Rinkas whose first strikes Samus; the other misses.</summary>
+    SpawnStrikingRinkaPair,
+    /// <summary>Spawns the pair of intro Rinkas that both miss Samus.</summary>
+    SpawnMissingRinkaPair,
     /// <summary>Hands the suited gesture off to its jump.</summary>
     SpawnSuitedJump,
     /// <summary>Hands the suitless gesture off to its jump.</summary>

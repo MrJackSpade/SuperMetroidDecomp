@@ -70,8 +70,8 @@ internal static class CeresSpawnerScheduleVerification
                             CinematicSpriteCueKind.SpawnMinutesTens or
                             CinematicSpriteCueKind.SpawnMinutesUnits or
                             CinematicSpriteCueKind.SpawnParticles or
-                            CinematicSpriteCueKind.SpawnRinkas0And1 or
-                            CinematicSpriteCueKind.SpawnRinkas2And3 or
+                            CinematicSpriteCueKind.SpawnStrikingRinkaPair or
+                            CinematicSpriteCueKind.SpawnMissingRinkaPair or
                             CinematicSpriteCueKind.SpawnSuitedJump or
                             CinematicSpriteCueKind.SpawnSuitlessJump or
                             CinematicSpriteCueKind.StartFlyingToZebes or

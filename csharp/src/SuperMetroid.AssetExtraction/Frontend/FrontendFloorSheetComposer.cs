@@ -29,8 +29,8 @@ internal static class FrontendFloorSheetComposer
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
     internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
     [
-        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingEscapeAFloor,
-        SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
+        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingSideCloudEscapeFloor,
+        SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
         SpriteSheetId.EndingRewardIconFloor,
     ];
 
@@ -53,10 +53,10 @@ internal static class FrontendFloorSheetComposer
         {
             [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
-            [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources,
-                EndingFloorShot.EscapeA),
-            [SpriteSheetId.EndingEscapeBFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape), sources,
-                EndingFloorShot.EscapeB),
+            [SpriteSheetId.EndingSideCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
+                EndingFloorShot.SideCloudEscape),
+            [SpriteSheetId.EndingTopAndBottomCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
+                EndingFloorShot.TopAndBottomCloudEscape),
             [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
                 EndingFloorShot.PlanetExplosion),
             [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway),

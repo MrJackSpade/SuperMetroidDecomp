@@ -75,7 +75,7 @@ internal static class EndingMode7ArtworkVerification
         AssertEqual(EndingCreditsPhase.ZebesExplosionHold, installed.Stage.Phase,
             "installed art preserves the explosion's hold");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
-                phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
+                phases.Contains(EndingCreditsPhase.FadeInTopAndBottomCloudEscape) &&
                 phases.Contains(EndingCreditsPhase.FadeInZebesExplosion),
             "all three ending Mode-7 scenes were exercised");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
@@ -93,10 +93,10 @@ internal static class EndingMode7ArtworkVerification
                 (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                  address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
                  EndingRewardGraphicsUploadDefinitions.ChunkCount * sizeof(ushort)) ||
-                address is EndingSourceDefinitions.Artwork.EscapeACharacters or
-                EndingSourceDefinitions.Artwork.EscapeAPackedMap or
-                EndingSourceDefinitions.Artwork.EscapeBCharacters or
-                EndingSourceDefinitions.Artwork.EscapeBPackedMap or
+                address is EndingSourceDefinitions.Artwork.SideCloudEscapeCharacters or
+                EndingSourceDefinitions.Artwork.SideCloudEscapePackedMap or
+                EndingSourceDefinitions.Artwork.TopAndBottomCloudEscapeCharacters or
+                EndingSourceDefinitions.Artwork.TopAndBottomCloudEscapePackedMap or
                 EndingSourceDefinitions.Artwork.ExplosionCharacters or
                 EndingSourceDefinitions.Artwork.ExplosionPackedMap or
                 EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,

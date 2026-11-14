@@ -20,17 +20,17 @@ internal static class EndingSourceDefinitions
         /// <summary>The largest decompressed length permitted when importing the ending's compressed artwork.</summary>
         internal const int DecompressionLimit = 0x8000;
 
-        /// <summary>$98:BCD6, Tiles_Zebes_Being_Zoomed_Out_during_Zebes_Explosion_Mode7: escape scene A's compressed high-byte Mode 7 character lane.</summary>
-        internal const int EscapeACharacters = 0x98bcd6;
+        /// <summary>$98:BCD6, Tiles_Zebes_Being_Zoomed_Out_during_Zebes_Explosion_Mode7: the side-cloud escape's compressed high-byte Mode 7 character lane.</summary>
+        internal const int SideCloudEscapeCharacters = 0x98bcd6;
 
-        /// <summary>$99:D17E, InterleavedTilesTilemap_ZebesBeingZoomedOutExplosion_Mode7: escape scene A's packed low-byte map source.</summary>
-        internal const int EscapeAPackedMap = 0x99d17e;
+        /// <summary>$99:D17E, InterleavedTilesTilemap_ZebesBeingZoomedOutExplosion_Mode7: the side-cloud escape's packed low-byte map source.</summary>
+        internal const int SideCloudEscapePackedMap = 0x99d17e;
 
-        /// <summary>$98:ED4F, Tiles_Grey_Clouds_during_Zebes_Explosion_Mode7: escape scene B's compressed high-byte character lane.</summary>
-        internal const int EscapeBCharacters = 0x98ed4f;
+        /// <summary>$98:ED4F, Tiles_Grey_Clouds_during_Zebes_Explosion_Mode7: the top-and-bottom-cloud escape's compressed high-byte character lane.</summary>
+        internal const int TopAndBottomCloudEscapeCharacters = 0x98ed4f;
 
-        /// <summary>$99:D65B, InterleavedTilesTilemap_GreyCloudsDuringZebesExplosion_Mode7: escape scene B's packed low-byte map source.</summary>
-        internal const int EscapeBPackedMap = 0x99d65b;
+        /// <summary>$99:D65B, InterleavedTilesTilemap_GreyCloudsDuringZebesExplosion_Mode7: the top-and-bottom-cloud escape's packed low-byte map source.</summary>
+        internal const int TopAndBottomCloudEscapePackedMap = 0x99d65b;
 
         /// <summary>$99:9101, Tiles_Big_Zebes_during_Zebes_Explosion: the planet explosion's compressed high-byte Mode 7 character lane.</summary>
         internal const int ExplosionCharacters = 0x999101;

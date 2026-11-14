@@ -161,14 +161,14 @@ internal sealed class EndingStage
                     sprite.Delete();
                 break;
             // These actors run no frame behaviour.
-            case EndingSpriteRole.CloudRightA:
-            case EndingSpriteRole.CloudLeftA:
-            case EndingSpriteRole.CloudRightB:
-            case EndingSpriteRole.CloudLeftB:
-            case EndingSpriteRole.CloudTopA:
-            case EndingSpriteRole.CloudTopB:
-            case EndingSpriteRole.CloudBottomA:
-            case EndingSpriteRole.CloudBottomB:
+            case EndingSpriteRole.SideCloudRightLeading:
+            case EndingSpriteRole.SideCloudLeftLeading:
+            case EndingSpriteRole.SideCloudRightTrailing:
+            case EndingSpriteRole.SideCloudLeftTrailing:
+            case EndingSpriteRole.TopCloudPattern:
+            case EndingSpriteRole.TopCloudEdge:
+            case EndingSpriteRole.BottomCloudEdge:
+            case EndingSpriteRole.BottomCloudPattern:
             case EndingSpriteRole.ExplodingZebes:
             case EndingSpriteRole.ExplosionSilhouette:
             case EndingSpriteRole.OperationWasText:

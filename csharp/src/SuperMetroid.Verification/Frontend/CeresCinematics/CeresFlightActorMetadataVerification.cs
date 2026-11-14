@@ -27,36 +27,41 @@ internal static class CeresFlightActorMetadataVerification
             CeresFlightActorDefinitions.FrontStarAcceleration.RawValue,
             "front stars acceleration");
 
-        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
+        // The rear view's setup spawns its actors with these spawn instructions, in spawn order.
+        int[] spawnOperands = [0x8bbe3c, 0x8bbe42, 0x8bbe48, 0x8bbe4e, 0x8bbe57];
+        AssertEqual(spawnOperands.Length, CeresFlightActorDefinitions.RearViewSpawnOrder.Count, "one spawn instruction per rear-view actor");
+        AssertEqual(Enum.GetValues<CeresRearViewActorRole>().Length, CeresFlightActorDefinitions.RearViewSpawnOrder.Distinct().Count(),
+            "the rear view spawns each of its roles once");
+        for (int index = 0; index < spawnOperands.Length; index++)
         {
-            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
-            int[] spawnOperands = [0x8bbe3c, 0x8bbe42, 0x8bbe48, 0x8bbe4e, 0x8bbe57];
+            CeresRearViewActorRole role = CeresFlightActorDefinitions.RearViewSpawnOrder[index];
+            CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(role);
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
             ushort definition = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]);
-            VerifyActor(retail, actor, definition, $"rear actor {index}");
+            VerifyActor(retail, actor, definition, $"rear {role}");
             AssertEqual(SignedEightEight.Zero, actor.InitialVelocity, "rear initializer leaves cleared timer");
-            if (index != 4)
+            if (role != CeresRearViewActorRole.RearStars)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
                     actor.ActiveFrameBehavior.NativeAddress, "rear initializer preserves the definition callback");
-            switch (index)
+            switch (role)
             {
-                case 0:
+                case CeresRearViewActorRole.LargeAsteroids:
                     VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "large asteroids");
                     break;
-                case 1:
+                case CeresRearViewActorRole.StationUnderAttack:
                     VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf4d, 0x8bbf53, 0x8bbf59, 0x8bbf64, 0x8bbf70), "Ceres under attack");
                     break;
-                case 2:
+                case CeresRearViewActorRole.SmallAsteroids:
                     VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "small asteroids");
                     break;
-                case 3:
+                case CeresRearViewActorRole.Vortex:
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear vortex attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear vortex speed magnitude");
                     AssertTrue(!actor.WrapX, "rear vortex uses signed non-wrapping motion");
                     break;
-                case 4:
+                case CeresRearViewActorRole.RearStars:
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear stars attributes");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActiveFrameBehavior.NativeAddress,
@@ -70,17 +75,12 @@ internal static class CeresFlightActorMetadataVerification
             }
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresFlightActors.RearViewActor(
-                CeresFlightActorDefinitions.RearViewActorCount),
-            "Ceres rear-view actor definition boundary");
-
-        foreach (int index in new[] { int.MinValue, -1, int.MaxValue })
+        foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<CeresRearViewActorRole>().Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresFlightActors.RearViewActor(index), "rear metadata invalid index");
+                () => CeresFlightActors.RearViewActor((CeresRearViewActorRole)undefined), "rear metadata undefined role");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
-        AssertEqual(front.Animation, CeresFlightActors.RearViewActor(4).Animation, "front/rear program alias");
+        AssertEqual(front.Animation, CeresFlightActors.RearViewActor(CeresRearViewActorRole.RearStars).Animation, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             front.ActiveFrameBehavior.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");

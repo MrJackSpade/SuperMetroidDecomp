@@ -49,7 +49,7 @@ A turning floor the game repeats beyond its edges is stored whole: its picture i
 clear margin and all, because every pixel of the floor comes into view and the floor repeats with its whole size. These
 are the floors whose scenes run with the cartridge's Mode 7 settings 0: the Ceres elevator shaft's floor
 (`room-block-sheets/Floor.<tileset>` for the shaft's tilesets), the ending's two escape scenes and the planet's explosion
-(`sprite-sheets/ending-escape-a-floor`, `ending-escape-b-floor` and `ending-planet-explosion-floor`). Every other turning
+(`sprite-sheets/ending-side-cloud-escape-floor`, `ending-top-and-bottom-cloud-escape-floor` and `ending-planet-explosion-floor`). Every other turning
 floor (the title's, the Ceres cinematics', the gunship's flyaway, the reward icon's and Ceres Ridley's getaway) runs with
 settings `$80`, which show nothing beyond the floor, and is stored as the box of what it shows.
 

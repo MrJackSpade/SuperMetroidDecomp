@@ -10,7 +10,7 @@ internal static class IntroEggEffectProgramsVerification
     /// <summary>Checks eleven published frame names, native operands, OAM part counts, and catalog bounds.</summary>
     internal static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["fragment-0", "fragment-1", "fragment-2", "fragment-3", "fragment-4", "fragment-5",
+        string[] names = ["shell-upper-left", "shell-upper-right", "shell-left", "shell-centre", "shell-right", "shell-lower",
             "slime-moving", "slime-impact-0", "slime-impact-1", "slime-impact-2", "slime-impact-3"];
         var frames = IntroEggEffectSpriteDefinitions.Frames;
         AssertEqual(11, frames.Count, "eleven egg-effect frames");

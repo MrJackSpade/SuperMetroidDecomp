@@ -7,6 +7,6 @@ public sealed record CeresDestructionActorLayoutDocument
 {
     /// <summary>Schema revision required to equal <see cref="CeresDestructionActorLayoutFormat.Version"/> during loading.</summary>
     public required int Version { get; init; }
-    /// <summary>Exactly three nonnull placements in spawn order: <c>large-asteroid</c>, <c>small-asteroid</c>, and <c>vortex</c>.</summary>
+    /// <summary>One placement for each destruction role (<see cref="Core.Frontend.CeresCinematics.CeresDestructionActorRole"/>), written in spawn order.</summary>
     public required CeresDestructionActorPlacement[] Actors { get; init; }
 }

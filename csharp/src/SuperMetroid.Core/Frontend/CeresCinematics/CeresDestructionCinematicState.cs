@@ -91,12 +91,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
     /// <summary>Planet actor whose sliding frame behaviour uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
-    /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
-    private IntroDiscoverySprite? zebesCompletionStarActor;
-    /// <summary>Title actor whose cue starts the turning-floor flight toward Zebes.</summary>
-    private IntroDiscoverySprite? zebesTitleActor;
-    /// <summary>The Japanese subtitle, once the title has spawned it with Japanese text (#1733).</summary>
-    private IntroDiscoverySprite? zebesSubtitleActor;
+    /// <summary>
+    /// What each persistent actor behind the explosion shows (#1768); the blasts sharing the actor list are not among
+    /// them.
+    /// </summary>
+    private readonly Dictionary<IntroDiscoverySprite, CeresDestructionActorRole> destructionActorRoles = [];
+    /// <summary>
+    /// What each Zebes reveal actor shows (#1768), the Japanese subtitle's once the title has spawned it with Japanese
+    /// text (#1733): the role selects the actor's slide away and whether its leaving the screen ends the scene.
+    /// </summary>
+    private readonly Dictionary<IntroDiscoverySprite, ZebesRevealActorRole> revealActorRoles = [];
     /// <summary>
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
@@ -429,14 +433,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ColourEffects.Start(CeresDestructionSceneDefinitions.NavigationLights, 0);
 
         actors.Clear();
-        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
-        {
-            // Each actor starts at its installed placement (#1596).
-            actors.Add(CreateActor(CeresDestructionActors.InitialActor(index), content.CeresDestruction.DestructionActors[index].Position));
-        }
+        destructionActorRoles.Clear();
         ceresActorsDrawnLast.Clear();
-        ceresActorsDrawnLast.Add(actors[1]);
-        ceresActorsDrawnLast.Add(actors[2]);
+        foreach (CeresDestructionActorRole role in CeresDestructionActorDefinitions.DestructionSpawnOrder)
+        {
+            // Each actor starts at its role's installed placement (#1596).
+            IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.InitialActor(role),
+                content.CeresDestruction.DestructionActors[role].Position);
+            actors.Add(actor);
+            destructionActorRoles.Add(actor, role);
+            if (role is CeresDestructionActorRole.SmallAsteroids or CeresDestructionActorRole.Vortex)
+                ceresActorsDrawnLast.Add(actor);
+        }
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
@@ -473,15 +481,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = FloorZoom.OwnSize;
         actors.Clear();
-        ZebesPlanetActor = CreateZebesActor(0);
-        actors.Add(ZebesPlanetActor);
-        actors.Add(CreateZebesActor(1));
-        actors.Add(CreateZebesActor(2));
-        actors.Add(CreateZebesActor(3));
-        zebesCompletionStarActor = CreateZebesActor(4);
-        actors.Add(zebesCompletionStarActor);
-        zebesTitleActor = CreateZebesActor(5);
-        actors.Add(zebesTitleActor);
+        revealActorRoles.Clear();
+        foreach (ZebesRevealActorRole role in CeresDestructionActorDefinitions.RevealSpawnOrder)
+        {
+            IntroDiscoverySprite actor = CreateZebesActor(role);
+            if (role == ZebesRevealActorRole.Planet)
+                ZebesPlanetActor = actor;
+            actors.Add(actor);
+        }
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
 
@@ -543,21 +550,17 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return actor;
     }
 
-    /// <summary>Creates one Zebes reveal actor at its installed placement (#1596).</summary>
-    private IntroDiscoverySprite CreateZebesActor(int index)
+    /// <summary>
+    /// Creates the Zebes reveal actor that shows <paramref name="role"/> at its installed placement (#1596, #1733) and
+    /// records its role.
+    /// </summary>
+    private IntroDiscoverySprite CreateZebesActor(ZebesRevealActorRole role)
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "The Zebes reveal requires installed cinematic artwork.");
-        return CreateActor(CeresDestructionActors.ZebesActor(index), content.CeresDestruction.RevealActors[index].Position);
-    }
-
-    /// <summary>Creates the Japanese PLANET ZEBES subtitle at its installed placement (#1733).</summary>
-    private IntroDiscoverySprite CreateZebesSubtitle()
-    {
-        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
-            "The Zebes reveal requires installed cinematic artwork.");
-        return CreateActor(CeresDestructionActorDefinitions.ZebesSubtitle,
-            content.CeresDestruction.RevealActors[CeresDestructionActorDefinitions.ZebesSubtitlePlacement].Position);
+        IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Position);
+        revealActorRoles.Add(actor, role);
+        return actor;
     }
 
 
@@ -598,14 +601,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         for (int index = actors.Count - 1; index >= 0; index--)
         {
             IntroDiscoverySprite actor = actors[index];
-            if (index < CeresDestructionActorDefinitions.InitialActorCount)
+            if (destructionActorRoles.TryGetValue(actor, out CeresDestructionActorRole role))
             {
-                CeresDestructionActorDefinition definition =
-                    CeresDestructionActors.InitialActor(index);
+                CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
                 if (actor.FrameBehavior != definition.ActiveFrameBehavior)
                 {
                     throw new InvalidDataException(
-                        $"Ceres destruction actor {index} names invalid frame behaviour " +
+                        $"The Ceres destruction's {role} actor names invalid frame behaviour " +
                         $"{actor.FrameBehavior}.");
                 }
                 if (definition.WrapX)
@@ -691,24 +693,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             IntroDiscoverySprite actor = actors[index];
             if (motion == ZebesActorsMotion.SlidingAway)
             {
-                CeresDestructionActorDefinition definition = ReferenceEquals(actor, ZebesPlanetActor)
-                    ? CeresDestructionActors.ZebesActor(0)
-                    : ReferenceEquals(actor, zebesCompletionStarActor)
-                        ? CeresDestructionActors.ZebesActor(4)
-                        : ReferenceEquals(actor, zebesTitleActor)
-                            ? CeresDestructionActors.ZebesActor(5)
-                            : ReferenceEquals(actor, zebesSubtitleActor)
-                                ? CeresDestructionActorDefinitions.ZebesSubtitle
-                                : CeresDestructionActors.ZebesActor(1);
+                if (!revealActorRoles.TryGetValue(actor, out ZebesRevealActorRole role))
+                    throw new InvalidOperationException("An actor outside the Zebes reveal remained active when scene sliding began.");
+                CeresDestructionActorDefinition definition = CeresDestructionActors.ZebesActor(role);
                 if (definition.SlideFrameBehavior is null)
                 {
                     throw new InvalidDataException(
                         "A PLANET ZEBES caption actor remained active when scene sliding began.");
                 }
                 actor.InstallFrameBehavior(definition.SlideFrameBehavior);
-                // Zebes accelerates by 64 in 1/256 pixels; all four star sheets use 32. Star
-                // sheet five owns the reveal's completion. Identify the actors
-                // by ownership, not their mutable list index: actors delete as they
+                // Zebes accelerates by 64 in 1/256 pixels; all four star quarters use 32. The lower-right
+                // stars own the reveal's completion. Identify the actors
+                // by their roles, not their mutable list index: actors delete as they
                 // cross -128, so indexes necessarily shift during this loop.
                 // The slide speed grows by at most 64 a frame and the actor is deleted within a few dozen frames, once
                 // it crosses -128, so the speed stays far inside its range.
@@ -718,8 +714,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
                 {
                     // Each reveal object deletes itself before its screen Y,
-                    // 0 through 255, can wrap below the screen. Only star sheet five
-                    // additionally hands the cinematic back to game load.
+                    // 0 through 255, can wrap below the screen. Only the lower-right stars
+                    // additionally hand the cinematic back to game load.
                     if (definition.CompletesScene)
                     {
                         Phase = CeresDestructionPhase.Finished;
@@ -729,6 +725,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     actor.Delete();
                     actors.RemoveAt(index);
                     slideSpeeds.Remove(actor);
+                    revealActorRoles.Remove(actor);
                     continue;
                 }
             }
@@ -765,10 +762,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
                 // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
                 if (japaneseText)
-                {
-                    zebesSubtitleActor = CreateZebesSubtitle();
-                    spawnedSubtitle = zebesSubtitleActor;
-                }
+                    spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
                 return;
 
             case CinematicSpriteCueKind.StartFlyingToZebes:
@@ -801,8 +795,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.SpawnMinutesTens:
             case CinematicSpriteCueKind.SpawnMinutesUnits:
             case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnRinkas0And1:
-            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
+            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
             case CinematicSpriteCueKind.SpawnSuitedJump:
             case CinematicSpriteCueKind.SpawnSuitlessJump:
             case CinematicSpriteCueKind.StartIntroPage2:

@@ -24,13 +24,13 @@ public static class EndingFloorArtworkFormat
     /// <summary>8192 low-lane tile indices per half-map, loaded into both halves of the map.</summary>
     public const int MapByteCount = MapWidth * MapHeight;
 
-    /// <summary>Gets the indexed character-atlas filename for escape-a, escape-b, or planet-explosion.</summary>
+    /// <summary>Gets the indexed character-atlas filename for the side-cloud escape, the top-and-bottom-cloud escape, or the planet explosion.</summary>
     /// <param name="id">The backdrop whose editable PNG is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
     public static string CharacterFileName(EndingFloorSceneId id) =>
         $"ending-{SceneName(id)}-mode7-characters.png";
 
-    /// <summary>Gets the half-map JSON filename for escape-a, escape-b, or planet-explosion.</summary>
+    /// <summary>Gets the half-map JSON filename for the side-cloud escape, the top-and-bottom-cloud escape, or the planet explosion.</summary>
     /// <param name="id">The backdrop whose editable map is requested.</param>
     /// <exception cref="ArgumentOutOfRangeException">The scene identifier is unsupported.</exception>
     public static string MapFileName(EndingFloorSceneId id) =>
@@ -39,8 +39,8 @@ public static class EndingFloorArtworkFormat
     /// <summary>Maps a supported ending scene to its stable filename stem.</summary>
     private static string SceneName(EndingFloorSceneId id) => id switch
     {
-        EndingFloorSceneId.EscapeA => "escape-a",
-        EndingFloorSceneId.EscapeB => "escape-b",
+        EndingFloorSceneId.SideCloudEscape => "side-cloud-escape",
+        EndingFloorSceneId.TopAndBottomCloudEscape => "top-and-bottom-cloud-escape",
         EndingFloorSceneId.PlanetExplosion => "planet-explosion",
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };

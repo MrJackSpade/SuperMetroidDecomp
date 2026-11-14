@@ -243,8 +243,8 @@ internal static class EndingSpriteSheetComposer
                 SpriteSheetId.IntroScenePictures or SpriteSheetId.IntroNarrationPictures or
                 SpriteSheetId.CeresCinematicPictures or SpriteSheetId.EndingCreditsRows or
                 SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
-                SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or SpriteSheetId.EndingEscapeAFloor or
-                SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
+                SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or SpriteSheetId.EndingSideCloudEscapeFloor or
+                SpriteSheetId.EndingTopAndBottomCloudEscapeFloor or SpriteSheetId.EndingPlanetExplosionFloor or
                 SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Not an ending sheet."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),

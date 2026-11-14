@@ -1486,13 +1486,14 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
 
-        for (ushort number = 0; number < 4; number++)
+        // The tables' fourth entry is the stop animation the AI never selects, which the port does not keep (#1838).
+        for (ushort number = 0; number < 3; number++)
         {
             SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(number, "stream4 Skree/Metaree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)), "stream4 native Metaree phase program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation(phase)), "stream4 native Skree phase program");
         }
-        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
+        foreach (ushort invalid in new ushort[] { 3, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SkreeNativeWords.AnimationPhases.Decode(invalid, "stream4 Skree/Metaree animation phase"), "stream4 invalid Skree/Metaree phase");
     }
 

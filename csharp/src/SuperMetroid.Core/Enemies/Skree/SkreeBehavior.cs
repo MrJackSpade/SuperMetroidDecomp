@@ -128,7 +128,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (state.BurrowTimer == 8)
-            _projectiles.SpawnMetalParticleBurst(slot, SkreeParticleDefinitions.Burst);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, slot, SkreeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
@@ -169,7 +169,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Skree's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
+        BeforeGenericDeath = c => SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeParticleDefinitions.Burst),
     };
 
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
@@ -183,7 +183,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Enemy.Health != 0)
                 return;
-            _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeParticleDefinitions.Burst);
             _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, deathAnimation: EnemyDeathExplosion.Small);
         },
     };

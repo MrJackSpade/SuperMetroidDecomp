@@ -252,7 +252,7 @@ internal static class KraidAnimationsVerification
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, null, Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, null, Position16<RoomPixels>.Zero, shortCounter: 0);
                 native.Step(cartridge);
                 string at = $"Kraid rock {program} update {update}";
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");

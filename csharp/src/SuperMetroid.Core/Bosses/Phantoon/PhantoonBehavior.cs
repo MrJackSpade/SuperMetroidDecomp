@@ -53,7 +53,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
         Presentation = new PhantoonPresentation(dependencies.FrameContext);
-        Combat = new PhantoonCombat(_room, dependencies.Projectiles, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
+        Combat = new PhantoonCombat(_room, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.FrameResults, Combat);
         Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, dependencies.FrameContext, Presentation, Combat);
         Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, FrameResults = dependencies.FrameResults });

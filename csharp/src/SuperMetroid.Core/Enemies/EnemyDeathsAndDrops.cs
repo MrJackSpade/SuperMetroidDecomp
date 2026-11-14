@@ -242,7 +242,7 @@ internal sealed class EnemyDeathsAndDrops
         // Unlike a finished death explosion, a direct drop becomes a pickup in any projectile
         // slot, slot zero included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
-        pickup.StartAnimation(new EnemyDeathProjectileAnimation(kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+        pickup.StartAnimation(new EnemyDeathProjectileAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
             : ConfigurePickup(pickup, kind)));
     }
@@ -255,7 +255,7 @@ internal sealed class EnemyDeathsAndDrops
     internal EnemyDeathProjectileSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(projectile);
-        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(projectile)
             : ConfigurePickup(projectile, kind);
     }
@@ -270,7 +270,7 @@ internal sealed class EnemyDeathsAndDrops
         // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
         projectile.PersistsOnSamusContact = false;
-        return animation.Animation ?? throw new InvalidOperationException($"Enemy pickup kind {kind} has no drop program.");
+        return animation.Animation;
     }
 
     /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
@@ -290,11 +290,12 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// The random drop selection, whose chances are counts of 0 through 255. Minor drops are
-    /// renormalized into the budget left after enabled super/PB chances; the two major drops retain their raw
-    /// table probabilities. Every addition wraps past 255, explicitly here. The drops Samus can use are offered in the chance table's column order (the minor
-    /// columns first, then the two major ones), and the first whose accumulated chance reaches the random draw is
-    /// chosen; the draw is read before anything else, as the game reads it.
+    /// The random drop selection, whose chances are counts of 0 through 255. Minor drops are renormalized into the budget
+    /// left after the offered Super Missile and Power Bomb chances; the two major drops retain their own chances. Every
+    /// authored table's chances sum to the whole budget, so the accumulated chances stay within twice it (#1620). The
+    /// drops Samus can use are offered in order, the <see cref="EnemyDropSelectionDefinitions.MinorDrops"/> first and then
+    /// the <see cref="EnemyDropSelectionDefinitions.MajorDrops"/>, and the first whose accumulated chance reaches the random
+    /// draw is chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
     internal EnemyPickupKind SelectRandomEnemyDrop(EnemyProjectile projectile)
     {
@@ -360,24 +361,24 @@ internal sealed class EnemyDeathsAndDrops
             }
         }
 
-        // With no pooled minor weight the minor columns are passed over and the major columns are offered alone.
-        int column = pooledMinorWeight != 0 ? 0 : MinorDropColumnCount;
-        for (; column < MinorDropColumnCount; column++)
+        // With no pooled minor weight the minor drops are passed over and the major drops are offered alone.
+        if (pooledMinorWeight != 0)
         {
-            EnemyPickupKind kind = EnemyDropTables.ForProbabilityColumn(column);
-            if (!offered.Contains(kind))
-                continue;
+            foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MinorDrops)
+            {
+                if (!offered.Contains(kind))
+                    continue;
 
-            // A minor drop's share of the budget the major drops leave, rounded down; the shares and the major chances sum to
-            // at most the whole budget twice over.
-            accumulated += majorAdjustedBudget * table.Of(kind) / pooledMinorWeight;
-            if (accumulated >= random)
-                return kind;
+                // A minor drop's share of the budget the major drops leave, rounded down; the shares and the major chances
+                // sum to at most the whole budget twice over.
+                accumulated += majorAdjustedBudget * table.Of(kind) / pooledMinorWeight;
+                if (accumulated >= random)
+                    return kind;
+            }
         }
 
-        for (; column < EnemyDropSelectionDefinitions.ProbabilityColumns.Length; column++)
+        foreach (EnemyPickupKind kind in EnemyDropSelectionDefinitions.MajorDrops)
         {
-            EnemyPickupKind kind = EnemyDropTables.ForProbabilityColumn(column);
             if (!offered.Contains(kind))
                 continue;
 
@@ -388,9 +389,6 @@ internal sealed class EnemyDeathsAndDrops
 
         return EnemyPickupKind.NoDrop;
     }
-
-    /// <summary>The chance table's minor drop columns (both energies, missile and nothing), offered before the major ones.</summary>
-    private const int MinorDropColumnCount = 4;
 
     /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
     private const int FullWeightBudget = 255;
@@ -478,7 +476,6 @@ internal sealed class EnemyDeathsAndDrops
                 RestoreEnemyDropSuperMissiles(samus, 1);
                 RequestPickupSound(EnemySound.SuperMissilePickup);
                 break;
-            case EnemyPickupKind.None:
             case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(

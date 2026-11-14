@@ -147,7 +147,7 @@ internal static class MotherBrainEffectBehaviorVerification
                     referenceOperand = (ushort)(referenceCursor + 2);
                     referenceCursor += 4;
                 }
-                handBeamEnemies.Projectiles.AdvanceEnemyProjectileAnimations(handBeam, handBeamTarget, Position16<RoomPixels>.Zero);
+                handBeamEnemies.Projectiles.AdvanceEnemyProjectileAnimations(handBeam, handBeamTarget, Position16<RoomPixels>.Zero, shortCounter: 0);
                 AssertEqual(referenceOperand, handBeam.PresentationOperandAddress, $"hand-beam frame {frame} selects the native visual operand");
                 AssertEqual((ushort)referenceTimer, handBeam.FrameHold.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
                 observedOperands.Add(handBeam.PresentationOperandAddress);

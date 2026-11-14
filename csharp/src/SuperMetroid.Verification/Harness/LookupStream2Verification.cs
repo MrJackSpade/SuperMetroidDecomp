@@ -854,11 +854,14 @@ internal static class LookupStream2Verification
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
         //60,120,180,185,245,255 when all resources are eligible.
         ushort[] randomValues = [1, 61, 121, 181, 186, 246];
+        // The roll weighs the minor drops, then the major drops, in the native probability columns' order.
+        EnemyPickupKind[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
+        AssertEqual(6, weighed.Length, "The roll weighs the six native probability columns");
         for (int column = 0; column < 6; column++)
         {
             EnemyPickupKind expected = EnemyPickupNativeWords.Selectors.Decode(rom.ReadCartridgeByte(0x86f25e + column), "probability-column pickup");
-            AssertEqual(expected, EnemyDropTables.ForProbabilityColumn(column),
-                "Native probability-column pickup identity");
+            AssertEqual(expected, weighed[column],
+                "Native probability-column pickup identity, minor drops then major drops");
             var samus = CreateDropTestSamus();
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
@@ -869,10 +872,6 @@ internal static class LookupStream2Verification
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(-1),
-            "Drop column lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => EnemyDropTables.ForProbabilityColumn(6),
-            "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
     /// <summary>Checks Brinstar, Norfair, and yellow Pipe Bug visual program geometry.</summary>

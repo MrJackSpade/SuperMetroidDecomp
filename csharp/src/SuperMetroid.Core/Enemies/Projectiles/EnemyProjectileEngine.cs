@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -9,8 +8,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Enemies.SaveStation;
-using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -86,11 +83,6 @@ internal sealed class EnemyProjectileEngine
         Enumerable.Range(0, PlaceCount)
             .Select(place => new EnemyProjectile(place, default))
             .ToArray();
-    /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step animations.</summary>
-    internal int CurrentFrame8 { get; set; }
-
-    /// <summary>The frame clock's count for the current projectile pass.</summary>
-    internal int CurrentFrame16 { get; private set; }
 
     /// <summary>Each place's latest projectile, in place order, live or gone.</summary>
     public IReadOnlyList<EnemyProjectile> EnemyProjectiles => _places;
@@ -188,11 +180,17 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>One projectile pass: every live projectile's frame behaviour, then its animation.</summary>
+    /// <param name="level">The room's blocks, which moving projectiles collide with.</param>
+    /// <param name="samus">Samus, for behaviours and cues that act on her; null in fixtures without her.</param>
+    /// <param name="camera">The camera, for behaviours and cues that test the screen.</param>
+    /// <param name="shortCounter">The game's short frame counter for this pass, 0 through 255, which cadences sample.</param>
+    /// <param name="samusBombs">Samus's bombs, for behaviours that react to them.</param>
+    /// <param name="frameCounter">The game's long frame counter for this pass, 0 through 65535, which cadences sample.</param>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCycle,
+        int shortCounter,
         SamusBombProjectileSystem? samusBombs,
         int frameCounter)
     {
@@ -202,27 +200,20 @@ internal sealed class EnemyProjectileEngine
         // snapshot. The distinction is observable whenever a frame behaviour or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
-        CurrentFrame8 = frameCycle;
-        CurrentFrame16 = frameCounter;
         for (int place = _places.Length - 1; place >= 0; place--)
         {
             EnemyProjectile projectile = _places[place];
             if (!projectile.IsActive)
                 continue;
 
-            RunEnemyProjectileFrameBehavior(
-                projectile,
-                level,
-                samus,
-                camera,
-                frameCycle,
-                samusBombs);
+            BehaviorOf(projectile).RunFrameBehavior(
+                new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
             // The animation that runs next is that of whatever projectile the place holds after the frame behaviour, live
             // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no animation, so nothing runs.
-            AdvanceEnemyProjectileAnimations(_places[place], samus, camera);
+            AdvanceEnemyProjectileAnimations(_places[place], samus, camera, shortCounter);
         }
     }
 
@@ -387,19 +378,6 @@ internal sealed class EnemyProjectileEngine
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
         projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
         projectile.Graphics = graphics;
-    }
-
-    /// <summary>Runs the projectile's current frame behaviour before its animation advances.</summary>
-    private static void RunEnemyProjectileFrameBehavior(
-        EnemyProjectile projectile,
-        RoomLevelData level,
-        SamusState? samus,
-        Position16<RoomPixels> camera,
-        int frameCycle,
-        SamusBombProjectileSystem? samusBombs)
-    {
-        BehaviorOf(projectile).RunFrameBehavior(
-            new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
     }
 
     /// <summary>The behaviour bound to <paramref name="projectile"/> at its spawn.</summary>
@@ -671,14 +649,19 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Advances a projectile's typed animation one projectile pass.</summary>
+    /// <param name="projectile">The projectile whose animation advances.</param>
+    /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
+    /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
+    /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
     internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState? samus,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera,
+        int shortCounter)
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera), this);
+            animation.Advance(new(projectile, samus, camera, shortCounter), this);
             return;
         }
 
@@ -787,169 +770,6 @@ internal sealed class EnemyProjectileEngine
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }
 
-    /// <summary>
-    /// Allocates the light or dark Ceres falling-tile actor requested by room main
-    /// main. The X coordinate and light or dark variant come directly from the room's
-    /// current random number; this initializer owns only projectile fields. The room
-    /// main supplies the tile's animation and the graphics it draws in.
-    /// </summary>
-    public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
-    {
-        _room.EnsureLoaded();
-        EnemyProjectile? projectile = AllocateEnemyProjectile();
-        if (projectile is null)
-            return;
-
-        RoomEnemyProjectileKind kind = dark
-            ? RoomEnemyProjectileKind.CeresFallingDebrisDark
-            : RoomEnemyProjectileKind.CeresFallingDebrisLight;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, CeresFallingTile, graphics);
-        projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
-        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(0, 16));
-        projectile.StartAnimation(animation);
-    }
-
-    /// <summary>
-    /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
-    /// raises dust and sounds its fall.
-    /// </summary>
-    internal SingleMotionProjectileBehavior CeresFallingTile => field ??= new(
-        EnemyProjectileFrameBehavior.CeresTileFall,
-        context => DropCeresFallingTile(context.Projectile, context.Level));
-
-    /// <summary>Drops a Ceres tile, accelerating, and raises dust and sounds its fall where it strikes the room.</summary>
-    internal void DropCeresFallingTile(EnemyProjectile projectile, RoomLevelData level)
-    {
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CeresFallingTileGravity);
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
-        {
-            Position16<RoomPixels> impact = projectile.Position.Whole;
-            projectile.Delete();
-            SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
-            _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
-        }
-    }
-
-    /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
-    internal static EnemyProjectileBehavior GunshipDust { get; } = new GunshipDustBehavior();
-
-    /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
-    private sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
-    {
-        /// <summary>Deletes the dust cloud when its animation ends.</summary>
-        public void RunCue(EnemyProjectileCueContext context, GunshipDustCue cue)
-        {
-            switch (cue)
-            {
-                case GunshipDustCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Spawns the save station's projectile with the room's graphics and initializes it.
-    /// The game derives the actor origin from the currently running save-station
-    /// room object: one block right and two blocks above its trigger block.
-    /// </summary>
-    public void SpawnSaveStationElectricity(Position16<RoomBlocks> roomObjectBlock)
-    {
-        _room.EnsureLoaded();
-
-        EnemyProjectile? projectile = AllocateEnemyProjectile();
-        if (projectile is null)
-        {
-            // The projectile spawn deliberately drops a spawn when all eighteen places
-            // are occupied. This is the game's finite-pool behavior, not an error.
-            return;
-        }
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.SaveStationElectricity,
-            EnemyProjectileBehavior.Still,
-            graphics: default);
-        projectile.StartAnimation(new SaveStationElectricityAnimation(SaveStationElectricitySegment.Start));
-        int blockX = roomObjectBlock.X;
-        int blockY = roomObjectBlock.Y;
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
-    }
-
-    /// <summary>Allocates one of the gunship liftoff's six dust clouds, <paramref name="definition"/>, below Samus.</summary>
-    internal void SpawnGunshipLiftoffDustCloud(GunshipDustPlacement definition, SamusState samus)
-    {
-        EnemyProjectile? projectile = AllocateEnemyProjectile();
-        if (projectile is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-            GunshipDust,
-            graphics: default);
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + definition.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
-        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-        projectile.StartAnimation(new GunshipDustAnimation(definition.Animation));
-    }
-
-    /// <summary>
-    /// The four particles of a Skree or Metaree <paramref name="burst"/>, six pixels either side of the source: the outer pair
-    /// flies at 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 1/256 pixels.
-    /// </summary>
-    internal void SpawnMetalParticleBurst(RoomEnemySlot source, MetalParticleBurst burst)
-    {
-        Ensure.NotNull(burst);
-        SpawnSkreeOrMetareeParticle(source, burst.DownRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
-        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
-    }
-
-    /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>
-    internal static EnemyProjectileBehavior MetalParticles { get; } = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.SkreeParticleFlight, context => FlyMetalParticle(context.Projectile, context.Camera));
-
-    /// <summary>Flies a Skree or Metaree particle under gravity, removing it once it leaves the camera's square.</summary>
-    private static void FlyMetalParticle(EnemyProjectile projectile, Position16<RoomPixels> camera)
-    {
-        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SkreeParticleGravity);
-        if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
-        {
-            projectile.Delete();
-        }
-    }
-
-    /// <summary>
-    /// Spawns one particle through the projectile spawn's definition copy (damage four,
-    /// contact enabled, Skree or Metaree animation), then applies the shared particle
-    /// initializer's position and 1/256-pixel velocity.
-    /// </summary>
-    private void SpawnSkreeOrMetareeParticle(
-        RoomEnemySlot source,
-        RoomEnemyProjectileKind kind,
-        SkreeMetareeParticleSegment look,
-        int xOffset,
-        EightEightVector<RoomPixels> velocity)
-    {
-        EnemyProjectile? particle = AllocateEnemyProjectile();
-        if (particle is null)
-            return;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            particle,
-            kind,
-            MetalParticles,
-            SpriteGraphics.SpawnedBy(source));
-        particle.StartAnimation(new SkreeMetareeParticleAnimation(look));
-        particle.Position = particle.Position.WithWhole(new(CoordinateAxis.Wrap(source.Position.X.Whole + xOffset), source.Position.Y.Whole));
-        particle.Velocity = velocity;
-    }
-
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>
     internal void CreateEnemyProjectileDudShot(SamusProjectile projectile)
     {
@@ -994,12 +814,6 @@ internal sealed class EnemyProjectileEngine
             projectile.Delete();
         }
     }
-
-    /// <summary>A Skree or Metaree particle's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight SkreeParticleGravity = SignedEightEight.FromParts(0, 80);
-
-    /// <summary>A falling Ceres tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight CeresFallingTileGravity = SignedEightEight.FromParts(0, 16);
 
     /// <summary>
     /// Draws the one-in-four branch: it is taken when the room's next random number divided by 16384

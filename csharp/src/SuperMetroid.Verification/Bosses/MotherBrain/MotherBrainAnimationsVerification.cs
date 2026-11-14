@@ -202,7 +202,7 @@ internal static class MotherBrainAnimationsVerification
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"{name} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
@@ -239,7 +239,7 @@ internal static class MotherBrainAnimationsVerification
         for (; update < 64 && !native.Deleted; update++)
         {
             FixedPosition<RoomPixels> aim = state.HandBeamNextPosition;
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, null, Position16<RoomPixels>.Zero);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, null, Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"hand beam update {update}";
             bool spawned = native.Calls.Count > 0;

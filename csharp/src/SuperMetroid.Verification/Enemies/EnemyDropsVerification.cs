@@ -164,8 +164,7 @@ internal static class EnemyDropsVerification
             EnemyPickupKind.Missile => 1,
             EnemyPickupKind.SuperMissile => 196,
             EnemyPickupKind.PowerBomb => 246,
-            EnemyPickupKind.None or
-                EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
+            EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);

@@ -184,12 +184,11 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room, _projectiles);
+    internal EnemyProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
-    /// <param name="projectiles">The enemy projectiles, whose frame counter times the crack's and the debris's flicker.</param>
-    private sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    private sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
         : EnemyProjectileBehavior, IEnemyProjectileCues<NoobTubeProjectileCue>
     {
         /// <inheritdoc/>
@@ -198,7 +197,7 @@ internal sealed class NoobTubeBehavior
             EnemyProjectile projectile = context.Projectile;
             EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
             if (motion == EnemyProjectileFrameBehavior.NoobTubeCrackFlickering)
-                FlickerNoobTubeCrack(projectile);
+                FlickerNoobTubeCrack(projectile, context.ShortCounter);
             else if (motion == EnemyProjectileFrameBehavior.NoobTubeCrackFalling)
                 DropNoobTubeCrack(projectile);
             else if (motion == EnemyProjectileFrameBehavior.NoobTubeShardFlying)
@@ -215,23 +214,23 @@ internal sealed class NoobTubeBehavior
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, NoobTubeProjectileCue cue) =>
-            ApplyNoobTubeProjectileCue(context.Projectile, cue);
+            ApplyNoobTubeProjectileCue(context.Projectile, context.ShortCounter, cue);
 
-        /// <summary>Flickers the crack: alternate updates park it off to the side and return it to its shown column.</summary>
-        private void FlickerNoobTubeCrack(EnemyProjectile projectile)
+        /// <summary>Flickers the crack: alternate values of <paramref name="shortCounter"/> park it off to the side and return it to its shown column.</summary>
+        private static void FlickerNoobTubeCrack(EnemyProjectile projectile, int shortCounter)
         {
             NoobTubeCrackState crack = projectile.StateOf<NoobTubeCrackState>();
             if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
                 crack.ShownX = projectile.Position.X.Whole;
-            projectile.Position = projectile.Position.WithWholeX(NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(projectiles.CurrentFrame8)
+            projectile.Position = projectile.Position.WithWholeX(NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter)
                 ? NoobTubeDebrisDefinitions.HiddenXPosition
                 : crack.ShownX);
         }
 
-        /// <summary>Carries out one cue of the crack, shard and bubble animations.</summary>
-        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, NoobTubeProjectileCue cue)
+        /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
+        private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, int shortCounter, NoobTubeProjectileCue cue)
         {
-            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(projectiles.CurrentFrame8);
+            bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(shortCounter);
             switch (cue.Kind)
             {
                 case NoobTubeProjectileCueKind.FlickerReflected:

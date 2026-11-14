@@ -14,12 +14,16 @@ internal static class EnemyPickupDefinitionsVerification
     /// <summary>Compares compiled pickup programs with bank-$86, then confirms production spawn timing, pre-instruction, lifetime, and contact behavior.</summary>
     internal static void VerifyEnemyPickupDefinitions(CartridgeImportAddressSpace rom)
     {
-        for (int index = 0; index < 6; index++)
+        // Selector zero is the program table's empty first entry, which no pickup kind names.
+        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86ef04), "enemy pickup program table's empty first entry");
+        AssertThrows<InvalidDataException>(() => EnemyPickupNativeWords.Selectors.Decode(0, "enemy pickup selector"),
+            "no pickup kind names selector zero");
+        for (int index = 1; index < 6; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
-                animation.Animation is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
+                EnemyDeathProjectileNativeListAddresses.Entry(animation.Animation),
                 $"enemy pickup program {kind}");
         }
 

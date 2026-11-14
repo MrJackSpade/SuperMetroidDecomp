@@ -8,9 +8,12 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.FallingSparks;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.SaveStation;
+using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -111,8 +114,7 @@ internal static class CommonSpawnerPresenceDefinitions
             RoomObjects = [RoomObjectKind.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape],
         },
         [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
-        [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
-            new() { RoomObjects = [RoomObjectKind.SaveStation] },
+        [nameof(SaveStationElectricity)] = new() { RoomObjects = [RoomObjectKind.SaveStation] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.CreateBombDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
@@ -120,12 +122,9 @@ internal static class CommonSpawnerPresenceDefinitions
         {
             Enemies = DustRaisers, Mains = FallingDebris, Shades = [CommonSpawnerShades.CeresDoorLooks],
         },
-        [Engine(nameof(EnemyProjectileEngine.SpawnCeresFallingDebris))] = CeresDebris,
-        [Engine(nameof(EnemyProjectileEngine.DropCeresFallingTile))] = CeresDebris,
-        [Engine(nameof(EnemyProjectileEngine.SpawnGunshipLiftoffDustCloud))] =
-            new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
-        [Engine(nameof(EnemyProjectileEngine.SpawnMetalParticleBurst))] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
-        [Engine(nameof(EnemyProjectileEngine.MetalParticles))] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
+        [nameof(CeresFallingTiles)] = CeresDebris,
+        [nameof(GunshipLiftoffDust)] = new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
+        [nameof(SkreeMetareeParticles)] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
         [nameof(RoomMainRoutines)] = new()
         {
             Mains = [.. FallingDebris, .. CeresElevator], Shades = [CommonSpawnerShades.CeresDoorLooks, CommonSpawnerShades.CeresElevatorConcealer],

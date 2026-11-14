@@ -132,7 +132,7 @@ internal sealed class MessageBoxFlow
             bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level);
             if (saving)
             {
-                room.Enemies.Projectiles.SpawnSaveStationElectricity(saveStation.Block);
+                room.Enemies.SaveStationElectricity.Spawn(saveStation.Block);
                 _system.MarkSaveStationUsed(saveStation.Station);
                 _completedSaveStation = new SaveStationPersistenceRequest(saveStation.Station);
             }

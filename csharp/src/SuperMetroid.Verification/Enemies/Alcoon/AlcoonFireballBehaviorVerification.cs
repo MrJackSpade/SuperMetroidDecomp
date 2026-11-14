@@ -47,7 +47,7 @@ internal static class AlcoonFireballBehaviorVerification
             AssertTrue(!deleted, "a fireball loops until it is shot or leaves");
         }
         fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(fireballs[0], null, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(fireballs[0], null, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
         foreach (EnemyProjectileFrameId frame in AlcoonFireballFrameToolingDefinitions.Frames)
         {

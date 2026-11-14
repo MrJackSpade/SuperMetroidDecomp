@@ -1502,18 +1502,18 @@ internal static class LookupStream4Verification
 
         var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var electricitySystem = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        electricitySystem.Projectiles.SpawnSaveStationElectricity(new(10, 2));
+        electricitySystem.SaveStationElectricity.Spawn(new(10, 2));
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.FrameHold = WrappingCountdown.Start(1);
-            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
+            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero, shortCounter: 0);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.FrameHold = WrappingCountdown.Start(1);
-        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
+        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
     }

@@ -5013,22 +5013,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionSpriteObjects = [];
 
-    /// <summary>The projectile frames <c>EnemyProjectileEngine.SpawnSaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineSpawnSaveStationElectricityProjectiles =
-    [
-        EnemyProjectileFrameId.SaveStationElectricityStartFirst,
-        EnemyProjectileFrameId.SaveStationElectricityStartSecond,
-        EnemyProjectileFrameId.SaveStationElectricityStartThird,
-        EnemyProjectileFrameId.SaveStationElectricityStartFourth,
-        EnemyProjectileFrameId.SaveStationElectricityStartFifth,
-        EnemyProjectileFrameId.SaveStationElectricityStartSixth,
-        EnemyProjectileFrameId.SaveStationElectricityStartSeventh,
-        EnemyProjectileFrameId.SaveStationElectricityStartEighth,
-    ];
-
-    /// <summary>The room sprite objects <c>EnemyProjectileEngine.SpawnSaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineSpawnSaveStationElectricitySpriteObjects = [];
-
     /// <summary>The projectile frames <c>EscapeExplosionsBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEscapeExplosionsBehaviorProjectiles = [];
 
@@ -5305,6 +5289,22 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomSpriteObjectKind[] CommonRoomMainRoutinesSpriteObjects = [];
 
+    /// <summary>The projectile frames <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonSaveStationElectricityProjectiles =
+    [
+        EnemyProjectileFrameId.SaveStationElectricityStartFirst,
+        EnemyProjectileFrameId.SaveStationElectricityStartSecond,
+        EnemyProjectileFrameId.SaveStationElectricityStartThird,
+        EnemyProjectileFrameId.SaveStationElectricityStartFourth,
+        EnemyProjectileFrameId.SaveStationElectricityStartFifth,
+        EnemyProjectileFrameId.SaveStationElectricityStartSixth,
+        EnemyProjectileFrameId.SaveStationElectricityStartSeventh,
+        EnemyProjectileFrameId.SaveStationElectricityStartEighth,
+    ];
+
+    /// <summary>The room sprite objects <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomSpriteObjectKind[] CommonSaveStationElectricitySpriteObjects = [];
+
     /// <summary>The projectile frames <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonTourianUnlockBehaviorProjectiles =
     [
@@ -5471,13 +5471,13 @@ internal static class SpawnedObjectFrameDefinitions
         new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects)),
         new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotSpriteObjects)),
         new("EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion", new(CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionProjectiles, CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionSpriteObjects)),
-        new("EnemyProjectileEngine.SpawnSaveStationElectricity", new(CommonEnemyProjectileEngineSpawnSaveStationElectricityProjectiles, CommonEnemyProjectileEngineSpawnSaveStationElectricitySpriteObjects)),
         new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorSpriteObjects)),
         new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorSpriteObjects)),
         new("NoobTubeBehavior", new(CommonNoobTubeBehaviorProjectiles, CommonNoobTubeBehaviorSpriteObjects)),
         new("OldTourianEscapeShaftWallBehavior", new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorSpriteObjects)),
         new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesSpriteObjects)),
         new("RoomMainRoutines", new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesSpriteObjects)),
+        new("SaveStationElectricity", new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricitySpriteObjects)),
         new("TourianUnlockBehavior", new(CommonTourianUnlockBehaviorProjectiles, CommonTourianUnlockBehaviorSpriteObjects)),
     ];
 }

@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.Ridley;
+namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>One cue of Ridley's body animations: what it does, with the values it acts on.</summary>
 internal abstract record RidleyBodyCue
@@ -22,9 +22,9 @@ internal abstract record RidleyBodyCue
     /// <param name="Displacement">How far a <see cref="Move"/> cue moves Ridley.</param>
     internal sealed record Move(Offset16<RoomPixels> Displacement) : RidleyBodyCue;
 
-    /// <summary>Selects the feet-distance table index.</summary>
-    /// <param name="FeetDistanceIndex">The claw-height pose a <see cref="SetFeetDistance"/> cue selects: zero standing, one legs half extended, two legs extended.</param>
-    internal sealed record SetFeetDistance(int FeetDistanceIndex) : RidleyBodyCue;
+    /// <summary>Selects how far Ridley's legs reach, which sets his claws' height.</summary>
+    /// <param name="Height">The claw height a <see cref="SetClawHeight"/> cue selects.</param>
+    internal sealed record SetClawHeight(RidleyClawHeight Height) : RidleyBodyCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

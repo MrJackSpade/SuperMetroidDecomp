@@ -477,7 +477,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>Applies the current feet-frame claw Y offset to Ridley's body position.</summary>
     private static int GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
-        CoordinateAxis.Wrap(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex));
+        CoordinateAxis.Wrap(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.ClawHeight));
 
     /// <summary>Starts a turn only when Ridley faces away from the half of its 256-pixel screen his X lies in.</summary>
     internal static void SelectNorfairRidleyFacingAnimation(RoomEnemySlot slot, RidleyEnemyState state)

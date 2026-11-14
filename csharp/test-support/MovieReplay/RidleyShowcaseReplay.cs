@@ -562,7 +562,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);
-                Check("Ridley FeetDistanceIndex", checked((ushort)(ridleyState.FeetDistanceIndex * sizeof(ushort))), NativeSnapshotMemory.RidleyFeetDistanceIndex);
+                Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.Phase is RidleyPhase.NorfairSwoopMoveToStart or
                     RidleyPhase.NorfairSwoopAimDown or RidleyPhase.NorfairSwoopAimSideways or

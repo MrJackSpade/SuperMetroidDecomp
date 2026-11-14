@@ -40,7 +40,7 @@ internal static class RidleyNativeListAddresses
         [0xe4be] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.Roar)), 0),
         [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.ClearRoaringFlag)), 0),
         [0xe4d2] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToIfCeresAndSamusLowEnergy>(""), 1),
-        [0xe501] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetFeetDistance>(""), 1),
+        [0xe501] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetClawHeight>(""), 1),
         [0xe517] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToUnlessFacingLeft>(""), 1),
         [0xe51f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.Move>(""), 2),
         [0xe71c] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.FlipLeft)), 0),

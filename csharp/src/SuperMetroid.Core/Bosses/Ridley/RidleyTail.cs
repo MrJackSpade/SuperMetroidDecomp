@@ -383,12 +383,11 @@ internal sealed class RidleyTail
     /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>
     internal bool ResolveRidleyTailSamusContact(SamusState samus)
     {
-        RoomEnemySlot body = _ridleyEncounter.Parts.Body;
         RidleyEnemyState? state = _ridleyEncounter.Ridley;
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state is null || state.GrabState != RidleyGrabState.Released || !samus.InvincibilityTimer.IsZero ||
-            body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
+            _ridleyEncounter.Parts.Body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.MovementAnimationEnabled || state.TailSegments.Length != 7)
             return false;
         RidleyTailSegment tip = state.TailSegments[6];

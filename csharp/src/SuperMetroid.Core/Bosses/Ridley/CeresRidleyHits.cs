@@ -152,9 +152,11 @@ internal sealed class CeresRidleyHits
         // Samus's invincibility timer. It does not inspect the knockback-active
         // state. An extra guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
+        if (_ridleyEncounter.Ridley is null)
+            return false;
+
         RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
-        if (_ridleyEncounter.Ridley is null ||
-            !RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
+        if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
             slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {

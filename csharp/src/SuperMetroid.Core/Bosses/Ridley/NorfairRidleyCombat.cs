@@ -53,7 +53,7 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
     {
-        _ridleyEncounter.Parts.RequireBody(slot, "Lower Norfair Ridley");
+        _ridleyEncounter.Parts.AttachBody(slot, "Lower Norfair Ridley");
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {

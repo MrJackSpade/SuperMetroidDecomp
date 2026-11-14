@@ -33,6 +33,7 @@ internal static class RidleyBreakupProgramsVerification
         var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(body, "Lower Norfair Ridley");
         var state = new RidleyEnemyState
         {
             GrabState = RidleyGrabState.CarryingSamus, PhaseTimer = 0,

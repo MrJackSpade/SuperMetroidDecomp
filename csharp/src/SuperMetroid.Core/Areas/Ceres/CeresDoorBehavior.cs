@@ -36,6 +36,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     private readonly ICeresEscapeStatus _ridleyEncounter;
 
+    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to.</summary>
+    private readonly ICeresRidleyScene _ridleyScene;
+
 
     /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
     internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
@@ -46,6 +49,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
         _ridleyEncounter = dependencies.CeresEscape;
+        _ridleyScene = dependencies.RidleyScene;
     }
 
     /// <summary>
@@ -157,6 +161,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
+
+        // The door of Ridley's room is the one his scene draws while the door hands its drawing to him (#1877).
+        if (variant == CeresDoorVariant.RidleyRoomFacingRight)
+            _ridleyScene.AttachRoomDoor(slot);
 
         // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)

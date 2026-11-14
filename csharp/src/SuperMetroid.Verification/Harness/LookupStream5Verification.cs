@@ -1565,10 +1565,12 @@ internal static class LookupStream5Verification
         };
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
+        enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
         var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
         door.SetSpeciesState(doorState);
         door.Position = door.Position.WithWholeY(80);

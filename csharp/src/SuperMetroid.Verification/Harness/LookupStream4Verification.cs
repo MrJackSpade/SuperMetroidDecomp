@@ -2156,7 +2156,8 @@ internal static class LookupStream4Verification
                     Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
                 }).ToArray(),
             };
-            // Each part's initialization AI starts it from the encounter's shared Ridley state.
+            // Each part's initialization AI starts it from the encounter's shared Ridley state and his body.
+            enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Lower Norfair Ridley");
             enemies.RidleyEncounter.Ridley = state;
             if (freeSlots < expected.Length)
                 AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");

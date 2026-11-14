@@ -155,7 +155,7 @@ internal sealed class CeresRidleyBabyScene
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
-            _ridleyEncounter.Parts.Body.DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            !_ridleyEncounter.Parts.HoldsCeresRidley ||
             _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -173,7 +173,7 @@ internal sealed class CeresRidleyBabyScene
         Ensure.NotNull(sprites);
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
-            _ridleyEncounter.Parts.Body.DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            !_ridleyEncounter.Parts.HoldsCeresRidley ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -200,8 +200,7 @@ internal sealed class CeresRidleyBabyScene
         // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
         // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
         // after the Baby. This draws the door for it; it does not replace the door actor's own animation.
-        RoomEnemySlot door = _ridleyEncounter.Parts.CeresRoomDoor;
-        if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
+        if (_ridleyEncounter.Parts.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { HandsDrawingToRidley: true } } door)
         {
             // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
             // own earthquake shake, which moves only the drawn door.

@@ -52,6 +52,7 @@ internal static class RidleyAnimationsVerification
         enemies.RidleyEncounter.Ridley = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(definition, body.Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(body, "Ridley");
         return new NewRidleyResult(enemies, state, body);
     }
 

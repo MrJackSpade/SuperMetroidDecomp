@@ -280,7 +280,10 @@ internal static class EnemyExtendedFrameArtworkVerification
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
         if (slot.DefinitionId == EnemyDefinitionId.Ridley)
+        {
+            enemies.RidleyEncounter.Parts.AttachBody(slot, "Lower Norfair Ridley");
             enemies.RidleyEncounter.Ridley = new RidleyEnemyState();
+        }
         slot.CollidesByFrameHitboxes = true;
         slot.Frame = frame;
         if (frame is { } shown)

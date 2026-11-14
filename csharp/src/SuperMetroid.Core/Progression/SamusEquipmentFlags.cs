@@ -24,12 +24,6 @@ public enum SamusEquipmentFlags
     /// <summary>Turns spin-jump contact into the Screw Attack's damaging collision.</summary>
     ScrewAttack = 1 << 3,
 
-    /// <summary>
-    /// The item slot no item occupies. The Golden Torizo item code and one attract demonstration set it, so it is
-    /// carried with the other items; nothing in play grants an ability for it.
-    /// </summary>
-    UnassignedItem = 1 << 4,
-
     /// <summary>Enables Gravity Suit movement protection and the game's strongest damage reduction.</summary>
     GravitySuit = 1 << 5,
 

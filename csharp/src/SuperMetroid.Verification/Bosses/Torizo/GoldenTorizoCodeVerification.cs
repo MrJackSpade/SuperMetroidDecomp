@@ -22,6 +22,8 @@ internal static class GoldenTorizoCodeVerification
         ControllerButton input = ControllerWordCodec.FromJoypadWord(Word(0xaac91a), "native Golden Torizo code chord");
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
+        // The native item word also sets the bit no item records, which the import's equipment codec drops (#1778).
+        native[5] = SamusEquipmentWordCodec.FromEquipmentWord(native[5]).ToEquipmentWord();
         Check(EnemyDefinitionId.GoldenTorizo, input, false, true);
         Check(EnemyDefinitionId.GoldenTorizo, (input | ControllerButton.L), false, false);
         Check(EnemyDefinitionId.GoldenTorizo, (input & ~ControllerButton.A), false, false);

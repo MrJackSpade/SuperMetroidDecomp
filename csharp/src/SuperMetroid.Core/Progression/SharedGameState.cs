@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The game state every part of a session shares: the persistent progress a save slot carries
-/// (<see cref="PersistentProgress"/>), the saved loading state and item-load count, the session's shared random-number
+/// (<see cref="PersistentProgress"/>), the saved startup route, the session's shared random-number
 /// generator, the earthquake rumble's power-on delay, and the held-input repeat that menus use for cursor movement.
 /// Lifetime: the session.
 /// </summary>

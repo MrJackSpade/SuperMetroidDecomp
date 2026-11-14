@@ -16,7 +16,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// doors by room-data number, which become the locations and doors they number; schema six (#1605) kept the HUD
 /// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads; schema
 /// seven (#1691) kept the count of item set-ups, which nothing in the game reads; schema eight (#1723) named the
-/// checkpoint and used stations by their numbers in each area's station list, which become the stations' names.
+/// checkpoint and used stations by their numbers in each area's station list, which become the stations' names; schema
+/// nine (#1778) could list the item no item occupies, which is not carried.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -54,7 +55,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through eight to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through nine to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -79,6 +80,8 @@ public static class LegacyGameSaveJson
             UpgradeSchemaSeven(root);
         if (sourceSchemaVersion <= SchemaEight)
             UpgradeSchemaEight(root);
+        if (sourceSchemaVersion <= SchemaNine)
+            UpgradeSchemaNine(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -88,6 +91,40 @@ public static class LegacyGameSaveJson
 
     /// <summary>The schema that named stations by their numbers in each area's station list.</summary>
     private const int SchemaEight = 8;
+
+    /// <summary>The last schema that could list the item no item occupies.</summary>
+    private const int SchemaNine = 9;
+
+    /// <summary>The name schemas one through nine wrote for the equipment bit no item records.</summary>
+    private const string UnassignedItemName = "unassignedItem";
+
+    /// <summary>The name the current schema writes for a slot holding no item.</summary>
+    private const string NoItemName = "none";
+
+    /// <summary>
+    /// Schema nine to ten (#1778): schemas one through nine could list <c>unassignedItem</c> among a slot's collected and
+    /// equipped items, the equipment bit Golden Torizo's item code set and nothing in the game reads; like schema six's
+    /// unread words, it is not carried, and a list it alone made up becomes no item.
+    /// </summary>
+    private static void UpgradeSchemaNine(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            JsonObject inventory = slot["inventory"] as JsonObject ??
+                throw new InvalidDataException($"slots[{index}].inventory is required");
+            foreach (string list in new[] { "collectedItems", "equippedItems" })
+            {
+                string items = inventory[list] is JsonValue value && value.TryGetValue(out string? text) ? text
+                    : throw new InvalidDataException($"slots[{index}].inventory.{list} must be a string");
+                string[] kept = [.. items.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                    .Where(item => !string.Equals(item, UnassignedItemName, StringComparison.OrdinalIgnoreCase))];
+                inventory[list] = kept.Length == 0 ? NoItemName : string.Join(", ", kept);
+            }
+        }
+    }
 
     /// <summary>
     /// Schema eight to nine (#1723): schemas one through eight named a slot's checkpoint by its area and its number in the

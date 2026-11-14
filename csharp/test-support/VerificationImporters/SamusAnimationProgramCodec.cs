@@ -41,7 +41,6 @@ internal static class SamusAnimationProgramCodec
         new(1 << 1, SamusEquipmentFlags.SpringBall),
         new(1 << 2, SamusEquipmentFlags.MorphBall),
         new(1 << 3, SamusEquipmentFlags.ScrewAttack),
-        new(1 << 4, SamusEquipmentFlags.UnassignedItem),
         new(1 << 5, SamusEquipmentFlags.GravitySuit),
         new(1 << 8, SamusEquipmentFlags.HiJumpBoots),
         new(1 << 9, SamusEquipmentFlags.SpaceJump),

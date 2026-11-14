@@ -103,3 +103,10 @@ uses, is rejected. The numbers each area's station list gives its stations live 
 eight turns the checkpoint's area and number into its station's name, rejecting a number that names no load station,
 and each area's used-station numbers into the names of the stations they number, dropping numbers that name no station
 Samus uses, which nothing in the game reads.
+
+## Schema ten (#1778)
+
+Schema ten lists only the items Samus has: the equipment word's bit 4, which records no item and which Golden Torizo's
+item code and one attract demonstration set, has no name. The import's equipment codec drops the bit when it decodes a
+word and never writes it. The upgrade from schema nine drops `unassignedItem` from each slot's collected and equipped
+items, and a list it alone made up becomes `none`.

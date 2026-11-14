@@ -122,6 +122,19 @@ internal static class SaveSchemaTranslationVerification
         badEight.Required("slots").Required(0).Required("checkpoint")["saveStation"] = 7;
         AssertInvalidLegacyJsonSave(badEight.ToJsonString(), "which is no load station");
 
+        // A schema-nine save could list the equipment bit no item records, which Golden Torizo's item code set and nothing
+        // reads (#1778); the save upgrades without it, and a list it alone made up becomes no item.
+        JsonObject schemaNine = RequiredJson.Parse(json).AsObject();
+        schemaNine["schemaVersion"] = 9;
+        JsonObject nineInventory = schemaNine.Required("slots").Required(0).Required("inventory").AsObject();
+        nineInventory["collectedItems"] = "springBall, unassignedItem";
+        nineInventory["equippedItems"] = "unassignedItem";
+        GameSaveJsonDocument upgradedNine = LegacyGameSaveJson.Deserialize(schemaNine.ToJsonString(), "game save", out bool migratedNine);
+        AssertTrue(migratedNine, "a schema-nine save is upgraded");
+        SaveInventoryJsonDocument nineItems = (upgradedNine.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Inventory;
+        AssertEqual(SamusEquipmentFlags.SpringBall, nineItems.CollectedItems, "schema nine's unused item bit is not carried among collected items");
+        AssertEqual(SamusEquipmentFlags.None, nineItems.EquippedItems, "an equipped list of only the unused item bit becomes no item");
+
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();

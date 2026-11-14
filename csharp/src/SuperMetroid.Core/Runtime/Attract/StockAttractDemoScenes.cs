@@ -548,8 +548,7 @@ public static class StockAttractDemoScenes
             Demonstration.Dachora or Demonstration.PrePhantoonHall => exploration,
             Demonstration.LowerNorfairEntrance => spaceJump,
             Demonstration.ScrewAttack => screwAttack,
-            Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall |
-                SamusEquipmentFlags.UnassignedItem,
+            Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall,
             Demonstration.EyeDoor or Demonstration.Kraid => (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
             Demonstration.GauntletEntrance or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump or
             Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => bombAbilities,

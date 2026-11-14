@@ -605,10 +605,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;
                 return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick }:
-                InitializeNinjaPirateDive(state);
-                return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
             default:

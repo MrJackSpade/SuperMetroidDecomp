@@ -21,10 +21,12 @@ internal static class ZoaSpeedDefinitionsVerification
             int address = ZoaSpeedSources.SpeedTable + stage * ZoaSpeedSources.RecordBytes;
             return unchecked(unchecked((int)SixteenSixteenWords.Compose(Word(address), Word(address + 2))));
         }
-        AssertEqual(4, ZoaSpeedDefinitions.StageSpeedEighths.Length, "Zoa has four speed stages");
-        for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)
-            AssertEqual(Record(stage), ZoaSpeedDefinitions.StageSpeedEighths[stage] * 8192, $"Zoa speed stage {stage} decodes to the catalog speed");
-        AssertEqual(0, Record(ZoaSpeedDefinitions.StageSpeedEighths.Length), "Zoa's trailing speed record is stationary");
+        // The cartridge's records hold the launch at rest, then the speeds its cues select in turn (#1841).
+        SignedSixteenSixteen[] speeds = [SignedSixteenSixteen.Zero, ZoaSpeedDefinitions.SlowLaunchSpeed,
+            ZoaSpeedDefinitions.MiddleLaunchSpeed, ZoaSpeedDefinitions.FastLaunchSpeed];
+        for (int stage = 0; stage < speeds.Length; stage++)
+            AssertEqual(Record(stage), speeds[stage].RawValue, $"Zoa speed record {stage} decodes to the catalog speed");
+        AssertEqual(0, Record(speeds.Length), "Zoa's trailing speed record is stationary");
         if (definitionsOnly)
         {
             Console.WriteLine("Zoa speed cases: all four stage speeds match the cartridge records.");
@@ -34,10 +36,10 @@ internal static class ZoaSpeedDefinitionsVerification
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();
-        for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)
+        for (int stage = 0; stage < speeds.Length; stage++)
         {
             int magnitude = Record(stage);
-            state.ShotSpeedStage = stage;
+            state.LaunchSpeed = speeds[stage];
             foreach (ZoaAnimationSelector direction in new[] { ZoaAnimationSelector.ShootingFacingLeft, ZoaAnimationSelector.ShootingFacingRight })
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
@@ -58,7 +60,7 @@ internal static class ZoaSpeedDefinitionsVerification
 
         // #1269: leaving the camera square snaps Zoa to its spawn coordinate. $A3:B51E-$B527
         // writes only the whole words, so both subpixel fractions carry into the next flight.
-        state.ShotSpeedStage = 0;
+        state.LaunchSpeed = SignedSixteenSixteen.Zero;
         state.RequestedAnimation = state.InstalledAnimation =
             ZoaAnimationSelector.ShootingFacingLeft;
         state.SpawnPosition = new(0x560, 0xd8);

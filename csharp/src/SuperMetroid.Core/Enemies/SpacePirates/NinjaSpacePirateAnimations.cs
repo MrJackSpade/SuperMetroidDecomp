@@ -95,7 +95,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.SetAction(Action: NinjaSpacePirateAction.FollowingAnimation)),
             Show(EnemyFrameId.NinjaPirateDivekickLeftJump, 8),
-            Cue(new NinjaSpacePirateCue.Signal(K.StartLeftDivekick)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
             Cue(new NinjaSpacePirateCue.SetAction(Action: NinjaSpacePirateAction.DivekickLeftJump)),
         ],
         [P.DivekickLeftJumpLoop] =
@@ -244,7 +244,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.SetAction(Action: NinjaSpacePirateAction.FollowingAnimation)),
             Show(EnemyFrameId.NinjaPirateDivekickRightJump, 8),
-            Cue(new NinjaSpacePirateCue.Signal(K.StartRightDivekick)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
             Cue(new NinjaSpacePirateCue.SetAction(Action: NinjaSpacePirateAction.DivekickRightJump)),
         ],
         [P.DivekickRightJumpLoop] =

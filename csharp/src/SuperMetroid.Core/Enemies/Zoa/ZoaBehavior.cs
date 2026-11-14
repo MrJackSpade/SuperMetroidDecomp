@@ -28,22 +28,11 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of Zoa's animation: each selects the horizontal shot speed.</summary>
-    private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue)
-    {
-        state.ShotSpeedStage = cue.Kind switch
-        {
-            ZoaCueKind.SetSpeedStage1 => 1,
-            ZoaCueKind.SetSpeedStage2 => 2,
-            ZoaCueKind.SetSpeedStage3 => 3,
-            _ => throw new InvalidOperationException($"Undefined {nameof(ZoaCueKind)} {cue.Kind}."),
-        };
-    }
+    /// <summary>Carries out one cue of Zoa's animation: it selects the launch's speed.</summary>
+    private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue) => state.LaunchSpeed = cue.LaunchSpeed;
 
     /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
     private const int ZoaActivationColumnDistance = 128;
-    /// <summary>The sixteenths of a pixel in an eighth of a pixel.</summary>
-    private const int SixteenthsPerEighth = 2;
     /// <summary>Upward travel of half a pixel per gameplay frame.</summary>
     private static readonly SignedSixteenSixteen ZoaRisingSpeed = SignedSixteenSixteen.FromParts(0, 32768);
 
@@ -55,7 +44,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             Action = ZoaAction.WaitForSamus,
             RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft,
             InstalledAnimation = ZoaAnimationSelector.ShootingFacingLeft,
-            ShotSpeedStage = 0,
+            LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = slot.Position.Whole,
         };
         slot.SetSpeciesState(state);
@@ -138,8 +127,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         Position16<RoomPixels> camera)
     {
-        SignedSixteenSixteen speed = SignedSixteenSixteen.FromSixteenthsOfPixel(
-            ZoaSpeedDefinitions.StageSpeedEighths[state.ShotSpeedStage] * SixteenthsPerEighth);
+        SignedSixteenSixteen speed = state.LaunchSpeed;
 
         // Shooting facing left travels left; any other animation travels right. The shooting animation's cues change the
         // speed at its 64-, 8- and 48-update marks.

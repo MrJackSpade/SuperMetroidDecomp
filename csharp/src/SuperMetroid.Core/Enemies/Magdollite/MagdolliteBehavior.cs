@@ -643,9 +643,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.ShiftRightUp8:
                 slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(8, -8));
                 break;
-            case MagdolliteCueKind.ShiftLeftUp4Again:
-                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
-                break;
             case MagdolliteCueKind.StartCooldown:
                 state.AttackTimer = WrappingCountdown.Start(256);
                 break;

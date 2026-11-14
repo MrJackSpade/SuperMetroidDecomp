@@ -28,8 +28,8 @@ public sealed class ZoaEnemyState
     /// </summary>
     public ZoaAction? Action { get; internal set; }
 
-    /// <summary>The launch's speed stage, zero (at rest) through three, advanced by the shooting animation's cues (<see cref="ZoaSpeedDefinitions.StageSpeedEighths"/>).</summary>
-    public int ShotSpeedStage { get; internal set; }
+    /// <summary>The launch's speed in pixels per frame: at rest, then each speed the shooting animation's cues select.</summary>
+    public SignedSixteenSixteen LaunchSpeed { get; internal set; }
 
     /// <summary>Where Zoa's typed animation (#641) resumes.</summary>
     internal AnimationPlayback<ZoaSegment> Playback { get; set; }

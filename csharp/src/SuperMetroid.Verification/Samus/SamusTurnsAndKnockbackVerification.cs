@@ -774,7 +774,7 @@ floorLevel, downKnockback, frameCounter: 0);
             pose,
             ball.Pose,
             $"morphed type ${SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(ball)):X2} retains pose");
-        AssertEqual(expectedDirection, (ushort)ball.KnockbackDirection,
+        AssertEqual(expectedDirection, SamusMovementNativeWords.KnockbackDirections.Word(ball.KnockbackDirection),
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation frame");

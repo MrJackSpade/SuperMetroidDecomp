@@ -139,8 +139,8 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusMovementType.Special, samus.PoseHistory.PreviousMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
-    AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.CrystalFlash.SpecialPaletteKind,
-        "Crystal Flash installs palette handler seven");
+    AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.SpecialColouring.Holder,
+        "Crystal Flash takes Samus's suit colouring");
 
     var crystalColours = new SamusColours();
     // Crystal Flash names shades (#1512); the import resolves them from the fixture's colours and beam palettes.
@@ -307,7 +307,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash finish restores beam palette color zero");
     AssertEqual(0x030f, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash finish restores all sixteen beam palette colors");
-    AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind,
+    AssertTrue(!samus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash),
         "Crystal Flash palette handler clears after restoration");
 
     var left = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -540,7 +540,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
-    AssertEqual(SamusSpecialPaletteType.None, standing.Xray.SpecialPaletteKind, "X-ray palette handler clears");
+    AssertTrue(!standing.SpecialColouring.Holds(SamusSpecialPaletteType.Xray), "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
     // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
@@ -592,7 +592,7 @@ internal static void VerifySamusXray()
         "deferred setup immediately disables all four native subsystems");
     AssertEqual(RotationAngle.ThreeQuarterTurn.ToTrigonometryAngle().RawValue, interrupted.Xray.Angle.ToTrigonometryAngle().RawValue,
         "deferred left-facing setup publishes native angle C0");
-    AssertEqual(SamusSpecialPaletteType.None, interrupted.Xray.SpecialPaletteKind,
+    AssertTrue(!interrupted.SpecialColouring.Holds(SamusSpecialPaletteType.Xray),
         "deferred setup does not install command-five palette ownership early");
     AssertEqual(0, interrupted.AudioRequests.CountOf(SamusSound.XrayStart),
         "deferred setup does not queue command-five activation sound early");

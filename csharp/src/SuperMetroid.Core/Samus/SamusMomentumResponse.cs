@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Samus;
 public enum SamusMomentumResponse
 {
     /// <summary>Leaves her momentum alone.</summary>
-    None = 0,
+    None,
 
-    /// <summary>Decelerates Samus.</summary>
-    Decelerate = 1,
+    /// <summary>Slows Samus down.</summary>
+    Decelerate,
 
     /// <summary>Stops Samus.</summary>
-    Stop = 2,
+    Stop,
 
-    /// <summary>Kills Samus's X speed.</summary>
-    KillXSpeed = 6,
+    /// <summary>Ends Samus's horizontal speed.</summary>
+    KillXSpeed,
 
-    /// <summary>Kills Samus's run speed.</summary>
-    KillRunSpeed = 8,
+    /// <summary>Ends Samus's running speed.</summary>
+    KillRunSpeed,
 }

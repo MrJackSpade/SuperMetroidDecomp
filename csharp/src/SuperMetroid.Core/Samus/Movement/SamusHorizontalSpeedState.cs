@@ -71,7 +71,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundPlaying { get; set; }
 
-    /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
+    /// <summary>Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's.</summary>
     public SamusContactDamageIndex ContactDamageIndex { get; set; }
 
     /// <summary>

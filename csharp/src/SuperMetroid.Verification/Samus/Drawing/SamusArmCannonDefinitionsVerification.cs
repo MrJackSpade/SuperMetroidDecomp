@@ -16,10 +16,11 @@ internal static class SamusArmCannonDefinitionsVerification
     internal static void VerifySamusArmCannonDefinitions(CartridgeImportAddressSpace rom)
     {
         var artwork = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
-        foreach (HudItem selectedHudItem in Enum.GetValues<HudItem>())
+        foreach (HudItem selectedHudItem in HudItems.All)
         {
+            // The cartridge's table is in the save's numbering of the HUD items.
             byte expected = rom.ReadCartridgeByte(
-                SamusArmCannonDefinitions.OpenFlagTable + (int)selectedHudItem);
+                SamusArmCannonDefinitions.OpenFlagTable + SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedNumber(selectedHudItem));
             AssertEqual(
                 expected != 0,
                 SamusArmCannonOpening.Opens(selectedHudItem),
@@ -68,11 +69,6 @@ internal static class SamusArmCannonDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => holding.ArmCannon.StableSelectionUpdates = 3,
             "the stable-selection count rejects a value the cartridge never stores");
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusArmCannonOpening.Opens(
-                (HudItem)Enum.GetValues<HudItem>().Length),
-            "arm-cannon policy rejects an out-of-range HUD selection");
-
         Console.WriteLine(
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");
     }
@@ -97,7 +93,7 @@ internal static class SamusArmCannonDefinitionsVerification
     /// <summary>Rejects live reads of the compiled arm-cannon HUD policy table.</summary>
     private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
-                address < SamusArmCannonDefinitions.OpenFlagTable + Enum.GetValues<HudItem>().Length,
+                address < SamusArmCannonDefinitions.OpenFlagTable + HudItems.All.Count,
             _ => "Runtime arm-cannon HUD policy read from cartridge ROM.");
 
     /// <summary>Runs the arm-cannon HUD policy and transition checks.</summary>

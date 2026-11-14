@@ -125,10 +125,7 @@ internal sealed class GameplayActorDrawing
                     LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredNormalPalette)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
-                        _player.Samus.CrystalFlash.SpecialPaletteKind ==
-                            SamusSpecialPaletteType.CrystalFlash ||
-                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
+                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.SpecialColouring.Holder != SamusSpecialPaletteType.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
             // The shinespark colouring runs at the same palette-update dispatch point. It
             // executes only when charge handling did not restore the suit.

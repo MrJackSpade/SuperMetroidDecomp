@@ -32,7 +32,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         _ridleyEncounter = ridleyEncounter;
     }
     /// <summary>Sprite colour set used for fireballs and every afterburn stage.</summary>
-    private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
+    private static readonly SpriteGraphics FireballGraphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
     /// <summary>The fireball's 1/256-pixel speed: five pixels per update.</summary>
     private static readonly SignedEightEight FireballSpeed = SignedEightEight.FromPixels(5);
 
@@ -104,7 +104,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
             projectile,
             RoomEnemyProjectileKind.CeresRidleyFireball,
             Fireballs,
-            FireballGraphicsIndex);
+            FireballGraphics);
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(ridley.Position.X.Whole +
@@ -153,13 +153,13 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         if (pairAxis == Axis.Horizontal)
         {
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
-                Fireballs, FireballGraphicsIndex);
+                Fireballs, FireballGraphics);
             center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter));
         }
         else
         {
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter,
-                Fireballs, FireballGraphicsIndex);
+                Fireballs, FireballGraphics);
             center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter));
         }
         center.Position = center.Position.WithWhole(position);
@@ -192,7 +192,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile();
         if (afterburn is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, Fireballs, FireballGraphicsIndex);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, Fireballs, FireballGraphics);
         afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.DirectionalAfterburn));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);

@@ -22,7 +22,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         SamusState dyingSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
         dyingSamus.SelectedHudItem = HudItem.Beam;
-        dyingSamus.AutoCancelHudItemIndex = HudItem.Beam;
+        dyingSamus.AutoCancelledItem = HudItem.Beam;
         dyingSamus.InvincibilityTimer = WrappingCountdown.Start(0);
         dyingSamus.KnockbackTimer = 0;
         dyingSamus.KnockbackActive = false;

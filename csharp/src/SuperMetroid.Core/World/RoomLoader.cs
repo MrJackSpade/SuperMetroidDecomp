@@ -285,7 +285,7 @@ internal sealed class RoomLoader
         // Loading clears both persisted HUD selection values after the save restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.
         _player.Samus.SelectedHudItem = HudItem.Beam;
-        _player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
+        _player.Samus.AutoCancelledItem = HudItem.Beam;
         _options.ControllerBindings = slot.ControllerBindings;
         _options.MoonwalkEnabled = slot.MoonwalkEnabled;
         _options.IconCancelEnabled = slot.IconCancelEnabled;

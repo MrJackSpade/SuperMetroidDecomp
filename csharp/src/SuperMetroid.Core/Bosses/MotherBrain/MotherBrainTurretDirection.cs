@@ -1,22 +1,25 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The eight mutually exclusive directions used by Mother Brain's room turrets.</summary>
+/// <summary>
+/// The eight directions a wall turret in Mother Brain's room can point and fire in; their order around the compass is
+/// <see cref="MotherBrainTurretDefinitions.Ring"/>.
+/// </summary>
 internal enum MotherBrainTurretDirection
 {
-    /// <summary>Horizontal leftward turret aim and bullet launch.</summary>
-    Left = 0,
-    /// <summary>Diagonal aim toward the lower left.</summary>
-    DownLeft = 1,
-    /// <summary>Vertical downward turret aim.</summary>
-    Down = 2,
-    /// <summary>Diagonal aim toward the lower right.</summary>
-    DownRight = 3,
-    /// <summary>Horizontal rightward turret aim and bullet launch.</summary>
-    Right = 4,
-    /// <summary>Diagonal aim toward the upper right.</summary>
-    UpRight = 5,
-    /// <summary>Vertical upward turret aim.</summary>
-    Up = 6,
-    /// <summary>Diagonal aim toward the upper left.</summary>
-    UpLeft = 7,
+    /// <summary>Points and fires to the left.</summary>
+    Left,
+    /// <summary>Points and fires down and to the left.</summary>
+    DownLeft,
+    /// <summary>Points and fires straight down.</summary>
+    Down,
+    /// <summary>Points and fires down and to the right.</summary>
+    DownRight,
+    /// <summary>Points and fires to the right.</summary>
+    Right,
+    /// <summary>Points and fires up and to the right.</summary>
+    UpRight,
+    /// <summary>Points and fires straight up.</summary>
+    Up,
+    /// <summary>Points and fires up and to the left.</summary>
+    UpLeft,
 }

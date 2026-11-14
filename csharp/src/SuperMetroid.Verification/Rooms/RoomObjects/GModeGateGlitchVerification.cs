@@ -161,7 +161,7 @@ internal static class GModeGateGlitchVerification
         samus.Xray.TransitionDirectGModeToIndirect();
         AssertTrue(!samus.Xray.IsActive && samus.Xray.IsGMode,
             "door teardown removes direct X-Ray object but retains subsystem disables");
-        AssertEqual(SamusSpecialPaletteType.None, samus.Xray.SpecialPaletteKind,
+        AssertTrue(!samus.SpecialColouring.Holds(SamusSpecialPaletteType.Xray),
             "indirect G-Mode transition removes the stranded X-Ray palette handler");
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);

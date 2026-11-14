@@ -1,23 +1,20 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>
-/// Which way a hit knocks Samus. The values follow the game's knockback table for the snapshot import; its
-/// unused straight-up entry is not a member, so a knockback that reaches it is rejected.
-/// </summary>
+/// <summary>Which way a hit knocks Samus.</summary>
 public enum SamusKnockbackDirection
 {
     /// <summary>No knockback is pending or running.</summary>
-    None = 0,
+    None,
 
     /// <summary>Up and to the left.</summary>
-    UpLeft = 1,
+    UpLeft,
 
     /// <summary>Up and to the right.</summary>
-    UpRight = 2,
+    UpRight,
 
     /// <summary>Down and to the left: a humanoid hit while holding toward the hit.</summary>
-    DownLeft = 4,
+    DownLeft,
 
     /// <summary>Down and to the right: a humanoid hit while holding toward the hit.</summary>
-    DownRight = 5,
+    DownRight,
 }

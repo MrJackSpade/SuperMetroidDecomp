@@ -17,7 +17,6 @@ internal static class IdentityTableVerification
     /// <summary>Checks every table against the numbering the casts it replaced relied on.</summary>
     internal static void VerifyIdentityTables()
     {
-        SequenceMatchesValues(MotherBrainTurretDefinitions.Ring, 8, value => (MotherBrainTurretDirection)value, "Mother Brain turret ring");
         SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitions.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
         SequenceMatchesValues(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
 

@@ -145,35 +145,31 @@ internal sealed class DraygonDeath
         _spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default);
     }
 
-    /// <summary>Ends every room sprite object and spawns six burial Evirs, each carrying the burial entry that moves it.</summary>
+    /// <summary>Ends every room sprite object and spawns six burial Evirs, each carrying the definition that moves it.</summary>
     private void SpawnDraygonDeathEvirs(DraygonEnemyState state)
     {
         _spriteObjects.EndAll();
 
-        // The two loops count down one shared place in the burial list: three left-facing objects followed by three
-        // right-facing objects.
-        for (int entry = 5; entry >= 3; entry--)
-            SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonIntroEvir);
-        for (int entry = 2; entry >= 0; entry--)
-            SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+        // Three left-facing Evirs on the right of the circle, then three right-facing ones on its left.
+        foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirs.InSpawnOrder)
+            SpawnDraygonDeathEvir(state, evir);
     }
 
     /// <summary>
-    /// Allocates one burial Evir from its definition-table position and kind, in the Evirs' own colours (#1544).
+    /// Allocates one burial Evir where its definition places it, drawn as its definition's kind in the Evirs' own colours
+    /// (#1544).
     /// </summary>
-    internal void SpawnDraygonDeathEvir(DraygonEnemyState state, int entry, RoomSpriteObjectKind kind)
+    internal void SpawnDraygonDeathEvir(DraygonEnemyState state, DraygonBurialEvirDefinition definition)
     {
         Ensure.NotNull(state);
-        DraygonBurialEvirDefinition definition =
-            DraygonBurialEvirs.ForEntry(entry);
         RoomSpriteObject sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
-            kind,
+            definition.Kind,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Evirs));
-        state.BurialEvirs.Add(new DraygonBurialEvir(sprite, entry));
+        state.BurialEvirs.Add(new DraygonBurialEvir(sprite, definition));
     }
 
-    /// <summary>Advances the six burial Evirs, in the order they spawned, by their table-defined velocities.</summary>
+    /// <summary>Advances the six burial Evirs, in the order they spawned, by their definitions' velocities.</summary>
     internal static void MoveDraygonDeathEvirs(DraygonEnemyState state)
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
@@ -184,12 +180,10 @@ internal sealed class DraygonDeath
                     RoomSpriteObjectKind.DraygonDeathEvirFacingRight))
             {
                 throw new InvalidDataException(
-                    $"Draygon burial movement expected burial Evir {evir.Entry} to be live.");
+                    $"Draygon burial movement expected the burial Evir at angle {evir.Definition.Angle} to be live.");
             }
 
-            DraygonBurialEvirDefinition definition =
-                DraygonBurialEvirs.ForEntry(evir.Entry);
-            sprite.Position = sprite.Position.Advance(DraygonBurialEvirs.Velocity(definition));
+            sprite.Position = sprite.Position.Advance(DraygonBurialEvirs.Velocity(evir.Definition));
         }
     }
 

@@ -618,7 +618,7 @@ internal static void VerifySamusVisorPalette()
     var state = new SamusVisorPaletteState();
     samusColours.ShowVisor(SamusShades.DoorCompletionVisor);
     state.Update(
-        samusColours, specialSamusPaletteType: 0,
+        samusColours, specialSamusPaletteType: SamusSpecialPaletteType.None,
         roomVisorAnimation: RoomVisorAnimation.Steady);
     AssertEqual(new VerifySamusVisorPaletteCase(1, 3), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
         "ordinary room resets visor animation, priming timer one and the cycle's first shade");

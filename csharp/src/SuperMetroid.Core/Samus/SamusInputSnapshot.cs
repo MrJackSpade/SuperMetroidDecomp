@@ -14,7 +14,7 @@ internal sealed class SamusInputSnapshot
     /// the jump admission still sees a shine without a Stored phase.
     /// </summary>
     public static bool HoldsShine(SamusState samus) => CrystalFlashReadsAsStoredShine.HoldsShine(
-        samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash, samus.Shinespark.ShineTimer);
+        samus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash), samus.Shinespark.ShineTimer);
 
     /// <summary>
     /// The Fire edge retained by the post-draw input filter

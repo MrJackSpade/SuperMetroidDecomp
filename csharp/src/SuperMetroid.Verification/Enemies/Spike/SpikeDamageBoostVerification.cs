@@ -91,7 +91,7 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(5, 0);
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseSpeed);
         samus.KnockbackActive = false;
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackTimer = 0;
         runtime.Controller1.Latch((ControllerButton.Right | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
@@ -110,7 +110,7 @@ internal static class SpikeDamageBoostVerification
         level.SetTerrain(hazardBlock, OpenAir);
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = SamusKnockbackDirection.None;
         SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = 4 });
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
@@ -139,7 +139,7 @@ internal static class SpikeDamageBoostVerification
 
         samus.KnockbackActive = false;
         samus.KnockbackTimer = 0;
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]
         {

@@ -40,9 +40,17 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     private readonly SharedEscapeAndDrainCount _ammoCountdown;
 
+    /// <summary>The special suit colouring holding Samus's suit, which Crystal Flash takes.</summary>
+    private readonly SamusSpecialColouring _colouring;
+
     /// <summary>Creates a Crystal Flash owner whose ammunition countdown runs on Samus's shared escape and drain count.</summary>
     /// <param name="ammoCountdown">Samus's shared escape and drain count.</param>
-    internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown) => _ammoCountdown = Ensure.NotNull(ammoCountdown);
+    /// <param name="colouring">Samus's special suit colouring, which Crystal Flash takes.</param>
+    internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown, SamusSpecialColouring colouring)
+    {
+        _ammoCountdown = Ensure.NotNull(ammoCountdown);
+        _colouring = Ensure.NotNull(colouring);
+    }
 
     /// <summary>Replaces the movement handler without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
@@ -50,7 +58,6 @@ public sealed class SamusCrystalFlashState
     /// <summary>Another special suit colouring takes over from Crystal Flash's, along with its running timer.</summary>
     internal void RelinquishPaletteHandler()
     {
-        SpecialPaletteKind = SamusSpecialPaletteType.None;
         BubbleTimer = 0;
         BeamPaletteRestoreRequested = false;
     }
@@ -64,12 +71,6 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Seeded to one for Samus's palette animation.</summary>
     public int CrystalPaletteTimer { get; private set; }
-
-    /// <summary>
-    /// The special suit colouring Crystal Flash runs: Crystal Flash's from activation until the finish restores the
-    /// beam colours, or none once another colouring takes over.
-    /// </summary>
-    public SamusSpecialPaletteType SpecialPaletteKind { get; internal set; }
 
     /// <summary>
     /// The bubble colour step shown next, 0 through the bubble-set count minus one. Each bubble-timer expiry advances
@@ -180,7 +181,7 @@ public sealed class SamusCrystalFlashState
         _ammoCountdown.StartAmmoCountdown(10);
         RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPaletteTimer = 1;
-        SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
+        _colouring.Take(SamusSpecialPaletteType.CrystalFlash);
         BubbleStep = 0;
         BubbleTimer = 1;
         BeamPaletteRestoreRequested = false;
@@ -349,7 +350,7 @@ public sealed class SamusCrystalFlashState
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
-        if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)
+        if (!_colouring.Holds(SamusSpecialPaletteType.CrystalFlash))
             return false;
 
         if (BeamPaletteRestoreRequested)
@@ -358,7 +359,7 @@ public sealed class SamusCrystalFlashState
             // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
             SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, samus.EquippedBeams);
 
-            SpecialPaletteKind = SamusSpecialPaletteType.None;
+            _colouring.Release(SamusSpecialPaletteType.CrystalFlash);
             BubbleStep = 0;
             BodyStep = 0;
             BubbleTimer = 0;

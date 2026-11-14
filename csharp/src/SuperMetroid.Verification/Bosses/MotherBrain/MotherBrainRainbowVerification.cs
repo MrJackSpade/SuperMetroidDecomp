@@ -282,7 +282,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         SuperMissiles = 1,
         PowerBombs = 1,
         SelectedHudItem = HudItem.SuperMissile,
-        AutoCancelHudItemIndex = HudItem.XRay,
+        AutoCancelledItem = HudItem.XRay,
         Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
     };
     var lowAttack = new MotherBrainRainbowBeamAttackSequence();
@@ -301,7 +301,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0, low.PowerBombs,
         "power bombs reach the shared literal-zero reset regardless of HUD selection");
     AssertEqual(HudItem.Beam, low.SelectedHudItem, "selected depleted item clears HUD selection");
-    AssertEqual(HudItem.Beam, low.AutoCancelHudItemIndex, "ammo depletion resets auto-cancel index");
+    AssertEqual(HudItem.Beam, low.AutoCancelledItem, "ammo depletion resets auto-cancel index");
 
     Console.WriteLine("  Mother Brain actor: rainbow drain, ammo depletion and HUD selection agree.");
 }

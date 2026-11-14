@@ -225,7 +225,7 @@ internal sealed class DoorTransitionState
                     // Resetting the projectiles selects the beam again when Icon Cancel is
                     // on. This is the only gameplay effect of the Icon Cancel option.
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
-                    samus.AutoCancelHudItemIndex = SuperMetroid.Core.Samus.HudItem.Beam;
+                    samus.AutoCancelledItem = SuperMetroid.Core.Samus.HudItem.Beam;
                 }
                 FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.FadeStepCount);
                 runtime.DoorFade.FadeIn(FadeSteps);

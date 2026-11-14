@@ -32,8 +32,9 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bec9 + wordOffset)),
                 policyRow,
                 $"Mother Brain turret rotation pointer {parameter}");
+            // The cartridge numbers a turret's directions by their place on the turret ring.
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bee1 + wordOffset)),
-                (ushort)definition.InitialDirection,
+                (ushort)MotherBrainTurretDefinitions.Ring.PositionOf(definition.InitialDirection),
                 $"Mother Brain turret initial direction {parameter}");
 
             for (byte direction = 0; direction < 8; direction++)
@@ -42,7 +43,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                     0x860000 | (policyRow + direction)) != 0;
                 AssertEqual(nativeAllowed, MotherBrainTurrets.IsRotationAllowed(
                     parameter,
-                    (MotherBrainTurretDirection)direction),
+                    MotherBrainTurretDefinitions.Ring.At(direction)),
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
             }
 
@@ -101,7 +102,7 @@ internal static class MotherBrainTurretDefinitionsVerification
         for (byte direction = 0; direction < 8; direction++)
         {
             MotherBrainTurretDirection typedDirection =
-                (MotherBrainTurretDirection)direction;
+                MotherBrainTurretDefinitions.Ring.At(direction);
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(typedDirection);
             int wordOffset = direction * 2;
@@ -148,9 +149,6 @@ internal static class MotherBrainTurretDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTurrets.ForTurret(12),
             "Mother Brain turret parameter past table");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainTurrets.ForDirection((MotherBrainTurretDirection)8),
-            "Mother Brain turret direction past table");
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTurrets.IsRotationAllowed(
                 12, MotherBrainTurretDirection.Left),

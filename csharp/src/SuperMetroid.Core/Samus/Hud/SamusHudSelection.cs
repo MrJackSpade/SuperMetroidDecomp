@@ -11,11 +11,10 @@ internal static class SamusHudSelection
     /// item-switch and item-cancel bindings.
     /// </summary>
     /// <remarks>
-    /// The selected item is a six-entry index, not a bit field: zero is beams/nothing,
-    /// one missiles, two Super Missiles, three Power Bombs, four Grapple, and five X-ray.
-    /// A new Select edge advances through that ring, calling each item's handler to
-    /// skip unavailable ammo/equipment. Y cancels to zero. Holding Y while pressing Select
-    /// records the chosen item for auto-cancel behavior.
+    /// The selected item is one of the six HUD items, not a set of them. A new Select edge advances through the
+    /// selection ring (the beam, Missiles, Super Missiles, Power Bombs, the Grapple Beam and the X-ray Scope),
+    /// skipping ammunition Samus has run out of and equipment she has not equipped. Y cancels back to the beam.
+    /// Holding Y while pressing Select records the chosen item for auto-cancel.
     /// </remarks>
     /// <returns>Whether an item's switched-to handler ran.</returns>
     public static HudSelectionOutcome HandleHudSelection(SamusState samus,
@@ -30,7 +29,7 @@ internal static class SamusHudSelection
 
         if ((controllerNewInput & cancelMask) != ControllerButton.None)
         {
-            samus.AutoCancelHudItemIndex = HudItem.Beam;
+            samus.AutoCancelledItem = HudItem.Beam;
             samus.SelectedHudItem = HudItem.Beam;
         }
         else if ((controllerNewInput & switchMask) != ControllerButton.None)
@@ -44,7 +43,7 @@ internal static class SamusHudSelection
             }
             while (!IsHudItemAvailable(samus, samus.SelectedHudItem));
 
-            samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != ControllerButton.None
+            samus.AutoCancelledItem = (controllerInput & cancelMask) != ControllerButton.None
                 ? samus.SelectedHudItem
                 : HudItem.Beam;
         }
@@ -59,10 +58,10 @@ internal static class SamusHudSelection
     /// <param name="samus">Samus, whose selection and auto-cancel the use ends.</param>
     internal static void ReturnAutoCancelledItem(SamusState samus)
     {
-        if (samus.AutoCancelHudItemIndex == HudItem.Beam)
+        if (samus.AutoCancelledItem == HudItem.Beam)
             return;
         samus.SelectedHudItem = HudItem.Beam;
-        samus.AutoCancelHudItemIndex = HudItem.Beam;
+        samus.AutoCancelledItem = HudItem.Beam;
     }
 
     /// <summary>Applies the switched-to handlers' ammo and equipment admission rules.</summary>
@@ -75,6 +74,6 @@ internal static class SamusHudSelection
         HudItem.Grapple => samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
         HudItem.XRay => samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
         _ => throw new InvalidDataException(
-            $"HUD item {item} escaped the six-entry switch table."),
+            $"HUD item {item} is not one of the six HUD items."),
     };
 }

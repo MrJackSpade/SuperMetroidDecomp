@@ -509,7 +509,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks item-message tilemap, fanfare wait, input dismissal, and PPU restoration timing.</summary>
-    private static void VerifyPermanentItemMessageBox()
+    internal static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
         GameplayMessageArtwork messages = CreatePermanentMessageFixture();

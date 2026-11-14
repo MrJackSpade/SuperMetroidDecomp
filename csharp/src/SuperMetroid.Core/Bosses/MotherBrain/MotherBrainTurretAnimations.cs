@@ -13,7 +13,7 @@ internal static class MotherBrainTurretAnimations
     private static readonly MotherBrainTurretPose[] Poses =
     [
         .. new[] { MotherBrainTurretSegment.TurretPose, MotherBrainTurretSegment.BulletPose }
-            .SelectMany(segment => Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretPose(segment, direction))),
+            .SelectMany(segment => MotherBrainTurretDefinitions.Ring.Members.Select(direction => new MotherBrainTurretPose(segment, direction))),
         MotherBrainTurretPose.BulletImpact,
     ];
 

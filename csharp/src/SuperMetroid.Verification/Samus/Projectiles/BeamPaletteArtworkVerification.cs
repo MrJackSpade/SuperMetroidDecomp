@@ -79,7 +79,7 @@ internal static class BeamPaletteArtworkVerification
         foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.Plasma | SamusBeamFlags.Wave, chainsawBeams })
         {
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedBeams = beams };
-            samus.CrystalFlash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
+            samus.SpecialColouring.Take(SamusSpecialPaletteType.CrystalFlash);
             samus.CrystalFlash.BeamPaletteRestoreRequested = true;
             var finishedColours = new SamusColours();
             AssertTrue(samus.CrystalFlash.UpdatePalette(finishedColours, samus),
@@ -90,7 +90,7 @@ internal static class BeamPaletteArtworkVerification
             var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
             AssertTrue(finishedColours.ShownBeams(sources).SequenceEqual(expected.ShownBeams(sources)),
                 $"{beams}: Crystal Flash's finish shows the colours equipping the beams shows");
-            AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");
+            AssertTrue(!samus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash), $"{beams}: the finish releases the palette");
         }
     }
 
@@ -105,12 +105,12 @@ internal static class BeamPaletteArtworkVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
-        flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
+        runtime.Player.IntroducedSamus.SpecialColouring.Take(SamusSpecialPaletteType.CrystalFlash);
         flash.BeamPaletteRestoreRequested = true;
         AssertTrue(flash.UpdatePalette(runtime.Player.Colours, runtime.Player.IntroducedSamus), "Crystal Flash completes");
         AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(runtime.Player.IntroducedSamus.EquippedBeams)), runtime.Player.Colours.Beams,
             "Crystal Flash completion shows the equipped beams' shade");
-        AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
+        AssertTrue(!runtime.Player.IntroducedSamus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash), "Crystal Flash still clears its owner on completion");
 
         var nativeRuntime = CreateRetailRuntimeFixture();
         nativeRuntime.LoadDebugGrapplePalette();

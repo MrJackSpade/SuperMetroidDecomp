@@ -66,7 +66,7 @@ public sealed class RidleyEnemyState
     public int WingAnimationTimer { get; internal set; }
     /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing countdown; nonnegative vertical motion halves it.</summary>
     public int WingAnimationTimerDelta { get; internal set; }
-    /// <summary>Gets the shared tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
+    /// <summary>What Ridley's tail is doing: nothing, curling and whipping in flight, or one of the pogo and stab movements.</summary>
     public RidleyTailAction TailAction { get; internal set; }
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }

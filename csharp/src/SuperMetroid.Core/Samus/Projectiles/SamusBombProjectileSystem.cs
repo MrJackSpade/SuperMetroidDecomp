@@ -451,10 +451,10 @@ public sealed class SamusBombProjectileSystem
         {
             // The auto-cancel flag always wins. Otherwise consuming the last round clears
             // item index three so the next Shoot edge returns to the beam/normal-bomb path.
-            if (samus.AutoCancelHudItemIndex != HudItem.Beam)
+            if (samus.AutoCancelledItem != HudItem.Beam)
             {
                 samus.SelectedHudItem = HudItem.Beam;
-                samus.AutoCancelHudItemIndex = HudItem.Beam;
+                samus.AutoCancelledItem = HudItem.Beam;
             }
             else if (samus.PowerBombs == 0)
             {

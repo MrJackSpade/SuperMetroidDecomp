@@ -14,12 +14,12 @@ internal enum LowerNorfairRioSegment
     PrepareToSwoop,
     /// <summary>The descending animation.</summary>
     Descending,
-    /// <summary>The ascending part 1 animation.</summary>
-    AscendingPart1,
-    /// <summary>The ascending part 2 animation.</summary>
-    AscendingPart2,
+    /// <summary>The opening of the climb back to the perch, which holds its last pose until its cue.</summary>
+    AscentOpening,
+    /// <summary>The climb back to the perch, running on into its loop.</summary>
+    Ascending,
     /// <summary>The loop.</summary>
-    AscendingPart2Loop,
+    AscendingLoop,
     /// <summary>The cooldown animation.</summary>
     Cooldown,
     /// <summary>The flames animation.</summary>

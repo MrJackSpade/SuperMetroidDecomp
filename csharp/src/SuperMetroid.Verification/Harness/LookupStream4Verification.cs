@@ -1486,13 +1486,14 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
 
-        for (ushort number = 0; number < 4; number++)
+        // The tables' fourth entry is the stop animation the AI never selects, which the port does not keep (#1838).
+        for (ushort number = 0; number < 3; number++)
         {
             SkreeMetareeAnimationPhase phase = SkreeNativeWords.AnimationPhases.Decode(number, "stream4 Skree/Metaree animation phase");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)), "stream4 native Metaree phase program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * number)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation(phase)), "stream4 native Skree phase program");
         }
-        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
+        foreach (ushort invalid in new ushort[] { 3, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SkreeNativeWords.AnimationPhases.Decode(invalid, "stream4 Skree/Metaree animation phase"), "stream4 invalid Skree/Metaree phase");
     }
 
@@ -1618,7 +1619,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailAnimationChoices.Animation(MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index"))), "Oum native action/facing dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)3, (DraygonFiringCannon)byte.MaxValue })

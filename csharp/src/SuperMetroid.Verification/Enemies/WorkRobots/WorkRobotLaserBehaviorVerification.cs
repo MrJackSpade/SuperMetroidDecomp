@@ -31,7 +31,7 @@ internal static class WorkRobotLaserBehaviorVerification
                      new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.UpRight, 512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.DownRight, 512),
                  })
         {
-            state.LaserVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(xVelocity, 0);
+            state.Facing = xVelocity < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
         EnemyProjectile[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];

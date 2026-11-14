@@ -39,13 +39,13 @@ public sealed class VerticalShutterEnemyState
     public int ProximityDistance { get; internal set; }
     /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
     public int WaitTime { get; internal set; }
-    /// <summary>Upward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert action instead of counting down.</summary>
-    public int MovedUpRestTime { get; internal set; }
-    /// <summary>Downward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert action instead of counting down.</summary>
-    public int MovedDownRestTime { get; internal set; }
+    /// <summary>How long the shutter rests at its upper end, or that it stays there until a reaction starts it again.</summary>
+    public ShutterRest MovedUpRest { get; internal set; }
+    /// <summary>How long the shutter rests at its lower end, or that it stays there until a reaction starts it again.</summary>
+    public ShutterRest MovedDownRest { get; internal set; }
     /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
     public bool MovingSamus { get; internal set; }
-    /// <summary>One-shot reaction latch, initially clear and set by the first mode-3 reaction so later reactions cannot activate movement again.</summary>
+    /// <summary>One-shot reaction latch, initially clear and set by a one-shot shutter's first reaction so later reactions cannot start it again.</summary>
     public bool ShotActivated { get; internal set; }
     /// <summary>The shutter's whole-pixel position saved before its current move to derive the rider's wrapped vertical displacement.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }

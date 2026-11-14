@@ -16,9 +16,12 @@ internal static class PuyoHopDefinitionsVerification
         {
             int index = PuyoNativeWords.HopRecordOffsets.Word(hopType);
             var hop = PuyoHopDefinitions.Hops[hopType];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.Height, "Puyo native hop height");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.JumpHeight, "Puyo native hop height");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed, "Puyo native horizontal speed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0b + index)), hop.YIndexDelta, "Puyo native gravity/drop delta");
+            // The record's third value is the hop's curve step, or for the drop its fall speed (#1820).
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0b + index)), hop.Movement == PuyoAirborneMovement.Dropping
+                ? PuyoHopDefinitions.DropSpeed.RawValue >> 8
+                : hop.CurveStep.InTwoHundredFiftySixthsOfMark, "Puyo native curve step or drop speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0d + index)), PuyoNativeWords.PuyoAirborneMovements.Word(hop.Movement), "Puyo native airborne callback");
             if (hop.Movement == PuyoAirborneMovement.Dropping)
                 continue; // Dropping bypasses hop initialization and uses constant speed.

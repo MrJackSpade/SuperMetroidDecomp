@@ -213,7 +213,7 @@ internal static class EnemySheetOwnFramesVerification
                 [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
                 [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperSegment.Ripper2MovingLeft, RipperSegment.Ripper2MovingRight]), frozen),
+                    [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
                 [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight]),
             });

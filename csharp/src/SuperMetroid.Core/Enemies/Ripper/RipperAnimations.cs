@@ -28,20 +28,6 @@ internal static class RipperAnimations
             Show(EnemyFrameId.GRipperMovingRightFirst, 8),
             Show(EnemyFrameId.GRipperMovingRightThird, 7),
         ],
-        [P.Ripper2MovingRight] =
-        [
-            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GRipperMovingLeftSecond, 7),
-            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GRipperMovingLeftThird, 7),
-        ],
-        [P.Ripper2MovingLeft] =
-        [
-            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GRipperMovingRightSecond, 7),
-            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GRipperMovingRightThird, 7),
-        ],
         [P.RipperMovingRight] =
         [
             Show(EnemyFrameId.RipperMovingRightFirst, 8),
@@ -63,8 +49,6 @@ internal static class RipperAnimations
     {
         [P.GRipperMovingLeft] = new([new(P.GRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.GRipperMovingRight] = new([new(P.GRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Ripper2MovingRight] = new([new(P.Ripper2MovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Ripper2MovingLeft] = new([new(P.Ripper2MovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RipperMovingRight] = new([new(P.RipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RipperMovingLeft] = new([new(P.RipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };

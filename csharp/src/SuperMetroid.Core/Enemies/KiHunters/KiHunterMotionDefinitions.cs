@@ -5,7 +5,7 @@ public static class KiHunterMotionDefinitions
 {
     /// <summary>Tested with signed distance comparison.</summary>
     public const int SwoopTriggerDistance = 96;
-    /// <summary>An eighth of a table step, in the 65536ths of a step a swoop's angular speed counts below its whole steps.</summary>
+    /// <summary>An eighth of a step (a 256th of a turn), in the 65536ths of a step a swoop's angular speed counts below its whole steps.</summary>
     private const int EighthOfAStep = 65536 / 8;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
@@ -21,10 +21,10 @@ public static class KiHunterMotionDefinitions
 
 
 
-    /// <summary>A rightward swoop's angular acceleration: an eighth of a table step per frame.</summary>
+    /// <summary>A rightward swoop's angular acceleration: an eighth of a step per frame.</summary>
     public static SignedSixteenSixteen RightSwoopAcceleration { get; } = SignedSixteenSixteen.FromParts(0, EighthOfAStep);
 
-    /// <summary>A leftward swoop's angular acceleration: minus an eighth of a table step per frame.</summary>
+    /// <summary>A leftward swoop's angular acceleration: minus an eighth of a step per frame.</summary>
     public static SignedSixteenSixteen LeftSwoopAcceleration { get; } = -RightSwoopAcceleration;
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a turn.</summary>

@@ -20,19 +20,16 @@ internal static class SkreeMetareeNativeListAddresses
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareePreparingAttack, 0x8924),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDiving, 0x8930),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDivingLoop, 0x8932),
-        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeStopAnimating, 0x8946),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeIdling, 0xc65e),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreePreparingAttack, 0xc672),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDiving, 0xc67e),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDivingLoop, 0xc680),
-        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeStopAnimating, 0xc694),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, SkreeMetareeNativeListAddressesInstruction> Instructions = new()
     {
         [0x8173] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.ProcessOffScreen, ""),
-        [0x817d] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.StopProcessingOffScreen, ""),
         [0x8956] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.SetAttackReady, ""),
         [0xc6a4] = new SkreeMetareeNativeListAddressesInstruction(SkreeMetareeCueKind.SetAttackReady, ""),
     };

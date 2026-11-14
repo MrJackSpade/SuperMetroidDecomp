@@ -15,11 +15,11 @@ public sealed class PuyoEnemyState
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The furthest place the Puyo keeps: a step past it, as past the curve's start, restarts the fall, as the game's
-    /// check for a negative place does.
+    /// The furthest place the Puyo keeps, the last before 128 whole marks: a step past it, as a step back past the
+    /// curve's start, restarts the fall.
     /// </summary>
     internal static readonly QuadraticSpeedCurvePlace LargestYSpeedCurvePlace =
-        QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(short.MaxValue);
+        QuadraticSpeedCurvePlace.FromMarks(128) - QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(1);
 
     /// <summary>Grounded-frame countdown copied from its spawn hop cooldown.</summary>
     public int HopCooldownTimer { get; internal set; }
@@ -65,7 +65,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// One airborne update's change to the speed-curve place: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves the curve's start through <see cref="LargestYSpeedCurvePlace"/> (the game checks whether it is negative) restarts
+    /// A step back past the curve's start, or on past <see cref="LargestYSpeedCurvePlace"/>, restarts
     /// the fall at the curve's start: the apex while rising, and a restart of an overlong fall.
     /// </summary>
     /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>

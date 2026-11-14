@@ -1060,6 +1060,9 @@ internal static class LookupStream5Verification
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+                // The mount's beam follows the eye listed right after it (#1835).
+                var followed = enemies.SlotTable.Slots[1];
+                followed.Bind(EnemyDefinitionId.Eye, followed.Definition);
                 var slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
                 slot.SetSpawnParameter2(EnemyDefinitionId.Eye, (ushort)(0x8000 | direction));
@@ -1071,7 +1074,7 @@ internal static class LookupStream5Verification
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     eye.Playback,
                     "Actual directional mount program");
-                AssertEqual(MorphBallEyeAction.MountNoOp, eye.Action, "Mount remains decorative");
+                AssertEqual(MorphBallEyeAction.ShowingMount, eye.Action, "Mount remains decorative");
             }
         }
         var owner = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

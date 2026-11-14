@@ -40,7 +40,7 @@ internal static class PowampBehaviorVerification
         // is its segment's entry plus four bytes per beat passed, the list's closing control at its end included; the
         // native record there is the pose's own.
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        foreach (PowampSegment start in new[] { PowampSegment.BalloonInflate0, PowampSegment.BalloonInflate1, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })
+        foreach (PowampSegment start in new[] { PowampSegment.BalloonInflatingFromDeflated, PowampSegment.BalloonInflatingFromHalfway, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })
         {
             Animation<PowampSegment> animation = PowampAnimations.StartingWith(start);
             AssertBalloonPhase(cartridge, new(animation, AnimationPlace.StartOfAnimation), start, 0, $"Powamp balloon {start} before it starts");
@@ -61,7 +61,7 @@ internal static class PowampBehaviorVerification
     private static void AssertBalloonPhase(IImportCartridgeSource cartridge, AnimationPlayback<PowampSegment> playback, PowampSegment segment, int passed, string context)
     {
         (bool sinking, int shown) = PowampBehavior.PowampBalloonPhase(playback);
-        ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampSegment.BalloonStartSinking : PowampSegment.BalloonInflate0);
+        ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampSegment.BalloonStartSinking : PowampSegment.BalloonInflatingFromDeflated);
         ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
         AssertEqual(pointer, (ushort)(sequence + 4 * shown), context);
         IReadOnlyList<AnimationBeat<EnemyFrameId, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);

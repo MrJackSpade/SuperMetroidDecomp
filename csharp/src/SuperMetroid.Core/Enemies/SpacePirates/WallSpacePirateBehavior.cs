@@ -71,7 +71,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             : WallSpacePirateAction.ClimbingLeftWall;
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
-        // The USA/Japan build measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
+        // The Japanese and North American release measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
         // one takes 32 four-step frames with adjusted endpoints. These values are not approximations: they are the
         // literal 190/66/2 and 192/64/4 branches.
         state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
@@ -109,10 +109,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 return;
 
-            case WallSpacePirateAction.AttackAnimationOnLeftWall:
-            case WallSpacePirateAction.AttackAnimationOnRightWall:
-                // These behaviours do nothing. Actor presentation and timing are owned
-                // entirely by the currently-running animation.
+            case WallSpacePirateAction.Attacking:
+                // The attack animation moves and times the pirate; its cues ready the jump.
                 return;
 
             case WallSpacePirateAction.WallJumpingRight:

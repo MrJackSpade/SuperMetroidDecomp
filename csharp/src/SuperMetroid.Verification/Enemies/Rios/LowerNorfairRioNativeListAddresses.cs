@@ -20,9 +20,9 @@ internal static class LowerNorfairRioNativeListAddresses
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.IdleLoop, 0xc61c),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.PrepareToSwoop, 0xc630),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Descending, 0xc65a),
-        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart1, 0xc662),
-        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart2, 0xc674),
-        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart2Loop, 0xc676),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscentOpening, 0xc662),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Ascending, 0xc674),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingLoop, 0xc676),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Cooldown, 0xc686),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Flames, 0xc6b0),
     ];

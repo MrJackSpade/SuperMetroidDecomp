@@ -29,7 +29,7 @@ internal static class RipperVariantOwnedStateVerification
         SignedSixteenSixteen negative = -positive;
         AssertEqual(new EnemyLinearSpeed(positive), state.Speeds, "the selected speed");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
-        RipperBehavior.ReverseRipperVariant(slot, RipperSegment.Ripper2MovingLeft, RipperSegment.Ripper2MovingRight);
+        RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GRipperMovingRight, RipperSegment.GRipperMovingLeft);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }

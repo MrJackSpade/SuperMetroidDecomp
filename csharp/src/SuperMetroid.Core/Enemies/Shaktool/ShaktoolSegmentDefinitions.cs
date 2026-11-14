@@ -18,14 +18,14 @@ internal static class ShaktoolSegmentDefinitions
             RotationAngle.Zero, ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolFrameBehavior.Idle, RotationAngle.Zero);
 
-    /// <summary>The arm segment after the leading saw.</summary>
-    internal static readonly ShaktoolSegmentDefinition FirstArm =
+    /// <summary>The outer arm on the leading saw's side, next to the saw.</summary>
+    internal static readonly ShaktoolSegmentDefinition LeadingOuterArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 1,
             RotationAngle.WrappedSteps(-8 * 1), ShaktoolSegment.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, RotationAngle.FromSteps(0, 32));
 
-    /// <summary>The arm segment before the head.</summary>
-    internal static readonly ShaktoolSegmentDefinition SecondArm =
+    /// <summary>The inner arm on the leading saw's side, next to the head.</summary>
+    internal static readonly ShaktoolSegmentDefinition LeadingInnerArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 2,
             RotationAngle.WrappedSteps(-8 * 3), ShaktoolSegment.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, RotationAngle.FromSteps(0, 96));
@@ -36,14 +36,14 @@ internal static class ShaktoolSegmentDefinitions
             RotationAngle.WrappedSteps(-8 * 6), ShaktoolSegment.HeadAimingDown,
             ShaktoolFrameBehavior.OrbitAndOrientCenter, RotationAngle.FromSteps(0, 192));
 
-    /// <summary>The arm segment after the head.</summary>
-    internal static readonly ShaktoolSegmentDefinition ThirdArm =
+    /// <summary>The inner arm on the trailing saw's side, next to the head.</summary>
+    internal static readonly ShaktoolSegmentDefinition TrailingInnerArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 4,
             RotationAngle.WrappedSteps(-8 * 10), ShaktoolSegment.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, RotationAngle.FromSteps(1, 64));
 
-    /// <summary>The arm segment before the trailing saw.</summary>
-    internal static readonly ShaktoolSegmentDefinition FourthArm =
+    /// <summary>The outer arm on the trailing saw's side, next to the saw.</summary>
+    internal static readonly ShaktoolSegmentDefinition TrailingOuterArm =
         new(EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyContact.IgnoresSamus, 5,
             RotationAngle.WrappedSteps(-8 * 13), ShaktoolSegment.ArmPieceNormal,
             ShaktoolFrameBehavior.OrbitPreviousSegment, RotationAngle.FromSteps(1, 160));
@@ -56,5 +56,5 @@ internal static class ShaktoolSegmentDefinitions
 
     /// <summary>The seven segments in chain order, leading saw first.</summary>
     internal static readonly ShaktoolSegmentDefinition[] Segments =
-        [LeadingSaw, FirstArm, SecondArm, Head, ThirdArm, FourthArm, TrailingSaw];
+        [LeadingSaw, LeadingOuterArm, LeadingInnerArm, Head, TrailingInnerArm, TrailingOuterArm, TrailingSaw];
 }

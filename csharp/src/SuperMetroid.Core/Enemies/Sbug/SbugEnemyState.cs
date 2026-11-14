@@ -13,7 +13,7 @@ public sealed class SbugEnemyState
     /// <summary>Creates the state for an Sbug's slot.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>The long lifetime used only by behavior four.</summary>
+    /// <summary>The long lifetime of a straight move, used only by moving forward then waiting.</summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current AI behaviour.</summary>
@@ -39,7 +39,7 @@ public sealed class SbugEnemyState
     /// <summary>The 32-frame segment/wait countdown.</summary>
     public int MovementTimer { get; internal set; }
 
-    /// <summary>The speed the trigonometry tables are multiplied by, as the Sbug's placement names it.</summary>
+    /// <summary>The speed the heading's sine and cosine scale, as the Sbug's placement names it.</summary>
     public int Speed => _slot.SpawnSettings<SbugSpawnSettings>().Speed;
 
     /// <summary>The heading the Sbug spawns on: zero points right, a quarter turn up, half a turn left.</summary>

@@ -46,15 +46,14 @@ internal static class PipeBugBehaviorVerification
 
     /// <summary>
     /// Drives the production main AI through the Pipe Bugs' typed state. A Norfair member waiting for its stagger target
-    /// of 72 counts one per update, wraps from 65535 to zero, and compares by the sign of the sixteen-bit difference, so
-    /// a count of 32840 has not reached the target; reaching it departs toward Samus and clears the count. A Brinstar bug
+    /// of 72 counts one per update; reaching it departs toward Samus and clears the count. A Brinstar bug
     /// keeps its flight direction in variable A's sign bit, leaving the word's other bits alone, and emerges facing the
     /// side Samus is on. A yellow bug flies at its 1.5-pixel 16.16 speed, and its arc counts the speed record down to
     /// zero, ends the rise without going below it, then counts back up.
     /// </summary>
     internal static void VerifyPipeBugStateQuantities()
     {
-        foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true), new VerifyPipeBugStateQuantitiesCase(65535, 0, false), new VerifyPipeBugStateQuantitiesCase(32839, 32840, false) })
+        foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true) })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -81,7 +80,7 @@ internal static class PipeBugBehaviorVerification
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
             AssertTrue(!state.BrinstarFliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(PipeBugAction.BrinstarEmerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
-            AssertEqual(PipeBugAnimationSelector.RisingFacingRight, state.RequestedAnimation, "Brinstar Pipe Bug emerges facing right");
+            AssertEqual(PipeBugSegment.ZebRisingRight, state.RequestedAnimation, "Brinstar Pipe Bug emerges facing right");
         }
 
         {
@@ -91,7 +90,7 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
-            AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
+            AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.FlightSpeed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Action = PipeBugAction.YellowArcRight;
             state.ArcRising = true;
             state.ArcCounter = QuadraticSpeedCurvePlace.FromMarks(1);

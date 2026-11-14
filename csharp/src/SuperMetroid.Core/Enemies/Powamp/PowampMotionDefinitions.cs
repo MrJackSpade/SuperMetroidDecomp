@@ -43,11 +43,11 @@ public static class PowampMotionDefinitions
 
     /// <summary>
     /// The inflate stage a sinking balloon restarts when Powamp dies, by the sinking poses it had shown: after two it
-    /// restarts stage one, after three stage zero. One that had shown a single sinking pose keeps sinking.
+    /// restarts inflating from halfway, after three from deflated. One that had shown a single sinking pose keeps sinking.
     /// </summary>
     internal static readonly IReadOnlyDictionary<int, PowampSegment> SunkBalloonRestarts = new Dictionary<int, PowampSegment>
     {
-        [2] = PowampSegment.BalloonInflate1,
-        [3] = PowampSegment.BalloonInflate0,
+        [2] = PowampSegment.BalloonInflatingFromHalfway,
+        [3] = PowampSegment.BalloonInflatingFromDeflated,
     };
 }

@@ -10,12 +10,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// shutter; zero for every other trigger.
 /// </param>
 /// <param name="WaitTime">The updates a <see cref="ShutterTriggerMode.Timer"/> shutter waits; zero for every other trigger.</param>
-/// <param name="FirstRestTime">
-/// The updates it rests after moving left or up; a rest of 4080 stops it there for good.
-/// </param>
-/// <param name="SecondRestTime">
-/// The updates it rests after moving right or down; a rest of 4080 stops it there for good.
-/// </param>
+/// <param name="RestAfterMovingUp">How long it rests at its upper end, or that it stops there for good.</param>
+/// <param name="RestAfterMovingDown">How long it rests at its lower end, or that it stops there for good.</param>
 internal sealed record ShutterSpawnSettings(
     SignedSixteenSixteen Speed, ShutterHeading PrimaryDirection, ShutterTriggerMode TriggerMode, int TravelDistance,
-    int ProximityDistance, int WaitTime, int FirstRestTime, int SecondRestTime) : EnemySpawnSettings;
+    int ProximityDistance, int WaitTime, ShutterRest RestAfterMovingUp, ShutterRest RestAfterMovingDown) : EnemySpawnSettings;

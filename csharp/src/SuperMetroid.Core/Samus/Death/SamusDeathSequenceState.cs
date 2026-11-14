@@ -102,7 +102,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose step is not running.
         samus.CommitPoseHistory();
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, initialFrame, timer: 2);
 
         // The game subtracts the foreground directly from Samus's live position because its death
         // renderer adds the foreground back before drawing. Retain world coordinates in Samus

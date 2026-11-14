@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The state of Work Robot: the laser velocity is a signed 1/256-pixel value and the falling speed a signed 1/65536-pixel value.
+/// The state of Work Robot: the way it faces, its laser cooldown and, unpowered, its fall.
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
@@ -15,17 +15,11 @@ public sealed class WorkRobotEnemyState
     /// </summary>
     public bool Powered { get; internal set; }
 
-    /// <summary>
-    /// The signed 1/256-pixel velocity, in pixels per update, given to newly fired robot lasers; only its X is meaningful, and
-    /// its sign is the robot's facing.
-    /// </summary>
-    public EightEightVector<RoomPixels> LaserVelocity { get; internal set; }
+    /// <summary>The way the robot faces, which its walking steps and ledges set and its lasers fly (#1845).</summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>The wrapping countdown that gates the next laser attempt.</summary>
     public WrappingCountdown LaserCooldown { get; internal set; }
-
-    /// <summary>The whole-pixel room position saved during a temporary ledge probe.</summary>
-    public Position16<RoomPixels> BackupPosition { get; internal set; }
 
     /// <summary>
     /// An unpowered robot's signed 1/65536-pixel falling speed in pixels per update, which gravity accumulates with the

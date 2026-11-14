@@ -25,7 +25,7 @@ public sealed class WaverEnemyState
     /// <summary>The animation main AI asks for: steady or spinning, facing left or right.</summary>
     internal WaverSegment RequestedAnimation { get; set; }
 
-    /// <summary>Advances the wave phase two table units, wrapping after a full turn.</summary>
+    /// <summary>Advances the wave phase two steps (256ths of a turn), wrapping after a full turn.</summary>
     internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>

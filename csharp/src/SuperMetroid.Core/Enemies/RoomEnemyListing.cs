@@ -84,13 +84,6 @@ internal static class RoomEnemyListing
         Ensure.NotNull(place).SlotIndex < Ensure.NotNull(enemies).EnemyCount;
 
     /// <summary>
-    /// Whether <paramref name="part"/> is the first place the population lists, which an enemy whose original reads
-    /// assume that place requires.
-    /// </summary>
-    /// <param name="part">The place in question.</param>
-    internal static bool IsListedFirst(this RoomEnemySlot part) => part.IsListedAt(0);
-
-    /// <summary>
     /// Whether room loading has initialized <paramref name="enemy"/> (<see cref="IRoomLoadProgress"/>). Loading
     /// initializes the room's population in the order it lists it, so its progress is measured by that order.
     /// </summary>
@@ -98,13 +91,4 @@ internal static class RoomEnemyListing
     /// <param name="enemy">The enemy whose initialization is asked about.</param>
     internal static bool HasInitialized(this IRoomLoadProgress progress, RoomEnemySlot enemy) =>
         Ensure.NotNull(progress).HasInitializedEnemySlot(Ensure.NotNull(enemy).SlotIndex);
-
-    /// <summary>
-    /// Whether the population lists <paramref name="part"/> at <paramref name="place"/>, counted from zero, which an
-    /// enemy whose original reads assume a fixed place requires.
-    /// </summary>
-    /// <param name="part">The place in question.</param>
-    /// <param name="place">The zero-based place the enemy's reads assume.</param>
-    internal static bool IsListedAt(this RoomEnemySlot part, int place) =>
-        Ensure.NotNull(part).SlotIndex == Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, place);
 }

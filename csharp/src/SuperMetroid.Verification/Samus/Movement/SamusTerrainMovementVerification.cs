@@ -1910,7 +1910,7 @@ internal static void VerifySamusRanIntoWall()
         AssertEqual(SamusAccelerationMode.Accelerating, stopped.HorizontalSpeed.AccelerationMode,
             $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} clears acceleration mode");
         SamusPresentation.InitializeAnimation(stopped);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(stopped, 0, 9);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(stopped, 0, 9);
         SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(stopped, pose);
         AssertEqual(9, stopped.AnimationFrameTimer.RawValue,
             $"same wall pose ${(int)SamusPoseNumbers.Number(pose):X2} preserves the running animation timer");

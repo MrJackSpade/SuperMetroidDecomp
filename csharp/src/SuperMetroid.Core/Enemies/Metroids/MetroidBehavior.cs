@@ -77,16 +77,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(slot);
-        RoomSpriteObject outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
+        RoomSpriteObject electricity = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidOuterBodyA,
+            RoomSpriteObjectKind.MetroidElectricity,
             graphics);
-        RoomSpriteObject outerBodyB = _spriteObjects.SpawnRoomSpriteObject(
+        RoomSpriteObject shell = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidOuterBodyB,
+            RoomSpriteObjectKind.MetroidShell,
             graphics);
 
-        var state = new MetroidEnemyState(outerBodyA, outerBodyB)
+        var state = new MetroidEnemyState(electricity, shell)
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
@@ -127,8 +127,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body supplies the central map. Both outer objects are
         // repositioned and re-enabled every non-frozen main call, exactly after movement.
-        PositionMetroidOuterBody(state.OuterBodyA, slot, SpriteGraphics.SpawnedBy(slot));
-        PositionMetroidOuterBody(state.OuterBodyB, slot, SpriteGraphics.SpawnedBy(slot));
+        PositionMetroidOuterBody(state.Electricity, slot, SpriteGraphics.SpawnedBy(slot));
+        PositionMetroidOuterBody(state.Shell, slot, SpriteGraphics.SpawnedBy(slot));
     }
 
     /// <summary>Runs the Metroid's proportional 1/65536-pixel attraction toward Samus.</summary>
@@ -221,8 +221,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FlashTimer = 2;
         }
 
-        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenAnimation);
-        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenAnimation);
+        FreezeMetroidOuterBody(state.Electricity, MetroidOuterBodyDefinitions.ElectricityFrozenAnimation);
+        FreezeMetroidOuterBody(state.Shell, MetroidOuterBodyDefinitions.ShellFrozenAnimation);
     }
 
     /// <summary>
@@ -234,13 +234,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(slot.FlashTimer))
         {
-            state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(slot.Shading);
-            state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(slot.Shading);
+            state.Electricity.Graphics = state.Electricity.Graphics.In(slot.Shading);
+            state.Shell.Graphics = state.Shell.Graphics.In(slot.Shading);
             return;
         }
 
-        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(EnemyShades.HurtFlashLook);
-        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(EnemyShades.HurtFlashLook);
+        state.Electricity.Graphics = state.Electricity.Graphics.In(EnemyShades.HurtFlashLook);
+        state.Shell.Graphics = state.Shell.Graphics.In(EnemyShades.HurtFlashLook);
     }
 
     /// <summary>Resolves the ordinary and contact-damage branches of a Metroid's touch.</summary>
@@ -303,7 +303,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
-    /// <summary>Handles non-frozen recoil/ice accumulation after accepts a shot.</summary>
+    /// <summary>Handles an unfrozen Metroid's recoil and ice build-up after it takes a shot.</summary>
     internal void ResolveMetroidNonFrozenShot(
         RoomEnemySlot slot,
         SamusProjectileType collisionProjectileType,
@@ -367,8 +367,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         state.Velocity = state.Velocity.WithWholeX(0);
-        state.OuterBodyA.End();
-        state.OuterBodyB.End();
+        state.Electricity.End();
+        state.Shell.End();
         if (samus is not null)
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
     }
@@ -475,8 +475,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
-                // Frozen Metroid rejects every beam and bomb family. has already accepted the overlap, so
-                // non-plasma shots retain only the collision mark and never enter normal damage AI.
+                // A frozen Metroid rejects every beam and bomb. The shot has already met it, so a non-plasma shot
+                // keeps only its collision mark and never deals ordinary damage.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }

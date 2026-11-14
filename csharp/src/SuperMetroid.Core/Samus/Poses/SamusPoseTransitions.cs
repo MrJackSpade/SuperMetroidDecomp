@@ -54,7 +54,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         // Starting the fall with no floor below preserves an ascending
-        // velocity, even if a special handler left it on a standing pose. Crystal
+        // velocity, even if an ability that moved her left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
         if (samus.Kinematics.YDirection != SamusVerticalDirection.Up)
         {

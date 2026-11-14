@@ -331,7 +331,7 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Sweeps each traversed angle-table step against terrain and reflects or locks at the last clear angle.</summary>
+    /// <summary>Sweeps each traversed angle step against terrain and reflects or locks at the last clear angle.</summary>
     internal static void AdvanceAngleWithTerrainCollision(
         RoomLevelData level,
         SamusState samus,

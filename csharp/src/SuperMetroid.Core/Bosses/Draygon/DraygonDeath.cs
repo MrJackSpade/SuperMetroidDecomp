@@ -187,7 +187,7 @@ internal sealed class DraygonDeath
         }
     }
 
-    /// <summary>Moves the body along a sine-table angle at the supplied speed.</summary>
+    /// <summary>Moves the body along an angle in 256ths of a turn at the supplied speed.</summary>
     private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, TrigonometryAngle movementAngle, int speed)
     {
         UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);

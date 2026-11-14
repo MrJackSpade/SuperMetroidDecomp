@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// The Zeb, Zebbo, Gamet and Geega Pipe Bugs' rising, shooting, flying and arcing loops (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="PipeBugAnimations"/>.
 /// </summary>
-internal enum PipeBugSegment
+public enum PipeBugSegment
 {
     /// <summary>The zeb rising left animation.</summary>
     ZebRisingLeft,

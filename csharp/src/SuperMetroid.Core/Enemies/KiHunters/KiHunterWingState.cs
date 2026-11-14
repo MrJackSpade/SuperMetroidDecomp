@@ -34,7 +34,7 @@ public sealed class KiHunterWingState
     /// </summary>
     public RotationAngle WingArcAngle { get; internal set; }
 
-    /// <summary>The detached wings' movement, alternating between non-colliding and collision-bearing arcs; null until the wings are detached.</summary>
+    /// <summary>The detached wings' movement, alternating between non-colliding and collision-bearing arcs.</summary>
     public KiHunterWingMovement? WingMovement { get; internal set; }
 
     /// <summary>

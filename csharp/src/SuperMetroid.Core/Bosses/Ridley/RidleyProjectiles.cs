@@ -80,11 +80,8 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
                 angle = RightFacingAimEnd;
         }
 
-        // The sine and cosine multiplies read signed values from the shared sine table.
-        // An apparently relevant grapple table is
-        // code, not table data; treating that code as samples produces enormous bogus
-        // velocities. Callers add a quarter turn themselves when they want cosine. Its multiply
-        // takes the absolute table value,
+        // The sine and cosine multiplies scale the speed by the game's signed sine of the angle in steps, the cosine
+        // being the sine a quarter turn on. Each multiply takes the speed by the sine's size,
         // divides by 256, then reapplies the sign. Speed 1280 therefore remains a
         // signed 1/256-pixel velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(

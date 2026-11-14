@@ -18,11 +18,11 @@ internal static class PuyoNativeListAddresses
         new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedFast, 0x99ad),
         new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedMedium, 0x99c1),
         new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedSlow, 0x99d5),
-        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame0LeftFrame4, 0x99e9),
-        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame1LeftFrame3, 0x99ef),
-        new NativeProgramEntry<PuyoSegment>(PuyoSegment.Frame2, 0x99f5),
-        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame3LeftFrame1, 0x99fb),
-        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame4LeftFrame0, 0x9a01),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.TiltedFarRight, 0x99e9),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.TiltedRight, 0x99ef),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.Upright, 0x99f5),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.TiltedLeft, 0x99fb),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.TiltedFarLeft, 0x9a01),
     ];
 
 }

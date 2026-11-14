@@ -54,7 +54,7 @@ internal static class EnemyLinearSpeedsVerification
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");
-            AssertEqual((positive, negative), (o.RightVelocity, o.LeftVelocity), "Owtch native speed setup");
+            AssertEqual((positive, negative), (o.Speed, -o.Speed), "Owtch native speed setup, negated for moving left");
             var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)) };
             ripper(ripperState, true);
             AssertEqual(positive, ripperState.XVelocity, "Ripper right speed");

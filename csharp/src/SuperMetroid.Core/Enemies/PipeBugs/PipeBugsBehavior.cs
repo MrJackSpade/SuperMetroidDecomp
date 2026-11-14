@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -65,12 +66,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Action = PipeBugAction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
-        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
-        state.InstalledAnimation = PipeBugAnimationSelector.RisingFacingLeft;
-        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugAnimationChoices.BrinstarAnimation(
-            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            PipeBugAnimationSelector.RisingFacingLeft)), AnimationPlace.StartOfAnimation);
+        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
+        state.InstalledAnimation = state.RequestedAnimation;
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.RequestedAnimation), AnimationPlace.StartOfAnimation);
     }
+
+    /// <summary>Whether the Brinstar Pipe Bug in <paramref name="slot"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
+    private static bool IsStrong(RoomEnemySlot slot) =>
+        slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong;
 
     /// <summary>Initializes the Norfair Pipe Bug.</summary>
     internal void InitializeNorfairPipeBug(RoomEnemySlot slot)
@@ -101,9 +104,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PipeBugSegment.GeegaFlyingRight));
 
         // The spawn settings name the speed the bug flies at.
-        SignedSixteenSixteen speed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
-        state.PositiveVelocity = speed;
-        state.NegativeVelocity = SignedSixteenSixteen.Zero - speed;
+        state.FlightSpeed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
         state.Action = PipeBugAction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }
@@ -237,24 +238,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.AnimationClock.ClearRepeats();
         state.RequestedAnimation = PipeBugAnimationChoices.Rising(
-            state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+            IsStrong(slot), state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
-    /// <summary>Applies the fractional Y decrement until the bug rises above Samus and switches to horizontal flight.</summary>
+    /// <summary>Rises (<see cref="PipeBugEmergenceRise"/>) until the bug is above Samus, then switches to horizontal flight.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
     {
-        // The rise decrements the subposition as a separate value, then subtracts either one
-        // or two pixels according to the old value. This is deliberately not normal 1/65536-pixel
-        // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
-        FixedCoordinate y = slot.Position.Y;
-        bool oldSubpositionWasNonzero = y.Fraction != 0;
-        slot.Position = slot.Position.WithY(new(
-            CoordinateAxis.Wrap(y.Whole + (oldSubpositionWasNonzero ? -1 : -2)),
-            CoordinateAxis.Wrap(y.Fraction - 1)));
+        slot.Position = slot.Position.WithY(PipeBugEmergenceRise.Risen(slot.Position.Y));
         if ((state.EmergenceTop - slot.Position.Whole).Y < 0 ||
             slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
@@ -278,11 +272,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
-        slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0);
-        // This apparently strange assignment is literal game behaviour: the game
-        // stores the integer spawn Y as both whole and fraction rather than clearing the fraction.
-        slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
-        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
+            .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
+        state.RequestedAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
@@ -297,9 +289,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(PipeBugAnimationChoices.BrinstarAnimation(
-            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            state.RequestedAnimation)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
@@ -366,7 +356,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, OnePixelPerFrame.Negative);
+        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, -OnePixelPerFrame);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
@@ -391,7 +381,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,
-            signedOffset < 0 ? OnePixelPerFrame.Negative : OnePixelPerFrame.Positive);
+            signedOffset < 0 ? -OnePixelPerFrame : OnePixelPerFrame);
         Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
         int distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
@@ -608,11 +598,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         bool movingLeft)
     {
-        slot.Position = slot.Position.AdvanceX(movingLeft ? state.NegativeVelocity : state.PositiveVelocity);
+        slot.Position = slot.Position.AdvanceX(movingLeft ? -state.FlightSpeed : state.FlightSpeed);
     }
 
-    /// <summary>The speed a Norfair bug rises and staggers at: one pixel per frame.</summary>
-    private static EnemyLinearSpeed OnePixelPerFrame => new(SignedSixteenSixteen.FromWholePixels(1));
+    /// <summary>The speed a Norfair bug rises and staggers at, one pixel per frame.</summary>
+    private static readonly SignedSixteenSixteen OnePixelPerFrame = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(

@@ -83,13 +83,13 @@ internal static class NativeSnapshotImport
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load room collision data.");
-        // The native snapshot holds the room's level words and behaviour bytes row by row; the checkpoint's room is Ceres's,
-        // whose area resolves the bytes the areas give their own meanings (#1805).
+        // The native snapshot holds the room's level words and behaviour bytes row by row; the loaded room's area resolves
+        // the bytes the areas give their own meanings (#1805).
         for (int index = 0; index < level.Size.Area; index++)
         {
             Position16<RoomBlocks> block = level.Size.CellAtRowMajorIndex(index);
             level.SetTerrain(block, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
-            level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(AreaId.Ceres, memory[NativeSnapshotMemory.Bts + index]));
+            level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + index]));
         }
 
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
@@ -224,7 +224,7 @@ internal static class NativeSnapshotImport
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
         samus.PoseHistory.PreviousPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.PreviousPose));
         samus.PoseHistory.PreviousMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection));
         samus.PoseHistory.LastDifferentMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection));
@@ -368,9 +368,11 @@ internal static class NativeSnapshotImport
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = unchecked((short)words.D);
-                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(words.E, "recorded Pipe Bug requested animation");
+                bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
+                    == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
+                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
-                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(
+                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(
                     W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64), "recorded Pipe Bug installed animation");
             }
         }

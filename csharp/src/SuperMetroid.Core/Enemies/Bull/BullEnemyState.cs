@@ -43,7 +43,7 @@ public sealed class BullEnemyState
     public SignedEightEight AccelerationDelta { get; internal set; }
 
     /// <summary>
-    /// The flight speed, projected through the sine table into the X and Y displacements. It changes only by wrapping
+    /// The flight speed, projected by the heading's sine and cosine into the X and Y displacements. It changes only by wrapping
     /// steps, so a deceleration that overshoots leaves a speed below zero, which the next decelerating update reads as
     /// stopped (<see cref="HasStopped"/>) before the Bull moves again.
     /// </summary>

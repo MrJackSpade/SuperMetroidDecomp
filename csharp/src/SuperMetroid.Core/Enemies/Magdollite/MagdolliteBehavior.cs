@@ -91,9 +91,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The spawn settings name the speed Magdollite rises and sinks at.
-        SignedSixteenSixteen speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
-        state.DownwardVelocity = speed;
-        state.UpwardVelocity = SignedSixteenSixteen.Zero - speed;
+        state.Speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
 
         // The room has one lava glow, not one per part: each part's initialization restarts it, so the last part placed
         // sets its phase.
@@ -188,7 +186,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteAction.BodyRising:
                 RunMagdolliteBodyRising(slot, state, samus);
                 return;
-            case MagdolliteAction.NoOpAtApex:
+            case MagdolliteAction.HoldingAtApex:
                 return;
             case MagdolliteAction.BodyFalling:
                 RunMagdolliteBodyFalling(slot, state);
@@ -318,7 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // placement's speed. The arm's own speed is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
-        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
+        state.RiseDisplacement += AddMagdolliteY(body, -speedOwner.Speed);
 
         int upwardDistance = -state.RiseDisplacement.Y;
         MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
@@ -333,7 +331,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (roseMaximum || rosePastSamus)
         {
-            state.Action = MagdolliteAction.NoOpAtApex;
+            state.Action = MagdolliteAction.HoldingAtApex;
             state.BodyReachedApex = true;
             if (!growsAPhase)
                 return;
@@ -357,7 +355,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         (RoomEnemySlot speedHead, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = speedHead.RequireSpeciesState<MagdolliteEnemyState>();
-        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.DownwardVelocity);
+        state.RiseDisplacement += AddMagdolliteY(body, speedOwner.Speed);
 
         if (state.RiseDisplacement.Y >= 0)
         {
@@ -466,9 +464,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the Magdollite's drawing-queue alias. For the third part, the source is the head's
-    /// Y position and the destination is its Y radius. Expressing that relationship directly
-    /// preserves collision geometry without exposing unrelated queue storage to C#.
+    /// Stretches the head's collision height down to the tracking overlay (#1823): the head's vertical radius becomes
+    /// the distance from the overlay up to the head plus two pixels, and never less than eight, so the head's hitbox
+    /// reaches the overlay as the arm grows beneath it.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {
@@ -644,9 +642,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case MagdolliteCueKind.ShiftRightUp8:
                 slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(8, -8));
-                break;
-            case MagdolliteCueKind.ShiftLeftUp4Again:
-                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
                 break;
             case MagdolliteCueKind.StartCooldown:
                 state.AttackTimer = WrappingCountdown.Start(256);

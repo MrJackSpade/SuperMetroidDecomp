@@ -221,7 +221,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);
         SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
         SamusPresentation.InitializeAnimation(lavaEndpoint);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(lavaEndpoint, 2, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, 2, 1);
         SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = 1 });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,

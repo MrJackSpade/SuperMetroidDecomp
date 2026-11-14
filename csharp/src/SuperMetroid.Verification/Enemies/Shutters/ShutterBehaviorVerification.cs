@@ -91,7 +91,8 @@ internal static class ShutterBehaviorVerification
         {
             state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), select(state), "vertical shutter native initial function pointer");
+            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), select(state),
+                "vertical shutter native initial function pointer");
             AssertEqual(VerticalShutterAction.Initial, state.Action,
                 "vertical initial dispatch selects a function without installing it");
         }

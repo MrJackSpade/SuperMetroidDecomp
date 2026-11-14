@@ -35,23 +35,23 @@ internal static class PuyoAnimations
             Show(EnemyFrameId.PuyoGroundedFastThird, 10),
             Show(EnemyFrameId.PuyoGroundedFastSecond, 10),
         ],
-        [P.RightFrame0LeftFrame4] =
+        [P.TiltedFarRight] =
         [
             Show(EnemyFrameId.PuyoAirborneFifth, 1),
         ],
-        [P.RightFrame1LeftFrame3] =
+        [P.TiltedRight] =
         [
             Show(EnemyFrameId.PuyoAirborneFourth, 1),
         ],
-        [P.Frame2] =
+        [P.Upright] =
         [
             Show(EnemyFrameId.PuyoAirborneThird, 1),
         ],
-        [P.RightFrame3LeftFrame1] =
+        [P.TiltedLeft] =
         [
             Show(EnemyFrameId.PuyoAirborneSecond, 1),
         ],
-        [P.RightFrame4LeftFrame0] =
+        [P.TiltedFarLeft] =
         [
             Show(EnemyFrameId.PuyoAirborneFirst, 1),
         ],
@@ -63,11 +63,11 @@ internal static class PuyoAnimations
         [P.GroundedFast] = new([new(P.GroundedFast, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.GroundedMedium] = new([new(P.GroundedMedium, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.GroundedSlow] = new([new(P.GroundedSlow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RightFrame0LeftFrame4] = new([new(P.RightFrame0LeftFrame4, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RightFrame1LeftFrame3] = new([new(P.RightFrame1LeftFrame3, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Frame2] = new([new(P.Frame2, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RightFrame3LeftFrame1] = new([new(P.RightFrame3LeftFrame1, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RightFrame4LeftFrame0] = new([new(P.RightFrame4LeftFrame0, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TiltedFarRight] = new([new(P.TiltedFarRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TiltedRight] = new([new(P.TiltedRight, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Upright] = new([new(P.Upright, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TiltedLeft] = new([new(P.TiltedLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TiltedFarLeft] = new([new(P.TiltedFarLeft, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

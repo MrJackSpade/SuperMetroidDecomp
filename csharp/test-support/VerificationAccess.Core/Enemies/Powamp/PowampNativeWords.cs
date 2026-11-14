@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 internal static class PowampNativeWords
 {
+    /// <summary>The empty routine the balloon half runs, which Core gives no action (#1837).</summary>
+    internal const ushort BalloonIdleWord = 0xc568;
+
     /// <summary>The routine word naming each <see cref="PowampAction"/>.</summary>
     internal static readonly NativeWordIdentities<PowampAction> PowampActions = new(new Dictionary<PowampAction, ushort>
     {
@@ -20,7 +23,6 @@ internal static class PowampNativeWords
         [PowampAction.GrappledResting] = 0xc4dc,
         [PowampAction.Deflating] = 0xc500,
         [PowampAction.DeflatedSinking] = 0xc51d,
-        [PowampAction.BalloonNoOp] = 0xc568,
         [PowampAction.FatalDamage] = 0xc569,
         [PowampAction.DeathSequence] = 0xc59f,
     });

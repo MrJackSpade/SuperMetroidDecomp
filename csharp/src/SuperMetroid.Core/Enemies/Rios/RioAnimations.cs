@@ -33,7 +33,7 @@ internal static class RioAnimations
             Show(EnemyFrameId.RioPostSwoopIdleThird, 4),
             Show(EnemyFrameId.RioPostSwoopIdleFourth, 4),
         ],
-        [P.SwoopingPart1] =
+        [P.SwoopOpening] =
         [
             Show(EnemyFrameId.RioPostSwoopIdleThird, 3),
             Show(EnemyFrameId.RioPostSwoopIdleFourth, 3),
@@ -42,7 +42,7 @@ internal static class RioAnimations
             Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
             Cue(new(K.AnimationFinished)),
         ],
-        [P.SwoopingPart2] =
+        [P.SwoopLoop] =
         [
             Show(EnemyFrameId.RioSwoopingPartTwoFirst, 3),
             Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
@@ -63,8 +63,8 @@ internal static class RioAnimations
     {
         [P.Idle] = new([new(P.Idle, 0, 2, 1), new(P.PostSwoopIdle, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
         [P.PostSwoopIdle] = new([new(P.PostSwoopIdle, 0, 10, 1), new(P.Idle, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SwoopingPart1] = new([new(P.SwoopingPart1, 0, 6, 1)], AnimationEnd.Holds),
-        [P.SwoopingPart2] = new([new(P.SwoopingPart2, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SwoopOpening] = new([new(P.SwoopOpening, 0, 6, 1)], AnimationEnd.Holds),
+        [P.SwoopLoop] = new([new(P.SwoopLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SwoopCooldown] = new([new(P.SwoopCooldown, 0, 6, 1)], AnimationEnd.Holds),
     };
 

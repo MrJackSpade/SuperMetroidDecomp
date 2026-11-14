@@ -66,7 +66,7 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public int RespawnDelay { get; internal set; }
     /// <summary>The speed, and its negation, this Norfair bug flies at: the spawn settings' speed.</summary>
-    public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
+    public EnemyLinearSpeed FlightSpeeds { get; internal set; }
     /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
     public Position16<RoomPixels> RiseEnd { get; internal set; }
     /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>

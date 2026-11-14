@@ -32,7 +32,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population entry names the patrol speed and the starting direction.
         GRipperSpawnSettings settings = slot.SpawnSettings<GRipperSpawnSettings>();
-        state.Speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
+        state.Speeds = new EnemyLinearSpeed(settings.Speed);
         LoadRipperVelocity(state, settings.Direction switch
         {
             GRipperStartDirection.Left => false,
@@ -83,7 +83,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
-        state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
+        state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
 
         // Ripper II's animation labels appear inverted relative to the displayed shared maps.
         // Keep the animation names instead of normalizing them: a leftward start uses the
@@ -119,7 +119,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             movingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
         // The state retains the speed row because the reversal reuses it.
-        state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
+        state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
         LoadRipperVelocity(state, movingRight);
     }
 

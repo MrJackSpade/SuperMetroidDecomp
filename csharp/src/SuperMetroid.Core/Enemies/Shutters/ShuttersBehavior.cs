@@ -455,7 +455,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
+        EnemyLinearSpeed speeds = new(settings.Speed);
         state.DownVelocity = speeds.Positive;
         state.UpVelocity = speeds.Negative;
 

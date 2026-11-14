@@ -83,7 +83,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnPosition = slot.Position.Whole;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SignedSixteenSixteen flightSpeed = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
-        state.FlightSpeeds = new EnemyLinearSpeedRow(flightSpeed, SignedSixteenSixteen.Zero - flightSpeed);
+        state.FlightSpeeds = new EnemyLinearSpeed(flightSpeed);
         state.FormationCounter = 0;
         state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
         state.Action = PipeBugAction.NorfairWaitForFormation;
@@ -611,8 +611,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceX(movingLeft ? state.NegativeVelocity : state.PositiveVelocity);
     }
 
-    /// <summary>The linear-speed row a Norfair bug rises and staggers at.</summary>
-    private static EnemyLinearSpeedRow OnePixelPerFrame => EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
+    /// <summary>The speed a Norfair bug rises and staggers at: one pixel per frame.</summary>
+    private static EnemyLinearSpeed OnePixelPerFrame => new(SignedSixteenSixteen.FromWholePixels(1));
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(

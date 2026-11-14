@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Platforms;
@@ -29,9 +30,9 @@ internal static class PlatformOwnedStateVerification
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
-        AssertEqual(speeds.Positive, state.RightSpeed, "rightward speed is the row's positive speed");
-        AssertEqual(speeds.Negative, state.LeftSpeed, "leftward speed is the row's negative speed");
+        SignedSixteenSixteen speed = EnemyLinearSpeedTable.Speed(speedRecord);
+        AssertEqual(speed, state.RightSpeed, "rightward speed is the row's speed");
+        AssertEqual(-speed, state.LeftSpeed, "leftward speed is the row's speed negated");
         AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(accelerationCap), state.MaximumYSpeedCurvePlace, "the acceleration cap is parameter two's high byte");
 

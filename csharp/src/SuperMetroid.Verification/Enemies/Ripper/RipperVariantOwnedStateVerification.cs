@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -24,10 +25,9 @@ internal static class RipperVariantOwnedStateVerification
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
-        SignedSixteenSixteen negative = speeds.Negative;
-        SignedSixteenSixteen positive = speeds.Positive;
-        AssertEqual(speeds, state.Speeds, "the speed row");
+        SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);
+        SignedSixteenSixteen negative = -positive;
+        AssertEqual(new EnemyLinearSpeed(positive), state.Speeds, "the selected speed");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
         RipperBehavior.ReverseRipperVariant(slot, RipperSegment.Ripper2MovingLeft, RipperSegment.Ripper2MovingRight);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");

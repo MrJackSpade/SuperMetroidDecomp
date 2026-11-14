@@ -707,7 +707,7 @@ internal static class NativeEnemyFamilyStateImport
             slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearRowAtOffset(words.E);
+            ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
         {

@@ -279,7 +279,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
+        EnemyLinearSpeed speeds = new(SignedSixteenSixteen.FromWholePixels(1));
         SignedSixteenSixteen speed = state.MovingLeft ? speeds.Negative : speeds.Positive;
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;

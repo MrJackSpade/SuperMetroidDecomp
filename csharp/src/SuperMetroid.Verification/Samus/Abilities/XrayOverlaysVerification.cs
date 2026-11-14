@@ -35,7 +35,7 @@ internal static class XrayOverlaysVerification
                 }),
             });
         // The terrain reveals' blocks play no part in the overlays.
-        var visuals = new InstalledXrayReveals(XrayRevealFixtures.EveryDrawable(shape => XrayRevealFixtures.Corners(shape, 0, 0, 0, 0)), overlays, XrayRevealTableWords.BlankMetatile);
+        var visuals = new InstalledXrayReveals(XrayRevealFixtures.EveryDrawable(shape => XrayRevealFixtures.Corners(shape, 0, 0, 0, 0)), overlays);
         var system = new SharedGameState(new SharedRandom());
         var items = new[]
         {

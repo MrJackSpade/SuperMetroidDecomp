@@ -6,15 +6,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// lookup holds the row it starts from within a cycle of 256, so a row past the 256th, or one above the room's top whose
 /// number continued from the bottom of the cycle, names a row counted from the top of the room again. The scan then
 /// counts the blocks it steps through within a cycle of 32768, so one that runs past it continues from the room's first
-/// block. The blocks a lookup finds there are the ones the scan reacts to, reveals, swings against or collides with. The
+/// block. The blocks a lookup finds there are the ones the scan reacts to, swings against or collides with. The
 /// rooms are authored inside both cycles, so they are observed only at a room's edges and by lookups that run past them.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Consulted wherever one of those scans turns a row or column into a block: a Wave shot's horizontal and vertical
-/// reaction scans during the projectile pass, the grapple swing's body probe on every swinging update, the X-ray scope's
-/// reveal and its extension chains on every update the scope is held, and every enemy's horizontal and vertical terrain
-/// move during the enemy pass, with the extension links its blocks lead it through, and every enemy projectile's
+/// reaction scans during the projectile pass, the grapple swing's body probe on every swinging update, and every enemy's
+/// horizontal and vertical terrain move during the enemy pass, with the extension links its blocks lead it through, and every enemy projectile's
 /// horizontal and vertical block scan during the enemy projectile pass (<c>EnemyProjectileBlockScan</c>). A scan starts at
 /// a block named by its
 /// column and row; the column is added to the start of the row as it is, so a column past the room's width runs into the
@@ -24,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Evidence: each of the original routines multiplies the row by the room's width with eight-bit operands, keeping only
 /// the row's and the width's lowest eight bits; the Wave scans (<c>$94:A352</c>, <c>$94:A3E4</c>) take the projectile's
-/// row that way, the X-ray reveal (<c>$91:CC70</c>, <c>$91:CE57</c>) its rows, and the enemy movers
+/// row that way, and the enemy movers
 /// (<c>$A0:C6AD</c>, <c>$A0:C788</c>) and the enemy projectile moves (<c>$86:88B6</c>, <c>$86:897B</c>) the row of the
 /// top edge or of the leading edge. The scans then step their
 /// block index, and the enemies' extension reactions (<c>$A0:C619</c>, <c>$A0:C64F</c>) add their offsets to it, as a
@@ -40,24 +39,9 @@ public static class BlockScanCycle
     /// <summary>The blocks a scan along the room's rows counts before it continues from the room's first block.</summary>
     private const int BlocksAlongRows = 32768;
 
-    /// <summary>The blocks an X-ray reveal's extension lookup counts before it continues from the room's first block.</summary>
-    private const int RevealLookupBlocks = 65536;
-
     /// <summary>The place of <paramref name="blocks"/> within the cycle, 0 through 255.</summary>
     /// <param name="blocks">A row or column number, which may lie outside the cycle or below zero.</param>
     public static int Within(int blocks) => (blocks % Places + Places) % Places;
-
-    /// <summary>
-    /// The block an X-ray reveal's extension lookup reads at <paramref name="block"/>: the row taken within the cycle of
-    /// 256 and the column added to that row's start in the room's reading order (<see cref="RoomReadingOrder"/>), the
-    /// blocks before it counted within a cycle of 65536, as the lookup's behaviour read indexes them with a sixteen-bit
-    /// word (<c>$91:CE5F</c>).
-    /// </summary>
-    /// <param name="block">The column and row the lookup names; the row may lie outside the cycle and the column past the room's width.</param>
-    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
-    /// <returns>The block read, in the room's columns; a row past the room's height is a block beyond its grid.</returns>
-    public static Position16<RoomBlocks> RevealLookupBlock(Position16<RoomBlocks> block, int roomWidth) =>
-        RoomReadingOrder.BlockAt(RoomReadingOrder.PlaceOf(CycleStart(block), roomWidth) % RevealLookupBlocks, roomWidth);
 
     /// <summary>
     /// The block a scan reaches <paramref name="step"/> blocks along the room's rows after <paramref name="start"/>: the

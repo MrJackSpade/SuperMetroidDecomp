@@ -37,7 +37,7 @@ internal static class XrayWarmUpVerification
         // own step on the ninth call whichever of Run held or released it then reads.
         foreach (bool holdingRun in new[] { true, false })
         {
-            SamusState samus = BeginXray();
+            SamusState samus = XrayBeamFixtures.AdmittedStanding();
             AssertEqual(XrayWarmUp.Started, samus.Xray.WarmUp, "X-ray admission starts the warm-up");
             ControllerButton input = holdingRun ? ControllerButton.B : ControllerButton.None;
             for (int update = 1; update <= 8; update++)
@@ -48,7 +48,7 @@ internal static class XrayWarmUpVerification
                 AssertTrue(!step.Completed && samus.Xray.IsActive, $"warm-up update {update} keeps X-ray active");
             }
             samus.Xray.StepBeam(samus, input);
-            AssertEqual(holdingRun ? XrayBeamPhase.Widening : XrayBeamPhase.RestoreFirstHalf, samus.Xray.BeamPhase,
+            AssertEqual(holdingRun ? XrayBeamPhase.Widening : XrayBeamPhase.Closing, samus.Xray.BeamPhase,
                 $"the ninth update runs the beam's first step with Run {(holdingRun ? "held" : "released")}");
         }
 
@@ -56,21 +56,5 @@ internal static class XrayWarmUpVerification
         AssertThrows<InvalidDataException>(() => DebuggerEnumValues.Decode(typeof(XraySuspendedSubsystems), (byte)0x80),
             "undefined flags bits are rejected at the boundary");
         Console.WriteLine("X-ray warm-up: eight updates, blending from the third, the beam's first step on the ninth.");
-    }
-
-    /// <summary>A standing, right-facing Samus whose X-ray has just been admitted.</summary>
-    private static SamusState BeginXray()
-    {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
-            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
-        {
-            Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
-        };
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBegin(samus, previousMovementType: SamusMovementType.Standing,
-            conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "X-ray admitted");
-        return samus;
     }
 }

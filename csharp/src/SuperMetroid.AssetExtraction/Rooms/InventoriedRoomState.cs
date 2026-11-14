@@ -155,10 +155,6 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
         block.Behavior.Spike is not null && EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
 
-    /// <summary>Whether the state's terrain holds a block that collides as another along a row or a column.</summary>
-    internal bool HoldsExtensions => Terrain.Any(block =>
-        block.Collision is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension);
-
     /// <summary>
     /// Whether the state's terrain holds a block whose reaction breaks it up, or a Wave shot's straddled read sets one off:
     /// a shot block a weapon breaks, a bomb block, a crumble block, a Speed Booster block or a block an enemy breaks.

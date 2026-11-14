@@ -1034,8 +1034,6 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyShotExtensionResolution),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyWaveScanReadBlocks),
             SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyWaveScanReadBlocks),
-        new(nameof(SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyXrayRevealLookupBlocks),
-            SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyXrayRevealLookupBlocks),
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyRoomReadingOrder),
             SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyRoomReadingOrder),
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
@@ -1091,6 +1089,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayClosingVerification.VerifyXrayClosing),
+            SuperMetroid.Verification.Samus.Abilities.XrayClosingVerification.VerifyXrayClosing),
         // X-ray's drained refusal against the original's test (#1692).
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
             SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),

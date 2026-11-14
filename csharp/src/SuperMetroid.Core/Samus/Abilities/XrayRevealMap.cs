@@ -19,8 +19,8 @@ public static class XrayRevealMap
     /// <param name="level">The room whose blocks the reveal resolves and whose foreground plane the base copy reads.</param>
     /// <param name="foregroundPosition">
     /// Camera position, which selects the revealed blocks. The base copy reads the foreground plane's block at each revealed
-    /// block (#1351, #1555), from the block holding the camera's left and top edges onwards; a block beyond the room shows
-    /// nothing.
+    /// block (#1351, #1555), from the block holding the camera's left and top edges onwards; each revealed block that lies
+    /// in the room then shows its own reveal (#1792), and a block beyond the room shows nothing.
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">The installed reveal blocks.</param>
@@ -36,14 +36,11 @@ public static class XrayRevealMap
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         for (int col = 0; col < XrayRevealArea.Columns; col++)
             Place(col, row, Copied(col, row));
-        // The reveal's lookups take the camera's row within the scan cycle and its column as it is, and reach each revealed
-        // block in the room's reading order, so a column past the room's width runs into the following rows.
-        var firstBlock = Position16<RoomBlocks>.Of(cameraBlock.X, BlockScanCycle.Within(cameraBlock.Y));
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
-            // The prior column may own a 2-wide reveal crossing the left edge. Its
-            // right half is copied before this row's own reveals overwrite it; the room's first block has none.
-            if (RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(-1, row), level.Size.X) is { } before &&
+            // A wide or square reveal in the room's column just before the revealed area shows its right half in the
+            // first column. Its halves are copied before this row's own reveals overwrite them.
+            if (RoomBlock(level, cameraBlock.X - 1, cameraBlock.Y + row) is { } before &&
                 Lookup(before)?.Blocks is { } predecessor)
             {
                 if (predecessor.BottomRight is { } bottomRight)
@@ -53,9 +50,9 @@ public static class XrayRevealMap
             }
             for (int col = 0; col < XrayRevealArea.Columns; col++)
             {
-                Position16<RoomBlocks> block = RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(col, row), level.Size.X) ??
-                    throw new InvalidOperationException("A revealed block lies before the room's first block.");
-                if (Lookup(block) is not { } reveal) continue;
+                if (RoomBlock(level, cameraBlock.X + col, cameraBlock.Y + row) is not { } block ||
+                    Lookup(block) is not { } reveal)
+                    continue;
                 if (reveal.Blocks is not { } shown)
                 {
                     // An extension shows the block its chain reaches.
@@ -84,11 +81,9 @@ public static class XrayRevealMap
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
         {
-            int x = CoordinateAxis.Wrap((cameraBlock.X + col) * RoomLevelPlane.BlockPixels);
-            int y = CoordinateAxis.Wrap((cameraBlock.Y + row) * RoomLevelPlane.BlockPixels);
-            if (x >= foreground.Size.X * RoomLevelPlane.BlockPixels || y >= foreground.Size.Y * RoomLevelPlane.BlockPixels)
+            if (RoomBlock(level, cameraBlock.X + col, cameraBlock.Y + row) is not { } block)
                 return null;
-            RoomBlockCell cell = foreground.Cells[y / RoomLevelPlane.BlockPixels * foreground.Size.X + x / RoomLevelPlane.BlockPixels];
+            RoomBlockCell cell = foreground.Cells[foreground.Size.RowMajorIndex(block)];
             return new RevealedBlock(cell.Picture, Mirrored(cell.Flips));
         }
         // A reveal block is placed as it is defined; its number is validated as a room block.
@@ -101,6 +96,16 @@ public static class XrayRevealMap
                 result[row * XrayRevealArea.Columns + col] = block;
         }
     }
+
+    /// <summary>
+    /// The room's block at <paramref name="column"/> and <paramref name="row"/>, or null when that place lies beyond the
+    /// room: the reveal shows only the room's own blocks, so nothing it looks up runs on into another row or past an edge.
+    /// </summary>
+    /// <param name="level">The room.</param>
+    /// <param name="column">The block's column, which may lie before the room's first or past its last.</param>
+    /// <param name="row">The block's row, which may lie above the room's top or below its bottom.</param>
+    internal static Position16<RoomBlocks>? RoomBlock(RoomLevelData level, int column, int row) =>
+        column >= 0 && row >= 0 && column < level.Size.X && row < level.Size.Y ? Position16<RoomBlocks>.Of(column, row) : null;
 
     /// <summary>
     /// The foreground pixel the revealed area's first block lies on: the top-left corner of the room block the camera lies

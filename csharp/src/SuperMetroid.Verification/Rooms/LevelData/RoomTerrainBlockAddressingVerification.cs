@@ -190,29 +190,6 @@ internal static class RoomTerrainBlockAddressingVerification
         Console.WriteLine("Wave scan read blocks: every read starts in the block at its place along the room's rows.");
     }
 
-    /// <summary>
-    /// Compares the block an X-ray reveal's extension lookup reads with the original's place, for every row a lookup can
-    /// name and columns at, before and past the room's width up to the farthest a backward-exit check lets it reach: the
-    /// row's low eight bits times the width plus the column, counted within 65536 blocks.
-    /// </summary>
-    internal static void VerifyXrayRevealLookupBlocks()
-    {
-        foreach (int width in new[] { 1, 2, 3, 16, 17, 200, 255 })
-        {
-            int[] columns = [0, 1, width - 1, width, width + 1, 255, 4095, 32767];
-            for (int row = 0; row <= ushort.MaxValue; row++)
-            foreach (int column in columns)
-            {
-                Position16<RoomBlocks> expected = BlockAtPlace(((row & 0xff) * width + column) % 65536, width);
-                Position16<RoomBlocks> block = BlockScanCycle.RevealLookupBlock(Position16<RoomBlocks>.Of(column, row), width);
-                if (block != expected)
-                    AssertEqual(expected, block, $"the X-ray extension lookup at ({column},{row}) in a room {width} blocks wide");
-            }
-        }
-
-        Console.WriteLine("X-ray reveal lookup blocks: every lookup reads the block at the original's place.");
-    }
-
     /// <summary>Runs a one-block shot's horizontal or vertical scan over <paramref name="block"/> and reports whether it stopped.</summary>
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
@@ -374,7 +351,6 @@ internal static class RoomTerrainBlockAddressingVerification
         VerifySamusExtensionResolution();
         VerifyShotExtensionResolution();
         VerifyWaveScanReadBlocks();
-        VerifyXrayRevealLookupBlocks();
         return 0;
     }
 }

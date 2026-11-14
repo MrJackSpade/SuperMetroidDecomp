@@ -48,7 +48,7 @@ internal static class FileSelectSheetComposer
             string name = FileSelectParts.HelmetSpriteName(frame);
             frames.Add(new(name, source.helmetSprites[frame].ToFrame(name, 0), page, palette));
         }
-        for (int shape = 0; shape < FileCopyArrowPartDefinitions.ShapeCount; shape++)
+        foreach (FileCopyArrowShape shape in FileCopyArrowDefinitions.Shapes)
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.

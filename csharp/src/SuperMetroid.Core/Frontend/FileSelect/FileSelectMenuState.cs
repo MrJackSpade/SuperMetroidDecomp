@@ -44,7 +44,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Installed file-select artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
     /// <summary>Decoded slots whose null entries failed or lacked save checksums.</summary>
-    private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
+    private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot?> saveSlots = [];
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile = new();
     /// <summary>Updates remaining in the selected helmet's current turn frame.</summary>
@@ -58,7 +58,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
-    internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], 0, 0);
+    internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], SaveSlot.A, SaveSlot.A);
 
     /// <summary>Performs menu indices zero through two, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
@@ -72,9 +72,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         BindSpriteSheets(spriteSheets);
 
         this.saves = Ensure.NotNull(saves);
-        for (int slot = 0; slot < saveSlots.Length; slot++)
-            saveSlots[slot] = saves.ReadSlot(slot);
-        SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
+        foreach (SaveSlot slot in SaveSlots.All)
+            saveSlots[slot] = saves.ReadSlot(SaveSlots.StoreNumber(slot));
+        SelectedItem = FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(saves.ReadSelectedSlot()));
 
         ShowMainPage();
 
@@ -95,11 +95,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Selected save slot, restricted to A-C once a game is requested; a command row reads as slot C.</summary>
     public int SelectedSaveSlot =>
-        FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) ? slot : FileSelectLayout.SaveSlotCount - 1;
+        SaveSlots.StoreNumber(FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot slot) ? slot : SaveSlot.C);
 
     /// <summary>Whether the selected A-C slot passed either checksum directory.</summary>
     public bool SelectedSlotContainsSave =>
-        FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) && saveSlots[slot] is not null;
+        FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot slot) && saveSlots[slot] is not null;
 
     /// <summary>True when Exit/B completes the fade back toward reset.</summary>
     public bool TitleRequested { get; private set; }
@@ -238,7 +238,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         presentation.DrawBorder(sprites, sheet, borderName);
         if (ShouldDrawSelectionMissile)
             FileSelectPresentation.DrawCursor(sprites, sheet, missile.Frame, GetSelectionMissilePosition(presentation));
-        for (int slot = 0; mainPage && slot < 3; slot++)
+        // The helmets stand beside the slots on the main page only.
+        IReadOnlyList<SaveSlot> helmetSlots = mainPage ? SaveSlots.All : [];
+        foreach (SaveSlot slot in helmetSlots)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
             // still drawn. Resetting to the first frame during the fade produces
@@ -247,11 +249,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? HelmetAnimationFrame
                 : 0;
-            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
+            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), SaveSlots.StoreNumber(slot));
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
-            (int shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
+            (FileCopyArrowShape shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
                 new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y),
                 shading: PictureShading.Shaded(FileCopyArrowShades.Rotation(CopyArrowRotation)));
@@ -300,9 +302,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
     private FileSelectItem submenuSelection;
     /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
-    private int operationSourceSlot;
+    private SaveSlot operationSourceSlot;
     /// <summary>Copy target retained through confirmation and completion pages.</summary>
-    private int copyTargetSlot;
+    private SaveSlot copyTargetSlot;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
     /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
@@ -314,7 +316,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal int CopyArrowRotation { get; private set; }
 
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
-    private bool HasAnySave => saveSlots.Any(slot => slot is not null);
+    private bool HasAnySave => saveSlots.Values.Any(slot => slot is not null);
 
     /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
     private bool IsMainPagePhase => !showDataManagementScreen;
@@ -424,8 +426,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void InitializeDataManagementScreen()
     {
         submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
-        operationSourceSlot = 0;
-        copyTargetSlot = 0;
+        operationSourceSlot = SaveSlot.A;
+        copyTargetSlot = SaveSlot.A;
         confirmationSelection = YesNoChoice.Yes;
         if (pendingDataMode == FileSelectDataMode.Copy)
         {
@@ -465,7 +467,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 if (pressed != ControllerButton.None)
                 {
                     QueueCursorSound();
-                    SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
+                    SelectedItem = FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(saves.ReadSelectedSlot()));
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
@@ -490,11 +492,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Chooses an occupied source or clear slot, then opens destination or confirmation.</summary>
     private void StepSlotSelection(ControllerButton pressed, FileSelectDataMode mode)
     {
-        int occupiedSlots = 0;
-        for (int slot = 0; slot < FileSelectLayout.SaveSlotCount; slot++)
-            if (saveSlots[slot] is not null) occupiedSlots |= 1 << slot;
         MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
-            submenuSelection, occupiedSlots, pressed));
+            submenuSelection, SaveSlots.All.Where(slot => saveSlots[slot] is not null).ToHashSet(), pressed));
 
         if ((pressed & ControllerButton.B) != ControllerButton.None ||
             ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
@@ -507,11 +506,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             return;
 
         QueueCursorSound();
-        operationSourceSlot = FileSelectItemRows.SaveSlot(submenuSelection);
+        operationSourceSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
         if (mode == FileSelectDataMode.Copy)
         {
-            submenuSelection = FileSelectItemRows.ForSaveSlot(Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
-                .First(slot => slot != operationSourceSlot));
+            submenuSelection = FileSelectItemRows.ForSaveSlot(SaveSlots.All.First(slot => slot != operationSourceSlot));
             ShowPage(FileSelectPage.CopyDestination);
             Phase = FileSelectPhase.CopySelectDestination;
         }
@@ -544,7 +542,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        copyTargetSlot = FileSelectItemRows.SaveSlot(submenuSelection);
+        copyTargetSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
         confirmationSelection = YesNoChoice.Yes;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
         ShowPage(FileSelectPage.CopyConfirm);
@@ -587,15 +585,15 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (mode == FileSelectDataMode.Copy)
         {
-            saves.CopySlot(operationSourceSlot, copyTargetSlot);
-            saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
+            saves.CopySlot(SaveSlots.StoreNumber(operationSourceSlot), SaveSlots.StoreNumber(copyTargetSlot));
+            saveSlots[copyTargetSlot] = saves.ReadSlot(SaveSlots.StoreNumber(copyTargetSlot))
                 ?? throw new InvalidDataException("Copied save slot failed its copied checksums.");
             ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
         }
         else
         {
-            saves.ClearSlot(operationSourceSlot);
+            saves.ClearSlot(SaveSlots.StoreNumber(operationSourceSlot));
             ClearedSaveThisFrame = true;
             saveSlots[operationSourceSlot] = null;
             ShowPage(FileSelectPage.ClearCompleted);
@@ -630,11 +628,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Finds the initial data-management selection and rejects entry with no occupied slot.</summary>
-    private int FindFirstNonemptySlot()
+    private SaveSlot FindFirstNonemptySlot()
     {
-        int slot = Array.FindIndex(saveSlots, save => save is not null);
-        return slot >= 0 ? slot : throw new InvalidOperationException(
-            "Data-management screen requires at least one nonempty save slot.");
+        foreach (SaveSlot slot in SaveSlots.All)
+        {
+            if (saveSlots[slot] is not null)
+                return slot;
+        }
+        throw new InvalidOperationException("Data-management screen requires at least one nonempty save slot.");
     }
 
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
@@ -673,5 +674,5 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     private void RefreshShownPage() =>
         ShownPage = new ShownFileSelectPage(selectedPage,
-            [.. saveSlots.Select(slot => slot is null ? null : ShownFileSelectSave.Of(slot))], operationSourceSlot, copyTargetSlot);
+            [.. SaveSlots.All.Select(slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null)], operationSourceSlot, copyTargetSlot);
 }

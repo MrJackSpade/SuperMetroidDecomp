@@ -15,6 +15,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Saves;
@@ -453,12 +454,12 @@ internal static class SaveSchemaTranslationVerification
         {
             MapPresentation = RetailPresentationFixture(),
         });
-        // $80:8261 fixes the demo-set count at boot, so each marker state boots a session.
+        // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(2);
         ram.SetGameCompleted(false);
-        AssertEqual(3, new SuperMetroidGame(ram).Session.AvailableDemoSetCount(), "incomplete save exposes three demo sets");
+        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
         ram.SetGameCompleted(true);
-        AssertEqual(4, new SuperMetroidGame(ram).Session.AvailableDemoSetCount(), "completed save exposes fourth demo set");
+        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

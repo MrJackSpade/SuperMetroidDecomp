@@ -35,9 +35,9 @@ public static class CreditsPresentationExtractor
         {
             CreditsLineDefinition definition = CreditsRoles.Lines[index];
             int blankRows = CreditsPresentation.RowsOf(definition.SpaceBefore);
-            RequireBlankRows(nativeRows, row, blankRows, CreditsRoleKeys.Of(index));
+            RequireBlankRows(nativeRows, row, blankRows, definition.Role);
             row += blankRows;
-            lines[index] = DecodeLine(nativeRows, ref row, definition, CreditsRoleKeys.Of(index));
+            lines[index] = DecodeLine(nativeRows, ref row, definition, definition.Role);
         }
         int trailingRows = CreditsPresentation.RowsOf(CreditsRollDefinitions.TrailingSpace);
         RequireBlankRows(nativeRows, row, trailingRows, "trailing credits gap");

@@ -213,7 +213,7 @@ internal static class GameSaveJsonVerification
             SaveSlotStore decoded = SaveRamCodec.Decode(image, presentation);
 
             AssertEqual(expected, decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
-            AssertEqual(FileSelectItemRows.ForSaveSlot(expected), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
+            AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(expected)), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
                 $"{label}: file-select initial cursor matches $81:9ED8");
             AssertEqual(expected, GameSaveJsonCodec.Capture(decoded).SelectedSlot,
                 $"{label}: JSON capture keeps the cartridge-selected slot");

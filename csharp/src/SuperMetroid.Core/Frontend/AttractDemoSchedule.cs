@@ -3,16 +3,19 @@ using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Where the attract demos are: the set and the scene the title plays next, the loading and playback countdowns of the
-/// scene running, and how it ended.
+/// Where the attract demos are: the set the title plays and how far into it the next demonstration is, the loading and
+/// playback countdowns of the scene running, and how it ended.
 /// </summary>
 internal sealed class AttractDemoSchedule
 {
     /// <summary>The demo set the title plays.</summary>
-    internal int Set { get; private set; }
+    internal AttractDemoSet Set { get; private set; } = StockAttractDemoScenes.FirstSet;
 
-    /// <summary>The next scene within <see cref="Set"/>.</summary>
-    internal int Scene { get; set; }
+    /// <summary>
+    /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
+    /// one plays from this place in the set's list.
+    /// </summary>
+    internal int ScenesBegun { get; set; }
 
     /// <summary>The scripted input frames left in the scene playing.</summary>
     internal int FramesRemaining { get; set; }
@@ -38,27 +41,31 @@ internal sealed class AttractDemoSchedule
     /// <summary>A soft reset returns to the first scene of the first set.</summary>
     internal void Reset()
     {
-        Set = 0;
-        Scene = 0;
+        Set = StockAttractDemoScenes.FirstSet;
+        ScenesBegun = 0;
         loadFramesRemaining = null;
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
-        Scene = 0;
+        ScenesBegun = 0;
         loadFramesRemaining = null;
     }
 
-    /// <summary>The scene the next demo plays, or null at the end of the set.</summary>
-    internal AttractDemoScene? NextScene => StockAttractDemoScenes.Get(Set, Scene);
+    /// <summary>The scene the next demo plays, or null once every demonstration of the set has begun.</summary>
+    /// <exception cref="InvalidOperationException">More demonstrations began than the set holds.</exception>
+    internal AttractDemoScene? NextScene =>
+        ScenesBegun < Set.Scenes.Count ? Set.Scenes[ScenesBegun]
+        : ScenesBegun == Set.Scenes.Count ? null
+        : throw new InvalidOperationException($"{ScenesBegun} demonstrations began in {Set}, which holds {Set.Scenes.Count}.");
 
     /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-loading waits ahead.</summary>
     internal void Begin(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
         FramesRemaining = scene.Duration;
-        Scene++;
+        ScenesBegun++;
         HoldFramesRemaining = 0;
         Cancelled = false;
         loadFramesRemaining = AttractDemoDefinitions.EnemyGraphicsLoadFrames;
@@ -87,21 +94,35 @@ internal sealed class AttractDemoSchedule
     internal void Finish(bool cancelled) => Cancelled = cancelled;
 
     /// <summary>
-    /// After a scene: an uncancelled demo continues with the set's next scene, and once the set is exhausted the next of
-    /// <paramref name="setCount"/> sets starts from its first scene.
+    /// After a scene: an uncancelled demo continues with the set's next scene, and once the set is exhausted the set that
+    /// follows it in <paramref name="playlist"/>, which starts over after its last, plays from its first scene.
     /// </summary>
-    internal void AdvanceAfterScene(int setCount)
+    /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold the set that played.</exception>
+    internal void AdvanceAfterScene(IReadOnlyList<AttractDemoSet> playlist)
     {
+        Ensure.NotNull(playlist);
         HasNextScene = false;
         if (Cancelled)
             return;
         HasNextScene = NextScene is not null;
         if (HasNextScene)
             return;
-        Set = (Set + 1) % setCount;
-        Scene = 0;
+        Set = SetAfter(playlist, Set);
+        ScenesBegun = 0;
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
     internal void LoadNextScene() => loadFramesRemaining = null;
+
+    /// <summary>The set that follows <paramref name="played"/> in <paramref name="playlist"/>, which starts over after its last.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold <paramref name="played"/>.</exception>
+    private static AttractDemoSet SetAfter(IReadOnlyList<AttractDemoSet> playlist, AttractDemoSet played)
+    {
+        for (int place = 0; place < playlist.Count; place++)
+        {
+            if (ReferenceEquals(playlist[place], played))
+                return playlist[(place + 1) % playlist.Count];
+        }
+        throw new InvalidOperationException($"The attract playlist does not hold {played}.");
+    }
 }

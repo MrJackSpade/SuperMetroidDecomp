@@ -9,8 +9,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
-/// <summary>Checks the options cursor's native phase selection and visible OAM transitions.</summary>
+/// <summary>Checks the options cursor's native phase selection, and that transitions draw no cursor (#1775).</summary>
 internal static class GameOptionsCursorPhasesVerification
 {
     /// <summary>Compares all thirteen phase entries and exercises dissolve and intro fade transitions.</summary>
@@ -66,7 +69,7 @@ internal static class GameOptionsCursorPhasesVerification
         intro.Step(ControllerButton.A);
         AssertEqual(GameOptionsPhase.FadeOutToIntro, intro.Phase, "enter intro fade-out");
         AssertCursorHidden(intro, "intro fade-out");
-        Console.WriteLine("Options cursor: all 13 native entries, managed phase bounds and real dissolve/intro OAM transitions pass.");
+        Console.WriteLine("Options cursor: all 13 native entries, managed phase bounds, and no cursor through the dissolves and intro fade pass.");
 
         GameOptionsMenuState NewMenu()
         {
@@ -77,22 +80,26 @@ internal static class GameOptionsCursorPhasesVerification
             return menu;
         }
 
-        static void AssertCursorVisible(GameOptionsMenuState menu, string context) =>
-            AssertTrue(LastSpriteX(menu.CaptureRenderSnapshot()) < 256, context);
+        void AssertCursorVisible(GameOptionsMenuState menu, string context) =>
+            AssertTrue(DrawsCursor(menu, installed), context);
 
-        static void AssertCursorHidden(GameOptionsMenuState menu, string context) =>
-            AssertTrue(LastSpriteX(menu.CaptureRenderSnapshot()) >= 256, context);
+        void AssertCursorHidden(GameOptionsMenuState menu, string context) =>
+            AssertTrue(!DrawsCursor(menu, installed), context);
 
     }
 
     /// <summary>
-    /// The final sprite part's nine-bit OAM X, because the cursor follows the heading; native X=$0180 hides it.
+    /// Whether <paramref name="menu"/> draws its missile cursor this frame: one of the options sheet's cursor frames,
+    /// installed from <paramref name="presentation"/>, among the menu's sprite draws. A transition draws none (#1775), where
+    /// the cartridge parks the cursor off screen.
     /// </summary>
-    internal static int LastSpriteX(LayeredScene frame)
+    internal static bool DrawsCursor(GameOptionsMenuState menu, AreaMapPresentation presentation)
     {
-        PlacedSpritePart[] parts = frame.SpriteParts();
-        AssertTrue(parts.Length > 0, "options has a cursor sprite");
-        return parts[^1].Part.Position.X & 511;
+        menu.CaptureRenderSnapshot();
+        SpriteSheet sheet = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.GameOptions);
+        SpriteSheetFrame[] cursorFrames = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
+            .Select(frame => sheet.Frame(GameOptionsNames.CursorSpriteName(frame)))];
+        return menu.screen.Objects.Draws.OfType<ImageSpriteDraw>().Any(draw => cursorFrames.Contains(draw.Image));
     }
 
     /// <summary>Runs the native cursor-phase and rendered OAM check.</summary>

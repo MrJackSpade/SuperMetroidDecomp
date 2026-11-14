@@ -240,7 +240,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             "Options cursor requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
-        GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, CursorPosition());
+        // Transitions show no cursor: only a page phase places it, at its selected row.
+        if (GameOptionsCursorPolicy.Select(Phase) is { } cursorPage)
+            GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, content.GameOptions.CursorPosition(cursorPage, SelectedItem));
         sprites.FinishFrame();
     }
 
@@ -442,24 +444,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             _ => throw new InvalidOperationException($"Unknown options page {page}."),
         };
         ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
-    }
-
-    /// <summary>Uses the page cursor layout or the hidden anchor during transitions.</summary>
-    private Position16<SpritePixels> CursorPosition()
-    {
-        GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
-        // Keep the cursor actor in the sprite list at the installed hidden anchor during transitions.
-        if (cursorPage is null)
-        {
-            Position16<SpritePixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
-                "Options cursor requires installed presentation assets."))
-                .GameOptions.HiddenCursor;
-            return new Position16<SpritePixels>(checked(hidden.X), checked(hidden.Y));
-        }
-        Position16<SpritePixels> point = (mapPresentation ?? throw new InvalidOperationException(
-            "Options cursor requires installed presentation assets."))
-            .GameOptions.CursorPosition(cursorPage.Value, SelectedItem);
-        return new Position16<SpritePixels>(checked(point.X), checked(point.Y));
     }
 
     /// <summary>Queues the cursor sound within the menu sound limit.</summary>

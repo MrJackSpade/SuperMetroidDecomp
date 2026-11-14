@@ -16,10 +16,6 @@ public static class GameOptionsPageDefinitions
     public const int MenuTilemapHeight = 32;
     /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
     public const int PageCellCount = MenuTilemapWidth * MenuTilemapHeight;
-    /// <summary>The cursor's column while a page phase shows no cursor (including scrolling): off screen.</summary>
-    public const int HiddenCursorX = 384;
-    /// <summary>The hidden cursor's row.</summary>
-    public const int HiddenCursorY = 16;
     /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
     public const int CharacterRows = 32;
     /// <summary>Width in tile cells of a controller-button label patch: three.</summary>

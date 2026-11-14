@@ -3,48 +3,90 @@ using static SuperMetroid.Core.Frontend.Ending.Artwork.CreditsRollDefinitions;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The credits' 67 staff roles in roll order (<see cref="CreditsRollDefinitions"/>), each with its glyph style and
-/// the blank space before it.
+/// The credits' 67 staff lines in roll order (<see cref="CreditsRollDefinitions"/>): each line's role, which keys its
+/// editable text and names its picture, its glyph style and the blank space before it. The wording remains editable
+/// content.
 /// </summary>
 public static class CreditsRoles
 {
-    /// <summary>Fixed role order without duplicating the 67 role descriptors in storage.</summary>
-    private static readonly CreditRoles Roles = new();
-    /// <summary>Calculated read-only view of all 67 required credit roles in roll order, with fixed heading or name styles and the blank space before each; wording remains editable content.</summary>
-    public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
+    /// <summary>Every staff line in roll order: section headings in the small glyphs, names in the large.</summary>
+    public static IReadOnlyList<CreditsLineDefinition> Lines { get; } =
+    [
+        new("staff-heading", CreditsLineStyle.Small, InitialSpace),
+        Heading("producer-heading"),
+        Name("producer-name"),
+        Heading("director-heading"),
+        Name("director-name"),
+        Heading("background-designers-heading"),
+        Name("background-designer-1"),
+        Name("background-designer-2"),
+        Name("background-designer-3"),
+        Heading("object-designers-heading"),
+        Name("object-designer-1"),
+        Name("object-designer-2"),
+        Heading("samus-original-designer-heading"),
+        Name("samus-original-designer-name"),
+        Heading("samus-designer-heading"),
+        Name("samus-designer-name"),
+        Heading("sound-program-heading"),
+        PairedHeading("sound-effects-heading"),
+        Name("sound-programmer-name"),
+        Heading("music-composers-heading"),
+        Name("music-composer-1"),
+        Name("music-composer-2"),
+        Heading("program-director-heading"),
+        Name("program-director-name"),
+        Heading("system-coordinator-heading"),
+        Name("system-coordinator-name"),
+        Heading("system-programmer-heading"),
+        Name("system-programmer-name"),
+        Heading("samus-programmer-heading"),
+        Name("samus-programmer-name"),
+        Heading("event-programmer-heading"),
+        Name("event-programmer-name"),
+        Heading("enemy-programmer-heading"),
+        Name("enemy-programmer-name"),
+        Heading("map-programmer-heading"),
+        Name("map-programmer-name"),
+        Heading("assistant-programmer-heading"),
+        Name("assistant-programmer-name"),
+        Heading("coordinators-heading"),
+        Name("coordinator-1"),
+        Name("coordinator-2"),
+        Heading("printed-art-work-heading"),
+        Name("printed-art-work-1"),
+        Name("printed-art-work-2"),
+        Name("printed-art-work-3"),
+        Name("printed-art-work-4"),
+        Name("printed-art-work-5"),
+        Name("printed-art-work-6"),
+        Heading("special-thanks-heading"),
+        Name("special-thanks-01"),
+        Name("special-thanks-02"),
+        Name("special-thanks-03"),
+        Name("special-thanks-04"),
+        Name("special-thanks-05"),
+        Name("special-thanks-06"),
+        Name("special-thanks-07"),
+        Name("special-thanks-08"),
+        Name("special-thanks-09"),
+        Name("special-thanks-10"),
+        Name("special-thanks-11"),
+        Name("special-thanks-12"),
+        Name("special-thanks-13"),
+        Name("special-thanks-14"),
+        Name("special-thanks-15"),
+        Name("special-thanks-r-and-d"),
+        Heading("general-manager-heading"),
+        Name("general-manager-name"),
+    ];
 
-    /// <summary>Calculates glyph style and spacing from line order.</summary>
-    private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
-    {
-        /// <summary>The 67 staff roles present in the retail credits stream.</summary>
-        public int Count => 67;
-        /// <summary>Assigns headings a small font and section spacing, except for the paired sound-effects heading.</summary>
-        public CreditsLineDefinition this[int index]
-        {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                bool heading = IsHeading(index);
-                int space = index == 0 ? InitialSpace : index == 17 ? 0
-                    : heading ? SectionSpace : InterLineSpace;
-                return new(heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, space);
-            }
-        }
-        /// <summary>Yields all fixed role descriptors in displayed order.</summary>
-        public IEnumerator<CreditsLineDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Adapts the ordered role sequence for non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>A section's heading line <paramref name="role"/>, in the small glyphs, a section's space below the line before it.</summary>
+    private static CreditsLineDefinition Heading(string role) => new(role, CreditsLineStyle.Small, SectionSpace);
 
-    /// <summary>
-    /// Whether line <paramref name="index"/> is a section heading: the staff, producer, director, designer, sound, music,
-    /// coordinator, printed-art-work, special-thanks and general-manager headings, and the heading line of each of the
-    /// eight programming roles, which alternate heading and name.
-    /// </summary>
-    private static bool IsHeading(int index) =>
-        index is 0 or 1 or 3 or 5 or 9 or 12 or 14 or 16 or 17 or 19 or 38 or 41 or 48 or 65
-        || (index is >= 22 and <= 37 && index % 2 == 0);
+    /// <summary>A heading line <paramref name="role"/> paired with the heading before it, in the small glyphs, directly beneath it.</summary>
+    private static CreditsLineDefinition PairedHeading(string role) => new(role, CreditsLineStyle.Small, SpaceBefore: 0);
+
+    /// <summary>A name line <paramref name="role"/>, in the large glyphs, a line's space below the line before it.</summary>
+    private static CreditsLineDefinition Name(string role) => new(role, CreditsLineStyle.Large, InterLineSpace);
 }

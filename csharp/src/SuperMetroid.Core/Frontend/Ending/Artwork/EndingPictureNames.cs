@@ -30,9 +30,8 @@ public static class EndingPictureNames
     /// <summary>The explosion's map <paramref name="map"/>, a whole screen.</summary>
     public static string ExplosionMap(EndingObjectFragmentId map) => "ExplosionMap" + map;
 
-    /// <summary>The credits roll's line <paramref name="line"/>, the whole line however high.</summary>
-    public static string CreditsLine(int line) =>
-        "CreditsLine" + line.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
+    /// <summary>The credits roll's line of <paramref name="role"/>, the whole line however high.</summary>
+    public static string CreditsLine(string role) => "CreditsLine." + role;
 
     /// <summary>The letter <paramref name="character"/> of the typed text style <paramref name="style"/>.</summary>
     public static string Glyph(EndingTextStyle style, char character) => style + "Glyph" + character;

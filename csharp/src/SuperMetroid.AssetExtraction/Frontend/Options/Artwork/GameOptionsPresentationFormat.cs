@@ -7,8 +7,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// <summary>File identity, schema names and page geometry of the installed <c>options-menu.json</c>.</summary>
 public static class GameOptionsPresentationFormat
 {
-    /// <summary>Supported options-menu presentation JSON schema version.</summary>
-    public const int Version = 1;
+    /// <summary>Supported options-menu presentation JSON schema version: 2 holds no hidden cursor anchor (#1775).</summary>
+    public const int Version = 2;
     /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
     /// <summary>Import-data filename of the extracted options document: its pages, labels, compositions and layout (#1638).</summary>

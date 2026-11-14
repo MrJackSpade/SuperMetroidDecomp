@@ -22,12 +22,9 @@ public sealed class GameOptionsPresentation
         Ensure.NotNull(placements);
         headingAnchors = placements.HeadingAnchors.ToDictionary(pair => pair.Key, pair => pair.Value);
         cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => (Position16<SpritePixels>[])[.. pair.Value]);
-        HiddenCursor = placements.HiddenCursor;
         CursorFrameDuration = placements.CursorFrameDuration;
     }
 
-    /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor stays among the drawn sprites.</summary>
-    public Position16<SpritePixels> HiddenCursor { get; }
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 

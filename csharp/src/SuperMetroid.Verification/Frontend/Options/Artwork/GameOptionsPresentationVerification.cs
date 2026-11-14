@@ -6,6 +6,8 @@ using static SuperMetroid.Verification.Frontend.Options.GameOptionsCursorPhasesV
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
+using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
@@ -87,10 +89,10 @@ internal static class GameOptionsPresentationVerification
                 $"installed options selection matches cartridge frame {comparedFrames}");
             if (native.Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn)
             {
-                AssertTrue(LastSpriteX(native.CaptureRenderSnapshot()) >= 256,
-                    $"ROM options hides cursor in {native.Phase}");
-                AssertTrue(LastSpriteX(installed.CaptureRenderSnapshot()) >= 256,
-                    $"editable options hides cursor in {installed.Phase}");
+                AssertTrue(!DrawsCursor(native, original),
+                    $"ROM options draws no cursor in {native.Phase}");
+                AssertTrue(!DrawsCursor(installed, original),
+                    $"editable options draws no cursor in {installed.Phase}");
             }
             AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 $"installed options frame {comparedFrames} matches cartridge pixels");
@@ -104,5 +106,14 @@ internal static class GameOptionsPresentationVerification
                 $"installed options audio matches cartridge frame {comparedFrames}");
             comparedFrames++;
         }
+    }
+
+    /// <summary>Runs the options presentation check against the retail cartridge and the installed menus, in a run of its own.</summary>
+    [VerificationCommand("--game-options-presentation")]
+    internal static int GameOptionsPresentationCommand()
+    {
+        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), InstalledFixtures.Maps));
+        return 0;
     }
 }

@@ -11,7 +11,7 @@ public static class DoorDefinitions
     internal static readonly DoorDefinition[] Definitions =
     [
         Door(nameof(CrateriaDoorDefinitions.LandingSiteLandingCutscene), RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(DemoSet3024), RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(LandingSiteDemoEntry), RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(CrateriaDoorDefinitions.LandingSite0), RoomDefinitions.Parlor, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(CrateriaDoorDefinitions.LandingSite1), RoomDefinitions.CrateriaTube, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(CrateriaDoorDefinitions.LandingSite2), RoomDefinitions.GauntletEntrance, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 6), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
@@ -619,8 +619,8 @@ public static class DoorDefinitions
         Position16<RoomBlocks> roomObjectBlock, Position16<RoomScreens> destinationScreen, DoorSamusSpeed samusSpeed,
         DoorSetup setup) =>
         new(name, destination, orientation, roomObjectBlock, destinationScreen, samusSpeed, setup);
-    /// <summary>The door into the Landing Site room that demo set 3 uses for its demos 0, 2 and 4.</summary>
-    public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
+    /// <summary>The Landing Site's demo entry: the door no room leads through, by which the completion demo set's Gauntlet entrance, infinite bomb jump and crystal flash demonstrations enter the Landing Site.</summary>
+    public static DoorDefinition LandingSiteDemoEntry { get; } = Find(nameof(LandingSiteDemoEntry));
     /// <summary>An unused third door of the West Sand Hall room.</summary>
     public static DoorDefinition WestSandHallUnlistedThirdDoor { get; } = Find(nameof(WestSandHallUnlistedThirdDoor));
     /// <summary>An unused third door of the East Sand Hall room.</summary>

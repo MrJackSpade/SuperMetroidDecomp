@@ -347,17 +347,17 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
             babyTurtleRecord.Action = words.A == 0 ? null : MamaTurtlesNativeWords.BabyTurtleActions.Decode(words.A, "recorded BabyTurtleAction");
-            // Every Baby Turtle's parent is the room's Mama Turtle, the first enemy her room lists.
-            if (SlotIndex(words.B, "Baby Turtle parent offset") != 0)
-                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name the first enemy, where Mama Turtle is placed.");
+            // Every Baby Turtle's parent is a Mama Turtle, who links her babies when she is placed.
+            if (enemies.SlotTable.Slots[SlotIndex(words.B, "Baby Turtle parent offset")].DefinitionId != EnemyDefinitionId.MamaTurtle)
+                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name a Mama Turtle.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
             babyTurtleRecord.Velocity = new(unchecked((short)words.E), babyTurtleRecord.Velocity.Y);
         }
         if (slot.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
         {
             // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth.
-            owtchRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            owtchRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            owtchRecord.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A),
+                SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C), "Owtch speed");
             owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
             owtchRecord.BurialDepth = words.F;
         }
@@ -411,9 +411,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
         {
-            workRobotRecord.LaserVelocity = new(new SignedEightEight(words.A), default);
+            // The game keeps the robot's facing as its laser velocity's sign, two pixels either way.
+            workRobotRecord.Facing = words.A switch
+            {
+                0xfe00 => HorizontalDirection.Left,
+                0x0200 => HorizontalDirection.Right,
+                _ => throw new InvalidDataException($"Recorded Work Robot laser velocity ${words.A:X4} is not two pixels either way."),
+            };
             workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
-            workRobotRecord.BackupPosition = new(words.C, words.D);
             workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<KzanEnemyState>() is { } kzanRecord)
@@ -519,8 +524,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
-            platform.RightSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            platform.LeftSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
+            platform.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
+                SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
             platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeMarks, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
@@ -625,14 +630,27 @@ internal static class NativeEnemyFamilyStateImport
                 powamp.WiggleTimer = unchecked((short)words.D);
                 powamp.ActionTimer = unchecked((short)words.E);
             }
-            powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
+            if (powamp.IsBalloon)
+            {
+                if (words.F != PowampNativeWords.BalloonIdleWord)
+                    throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
+                powamp.Action = null;
+            }
+            else
+                powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (slot.DefinitionId == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
             mama.Action = words.A == 0 ? null : MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
             mama.Velocity = mama.Velocity.WithX(mama.Velocity.X.WithWholePixels(unchecked((short)words.E)));
-            mama.AsleepFlag = unchecked((short)words.F);
+            // The game keeps a wake count of one that a baby's touch or shot clears.
+            mama.Asleep = words.F switch
+            {
+                0 => false,
+                1 => true,
+                _ => throw new InvalidDataException($"Recorded Mama Turtle wake count {words.F} is neither zero nor one."),
+            };
         }
         if (enemies.HibashiStates[index] is { } hibashi)
         {
@@ -713,7 +731,7 @@ internal static class NativeEnemyFamilyStateImport
             slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearRowAtOffset(words.E);
+            ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
         {
@@ -823,4 +841,11 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="meaning">What the word holds, for the failure message.</param>
     private static int Index(ushort word, int maximum, string meaning) =>
         word <= maximum ? word : throw new InvalidDataException($"Recorded {meaning} {word} exceeds {maximum}.");
+
+    /// <summary>
+    /// The speed a recorded pair holds: the game stores a speed beside its negation, and Core keeps the speed alone and
+    /// negates it at use (#1804), so a pair whose second value is not the first's negation fails.
+    /// </summary>
+    private static SignedSixteenSixteen NegatedPair(SignedSixteenSixteen speed, SignedSixteenSixteen negation, string meaning) =>
+        negation == -speed ? speed : throw new InvalidDataException($"Recorded {meaning} {speed} is stored beside {negation}, not its negation.");
 }

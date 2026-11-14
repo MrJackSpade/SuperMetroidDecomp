@@ -65,14 +65,15 @@ internal static class DeadTourianCorpseArtworkVerification
         EnemyTileSourceArtwork stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        // One pose per way a corpse lies (#1810): a variant showing an earlier variant's picture is that pose.
         DeadTourianSegment[] corpsePrograms =
         [
-            DeadTourianSegment.ZoomerCorpse0, DeadTourianSegment.ZoomerCorpse1, DeadTourianSegment.ZoomerCorpse2,
-            DeadTourianSegment.RipperCorpse0, DeadTourianSegment.RipperCorpse1,
-            DeadTourianSegment.SkreeCorpse0, DeadTourianSegment.SkreeCorpse1, DeadTourianSegment.SkreeCorpse2,
+            DeadTourianSegment.ZoomerCorpseOnItsBack, DeadTourianSegment.ZoomerCorpseUpright,
+            DeadTourianSegment.RipperCorpseLevel, DeadTourianSegment.RipperCorpseTilted,
+            DeadTourianSegment.SkreeCorpse,
         ];
         AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount, corpsePrograms.Length,
-            "every dead Tourian corpse program has an editable composition");
+            "every dead Tourian corpse pose has an editable composition");
         foreach (DeadTourianSegment program in corpsePrograms)
             VerifyInstalledPose(DeadTourianAnimationsConstants.Spritemaps(program).Single(), $"dead Tourian corpse {program}");
         ushort[] sidehopperPointers = DeadTourianAnimationsConstants.Spritemaps(
@@ -96,7 +97,7 @@ internal static class DeadTourianCorpseArtworkVerification
             AssertTrue(nativeOam.ImageEquals(installedOam) && nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"{context} installed OAM matches cartridge");
         }
-        Console.WriteLine("  Dead Tourian corpses: eight Zoomer/Ripper/Skree poses and five Sidehopper compositions are editable native-parity OAM frames.");
+        Console.WriteLine("  Dead Tourian corpses: five Zoomer/Ripper/Skree poses and five Sidehopper compositions are editable native-parity OAM frames.");
     }
 
     /// <summary>Stages corpse tiles with independent pinned A9 copy spans for the retail WRAM oracle.</summary>

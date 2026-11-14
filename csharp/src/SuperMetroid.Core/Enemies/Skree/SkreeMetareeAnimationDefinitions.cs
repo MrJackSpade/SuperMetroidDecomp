@@ -9,7 +9,6 @@ internal static class SkreeMetareeAnimationDefinitions
         [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.MetareeIdling,
         [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeSegment.MetareePreparingAttack,
         [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeSegment.MetareeDiving,
-        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeSegment.MetareeStopAnimating,
     };
 
     /// <summary>The Skree segment for each named animation phase.</summary>
@@ -18,6 +17,5 @@ internal static class SkreeMetareeAnimationDefinitions
         [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.SkreeIdling,
         [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeSegment.SkreePreparingAttack,
         [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeSegment.SkreeDiving,
-        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeSegment.SkreeStopAnimating,
     };
 }

@@ -35,7 +35,7 @@ public sealed class KiHunterWingState
     public RotationAngle WingArcAngle { get; internal set; }
 
     /// <summary>The detached wings' movement, alternating between non-colliding and collision-bearing arcs.</summary>
-    public KiHunterWingMovement WingMovement { get; internal set; }
+    public KiHunterWingMovement? WingMovement { get; internal set; }
 
     /// <summary>
     /// The reset place along the speed curve, computed at detachment by stepping a mark and a half at a time until the

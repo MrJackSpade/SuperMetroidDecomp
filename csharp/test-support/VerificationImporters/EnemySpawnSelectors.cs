@@ -37,18 +37,18 @@ internal static class EnemySpawnSelectors
     /// <summary>The positive speed of linear-speed row <paramref name="row"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="row"/> lies past the shared table.</exception>
     public static SignedSixteenSixteen LinearSpeed(string setting, int row) =>
-        row is >= 0 and < EnemyLinearSpeedDefinitions.RowCount
-            ? EnemyLinearSpeeds.Row(row).Positive
+        row is >= 0 and < EnemyLinearSpeedTable.RowCount
+            ? EnemyLinearSpeedTable.Speed(row)
             : throw new InvalidDataException(
-                $"Population words select {setting} row {row}, past the {EnemyLinearSpeedDefinitions.RowCount} linear speeds.");
+                $"Population words select {setting} row {row}, past the {EnemyLinearSpeedTable.RowCount} linear speeds.");
 
     /// <summary>The linear-speed row whose positive speed is <paramref name="speed"/>.</summary>
     /// <exception cref="ArgumentException">No row moves at the speed.</exception>
     public static int LinearSpeedRow(string setting, SignedSixteenSixteen speed)
     {
-        for (int row = 0; row < EnemyLinearSpeedDefinitions.RowCount; row++)
+        for (int row = 0; row < EnemyLinearSpeedTable.RowCount; row++)
         {
-            if (EnemyLinearSpeeds.Row(row).Positive == speed)
+            if (EnemyLinearSpeedTable.Speed(row) == speed)
                 return row;
         }
         throw new ArgumentException($"No linear-speed row gives {setting} {speed.RawValue}.", nameof(speed));

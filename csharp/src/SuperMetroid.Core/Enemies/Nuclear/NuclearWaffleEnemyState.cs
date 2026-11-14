@@ -62,9 +62,9 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>Signed half-pitch, -12 or +12 angle units, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
     public int InterleavedSegmentOffset { get; internal set; }
     /// <summary>The falling explosion angle: 256 backward or 384 forward; crossing it is the silent second joint turn.</summary>
-    public int FirstTurnThreshold { get; internal set; }
+    public int FallingTurnThreshold { get; internal set; }
     /// <summary>The rising explosion angle: 384 backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
-    public int SecondTurnThreshold { get; internal set; }
+    public int RisingTurnThreshold { get; internal set; }
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>

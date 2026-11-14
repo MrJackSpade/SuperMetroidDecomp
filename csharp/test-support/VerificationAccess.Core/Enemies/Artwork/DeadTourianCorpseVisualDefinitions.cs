@@ -10,17 +10,17 @@ internal static class DeadTourianCorpseVisualDefinitions
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
 
-    /// <summary>Distinct dead Zoomer, Ripper, and Skree frame identities in bank $A9.</summary>
+    /// <summary>
+    /// Distinct dead Zoomer, Ripper, and Skree frame identities in bank $A9: one per picture (#1810), the spritemap of the
+    /// first variant that shows it.
+    /// </summary>
     private static readonly DeadTourianCorpseFrameName[] Entries =
     [
         new DeadTourianCorpseFrameName(0xed79, "dead_zoomer_corpse_0"),
         new DeadTourianCorpseFrameName(0xed85, "dead_zoomer_corpse_2"),
-        new DeadTourianCorpseFrameName(0xed91, "dead_zoomer_corpse_4"),
         new DeadTourianCorpseFrameName(0xed9d, "dead_ripper_corpse_0"),
         new DeadTourianCorpseFrameName(0xeda9, "dead_ripper_corpse_2"),
         new DeadTourianCorpseFrameName(0xedb5, "dead_skree_corpse_0"),
-        new DeadTourianCorpseFrameName(0xedcb, "dead_skree_corpse_2"),
-        new DeadTourianCorpseFrameName(0xede1, "dead_skree_corpse_4"),
     ];
 
     /// <summary>Provides each installed corpse spritemap once for the four dead Tourian enemy families.</summary>

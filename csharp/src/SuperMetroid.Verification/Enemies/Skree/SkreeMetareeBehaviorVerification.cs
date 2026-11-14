@@ -50,12 +50,8 @@ internal static class SkreeMetareeBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Segments, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, diveLoop)), $"{species} dive loop");
             AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} dive processes off screen");
-
-            start(program(SkreeMetareeAnimationPhase.StopAnimating));
-            EnemyInstructionRunner.ShownFrames(slot, 1);
-            AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} stop animation ends off-screen processing");
         }
-        Console.WriteLine("  Skree/Metaree behavior: idle loops, wind-ups with their attack-ready cue, dives and the stop animation pass.");
+        Console.WriteLine("  Skree/Metaree behavior: idle loops, wind-ups with their attack-ready cue, and dives pass.");
     }
 
     /// <summary>A freshly initialized Skree or Metaree and accessors for its typed animation and attack-ready flag.</summary>

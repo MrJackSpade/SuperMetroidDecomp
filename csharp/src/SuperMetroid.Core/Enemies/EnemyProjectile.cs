@@ -38,8 +38,8 @@ public sealed class EnemyProjectile
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
     /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
-    /// pixel. Room pixels for every family except the few frame behaviours that deliberately keep screen-relative
-    /// positions here.
+    /// pixel. Every projectile is placed in the room and drawn where its place lies on screen, the Mother Brain death
+    /// subtitle's fixed place included (#1851).
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, in 256ths of a pixel, for the shared movement helpers and the families that move by it.</summary>
@@ -69,12 +69,6 @@ public sealed class EnemyProjectile
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Gets the contact damage from the projectile's definition, before Samus's suit reduction.</summary>
     public int Damage
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
-    /// <summary>Gets the invincibility timer written to Samus on a damaging collision; definition initialization uses ninety-six frames.</summary>
-    public int InvincibilityFrames
     {
         get;
         internal set => field = Ensure.AtLeastZero(value);
@@ -173,7 +167,7 @@ public sealed class EnemyProjectile
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
         Graphics = SpriteGraphics.SharedStandard;
-        Damage = InvincibilityFrames = 0;
+        Damage = 0;
         LoopCountdown = WrappingCountdown.Start(0);
         Depth = EnemyProjectileDepth.BehindSamus;
         RemainingAfterburns = 0;

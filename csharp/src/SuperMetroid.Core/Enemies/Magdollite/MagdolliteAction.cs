@@ -18,8 +18,8 @@ public enum MagdolliteAction
     BodyDormant,
     /// <summary>Adds the preceding head's upward 1/65536-pixel velocity and extends pillar segments until reaching Samus's height or the maximum rise.</summary>
     BodyRising,
-    /// <summary>Index-load/return stub that holds the grown arm stationary while the hand throws.</summary>
-    NoOpAtApex,
+    /// <summary>Holds the grown arm still at its apex while the hand throws.</summary>
+    HoldingAtApex,
     /// <summary>Adds the head's downward 1/65536-pixel velocity, removes pillar segments, and releases the head when the arm lands.</summary>
     BodyFalling,
     /// <summary>Waits for the head to begin forming the base pillar before tracking arm growth.</summary>

@@ -1278,15 +1278,17 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState();
+        SamusAxisMotion[] motions = [SamusAxisMotion.TowardSmaller, SamusAxisMotion.Still, SamusAxisMotion.TowardLarger];
         for (int index = 0; index < 9; index++)
         {
+            // The native table lists the nine offsets row by row: vertical motion by row, horizontal by column.
+            var motion = new SamusMotion(motions[index % 3], motions[index / 3]);
             short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));
             short originalY = unchecked((short)ReadVerificationWord(rom, 0xa89aaa + 4 * index));
-            var calculated = WreckedShipGhostAppearance.SpawnOffset(index);
+            var calculated = WreckedShipGhostAppearance.SpawnOffset(motion);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
-            state.SpawnColumn = index % 3;
-            state.SpawnRow = index / 3;
+            state.SamusMotion = motion;
             spawn(slot, state, new(32, 65520));
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
@@ -1338,11 +1340,6 @@ internal static class LookupStream2Verification
         flicker(slot, state);
         AssertTrue(slot.Contact == EnemyContact.None && slot.Processing == EnemyProcessing.None && slot.Presence == EnemyPresence.None,
             "Ghost terminal next call clears invisibility");
-        state.SpawnColumn = 3;
-        state.SpawnRow = 0;
-        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(-1), "Ghost spawn lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 15 native intervals and the terminator, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");

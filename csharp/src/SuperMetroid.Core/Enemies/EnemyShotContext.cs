@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HitboxShot">The named shot reaction of the overlapping hitbox, if named.</param>
+/// <param name="Camera">The camera's position as the shot pass runs.</param>
 /// <param name="HealthBefore">Enemy health after impact and before vulnerability damage (set for the later stages).</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyShotContext(
@@ -29,6 +30,7 @@ internal readonly record struct EnemyShotContext(
     SamusProjectileFamily Family,
     bool UsesFrameHitboxes,
     EnemyReaction? HitboxShot,
+    Position16<RoomPixels> Camera,
     int HealthBefore = 0)
 {
     /// <summary>Whether common shot AI took the immediate-freeze path; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>

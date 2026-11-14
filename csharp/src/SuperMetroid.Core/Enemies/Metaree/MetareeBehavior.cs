@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -33,10 +34,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
     private const int MetareeHorizontalActivationDistance = 72;
-    /// <summary>Unsigned Y separation divisor used to choose the dive speed.</summary>
-    private const int MetareeDiveDivisor = 24;
-    /// <summary>Whole-pixel downward speed added even for zero vertical separation.</summary>
-    private const int MetareeMinimumYVelocity = 4;
     /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
     private const int MetareeHorizontalDiveSpeed = 2;
     /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
@@ -59,7 +56,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The initializer starts the idle animation directly rather than going through the change detector,
-        // because both requested and installed indexes intentionally start at zero.
+        // because the requested and the started animation both begin as idling.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
@@ -102,7 +99,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts preparation within 72 horizontal pixels and derives dive speed from the wrapped unsigned Y difference.</summary>
+    /// <summary>Starts preparation within 72 horizontal pixels and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
     internal static void RunMetareeIdle(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -116,11 +113,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
-        // The unsigned divider input is the Y difference wrapped to 0 through 65535. If Samus is
-        // above Metaree, this deliberately creates the game's enormous dive velocity
-        // instead of sanitizing the old bug into modern signed physics.
-        int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
-        state.YVelocity = verticalDifference / MetareeDiveDivisor + MetareeMinimumYVelocity;
+        state.YVelocity = MetareeDiveSpeed.Of(slot.Position.Y.Whole, samus.Position.Y.Whole);
         state.RequestedAnimation = SkreeMetareeAnimationPhase.PreparingAttack;
         StartRequestedMetareeAnimation(slot, state);
         state.Action = MetareeAction.PreparingAttack;

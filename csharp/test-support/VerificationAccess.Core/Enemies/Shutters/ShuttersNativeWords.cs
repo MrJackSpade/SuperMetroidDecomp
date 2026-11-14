@@ -19,10 +19,11 @@ internal static class ShuttersNativeWords
         [GrowingShutterAction.GrowUp] = 0xec13,
     });
 
-    /// <summary>
-    /// The routine words naming each <see cref="VerticalShutterAction"/>: a shutter stays still while running either of
-    /// two routines that return at once (#1814).
-    /// </summary>
+    /// <summary>The routine word naming each <see cref="VerticalShutterAction"/>.</summary>
+    /// <remarks>
+    /// <see cref="VerticalShutterAction.Still"/> has two: the reaction-triggered shutter's initial wait and the permanent
+    /// stop at an end do the same nothing (#1818).
+    /// </remarks>
     internal static readonly NativeWordIdentities<VerticalShutterAction> VerticalShutterActions = new(new Dictionary<ushort, VerticalShutterAction>
     {
         [0xef09] = VerticalShutterAction.Initial,

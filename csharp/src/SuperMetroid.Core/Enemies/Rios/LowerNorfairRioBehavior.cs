@@ -168,7 +168,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     StartLowerNorfairRioAnimation(
                         slot,
                         state,
-                        LowerNorfairRioSegment.AscendingPart2);
+                        LowerNorfairRioSegment.Ascending);
                 }
                 return;
 
@@ -243,7 +243,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         StartLowerNorfairRioAnimation(
             slot,
             state,
-            LowerNorfairRioSegment.AscendingPart1);
+            LowerNorfairRioSegment.AscentOpening);
         state.Action = LowerNorfairRioAction.ReturnToPerch;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
     }

@@ -21,8 +21,6 @@ internal enum MagdolliteCueKind
     SetAnimationBusy,
     /// <summary>Moves to 8 pixels left of and 4 above the throw origin.</summary>
     ShiftLeftUp4,
-    /// <summary>Moves to 8 pixels left of and 4 above the throw origin (the second, identical left cue).</summary>
-    ShiftLeftUp4Again,
     /// <summary>Moves to 8 pixels right of and 4 above the throw origin.</summary>
     ShiftRightUp4,
     /// <summary>Moves to 8 pixels right of and 8 above the throw origin.</summary>

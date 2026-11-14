@@ -10,10 +10,6 @@ internal enum RipperSegment
     GRipperMovingLeft,
     /// <summary>The g Ripper moving right animation.</summary>
     GRipperMovingRight,
-    /// <summary>The Ripper 2 moving right animation.</summary>
-    Ripper2MovingRight,
-    /// <summary>The Ripper 2 moving left animation.</summary>
-    Ripper2MovingLeft,
     /// <summary>The Ripper moving right animation.</summary>
     RipperMovingRight,
     /// <summary>The Ripper moving left animation.</summary>

@@ -96,7 +96,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
-            AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperLanding : null, enemies.Audio.LatestSound,
+            AssertEqual(variant is 0 or 1 ? EnemySound.LowThud : null, enemies.Audio.LatestSound,
                 $"hopper landed sound {context}");
         }
 
@@ -124,7 +124,7 @@ internal static class HopperAnimationDefinitionsVerification
         slot.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);
-        AssertEqual((SoundEffectId?)EnemySound.SidehopperLanding, enemies.Audio.LatestSound,
+        AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }
 

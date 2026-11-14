@@ -23,8 +23,8 @@ public sealed class WallSpacePirateEnemyState
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 
     /// <summary>
-    /// Whole room-pixel jump-ellipse center, set when a jump starts: X is the departure X plus or minus half parameter
-    /// two and Y the departure Y.
+    /// Whole room-pixel jump-ellipse center, set when a jump starts: X is the departure X plus or minus half the gap
+    /// between the walls, and Y the departure Y.
     /// </summary>
     public Position16<RoomPixels> WallJumpArcCenter { get; internal set; }
 

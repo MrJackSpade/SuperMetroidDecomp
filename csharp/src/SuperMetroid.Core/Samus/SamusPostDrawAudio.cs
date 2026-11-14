@@ -23,7 +23,7 @@ public static class SamusPostDrawAudio
             !speed.SpeedBoostCounter.IsAtFullStage)
         {
             speed.EchoSoundPlaying = false;
-            samus.LiquidPhysics.QueueMovementSound(RoomSound.SpeedBoosterEnd, priority: SoundRequestPriority.Essential);
+            samus.LiquidPhysics.QueueMovementSound(RoomSound.SpeedBoosterOrElevatorStop, priority: SoundRequestPriority.Essential);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
             SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)

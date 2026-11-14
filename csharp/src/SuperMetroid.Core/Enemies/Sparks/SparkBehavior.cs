@@ -107,11 +107,13 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Expires on the update whose step would reach zero, leaving the countdown at one for its reset. A countdown
-    /// already at zero steps below zero instead and does not expire; it must not be treated as immediately due.
+    /// Expires on the update whose step would reach zero, leaving the countdown at one for its reset.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The countdown has already run out: a counting Spark's base time is zero.</exception>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
     {
+        if (state.ActionTimer < 1)
+            throw new InvalidOperationException($"A Spark counted down from {state.ActionTimer}; only an always-active Spark has no wait.");
         if (state.ActionTimer == 1)
             return true;
 

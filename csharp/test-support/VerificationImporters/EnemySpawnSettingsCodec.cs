@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
@@ -85,10 +86,10 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Cacatac] = words => new CacatacSpawnSettings(Direction: Bits(words.Parameter1, 0, 8) switch { 0 => CacatacDirection.Left, 1 => CacatacDirection.Right, 2 => CacatacDirection.InitialStop, var other => throw Unmapped("Direction", other) }, Mounting: (words.Parameter1 & 65280) != 0 ? CacatacMounting.Floor : CacatacMounting.Ceiling, TravelDistance: EnemySpawnSelectors.Select("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, Bits(words.Parameter2, 0, 8)), Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 8, 8))),
         [EnemyDefinitionId.Choot] = words => new ChootSpawnSettings(FallingPath: EnemySpawnSelectors.Select("FallingPath", EnemySpawnSelectorDefinitions.ChootFallingPaths, Bits(words.Parameter1, 8, 8)), PatternLoops: Bits(words.Parameter1, 0, 8), JumpDelay: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Chozo] = words => new ChozoStatueSpawnSettings(Site: EnemySpawnSelectors.Select("Site", EnemySpawnSelectorDefinitions.ChozoStatueSites, Half(words.Parameter2))),
-        [EnemyDefinitionId.CorpseRipper] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Ripper], Half(words.Parameter1))),
+        [EnemyDefinitionId.CorpseRipper] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpses.ByVariant(DeadTourianCorpseSpecies.Ripper), Half(words.Parameter1))),
         [EnemyDefinitionId.CorpseSidehopper] = words => new DeadSidehopperSpawnSettings(Layout: EnemySpawnSelectors.Select("Layout", EnemySpawnSelectorDefinitions.DeadSidehopperLayouts, Half(words.Parameter1))),
-        [EnemyDefinitionId.CorpseSkree] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Skree], Half(words.Parameter1))),
-        [EnemyDefinitionId.CorpseZoomer] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpseDefinitions.Variants[DeadTourianCorpseSpecies.Zoomer], Half(words.Parameter1))),
+        [EnemyDefinitionId.CorpseSkree] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpses.ByVariant(DeadTourianCorpseSpecies.Skree), Half(words.Parameter1))),
+        [EnemyDefinitionId.CorpseZoomer] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpses.ByVariant(DeadTourianCorpseSpecies.Zoomer), Half(words.Parameter1))),
         [EnemyDefinitionId.Sciser] = words => new CrawlerSpawnSettings(Orientation: Bits(words.Initialization, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("Orientation", other) }, BlockSide: Bits(words.SpeciesPropertyBits, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("BlockSide", other) }, CrawlSpeed: EnemySpawnSelectors.CrawlSpeed(Bits(words.Parameter1, 0, 16)), SurfaceFamily: CrawlerSurfaceTableOrder.FamilyAt(Bits(words.Parameter2, 0, 16))),
         [EnemyDefinitionId.Zero] = words => new CrawlerSpawnSettings(Orientation: Bits(words.Initialization, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("Orientation", other) }, BlockSide: Bits(words.SpeciesPropertyBits, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("BlockSide", other) }, CrawlSpeed: EnemySpawnSelectors.CrawlSpeed(Bits(words.Parameter1, 0, 16)), SurfaceFamily: CrawlerSurfaceTableOrder.FamilyAt(Bits(words.Parameter2, 0, 16))),
         [EnemyDefinitionId.Zeela] = words => new CrawlerSpawnSettings(Orientation: Bits(words.Initialization, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("Orientation", other) }, BlockSide: Bits(words.SpeciesPropertyBits, 0, 2) switch { 0 => CrawlerSurfaceOrientation.UpsideRight, 1 => CrawlerSurfaceOrientation.UpsideLeft, 2 => CrawlerSurfaceOrientation.UpsideDown, 3 => CrawlerSurfaceOrientation.UpsideUp, var other => throw Unmapped("BlockSide", other) }, CrawlSpeed: EnemySpawnSelectors.CrawlSpeed(Bits(words.Parameter1, 0, 16)), SurfaceFamily: CrawlerSurfaceTableOrder.FamilyAt(Bits(words.Parameter2, 0, 16))),
@@ -192,7 +193,7 @@ internal static class EnemySpawnSettingsCodec
         CacatacSpawnSettings s => Checked(EnemyDefinitionId.Cacatac, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { CacatacDirection.Left => 0, CacatacDirection.Right => 1, CacatacDirection.InitialStop => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | (s.Mounting == CacatacMounting.Floor ? 256 : 0), Parameter2: Place(EnemySpawnSelectors.SelectorOf("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, s.TravelDistance), 0, 8) | Place(EnemySpawnSelectors.LinearSpeedRow("Speed", s.Speed), 8, 8))),
         ChootSpawnSettings s => Checked(EnemyDefinitionId.Choot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.SelectorOf("FallingPath", EnemySpawnSelectorDefinitions.ChootFallingPaths, s.FallingPath), 8, 8) | Place(s.PatternLoops, 0, 8), Parameter2: Place(s.JumpDelay, 0, 16))),
         ChozoStatueSpawnSettings s => Checked(EnemyDefinitionId.Chozo, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: 0, Parameter2: EnemySpawnSelectors.SelectorOf("Site", EnemySpawnSelectorDefinitions.ChozoStatueSites, s.Site) * 2)),
-        CorpseSpawnSettings s => Checked(CorpseEnemy(s.Corpse), settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: EnemySpawnSelectors.SelectorOf("Corpse", DeadTourianCorpseDefinitions.Variants[CorpseSpecies(s.Corpse)], s.Corpse) * 2, Parameter2: 0)),
+        CorpseSpawnSettings s => Checked(CorpseEnemy(s.Corpse), settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: EnemySpawnSelectors.SelectorOf("Corpse", DeadTourianCorpses.ByVariant(s.Corpse.Species), s.Corpse) * 2, Parameter2: 0)),
         DeadSidehopperSpawnSettings s => Checked(EnemyDefinitionId.CorpseSidehopper, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: EnemySpawnSelectors.SelectorOf("Layout", EnemySpawnSelectorDefinitions.DeadSidehopperLayouts, s.Layout) * 2, Parameter2: 0)),
         CrawlerSpawnSettings s => Checked(EnemyDefinitionId.Sciser, settings, new PopulationWords(Initialization: ((s.Orientation switch { CrawlerSurfaceOrientation.UpsideRight => 0, CrawlerSurfaceOrientation.UpsideLeft => 1, CrawlerSurfaceOrientation.UpsideDown => 2, CrawlerSurfaceOrientation.UpsideUp => 3, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: ((s.BlockSide switch { CrawlerSurfaceOrientation.UpsideRight => 0, CrawlerSurfaceOrientation.UpsideLeft => 1, CrawlerSurfaceOrientation.UpsideDown => 2, CrawlerSurfaceOrientation.UpsideUp => 3, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), ExtraProperties: 0, Parameter1: EnemySpawnSelectors.CrawlSpeedSelector(s.CrawlSpeed), Parameter2: CrawlerSurfaceTableOrder.ByteOffsetOf(s.SurfaceFamily))),
         ViolaSpawnSettings s => Checked(EnemyDefinitionId.Viola, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: ((s.BlockSide switch { CrawlerSurfaceOrientation.UpsideRight => 0, CrawlerSurfaceOrientation.UpsideLeft => 1, CrawlerSurfaceOrientation.UpsideDown => 2, CrawlerSurfaceOrientation.UpsideUp => 3, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), ExtraProperties: 0, Parameter1: EnemySpawnSelectors.CrawlSpeedSelector(s.CrawlSpeed), Parameter2: CrawlerSurfaceTableOrder.ByteOffsetOf(s.SurfaceFamily))),
@@ -228,7 +229,7 @@ internal static class EnemySpawnSettingsCodec
         SbugSpawnSettings s => Checked(EnemyDefinitionId.Sbug, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.Speed, 0, 8) | Place(s.InitialAngle.ToTrigonometryAngle().RawValue, 8, 8), Parameter2: Place(s.ActivationRadius, 0, 8) | ((s.Behavior switch { SbugActivationBehavior.MoveForward => 0, SbugActivationBehavior.ZigZag => 1, SbugActivationBehavior.MoveTowardSamus => 2, SbugActivationBehavior.RandomUntilCollision => 3, SbugActivationBehavior.RandomAndReverseWhenFar => 4, SbugActivationBehavior.MoveForwardThenWait => 5, SbugActivationBehavior.MoveAwayFromSamus => 6, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8))),
         ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Motion & ShaktoolMotionFlags.ReversedOnce) != 0) ? 1 << 13 : 0) | (((s.Motion & ShaktoolMotionFlags.Straightening) != 0) ? 1 << 14 : 0) | (((s.Motion & ShaktoolMotionFlags.Clockwise) != 0) ? 1 << 15 : 0)), Parameter2: ShaktoolSegmentPosition(s.Segment) * 2)),
         GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { GrowingShutterGrowth.Down => 0, GrowingShutterGrowth.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait == GrowingShutterWait.Timer ? s.ActivationWait : s.ActivationDistance, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
-        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.FirstRestTime), 0, 8) | Place(ShutterRestUnits(s.SecondRestTime), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
+        ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { ShutterHeading.LeftOrUp => 0, ShutterHeading.RightOrDown => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.RestAfterMovingUp), 0, 8) | Place(ShutterRestUnits(s.RestAfterMovingDown), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
         SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.LinearSpeedRow("Skultera speed", s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleDelta, 8, 8))),
         WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WalkingSpacePirateOptions.StartsFacingRight) != 0) ? 1 << 0 : 0) | (((s.Options & WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.PatrolReach, 0, 16))),
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateOptions.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateOptions.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
@@ -243,7 +244,11 @@ internal static class EnemySpawnSettingsCodec
     };
 
     /// <summary>The dead-monster species whose placements name <paramref name="corpse"/>.</summary>
-    private static EnemyDefinitionId CorpseEnemy(DeadTourianCorpseDefinition corpse) => CorpseSpecies(corpse) switch
+    /// <remarks>
+    /// Variants that lie the same way are one corpse (#1810), so the words of a corpse several variants show name the first
+    /// of them: decoding them gives the same corpse, though not always the variant number the cartridge's entry holds.
+    /// </remarks>
+    private static EnemyDefinitionId CorpseEnemy(DeadTourianCorpseDefinition corpse) => corpse.Species switch
     {
         DeadTourianCorpseSpecies.Zoomer => EnemyDefinitionId.CorpseZoomer,
         DeadTourianCorpseSpecies.Ripper => EnemyDefinitionId.CorpseRipper,
@@ -251,10 +256,6 @@ internal static class EnemySpawnSettingsCodec
         _ => throw new ArgumentOutOfRangeException(nameof(corpse)),
     };
 
-    /// <summary>The corpse species whose corpses include <paramref name="corpse"/>.</summary>
-    /// <exception cref="InvalidOperationException">No species, or more than one, has the corpse.</exception>
-    private static DeadTourianCorpseSpecies CorpseSpecies(DeadTourianCorpseDefinition corpse) =>
-        DeadTourianCorpseDefinitions.Variants.Single(species => species.Value.Contains(corpse)).Key;
 
 
 
@@ -316,15 +317,28 @@ internal static class EnemySpawnSettingsCodec
             TravelDistance: Bits(words.Parameter1, 8, 8),
             ProximityDistance: trigger == ShutterTriggerMode.HorizontalProximity ? activation : 0,
             WaitTime: trigger == ShutterTriggerMode.Timer ? activation : 0,
-            FirstRestTime: Bits(words.ExtraProperties, 0, 8) * ShutterRestUpdatesPerUnit,
-            SecondRestTime: Bits(words.ExtraProperties, 8, 8) * ShutterRestUpdatesPerUnit);
+            RestAfterMovingUp: ShutterRestOf(Bits(words.ExtraProperties, 0, 8)),
+            RestAfterMovingDown: ShutterRestOf(Bits(words.ExtraProperties, 8, 8)));
     }
 
-    /// <summary>The rest units that rest a shutter <paramref name="restTime"/> updates.</summary>
-    /// <exception cref="ArgumentException">The rest is not a whole number of units.</exception>
-    private static int ShutterRestUnits(int restTime) => restTime % ShutterRestUpdatesPerUnit == 0
-        ? restTime / ShutterRestUpdatesPerUnit
-        : throw new ArgumentException($"A shutter rest of {restTime} updates is not a whole number of rest units.", nameof(restTime));
+    /// <summary>The rest units that stop a shutter at an end for good: the largest the setting holds.</summary>
+    private const int PermanentShutterRestUnits = 255;
+
+    /// <summary>The rest <paramref name="units"/> rest units select: the largest stops the shutter for good.</summary>
+    private static ShutterRest ShutterRestOf(int units) => units == PermanentShutterRestUnits
+        ? ShutterRest.Permanent
+        : ShutterRest.For(units * ShutterRestUpdatesPerUnit);
+
+    /// <summary>The rest units that select <paramref name="rest"/>.</summary>
+    /// <exception cref="ArgumentException">The timed rest is not a whole number of units below the permanent stop's.</exception>
+    private static int ShutterRestUnits(ShutterRest rest)
+    {
+        if (rest.IsPermanent)
+            return PermanentShutterRestUnits;
+        return rest.Updates % ShutterRestUpdatesPerUnit == 0 && rest.Updates / ShutterRestUpdatesPerUnit < PermanentShutterRestUnits
+            ? rest.Updates / ShutterRestUpdatesPerUnit
+            : throw new ArgumentException($"A shutter rest of {rest.Updates} updates is not a whole number of timed rest units.", nameof(rest));
+    }
 
     /// <summary>The Shaktool segment a placement names by its position in the chain; a position past the seven fails.</summary>
     /// <exception cref="InvalidDataException"><paramref name="position"/> is past the seven segments.</exception>

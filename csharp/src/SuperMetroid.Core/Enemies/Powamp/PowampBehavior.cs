@@ -82,7 +82,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BalloonSpawn = slot.Position.Whole;
-        state.Action = PowampAction.BalloonNoOp;
         SetPowampAnimation(slot, state, PowampSegment.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
@@ -129,7 +128,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             case PowampAction.DeathSequence:
                 RunPowampDeathSequence(slot, state, balloon);
                 return;
-            case PowampAction.BalloonNoOp:
             default:
                 throw new InvalidDataException(
                     $"Powamp body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
@@ -144,7 +142,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (TickPowampTimer(state))
         {
-            SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonInflate0);
+            SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonInflatingFromDeflated);
             state.Action = PowampAction.Inflating;
             state.ActionTimer = PowampTransitionFrames;
         }
@@ -306,8 +304,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         (bool sinking, int shownPoses) = PowampBalloonPhase(balloon.State.Playback);
         if (sinking && shownPoses != 1)
         {
-            // A balloon that had sunk through two poses restarts inflate stage one, and one that had sunk through three
-            // restarts stage zero; one that had shown a single sinking pose keeps sinking.
+            // A balloon that had sunk through two poses restarts inflating from halfway, and one that had sunk through three
+            // restarts inflating from deflated; one that had shown a single sinking pose keeps sinking.
             PowampSegment replacement = PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(shownPoses, out PowampSegment restart)
                 ? restart
                 : throw new InvalidDataException($"Powamp death saw a sinking balloon with {shownPoses} poses shown.");
@@ -446,8 +444,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         int passed = phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount);
         return phase.Segment switch
         {
-            PowampSegment.BalloonInflate0 => new PowampBalloonState(false, passed),
-            PowampSegment.BalloonInflate1 => new PowampBalloonState(false, 1 + passed),
+            PowampSegment.BalloonInflatingFromDeflated => new PowampBalloonState(false, passed),
+            PowampSegment.BalloonInflatingFromHalfway => new PowampBalloonState(false, 1 + passed),
             PowampSegment.BalloonStartSinking => new PowampBalloonState(true, passed),
             PowampSegment.BalloonDeflated => new PowampBalloonState(true, 2 + passed),
             PowampSegment.BodyFast or
@@ -473,8 +471,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The body's vertical displacement for terrain movement.</summary>
     private static SignedSixteenSixteen ComposePowampVerticalDisplacement(PowampEnemyState state) => state.YVelocity;
 
-    /// <summary>Recognizes the two zero-offset points in the twelve-phase wiggle table.</summary>
-    private static bool IsPowampCentered(int wiggleIndex) => wiggleIndex is 0 or 6;
+    /// <summary>Whether the wiggle stands at its centre, where its offset is zero.</summary>
+    private static bool IsPowampCentered(int wiggleIndex) => PowampMotion.WiggleOffset(wiggleIndex) == 0;
 
     /// <summary>Restarts a body or balloon animation on the next animation pass.</summary>
     private static void SetPowampAnimation(RoomEnemySlot slot, PowampEnemyState state, PowampSegment segment)
@@ -579,8 +577,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Spawning copies the spike's definition before
             // its initializer zeros velocities and captures the owner position. Reading
-            // the definition through the shared helper preserves its animation, map sentinel, radii,
-            // damage, and all property bits instead of maintaining a second hand copy here.
+            // the definition through the shared helper keeps its animation, frame, radii, damage and
+            // properties instead of a second hand copy here.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,

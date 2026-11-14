@@ -11,8 +11,21 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
-    internal MorphBallEyeBehavior(EnemyAudioQueue audio) => _audio = audio;
+    /// <summary>The room's enemy places, where a beam mount finds the eye listed right after it.</summary>
+    private readonly EnemySlotTable _places;
+
+    /// <summary>
+    /// The eye the room's beam follows, whichever eye opens: the one listed right after the beam's mount, linked when the
+    /// mount is placed (#1835); null before any mount is placed.
+    /// </summary>
+    private RoomEnemySlot? _beamFollowedEye;
+
+    /// <summary>Builds the species owner on the room's enemy audio queue and enemy places.</summary>
+    internal MorphBallEyeBehavior(EnemyAudioQueue audio, EnemySlotTable places)
+    {
+        _audio = audio;
+        _places = Ensure.NotNull(places);
+    }
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Eye];
@@ -20,11 +33,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
 
-    /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
     private const int EyeActivateXDistance = 128;
-    /// <summary>The place, second in its room's listing, of the eye the game's beam always follows.</summary>
-    private const int BeamFollowedEyePlace = 1;
     /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
     private const int EyeDeactivateXDistance = 176;
     /// <summary>Strict vertical range for initial activation.</summary>
@@ -60,12 +70,21 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
-        state.Action = MorphBallEyeAction.MountNoOp;
+        state.Action = MorphBallEyeAction.ShowingMount;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
         // shows in this one.
         MorphBallEyeBeam.Reset();
+
+        // The beam the mount casts follows the eye its room lists right after the mount.
+        RoomEnemySlot followed = _places.ListedAfter(slot, 1);
+        if (followed.DefinitionId != EnemyDefinitionId.Eye)
+        {
+            throw new InvalidDataException(
+                $"Morph-ball eye beam mount {slot.SlotIndex} is followed by enemy {followed.DefinitionId}, not the eye its beam follows.");
+        }
+        _beamFollowedEye = followed;
     }
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
@@ -81,7 +100,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.Action)
         {
-            case MorphBallEyeAction.MountNoOp:
+            case MorphBallEyeAction.ShowingMount:
                 return;
             case MorphBallEyeAction.WaitForSamus:
                 WaitForSamusNearMorphBallEye(slot, state, samus);
@@ -133,7 +152,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
-        RequestMorphBallEyeBeam(eye);
+        RequestMorphBallEyeBeam();
         state.Action = MorphBallEyeAction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
@@ -149,7 +168,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
-            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
             state.ActionTimer = EyeTransitionDuration;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
@@ -179,20 +198,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();
 
-    /// <summary>Requires the body to be the room's second enemy before scheduling the room-global beam to appear next frame.</summary>
-    private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
+    /// <summary>
+    /// Schedules the room-global beam to appear next frame, following the eye its mount linked whichever eye opened.
+    /// </summary>
+    private void RequestMorphBallEyeBeam()
     {
-        // The game's beam always follows the enemy its room lists second, whichever eye
-        // requested it. Refusing a different layout catches a malformed or custom population
-        // instead of quietly aiming the beam from an eye the game would not follow.
-        if (!eye.IsListedAt(BeamFollowedEyePlace) || eye.DefinitionId != EnemyDefinitionId.Eye)
-        {
-            throw new InvalidDataException(
-                $"Morph-ball eye beam requires the body listed second in its room, got enemy {eye.SlotIndex}.");
-        }
-
+        RoomEnemySlot followed = _beamFollowedEye
+            ?? throw new InvalidOperationException("A morph-ball eye opened in a room whose beam mount was not placed.");
         MorphBallEyeBeam.Reset();
-        MorphBallEyeBeam.Body = eye;
+        MorphBallEyeBeam.Body = followed;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.PendingInitialization;
     }
 

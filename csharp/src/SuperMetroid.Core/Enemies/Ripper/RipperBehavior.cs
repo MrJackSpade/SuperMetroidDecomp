@@ -32,7 +32,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population entry names the patrol speed and the starting direction.
         GRipperSpawnSettings settings = slot.SpawnSettings<GRipperSpawnSettings>();
-        state.Speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
+        state.Speeds = new EnemyLinearSpeed(settings.Speed);
         LoadRipperVelocity(state, settings.Direction switch
         {
             GRipperStartDirection.Left => false,
@@ -83,15 +83,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
-        state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
+        state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
 
-        // Ripper II's animation labels appear inverted relative to the displayed shared maps.
-        // Keep the animation names instead of normalizing them: a leftward start uses the
-        // negative speed pair with the moving-right animation, while a rightward start uses positive speed
-        // with the moving-left animation.
+        // The Ripper II shows the G-Ripper's animations, facing the way it flies (#1842).
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         LoadRipperVelocity(state, movingPositive);
-        SetRipperAnimation(slot, movingPositive ? RipperSegment.Ripper2MovingLeft : RipperSegment.Ripper2MovingRight);
+        SetRipperAnimation(slot, movingPositive ? RipperSegment.GRipperMovingRight : RipperSegment.GRipperMovingLeft);
     }
 
     /// <summary>Runs the Ripper II's main AI.</summary>
@@ -104,8 +101,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ReverseRipperVariant(
             slot,
-            positiveSegment: RipperSegment.Ripper2MovingLeft,
-            negativeSegment: RipperSegment.Ripper2MovingRight);
+            positiveSegment: RipperSegment.GRipperMovingRight,
+            negativeSegment: RipperSegment.GRipperMovingLeft);
     }
 
     /// <summary>Initializes the Ripper.</summary>
@@ -119,7 +116,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             movingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
         // The state retains the speed row because the reversal reuses it.
-        state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
+        state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
         LoadRipperVelocity(state, movingRight);
     }
 
@@ -151,7 +148,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the common post-shot tail. Normal shot AI owns health, death,
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
-    /// two-piece frozen map when the accepted projectile actually froze the actor.
+    /// frozen frame when the projectile that hit it actually froze it.
     /// </summary>
     private static void ResolveGRipperRipper2ShotAfterCommon(RoomEnemySlot slot)
     {

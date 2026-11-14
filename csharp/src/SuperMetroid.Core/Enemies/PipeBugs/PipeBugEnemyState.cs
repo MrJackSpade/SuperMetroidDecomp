@@ -36,29 +36,26 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public Position16<RoomPixels> EmergenceTop { get; internal set; }
     /// <summary>The Brinstar animation main AI asks for.</summary>
-    public PipeBugAnimationSelector RequestedAnimation { get; internal set; }
+    public PipeBugSegment RequestedAnimation { get; internal set; }
     /// <summary>The Brinstar animation currently installed; a request for it installs nothing.</summary>
-    public PipeBugAnimationSelector InstalledAnimation { get; internal set; }
+    public PipeBugSegment InstalledAnimation { get; internal set; }
 
     /// <summary>
-    /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping
-    /// to zero past it, as the game's counter does. It returns to zero only when the member departs, so a member
-    /// reset off screen keeps its count into the next rise; <see cref="HasReachedStaggerTarget"/> compares it with
-    /// the target by their wrapped difference read as signed.
+    /// A Norfair formation member's stagger count, the updates it has risen and waited. It returns to zero only when the
+    /// member departs on reaching its <see cref="StaggerTarget"/>, so a member reset off screen keeps its count into the
+    /// next rise; it never passes the largest target by more than its rise, far short of where the game's
+    /// count would go round (#1846).
     /// </summary>
     public int FormationCounter { get; internal set; }
 
-    /// <summary>The largest <see cref="FormationCounter"/>; counting one more wraps to zero.</summary>
-    internal const int LargestCount = 65535;
-
-    /// <summary>Counts one formation update, wrapping from <see cref="LargestCount"/> to zero.</summary>
-    internal void CountFormationTick() => FormationCounter = FormationCounter == LargestCount ? 0 : FormationCounter + 1;
+    /// <summary>Counts one formation update.</summary>
+    internal void CountFormationTick() => FormationCounter++;
 
     /// <summary>
     /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the game does by
     /// their difference wrapped to sixteen bits and read as signed.
     /// </summary>
-    internal bool HasReachedStaggerTarget => CoordinateAxis.Difference(FormationCounter, StaggerTarget) >= 0;
+    internal bool HasReachedStaggerTarget => FormationCounter >= StaggerTarget;
 
     /// <summary>
     /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring
@@ -66,21 +63,19 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public int RespawnDelay { get; internal set; }
     /// <summary>The speed, and its negation, this Norfair bug flies at: the spawn settings' speed.</summary>
-    public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
+    public EnemyLinearSpeed FlightSpeeds { get; internal set; }
     /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
     public Position16<RoomPixels> RiseEnd { get; internal set; }
     /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>
     public int StaggerTarget { get; internal set; }
     /// <summary>The action selected for this Norfair member after rising, or null before its formation assigns one.</summary>
     public PipeBugAction? NorfairPostRiseAction { get; internal set; }
-    /// <summary>A yellow Pipe Bug's signed 1/65536-pixel rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
-    public SignedSixteenSixteen PositiveVelocity { get; internal set; }
-    /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>
-    public SignedSixteenSixteen NegativeVelocity { get; internal set; }
+    /// <summary>A yellow Pipe Bug's flight speed in pixels per update, the spawn settings' speed: added flying right and negated flying left.</summary>
+    public SignedSixteenSixteen FlightSpeed { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public int EmergenceDelay { get; internal set; }
     /// <summary>
-    /// The whole-mark place along the quadratic speed curve a yellow Pipe Bug's arc reads, from the curve's start through the
+    /// The whole-mark place along the speed curve a yellow Pipe Bug's arc reads, from the curve's start through the
     /// curve's last mark. The rising phase moves it back from mark 40 and ends when it would pass the curve's start; the returning
     /// phase moves it back on.
     /// </summary>

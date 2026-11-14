@@ -22,12 +22,23 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
         set => field = Ensure.BetweenInclusive(0, SwayPeriod - 1, value);
     }
 
-    /// <summary>The angle whose sine is the sway's sideways speed: the phase's angle with its quarter-turn bit set.</summary>
-    internal TrigonometryAngle SwayAngle => TrigonometryAngle.Wrapped((SwayPhase >> 1) | QuarterTurn);
+    /// <summary>
+    /// The angle whose sine is the sway's sideways speed: the phase's angle, kept to the turn's second and fourth
+    /// quarters, so an angle in the first or third quarter is turned on a quarter turn (#1847).
+    /// </summary>
+    internal TrigonometryAngle SwayAngle
+    {
+        get
+        {
+            int angle = SwayPhase / 2;
+            bool inFirstOrThirdQuarter = angle / QuarterTurn % 2 == 0;
+            return TrigonometryAngle.Wrapped(inFirstOrThirdQuarter ? angle + QuarterTurn : angle);
+        }
+    }
 
     /// <summary>Moves the sway on by <paramref name="step"/> half-angle units, wrapping at a full swing.</summary>
     internal void AdvanceSway(int step) => SwayPhase = (SwayPhase + step) % SwayPeriod;
 
-    /// <summary>The quarter-turn bit set in the sway's angle.</summary>
+    /// <summary>A quarter turn, in the sway angle's steps.</summary>
     private const int QuarterTurn = 64;
 }

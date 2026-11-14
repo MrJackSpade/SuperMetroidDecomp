@@ -39,13 +39,13 @@ public enum RoomSpriteObjectKind
     /// <summary>Finite afterimage left behind by a falling spark.</summary>
     FallingSparkTrail,
     /// <summary>Looping electrical outer-body art, allocated and repositioned by the Metroid owner.</summary>
-    MetroidOuterBodyA,
+    MetroidElectricity,
     /// <summary>Looping shell layer paired with the Metroid's electrical sprite object.</summary>
-    MetroidOuterBodyB,
+    MetroidShell,
     /// <summary>Held root art placed eight pixels above a Yapping Maw that reaches down.</summary>
-    YappingMawRootVariantZero,
+    YappingMawRootFacingDown,
     /// <summary>Held root art placed eight pixels below a Yapping Maw that reaches up.</summary>
-    YappingMawRootVariantOne,
+    YappingMawRootFacingUp,
     /// <summary>Looping left-facing Evir art used for both Draygon's opening dance and burial.</summary>
     DraygonIntroEvir,
     /// <summary>Looping right-facing Evir art moved by Draygon's burial sequence.</summary>

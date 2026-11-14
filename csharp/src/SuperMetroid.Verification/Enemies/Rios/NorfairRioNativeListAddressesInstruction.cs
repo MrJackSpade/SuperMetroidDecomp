@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Rios;
 
 namespace SuperMetroid.Verification.Enemies.Rios;
 
-/// <summary>The kind and operands of one norfair rio native list addresses instruction.</summary>
-/// <param name="Kind">The kind.</param>
+/// <summary>The cue one Norfair Rio native list instruction becomes, and its operand roles.</summary>
+/// <param name="Cue">The cue, with the flame offset it carries.</param>
 /// <param name="Operands">The operands.</param>
-internal readonly record struct NorfairRioNativeListAddressesInstruction(NorfairRioCueKind Kind, string Operands);
+internal readonly record struct NorfairRioNativeListAddressesInstruction(NorfairRioCue Cue, string Operands);

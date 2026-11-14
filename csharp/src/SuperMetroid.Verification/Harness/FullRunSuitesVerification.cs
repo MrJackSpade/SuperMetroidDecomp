@@ -586,6 +586,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
         new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
             SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
+        new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotReadsPassCamera),
+            SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotReadsPassCamera),
         new(nameof(SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
             SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
         new(nameof(SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),

@@ -47,7 +47,7 @@ internal sealed class CrocomireCombat
     internal void ReactToCrocomireBomb(EnemyBombContext c) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot);
+        ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
@@ -193,7 +193,7 @@ internal sealed class CrocomireCombat
             if (!c.UsesFrameHitboxes)
                 throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-            ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot);
+            ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
             return true;
         },
     };
@@ -218,11 +218,15 @@ internal sealed class CrocomireCombat
             context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
     }
 
-    /// <summary>Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision.</summary>
+    /// <summary>
+    /// Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision; <paramref name="camera"/> is the
+    /// camera as the shot or bomb pass runs.
+    /// </summary>
     private void ResolveCrocomireHitboxShot(
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyReaction? reaction)
+        EnemyReaction? reaction,
+        Position16<RoomPixels> camera)
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
@@ -245,7 +249,8 @@ internal sealed class CrocomireCombat
                 state,
                 body,
                 projectileType,
-                projectile);
+                projectile,
+                camera);
             return;
         }
 
@@ -259,12 +264,16 @@ internal sealed class CrocomireCombat
     /// </summary>
     internal const int MouthShotReactionHoldFrames = 8;
 
-    /// <summary>Resolves Crocomire's mouth reaction.</summary>
+    /// <summary>
+    /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
+    /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
+    /// </summary>
     internal void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
         SamusProjectileType projectileType,
-        Position16<RoomPixels> projectile)
+        Position16<RoomPixels> projectile,
+        Position16<RoomPixels> camera)
     {
         body.InvincibilityTimer = 0;
 
@@ -272,7 +281,7 @@ internal sealed class CrocomireCombat
         // the pending-hit state. This wrapped signed comparison is the game's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
-            body.Position.X.Whole - body.Radius.X - 256, state.Camera.X) < 0;
+            body.Position.X.Whole - body.Radius.X - 256, camera.X) < 0;
         int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)

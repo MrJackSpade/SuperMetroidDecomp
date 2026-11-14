@@ -307,9 +307,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 _frameResults.TorizoBellyGlow = new(ColourEffectId.BombTorizoBelly, state);
                 return null;
 
-            case TorizoCue.Signal { Kind: TorizoCueKind.NoOperation }:
-                return null;
-
             case TorizoCue.Signal { Kind: TorizoCueKind.LockAnimation }:
                 state.AnimationLocked = true;
                 return null;

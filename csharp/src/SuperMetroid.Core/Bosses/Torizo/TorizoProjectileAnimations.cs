@@ -202,7 +202,6 @@ internal static class TorizoProjectileAnimations
             Show(F.SonicBoomWallImpact, 2, 3),
             Show(F.SonicBoomWallImpact, 3, 3),
             Show(F.SonicBoomWallImpact, 4, 2),
-            Cue(new TorizoProjectileCue.Signal(K.NoOperation)),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.LandingDustRightFoot] =

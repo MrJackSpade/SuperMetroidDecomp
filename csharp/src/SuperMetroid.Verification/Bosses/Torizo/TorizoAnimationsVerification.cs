@@ -263,6 +263,10 @@ internal static class TorizoAnimationsVerification
                     beats.Add(new(cursor, BodyBeatKind.Wait));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
+                case NativeEnemyListDefinitions.WordKind.Callback when OmittedBodyInstructions.Contains(word):
+                    // A routine that returned at once has no event: read past it without a beat (#1870).
+                    cursor = unchecked((ushort)(cursor + 2));
+                    continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     AssertTrue(BodyInstructions.TryGetValue(word, out TorizoNativeListAddressesBodyInstruction instruction), $"{at}: native instruction ${word:X4} is known");
@@ -391,6 +395,9 @@ internal static class TorizoAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 case NativeEnemyListDefinitions.WordKind.Wait:
                     cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                case NativeEnemyListDefinitions.WordKind.Callback when OmittedBodyInstructions.Contains(word):
+                    cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {

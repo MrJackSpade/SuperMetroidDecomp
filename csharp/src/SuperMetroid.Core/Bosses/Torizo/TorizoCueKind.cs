@@ -23,8 +23,6 @@ internal enum TorizoCueKind
     FadeToNormalColors,
     /// <summary>Starts Bomb Torizo's fight music and belly palette effect.</summary>
     StartBombTorizoFight,
-    /// <summary>Does nothing.</summary>
-    NoOperation,
     /// <summary>Sets the animation lock.</summary>
     LockAnimation,
     /// <summary>Clears the animation lock.</summary>

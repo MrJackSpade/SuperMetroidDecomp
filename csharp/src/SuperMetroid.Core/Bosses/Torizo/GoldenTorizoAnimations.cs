@@ -67,7 +67,6 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Signal(K.LoadGoldenTorizoPalettes)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 4),
             Cue(new TorizoCue.Signal(K.AdvanceColourFade)),
-            Cue(new TorizoCue.Signal(K.NoOperation)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.StartGoldenTorizoFight)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 16),

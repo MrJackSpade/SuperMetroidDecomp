@@ -141,7 +141,6 @@ internal static class TorizoNativeListAddresses
         [0xb271] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.AdvanceColourFade)), []),
         [0xb94d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.FadeToNormalColors)), []),
         [0xb951] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.StartBombTorizoFight)), []),
-        [0xc2c8] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.NoOperation)), []),
         [0xc2c9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.LockAnimation)), []),
         [0xc2d1] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.UnlockAnimation)), []),
         [0xc2d9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice GoToIfFaceBlownUpElseIfGolden", cue => cue.Kind == TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden), [TorizoOperand.Target, TorizoOperand.Alternate]),
@@ -195,6 +194,12 @@ internal static class TorizoNativeListAddresses
         [0xd526] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice CallGoldenTorizoAttack", cue => cue.Kind == TorizoChoiceKind.CallGoldenTorizoAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
         [0xd54d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkGoldenTorizo", cue => cue.Kind == TorizoWalkKind.WalkGoldenTorizo), [TorizoOperand.Value]),
     };
+
+    /// <summary>
+    /// The bank-$AA routine both Torizos' stand-up lists call between the colour fade and the unlock (#1870): it returned at
+    /// once, so the animations have no event for it and the oracle reads past it without a beat.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedBodyInstructions = [0xc2c8];
 
     /// <summary>What a native Torizo list word does: the shared kinds, plus the common $814B tile transfer.</summary>
     internal enum BodyWordKind

@@ -198,8 +198,6 @@ internal sealed class TorizoAttacks
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawInFront }:
                     projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
                     return null;
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.NoOperation }:
-                    return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileCueKind)} {cue}.");
             }

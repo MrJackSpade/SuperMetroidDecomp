@@ -30,7 +30,7 @@ internal static class CeresSteamDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Animation),
                 $"Ceres steam {variant} instruction list");
-            AssertEqual(CeresNativeWords.SteamActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
+            AssertEqual(CeresNativeWords.DecodeSteamAction(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Action,
                 $"Ceres steam {variant} function");
 

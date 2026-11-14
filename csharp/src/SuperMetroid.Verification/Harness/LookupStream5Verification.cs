@@ -1470,7 +1470,7 @@ internal static class LookupStream5Verification
         {
             var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActions.Word(actual.Action), "Ceres steam original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActionWord(actual.Action), "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
         {

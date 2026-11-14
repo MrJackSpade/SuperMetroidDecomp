@@ -18,7 +18,7 @@ internal sealed class RoomAnimatedCharacters
     private readonly BgCharacterSet set;
 
     /// <summary>The installed characters of the animations' frames.</summary>
-    private readonly RoomFxAnimatedTileAtlas animatedTiles;
+    private readonly RoomFxBlockAnimationAtlas animatedTiles;
 
     /// <summary>Each character an animation paints, with the animations that paint it and their uploads, in consulting order.</summary>
     private readonly Dictionary<int, List<AppearanceOption>> painting = [];
@@ -27,7 +27,7 @@ internal sealed class RoomAnimatedCharacters
     /// The animations among <paramref name="options"/> that paint <paramref name="set"/>'s characters, whose frames
     /// <paramref name="animatedTiles"/> holds.
     /// </summary>
-    internal RoomAnimatedCharacters(IReadOnlyList<AppearanceOption> options, BgCharacterSet set, RoomFxAnimatedTileAtlas animatedTiles)
+    internal RoomAnimatedCharacters(IReadOnlyList<AppearanceOption> options, BgCharacterSet set, RoomFxBlockAnimationAtlas animatedTiles)
     {
         this.set = set;
         this.animatedTiles = animatedTiles;

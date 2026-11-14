@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The retail room states' effect selections, each holding its door records in the game's order and its default record, and the records
+/// The retail room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects
 /// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.
 /// </summary>
 public static class RoomFxDefinitions
@@ -828,11 +828,11 @@ public static class RoomFxDefinitions
 
     /// <summary>The GlassTunnelSave room FX.</summary>
     public static RoomFxSelection GlassTunnelSave { get; } = new(nameof(GlassTunnelSave), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The GlassTunnel room FX.</summary>
     public static RoomFxSelection GlassTunnel { get; } = new(nameof(GlassTunnel), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The WestTunnel room FX.</summary>
     public static RoomFxSelection WestTunnel { get; } = new(nameof(WestTunnel), [],
@@ -844,115 +844,115 @@ public static class RoomFxDefinitions
 
     /// <summary>The MainStreet room FX.</summary>
     public static RoomFxSelection MainStreet { get; } = new(nameof(MainStreet), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The FishTank room FX.</summary>
     public static RoomFxSelection FishTank { get; } = new(nameof(FishTank), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The MamaTurtle room FX.</summary>
     public static RoomFxSelection MamaTurtle { get; } = new(nameof(MamaTurtle), [],
-        new(698, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(698, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The CrabTunnel room FX.</summary>
     public static RoomFxSelection CrabTunnel { get; } = new(nameof(CrabTunnel), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The MtEverest room FX.</summary>
     public static RoomFxSelection MtEverest { get; } = new(nameof(MtEverest), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The RedFish room FX.</summary>
     public static RoomFxSelection RedFish { get; } = new(nameof(RedFish), [],
-        new(384, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(384, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The WateringHole room FX.</summary>
     public static RoomFxSelection WateringHole { get; } = new(nameof(WateringHole), [],
-        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The NWestMaridiaBug room FX.</summary>
     public static RoomFxSelection NWestMaridiaBug { get; } = new(nameof(NWestMaridiaBug), [],
-        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The CrabShaft room FX.</summary>
     public static RoomFxSelection CrabShaft { get; } = new(nameof(CrabShaft), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The PseudoPlasmaSpark room FX.</summary>
     public static RoomFxSelection PseudoPlasmaSpark { get; } = new(nameof(PseudoPlasmaSpark), [],
-        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(437, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The CrabHole room FX.</summary>
     public static RoomFxSelection CrabHole { get; } = new(nameof(CrabHole), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The WestSandHallTunnel room FX.</summary>
     public static RoomFxSelection WestSandHallTunnel { get; } = new(nameof(WestSandHallTunnel), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The PlasmaTutorial room FX.</summary>
     public static RoomFxSelection PlasmaTutorial { get; } = new(nameof(PlasmaTutorial), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The Plasma room FX.</summary>
     public static RoomFxSelection Plasma { get; } = new(nameof(Plasma), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The ThreadTheNeedle room FX.</summary>
     public static RoomFxSelection ThreadTheNeedle { get; } = new(nameof(ThreadTheNeedle), [],
-        new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The MaridiaElev room FX.</summary>
     public static RoomFxSelection MaridiaElev { get; } = new(nameof(MaridiaElev), [],
-        new(1461, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterA));
+        new(1461, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The PlasmaSpark room FX.</summary>
     public static RoomFxSelection PlasmaSpark { get; } = new(nameof(PlasmaSpark), [],
-        new(948, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(948, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The Kassiuz room FX.</summary>
     public static RoomFxSelection Kassiuz { get; } = new(nameof(Kassiuz), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, null, [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The MaridiaMap room FX.</summary>
     public static RoomFxSelection MaridiaMap { get; } = new(nameof(MaridiaMap), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterB));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.TealMaridiaWater));
 
     /// <summary>The ForgottenHighwaySave room FX.</summary>
     public static RoomFxSelection ForgottenHighwaySave { get; } = new(nameof(ForgottenHighwaySave), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The Toilet room FX.</summary>
     public static RoomFxSelection Toilet { get; } = new(nameof(Toilet),
     [
-        new(MaridiaDoorDefinitions.PlasmaSpark1, new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.MaridiaWaterC)),
-        new(MaridiaDoorDefinitions.Oasis2, new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.MaridiaWaterC)),
+        new(MaridiaDoorDefinitions.PlasmaSpark1, new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.GreenMaridiaWater)),
+        new(MaridiaDoorDefinitions.Oasis2, new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: true), [], [], RoomFxPaletteBlend.GreenMaridiaWater)),
     ],
-        new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(128, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The BugSandHole room FX.</summary>
     public static RoomFxSelection BugSandHole { get; } = new(nameof(BugSandHole), [],
-        new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(181, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The WestSandHall room FX.</summary>
     public static RoomFxSelection WestSandHall { get; } = new(nameof(WestSandHall), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The Oasis room FX.</summary>
     public static RoomFxSelection Oasis { get; } = new(nameof(Oasis), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The EastSandHall room FX.</summary>
     public static RoomFxSelection EastSandHall { get; } = new(nameof(EastSandHall), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterC));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The WestSandHole room FX.</summary>
     public static RoomFxSelection WestSandHole { get; } = new(nameof(WestSandHole), [],
-        new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD));
+        new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The EastSandHole room FX.</summary>
     public static RoomFxSelection EastSandHole { get; } = new(nameof(EastSandHole), [],
-        new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD));
+        new(214, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The EastAqueductQuicksandWestAqueductQuicksand room FX.</summary>
     public static RoomFxSelection EastAqueductQuicksandWestAqueductQuicksand { get; } = new(nameof(EastAqueductQuicksandWestAqueductQuicksand), [],
@@ -960,55 +960,55 @@ public static class RoomFxDefinitions
 
     /// <summary>The Aqueduct room FX.</summary>
     public static RoomFxSelection Aqueduct { get; } = new(nameof(Aqueduct), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The Butterfly room FX.</summary>
     public static RoomFxSelection Butterfly { get; } = new(nameof(Butterfly), [],
-        new(73, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterA));
+        new(73, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The BotwoonHallway room FX.</summary>
     public static RoomFxSelection BotwoonHallway { get; } = new(nameof(BotwoonHallway), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The Pants room FX.</summary>
     public static RoomFxSelection Pants { get; } = new(nameof(Pants), [],
-        new(688, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(688, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The EastPants room FX.</summary>
     public static RoomFxSelection EastPants { get; } = new(nameof(EastPants), [],
-        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The Springball room FX.</summary>
     public static RoomFxSelection Springball { get; } = new(nameof(Springball), [],
-        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The BelowBotwoonETank room FX.</summary>
     public static RoomFxSelection BelowBotwoonETank { get; } = new(nameof(BelowBotwoonETank), [],
-        new(72, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.MaridiaWaterD));
+        new(72, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The Colosseum room FX.</summary>
     public static RoomFxSelection Colosseum { get; } = new(nameof(Colosseum), [],
-        new(279, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits, PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD));
+        new(279, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits, PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The AqueductSave room FX.</summary>
     public static RoomFxSelection AqueductSave { get; } = new(nameof(AqueductSave), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The ThePrecious room FX.</summary>
     public static RoomFxSelection ThePrecious { get; } = new(nameof(ThePrecious), [],
-        new(191, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(191, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The BotwoonETank room FX.</summary>
     public static RoomFxSelection BotwoonETank { get; } = new(nameof(BotwoonETank), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandPits], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The DraygonSave room FX.</summary>
     public static RoomFxSelection DraygonSave { get; } = new(nameof(DraygonSave), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The MaridiaMissileRefill room FX.</summary>
     public static RoomFxSelection MaridiaMissileRefill { get; } = new(nameof(MaridiaMissileRefill), [],
-        new(0, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(0, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The PlasmaBeachQuicksandBotwoonQuicksand room FX.</summary>
     public static RoomFxSelection PlasmaBeachQuicksandBotwoonQuicksand { get; } = new(nameof(PlasmaBeachQuicksandBotwoonQuicksand), [],
@@ -1016,35 +1016,35 @@ public static class RoomFxDefinitions
 
     /// <summary>The Shaktool room FX.</summary>
     public static RoomFxSelection Shaktool { get; } = new(nameof(Shaktool), [],
-        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterC));
+        new(176, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.GreenMaridiaWater));
 
     /// <summary>The HalfieClimb room FX.</summary>
     public static RoomFxSelection HalfieClimb { get; } = new(nameof(HalfieClimb), [],
-        new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD));
+        new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The Botwoon room FX.</summary>
     public static RoomFxSelection Botwoon { get; } = new(nameof(Botwoon), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaSandFalls], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The SpaceJump room FX.</summary>
     public static RoomFxSelection SpaceJump { get; } = new(nameof(SpaceJump), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The MaridiaEnergyRefill room FX.</summary>
     public static RoomFxSelection MaridiaEnergyRefill { get; } = new(nameof(MaridiaEnergyRefill), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The WestCactusAlley room FX.</summary>
     public static RoomFxSelection WestCactusAlley { get; } = new(nameof(WestCactusAlley), [],
-        new(185, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterD));
+        new(185, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The EastCactusAlley room FX.</summary>
     public static RoomFxSelection EastCactusAlley { get; } = new(nameof(EastCactusAlley), [],
-        new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.MaridiaWaterD));
+        new(309, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.WaterfallDarkensBehind, new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [PaletteFxObject.MaridiaBackgroundWaterfalls], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.PurpleMaridiaWater));
 
     /// <summary>The Draygon room FX.</summary>
     public static RoomFxSelection Draygon { get; } = new(nameof(Draygon), [],
-        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.MaridiaWaterA));
+        new(16, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Water, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayDarkens, new RoomWater(LiquidTide.Small, SurfaceDrift: true, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false), [], [], RoomFxPaletteBlend.IndigoMaridiaWater));
 
     /// <summary>The TourianFirst room FX.</summary>
     public static RoomFxSelection TourianFirst { get; } = new(nameof(TourianFirst), [],
@@ -1170,9 +1170,9 @@ public static class RoomFxDefinitions
     public static RoomFxSelection MotherBrainWhenMainAreaBossDead { get; } = new(nameof(MotherBrainWhenMainAreaBossDead), [],
         null);
 
-    /// <summary>The MotherBrainAcidRises room FX record, which Mother Brain's fight applies to her room after its default record.</summary>
-    public static RoomFxRecordDefinition MotherBrainAcidRises { get; } = new(232, 184, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava);
+    /// <summary>The MotherBrainAcidRises room effect, which Mother Brain's fight applies to her room after its default effect.</summary>
+    public static RoomEffectDefinition MotherBrainAcidRises { get; } = new(232, 184, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava);
 
-    /// <summary>The MotherBrainAcidDrains room FX record, which Mother Brain's fight applies to her room after its default record.</summary>
-    public static RoomFxRecordDefinition MotherBrainAcidDrains { get; } = new(184, 232, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava);
+    /// <summary>The MotherBrainAcidDrains room effect, which Mother Brain's fight applies to her room after its default effect.</summary>
+    public static RoomEffectDefinition MotherBrainAcidDrains { get; } = new(184, 232, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48), 16, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.Lava);
 }

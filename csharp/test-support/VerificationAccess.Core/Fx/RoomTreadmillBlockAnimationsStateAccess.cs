@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomTreadmillBlockAnimationsState"/> members production does not use.</summary>
-internal static class RoomTreadmillAnimatedTilesStateAccess
+internal static class RoomTreadmillBlockAnimationsStateAccess
 {
     /// <summary>Counts treadmill animation objects selected by the room or door FX record.</summary>
     extension(RoomTreadmillBlockAnimationsState self)

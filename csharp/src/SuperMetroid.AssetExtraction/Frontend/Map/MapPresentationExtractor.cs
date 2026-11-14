@@ -320,10 +320,10 @@ public static class MapPresentationExtractor
             file.Write(motherBrainRoomColorBytes);
         hashes.Add(MotherBrainRoomColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRoomColorBytes)));
-        byte[] roomFxAnimatedTileBytes = RoomFxAnimatedTileAtlasExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(RoomFxAnimatedTileAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
+        byte[] roomFxAnimatedTileBytes = RoomFxBlockAnimationAtlasExtractor.Extract(bus);
+        using (var file = new FileStream(PathOf(RoomFxBlockAnimationAtlasFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(roomFxAnimatedTileBytes);
-        hashes.Add(RoomFxAnimatedTileAtlasFile.FileName,
+        hashes.Add(RoomFxBlockAnimationAtlasFile.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxAnimatedTileBytes)));
         byte[] roomFxLayer3TilemapBytes = RoomFxLayer3TilemapExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(RoomFxLayer3TilemapFormat.FileName), FileMode.CreateNew, FileAccess.Write))

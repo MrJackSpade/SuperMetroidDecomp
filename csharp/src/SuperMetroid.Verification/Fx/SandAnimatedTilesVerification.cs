@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
+using static SuperMetroid.Verification.Fx.RoomFxBlockAnimationArtworkVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Fx;

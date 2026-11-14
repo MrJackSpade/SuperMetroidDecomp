@@ -9,11 +9,11 @@ internal static class RoomPaletteFxSystemAccess
     extension(RoomPaletteFxSystem)
     {
         /// <summary>Builds room palette FX from an explicit FX record through the normal room palette-object path.</summary>
-        internal static RoomPaletteFxSystem ForDefinition(PaletteFxSessionState session, RoomFxRecordDefinition definition,
+        internal static RoomPaletteFxSystem ForDefinition(PaletteFxSessionState session, RoomEffectDefinition definition,
             ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            return RoomPaletteFxSystem.ForRecord(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomFxRecordDefinition?)(definition));
+            return RoomPaletteFxSystem.ForRecord(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
         }
     }
 }

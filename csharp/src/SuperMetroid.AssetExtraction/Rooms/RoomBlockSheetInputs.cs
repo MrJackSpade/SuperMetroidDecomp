@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// palettes, whose sprite rows every room load restores.
 /// </param>
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
-    RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles,
+    RoomStaticPalettes Palettes, RoomFxBlockAnimationAtlas AnimatedTiles,
     BossSourceArtwork Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
     EscapeTypewriterPresentation EscapeTypewriter, ImportAreaMapPresentation Maps, EnemySheetInputs Objects)
 {
@@ -43,7 +43,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
             RoomCharacterArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName))),
             RoomMetatileArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName))),
             RoomStaticPaletteArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName))),
-            maps.RoomFxAnimatedTiles,
+            maps.BlockAnimationAtlas,
             objects.Bosses,
             maps.Characters.Hud,
             RoomBackgroundTilemapArtworkFiles.LoadForImport(backgrounds),

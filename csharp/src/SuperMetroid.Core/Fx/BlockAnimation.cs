@@ -15,23 +15,23 @@ public enum BlockAnimation
     TourianStatueKraid,
     /// <summary>The Draygon statue in the Tourian statue room.</summary>
     TourianStatueDraygon,
-    /// <summary>Horizontal spikes, gated by the common area flag set's first flag.</summary>
+    /// <summary>Horizontal spikes, which a room's effect can animate in every area.</summary>
     HorizontalSpikes,
-    /// <summary>Vertical spikes, gated by the common area flag set's second flag.</summary>
+    /// <summary>Vertical spikes, which a room's effect can animate in every area.</summary>
     VerticalSpikes,
-    /// <summary>The Crateria lake, gated by a Crateria area flag.</summary>
+    /// <summary>The Crateria lake, which only a Crateria room's effect animates.</summary>
     CrateriaLake,
-    /// <summary>The Brinstar plant, gated by a Brinstar area flag.</summary>
+    /// <summary>The Brinstar plant, which only a Brinstar room's effect animates.</summary>
     BrinstarPlant,
-    /// <summary>The Wrecked Ship screen, gated by a Wrecked Ship area flag.</summary>
+    /// <summary>The Wrecked Ship screen, which only a Wrecked Ship room's effect animates.</summary>
     WreckedShipScreen,
-    /// <summary>The Maridia sand ceiling, selected by room FX animation bits.</summary>
+    /// <summary>The Maridia sand ceiling, which only a Maridia room's effect animates.</summary>
     MaridiaSandCeiling,
-    /// <summary>Falling Maridia sand, selected by room FX animation bits.</summary>
+    /// <summary>Falling Maridia sand, which only a Maridia room's effect animates.</summary>
     MaridiaSandFalling,
-    /// <summary>Wrecked Ship rightward treadmill object.</summary>
+    /// <summary>The Wrecked Ship's rightward treadmill, which only a Wrecked Ship room's effect animates.</summary>
     WreckedShipTreadmillRightwards,
-    /// <summary>Wrecked Ship leftward treadmill object.</summary>
+    /// <summary>The Wrecked Ship's leftward treadmill, which only a Wrecked Ship room's effect animates.</summary>
     WreckedShipTreadmillLeftwards,
 
     /// <summary>

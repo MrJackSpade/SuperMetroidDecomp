@@ -3,17 +3,17 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The import's view of the simple room-FX animated-tile loops (#1502): the seven loops the atlas holds, in atlas order,
+/// The import's view of the simple room-FX block-animation loops (#1502): the seven loops the atlas holds, in atlas order,
 /// each loop's distinct pictures and their sizes, and the byte lengths of the treadmill frames and the Tourian statue strip. The game
 /// resolves one loop at a time and draws the installed pictures.
 /// </summary>
-public static class RoomFxAnimatedTileLoops
+public static class RoomFxBlockAnimationLoops
 {
     /// <summary>The bytes of characters every Wrecked Ship treadmill frame shows: two characters.</summary>
     public const int TreadmillFrameByteCount = 32;
 
     /// <summary>The Tourian statue strip's length in bytes.</summary>
-    public const int TourianStatueStripByteCount = RoomFxAnimatedTileAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.CharacterByteCount;
+    public const int TourianStatueStripByteCount = RoomFxBlockAnimationAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.CharacterByteCount;
 
     /// <summary>The loop of an object the atlas holds.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is not one of the simple loops.</exception>
@@ -47,7 +47,7 @@ public static class RoomFxAnimatedTileLoops
         {
             get
             {
-                if (!RoomFxAnimatedTilePictureCountDefinitions.PictureCounts.TryGetValue(loop.AnimatedObject, out int count))
+                if (!RoomFxBlockAnimationPictureCountDefinitions.PictureCounts.TryGetValue(loop.AnimatedObject, out int count))
                     throw new InvalidDataException($"{loop.AnimatedObject} has no pictures in the room-FX atlas.");
                 if (count <= 0 || count > loop.Frames.Count)
                     throw new InvalidDataException(
@@ -59,7 +59,7 @@ public static class RoomFxAnimatedTileLoops
         /// <summary>The bytes of characters each of the object's pictures holds.</summary>
         /// <exception cref="InvalidDataException">The object has no pictures in the atlas.</exception>
         internal int PictureByteCount =>
-            RoomFxAnimatedTilePictureSizeDefinitions.PictureByteCounts.TryGetValue(loop.AnimatedObject, out int byteCount) ? byteCount
+            RoomFxBlockAnimationPictureSizeDefinitions.PictureByteCounts.TryGetValue(loop.AnimatedObject, out int byteCount) ? byteCount
                 : throw new InvalidDataException($"{loop.AnimatedObject} has no pictures in the room-FX atlas.");
 
         /// <summary>The distinct pictures the object's frames show, in order.</summary>

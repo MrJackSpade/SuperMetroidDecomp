@@ -122,7 +122,7 @@ internal static class RoomFxPaletteBlendsVerification
     /// <summary>Loads a selected compiled FX record through a bus that forbids bank-$89 reads.</summary>
     private static ConstructBlendLoadResult ConstructBlendLoad(RoomFxPaletteBlend selection)
     {
-        RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
+        RoomEffectDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
         var state = RoomFxOverlayState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
@@ -134,7 +134,7 @@ internal static class RoomFxPaletteBlendsVerification
         RoomFxBlendSheetShades.Of(catalog).Single(shade => shade.Shade == RoomFxBlendShading.Of(selection));
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
-    private static RoomFxRecordDefinition SelectCompiledBlendRecord(RoomFxPaletteBlend selection) =>
+    private static RoomEffectDefinition SelectCompiledBlendRecord(RoomFxPaletteBlend selection) =>
         RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend {selection}.");

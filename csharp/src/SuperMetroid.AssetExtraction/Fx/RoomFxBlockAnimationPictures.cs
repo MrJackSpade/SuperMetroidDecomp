@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// the Tourian statues' OBJ pictures from them. Pictures are found by their place in the atlas's segment order, and the
 /// statues' pictures as windows of the shared statue strip (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
-internal static class RoomFxAnimatedTilePictures
+internal static class RoomFxBlockAnimationPictures
 {
     /// <summary>The pictures each Tourian statue shows, each one window of the shared strip.</summary>
     internal static IReadOnlyList<TourianStatueBlockPicture> TourianStatuePictures { get; } = Enum.GetValues<TourianStatueBlockPicture>();
@@ -40,14 +40,14 @@ internal static class RoomFxAnimatedTilePictures
         TourianStatueWindow(statue).Tiles * TourianStatueTileStripDefinitions.CharacterByteCount;
 
     /// <summary>The pictures of one installed atlas.</summary>
-    extension(RoomFxAnimatedTileAtlas atlas)
+    extension(RoomFxBlockAnimationAtlas atlas)
     {
         /// <summary>Returns the characters of one complete picture, rejecting altered picture geometry.</summary>
         /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not the picture's size.</exception>
         internal bool TryResolve(AnimatedTileImage image, int byteCount, out ReadOnlyMemory<byte> data)
         {
             int offset = 0;
-            foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFile.Segments)
+            foreach (RoomFxAtlasSegment segment in RoomFxBlockAnimationAtlasFile.Segments)
             {
                 if (segment is RoomFxAtlasSegment.Image held && held.Picture == image)
                 {
@@ -67,7 +67,7 @@ internal static class RoomFxAnimatedTilePictures
         /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
         internal ReadOnlyMemory<byte> TourianStatuePicture(TourianGreyStatues statue, TourianStatueBlockPicture picture)
         {
-            int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
+            int offset = (RoomFxBlockAnimationAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
                 TourianStatueTileStripDefinitions.CharacterByteCount;
             return atlas.characters.AsMemory(offset, TourianStatuePictureByteCount(statue));
         }

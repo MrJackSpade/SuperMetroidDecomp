@@ -20,12 +20,15 @@ internal static class LookupFxBlendSelectorsVerification
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
+        // #1740: each installed key names the tint, in the selectors' original order, not the colour-table offset.
+        string[] tintKeys =
+            ["lava", "landing-site-rain", "indigo-maridia-water", "water-and-acid", "fog", "teal-maridia-water", "green-maridia-water", "purple-maridia-water"];
         AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDocumentRules.Ids.Select(id => (byte)SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(id))), "Original blend selector order/domain");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
             if (original.Contains(id))
-                AssertEqual($"blend-{id:X2}", RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id)), "Original document key");
+                AssertEqual(tintKeys[Array.IndexOf(original, id)], RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id)), "Document key names the blend's tint");
             else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id)), "Unknown selector key rejects");
         }
     }
@@ -58,7 +61,7 @@ internal static class LookupFxBlendSelectorsVerification
         };
         byte[] ids = OriginalFxBlendIds();
         for (int index = 0; index < ids.Length; index++)
-            document.Blends.Add($"blend-{ids[index]:X2}", Enumerable.Range(0, 3)
+            document.Blends.Add(RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(ids[index])), Enumerable.Range(0, 3)
                 .Select(color => new PaletteRgb5 { Red = index, Green = color, Blue = 31 - index }).ToArray());
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -81,7 +84,7 @@ internal static class LookupFxBlendSelectorsVerification
         }
         foreach (byte id in ids)
         {
-            string key = $"blend-{id:X2}";
+            string key = RoomFxPaletteBlendDocumentRules.Key(FxNativeWords.PaletteBlend(id));
             var colors = document.Blends[key];
             document.Blends.Remove(key);
             document.Blends.Add("unknown", colors);

@@ -65,7 +65,7 @@ internal static class LookupTourianArtworkVerification
                 throw new InvalidOperationException("Verification requires definition.");
             int[] native = [.. OriginalTourianFrames(rom, header).Select(frame => frame.Source)];
             AssertEqual(9, native.Length, "Nine original timed statue frames");
-            int[] produced = [.. RoomFxAnimatedTilePictures.TourianStatuePictures.Select(picture =>
+            int[] produced = [.. RoomFxBlockAnimationPictures.TourianStatuePictures.Select(picture =>
                 AnimatedTileImageSources.TourianStatue(resolved.Statue, picture))];
             AssertEqual(produced.Length, produced.Distinct().Count(), "Each statue picture is its own artwork window");
             AssertTrue(native.ToHashSet().SetEquals(produced),

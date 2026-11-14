@@ -12,10 +12,10 @@ public interface IRoomFxMotion
     /// <summary>Removes the liquid's target, so the liquid stops.</summary>
     void RemoveLiquidTarget();
 
-    /// <summary>Sets the liquid's base surface, target surface, vertical speed and motion delay; each null value is left as it is.</summary>
+    /// <summary>Sets the liquid's level, its target level, its level speed and its move delay; each null value is left as it is.</summary>
     void SetLiquidMotion(
-        int? baseYPosition = null,
-        int? targetYPosition = null,
-        SignedEightEight? yVelocity = null,
-        int? timer = null);
+        int? liquidLevel = null,
+        int? targetLevel = null,
+        SignedEightEight? levelSpeed = null,
+        int? moveDelay = null);
 }

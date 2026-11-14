@@ -9,14 +9,14 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled area animated-tile selections against retail lists and runtime owners.</summary>
-internal static class AreaAnimatedTileObjectDefinitionsVerification
+internal static class AreaBlockAnimationDefinitionsVerification
 {
     /// <summary>
     /// Compares all eight native list pointers and all 64 object selections to the pinned
     /// cartridge, then decodes one record in two areas and executes both production population
     /// owners on the named objects while rejecting every read from those immutable bank-$83 sources.
     /// </summary>
-    internal static void VerifyAreaAnimatedTileObjectDefinitions()
+    internal static void VerifyAreaBlockAnimationDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -76,9 +76,9 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
     /// <summary>Recognizes bytes in the native area pointer table or any compiled per-area object list.</summary>
     private static bool IsCompiledAreaAnimatedTileSource(int address)
     {
-        if (address >= AreaAnimatedTileObjectDefinitions.NativeListPointerTable &&
-            address < AreaAnimatedTileObjectDefinitions.NativeListPointerTable +
-                AreaAnimatedTileObjectDefinitions.NativeAreaCount * sizeof(ushort))
+        if (address >= AreaBlockAnimationDefinitions.NativeListPointerTable &&
+            address < AreaBlockAnimationDefinitions.NativeListPointerTable +
+                AreaBlockAnimationDefinitions.NativeAreaCount * sizeof(ushort))
         {
             return true;
         }
@@ -88,13 +88,13 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
             return false;
 
         for (int areaIndex = 0;
-             areaIndex < AreaAnimatedTileObjectDefinitions.NativeAreaCount;
+             areaIndex < AreaBlockAnimationDefinitions.NativeAreaCount;
              areaIndex++)
         {
-            ushort list = AreaAnimatedTileObjectDefinitions.NativeListPointer(areaIndex);
+            ushort list = AreaBlockAnimationDefinitions.NativeListPointer(areaIndex);
             if (source.Offset >= list &&
                 source.Offset < list +
-                    AreaAnimatedTileObjectDefinitions.ObjectsPerArea * sizeof(ushort))
+                    AreaBlockAnimationDefinitions.ObjectsPerArea * sizeof(ushort))
             {
                 return true;
             }
@@ -107,7 +107,7 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
     [VerificationCommand("--area-animated-tile-definitions")]
     internal static int AreaAnimatedTileDefinitionsCommand()
     {
-        Suite(nameof(VerifyAreaAnimatedTileObjectDefinitions), () => VerifyAreaAnimatedTileObjectDefinitions());
+        Suite(nameof(VerifyAreaBlockAnimationDefinitions), () => VerifyAreaBlockAnimationDefinitions());
         return 0;
     }
 }

@@ -5,17 +5,17 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// read back from the installed atlas so the import composes room sheets and the Tourian statues' pictures from them
 /// (#1527). The game draws the composed sheets and never reads these characters.
 /// </summary>
-public sealed class RoomFxAnimatedTileAtlas
+public sealed class RoomFxBlockAnimationAtlas
 {
     /// <summary>Concatenated edited tile bytes in segment order.</summary>
     internal readonly byte[] characters;
 
     /// <summary>Accepts the compiled character strip only when its length matches the atlas's ordered frame and statue strip.</summary>
-    internal RoomFxAnimatedTileAtlas(byte[] characters)
+    internal RoomFxBlockAnimationAtlas(byte[] characters)
     {
         this.characters = characters;
-        if (characters.Length != RoomFxAnimatedTileAtlasFormat.TotalByteCount)
+        if (characters.Length != RoomFxBlockAnimationAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
-                $"Room-FX artwork has {characters.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");
+                $"Room-FX artwork has {characters.Length} bytes, expected {RoomFxBlockAnimationAtlasFormat.TotalByteCount}.");
     }
 }

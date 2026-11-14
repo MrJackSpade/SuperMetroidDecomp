@@ -16,7 +16,7 @@ internal static class TourianStatueTileStripDefinitions
     /// <summary>
     /// Each statue's windows of the strip: the animated-tile object that copies them, its first oscillation picture's
     /// first character, its pictures' width in characters and its released picture's first character
-    /// (<see cref="RoomFxAnimatedTilePictures"/>).
+    /// (<see cref="RoomFxBlockAnimationPictures"/>).
     /// </summary>
     internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueTileWindow> Windows =
         new Dictionary<TourianGreyStatues, TourianStatueTileWindow>

@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>One ordered strip of 2-bpp room-FX, treadmill, and statue characters.</summary>
-public static class RoomFxAnimatedTileAtlasFormat
+public static class RoomFxBlockAnimationAtlasFormat
 {
     /// <summary>89 characters in the original simple room-FX prefix, before treadmill, statue, spore, and spike extensions.</summary>
     public const int LegacyTileCount = 89;

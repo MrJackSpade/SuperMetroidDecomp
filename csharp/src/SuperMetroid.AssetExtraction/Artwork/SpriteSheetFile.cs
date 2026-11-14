@@ -22,9 +22,10 @@ public static class SpriteSheetFile
     /// over its rectangle, the stored picture being one period of a turning floor the game repeats beyond its edges (#1651);
     /// 21 names a room block's pictures by the block's number and a colour group's animated shades as its colour animation's
     /// (#1712); 22 names the depth between a room's back and front parts BehindFrontParts and a block animation's frames by
-    /// its block animation, not by the hardware's tiles (#1726).
+    /// its block animation, not by the hardware's tiles (#1726); 23 names the four Maridia water blends' shades by the tint
+    /// each shows instead of a letter (#1740).
     /// </summary>
-    public const int Version = 22;
+    public const int Version = 23;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

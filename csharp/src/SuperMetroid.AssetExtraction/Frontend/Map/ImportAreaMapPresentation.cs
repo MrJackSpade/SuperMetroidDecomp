@@ -56,7 +56,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         Characters = Ensure.NotNull(characters.Characters);
         Sprites = Ensure.NotNull(characters.Sprites);
         EscapeTimerTiles = Ensure.NotNull(characters.EscapeTimerTiles);
-        RoomFxAnimatedTiles = Ensure.NotNull(characters.RoomFxAnimatedTiles);
+        BlockAnimationAtlas = Ensure.NotNull(characters.BlockAnimationAtlas);
         WorldCharacters = Ensure.NotNull(characters.WorldCharacters);
         IntroFont = Ensure.NotNull(characters.IntroFont);
         EndingFont = Ensure.NotNull(characters.EndingFont);
@@ -147,7 +147,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     /// <summary>
     /// The animated tiles' characters, which the import composes room sheets and the Tourian statues' pictures from (#1527).
     /// </summary>
-    public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
+    public RoomFxBlockAnimationAtlas BlockAnimationAtlas { get; }
 
     /// <summary>The world map's characters, which the import composes the world-map and menu picture sheets from (#1583).</summary>
     public WorldMapCharacters WorldCharacters { get; }

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx;
 /// Whether Samus's movement ignores the surface until a room object enables it (the n00b tube's glass), as though the
 /// room were dry.
 /// </param>
-[IndependentFlag("independent options a room's effect record gives its water: surface drift, background wave and whether Samus ignores the surface; retail records combine them freely")]
+[IndependentFlag("independent options a room's effect gives its water: surface drift, background wave and whether Samus ignores the surface; retail effects combine them freely")]
 public sealed record RoomWater(LiquidTide Tide, bool SurfaceDrift, bool BackgroundWave, bool IgnoresSurfaceUntilEnabled)
     : RoomLiquid(Tide)
 {

@@ -37,11 +37,11 @@ internal static class RoomFxRecordWords
         [RoomFxPaletteBlend.None] = 0x00,
         [RoomFxPaletteBlend.Lava] = 0x02,
         [RoomFxPaletteBlend.LandingSiteRain] = 0x22,
-        [RoomFxPaletteBlend.MaridiaWaterA] = 0x42,
+        [RoomFxPaletteBlend.IndigoMaridiaWater] = 0x42,
         [RoomFxPaletteBlend.WaterAndAcid] = 0x48,
         [RoomFxPaletteBlend.Fog] = 0x62,
-        [RoomFxPaletteBlend.MaridiaWaterB] = 0xe2,
-        [RoomFxPaletteBlend.MaridiaWaterC] = 0xe8,
-        [RoomFxPaletteBlend.MaridiaWaterD] = 0xee,
+        [RoomFxPaletteBlend.TealMaridiaWater] = 0xe2,
+        [RoomFxPaletteBlend.GreenMaridiaWater] = 0xe8,
+        [RoomFxPaletteBlend.PurpleMaridiaWater] = 0xee,
     });
 }

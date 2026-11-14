@@ -247,7 +247,7 @@ internal static class LookupTourianProgramVerification
     private static TourianStatueBlockPicture Picture(TourianStatueAnimationDefinition definition, ushort operand, string at)
     {
         int source = RoomFxNativeSources.AnimatedTilesBank | operand;
-        TourianStatueBlockPicture[] matches = [.. RoomFxAnimatedTilePictures.TourianStatuePictures.Where(picture =>
+        TourianStatueBlockPicture[] matches = [.. RoomFxBlockAnimationPictures.TourianStatuePictures.Where(picture =>
             AnimatedTileImageSources.TourianStatue(definition.Statue, picture) == source)];
         AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
         return matches[0];

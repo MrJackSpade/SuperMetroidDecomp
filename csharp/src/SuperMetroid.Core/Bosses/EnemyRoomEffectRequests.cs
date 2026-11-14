@@ -31,7 +31,7 @@ public readonly record struct EnemyRoomEffectRequests(
     IReadOnlyList<RoomObjectSpawnRequest<CrocomireArenaMutation>> CrocomireObjects,
     IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> KraidObjects,
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
-    RoomFxRecordDefinition? MotherBrainAcidChange,
+    RoomEffectDefinition? MotherBrainAcidChange,
     IReadOnlyList<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects,
     IReadOnlyList<RoomObjectSpawnRequest<ShitroidWallMutation>> ShitroidObjects,
     TorizoBellyGlowRequest? TorizoBellyGlow,

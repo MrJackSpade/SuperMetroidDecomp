@@ -858,7 +858,7 @@ internal sealed class RoomLoader
         // The room-main behaviour runs even in Crateria's rock room, whose background stays its own background.
         // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
         // setup starts, not to the room's main behaviour.
-        RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
+        RoomEffectDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainBehavior), skyHasBands)

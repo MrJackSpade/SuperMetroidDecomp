@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// knowledge, decoded once into the installed atlas.
 /// </summary>
 [EncodingOwner("cartridge addresses of the room-FX animated characters")]
-internal static class RoomFxAnimatedTileSourceDefinitions
+internal static class RoomFxBlockAnimationSourceDefinitions
 {
     /// <summary>$87:9D84, the three horizontal-spike pictures played 0/1/2/1 by $87:817E.</summary>
     internal static readonly SnesAddress HorizontalSpikes = new(0x87, 0x9d84);

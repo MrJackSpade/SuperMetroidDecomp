@@ -46,7 +46,7 @@ internal static class RoomLiquidDecisionsVerification
     /// byte's bits select, and the readers of the liquid (Samus's water physics, the tide, the background waves and heat
     /// hazes the display describes) decide as those bits do.
     /// </summary>
-    internal static void AssertRecordLiquidDecisions(RoomFxRecordDefinition record, byte options, string context)
+    internal static void AssertRecordLiquidDecisions(RoomEffectDefinition record, byte options, string context)
     {
         AssertLiquidFacts(record.Type, options, record.Liquid, context);
         if (record.Liquid is null)

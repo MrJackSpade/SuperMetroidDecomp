@@ -1,15 +1,15 @@
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Fx.AreaAnimatedTileObjectDefinitions;
+using static SuperMetroid.Core.Fx.AreaBlockAnimationDefinitions;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Selects the animated-tile object an area's FX bit enables (<see cref="AreaAnimatedTileObjectDefinitions"/>): the shared spikes
+/// Selects the block animation an area's FX bit enables (<see cref="AreaBlockAnimationDefinitions"/>): the shared spikes
 /// for the first two bits, then the area's named effects, or none for a bit no retail record of the area sets (#1686). The
 /// import's decode knowledge: the record codec resolves each record's bits through it, and the decoded record names the
 /// objects (#1526).
 /// </summary>
-internal static class AreaAnimatedTileObjects
+internal static class AreaBlockAnimations
 {
     /// <summary>Direct area/bit behavior selection, shared by retail and audit views.</summary>
     /// <remarks>All eight areas' selections share spike objects for
@@ -25,7 +25,7 @@ internal static class AreaAnimatedTileObjects
         0 => BlockAnimation.HorizontalSpikes,
         1 => BlockAnimation.VerticalSpikes,
         _ => areaIndex < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count
-            ? SelectAreaObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Animated-tile area"), bit)
+            ? SelectAreaObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Block-animation area"), bit)
             : null,
     };
 
@@ -47,7 +47,7 @@ internal static class AreaAnimatedTileObjects
         if ((uint)bit >= ObjectsPerArea)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(bit), bit, $"Animated-tile bit must be 0..{ObjectsPerArea - 1}.");
+                nameof(bit), bit, $"Block-animation bit must be 0..{ObjectsPerArea - 1}.");
         }
 
         return SelectObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bit);

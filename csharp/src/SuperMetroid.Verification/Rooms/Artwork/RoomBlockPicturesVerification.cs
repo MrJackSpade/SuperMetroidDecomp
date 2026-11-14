@@ -80,7 +80,7 @@ internal static class RoomBlockPicturesVerification
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateLists.GetStates(RoomDefinitions.WreckedShipMainShaft)
-                .Single(state => state.Fx?.Records.Any(record => !record.BlockAnimations.IsEmpty) == true),
+                .Single(state => state.Fx?.Effects.Any(record => !record.BlockAnimations.IsEmpty) == true),
             runtime => runtime.System.RecordBossesDefeated((int)AreaId.WreckedShip, DefeatedBosses.AreaBoss));
     }
 
@@ -420,7 +420,7 @@ internal static class RoomBlockPicturesVerification
         var rooms = new List<RoomDefinition> { RoomDefinitions.Kraid };
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            rooms.Add(RetailRooms.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
+            rooms.Add(RetailRooms.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Effects
                 .Any(record => record.Type == effect) == true));
         }
         foreach (RoomDefinition room in rooms)
@@ -691,10 +691,10 @@ internal static class RoomBlockPicturesVerification
     private static RoomBlockUploads.TilesetUploads UploadsOf(SuperMetroidRuntime runtime) => TilesetUploads.Value[RoomScopeOf(runtime).Assets.Tileset];
 
     /// <summary>The installed characters of the animated-tile frames <paramref name="runtime"/>'s room <paramref name="room"/> can show.</summary>
-    private static RoomFxAnimatedTileAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
+    private static RoomFxBlockAnimationAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
         runtime.Artwork.MapPresentation is null ? throw new InvalidOperationException($"{room}: the runtime has no installed presentation.")
             // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
-            : SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
+            : SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.BlockAnimationAtlas;
 
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for

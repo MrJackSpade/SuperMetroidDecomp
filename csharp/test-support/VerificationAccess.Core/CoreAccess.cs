@@ -232,7 +232,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
-    internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
+    internal static IEnumerable<RoomEffectDefinition> AllRoomFxRecords()
     {
         return RoomFxDefinitions.AllRecords;
     }

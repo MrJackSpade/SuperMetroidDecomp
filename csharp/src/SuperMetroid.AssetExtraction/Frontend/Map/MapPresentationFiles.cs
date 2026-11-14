@@ -65,7 +65,7 @@ public static class MapPresentationFiles
         WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile, MapSpriteFormat.PngFile,
         EscapeTimerTileAtlasFormat.FileName, IntroFontCharacters.FileName, EndingFontAtlasFormat.FileName,
         TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile,
-        RoomFxAnimatedTileAtlasFile.FileName,
+        RoomFxBlockAnimationAtlasFile.FileName,
     ];
 
     /// <summary>
@@ -137,7 +137,7 @@ public static class MapPresentationFiles
                 Page(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s))),
             Pages<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
             Page(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s)),
-            Page(RoomFxAnimatedTileAtlasFile.FileName, "room-FX presentation", s => RoomFxAnimatedTileAtlasPng.Read(s)),
+            Page(RoomFxBlockAnimationAtlasFile.FileName, "room-FX presentation", s => RoomFxBlockAnimationAtlasPng.Read(s)),
             Pages<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
                 "world-map PNG artwork", s => WorldMapCharacters.Read(s[0], s[1])),
             Page(IntroFontCharacters.FileName, "intro font", s => IntroFontCharacters.Read(s)),

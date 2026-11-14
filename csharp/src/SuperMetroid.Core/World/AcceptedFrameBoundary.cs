@@ -133,7 +133,7 @@ internal sealed class AcceptedFrameBoundary
             // distance, which holds the offset between minus that distance and zero (#1627).
             _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
             scene,
-            CaptureBossBackgrounds(displayScroll.ForegroundPosition),
+            CaptureBossBackgrounds(),
             CaptureTints(),
             // The reveal and the room's planes are drawn once this frame boundary's pictures are bound (WithBlockPictures).
             null,
@@ -175,24 +175,21 @@ internal sealed class AcceptedFrameBoundary
         : null;
 
     /// <summary>
-    /// The body a boss shows (#1352-#1356, #1466, #1617): its parts, and where Kraid's, Draygon's, Crocomire's and Mother
-    /// Brain's lie in the room. Crocomire and Mother Brain place their bodies against the screen, so their bodies lie where
-    /// <paramref name="camera"/>, the frame's, shows those places; Crocomire's body shows nothing while he is far from it.
+    /// The body a boss shows (#1352-#1356, #1466, #1617, #1802): its parts, and where Kraid's, Draygon's, Crocomire's and
+    /// Mother Brain's lie in the room, as each boss holds it.
     /// </summary>
-    private GameplayLatchedBossBackgrounds CaptureBossBackgrounds(Position16<RoomPixels> camera)
+    private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
         var motherBrain = Displays?.MotherBrain;
-        var crocomire = Displays?.CrocomireBody;
         return new(
-            crocomire is { Shown: false } && Displays?.BossBody is not null ? BossBodyLayer.Empty : Displays?.BossBody,
+            Displays?.BossBody,
             Displays?.KraidBodyOrigin,
             Displays?.Draygon is { } draygon
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyOrigin, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
                 : null,
-            crocomire is { Placement: var shown } ? BossBodyPlacement.InRoom(shown, camera) : null,
+            Displays?.CrocomireBodyOrigin,
             motherBrain is { PlacesBodyLayer: true } or { DeathHidesBodyLayer: true }
-                ? new MotherBrainBodyPlacement(motherBrain.PlacesBodyLayer ? BossBodyPlacement.InRoom(motherBrain.BodyLayerPlacement, camera) : null,
-                    motherBrain.DeathHidesBodyLayer)
+                ? new MotherBrainBodyPlacement(motherBrain.PlacesBodyLayer ? motherBrain.BodyOrigin : null, motherBrain.DeathHidesBodyLayer)
                 : null);
     }
 

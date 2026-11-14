@@ -3788,7 +3788,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bg2Oracle.Rom)),
             "Crocomire BG2 oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bg2Oracle));
-        Console.WriteLine("Crocomire BG2: all 17 pointers and corrections, full selector domain and wrapped scroll values pass.");
+        Console.WriteLine("Crocomire BG2: all 17 searched poses lie as much lower as the cartridge lowers his body layer for them.");
         return 0;
     }
 

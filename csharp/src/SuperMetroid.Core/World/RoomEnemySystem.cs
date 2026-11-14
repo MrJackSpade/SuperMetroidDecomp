@@ -537,12 +537,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>
     BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
-        ?? (Presentation.BossBody is { IsShown: true } body ? body.Publish() : null);
+        ?? (Presentation.BossBody is not { IsShown: true } body ? null
+            : CrocomireBehavior.Access.Crocomire is not null && !CrocomireBehavior.BodyLayer.ShowsBody ? BossBodyLayer.Empty
+            : body.Publish());
     /// <inheritdoc/>
     Position16<RoomPixels>? IEnemyDisplaySources.KraidBodyOrigin => KraidBehavior.BodyLayer.BodyOrigin;
     /// <inheritdoc/>
-    ScreenPlacedBossBody? IEnemyDisplaySources.CrocomireBody =>
-        CrocomireBehavior.Access.Crocomire is not null ? new(CrocomireBehavior.BodyLayer.Placement, CrocomireBehavior.BodyLayer.ShowsBody) : null;
+    Position16<RoomPixels>? IEnemyDisplaySources.CrocomireBodyOrigin =>
+        CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.BodyLayer.BodyOrigin : null;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 

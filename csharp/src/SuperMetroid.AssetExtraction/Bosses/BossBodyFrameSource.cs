@@ -23,6 +23,12 @@ internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, Ba
     /// </summary>
     internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
 
+    /// <summary>
+    /// The pixels the frame's picture lies lower on the body's area than its cells (#1802): the rows Crocomire's charging and
+    /// clawing poses sit lower against him. Zero for every other frame.
+    /// </summary>
+    internal int LoweredPixels { get; init; }
+
     /// <summary>The frame writing <paramref name="tiles"/> from layer cell <paramref name="firstCell"/> onward.</summary>
     internal static BossBodyFrameSource Written(string name, int firstCell, ReadOnlySpan<BackgroundTile> tiles)
     {

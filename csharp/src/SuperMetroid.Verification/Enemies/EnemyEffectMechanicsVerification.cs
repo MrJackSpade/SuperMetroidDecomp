@@ -14,6 +14,19 @@ using SuperMetroid.Verification.Harness;
 internal static class EnemyEffectMechanicsVerification
 {
     /// <summary>
+    /// The camera Crocomire's room shows him with: the room is one screen tall, so its camera never leaves the room's top
+    /// row.
+    /// </summary>
+    private static readonly Position16<RoomPixels> RoomCamera = Position16<RoomPixels>.Zero;
+
+    /// <summary>
+    /// The cartridge's vertical placement of his body layer, the row of his body's area its room's camera row shows (#1802),
+    /// which its melt scroll table holds.
+    /// </summary>
+    private static ushort NativePlacement(CrocomireEffectFixture fixture) =>
+        unchecked((ushort)(RoomCamera.Y - fixture.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin.Y));
+
+    /// <summary>
     /// Rebuilds the cartridge's melt scroll table, as its loop builds it line by line, into <paramref name="scrolls"/> from the fixture's state after a
     /// dissolve step: from the line below the tongue, each line one row further behind, less the slope's carry, until the
     /// source row reaches the lowest; the lines after show the placement, and the lines before keep what they held.
@@ -21,7 +34,7 @@ internal static class EnemyEffectMechanicsVerification
     private static void BuildNativeMeltScrolls(ushort[] scrolls, CrocomireEffectFixture fixture)
     {
         CrocomireDeathState death = fixture.Effect;
-        ushort placement = fixture.Enemies.CrocomireBehavior.BodyLayer.Placement.Y;
+        ushort placement = NativePlacement(fixture);
         int line = Math.Clamp((fixture.Actor.Tongue?.Position.Y.Whole ?? fixture.Actor.Body.Position.Y.Whole) - 72, 0, 256);
         int adjustedY = death.DistortionSourceRow, currentY = adjustedY, fraction = 0;
         while (line < scrolls.Length && adjustedY < death.LowestDistortionSourceRow)
@@ -61,9 +74,9 @@ internal static class EnemyEffectMechanicsVerification
             phase = fixture.Actor.DeathPhase;
             // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
             var nativeScrolls = new ushort[256];
-            Array.Fill(nativeScrolls, fixture.Enemies.CrocomireBehavior.BodyLayer.Placement.Y);
-            AssertEqual(CrocomireMeltDistortion.Level(fixture.Enemies.CrocomireBehavior.BodyLayer.Placement.Y), fixture.Effect.MeltDistortion,
-                "the melt starts levelled at his body layer's placement");
+            Array.Fill(nativeScrolls, NativePlacement(fixture));
+            AssertEqual(CrocomireMeltDistortion.Level(fixture.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin.Y), fixture.Effect.MeltDistortion,
+                "the melt starts levelled where his body lies");
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
@@ -78,7 +91,7 @@ internal static class EnemyEffectMechanicsVerification
                     // cartridge's table gives it (#1468, #1514).
                     BuildNativeMeltScrolls(nativeScrolls, fixture);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(nativeScrolls[line]), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion), line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(nativeScrolls[line]), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathPhase, "exact dissolve phase handoff");

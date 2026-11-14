@@ -25,4 +25,11 @@ public readonly record struct GameplayLatchedBossBackgrounds(
     DraygonBodyPlacement? DraygonBody,
     Position16<RoomPixels>? CrocomireBodyOrigin,
     MotherBrainBodyPlacement? MotherBrainBody,
-    ShownBossBody? ShownBody = null);
+    ShownBossBody? ShownBody = null)
+{
+    /// <summary>
+    /// Where the boss body the frame places lies in the room (#1802): Kraid's, Draygon's, Crocomire's or Mother Brain's,
+    /// whichever the room's boss holds, or null where no boss places one.
+    /// </summary>
+    public Position16<RoomPixels>? BodyOrigin => KraidBodyOrigin ?? DraygonBody?.BodyOrigin ?? CrocomireBodyOrigin ?? MotherBrainBody?.BodyOrigin;
+}

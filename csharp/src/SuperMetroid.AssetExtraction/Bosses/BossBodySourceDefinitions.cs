@@ -58,6 +58,26 @@ internal static class BossBodySourceDefinitions
     };
 
     /// <summary>
+    /// The frames whose pictures lie lower on the body's area than the cells the cartridge writes them to (#1802), by the
+    /// pixels they lie lower: the second to eighth steps of Crocomire's charge forward and step back and the second to fifth
+    /// of his moving claws, whose poses sit lower against him. Every other frame lies on its cells.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyFrameId, int> FramesLowered { get; } = new Dictionary<EnemyFrameId, int>
+    {
+        [EnemyFrameId.CrocomireBodyChargingSecond] = 2,
+        [EnemyFrameId.CrocomireBodyChargingThird] = 2,
+        [EnemyFrameId.CrocomireBodyChargingFourth] = 1,
+        [EnemyFrameId.CrocomireBodyChargingFifth] = 2,
+        [EnemyFrameId.CrocomireBodyChargingSixth] = 2,
+        [EnemyFrameId.CrocomireBodyChargingSeventh] = 1,
+        [EnemyFrameId.CrocomireBodyChargingEighth] = 1,
+        [EnemyFrameId.CrocomireBodyProjectileAttackSecond] = 2,
+        [EnemyFrameId.CrocomireBodyProjectileAttackThird] = 4,
+        [EnemyFrameId.CrocomireBodyProjectileAttackFourth] = 2,
+        [EnemyFrameId.CrocomireBodyProjectileAttackFifth] = 1,
+    };
+
+    /// <summary>
     /// The frames whose cartridge drawing leaves a gap for another part, pictured whole with that part's frame written over
     /// them (#1513): Phantoon's bodies clear their eye socket, which his eye fills whenever his body shows, so each is
     /// pictured with his closed eye in it. The eye's own frames still show over it as his eye opens and looks about.

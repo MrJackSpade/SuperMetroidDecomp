@@ -45,7 +45,10 @@ public sealed class CrocomireEnemyState
     internal static CrocomireBodySegment ResidentSegment(AnimationPlayback<CrocomireBodySegment> playback) =>
         AnimationResidence.ResidentSegment(CrocomireBodyAnimations.Segments, CrocomireBodyAnimations.StartingAt, CrocomireBodyAnimations.RunsOnInto, playback);
 
-    /// <summary>The camera position the last main update saw; its X places his body layer and decides whether the body is on screen.</summary>
+    /// <summary>
+    /// The camera position the last main update saw: it decides whether his body is near enough the screen to show, the row
+    /// below which his sinking hides it and where the defeated room pins it.
+    /// </summary>
     internal Position16<RoomPixels> Camera { get; set; }
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>

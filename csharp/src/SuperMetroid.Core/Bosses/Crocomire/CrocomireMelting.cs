@@ -55,7 +55,7 @@ internal sealed class CrocomireMelting
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
-        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion();
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingTwoTopRow);
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
     }
@@ -90,7 +90,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         _ = RequireCrocomireMeltingImage(pass);
-        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion();
         state.DeathPhase = state.DeathPhase.Next();
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -151,7 +151,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingScrollActive = true;
-        _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
+        _bodyLayer.LevelCrocomireMeltDistortion();
 
         state.DeathPhase = state.DeathPhase.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -207,15 +207,15 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Stretches his body layer through the melt's band (#1468): from the line below the tongue, each line falls a further
-    /// <see cref="CrocomireDeathState.DistortionStep"/> of a row behind his body layer's placement, while the band's source
-    /// row climbs one row a line less that fraction, until it reaches
+    /// Stretches his body through the melt's band (#1468, #1802): from the line below the tongue, each line falls a further
+    /// <see cref="CrocomireDeathState.DistortionStep"/> of a row behind where his body lies, while the band's source row
+    /// climbs one row a line less that fraction, until it reaches
     /// <see cref="CrocomireDeathState.LowestDistortionSourceRow"/> or the band reaches the distortion's last line. The
-    /// lines above the band keep the scroll the melt was last levelled at; the lines below show the placement.
+    /// lines above the band show his body where the melt was last levelled; the lines below show it where it lies.
     /// </summary>
     /// <remarks>
     /// The band's first line follows the tongue, which rides his body; the body only shakes sideways while it melts, so
-    /// the band never starts lower than the last stretch's, and the lines above it keep the levelled scroll.
+    /// the band never starts lower than the last stretch's, and the lines above it keep the levelled body.
     /// </remarks>
     private void StretchCrocomireMeltDistortion(
         CrocomireEnemyState state,
@@ -229,7 +229,7 @@ internal sealed class CrocomireMelting
         int row = SixteenSixteen.FromWhole(1);
         int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - death.DistortionStep) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
-        death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.ScrollAbove, _bodyLayer.Placement.Y,
+        death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, _bodyLayer.BodyOrigin.Y,
             ScreenLine(firstLine), ScreenLine(endLine), death.DistortionStep);
 
         // The distortion's lines start at the first gameplay line; those below the screen are never shown.

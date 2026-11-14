@@ -158,13 +158,15 @@ public sealed class MotherBrainEnemyState
     public bool RisingFloorClipActive { get; internal set; }
 
     /// <summary>
-    /// Where her phase-two body layer is placed: the layer position shown at the screen's top-left. Its vertical
-    /// coordinate moves oppositely to the body's vertical movement, keeping the large body attached.
+    /// Where her phase-two body lies in the room (#1617, #1802): the room pixel her body's parts' area's top-left corner lies
+    /// on. It moves with her body's vertical movement, keeping the large body attached, and follows her body's position
+    /// across. Her fake death's arena lock keeps the camera on the room's first screen, at its top-left corner, before her
+    /// body is first placed, so her body lies in the room where the screen shows it.
     /// </summary>
-    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
-    /// <summary>Whether body AI has placed her body layer, which then shows in place of the room's background layer.</summary>
+    public Position16<RoomPixels> BodyOrigin { get; internal set; }
+    /// <summary>Whether body AI has placed her body, which then shows in place of the room's background.</summary>
     public bool PlacesBodyLayer { get; internal set; }
-    /// <summary>ADF41C's death flicker hiding her body layer this frame, separate from the sprites' invisibility.</summary>
+    /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
     /// <summary>One-shot latch for her death clearing her body.</summary>
     public bool DeathBodyLayerCleared { get; internal set; }

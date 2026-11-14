@@ -173,8 +173,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
-    /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public int BodySubPhaseTimer { get; internal set; }
+    /// <summary>
+    /// The place in <see cref="MotherBrainAscentDustDefinitions.DustPositions"/> of the last dust cloud her ascent raised;
+    /// each cloud takes the place before it, and the last place after the first (#1872). Only the ascent dust reads it.
+    /// </summary>
+    public int AscentDustPlace { get; internal set; }
 
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }

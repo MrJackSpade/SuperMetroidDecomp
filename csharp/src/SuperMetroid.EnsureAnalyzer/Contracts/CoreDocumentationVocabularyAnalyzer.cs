@@ -41,7 +41,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// colour data. #1794 adds the original's routine slots for Samus, the timer/hack handler and gamma, read in every type,
 /// and, outside hardware owners, a compound name a comment sets as code instead of citing it. #1797 adds, outside
 /// hardware owners, the machine's display transfers, staging and NTSC and PAL video standards, the common room elements,
-/// and the original's selector tables, record tables and input and pose records.
+/// and the original's selector tables, record tables and input and pose records. #1812 adds, outside hardware owners, the
+/// original's indirect dispatch, the machine's bus, regionalized values and the original's enemy entries named as records.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -470,6 +471,30 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\brecord[-\s]+tables?\b|\b(?:input[-\s]+table|input|pose)[-\s]+records?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The original's indirect dispatch, the machine's bus, regionalized values and the original's enemy entries named as
+    /// records in prose (#1812), outside hardware owners: "indirect" before a jump, target, entry, call, table, selection or
+    /// dispatch with up to two words between (its indirect jump, all four indirect targets, the indirect main-AI entry, its
+    /// indirect state table, the indirect movement-table selection); a bus in any number (the room bus); "regionalized" in
+    /// any word form; and a record that is an enemy's entry in the room's enemy list: a population, spawn, definition or
+    /// boss record, a part's record (a body, wing, arms, head, brain, tongue, tube, statue, graphics or cosmetic record), a
+    /// parent, follower, partner, physical or composite record, a record by its place (the first, second, third or fourth
+    /// record), an empty, emptied, deleted or cleared record, and an actor of so many records (a three-record actor). Core
+    /// names the action, phase or movement that runs, the room binding that supplies what an enemy calls, the release whose
+    /// value differs, and the enemy, its part, its partner or its place in the room's list. English stays legal: indirect
+    /// G-Mode and anything indirect that is not dispatch, the verb (the death records the drop origin), a record of
+    /// something (the first record of the kills), an enemy's record (#1765) and a record alone.
+    /// </summary>
+    private static readonly Regex MachineEntryProse = new(
+        @"\bindirect(?:ly)?[-\s]+(?:[\w-]+\s+){0,2}?(?:jumps?|targets?|entr(?:y|ies)|calls?|tables?|selections?|dispatch\w*)\b" +
+        @"|\bbus(?:es|ses)?\b" +
+        @"|\bregionali[sz]\w*" +
+        @"|\b(?:population|spawn|definition|boss|body|wing|arms?|head|brain|tongue|tube|statue|graphics|cosmetic|parent" +
+        @"|follower|partner|physical|composite)[-\s]+records?\b" +
+        @"|\b(?:first|second|third|fourth|empty|emptied|deleted|cleared)\s+records?\b(?!\s+of\b)" +
+        @"|\b" + NumberWordsOnly + @"-records?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>The numbers a game state, station or queue is cited by: digits, or a word from zero through ninety.</summary>
     private const string NumberWord = @"(?:[0-9]+|" + NumberWordsOnly + ")";
 
@@ -646,6 +671,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : QueueLimitProse.Match(text) is { Success: true } queueLimit ? queueLimit.Value
             : SpritePartProse.Match(text) is { Success: true } spritePart ? spritePart.Value
             : MachineTableProse.Match(text) is { Success: true } machineTable ? machineTable.Value
+            : MachineEntryProse.Match(text) is { Success: true } machineEntry ? machineEntry.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

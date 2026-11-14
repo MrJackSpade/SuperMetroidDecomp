@@ -38,8 +38,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     private readonly Dictionary<INamedTypeSymbol, FamilyProgramSet> _families = new(SymbolEqualityComparer.Default);
     private HashSet<IFieldSymbol>? _roomCues;
     private HashSet<SwitchSectionSyntax>? _roomCueSections;
-    private readonly Dictionary<INamedTypeSymbol, Dictionary<INamedTypeSymbol, HashSet<string>?>> _cueStarts = new(SymbolEqualityComparer.Default);
-    private Dictionary<INamedTypeSymbol, HashSet<string>?>? _frameBehaviourStarts;
+    private readonly Dictionary<INamedTypeSymbol, HandlerStartSet> _cueStarts = new(SymbolEqualityComparer.Default);
+    private HandlerStartSet? _frameBehaviourStarts;
 
     /// <summary>The frames <paramref name="family"/>'s segments or table hold, which its programs choose among.</summary>
     public IReadOnlySet<string> TableFrames(INamedTypeSymbol family) => Of(family).TableFrames;
@@ -73,6 +73,9 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         IEnumerable<string> entries = programs ?? set.Nodes.Keys.Where(node => node.IsStart).Select(node => node.Name);
         foreach (string entry in entries.Concat(set.NamedOutside))
             pending.Enqueue((AnimationNode.Start(entry), false));
+        // What the family's handlers start on objects they spawn with the room's graphics draws from the shared sheet.
+        foreach (string entry in set.RoomStarted)
+            pending.Enqueue((AnimationNode.Start(entry), true));
         while (pending.TryDequeue(out (AnimationNode Node, bool Switched) next))
         {
             if (!visited.Add(next))
@@ -167,7 +170,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             ? ProjectileFramesNamed([.. segmentInitializers, .. SharedRunsIn(segmentInitializers)])
             : new HashSet<string>(entries.Values, StringComparer.Ordinal);
         if (!precise)
-            return new FamilyProgramSet(entries, tableFrames, [], new HashSet<string>(StringComparer.Ordinal), Precise: false);
+            return new FamilyProgramSet(entries, tableFrames, [], new HashSet<string>(StringComparer.Ordinal), new HashSet<string>(StringComparer.Ordinal), Precise: false);
         var nodes = new Dictionary<AnimationNode, List<ProgramItem>>();
         INamedTypeSymbol helpers = segments.ContainingType;
         foreach (AssignmentExpressionSyntax entry in segmentEntries)
@@ -175,7 +178,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         foreach (AssignmentExpressionSyntax entry in startEntries)
             Add(AnimationNode.Start(KeyOf(entry)), entry);
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
-        // whatever its cue handlers start is among the programs every start of the family runs. The family's frame table
+        // whatever its cue handlers start is among the programs every start of the family runs: on the object itself, or on
+        // one it spawns, which draws where the object does. One it spawns with the room's graphics draws from the room's
+        // shared sheet whatever sheet the object draws from (#1854): Spore Spawn's spawners, on his own sheet, release spores
+        // drawn from the shared one. The family's frame table
         // names segments only as parts of the poses it looks up (Kraid's rocks), which starts nothing. The runs of steps
         // segments share are part of the segments.
         var excluded = new List<SyntaxNode>(segmentInitializers) { startInitializer };
@@ -184,10 +190,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             excluded.Add(CoreModel.InitializerOf(table));
         HashSet<string> starts = [.. nodes.Keys.Where(node => node.IsStart).Select(node => node.Name)];
         HashSet<string> entered = NamedOutside(family, segmentType, excluded);
-        entered.UnionWith(CueStarted(family, (INamedTypeSymbol)animation.TypeArguments[2]) ?? starts);
-        // So can the frame behaviours its kinds run (an afterburn hitting a wall switching to its final puff, #1537).
-        entered.UnionWith(FrameBehaviourStarted(family) ?? starts);
-        var set = new FamilyProgramSet(entries, tableFrames, nodes, entered, Precise: true);
+        HandlerStartSet cues = CueStarts((INamedTypeSymbol)animation.TypeArguments[2]);
+        // So can the frame behaviours its kinds run (an afterburn hitting a wall switching to its final puff, #1537), except
+        // a restart under a motion only some kinds' definitions give, which the walks add where they name those kinds (#1854).
+        HandlerStartSet motions = FrameBehaviourStarts();
+        entered.UnionWith(cues.Own.Of(family) ?? starts);
+        entered.UnionWith(motions.Own.Of(family) ?? starts);
+        HashSet<string> room = [.. cues.Room.Of(family) ?? starts, .. motions.Room.Of(family) ?? starts];
+        var set = new FamilyProgramSet(entries, tableFrames, nodes, entered, room, Precise: true);
         // The self-check: every frame the segments or table hold is shown by some program, so no beat the reader missed
         // leaves a frame the family draws off its sheets.
         ProgramFrameSplit all = Shown(family, set, programs: null);
@@ -548,18 +558,18 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// The programs of <paramref name="family"/> the handlers of its cues (<paramref name="cueType"/>, registered with
-    /// the methods that take them) start, through every Core method and construction they reach: its constructions there, and the
-    /// typed-start kinds they name that start it. Null when one of them names a program no constant decides.
+    /// The programs the handlers of the cues <paramref name="cueType"/> names (registered with the methods that take them)
+    /// start, through every Core method and construction they reach: the constructions there, and the typed-start kinds
+    /// they name.
     /// </summary>
-    private HashSet<string>? CueStarted(INamedTypeSymbol family, INamedTypeSymbol cueType)
+    private HandlerStartSet CueStarts(INamedTypeSymbol cueType)
     {
-        if (!_cueStarts.TryGetValue(cueType, out Dictionary<INamedTypeSymbol, HashSet<string>?>? started))
+        if (!_cueStarts.TryGetValue(cueType, out HandlerStartSet? started))
         {
             started = HandlerStarts(CueHandlers(cueType));
             _cueStarts.Add(cueType, started);
         }
-        return started.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
+        return started;
     }
 
     /// <summary>
@@ -585,17 +595,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// The programs of <paramref name="family"/> any frame-behaviour handler (a projectile behaviour's <c>Move</c> or a single-motion mover)
-    /// starts, through every Core method and construction it reaches: a handler restarting a projectile restarts one of
-    /// its own family's, as a Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so,
-    /// like its cues' starts, these are among the programs every start of the family runs. Null when one of them names a
-    /// program no constant decides.
+    /// The programs any frame-behaviour handler (a projectile behaviour's <c>Move</c> or a single-motion mover) starts,
+    /// through every Core method and construction it reaches: a handler restarting a projectile restarts one of its own
+    /// family's, as a Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so, like its cues'
+    /// starts, these are among the programs every start of the family runs.
     /// </summary>
-    private HashSet<string>? FrameBehaviourStarted(INamedTypeSymbol family)
-    {
-        _frameBehaviourStarts ??= HandlerStarts(FrameBehaviourHandlers());
-        return _frameBehaviourStarts.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
-    }
+    private HandlerStartSet FrameBehaviourStarts() => _frameBehaviourStarts ??= HandlerStarts(FrameBehaviourHandlers());
 
     /// <summary>
     /// Every frame-behaviour handler (#1760): each projectile behaviour's <c>Move</c> override, and the mover each
@@ -643,12 +648,16 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>
     /// Every projectile program family the handlers <paramref name="handlers"/> start, through every Core method and
-    /// construction they reach, with the programs they start it in; null for a family started in a program no constant
-    /// decides.
+    /// construction they reach, with the programs they start it in. A restart under a motion only some kinds' definitions
+    /// give is those kinds' (#1854), not a program every start of its family runs. A start on an object the code spawns with
+    /// the room's graphics is a room start, with the restarts the kinds it spawns run: the object draws from the room's shared
+    /// sheet, whatever sheet the object running the handler draws from.
     /// </summary>
-    private Dictionary<INamedTypeSymbol, HashSet<string>?> HandlerStarts(IEnumerable<SyntaxNode> handlers)
+    private HandlerStartSet HandlerStarts(IEnumerable<SyntaxNode> handlers)
     {
-        var started = new Dictionary<INamedTypeSymbol, HashSet<string>?>(SymbolEqualityComparer.Default);
+        var own = new ProgramStarts();
+        var room = new ProgramStarts();
+        var spawned = new SpawnedStarts(model);
         var visited = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
         var pending = new Stack<SyntaxNode>(handlers);
         while (pending.TryPop(out SyntaxNode? root))
@@ -661,21 +670,26 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     case BaseObjectCreationExpressionSyntax creation when semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol constructor:
                         INamedTypeSymbol created = constructor.ContainingType.OriginalDefinition;
                         if (model.FamilyOf(created) is { } family && SymbolEqualityComparer.Default.Equals(family, created))
-                            Started(family, model.ProgramsOf(semantic, creation, family) ?? Handed(family, creation, semantic));
+                        {
+                            if (!model.KindRestarts.IsRestart(creation))
+                                Started(spawned.Of(semantic, creation), family, model.ProgramsOf(semantic, creation, family) ?? Handed(family, creation, semantic));
+                        }
                         else
+                        {
                             Enter(constructor);
+                        }
                         break;
                     case SimpleNameSyntax name when semantic.GetSymbolInfo(name).Symbol is { } symbol:
                         if (symbol is IMethodSymbol method)
                             Enter(method);
                         else if (symbol is IFieldSymbol kind && SymbolEqualityComparer.Default.Equals(kind.ContainingType, model.RoomEnemyProjectileKind)
                                  && model.StartedFamily(kind) is { } typedFamily && !name.Ancestors().Any(ancestor => IsTest(ancestor, name)))
-                            Started(typedFamily, model.StartedPrograms(kind));
+                            Started(spawned.Of(semantic, name), typedFamily, model.StartedPrograms(kind));
                         break;
                 }
             }
         }
-        return started;
+        return new HandlerStartSet(own, room);
 
         // A program the constructing method was handed is what Core's calls of it pass (#1784): the handlers reaching it
         // reach every such call's program, as a statue particle's cue spawns its tail.
@@ -684,17 +698,17 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 ? new ProgramTracer(model, reaches: null).Programs(programType, program.Expression, semantic)
                 : null;
 
-        // A family started in programs no constant decides may be started in any of them.
-        void Started(INamedTypeSymbol family, IReadOnlySet<string>? programs)
+        // A start on an object spawned with the room's graphics is a room start, and so is every restart its kinds run.
+        void Started(StartedObject started, INamedTypeSymbol family, IReadOnlySet<string>? programs)
         {
-            if (started.TryGetValue(family, out HashSet<string>? known) && known is null)
+            if (!started.IsRoomSpawn)
+            {
+                own.Add(family, programs);
                 return;
-            if (programs is null)
-                started[family] = null;
-            else if (known is null)
-                started[family] = new HashSet<string>(programs, StringComparer.Ordinal);
-            else
-                known.UnionWith(programs);
+            }
+            room.Add(family, programs);
+            foreach (KindRestart restart in model.KindRestarts.OfSpawn(started, family))
+                room.Add(restart.Family, restart.Programs);
         }
 
         // Code the handlers run is read once, Core's own and outside the tables naming every kind.
@@ -826,8 +840,40 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// <param name="Table">Each pose key's frame, for a family presenting poses.</param>
     /// <param name="TableFrames">Every frame the segments name or the table holds.</param>
     /// <param name="Nodes">Each segment's and animation's items, in order.</param>
-    /// <param name="NamedOutside">The programs Core names outside the segments, animations and the family's starts.</param>
+    /// <param name="NamedOutside">
+    /// The programs every start of the family may run besides its own: those Core names outside the segments, animations and
+    /// the family's starts, and those its handlers start on the objects they move or spawn to draw where those objects do.
+    /// </param>
+    /// <param name="RoomStarted">The programs its handlers start on objects they spawn with the room's graphics (#1854).</param>
     /// <param name="Precise">Whether each frame a segment shows is read from it, so the programs choose the frames.</param>
     private sealed record FamilyProgramSet(IReadOnlyDictionary<string, string> Table, IReadOnlySet<string> TableFrames,
-        Dictionary<AnimationNode, List<ProgramItem>> Nodes, IReadOnlySet<string> NamedOutside, bool Precise);
+        Dictionary<AnimationNode, List<ProgramItem>> Nodes, IReadOnlySet<string> NamedOutside, IReadOnlySet<string> RoomStarted, bool Precise);
+
+    /// <summary>The programs handlers start, by family: those drawing where the handlers' objects do, and room starts.</summary>
+    /// <param name="Own">The programs started on the objects the handlers move, or on objects drawing where those do.</param>
+    /// <param name="Room">The programs started on objects the handlers spawn with the room's graphics, and the restarts those run.</param>
+    private sealed record HandlerStartSet(ProgramStarts Own, ProgramStarts Room);
+
+    /// <summary>Programs started, by family; a family started in a program no constant decides may be started in any.</summary>
+    private sealed class ProgramStarts
+    {
+        private readonly Dictionary<INamedTypeSymbol, HashSet<string>?> _started = new(SymbolEqualityComparer.Default);
+
+        /// <summary>Records <paramref name="family"/> started in <paramref name="programs"/>, or in any of its programs when null.</summary>
+        public void Add(INamedTypeSymbol family, IReadOnlySet<string>? programs)
+        {
+            if (_started.TryGetValue(family, out HashSet<string>? known) && known is null)
+                return;
+            if (programs is null)
+                _started[family] = null;
+            else if (known is null)
+                _started[family] = new HashSet<string>(programs, StringComparer.Ordinal);
+            else
+                known.UnionWith(programs);
+        }
+
+        /// <summary>The programs <paramref name="family"/> is started in; empty when it is not, null when it may be any.</summary>
+        public IReadOnlySet<string>? Of(INamedTypeSymbol family) =>
+            _started.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
+    }
 }

@@ -8,12 +8,15 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal static class FuneNamiheNativeWords
 {
-    /// <summary>The routine word naming each <see cref="FuneNamiheAction"/>.</summary>
-    internal static readonly NativeWordIdentities<FuneNamiheAction> FuneNamiheActions = new(new Dictionary<FuneNamiheAction, ushort>
+    /// <summary>
+    /// The routine words naming each <see cref="FuneNamiheAction"/>: Fune and Namihe spit while running one of two
+    /// routines that each return at once (#1814).
+    /// </summary>
+    internal static readonly NativeWordIdentities<FuneNamiheAction> FuneNamiheActions = new(new Dictionary<ushort, FuneNamiheAction>
     {
-        [FuneNamiheAction.FuneWaitForCooldown] = 0x9737,
-        [FuneNamiheAction.NamiheWaitForSamus] = 0x975c,
-        [FuneNamiheAction.FuneActivityNoOp] = 0x978e,
-        [FuneNamiheAction.NamiheActivityNoOp] = 0x978f,
+        [0x9737] = FuneNamiheAction.FuneWaitForCooldown,
+        [0x975c] = FuneNamiheAction.NamiheWaitForSamus,
+        [0x978e] = FuneNamiheAction.Spitting,
+        [0x978f] = FuneNamiheAction.Spitting,
     });
 }

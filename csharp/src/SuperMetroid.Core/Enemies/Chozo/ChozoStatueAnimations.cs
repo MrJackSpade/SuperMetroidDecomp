@@ -90,7 +90,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedNinth, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedEighth, 6),
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedSeventh, 8),
-            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.Walking)),
+            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
         ],
         [P.WreckedShipActivatedLoop2] =
         [

@@ -27,7 +27,12 @@ internal static class BoyonNativeListAddresses
     {
         [0x8173] = new BoyonNativeListAddressesInstruction(BoyonCueKind.ProcessOffScreen, ""),
         [0x817d] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StopProcessingOffScreen, ""),
-        [0x88c5] = new BoyonNativeListAddressesInstruction(BoyonCueKind.Return, ""),
         [0x88c6] = new BoyonNativeListAddressesInstruction(BoyonCueKind.StartBounce, ""),
     };
+
+    /// <summary>
+    /// The native routine the idle list calls before its loop (#1803): it returned at once, so the animations have no
+    /// event for it.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0x88c5];
 }

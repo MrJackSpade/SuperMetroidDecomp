@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 public enum CrawlerAction
 {
     /// <summary>The orange Zoomer's starting state: it does nothing until its animation's cue installs a horizontal or vertical crawling action.</summary>
-    HZoomerAwaitingAnimationCue = 1,
+    HZoomerAwaitingAnimationCue,
     /// <summary>Maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
     HZoomerCrawlingVertically,
     /// <summary>Maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>

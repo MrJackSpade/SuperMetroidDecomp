@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 public enum SkreeAction
 {
     /// <summary>Waits until Samus is within 48 horizontal pixels.</summary>
-    Idling = 1,
+    Idling,
 
     /// <summary>Waits for the wind-up cue to authorize the dive.</summary>
     PreparingAttack,

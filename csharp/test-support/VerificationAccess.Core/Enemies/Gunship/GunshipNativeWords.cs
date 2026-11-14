@@ -11,7 +11,6 @@ internal static class GunshipNativeWords
     /// <summary>The routine word naming each <see cref="GunshipPhase"/>.</summary>
     internal static readonly NativeWordIdentities<GunshipPhase> GunshipPhases = new(new Dictionary<GunshipPhase, ushort>
     {
-        [GunshipPhase.NoOperation] = 0x804c,
         [GunshipPhase.DescendAfterCeres] = 0xa80c,
         [GunshipPhase.ApplyLandingBrakes] = 0xa8d0,
         [GunshipPhase.WaitForLandingEntranceToOpen] = 0xa942,

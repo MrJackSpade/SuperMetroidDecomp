@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 public enum SbugAction
 {
     /// <summary>Selects an activation handler only when both axis distances are strictly below the spawn radius.</summary>
-    WaitForSamus = 1,
+    WaitForSamus,
     /// <summary>Spends one AI invocation selecting continuous forward movement.</summary>
     ActivateMoveForward,
     /// <summary>Selects alternating side movement without moving on this invocation.</summary>

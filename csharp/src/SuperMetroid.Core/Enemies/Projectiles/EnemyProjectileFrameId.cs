@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 public enum EnemyProjectileFrameId
 {
     /// <summary>The empty projectile frame, which draws nothing.</summary>
-    Blank = 1,
+    Blank,
     /// <summary><c>skree_debris</c>, a composition.</summary>
     SkreeDebris,
     /// <summary><c>metaree_debris</c>, a composition.</summary>

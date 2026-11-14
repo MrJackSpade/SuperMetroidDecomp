@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 public enum KiHunterAction
 {
     /// <summary>Patrols within the spawn-height band, reflects movement on collision, and starts a swoop toward nearby Samus below.</summary>
-    FlyingPatrol = 1,
+    FlyingPatrol,
     /// <summary>Follows an accelerating elliptic dive, changing art at the swipe angle and backing off on collision.</summary>
     Swooping,
     /// <summary>Moves upward away from a blocked dive until collision or passage above the spawn Y restores patrol.</summary>
@@ -16,8 +16,8 @@ public enum KiHunterAction
     FallingAfterWingLoss,
     /// <summary>Aims a two-pixel-per-frame hop toward Samus with an RNG-selected initial upward speed of seven or eight pixels per frame.</summary>
     StartGroundJump,
-    /// <summary>Leaves movement to the jump, landing, or spit animation until its cues select the next action.</summary>
-    NoOp,
+    /// <summary>Holds still on the ground while the crouch, landing or spit animation plays, until its cues select the next action (#1814).</summary>
+    AnimatingOnGround,
     /// <summary>Advances the collision-bearing ballistic hop and starts the landing animation after downward collision.</summary>
     GroundJump,
     /// <summary>Counts down the post-landing or post-spit wait, then spits within 96 horizontal pixels or prepares another hop.</summary>

@@ -11,7 +11,10 @@ internal sealed class KagoEntity(KagoBehavior species, RoomEnemySlot slot, Enemy
     public void Initialize() => KagoBehavior.InitializeKago(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => KagoBehavior.RunKagoMainAi(Slot, frame);
+    /// <remarks>The Kago has no main behaviour (#1814): its animation plays the shell and its shot reaction does the rest.</remarks>
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Slot, context);

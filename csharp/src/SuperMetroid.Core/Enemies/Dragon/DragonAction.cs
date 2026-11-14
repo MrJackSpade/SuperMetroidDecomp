@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 public enum DragonAction
 {
     /// <summary>Waits below the lava, then selects facing and begins the 48-update rise.</summary>
-    WaitToRise = 1,
+    WaitToRise,
 
     /// <summary>Moves the body and cosmetic wing upward one pixel per update.</summary>
     Rising,

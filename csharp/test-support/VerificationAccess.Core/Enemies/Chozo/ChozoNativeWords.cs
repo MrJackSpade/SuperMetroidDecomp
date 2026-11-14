@@ -12,12 +12,19 @@ internal static class ChozoNativeWords
     /// <summary>The routine word naming each <see cref="ChozoStatueFrameBehavior"/>.</summary>
     internal static readonly NativeWordIdentities<ChozoStatueFrameBehavior> ChozoStatueFrameBehaviors = new(new Dictionary<ChozoStatueFrameBehavior, ushort>
     {
-        [ChozoStatueFrameBehavior.Idle] = 0xe7a6,
-        [ChozoStatueFrameBehavior.Cleared] = 0x807b,
         [ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger] = 0xe445,
         [ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger] = 0xe7ae,
-        [ChozoStatueFrameBehavior.Walking] = 0xe7da,
     });
+
+    /// <summary>
+    /// The routine words of the statue's frame routines that return at once (#1803): the initializer's, the cleared one
+    /// and the one installed while the Wrecked Ship statue walks. A statue running one waits for nothing.
+    /// </summary>
+    internal static readonly HashSet<ushort> NoFrameBehaviorWords = [0x807b, 0xe7a6, 0xe7da];
+
+    /// <summary>The frame behaviour a recorded routine word names, or null for none.</summary>
+    internal static ChozoStatueFrameBehavior? FrameBehaviorAt(ushort word) =>
+        word == 0 || NoFrameBehaviorWords.Contains(word) ? null : ChozoStatueFrameBehaviors.Decode(word, "recorded ChozoStatueFrameBehavior");
 
     /// <summary>The cartridge's carry-motion records per facing: sixteen facing left, then their sixteen mirrors facing right.</summary>
     internal const int CarryRecordsPerFacing = 16;

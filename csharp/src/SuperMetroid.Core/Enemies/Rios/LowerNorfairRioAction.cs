@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public enum LowerNorfairRioAction
 {
     /// <summary>Follows the immediately preceding parent twelve pixels below, mirrors its freeze state and flame visibility, and deletes the follower when the parent dies.</summary>
-    FollowParent = 1,
+    FollowParent,
     /// <summary>Admits an attack when either half of the random sample is odd and Samus is strictly within 112 horizontal room pixels.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for the animation cue's completion signal before clearing it and starting downward motion.</summary>

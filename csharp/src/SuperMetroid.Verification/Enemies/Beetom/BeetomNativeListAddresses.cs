@@ -33,6 +33,11 @@ internal static class BeetomNativeListAddresses
     {
         [0x8173] = new BeetomNativeListAddressesInstruction(BeetomCueKind.ProcessOffScreen, ""),
         [0x817d] = new BeetomNativeListAddressesInstruction(BeetomCueKind.StopProcessingOffScreen, ""),
-        [0xb75e] = new BeetomNativeListAddressesInstruction(BeetomCueKind.Nothing, ""),
     };
+
+    /// <summary>
+    /// The native routine the drain lists call before their loop (#1803): it returned at once, so the animations have no
+    /// event for it.
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0xb75e];
 }

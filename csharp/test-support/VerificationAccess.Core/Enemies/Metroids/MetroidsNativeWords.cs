@@ -22,6 +22,5 @@ internal static class MetroidsNativeWords
     {
         [MochtroidMovementMode.NotTouchingSamus] = 0,
         [MochtroidMovementMode.TouchingSamus] = 1,
-        [MochtroidMovementMode.Shaking] = 2,
     });
 }

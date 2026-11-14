@@ -24,11 +24,17 @@ internal static class AnimalsNativeWords
     /// <summary>The routine word naming each <see cref="EscapeEtecoonFrameBehavior"/>.</summary>
     internal static readonly NativeWordIdentities<EscapeEtecoonFrameBehavior> EscapeEtecoonFrameBehaviors = new(new Dictionary<EscapeEtecoonFrameBehavior, ushort>
     {
-        [EscapeEtecoonFrameBehavior.Cleared] = 0x807b,
         [EscapeEtecoonFrameBehavior.EscapeRight] = 0xe65c,
         [EscapeEtecoonFrameBehavior.WaitForEscapeEvent] = 0xe670,
         [EscapeEtecoonFrameBehavior.WalkAndFall] = 0xe680,
     });
+
+    /// <summary>The routine word of the cleared frame routine, which returns at once (#1803): an Etecoon running it runs none.</summary>
+    internal const ushort ClearedEscapeEtecoonFrameWord = 0x807b;
+
+    /// <summary>The escape Etecoon frame behaviour a recorded routine word names, or null for none.</summary>
+    internal static EscapeEtecoonFrameBehavior? EscapeEtecoonFrameBehaviorAt(ushort word) =>
+        word is 0 or ClearedEscapeEtecoonFrameWord ? null : EscapeEtecoonFrameBehaviors.Decode(word, "recorded EscapeEtecoonFrameBehavior");
 
     /// <summary>The routine word naming each <see cref="EtecoonAction"/>.</summary>
     internal static readonly NativeWordIdentities<EtecoonAction> EtecoonActions = new(new Dictionary<EtecoonAction, ushort>

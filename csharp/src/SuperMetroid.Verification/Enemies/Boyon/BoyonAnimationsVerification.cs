@@ -15,13 +15,14 @@ internal static class BoyonAnimationsVerification
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BoyonAnimations.Segments, BoyonAnimations.StartingAt, BoyonFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<BoyonCue>(
-                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : OmittedInstructions.Contains(word) ? 0 : null,
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                Omitted: OmittedInstructions.Contains));
         Console.WriteLine($"  Boyon animations: {Entries.Length} segments ({beats} beats) and {BoyonAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

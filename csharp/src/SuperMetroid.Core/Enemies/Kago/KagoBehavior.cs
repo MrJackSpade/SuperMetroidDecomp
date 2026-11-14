@@ -52,24 +52,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // sets only the animating property so the shared enemy animation animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
-        state.Action = KagoAction.InstallNoOp;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
-    }
-
-    /// <summary>Runs a Kago's per-frame behaviour and its one useful action.</summary>
-    private static void RunKagoMain(KagoEnemyState state)
-    {
-        switch (state.Action)
-        {
-            case KagoAction.InstallNoOp:
-                state.Action = KagoAction.NoOp;
-                return;
-            case KagoAction.NoOp:
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Kago has no behaviour for action {state.Action?.ToString() ?? "none"}.");
-        }
     }
 
     /// <summary>
@@ -316,12 +299,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Play(slot, KagoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
         state.Playback = playback;
-    }
-
-    /// <summary>Runs Kago's main AI.</summary>
-    internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
-    {
-        RunKagoMain(slot.RequireSpeciesState<KagoEnemyState>());
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>

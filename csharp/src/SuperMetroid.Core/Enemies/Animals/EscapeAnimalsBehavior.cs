@@ -101,7 +101,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.FrameBehavior)
         {
-            case EscapeEtecoonFrameBehavior.Cleared:
+            case null:
                 return;
 
             case EscapeEtecoonFrameBehavior.EscapeRight:
@@ -121,9 +121,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Escape Etecoon has no frame behaviour " +
-                    $"{state.FrameBehavior?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Escape Etecoon has no frame behaviour {state.FrameBehavior}.");
         }
     }
 
@@ -189,7 +187,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = EscapeEtecoonFrameBehavior.Cleared;
+                state.FrameBehavior = null;
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;

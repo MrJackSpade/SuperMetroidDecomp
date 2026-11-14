@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 public enum PowampAction
 {
     /// <summary>Holds the body at its resting height until its 60-update countdown starts balloon inflation.</summary>
-    DeflatedResting = 1,
+    DeflatedResting,
     /// <summary>Waits ten AI updates, then selects fast body animation and upward velocity of half a pixel per update.</summary>
     Inflating,
     /// <summary>Rises with horizontal wiggle toward 64 pixels above the balloon's spawn Y, switching immediately to grappled rise if grapple AI activates.</summary>

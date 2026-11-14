@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 public enum BullAction
 {
     /// <summary>Waits for the sixteen-call activation countdown to reach zero, reloads it, and selects Samus targeting.</summary>
-    MovementDelay = 1,
+    MovementDelay,
     /// <summary>Captures the angle toward Samus, sets acceleration delta 24, and starts accelerating without moving that call.</summary>
     TargetSamus,
     /// <summary>Increases speed on configured interval expiries while below the maximum threshold, moves along the captured angle, and checks the 48-unit off-target deceleration.</summary>

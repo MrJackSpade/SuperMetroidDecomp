@@ -24,9 +24,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue.Kind)
         {
-            case BoyonCueKind.Return:
-                // The return cue has no effect; keeping it documents the idle-animation seam.
-                break;
             case BoyonCueKind.StartBounce:
                 StartBoyonBounce(state);
                 break;

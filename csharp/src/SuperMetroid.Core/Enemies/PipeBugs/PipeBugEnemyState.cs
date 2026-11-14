@@ -71,8 +71,8 @@ public sealed class PipeBugEnemyState
     public Position16<RoomPixels> RiseEnd { get; internal set; }
     /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>
     public int StaggerTarget { get; internal set; }
-    /// <summary>Gets the action selected for this Norfair member after rising.</summary>
-    public PipeBugAction NorfairPostRiseAction { get; internal set; }
+    /// <summary>The action selected for this Norfair member after rising, or null before its formation assigns one.</summary>
+    public PipeBugAction? NorfairPostRiseAction { get; internal set; }
     /// <summary>A yellow Pipe Bug's signed 1/65536-pixel rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
     public SignedSixteenSixteen PositiveVelocity { get; internal set; }
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>

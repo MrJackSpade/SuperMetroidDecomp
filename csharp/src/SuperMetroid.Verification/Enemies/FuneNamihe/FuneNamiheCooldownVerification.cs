@@ -31,7 +31,7 @@ internal static class FuneNamiheCooldownVerification
 
         FuneNamiheEnemyState crossed = Wait(short.MaxValue);
         AssertEqual(0, crossed.CooldownTimer, "ending the wait resets the count");
-        AssertEqual(FuneNamiheAction.FuneActivityNoOp, crossed.Action, "a count crossing the signed boundary ends the wait");
+        AssertEqual(FuneNamiheAction.Spitting, crossed.Action, "a count crossing the signed boundary ends the wait");
         AssertTrue(crossed.ShowsActiveAnimation && !crossed.FacingRight, "ending the wait selects the active animation for the same facing");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), crossed.Playback,
             "ending the wait installs the active program for the same facing");

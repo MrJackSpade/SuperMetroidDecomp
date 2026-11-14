@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 public enum KzanAction
 {
     /// <summary>Counts down the population-defined top wait before resetting fall acceleration.</summary>
-    WaitingToFall = 1,
+    WaitingToFall,
     /// <summary>Accelerates downward, carries a touching rider, and clamps to the lower target on landing.</summary>
     Falling,
     /// <summary>Waits at the lower target until the post-landing countdown expires.</summary>

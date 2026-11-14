@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal enum WorkRobotLaser
 {
     /// <summary>The up-left laser.</summary>
-    UpLeft = 1,
+    UpLeft,
 
     /// <summary>The horizontal laser.</summary>
     Horizontal,

@@ -94,7 +94,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             ShowsActiveAnimation = program.Active,
             FacingRight = program.Right,
             Action = program.Active
-                ? program.Namihe ? FuneNamiheAction.NamiheActivityNoOp : FuneNamiheAction.FuneActivityNoOp
+                ? FuneNamiheAction.Spitting
                 : program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
             Variant = program.Namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune,
             Playback = new(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation),

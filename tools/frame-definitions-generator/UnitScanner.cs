@@ -61,6 +61,14 @@ internal sealed class UnitScan
     public Dictionary<INamedTypeSymbol, HashSet<string>?> FamilyPrograms { get; } = new(SymbolEqualityComparer.Default);
 
     /// <summary>
+    /// The program arguments of the constructions of each family that no constant decides (#1784), as a spawner choosing
+    /// the program its callers hand it does: the walk reaching the code traces what its callers pass, and adds those
+    /// programs to the family's <see cref="FamilyPrograms"/>.
+    /// </summary>
+    public Dictionary<INamedTypeSymbol, List<(ExpressionSyntax Program, SemanticModel Semantic)>> FamilyProgramArguments { get; } =
+        new(SymbolEqualityComparer.Default);
+
+    /// <summary>
     /// Where graphics this code assigns to a spawned object (after spawning it, before or between draws) can make it draw
     /// from: the object may draw with these as well as with the graphics it was spawned with.
     /// </summary>
@@ -411,15 +419,24 @@ internal sealed class UnitScanner(CoreModel model)
 
     /// <summary>
     /// Records a reference to a projectile program family's code (#1513): a construction starts it in the program its
-    /// argument names; any other reference, or a program no constant decides, may start it in any.
+    /// argument names, or, when no constant decides it, in the programs the walk finds its callers hand it (#1784); any
+    /// other reference may start it in any.
     /// </summary>
     private void RecordFamilyStart(UnitScan scan, SemanticModel semantic, SyntaxNode node, ISymbol symbol)
     {
         if (symbol is INamedTypeSymbol || symbol.ContainingType is not { } containing || model.FamilyOf(containing.OriginalDefinition) is not { } family)
             return;
-        IReadOnlySet<string>? programs = node is BaseObjectCreationExpressionSyntax creation && symbol is IMethodSymbol { MethodKind: MethodKind.Constructor }
-            && SymbolEqualityComparer.Default.Equals(containing.OriginalDefinition, family)
-            ? model.ProgramsOf(semantic, creation, family) : null;
+        BaseObjectCreationExpressionSyntax? construction = node is BaseObjectCreationExpressionSyntax creation
+            && symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } && SymbolEqualityComparer.Default.Equals(containing.OriginalDefinition, family)
+            ? creation : null;
+        IReadOnlySet<string>? programs = construction is null ? null : model.ProgramsOf(semantic, construction, family);
+        if (programs is null && construction is { ArgumentList.Arguments: [var traced, ..] })
+        {
+            if (!scan.FamilyProgramArguments.TryGetValue(family, out List<(ExpressionSyntax, SemanticModel)>? arguments))
+                scan.FamilyProgramArguments.Add(family, arguments = []);
+            arguments.Add((traced.Expression, semantic));
+            programs = new HashSet<string>(StringComparer.Ordinal);
+        }
         if (programs is null)
         {
             scan.FamilyPrograms[family] = null;

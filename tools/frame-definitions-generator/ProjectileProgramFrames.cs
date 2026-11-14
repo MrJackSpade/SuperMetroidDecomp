@@ -499,7 +499,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     continue;
                 if (name.Ancestors().Any(node => excluded.Contains(node) || IsTest(node, name))
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" })
-                    || IsStartArgument(semantic, name, family))
+                    || IsStartArgument(semantic, name, family)
+                    || IsHandedProgram(semantic, name, family))
                     continue;
                 named.Add(field.Name);
             }
@@ -621,7 +622,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     case BaseObjectCreationExpressionSyntax creation when semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol constructor:
                         INamedTypeSymbol created = constructor.ContainingType.OriginalDefinition;
                         if (model.FamilyOf(created) is { } family && SymbolEqualityComparer.Default.Equals(family, created))
-                            Started(family, model.ProgramsOf(semantic, creation, family));
+                            Started(family, model.ProgramsOf(semantic, creation, family) ?? Handed(family, creation, semantic));
                         else
                             Enter(constructor);
                         break;
@@ -636,6 +637,13 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             }
         }
         return started;
+
+        // A program the constructing method was handed is what Core's calls of it pass (#1784): the handlers reaching it
+        // reach every such call's program, as a statue particle's cue spawns its tail.
+        IReadOnlySet<string>? Handed(INamedTypeSymbol family, BaseObjectCreationExpressionSyntax creation, SemanticModel semantic) =>
+            creation.ArgumentList is { Arguments: [var program, ..] } && model.ProgramTypeOf(family) is { } programType
+                ? new ProgramTracer(model, reaches: null).Programs(programType, program.Expression, semantic)
+                : null;
 
         // A family started in programs no constant decides may be started in any of them.
         void Started(INamedTypeSymbol family, IReadOnlySet<string>? programs)
@@ -672,7 +680,21 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     };
 
     /// <summary>Whether <paramref name="name"/> is the program argument of a construction of <paramref name="family"/>, a start the walks record.</summary>
-    private static bool IsStartArgument(SemanticModel semantic, IdentifierNameSyntax name, INamedTypeSymbol family)
+    private static bool IsStartArgument(SemanticModel semantic, IdentifierNameSyntax name, INamedTypeSymbol family) =>
+        ArgumentOf(name)?.Parent is ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax creation }
+        && semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
+        && SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, family);
+
+    /// <summary>
+    /// Whether <paramref name="name"/> is passed for a parameter that hands <paramref name="family"/> its program (#1784), as
+    /// a spawner's caller names the program the spawner starts: a start the walks record by tracing what each call passes.
+    /// </summary>
+    private bool IsHandedProgram(SemanticModel semantic, IdentifierNameSyntax name, INamedTypeSymbol family) =>
+        ArgumentOf(name) is { } argument && CoreModel.ParameterOf(semantic, argument) is { } parameter
+        && model.ProgramParameters(family).Contains(parameter);
+
+    /// <summary>The argument <paramref name="name"/> is, directly or as a choice of a conditional or switch; null when it is no argument.</summary>
+    private static ArgumentSyntax? ArgumentOf(IdentifierNameSyntax name)
     {
         SyntaxNode node = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name;
         // A program a conditional or switch chooses is the argument too.
@@ -692,9 +714,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             }
             break;
         }
-        return node.Parent is ArgumentSyntax { Parent: ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax creation } }
-            && semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
-            && SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, family);
+        return node.Parent as ArgumentSyntax;
     }
 
     /// <summary>

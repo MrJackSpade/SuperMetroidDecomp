@@ -966,18 +966,8 @@ internal sealed class RoomLoader
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         _doorTransition.RunDoorSetup(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
-        if (room.State.SetupBehavior == RoomSetupBehavior.SetupShaktoolRoomObject)
-            roomObjects.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
-        if (room.State.SetupBehavior == RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape)
-            roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
-                assets.LevelData.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
-        // The Climb's escape setup spawns the fake-wall room object; the spawn silently drops it when all
-        // forty slots are occupied.
-        if (room.State.SetupBehavior == RoomSetupBehavior.AutoDestroyWallDuringEscape)
-            roomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
-        // The mainstreet's escape setup also spawns this room object before writing the quake SetupEscapeRoomEffects owns.
-        if (room.State.SetupBehavior == RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen)
-            roomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
+        // The room state's setup runs right after the door's.
+        RoomStateSetup.Run(room, assets.LevelData, roomObjects, destinationCamera.Scrolls, _system);
 
         if (entry.RunDoorClosingObject)
         {

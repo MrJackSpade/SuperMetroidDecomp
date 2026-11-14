@@ -58,22 +58,20 @@ internal static class GameplayContentIdentityVerification
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {
-        // Every drawable rule shows four distinct blocks; one square rule's block is edited.
+        // Every drawable rule shows the blocks its shape copies of four distinct ones; one square rule's block is edited.
         var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;
-        foreach (XrayRevealVisualDefinition entry in XrayRevealFixtures.EveryDrawable(_ => new XrayRevealVisualBlocks(10, 11, 12, 13)))
+        foreach (XrayRevealVisualDefinition entry in XrayRevealFixtures.EveryDrawable(shape => XrayRevealFixtures.Corners(shape, 10, 11, 12, 13)))
         {
             XrayRevealVisualBlocks visual = entry.Visual;
             if (!editedOperands && XrayRevealTable.Find(entry.Type, entry.Reaction) == XrayRevealShape.CopySquare &&
                 edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
-                visual = visual with
-                {
-                    TopLeft = visual.TopLeft ^ (edit == "xray-top-left" ? 1 : 0),
-                    TopRight = visual.TopRight ^ (edit == "xray-top-right" ? 1 : 0),
-                    BottomLeft = visual.BottomLeft ^ (edit == "xray-bottom-left" ? 1 : 0),
-                    BottomRight = visual.BottomRight ^ (edit == "xray-bottom-right" ? 1 : 0),
-                };
+                visual = XrayRevealVisualBlocks.Square(
+                    10 ^ (edit == "xray-top-left" ? 1 : 0),
+                    11 ^ (edit == "xray-top-right" ? 1 : 0),
+                    12 ^ (edit == "xray-bottom-left" ? 1 : 0),
+                    13 ^ (edit == "xray-bottom-right" ? 1 : 0));
                 editedOperands = true;
             }
             entries.Add(entry with { Visual = visual });

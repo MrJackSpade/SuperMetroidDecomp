@@ -927,19 +927,21 @@ restyle an item, repaint those pictures in the installed sheet, then restart. Pi
 unchanged.
 
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. In the
-installed file, edit its `topLeft`, `topRight`,
-`bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names
+installed file, edit an entry's `blocks` metatile indices, and restart. Each
+entry lists the blocks its shape copies, in reading order: one for `one` and
+`brinstar-only`, left then right for `wide`, top then bottom for `tall`, and
+top left, top right, bottom left, bottom right for `square` (#1756). Each entry names
 the collision type and the `reactions` that select it, each named as the
 reaction that collision type reads (none for a type that reads none, such as
 air), plus its read-only copy shape (#1722). The installer groups identical cartridge rules to keep the file short;
-changing the rule keys, shape, count, or unused operands is rejected. The
+changing the rule keys, shape, count, or the number of blocks is rejected. The
 visual indices may be 0..4095, but each selected metatile must exist in the
 room's combined CRE/area block definitions when X-ray is used. The compiled
 cartridge lookup still determines whether a block is revealed, how many
 blocks are copied, extension traversal, and Brinstar-only behavior.
 Its `extensionExitBlock` is the metatile an extension chain shows when its next
 step leaves the room backward.
-The same file contains four `tankMetatiles` (the Energy, Missile, Super Missile
+The same file contains four `tanks` (the Energy, Missile, Super Missile
 and Power Bomb tanks' reveal blocks; every other item is revealed as the first
 of its own pictures) and `rooms` with special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block

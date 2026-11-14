@@ -265,10 +265,9 @@ internal static class InstalledArtworkContentIdentity
                 XrayRevealVisualBlocks visual = pair.Value;
                 content.AppendName("kind", pair.Key.Type.ToString());
                 content.AppendName("reaction", pair.Key.Reaction?.ToString() ?? string.Empty);
-                content.Append("top left", visual.TopLeft);
-                content.Append("top right", visual.TopRight);
-                content.Append("bottom left", visual.BottomLeft);
-                content.Append("bottom right", visual.BottomRight);
+                content.Append("blocks", visual.InReadingOrder.Count);
+                foreach (int block in visual.InReadingOrder)
+                    content.Append("block", block);
             }
             content.Append("extension exit", reveals.ExtensionExitBlock);
             content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));

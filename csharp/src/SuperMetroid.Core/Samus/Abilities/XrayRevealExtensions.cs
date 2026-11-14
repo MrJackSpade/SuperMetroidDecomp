@@ -54,7 +54,7 @@ public static class XrayRevealExtensions
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
-            return visuals.Apply(block.CollisionType, block.Behavior)?.TopLeft;
+            return visuals.Apply(block.CollisionType, block.Behavior)?.Blocks?.TopLeft;
         }
     }
 

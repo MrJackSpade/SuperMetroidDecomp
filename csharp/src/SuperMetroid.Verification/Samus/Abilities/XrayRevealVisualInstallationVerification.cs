@@ -40,7 +40,7 @@ internal static class XrayRevealVisualInstallationVerification
             drawable++;
         }
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
-        AssertEqual((XrayRevealDefinition?)new XrayRevealDefinition(XrayRevealShape.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
+        AssertEqual((XrayRevealDefinition?)new XrayRevealDefinition(XrayRevealShape.CopySquare, XrayRevealVisualBlocks.Square(0x99, 0x9a, 0xb9, 0xba)),
             stock.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(3)),
             "stock square shot-block reveal installs all four row-major blocks");
         InstalledXrayOverlays overlays = stock.Overlays;
@@ -84,7 +84,12 @@ internal static class XrayRevealVisualInstallationVerification
                 .SequenceEqual(SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name)),
             "installed X-ray rooms name every retail overlay, in order");
         AssertTrue(rooms.All(room => !room.ContainsKey("pointer")), "installed X-ray rooms hold no cartridge pointer");
-        int originalTop = tall.Required("topLeft").GetValue<int>();
+        // A rule lists the blocks its shape copies and no others: a tall reveal its top and bottom ones (#1756).
+        int[] tallBlocks = [.. tall.Required("blocks").AsArray().RequiredElements().Select(block => block.GetValue<int>())];
+        AssertEqual(2, tallBlocks.Length, "the tall reveal lists its two blocks");
+        AssertTrue(document.AsObject().ContainsKey("tanks") && !document.AsObject().ContainsKey("tankMetatiles"),
+            "the tanks' reveal blocks are installed as tanks");
+        int originalTop = tallBlocks[0];
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         level.SetObjectTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));

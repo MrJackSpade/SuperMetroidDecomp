@@ -55,23 +55,23 @@ internal static class XrayRevealVerification
                 {
                     XrayRevealShape.HorizontalExtension or
                         XrayRevealShape.VerticalExtension =>
-                        new(shape, 0, 0, 0, 0),
+                        new(shape, null),
                     XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
-                        new(shape, ReadNativeXrayRevealWord(bus, shapePointer + 2), 0, 0, 0),
+                        new(shape, XrayRevealVisualBlocks.One(ReadNativeXrayRevealWord(bus, shapePointer + 2))),
                     XrayRevealShape.CopyWide =>
-                        new(shape,
+                        new(shape, XrayRevealVisualBlocks.Wide(
                             ReadNativeXrayRevealWord(bus, shapePointer + 2),
-                            ReadNativeXrayRevealWord(bus, shapePointer + 4), 0, 0),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 4))),
                     XrayRevealShape.CopyTall =>
-                        new(shape,
-                            ReadNativeXrayRevealWord(bus, shapePointer + 2), 0,
-                            ReadNativeXrayRevealWord(bus, shapePointer + 4), 0),
+                        new(shape, XrayRevealVisualBlocks.Tall(
+                            ReadNativeXrayRevealWord(bus, shapePointer + 2),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 4))),
                     XrayRevealShape.CopySquare =>
-                        new(shape,
+                        new(shape, XrayRevealVisualBlocks.Square(
                             ReadNativeXrayRevealWord(bus, shapePointer + 2),
                             ReadNativeXrayRevealWord(bus, shapePointer + 4),
                             ReadNativeXrayRevealWord(bus, shapePointer + 6),
-                            ReadNativeXrayRevealWord(bus, shapePointer + 8)),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 8))),
                     _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {shape}."),
                 };
             }

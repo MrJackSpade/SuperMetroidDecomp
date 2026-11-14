@@ -20,7 +20,7 @@ internal static class XrayExtensionsVerification
         }
         // A terminal special-air block shows its installed reveal block (#1596); only a negative-coordinate exit shows the
         // extension's own blank.
-        var visuals = XrayRevealFixtures.Complete(_ => new XrayRevealVisualBlocks(RevealedBlock, 0, 0, 0));
+        var visuals = XrayRevealFixtures.Complete(shape => XrayRevealFixtures.Corners(shape, RevealedBlock, 0, 0, 0));
         var level = Create();
         Set(level, 18, RoomCollisionType.HorizontalExtension, 0xff);
         Set(level, 17, RoomCollisionType.SpecialAir, 0x46);

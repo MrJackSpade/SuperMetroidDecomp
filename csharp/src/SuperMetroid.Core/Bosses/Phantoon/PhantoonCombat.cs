@@ -337,7 +337,7 @@ internal sealed class PhantoonCombat
             if (hitboxShot == EnemyReaction.Ignore ||
                 state.BodyState.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
                     PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
-                    PhantoonPhase.Dead or PhantoonPhase.NoOperation)
+                    PhantoonPhase.Dead or null)
             {
                 projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(
                     projectile,
@@ -422,7 +422,7 @@ internal sealed class PhantoonCombat
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
-        PhantoonPhase phase = state.BodyState.Phase;
+        PhantoonPhase? phase = state.BodyState.Phase;
         bool vulnerableWindow = phase is
             PhantoonPhase.EyeTracksSamus or
             PhantoonPhase.TrackSamusDuringFlameRain;

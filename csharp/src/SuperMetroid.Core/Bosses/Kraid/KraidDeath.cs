@@ -103,7 +103,7 @@ internal sealed class KraidDeath
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 256);
                 _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmRisingOrSinking);
                 _access.StartKraidPartAnimation(_parts.Foot, KraidPartSegment.FootInitial);
-                state.FootState.Phase = KraidPhase.NoOperation;
+                state.FootState.Phase = null;
                 return;
 
             case KraidPhase.DeathSink:
@@ -150,7 +150,6 @@ internal sealed class KraidDeath
             case KraidPhase.DeathFinishedWasDead:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
                 return;
-            case KraidPhase.NoOperation:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
             case KraidPhase.GrowShowLowerBodyInFront:
@@ -190,7 +189,6 @@ internal sealed class KraidDeath
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a death phase.");
         }

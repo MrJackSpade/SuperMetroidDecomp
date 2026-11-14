@@ -148,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonPhase phase = state.BodyState.Phase;
+        PhantoonPhase? phase = state.BodyState.Phase;
 
         switch (phase)
         {
@@ -248,7 +248,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case PhantoonPhase.Dead:
                 Death.ActivateWreckedShipAfterPhantoon(body, state);
                 break;
-            case PhantoonPhase.NoOperation:
+            case null:
                 break;
             default:
                 throw new InvalidDataException(

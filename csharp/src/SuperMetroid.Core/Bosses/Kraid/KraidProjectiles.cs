@@ -229,7 +229,6 @@ internal sealed class KraidProjectiles
                 TickKraidNailFlight(nail, level);
                 return;
 
-            case KraidPhase.NoOperation:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
             case KraidPhase.GrowShowLowerBodyInFront:
@@ -279,7 +278,6 @@ internal sealed class KraidProjectiles
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid fingernail has no behaviour for phase {_parts.NailStateOf(state, nail).Phase}.");
@@ -380,7 +378,6 @@ internal sealed class KraidProjectiles
             case KraidPhase.LintFire:
                 FireKraidLint(lint, part, samus);
                 return;
-            case KraidPhase.NoOperation:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
             case KraidPhase.GrowShowLowerBodyInFront:
@@ -429,7 +426,6 @@ internal sealed class KraidProjectiles
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid lint slot {lint.SlotIndex} has no behaviour for phase " +

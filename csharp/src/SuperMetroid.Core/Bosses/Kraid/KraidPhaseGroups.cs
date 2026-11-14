@@ -17,7 +17,7 @@ internal static class KraidPhaseGroups
     /// </summary>
     internal static readonly FrozenSet<KraidPhase> Fighting = new[]
     {
-        KraidPhase.None, KraidPhase.NoOperation, KraidPhase.GrowBreakCeilingPlatforms,
+        KraidPhase.GrowBreakCeilingPlatforms,
         KraidPhase.GrowBringBodyInFront, KraidPhase.GrowShowLowerBodyInFront, KraidPhase.GrowDrawRoomBackground,
         KraidPhase.GrowFadeInRoomBackground, KraidPhase.MainloopThinking, KraidPhase.SecondPhaseThinking,
         KraidPhase.MouthOpenReaction, KraidPhase.InitializeEyeGlow, KraidPhase.GlowEye, KraidPhase.UnglowEye,

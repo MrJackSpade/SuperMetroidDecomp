@@ -58,7 +58,7 @@ public sealed class CrocomireEnemyState
     /// <summary>Crocomire's tongue, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
-    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
+    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }
 
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>

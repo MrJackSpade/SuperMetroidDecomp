@@ -54,7 +54,7 @@ internal static class KraidGrowthCommandCursorVerification
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidPhase.GrowReleaseCamera, state.BodyState.PhaseToResume, "growth schedules camera release");
         AssertEqual(180, state.BodyState.PhaseTimer, "growth function timer");
-        AssertEqual(KraidPhase.NoOperation, state.FootState.Phase, "growth stops the foot lunge");
+        AssertEqual((KraidPhase?)null, state.FootState.Phase, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
         // Confirm the growth resume for every cursor form, including cries and list ends adjacent to the next list:

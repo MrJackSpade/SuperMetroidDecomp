@@ -103,8 +103,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyOrigin = new Position16<RoomPixels>(
             CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
             CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
-        KraidPhase phase = state.BodyState.Phase;
-        if (KraidPhaseGroups.Rising.Contains(phase))
+        if (state.BodyState.Phase is { } phase && KraidPhaseGroups.Rising.Contains(phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);
             return;
@@ -291,7 +290,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.RunKraidDeathPhase(body, state, cameraX);
                 return;
 
-            case KraidPhase.NoOperation:
             case KraidPhase.LintInactive:
             case KraidPhase.LintProduce:
             case KraidPhase.LintCharge:
@@ -316,7 +314,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");

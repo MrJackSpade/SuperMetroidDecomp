@@ -58,8 +58,8 @@ public enum CrocomireDeathPhase
     BeginSecondMeltPass,
     /// <summary>Shows one band of the second melt image per frame.</summary>
     ShowSecondMeltBands,
-    /// <summary>Shipped index-only spacer.</summary>
-    ShippedSpacer,
+    /// <summary>Waits one update after the second melt image's last band before the sixth rise.</summary>
+    WaitBeforeSixthHopRise,
     /// <summary>Sixth hop rising phase.</summary>
     SixthHopRise,
     /// <summary>Starts the second column dissolve.</summary>
@@ -86,14 +86,14 @@ public enum CrocomireDeathPhase
     ClearWallAndOpenScrolls,
     /// <summary>Waits for the stable skeleton frame.</summary>
     WaitForStableSkeleton,
-    /// <summary>Waits one update, doing nothing but advancing the phase.</summary>
-    WaitOneUpdate,
+    /// <summary>Waits one update after the skeleton settles before recording the mini-boss's defeat.</summary>
+    WaitBeforeRecordingDefeat,
     /// <summary>Records the mini-boss's defeat and restores boss music.</summary>
     PublishDefeatAndRestoreMusic,
     /// <summary>Final live-room corpse state; intentionally inert.</summary>
     InertCorpse,
-    /// <summary>Already-defeated initializer's one-frame advance.</summary>
-    DefeatedRoomAdvance,
+    /// <summary>In the already-defeated room, waits one update after setup before pinning his body layer's placement.</summary>
+    WaitBeforePinningDefeatedBodyLayer,
     /// <summary>Pins his body layer's placement at zero in the already-defeated room.</summary>
     PinDefeatedRoomBodyLayerPlacement,
     /// <summary>River detour sequenced between the final sink and wall wait.</summary>

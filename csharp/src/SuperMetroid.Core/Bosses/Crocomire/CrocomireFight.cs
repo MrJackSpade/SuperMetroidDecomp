@@ -71,7 +71,7 @@ internal sealed class CrocomireFight
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
             slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-            state.DeathPhase = CrocomireDeathPhase.DefeatedRoomAdvance;
+            state.DeathPhase = CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);

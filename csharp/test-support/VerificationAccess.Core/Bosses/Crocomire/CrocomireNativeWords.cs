@@ -47,7 +47,7 @@ internal static class CrocomireNativeWords
         [CrocomireDeathPhase.InstallSecondMeltImage] = 44,
         [CrocomireDeathPhase.BeginSecondMeltPass] = 46,
         [CrocomireDeathPhase.ShowSecondMeltBands] = 48,
-        [CrocomireDeathPhase.ShippedSpacer] = 50,
+        [CrocomireDeathPhase.WaitBeforeSixthHopRise] = 50,
         [CrocomireDeathPhase.SixthHopRise] = 52,
         [CrocomireDeathPhase.StartSecondDissolve] = 54,
         [CrocomireDeathPhase.DissolveSecondImage] = 56,
@@ -61,10 +61,10 @@ internal static class CrocomireNativeWords
         [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = 72,
         [CrocomireDeathPhase.ClearWallAndOpenScrolls] = 74,
         [CrocomireDeathPhase.WaitForStableSkeleton] = 76,
-        [CrocomireDeathPhase.WaitOneUpdate] = 78,
+        [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = 78,
         [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = 80,
         [CrocomireDeathPhase.InertCorpse] = 82,
-        [CrocomireDeathPhase.DefeatedRoomAdvance] = 84,
+        [CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer] = 84,
         [CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement] = 86,
         [CrocomireDeathPhase.RiverSkeletonDetour] = 88,
     });
@@ -100,13 +100,6 @@ internal static class CrocomireNativeWords
         [CrocomireTongueFrame.MeltingPose2] = 0xcae2,
         [CrocomireTongueFrame.MeltingPose3] = 0xcaec,
         [CrocomireTongueFrame.MeltingPose4] = 0xcaf6,
-    });
-
-    /// <summary>The bank-$A4 hitbox-list word naming each <see cref="CrocomireTongueHitboxList"/>.</summary>
-    internal static readonly NativeWordIdentities<CrocomireTongueHitboxList> TongueHitboxLists = new(new Dictionary<CrocomireTongueHitboxList, ushort>
-    {
-        [CrocomireTongueHitboxList.Fight] = 0xcbb3,
-        [CrocomireTongueHitboxList.Melting] = 0xcc3b,
     });
 
     /// <summary>Whether a recorded body variable B holds the damage-reaction latch.</summary>

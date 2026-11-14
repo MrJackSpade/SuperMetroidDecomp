@@ -203,7 +203,6 @@ internal sealed class KraidRise
                     return;
                 FinishKraidGrowth(body, state);
                 return;
-            case KraidPhase.NoOperation:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
             case KraidPhase.MouthOpenReaction:
@@ -251,7 +250,6 @@ internal sealed class KraidRise
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a growth phase.");
         }
@@ -392,7 +390,6 @@ internal sealed class KraidRise
                 }
                 return;
 
-            case KraidPhase.NoOperation:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
             case KraidPhase.GrowShowLowerBodyInFront:
@@ -440,7 +437,6 @@ internal sealed class KraidRise
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");

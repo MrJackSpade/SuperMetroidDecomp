@@ -117,7 +117,9 @@ internal static class NativeEnemyFamilyStateImport
             phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
             phantoonBody.PhaseTimer = CoordinateAxis.AsSigned(words.E);
             if (words.F != 0)
-                phantoonBody.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+                phantoonBody.Phase = words.F == PhantoonNativeWords.NoPhase
+                    ? null
+                    : PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {

@@ -395,7 +395,7 @@ public sealed class SamusDrainedState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Shared rainbow setup calls the previous-pose helper before lock.
         samus.CommitPoseHistory();
-        // The shared rainbow setup installs the locked current/new state handlers after changing art.
+        // The shared rainbow setup locks Samus's input and movement after changing art.
         samus.Control.LockForRainbowBeam();
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }

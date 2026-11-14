@@ -165,7 +165,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckRecoilTimer = 16;
 
                 // The neck step falls directly into its successor; the newly loaded sixteen is already
-                // fifteen when this single handler call returns.
+                // fifteen when this single update returns.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:

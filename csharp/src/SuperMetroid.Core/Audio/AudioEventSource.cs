@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// Turns one update's <see cref="AudioRequest"/>s into ordered semantic <see cref="AudioEvent"/>s through the
 /// <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> (#1304, #1410): data set changes and track selections first, then the update's
 /// clock steps, each step that checks the requests followed by the sounds it starts. It also publishes the
-/// acknowledgements the next update's sound handlers read. The game session and the offline clip renderer (#1305)
+/// acknowledgements the next update's sound queues read. The game session and the offline clip renderer (#1305)
 /// share it, so both drive a backend with identical event streams.
 /// </summary>
 internal sealed class AudioEventSource

@@ -181,14 +181,14 @@ internal static class SamusPoseMetadata
         SamusMovementHandOver.To(samus, SamusMovementOwner.Elevator);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
     }
 
     /// <summary>
     /// Applies the movement/animation subset of facing Samus forward.
     /// </summary>
     /// <remarks>
-    /// The behaviour also locks the global current/new-state handlers, kills grapple,
+    /// The behaviour also locks the player out of Samus's control, kills grapple,
     /// clears beam-flare presentation state, and reloads the suit palette. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and

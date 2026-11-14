@@ -195,7 +195,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     3 => default,
                     2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
                     // The box returns to gameplay, whose own sound processing follows.
-                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
+                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 },
                     _ => MessageBoxFrameAudio.MusicAndSounds,
                 };
                 if (_pauseUpdatesRemaining-- == 0)

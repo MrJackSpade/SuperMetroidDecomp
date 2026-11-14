@@ -29,7 +29,7 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Control.LockIntoRefillStation();
+        samus.Control.LockAtStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);

@@ -21,7 +21,7 @@ public static class SamusKnockbackMovement
 {
     /// <summary>
     /// Consumes the damage request that terrain collision publishes before the
-    /// knockback check runs in the normal Samus new-state handler.
+    /// knockback check runs in Samus's ordinary input phase.
     /// </summary>
     /// <remarks>
     /// Block collision deliberately does not install a hurt pose itself. It writes the shared

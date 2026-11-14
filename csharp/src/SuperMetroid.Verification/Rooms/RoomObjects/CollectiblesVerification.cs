@@ -585,7 +585,7 @@ internal static class CollectiblesVerification
         }
         message.Step(0);
         AssertTrue(!message.IsActive, "item message returns after its restore frames");
-        AssertEqual(MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 }, message.LastFrameAudio,
+        AssertEqual(MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 }, message.LastFrameAudio,
             "the return frame adds the dispatch's own HandleSounds");
 
         // Message two is the first large box and patches its shoot-button placeholder.

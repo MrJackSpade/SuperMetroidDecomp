@@ -396,7 +396,7 @@ public sealed class SamusState
     /// <summary>
     /// Whether the charging-beam sound resumes on the next post-draw sound pass if Shoot is still held (#1682). Hurt-flash
     /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
-    /// post-draw sound handler consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
+    /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
     public bool ResumeChargingBeamSoundPending { get; internal set; }
 

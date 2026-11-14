@@ -309,7 +309,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // selects its first art record in the placement frame itself.
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
-        // X-ray's freeze leaves the normal state handler installed, so the normal handler
+        // X-ray's freeze leaves the normal input mode installed, so the normal input phase
         // still runs cooldown, HUD switching and the HUD handler; only its
         // projectile-handling tail stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
@@ -375,9 +375,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (!_freeze.TimeIsFrozen)
                 room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer);
 
-            // The new-state handler dispatches the selected HUD producer and immediately
+            // The input phase runs the selected HUD producer and immediately
             // clears the pose bridge. Pose initialization occurs later in the
-            // new-state handler, so a bridge published below survives precisely
+            // input phase, so a bridge published below survives precisely
             // until this point in the following gameplay frame.
             SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();

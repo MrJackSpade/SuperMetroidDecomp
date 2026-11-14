@@ -30,7 +30,7 @@ public static class SamusGrappleBeamDrawing
 
     /// <summary>
     /// Draws the grapple beam's flare. Call before atmosphere and Samus,
-    /// exactly where the active half of the grapple draw handler calls it.
+    /// exactly where the active half of the grapple beam's drawing draws it.
     /// </summary>
     /// <returns>True when the flare is drawn: the grapple is firing or connected with a flare to show.</returns>
     public static bool DrawFlareBeforeSamus(

@@ -102,7 +102,7 @@ internal sealed class RoomLoader
     private readonly ActiveRoomState _room;
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The colour effect handler state each room's colour effects reads.</summary>
+    /// <summary>Whether the colour effects run, and the heat phases, which each room's colour effects read.</summary>
     private readonly ColourEffectSessionState _colourEffectSession;
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
@@ -256,7 +256,7 @@ internal sealed class RoomLoader
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
-        _player.IntroducedSamus.Control.LockHandlers();
+        _player.IntroducedSamus.Control.LockOutPlayer();
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus);
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
@@ -333,11 +333,11 @@ internal sealed class RoomLoader
         }
 
         // The cinematic refilled health on the preceding frame; the Ceres start then seeds the
-        // hurt check from it. The Ceres start's control setup locks Samus's state handlers.
+        // hurt check from it. The Ceres start's control setup locks the player out.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.Placement.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.Placement.SamusPosition.Y, 0));
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
 
         // The landing branch moves the game to Crateria and loads the live explored map from
         // Crateria's stored one before the room loads.
@@ -667,7 +667,7 @@ internal sealed class RoomLoader
             if (!_room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 SamusPoseMetadata.SetupForElevator(_player.Samus);
             else
-                _player.Samus.Control.LockHandlers();
+                _player.Samus.Control.LockOutPlayer();
         }
         _doorOpeningScroll = null;
         _room.DoorSourceBackground = null;
@@ -899,7 +899,7 @@ internal sealed class RoomLoader
         // Loading reads the FX definition after room setup and before enemies. Its selected
         // record names two independent effect lists. The palette half must
         // be created on every shared room-load path; Landing Site's lightning replaces the
-        // colors used by the scrolling-sky horizon on the first gameplay handler call.
+        // colors used by the scrolling-sky horizon on the first gameplay update.
         var roomColourEffects = ColourEffectSystem.ForRoom(
             _colourEffectSession,
             room.State.Fx,

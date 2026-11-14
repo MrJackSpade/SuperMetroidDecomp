@@ -50,7 +50,7 @@ internal static class GunshipLandingVerification
             // produced only after the complete descent and lift sequence.
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
         };
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == StoryEvent.ZebesTimebombSet } }) { BossArtwork = InstalledFixtures.BossArtwork };
         samus.Presentation.BindBodyFixture(InstalledFixtures.SamusBody);

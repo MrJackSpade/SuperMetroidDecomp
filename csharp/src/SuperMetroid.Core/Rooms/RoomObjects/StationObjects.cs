@@ -96,7 +96,7 @@ internal sealed class StationObjects
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         samus.Position = samus.Position.WithWrappedWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
         samus.FaceForward();
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
 
         // The accepted route queues the saving sound right after centring Samus, in the pass the message returned into.
         _sounds.Queue(SamusSound.Saving, SoundRequestPriority.Normal);
@@ -384,7 +384,7 @@ internal sealed class StationObjects
                     IRoomSamus samus = _samus?.Current
                         ?? throw new InvalidOperationException(
                             $"{station.Kind} station setup has no live Samus owner.");
-                    samus.Control.LockIntoRefillStation();
+                    samus.Control.LockAtStation();
                 }
             }
             return true;

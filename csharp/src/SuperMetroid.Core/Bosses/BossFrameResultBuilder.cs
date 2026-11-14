@@ -35,7 +35,7 @@ internal sealed class BossFrameResultBuilder
     /// <summary>Spore Spawn's ceiling room object.</summary>
     internal SporeSpawnCeilingMutation? SporeSpawnCeiling { get; set; }
 
-    /// <summary>The belly glow a Torizo's fight start asks the colour effect handler for, or null.</summary>
+    /// <summary>The belly glow a Torizo's fight start asks the room's colour effects for, or null.</summary>
     internal TorizoBellyGlowRequest? TorizoBellyGlow { get; set; }
 
     /// <summary>Phantoon's door change (#1678): the fight's door as the starting flames close in, or the restored door.</summary>

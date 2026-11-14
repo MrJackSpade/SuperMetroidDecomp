@@ -98,7 +98,7 @@ internal static class SoundAcceptanceClockVerification
                 new SoundAcceptanceClockCase(39, RoomSound.HardLanding),
             }, starts.Select(start => new SoundAcceptanceClockCase(start.Frame, start.Start.SoundEffect)),
             "sound effects start only at the poll after the latch, and none during the music downtime");
-        AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioQueueDefinitions.MusicChangeSoundDowntimeCalls),
+        AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioQueueDefinitions.MusicChangeSoundDowntimePasses),
             "a request queued during the music downtime starts nothing until the downtime ends");
         AssertEqual(EmulatedAcknowledgementsSha256,
             Convert.ToHexString(SHA256.HashData(acknowledgementBytes.ToArray())),

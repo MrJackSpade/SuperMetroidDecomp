@@ -35,12 +35,12 @@ internal static class SaveConfirmationCadenceVerification
         }
         ReadsUntilToggle(ControllerButton.Right);
 
-        // The frame after the toggling read is the redraw's wait: no audio handlers, and the
+        // The frame after the toggling read is the redraw's wait: no audio queue passes, and the
         // selection sound is queued there.
         box.Step(0);
         AssertTrue(box.ConfirmationSelectionChangedThisFrame, "the selection sound follows the redraw wait");
-        AssertEqual(0, box.LastFrameAudio.MusicHandlerCalls, "the redraw wait runs no music handler");
-        AssertEqual(0, box.LastFrameAudio.SoundHandlerCalls, "the redraw wait runs no sound handler");
+        AssertEqual(0, box.LastFrameAudio.MusicQueuePasses, "the redraw wait processes no music queue");
+        AssertEqual(0, box.LastFrameAudio.SoundQueuePasses, "the redraw wait processes no sound queue");
 
         // Then the loop's first wait; its second ends in the read, three frames after the
         // toggling read.

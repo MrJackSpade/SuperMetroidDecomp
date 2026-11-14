@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted when an effect starts, which joins after every running effect, and by the order in which every update of
-/// the colour effects visits them. Evidence: the original colour-effect handler visits its effects from the first started
+/// the colour effects visits them. Evidence: the original game's colour effects take their turns from the first started
 /// on, a room's FX record starts its effects in the record's order into a room with none running, and the heat shimmer's
 /// condition reads the heat phase the glow's later visit writes. The effects whose turns gameplay observes, the heat
 /// shimmer that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's FX

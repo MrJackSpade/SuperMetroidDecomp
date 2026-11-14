@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
@@ -6,6 +7,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// cleared activation on the following update.
 /// </summary>
 /// <param name="species">The Morph Ball eye species whose beam steps.</param>
+[RoomLifetime]
 internal sealed class MorphBallEyeBeamStep(MorphBallEyeBehavior species) : IStepBeforeEnemySelection
 {
     /// <inheritdoc/>

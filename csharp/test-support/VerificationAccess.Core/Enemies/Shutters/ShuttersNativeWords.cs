@@ -22,7 +22,7 @@ internal static class ShuttersNativeWords
     /// <summary>The routine word naming each <see cref="VerticalShutterAction"/>.</summary>
     /// <remarks>
     /// <see cref="VerticalShutterAction.Still"/> has two: the reaction-triggered shutter's initial wait and the permanent
-    /// stop at an end do the same nothing (#1818).
+    /// stop at an end do the same nothing (#1814, #1818).
     /// </remarks>
     internal static readonly NativeWordIdentities<VerticalShutterAction> VerticalShutterActions = new(new Dictionary<ushort, VerticalShutterAction>
     {

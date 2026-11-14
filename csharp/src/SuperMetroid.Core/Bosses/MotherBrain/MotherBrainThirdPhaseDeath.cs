@@ -53,18 +53,13 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool HitboxesEnabled { get; internal set; } = true;
 
     /// <summary>
-    /// The explosion interval timer of the death explosions,
-    /// aliased with the body sub-phase counter.
+    /// Where and when the death explosions and the escape door's dust burst: the encounter's cycle once the sequence is
+    /// attached, which her ascent's dust left (#1872).
     /// </summary>
-    public int DeathExplosionIntervalTimer { get; internal set; }
+    private MotherBrainBurstCycle _bursts = new();
 
-    /// <summary>
-    /// One value under three names: the ascent dust's body
-    /// sub-phase timer, the death-explosion index over seven positions and the
-    /// escape-door dust index over four. Each effect inherits the value
-    /// the previous one left unless code explicitly clears it.
-    /// </summary>
-    public int DeathAndEscapeExplosionIndex { get; internal set; }
+    /// <summary>Bursts the death explosions and the escape door's dust from <paramref name="bursts"/> from now on.</summary>
+    internal void ShareBurstCycle(MotherBrainBurstCycle bursts) => _bursts = bursts;
 
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }
@@ -129,18 +124,15 @@ internal sealed class MotherBrainThirdPhaseDeath
         Func<int>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
-        // The death explosions decrement before checking for a count below zero. A cleared timer therefore runs past zero and emits
-        // immediately. Crucially, the interval value survives the timer's decrement,
-        // so the smoky/mixed caller writes exactly 16/8 after an expiry.
-        if (--DeathExplosionIntervalTimer >= 0)
+        // A restarted interval runs out on the first update, so a burst after a restart is immediate; after a burst the
+        // smoky explosions wait sixteen more updates and the mixed ones eight. Each burst takes the group before the last,
+        // continuing the place the ascent's dust left (#1872).
+        if (!_bursts.IntervalRunsOut(style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16))
             return;
 
-        DeathExplosionIntervalTimer = style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16;
-        if (--DeathAndEscapeExplosionIndex < 0)
-            DeathAndEscapeExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
-
+        int group = _bursts.NextPlace(MotherBrainDeathExplosionDefinitions.GroupCount);
         int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
-        int pairIndex = DeathAndEscapeExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
+        int pairIndex = group * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -164,31 +156,19 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Emits the next four-frame escape-door blast from its repeating position table.
-    /// Returns no request on frames before the shared interval timer expires.
+    /// Emits the escape door's next dust burst, at the place before the last; no request on updates before the interval
+    /// runs out.
     /// </summary>
     private DustExplosionRequest? GenerateEscapeDoorExplosion(
         Func<int>? nextRandomNumber)
     {
-        // The escape-door dust shares the old death-explosion interval value but replaces its cadence with
-        // four. A cleared timer passes zero on the first call, so a new explosion is immediate.
-        if (--DeathExplosionIntervalTimer >= 0)
+        // The door's dust continues the interval and the place the last death explosions left (#1872), then waits four
+        // updates between bursts.
+        if (!_bursts.IntervalRunsOut(4))
             return null;
 
-        DeathExplosionIntervalTimer = 4;
-        if (--DeathAndEscapeExplosionIndex < 0)
-            DeathAndEscapeExplosionIndex = 3;
-
-        // The explosion positions repeat in the order 3, 2, 1, 0; the switch spells out each X/Y pair.
-        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex switch
-        {
-            0 => new(8, 108),
-            1 => new(24, 128),
-            2 => new(9, 144),
-            3 => new(24, 116),
-            _ => throw new InvalidOperationException(
-                $"Escape-door explosion index {DeathAndEscapeExplosionIndex} escaped its 0..3 range."),
-        };
+        int place = _bursts.NextPlace(MotherBrainDeathDefinitions.EscapeDoorDustPositions.Length);
+        Position16<RoomPixels> position = Ensure.Element(MotherBrainDeathDefinitions.EscapeDoorDustPositions, place);
 
         if (nextRandomNumber is null)
         {
@@ -288,9 +268,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.DisableSmallPurpleBreathGeneration();
             _state.HealthColoursEnabled = false;
             requests.ColoursRequested = true;
-            // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
-            DeathExplosionIntervalTimer = 0;
-            DeathAndEscapeExplosionIndex = 0;
+            // Disabling the brain's effects restarts the bursts before the fade-out explosions.
+            _bursts.Restart();
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut;
             return true;
         }
@@ -329,10 +308,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.PhaseTimer < 0)
         {
             _state.PhaseTimer = 16;
-            int paletteIndex = _state.GreyTransitionCounter;
+            int fadeStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested |= paletteIndex < 16;
-            if (paletteIndex >= 16)
+            requests.ColoursRequested |= fadeStep < 16;
+            if (fadeStep >= 16)
             {
                 BodyClearRequested = true;
                 BodyPresence = BodyPresence.With(EnemyPresence.Hidden);
@@ -440,10 +419,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (--_state.PhaseTimer < 0)
         {
-            int paletteIndex = _state.GreyTransitionCounter;
+            int greyStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested = paletteIndex < 8;
-            if (paletteIndex < 8)
+            requests.ColoursRequested = greyStep < 8;
+            if (greyStep < 8)
             {
                 _state.PhaseTimer = 16;
             }
@@ -620,8 +599,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.MotherBrainDefeatRecordRequested = true;
         requests.ZebesTimebombEventRequested = true;
         _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor;
-        DeathExplosionIntervalTimer = 0;
-        DeathAndEscapeExplosionIndex = 0;
+        _bursts.Restart();
         return false;
     }
 

@@ -763,7 +763,7 @@ public sealed class BabyMetroidCutsceneState
                 (int fraction, bool frameCompleted) = AdvanceSamusRainbowFraction(SamusRainbowFraction);
                 SamusRainbowFraction = fraction;
                 if (frameCompleted)
-                    samus.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
+                    samus.Drained.HoldRainbowGlowLonger(longestHold: 10);
                 return;
             }
 

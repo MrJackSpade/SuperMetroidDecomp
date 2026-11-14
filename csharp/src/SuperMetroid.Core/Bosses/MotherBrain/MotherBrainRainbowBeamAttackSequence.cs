@@ -72,11 +72,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal void ShareWalkCounter(MotherBrainWalkCounter walk) => ThirdPhaseFight.ShareWalkCounter(Ensure.NotNull(walk));
 
     /// <summary>
-    /// Inherits the death-and-escape explosion index from the room's encounter state when the live sequence
-    /// attaches; the fake-death ascent dust last wrote it.
+    /// Bursts the death explosions and the escape door's dust from <paramref name="bursts"/> from now on, the cycle of the
+    /// encounter attaching this sequence, which her ascent's dust left (#1872).
     /// </summary>
-    internal void InheritDeathAndEscapeExplosionIndex(int bodySubPhaseTimer) =>
-        ThirdPhaseDeath.DeathAndEscapeExplosionIndex = bodySubPhaseTimer;
+    internal void ShareBurstCycle(MotherBrainBurstCycle bursts) => ThirdPhaseDeath.ShareBurstCycle(Ensure.NotNull(bursts));
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle, before its two charge waits.

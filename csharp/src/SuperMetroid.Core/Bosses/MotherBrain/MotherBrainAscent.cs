@@ -191,13 +191,11 @@ internal sealed class MotherBrainAscent
     /// <summary>Emits dust at the feet as the body rises from the floor.</summary>
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
-        if (--state.BodySubPhaseTimer < 0)
-            state.BodySubPhaseTimer = 7;
-
+        int place = state.Bursts.NextPlace(MotherBrainAscentDustDefinitions.DustPositions.Length);
         int random = _room.Random.Read();
         MiscDustAnimation animation = MotherBrainRandomDefinitions.AscentDustBig.IsSetIn(random) ? MiscDustAnimation.ShortBigDustCloud : MiscDustAnimation.SmallDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            MotherBrainAscentDustDefinitions.DustPositions[state.BodySubPhaseTimer], animation);
+            MotherBrainAscentDustDefinitions.DustPositions[place], animation);
         _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }
 

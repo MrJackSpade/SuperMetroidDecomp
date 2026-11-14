@@ -142,7 +142,7 @@ internal sealed class IntroMotherBrainSpriteState
         return true;
     }
 
-    /// <summary>Runs the generic cinematic sprite handler for Mother Brain's definition.</summary>
+    /// <summary>Runs one cinematic sprite update for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
         if (cue != CinematicSpriteCueKind.StartIntroPage2)

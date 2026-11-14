@@ -526,7 +526,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // Pose commits at the end of the previous frame deliberately leave it unchanged.
             SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
 
-            // Samus's current-state handler runs the demo input object,
+            // Samus's update for her current state runs the demo input,
             // after the cinematic phase, so a demo loaded by the scene setup plays its first
             // entry in the same dispatch, ahead of the Samus pose input that consumes it.
             if (CurrentFlashbackDemoInput is not null)
@@ -568,12 +568,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (explosionsExistedBeforeThisFrame)
         {
             // The eight actors are allocated while object zero is already being processed,
-            // so their first generic-handler call occurs on the following frame. Hit count
-            // four is reached on the spawn frame, after the handler passed their free slots.
+            // so their first cinematic sprite update occurs on the following frame. Hit count
+            // four is reached on the spawn frame, after the update passed their free slots.
             FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RemainingFrames);
         }
 
-        // The cinematic sprite handler runs after the cinematic phase, so the
+        // The cinematic sprites update after the cinematic phase, so the
         // actors a scene setup spawns take their first step in that same dispatch.
         CurrentBabyDiscovery?.Step(frameCounter, crossfadeCounter.RemainingFrames);
         CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
@@ -1011,7 +1011,7 @@ level, samus, frameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
-        // The normal new-state handler resolves a downward collision only after animation.
+        // Samus's ordinary update resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the
         // next animation all come from the same landing implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
@@ -1021,7 +1021,7 @@ level, samus, frameCounter);
         }
 
         // The intro-demo handler consumes the timer published by Rinka zero on the preceding cinematic-
-        // sprite pass. Keeping this after animation matches the intro demo's Samus state handler:
+        // sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
             samus.KnockbackTimer != 0 &&

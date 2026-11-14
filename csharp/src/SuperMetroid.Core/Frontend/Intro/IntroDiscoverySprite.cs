@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// A cinematic sprite object: its position, colouring and frame behaviour, playing one of the typed cinematic sprite
-/// animations (#641, #1600) where the generic cinematic sprite handler ran its animation.
+/// animations (#641, #1600) where every cinematic sprite's update ran its animation.
 /// </summary>
 /// <remarks>
 /// The shared frame-behaviour install is carried out here; every other cue goes to the owner that steps the actor, and
@@ -75,7 +75,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The frame behaviour the actor's animation installed, until an owner installs its own.</summary>
     internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
-    /// <summary>Starts the animation of <paramref name="segment"/> on the next handler call, discarding the old frame countdown.</summary>
+    /// <summary>Starts the animation of <paramref name="segment"/> on the sprite's next update, discarding the old frame countdown.</summary>
     public void Start(CinematicSpriteSegment segment)
     {
         Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
@@ -83,7 +83,7 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
-    /// Seeds the private frame hold used by the next generic sprite-handler
+    /// Seeds the private frame hold used by the sprite's next update
     /// call. Cinematic object setups write this hold directly when several actors
     /// share one animation but must begin on staggered frames.
     /// </summary>
@@ -113,7 +113,7 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
-    /// Advances one generic cinematic-sprite handler call: when the frame expires, plays the animation on until it shows a
+    /// Advances the cinematic sprite by one update: when the frame expires, plays the animation on until it shows a
     /// frame, holds or ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner
     /// fails.
     /// </summary>

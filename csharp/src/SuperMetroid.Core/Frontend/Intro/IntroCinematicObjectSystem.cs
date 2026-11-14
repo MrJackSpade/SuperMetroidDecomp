@@ -401,7 +401,7 @@ internal sealed class IntroCinematicObjectSystem
     internal void SetCaretBlinking()
     {
         // The caret-blink cue starts the existing slot's blinking animation and primes timer
-        // one, allowing the generic sprite handler to select the first frame now.
+        // one, allowing the cinematic sprite's update to select the first frame now.
         caretSprite.Start(CinematicSpriteSegment.IntroTextCaretBlink);
     }
 

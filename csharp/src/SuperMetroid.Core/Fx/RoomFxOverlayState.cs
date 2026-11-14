@@ -410,7 +410,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Seeds the liquid surface's camera-dependent screen line during a room transition without advancing
     /// a wave clock. Destination rendering can therefore show the correct surface on its
-    /// first frame boundary instead of waiting for the first gameplay handler call.
+    /// first frame boundary instead of waiting for the first gameplay update.
     /// </summary>
     public void PrimeViewport(Position16<RoomPixels> camera)
     {

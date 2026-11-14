@@ -102,7 +102,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 placement.StartDelayFrames);
         }
 
-        /// <summary>Consumes one cinematic handler call.</summary>
+        /// <summary>Runs one cinematic update of the explosion.</summary>
         public void Step(int introCrossfadeTimer)
         {
             if (!IsActive)
@@ -110,7 +110,7 @@ internal sealed class IntroMotherBrainExplosionSystem
 
             // The explosions delete these actors only when the later page-two crossfade timer
             // reaches zero. Starting the delete before the generic decrement makes deletion
-            // occur in this same handler call.
+            // occur in this same update.
             if (introCrossfadeTimer == 0)
                 sprite.Start(CinematicSpriteSegment.Delete);
             sprite.Step();

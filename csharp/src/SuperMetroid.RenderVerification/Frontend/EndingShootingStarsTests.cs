@@ -108,7 +108,7 @@ internal static class EndingShootingStarsTests
         var logo = new EndingLogo(scene.Stage, () => { });
         scene.InstalledArtwork.CurrentEndingLogo = logo;
         scene.Stage.Phase = EndingCreditsPhase.PostCreditsLogo;
-        logo.PaletteStep = 16;
+        logo.CrossfadeStep = 16;
         logo.CrossfadeStarted = true;
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
         Require(final.SpriteDraws.Length > 0 && final.LayersOf<SpritesLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");

@@ -92,7 +92,7 @@ public sealed class DemoInputState
             return;
 
         // The countdown wraps below zero to 65535. In particular, a zero duration wraps and lasts
-        // 65,536 handler calls; using an int countdown would quietly change malformed or
+        // 65,536 updates; using an int countdown would quietly change malformed or
         // intentionally unusual recorded input data.
         CountdownStep frameHold = FrameHold.Decrement();
         FrameHold = frameHold.Remaining;

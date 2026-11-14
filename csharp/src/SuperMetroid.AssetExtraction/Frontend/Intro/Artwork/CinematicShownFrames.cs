@@ -55,7 +55,7 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
         foreach (CinematicSpritePose pose in shown)
         {
             if (!composed.Contains(pose))
-                throw new InvalidDataException($"{scene} shows pose {pose.Index}, which none of its families composes.");
+                throw new InvalidDataException($"{scene} shows pose {pose}, which none of its families composes.");
         }
     }
 }

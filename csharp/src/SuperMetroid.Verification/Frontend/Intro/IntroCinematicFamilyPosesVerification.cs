@@ -184,10 +184,10 @@ internal static class IntroCinematicFamilyPosesVerification
         var frames = new Dictionary<string, FamilyFrame>(StringComparer.Ordinal);
         foreach (FamilyActors family in Families)
         {
-            for (int index = 0; index < CinematicSpritemapSourceDefinitions.Spritemaps.Length; index++)
+            foreach (CinematicSpritemapSource source in CinematicSpritemapSourceDefinitions.Spritemaps)
             {
-                if (CinematicSpritemapSourceDefinitions.Spritemaps[index] is SnesAddress spritemap)
-                    frames.Add(CinematicSpriteSheet.FrameName(family.Family, new CinematicSpritePose(index)), new(family.Family, spritemap.Offset));
+                if (source.Spritemap is SnesAddress spritemap)
+                    frames.Add(CinematicSpriteSheet.FrameName(family.Family, source.Pose), new(family.Family, spritemap.Offset));
             }
         }
         return frames;

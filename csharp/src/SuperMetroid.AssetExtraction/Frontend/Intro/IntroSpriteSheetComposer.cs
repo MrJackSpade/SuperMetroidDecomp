@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -79,7 +80,7 @@ internal static class IntroSpriteSheetComposer
         foreach (CinematicSpritePose pose in shown)
         {
             if (!composed.Contains(pose))
-                throw new InvalidDataException($"{scene} shows pose {pose.Index}, which none of its families composes.");
+                throw new InvalidDataException($"{scene} shows pose {pose}, which none of its families composes.");
         }
         return scenePoses;
     }
@@ -211,7 +212,7 @@ internal static class IntroSpriteSheetComposer
     /// </summary>
     internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
         ScreenObjectSizes sizes, Func<CinematicSpriteFamily, CinematicSpritePose, int> set) =>
-        Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => pair.Key.Index).Select(pair =>
+        Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)).Select(pair =>
         {
             string name = CinematicSpriteSheet.FrameName(family.Family, pair.Key);
             return new SheetFrameSource(name, pair.Value.ToFrame(name, 0, sizes), page, set(family.Family, pair.Key));

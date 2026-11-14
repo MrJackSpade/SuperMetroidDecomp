@@ -22,7 +22,7 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     }
 
     /// <summary>The sheet's frame for <paramref name="family"/>'s composition of <paramref name="pose"/>.</summary>
-    internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose.Index}";
+    internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose}";
 
     /// <inheritdoc/>
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn) =>

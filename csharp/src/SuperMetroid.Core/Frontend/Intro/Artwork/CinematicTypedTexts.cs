@@ -25,7 +25,7 @@ internal sealed class CinematicTypedTexts
                     || shown.Shown == CinematicSpritePose.Blank || typed.Contains(shown.Shown))
                     continue;
                 if (!steps.TryAdd(shown.Shown, new CinematicTypedStep(segment, typed.Count)))
-                    throw new InvalidDataException($"Pose {shown.Shown.Index} is a step of two typed texts.");
+                    throw new InvalidDataException($"Pose {shown.Shown} is a step of two typed texts.");
                 typed.Add(shown.Shown);
             }
         }

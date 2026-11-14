@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Three visual frames selected by the intro Mother Brain's compiled lists.</summary>
@@ -9,8 +10,8 @@ internal static class IntroMotherBrainSpriteDefinitions
     /// <summary>The intro's three Mother Brain frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("mother-brain-frame-0", new(0), 9),
-        new("mother-brain-frame-1", new(1), 9),
-        new("mother-brain-frame-2", new(2), 9),
+        new("mother-brain-frame-0", CinematicSpritePose.MotherBrainFrame0, 9),
+        new("mother-brain-frame-1", CinematicSpritePose.MotherBrainFrame1, 9),
+        new("mother-brain-frame-2", CinematicSpritePose.MotherBrainFrame2, 9),
     ];
 }

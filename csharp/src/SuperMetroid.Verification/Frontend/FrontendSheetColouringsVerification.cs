@@ -265,7 +265,7 @@ internal static class FrontendSheetColouringsVerification
                 landing = EndingSpriteColouring.ShootingSamus;
             else if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown
                 && shown.Shown != CinematicSpritePose.Blank)
-                Add(sets, $"{CinematicSpriteFamily.EndingReward}.{shown.Shown.Index}", EndingScreenInks.SpriteSet(landing));
+                Add(sets, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingReward, shown.Shown), EndingScreenInks.SpriteSet(landing));
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
             AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Animation, EndingSpriteColouring.Logo);
@@ -295,7 +295,7 @@ internal static class FrontendSheetColouringsVerification
         foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
         {
             if (pose != CinematicSpritePose.Blank)
-                Add(sets, $"{family}.{pose.Index}", EndingScreenInks.SpriteSet(colouring));
+                Add(sets, CinematicSpriteSheet.FrameName(family, pose), EndingScreenInks.SpriteSet(colouring));
         }
     }
 

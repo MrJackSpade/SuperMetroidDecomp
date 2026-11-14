@@ -11,9 +11,9 @@ public static class CeresDestructionSpriteDefinitions
     /// </summary>
     public static IReadOnlyList<CinematicSpritePose> Poses { get; } =
     [
-        new(33), new(38), new(39), new(62), new(63), new(64), new(65),
-        new(41), new(42), new(43), new(44), new(45), new(46),
-        new(47), new(48), new(49), new(50),
-        new(76), new(77), new(78), new(79), new(80), new(81),
+        CinematicSpritePose.StationUnderAttackLargeAsteroid, CinematicSpritePose.PlanetZebes, CinematicSpritePose.PlanetZebesTitle, CinematicSpritePose.ZebesStarsUpperLeft, CinematicSpritePose.ZebesStarsUpperRight, CinematicSpritePose.ZebesStarsLowerLeft, CinematicSpritePose.ZebesStarsLowerRight,
+        CinematicSpritePose.SmallExplosion0, CinematicSpritePose.SmallExplosion1, CinematicSpritePose.SmallExplosion2, CinematicSpritePose.SmallExplosion3, CinematicSpritePose.SmallExplosion4, CinematicSpritePose.SmallExplosion5,
+        CinematicSpritePose.LargeBlast0, CinematicSpritePose.LargeBlast1, CinematicSpritePose.LargeBlast2, CinematicSpritePose.LargeBlast3,
+        CinematicSpritePose.StationBlast0, CinematicSpritePose.StationBlast1, CinematicSpritePose.StationBlast2, CinematicSpritePose.StationBlast3, CinematicSpritePose.StationBlast4, CinematicSpritePose.StationBlast5,
     ];
 }

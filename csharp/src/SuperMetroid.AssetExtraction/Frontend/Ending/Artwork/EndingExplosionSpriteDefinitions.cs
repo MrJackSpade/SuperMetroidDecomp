@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
@@ -11,21 +12,21 @@ public static class EndingExplosionSpriteDefinitions
     /// </summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("planet-damage-0", new(83), 4),
-        new("planet-damage-1", new(84), 4),
-        new("planet-damage-2", new(85), 4),
-        new("planet-damage-3", new(86), 4),
-        new("planet-flash-0", new(87), 4),
-        new("planet-flash-1", new(88), 4),
-        new("planet-flash-2", new(89), 4),
-        new("planet-flash-3", new(90), 4),
-        new("lava-0", new(95), 4),
-        new("lava-1", new(96), 4),
-        new("glow-0", new(91), 12),
-        new("glow-1", new(92), 20),
-        new("glow-2", new(93), 20),
-        new("starfield", new(94), 53),
-        new("silhouette", new(97), 20),
-        new("afterglow", new(98), 37),
+        new("planet-damage-0", CinematicSpritePose.PlanetDamage0, 4),
+        new("planet-damage-1", CinematicSpritePose.PlanetDamage1, 4),
+        new("planet-damage-2", CinematicSpritePose.PlanetDamage2, 4),
+        new("planet-damage-3", CinematicSpritePose.PlanetDamage3, 4),
+        new("planet-flash-0", CinematicSpritePose.PlanetFlash0, 4),
+        new("planet-flash-1", CinematicSpritePose.PlanetFlash1, 4),
+        new("planet-flash-2", CinematicSpritePose.PlanetFlash2, 4),
+        new("planet-flash-3", CinematicSpritePose.PlanetFlash3, 4),
+        new("lava-0", CinematicSpritePose.PlanetLava0, 4),
+        new("lava-1", CinematicSpritePose.PlanetLava1, 4),
+        new("glow-0", CinematicSpritePose.PlanetGlow0, 12),
+        new("glow-1", CinematicSpritePose.PlanetGlow1, 20),
+        new("glow-2", CinematicSpritePose.PlanetGlow2, 20),
+        new("starfield", CinematicSpritePose.EndingStarfield, 53),
+        new("silhouette", CinematicSpritePose.PlanetSilhouette, 20),
+        new("afterglow", CinematicSpritePose.PlanetAfterglow, 37),
     ];
 }

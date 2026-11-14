@@ -37,7 +37,7 @@ public sealed class LoadedRoomAssets
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
-    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve the installed block pictures and their colours.</summary>
+    /// <summary>The tileset the room's state chooses, which names the installed block pictures and their colours.</summary>
     public TilesetDefinition Tileset { get; }
 
     /// <summary>The installed pre-coloured room artwork: block sheets and library background images (#1392).</summary>
@@ -46,7 +46,7 @@ public sealed class LoadedRoomAssets
     /// <summary>The pre-coloured pictures of the tileset's blocks the room's planes draw from (#1392).</summary>
     public RoomBlockSheet BlockSheet => Pictures.Get(Tileset);
 
-    /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
+    /// <summary>Loads the installed level, scrolls and pictures the selected room and its tileset name.</summary>
     public static LoadedRoomAssets Load(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> scrollCells, SelectedRoom room, RoomAssetCatalogs catalogs)
     {
         Ensure.NotNull(scrollCells);

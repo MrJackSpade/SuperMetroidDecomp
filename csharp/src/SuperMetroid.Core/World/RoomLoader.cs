@@ -374,8 +374,9 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Runs one source-room alignment call at the start of a door transition. Horizontal doors move the
-    /// camera's Y toward the nearest screen boundary; vertical doors move X. The offset from the boundary, read as
-    /// -128 through 127, deliberately takes -1 to 0 and 1 to 0 in one-pixel steps.
+    /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per call: a camera past the middle
+    /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
+    /// the boundary reaches it in one step.
     /// </summary>
     /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
     public bool AlignPendingDoorCameraOnePixel()
@@ -694,7 +695,7 @@ internal sealed class RoomLoader
 
         RoomLevelData sourceLevel = _room.LevelData;
         DoorDefinition door = sourceLevel.PendingDoorTransition
-            ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
+            ?? throw new InvalidOperationException("No door block's collision has chosen a door to go through.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
@@ -1151,17 +1152,14 @@ internal sealed class RoomLoader
         _player.Samus.LiquidPhysics.Room = _room.ActiveRoom.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
-        // The Ceres elevator projectiles are spawned with enemy graphics and thus briefly seed both objects
-        // from enemy slot zero. Their shared initializer, however, runs
-        // before the first draw and explicitly clears that graphics index. The specialized
-        // arrival model owns that post-initialization value; passing the transient
-        // enemy graphics index here previously recolored the level-data concealer teal.
+        // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
+        // the room's own colours.
         _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
         // The locked Ceres start's frame still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
-        // the real area-six room coordinate now; subsequent normal frames keep updating it.
+        // Ceres's real room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
 

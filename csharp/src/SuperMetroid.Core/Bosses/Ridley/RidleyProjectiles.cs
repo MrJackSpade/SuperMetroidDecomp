@@ -11,10 +11,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ridley's fireballs and the afterburn chain they spawn, shared by the Ceres and Lower Norfair fights
-/// and reused by Mother Brain's afterburn.
+/// and reused by Mother Brain's afterburn. It is the fireballs' and afterburns' projectile behaviour (#1801): their
+/// flights and cues spawn the rest of the chain this spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyProjectiles
+internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -229,72 +230,72 @@ internal sealed class RidleyProjectiles
     /// Ridley's fireballs, the afterburn centres they leave and the directional afterburns those spawn (#1760): their
     /// spawners start their animations, and each kind's definition names its flight.
     /// </summary>
-    internal EnemyProjectileBehavior Fireballs => field ??= new RidleyFireballBehavior(this);
+    internal EnemyProjectileBehavior Fireballs => this;
 
     /// <summary>
-    /// A fireball, afterburn centre or directional afterburn: the fireball's flight and both afterburn flights, and the
-    /// cues of the fireball and afterburn animations (motion, the afterburn spawns and deletion).
+    /// Moves a fireball, afterburn centre or directional afterburn: the fireball's flight and both afterburn flights.
     /// </summary>
-    private sealed class RidleyFireballBehavior(RidleyProjectiles owner) : EnemyProjectileBehavior, IEnemyProjectileCues<RidleyFireballCue>
+    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
+    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        EnemyProjectile projectile = context.Projectile;
+        EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
+        if (motion == EnemyProjectileFrameBehavior.RidleyFireballFlight)
         {
-            EnemyProjectile projectile = context.Projectile;
-            EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.RidleyFireballFlight)
-            {
-                owner.FlyFireball(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.HorizontalAfterburnFlight)
-            {
-                // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
-                // helper. Only the perpendicular vertical move may end this afterburn.
-                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
-                    BeginAfterburnFinalAnimation(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.VerticalAfterburnFlight)
-            {
-                // The vertical afterburn is the transposed path: unrestricted vertical travel followed
-                // by a horizontal room-collision test.
-                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
-                    BeginAfterburnFinalAnimation(projectile);
-            }
-            else
-            {
-                base.Move(context);
-            }
+            FlyFireball(projectile, context.Level);
         }
-
-        /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, RidleyFireballCue cue)
+        else if (motion == EnemyProjectileFrameBehavior.HorizontalAfterburnFlight)
         {
-            EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case RidleyFireballCue.ClearFrameBehavior:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-                    return;
-                case RidleyFireballCue.BeginFlight:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.RidleyFireballFlight;
-                    return;
-                case RidleyFireballCue.SpawnHorizontalAfterburns:
-                    owner.SpawnAfterburnPair(projectile, axis: Axis.Horizontal);
-                    return;
-                case RidleyFireballCue.SpawnVerticalAfterburns:
-                    owner.SpawnAfterburnPair(projectile, axis: Axis.Vertical);
-                    return;
-                case RidleyFireballCue.SpawnNextAfterburn:
-                    owner.SpawnNextAfterburn(projectile);
-                    return;
-                case RidleyFireballCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(RidleyFireballCue)} {cue}.");
-            }
+            // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
+            // helper. Only the perpendicular vertical move may end this afterburn.
+            projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
+                BeginAfterburnFinalAnimation(projectile);
+        }
+        else if (motion == EnemyProjectileFrameBehavior.VerticalAfterburnFlight)
+        {
+            // The vertical afterburn is the transposed path: unrestricted vertical travel followed
+            // by a horizontal room-collision test.
+            projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
+                BeginAfterburnFinalAnimation(projectile);
+        }
+        else
+        {
+            base.Move(context);
+        }
+    }
+
+    /// <summary>
+    /// Carries out a cue of the fireball and afterburn animations: motion, the afterburn spawns and deletion.
+    /// </summary>
+    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+    /// <param name="cue">The cue the animation published.</param>
+    public void RunCue(EnemyProjectileCueContext context, RidleyFireballCue cue)
+    {
+        EnemyProjectile projectile = context.Projectile;
+        switch (cue)
+        {
+            case RidleyFireballCue.ClearFrameBehavior:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                return;
+            case RidleyFireballCue.BeginFlight:
+                projectile.FrameBehavior = EnemyProjectileFrameBehavior.RidleyFireballFlight;
+                return;
+            case RidleyFireballCue.SpawnHorizontalAfterburns:
+                SpawnAfterburnPair(projectile, axis: Axis.Horizontal);
+                return;
+            case RidleyFireballCue.SpawnVerticalAfterburns:
+                SpawnAfterburnPair(projectile, axis: Axis.Vertical);
+                return;
+            case RidleyFireballCue.SpawnNextAfterburn:
+                SpawnNextAfterburn(projectile);
+                return;
+            case RidleyFireballCue.Delete:
+                projectile.Delete();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(RidleyFireballCue)} {cue}.");
         }
     }
 

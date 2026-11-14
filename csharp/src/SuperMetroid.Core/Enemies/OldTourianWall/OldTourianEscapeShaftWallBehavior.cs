@@ -48,38 +48,40 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
     /// <summary>The fake wall's explosion (#1760): it holds still while its spawner's animation plays.</summary>
-    internal EnemyProjectileBehavior WallExplosion => field ??= new WallExplosionBehavior(this);
+    internal EnemyProjectileBehavior WallExplosion => field ??= new WallExplosionBehavior(_projectiles, _audio);
 
-    /// <summary>The fake wall's explosion, which carries out its animation's cues.</summary>
-    private sealed class WallExplosionBehavior(OldTourianEscapeShaftWallBehavior owner)
+    /// <summary>
+    /// The fake wall's explosion, which carries out its animation's cues: it scatters through the projectile engine and
+    /// makes its sound through the enemy sound queue.
+    /// </summary>
+    /// <param name="projectiles">The enemy projectiles, which scatter the explosion.</param>
+    /// <param name="audio">The enemy sound queue the explosion's sound joins.</param>
+    private sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
-        /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, OldTourianWallExplosionCue cue) =>
-            owner.ApplyWallExplosionCue(context.Projectile, cue);
-    }
-
-    /// <summary>Carries out one cue of the wall explosion's animation.</summary>
-    private void ApplyWallExplosionCue(EnemyProjectile projectile, OldTourianWallExplosionCue cue)
-    {
-        switch (cue)
+        /// <summary>Carries out one cue of the wall explosion's animation.</summary>
+        public void RunCue(EnemyProjectileCueContext context, OldTourianWallExplosionCue cue)
         {
-            case OldTourianWallExplosionCue.ClearFrameBehavior:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-                break;
-            case OldTourianWallExplosionCue.Scatter:
-                _projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter);
-                break;
-            case OldTourianWallExplosionCue.ExplosionSound:
-                _audio.QueueEnemySound(
-                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSound,
-                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSoundPriority);
-                break;
-            case OldTourianWallExplosionCue.Delete:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue)
+            {
+                case OldTourianWallExplosionCue.ClearFrameBehavior:
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                    break;
+                case OldTourianWallExplosionCue.Scatter:
+                    projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter);
+                    break;
+                case OldTourianWallExplosionCue.ExplosionSound:
+                    audio.QueueEnemySound(
+                        OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSound,
+                        OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSoundPriority);
+                    break;
+                case OldTourianWallExplosionCue.Delete:
+                    projectile.Delete();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(OldTourianWallExplosionCue)} {cue}.");
+            }
         }
     }
 }

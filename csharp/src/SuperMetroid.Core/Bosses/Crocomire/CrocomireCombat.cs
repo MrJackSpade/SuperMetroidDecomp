@@ -53,14 +53,22 @@ internal sealed class CrocomireCombat
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
     /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
-    internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(this,
+    internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
         () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
 
     /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
-    internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(this);
+    internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
 
     /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
-    private sealed class CrocomireProjectileBehavior(CrocomireCombat owner, Func<EnemyProjectileAnimation>? shot = null)
+    /// <param name="projectiles">The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</param>
+    /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
+    /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
+    /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
+    private sealed class CrocomireProjectileBehavior(
+        EnemyProjectileEngine projectiles,
+        EnemyDeathsAndDrops deathsAndDrops,
+        CrocomireEncounterAccess access,
+        Func<EnemyProjectileAnimation>? shot = null)
         : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<CrocomireProjectileCue>
     {
         /// <inheritdoc/>
@@ -69,7 +77,7 @@ internal sealed class CrocomireCombat
             EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
             if (motion == EnemyProjectileFrameBehavior.CrocomireShotAiming)
             {
-                owner.StartCrocomireProjectileFlight(context.Projectile, context.Level);
+                StartCrocomireProjectileFlight(context.Projectile, context.Level);
             }
             else if (motion == EnemyProjectileFrameBehavior.CrocomireShotFlight)
             {
@@ -77,7 +85,7 @@ internal sealed class CrocomireCombat
             }
             else if (motion == EnemyProjectileFrameBehavior.CrocomireSpikeWallCollapse)
             {
-                owner.RunCrocomireSpikeWallPiece(context.Projectile);
+                RunCrocomireSpikeWallPiece(context.Projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.CrocomireBridgeFragmentFall)
             {
@@ -96,7 +104,7 @@ internal sealed class CrocomireCombat
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:
-                    owner._deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
+                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
                     return;
                 case CrocomireProjectileCue.Delete:
                     projectile.Delete();
@@ -104,6 +112,68 @@ internal sealed class CrocomireCombat
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
             }
+        }
+
+        /// <summary>Runs the one-frame vector setup.</summary>
+        private void StartCrocomireProjectileFlight(
+            EnemyProjectile projectile,
+            RoomLevelData level)
+        {
+            // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
+
+            // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp
+            // it to the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
+            int shot = projectile.StateOf<CrocomireProjectileState>().Shot;
+            int gradient = CrocomireVolley.IsLastShot(shot)
+                ? access.TenthShotGradient.Gradient
+                : CrocomireVolley.AuthoredGradient(shot);
+            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
+            projectile.FrameBehavior =
+                EnemyProjectileFrameBehavior.CrocomireShotFlight;
+        }
+
+        /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
+        private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
+        {
+            CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
+            int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
+            int acceleration = piece.Acceleration;
+            if (acceleration != maximumAcceleration)
+            {
+                acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
+                if (acceleration >= maximumAcceleration)
+                    acceleration = maximumAcceleration;
+            }
+            piece.Acceleration = acceleration;
+
+            // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
+            // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
+            // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
+            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(UnsignedEightEight.Whole(acceleration)))
+                .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
+            projectile.Velocity = projectile.Velocity.WithX(xVelocity);
+
+            // Move X in 256ths of a pixel, as the game's projectile mover does: the position's precision finer than a
+            // 256th of a pixel stays exactly as it was.
+            FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
+                .MovedBy(xVelocity);
+            projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
+
+            // The fall is ordinary signed 1/65536-pixel motion, with three sixteenths of a pixel of gravity per update.
+            piece.FallSpeed += SpikeWallPieceGravity;
+            projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
+
+            if (projectile.Position.Y.Whole < 168)
+                return;
+
+            Position16<RoomPixels> impact = projectile.Position.Whole;
+            bool crumbles = CrocomireSpikeWallCrumbleSounds.Crumbles(piece.Piece);
+            projectile.Delete();
+            if (crumbles)
+                access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
+            projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
+            access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         }
     }
 
@@ -279,25 +349,6 @@ internal sealed class CrocomireCombat
             ? CrocomirePowerBombReactions.ForFrame(frame)
             : CrocomireBodySegment.PowerBombReactionMouthNotOpen;
 
-    /// <summary>Runs the one-frame vector setup.</summary>
-    internal void StartCrocomireProjectileFlight(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
-        EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-
-        // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp
-        // it to the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
-        int shot = projectile.StateOf<CrocomireProjectileState>().Shot;
-        int gradient = CrocomireVolley.IsLastShot(shot)
-            ? _access.TenthShotGradient.Gradient
-            : CrocomireVolley.AuthoredGradient(shot);
-        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
-        projectile.FrameBehavior =
-            EnemyProjectileFrameBehavior.CrocomireShotFlight;
-    }
-
     /// <summary>Flies a fight projectile, deleting it on the first horizontal/vertical wall hit.</summary>
     internal static void RunCrocomireProjectileFlight(
         EnemyProjectile projectile,
@@ -323,49 +374,6 @@ internal sealed class CrocomireCombat
 
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
     private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
-
-    /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
-    internal void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
-    {
-        CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
-        int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
-        int acceleration = piece.Acceleration;
-        if (acceleration != maximumAcceleration)
-        {
-            acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
-            if (acceleration >= maximumAcceleration)
-                acceleration = maximumAcceleration;
-        }
-        piece.Acceleration = acceleration;
-
-        // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
-        // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
-        // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
-        SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(UnsignedEightEight.Whole(acceleration)))
-            .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
-        projectile.Velocity = projectile.Velocity.WithX(xVelocity);
-
-        // Move X in 256ths of a pixel, as the game's projectile mover does: the position's precision finer than a
-        // 256th of a pixel stays exactly as it was.
-        FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-            .MovedBy(xVelocity);
-        projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
-
-        // The fall is ordinary signed 1/65536-pixel motion, with three sixteenths of a pixel of gravity per update.
-        piece.FallSpeed += SpikeWallPieceGravity;
-        projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
-
-        if (projectile.Position.Y.Whole < 168)
-            return;
-
-        Position16<RoomPixels> impact = projectile.Position.Whole;
-        bool crumbles = CrocomireSpikeWallCrumbleSounds.Crumbles(piece.Piece);
-        projectile.Delete();
-        if (crumbles)
-            _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
-        _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
-        _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
-    }
 
     /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(

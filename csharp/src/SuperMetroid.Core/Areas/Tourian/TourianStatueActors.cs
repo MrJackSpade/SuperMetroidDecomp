@@ -13,15 +13,15 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     /// <inheritdoc/>
     public int VerticalOffset
     {
-        get => statue.TourianEntranceStatueVerticalOffset;
-        set => statue.TourianEntranceStatueVerticalOffset = value;
+        get => statue.TourianEntranceStatueAnimation.VerticalOffset;
+        set => statue.TourianEntranceStatueAnimation.VerticalOffset = value;
     }
 
     /// <inheritdoc/>
     public bool Finished
     {
-        get => statue.TourianEntranceStatueFinished;
-        set => statue.TourianEntranceStatueFinished = value;
+        get => statue.TourianEntranceStatueAnimation.Finished;
+        set => statue.TourianEntranceStatueAnimation.Finished = value;
     }
 
     /// <inheritdoc/>

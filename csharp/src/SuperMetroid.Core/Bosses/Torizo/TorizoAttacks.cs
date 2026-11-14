@@ -31,30 +31,38 @@ internal sealed class TorizoAttacks
         _access = access;
     }
 
-    /// <summary>Golden Torizo's state while Golden Torizo owns slot zero.</summary>
-    public TorizoEnemyState? GoldenTorizo =>
-        _access.TorizoState is { IsGolden: true } ? _access.TorizoState : null;
-
     /// <summary>
     /// Torizo's drool, swipes, explosions, sonic booms, eye beam, landing dust and statue fragments (#1760): their
     /// spawners start their animations, and a shot one runs the shared delete animation.
     /// </summary>
-    internal EnemyProjectileBehavior TorizoProjectiles => field ??= new TorizoProjectileBehavior(this);
+    internal EnemyProjectileBehavior TorizoProjectiles => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, _access);
 
     /// <summary>A Chozo orb, Bomb or Golden Torizo's (#1760): a shot one runs its typed shot animation.</summary>
-    internal EnemyProjectileBehavior ChozoOrb => field ??= new TorizoProjectileBehavior(this, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbShot));
+    internal EnemyProjectileBehavior ChozoOrb => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, _access, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbShot));
 
     /// <summary>A Golden Torizo egg (#1760): its definition names the Chozo orb's wall-impact animation as its shot animation.</summary>
-    internal EnemyProjectileBehavior Egg => field ??= new TorizoProjectileBehavior(this, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbWallImpact));
+    internal EnemyProjectileBehavior Egg => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, _access, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbWallImpact));
 
     /// <summary>A super missile Golden Torizo catches and throws (#1760): a shot one runs its typed impact.</summary>
-    internal EnemyProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(this, () => new TorizoProjectileAnimation(TorizoProjectileSegment.SuperMissileImpact));
+    internal EnemyProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, _access, () => new TorizoProjectileAnimation(TorizoProjectileSegment.SuperMissileImpact));
 
     /// <summary>
     /// One of the Torizos' projectiles: every frame behaviour of the statue fragments, orbs, sonic booms, drool, eggs,
     /// super missiles and eye beam, and the Torizo projectile animations' cues, which may continue an animation elsewhere.
     /// </summary>
-    private sealed class TorizoProjectileBehavior(TorizoAttacks owner, Func<EnemyProjectileAnimation>? shot = null)
+    /// <param name="room">The loaded room, whose definitions name the orbs' drops.</param>
+    /// <param name="projectiles">The enemy projectiles: their first place, the one-in-four branch and the scatter.</param>
+    /// <param name="audio">The enemy sound queue the projectiles' sounds join.</param>
+    /// <param name="deathsAndDrops">The drops a shot Chozo orb leaves.</param>
+    /// <param name="access">Bomb and Golden Torizo's state and facing.</param>
+    /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
+    private sealed class TorizoProjectileBehavior(
+        EnemyRoomBinding room,
+        EnemyProjectileEngine projectiles,
+        EnemyAudioQueue audio,
+        EnemyDeathsAndDrops deathsAndDrops,
+        TorizoEncounterAccess access,
+        Func<EnemyProjectileAnimation>? shot = null)
         : EnemyProjectileBehavior(shot: shot), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
     {
         /// <inheritdoc/>
@@ -64,7 +72,7 @@ internal sealed class TorizoAttacks
             EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
             if (motion == EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)
             {
-                owner.RunBombTorizoStatueBreakingFrameBehavior(projectile, context.Level);
+                RunBombTorizoStatueBreakingFrameBehavior(projectile, context.Level);
             }
             else if (motion == EnemyProjectileFrameBehavior.BombTorizoOrbFall)
             {
@@ -96,7 +104,7 @@ internal sealed class TorizoAttacks
             }
             else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileHeld)
             {
-                owner.RunGoldenTorizoSuperMissileFrameBehavior(projectile);
+                RunGoldenTorizoSuperMissileFrameBehavior(projectile);
             }
             else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileThrown)
             {
@@ -114,83 +122,148 @@ internal sealed class TorizoAttacks
 
         /// <inheritdoc/>
         public TorizoProjectileSegment? RunCue(EnemyProjectileCueContext context, TorizoProjectileCue cue) =>
-            owner.ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue);
-    }
+            ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue);
 
-    /// <summary>
-    /// Carries out one cue of a Torizo projectile's animation, returning the segment a conditional cue continues at, or
-    /// null to run on.
-    /// </summary>
-    internal TorizoProjectileSegment? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue)
-    {
-        switch (cue)
+        /// <summary>
+        /// Carries out one cue of a Torizo projectile's animation, returning the segment a conditional cue continues at, or
+        /// null to run on.
+        /// </summary>
+        private TorizoProjectileSegment? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue)
         {
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-                return null;
-            case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
-                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
-                return null;
-            case TorizoProjectileCue.SetProperties setProperties:
-                EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
-                if (setProperties.Depth is { } setDepth)
-                    projectile.Depth = setDepth;
-                return null;
-            case TorizoProjectileCue.ClearProperties clearProperties:
-                EnemyProjectileEngine.ClearPropertyFlags(projectile, clearProperties.Properties);
-                if (clearProperties.Depth is { } clearedDepth)
-                    projectile.Depth = clearedDepth;
-                return null;
-            case TorizoProjectileCue.PlaySound playSound:
-                _audio.QueueEnemySound(playSound.Sound, playSound.Priority);
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete }:
-                projectile.Delete();
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
-                return projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft;
-            case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
+            switch (cue)
             {
-                TorizoEnemyState state = GoldenTorizo ??
-                    throw new InvalidOperationException("Golden Torizo's eye beam has no owning Torizo state.");
-                return state.EyeBeamExplosionsEnabled ? null : goToIfEyeBeamExplosionsDisabled.Target;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
+                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                    return null;
+                case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
+                    projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
+                    return null;
+                case TorizoProjectileCue.SetProperties setProperties:
+                    EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
+                    if (setProperties.Depth is { } setDepth)
+                        projectile.Depth = setDepth;
+                    return null;
+                case TorizoProjectileCue.ClearProperties clearProperties:
+                    EnemyProjectileEngine.ClearPropertyFlags(projectile, clearProperties.Properties);
+                    if (clearProperties.Depth is { } clearedDepth)
+                        projectile.Depth = clearedDepth;
+                    return null;
+                case TorizoProjectileCue.PlaySound playSound:
+                    audio.QueueEnemySound(playSound.Sound, playSound.Priority);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete }:
+                    projectile.Delete();
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
+                    return projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft;
+                case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
+                {
+                    TorizoEnemyState state = access.GoldenTorizo ??
+                        throw new InvalidOperationException("Golden Torizo's eye beam has no owning Torizo state.");
+                    return state.EyeBeamExplosionsEnabled ? null : goToIfEyeBeamExplosionsDisabled.Target;
+                }
+                case TorizoProjectileCue.GoToSometimes goToSometimes:
+                    return projectiles.TakeOneInFourBranch() ? goToSometimes.Target : null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
+                    SetGoldenTorizoSuperMissileVelocity(
+                        projectile,
+                        samus ?? throw new InvalidOperationException("Golden Torizo super-missile aiming requires the active Samus actor."),
+                        awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
+                    return null;
+                case TorizoProjectileCue.SetRadius setRadius:
+                    projectile.Radius = setRadius.Radius;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
+                    RequestTorizoChozoOrbDrop(projectile);
+                    return null;
+                case TorizoProjectileCue.Scatter scatter:
+                    projectiles.Scatter(projectile, scatter.Spread);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReturnToOrigin }:
+                    projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.RaiseDust }:
+                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopBlockingShots }:
+                    projectile.BlocksSamusProjectiles = false;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamus }:
+                    projectile.CanDamageSamus = false;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawInFront }:
+                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.NoOperation }:
+                    return null;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileCueKind)} {cue}.");
             }
-            case TorizoProjectileCue.GoToSometimes goToSometimes:
-                return _projectiles.TakeOneInFourBranch() ? goToSometimes.Target : null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
-                SetGoldenTorizoSuperMissileVelocity(
-                    projectile,
-                    samus ?? throw new InvalidOperationException("Golden Torizo super-missile aiming requires the active Samus actor."),
-                    awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
-                return null;
-            case TorizoProjectileCue.SetRadius setRadius:
-                projectile.Radius = setRadius.Radius;
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                RequestTorizoChozoOrbDrop(projectile);
-                return null;
-            case TorizoProjectileCue.Scatter scatter:
-                _projectiles.Scatter(projectile, scatter.Spread);
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.RaiseDust }:
-                projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopBlockingShots }:
-                projectile.BlocksSamusProjectiles = false;
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamus }:
-                projectile.CanDamageSamus = false;
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawInFront }:
-                projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
-                return null;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.NoOperation }:
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileCueKind)} {cue}.");
+        }
+
+        /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
+        private void RunGoldenTorizoSuperMissileFrameBehavior(EnemyProjectile projectile)
+        {
+            TorizoEnemyState? state = access.GoldenTorizo;
+            if (state is null)
+            {
+                projectile.Delete();
+                return;
+            }
+
+            RoomEnemySlot torizo = state.Slot;
+            projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(torizo.Position.X.Whole +
+                (access.FacesRight(torizo) ? 32 : -32)), CoordinateAxis.Wrap(torizo.Position.Y.Whole - 52)));
+        }
+
+        /// <summary>
+        /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's Crateria orb and Golden Torizo's
+        /// orb outside Crateria; the loaded variant selects between them, the room-scoped equivalent of consulting the area.
+        /// </summary>
+        private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
+        {
+            if (projectile.Kind is not (
+                    RoomEnemyProjectileKind.BombTorizoChozoOrb or
+                    RoomEnemyProjectileKind.GoldenTorizoChozoOrb))
+            {
+                throw new InvalidOperationException(
+                    $"Projectile {projectile.Kind} reached the Torizo-orb drop.");
+            }
+
+            EnemyDefinitionId definitionId = access.GoldenTorizo is not null
+                ? EnemyDefinitionId.GoldenTorizoOrb
+                : EnemyDefinitionId.BombTorizoOrb;
+
+            RoomEnemyDefinition definition = room.LoadedDefinitions.ReadEnemyDefinition(definitionId);
+            deathsAndDrops.SpawnEnemyDropFromChanceTable(
+                projectile.Position.Whole,
+                definition.DropChances);
+        }
+
+        /// <summary>
+        /// Runs the statue fragment's frame behaviour: a rising or still-airborne piece accelerates by
+        /// <see cref="FirstSlotFallAcceleration"/>.
+        /// </summary>
+        private void RunBombTorizoStatueBreakingFrameBehavior(
+            EnemyProjectile projectile,
+            RoomLevelData level)
+        {
+            bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
+            if (projectile.Velocity.Y.IsNegative || !collided)
+            {
+                EnemyProjectile firstSlot = projectiles.EnemyProjectiles[0];
+                SignedEightEight acceleration = FirstSlotFallAcceleration.Of(
+                    firstSlot.IsActive,
+                    firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
+                // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
+                projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
+                if (IsRunaway(projectile.Velocity.Y))
+                    projectile.Velocity = projectile.Velocity.WithY(TorizoMotionDefinitions.RunawaySpeed);
+                return;
+            }
+
+            projectile.FrameBehavior =
+                EnemyProjectileFrameBehavior.Stationary;
         }
     }
 
@@ -701,21 +774,6 @@ internal sealed class TorizoAttacks
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.EggAcceleration);
     }
 
-    /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
-    internal void RunGoldenTorizoSuperMissileFrameBehavior(EnemyProjectile projectile)
-    {
-        TorizoEnemyState? state = GoldenTorizo;
-        if (state is null)
-        {
-            projectile.Delete();
-            return;
-        }
-
-        RoomEnemySlot torizo = state.Slot;
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(torizo.Position.X.Whole +
-            (_access.FacesRight(torizo) ? 32 : -32)), CoordinateAxis.Wrap(torizo.Position.Y.Whole - 52)));
-    }
-
     /// <summary>Moves the thrown super missile until wall or downward floor impact, applying gravity in flight.</summary>
     internal static void RunGoldenTorizoSuperMissileFlight(
         EnemyProjectile projectile,
@@ -777,30 +835,6 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's Crateria orb and Golden Torizo's
-    /// orb outside Crateria; the loaded variant selects between them, the room-scoped equivalent of consulting the area.
-    /// </summary>
-    internal void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
-    {
-        if (projectile.Kind is not (
-                RoomEnemyProjectileKind.BombTorizoChozoOrb or
-                RoomEnemyProjectileKind.GoldenTorizoChozoOrb))
-        {
-            throw new InvalidOperationException(
-                $"Projectile {projectile.Kind} reached the Torizo-orb drop.");
-        }
-
-        EnemyDefinitionId definitionId = GoldenTorizo is not null
-            ? EnemyDefinitionId.GoldenTorizoOrb
-            : EnemyDefinitionId.BombTorizoOrb;
-
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(definitionId);
-        _deathsAndDrops.SpawnEnemyDropFromChanceTable(
-            projectile.Position.Whole,
-            definition.DropChances);
-    }
-
-    /// <summary>
     /// Allocates the room-graphics enemy projectile a room object's script requests, then runs the statue fragment's
     /// initializer against the publishing room object's block coordinates.
     /// </summary>
@@ -828,31 +862,6 @@ internal sealed class TorizoAttacks
         return projectile;
     }
 
-    /// <summary>
-    /// Runs the statue fragment's frame behaviour: a rising or still-airborne piece accelerates by
-    /// <see cref="FirstSlotFallAcceleration"/>.
-    /// </summary>
-    internal void RunBombTorizoStatueBreakingFrameBehavior(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        if (projectile.Velocity.Y.IsNegative || !collided)
-        {
-            EnemyProjectile firstSlot = _projectiles.EnemyProjectiles[0];
-            SignedEightEight acceleration = FirstSlotFallAcceleration.Of(
-                firstSlot.IsActive,
-                firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
-            // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
-            if (IsRunaway(projectile.Velocity.Y))
-                projectile.Velocity = projectile.Velocity.WithY(TorizoMotionDefinitions.RunawaySpeed);
-            return;
-        }
-
-        projectile.FrameBehavior =
-            EnemyProjectileFrameBehavior.Stationary;
-    }
     /// <summary>
     /// Whether a falling projectile has run away: its raw 1/256-pixel speed is at least sixteen pixels per frame and below
     /// thirty-two.

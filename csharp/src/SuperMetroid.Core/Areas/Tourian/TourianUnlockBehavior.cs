@@ -6,9 +6,12 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian unlock species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// The Tourian unlock species owner: its per-room state, behaviour and the interactions it registers. It is its effects'
+/// projectile behaviour (#1801): the release's cues spawn more of the effects it spawns, at the water surface it holds.
+/// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior
+internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior
 {
     /// <summary>Live room randomness.</summary>
     private readonly EnemyRoomBinding _room;
@@ -157,54 +160,55 @@ internal sealed class TourianUnlockBehavior
     /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
     /// tails, and the splashes. Their spawners start their animations.
     /// </summary>
-    internal EnemyProjectileBehavior Effects => field ??= new ReleaseBehavior(this);
+    internal EnemyProjectileBehavior Effects => this;
 
-    /// <summary>One of the unlock's effects: the splash's hold, the particle's fall and the soul's rise, and the release's cues.</summary>
-    private sealed class ReleaseBehavior(TourianUnlockBehavior owner) : TourianStatueProjectileBehavior
+    /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
+    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
+    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+        if (motion == EnemyProjectileFrameBehavior.TourianStatueSplashMotion)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.TourianStatueSplashMotion)
-            {
-                owner.HoldTourianStatueSplash(context.Projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.TourianStatueParticleMotion)
-            {
-                owner.DropTourianStatueParticle(context.Projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.TourianStatueSoulMotion)
-            {
-                RaiseTourianStatueSoul(context.Projectile);
-            }
-            else
-            {
-                base.Move(context);
-            }
+            HoldTourianStatueSplash(context.Projectile);
         }
-
-        /// <inheritdoc/>
-        private protected override void RunReleaseCue(EnemyProjectile projectile, TourianStatueProjectileCue cue)
+        else if (motion == EnemyProjectileFrameBehavior.TourianStatueParticleMotion)
         {
-            switch (cue)
-            {
-                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    owner._audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
-                    break;
-                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake }:
-                    owner._earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
-                    break;
-                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
-                    owner.SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);
-                    break;
-                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
-                    owner.SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
-                    break;
-                default:
-                    base.RunReleaseCue(projectile, cue);
-                    break;
-            }
+            DropTourianStatueParticle(context.Projectile);
+        }
+        else if (motion == EnemyProjectileFrameBehavior.TourianStatueSoulMotion)
+        {
+            RaiseTourianStatueSoul(context.Projectile);
+        }
+        else
+        {
+            base.Move(context);
+        }
+    }
+
+    /// <summary>
+    /// Handles a cue of the statues' release: its sound, its earthquake, or a particle or tail spawned at the projectile.
+    /// </summary>
+    /// <param name="projectile">The projectile whose animation published the cue.</param>
+    /// <param name="cue">The cue the animation published.</param>
+    private protected override void RunReleaseCue(EnemyProjectile projectile, TourianStatueProjectileCue cue)
+    {
+        switch (cue)
+        {
+            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
+                _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
+                break;
+            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake }:
+                _earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
+                break;
+            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
+                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);
+                break;
+            case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
+                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail, TourianStatueProjectileSegment.Tail);
+                break;
+            default:
+                base.RunReleaseCue(projectile, cue);
+                break;
         }
     }
 }

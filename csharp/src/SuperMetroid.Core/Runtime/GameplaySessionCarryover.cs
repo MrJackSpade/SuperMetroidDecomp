@@ -1,31 +1,20 @@
-
-using SuperMetroid.Core.Progression;
-
 namespace SuperMetroid.Core.Runtime;
 
-/// <summary>What the session keeps across the gameplay runtimes it creates, and hands each one at its start.</summary>
+/// <summary>
+/// What the session keeps across the gameplay runtimes it creates, and hands each one at its start: its frame clock, what
+/// the shared game state continues from, the compatibility services whose state outlives each game, and its sound and
+/// music queues.
+/// </summary>
 internal sealed record GameplaySessionCarryover
 {
     /// <summary>The session's frame clock, which counts across runtimes.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>The session's random number generator, which the runtime's system state reads and advances.</summary>
-    public required SharedRandom Random { get; init; }
+    /// <summary>What the runtime's shared game state continues from: the random number generator, the rumble delay and the explored maps.</summary>
+    public required SharedGameStateCarryover GameState { get; init; }
 
-    /// <summary>The session's unauthored Speed Booster cadence, whose delays outlive each runtime.</summary>
-    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
-
-    /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay, fixed for the session.</summary>
-    public required PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; init; }
-
-    /// <summary>When an open save confirmation reads the controller; the runtime's message box consults it.</summary>
-    public required SaveChoiceInputCadence SaveChoiceInput { get; init; }
-
-    /// <summary>The session's live and stored explored maps, which the game keeps across games and demos.</summary>
-    public required StoredExploredMaps<AreaId> StoredExploredMaps { get; init; }
-
-    /// <summary>The camera fractions the previous game left, which the runtime's first room's camera starts from and its release keeps.</summary>
-    public required CameraFractionsKeptAcrossGames CameraFractions { get; init; }
+    /// <summary>The compatibility services whose state outlives each game, which the runtime hands to the owners that consult them.</summary>
+    public required CompatibilityKeptAcrossGames Compatibility { get; init; }
 
     /// <summary>
     /// The session's sound and music queues, which the runtime's gameplay requests go straight into as they are made; none

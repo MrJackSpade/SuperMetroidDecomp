@@ -23,9 +23,6 @@ internal sealed class EyeDoorBehavior
         _projectiles = projectiles;
     }
 
-    /// <summary>Door-bit owner captured when a live eye projectile is spawned.</summary>
-    private SharedGameState? _eyeDoorProjectileSystem;
-
     /// <summary>
     /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
     /// by the eye-door room object's animation. The room object's block and room argument are retained
@@ -54,14 +51,13 @@ internal sealed class EyeDoorBehavior
         if (projectile is null)
             return; // Spawning fails when all eighteen projectile slots are live.
 
-        _eyeDoorProjectileSystem = system;
         Position16<RoomBlocks> block = request.RoomObjectBlock;
         switch (request.Definition)
         {
             case EyeDoorProjectileDefinition.Projectile:
                 EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Shot, graphics: default);
                 projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial));
-                InitializeEyeDoorProjectile(projectile, request, block);
+                InitializeEyeDoorProjectile(projectile, request, block, system);
                 return;
 
             case EyeDoorProjectileDefinition.Sweat:
@@ -92,14 +88,14 @@ internal sealed class EyeDoorBehavior
     /// The eye's shot (#1760): it flies until it strikes the room or its door opens; a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(this,
+    internal EnemyProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
         shot: () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
 
     /// <summary>A sweat drop (#1760): it falls and splashes on the floor.</summary>
-    internal EnemyProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(this);
+    internal EnemyProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior();
 
     /// <summary>An eye door's shot or sweat: the shot's and the sweat's flights, and the shot's animation cues.</summary>
-    private sealed class EyeDoorProjectileBehavior(EyeDoorBehavior owner, Func<EnemyProjectileAnimation>? shot = null)
+    private sealed class EyeDoorProjectileBehavior(Func<EnemyProjectileAnimation>? shot = null)
         : EnemyProjectileBehavior(shot), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
         /// <inheritdoc/>
@@ -107,7 +103,7 @@ internal sealed class EyeDoorBehavior
         {
             EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
             if (motion == EnemyProjectileFrameBehavior.EyeDoorShotFlight)
-                owner.RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
+                RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
             else if (motion == EnemyProjectileFrameBehavior.EyeDoorSweatFall)
                 RunEyeDoorSweatFrameBehavior(context.Projectile, context.Level);
             else
@@ -119,11 +115,15 @@ internal sealed class EyeDoorBehavior
             ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue);
     }
 
-    /// <summary>Places the eye's shot on the side the eye faces and retains its door bit.</summary>
+    /// <summary>
+    /// Places the eye's shot on the side the eye faces and retains its door and the game state that records that door's
+    /// opening.
+    /// </summary>
     private static void InitializeEyeDoorProjectile(
         EnemyProjectile projectile,
         EyeDoorProjectileRequest request,
-        Position16<RoomBlocks> block)
+        Position16<RoomBlocks> block,
+        SharedGameState doors)
     {
         Offset16<RoomPixels> origin = request.Facing switch
         {
@@ -132,7 +132,7 @@ internal sealed class EyeDoorBehavior
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
         projectile.State = new EyeDoorShotState(request.Door ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.RoomObjectBlock} was spawned without its door."));
+            $"The eye-door attack at block {request.RoomObjectBlock} was spawned without its door."), doors);
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 
@@ -177,7 +177,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
-    internal void RunEyeDoorProjectileFrameBehavior(
+    internal static void RunEyeDoorProjectileFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -193,9 +193,7 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y +
             ReadEyeDoorAcceleration(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn)));
 
-        SharedGameState system = _eyeDoorProjectileSystem ??
-            throw new InvalidOperationException("A live eye-door projectile has no opened-door owner.");
-        if (system.HasOpenedDoor(shot.Door))
+        if (shot.Doors.HasOpenedDoor(shot.Door))
             StartEyeDoorProjectileImpact(projectile);
     }
 

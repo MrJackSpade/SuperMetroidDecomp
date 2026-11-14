@@ -304,12 +304,18 @@ internal sealed class FrontendSession
             Carryover = new GameplaySessionCarryover
             {
                 Clock = frameClock,
-                Random = Random,
-                UnauthoredBoostCadence = unauthoredBoostCadence,
-                EarthquakeSoundDelay = earthquakeSoundDelay,
-                SaveChoiceInput = saveChoiceInput,
-                StoredExploredMaps = storedExploredMaps,
-                CameraFractions = cameraFractions,
+                GameState = new SharedGameStateCarryover
+                {
+                    Random = Random,
+                    EarthquakeSoundDelay = earthquakeSoundDelay,
+                    StoredExploredMaps = storedExploredMaps,
+                },
+                Compatibility = new CompatibilityKeptAcrossGames
+                {
+                    UnauthoredBoostCadence = unauthoredBoostCadence,
+                    SaveChoiceInput = saveChoiceInput,
+                    CameraFractions = cameraFractions,
+                },
                 Audio = audio,
             },
             Artwork = Artwork,

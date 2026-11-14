@@ -9,10 +9,12 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Enemy deaths and item drops: generic death explosions, respawn placeholders, drop selection and scatter,
-/// and pickup collection with its resource restoration.
+/// and pickup collection with its resource restoration. It is the death explosions' and pickups' projectile behaviour
+/// (#1801): it runs the projectiles it spawns.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDeathsAndDrops
+    : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
 {
     /// <summary>Tracks the room's cumulative enemy-kill count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
@@ -570,29 +572,30 @@ internal sealed class EnemyDeathsAndDrops
     /// The death explosions and the pickups they and direct drops become (#1760). Each spawner starts the explosion or
     /// pickup animation it chooses.
     /// </summary>
-    internal EnemyProjectileBehavior DeathProjectiles => field ??= new DeathProjectileBehavior(this);
+    internal EnemyProjectileBehavior DeathProjectiles => this;
 
     /// <summary>
-    /// A death explosion or pickup: a pickup counts its lifetime and is collected on contact, and both handle the death
-    /// and drop animations' cues (sprite spawns, sounds, drop conversion and respawn).
+    /// Moves a pickup: it counts its lifetime and is collected on contact. A death explosion holds still while its
+    /// animation plays.
     /// </summary>
-    private sealed class DeathProjectileBehavior(EnemyDeathsAndDrops deaths)
-        : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
+    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
+    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
-        {
-            // A pickup runs its lifetime, then its grapple endpoint, then its Samus body contact.
-            if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.PickupLifetime)
-                deaths.RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
-            else
-                base.Move(context);
-        }
-
-        /// <inheritdoc/>
-        public EnemyDeathProjectileSegment? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue) =>
-            deaths.ApplyEnemyDeathProjectileCue(context.Projectile, cue);
+        // A pickup runs its lifetime, then its grapple endpoint, then its Samus body contact.
+        if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.PickupLifetime)
+            RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
+        else
+            base.Move(context);
     }
+
+    /// <summary>
+    /// Carries out a cue of the death and drop animations (sprite spawns, sounds, drop conversion and respawn), returning
+    /// the segment a converted explosion continues at, or null to run on.
+    /// </summary>
+    /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
+    /// <param name="cue">The cue the animation published.</param>
+    public EnemyDeathProjectileSegment? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue) =>
+        ApplyEnemyDeathProjectileCue(context.Projectile, cue);
 
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);

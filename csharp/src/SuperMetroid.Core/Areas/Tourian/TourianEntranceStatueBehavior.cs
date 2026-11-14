@@ -119,17 +119,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Whether the entrance statue has finished sinking. The statue's base
-    /// decoration sets it once the sinking animation has ended.
+    /// The statues' shared animation state, set and cleared by the statue animations, the descent and the decorations:
+    /// how far the statue has sunk and whether its sinking has finished among it.
     /// </summary>
-    public bool TourianEntranceStatueFinished { get; internal set; }
-    /// <summary>
-    /// Signed background displacement owned by the statue's sinking; sprites follow the same sinking statue. The statue sequence only writes
-    /// its descent offset, between minus the descent distance and zero.
-    /// </summary>
-    public int TourianEntranceStatueVerticalOffset { get; internal set; }
-
-    /// <summary>The statues' shared animation state, set and cleared by the statue animations and the descent.</summary>
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 
@@ -184,29 +176,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.State = new AnchoredProjectileState(position);
     }
 
-    /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
-    internal void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
-    {
-        if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
-            TourianEntranceStatueAnimation.AtRest)
-        {
-            TourianEntranceStatueFinished = true;
-        }
-
-        Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
-        projectile.Position = projectile.Position.WithWholeX(anchor.X);
-
-        // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
-        // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
-        // This keeps all sprite pieces attached to the descending background statue artwork.
-        projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - TourianEntranceStatueVerticalOffset);
-    }
-
     /// <summary>The statue's base decoration, Ridley and Phantoon (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(this);
+    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(TourianEntranceStatueAnimation);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
-    private sealed class DecorationBehavior(TourianEntranceStatueBehavior owner) : TourianStatueProjectileBehavior
+    /// <param name="statue">The statues' shared animation state: the statue's descent, which the decoration follows.</param>
+    private sealed class DecorationBehavior(TourianStatueAnimation statue) : TourianStatueProjectileBehavior
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileFrameBehaviorContext context)
@@ -214,12 +189,30 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
             if (motion is EnemyProjectileFrameBehavior.TourianStatueRevealFollow or EnemyProjectileFrameBehavior.TourianStatueDecorationSettled)
             {
-                owner.PositionTourianEntranceStatueProjectile(context.Projectile);
+                PositionTourianEntranceStatueProjectile(context.Projectile);
             }
             else
             {
                 base.Move(context);
             }
+        }
+
+        /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
+        private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
+        {
+            if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
+                statue.AtRest)
+            {
+                statue.Finished = true;
+            }
+
+            Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
+            projectile.Position = projectile.Position.WithWholeX(anchor.X);
+
+            // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
+            // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
+            // This keeps all sprite pieces attached to the descending background statue artwork.
+            projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - statue.VerticalOffset);
         }
     }
 

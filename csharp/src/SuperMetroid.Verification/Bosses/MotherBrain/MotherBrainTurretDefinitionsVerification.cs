@@ -130,7 +130,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 Position = new(new(0x0400, 0), new(0x0200, 0)),
                 State = new MotherBrainTurretState(0, direction),
             };
-            enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainTurretBullet(turret);
+            enemies.MotherBrainBehavior.Projectiles.Projectile.SpawnMotherBrainTurretBullet(turret);
 
             EnemyProjectile bullet =
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

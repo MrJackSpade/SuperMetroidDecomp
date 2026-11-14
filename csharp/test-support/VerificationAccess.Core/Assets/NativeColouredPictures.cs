@@ -23,11 +23,38 @@ internal static class NativeColouredPictures
     /// </summary>
     /// <exception cref="ArgumentException">The image does not hold 256 colours.</exception>
     /// <exception cref="InvalidOperationException">The picture was not composed or recorded by a check.</exception>
+    /// <remarks>
+    /// A picture coloured again from the same colours under the same row is the copy coloured last (#1757): the copy is a
+    /// function of the picture, the colours and the row, and a check comparing many frames colours the same pictures again.
+    /// </remarks>
     [WholeImageFixture("a picture coloured from a 256-colour native colour image")]
     internal static SpriteImage OfSheet(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
     {
         Ensure.NotNull(picture);
         Ensure.LengthEqual(nativeColours, ColorCount);
+        Dictionary<int, ColouredCopy> copies = lastCopies.GetOrCreateValue(picture);
+        lock (copies)
+        {
+            if (copies.TryGetValue(drawRow, out ColouredCopy last) && nativeColours.SequenceEqual(last.Colours))
+                return last.Copy;
+        }
+        SpriteImage copy = Coloured(picture, nativeColours, drawRow);
+        lock (copies)
+            copies[drawRow] = new ColouredCopy(nativeColours.ToArray(), copy);
+        return copy;
+    }
+
+    /// <summary>Each picture's copy coloured last under each draw row, with the colours it was coloured from.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SpriteImage, Dictionary<int, ColouredCopy>> lastCopies = [];
+
+    /// <summary>A picture's copy coloured from <paramref name="Colours"/>.</summary>
+    /// <param name="Colours">The native colour image the copy was coloured from.</param>
+    /// <param name="Copy">The coloured copy.</param>
+    private readonly record struct ColouredCopy(RgbColor[] Colours, SpriteImage Copy);
+
+    /// <summary>A new copy of <paramref name="picture"/> coloured as <see cref="OfSheet"/> describes.</summary>
+    private static SpriteImage Coloured(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
+    {
         ComposedPictureSource source = ComposedPictures.SourceOf(picture);
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         var shown = new RgbaPixel[pixels.Length];

@@ -20,6 +20,32 @@ internal static class ObjCharacterImageConstants
 
     /// <summary>Images pictured from OAM so far, which keeps each one's name its own.</summary>
     private static int pictured;
+
+    /// <summary>
+    /// The records this thread last pictured, over the screen memory and object selection it pictured them from (#1757): a
+    /// record's picture depends only on its characters there, its size, flips, palette row and priority, so a check that
+    /// pictures many frames over one screen memory pictures each record shape once.
+    /// </summary>
+    [ThreadStatic]
+    private static PicturedRecords? lastPictured;
+
+    /// <summary>The pictures of records drawn over one screen memory and object selection, by record shape.</summary>
+    /// <param name="Vram">The screen memory the records' characters were read from.</param>
+    /// <param name="ObjectSelection">The screen's OBSEL value.</param>
+    private sealed record PicturedRecords(byte[] Vram, int ObjectSelection)
+    {
+        /// <summary>Each record shape's picture.</summary>
+        internal Dictionary<RecordShape, SpriteSheetFrame> Frames { get; } = [];
+    }
+
+    /// <summary>What a record's picture depends on besides the screen memory: everything but its position.</summary>
+    /// <param name="TileNumber">The record's first character.</param>
+    /// <param name="Palette">The record's palette row.</param>
+    /// <param name="Priority">The record's priority tier.</param>
+    /// <param name="FlipX">Whether the record is mirrored horizontally.</param>
+    /// <param name="FlipY">Whether the record is mirrored vertically.</param>
+    /// <param name="IsLarge">Whether the record has the larger size.</param>
+    private readonly record struct RecordShape(int TileNumber, int Palette, int Priority, bool FlipX, bool FlipY, bool IsLarge);
     /// <summary>
     /// The draws <paramref name="oam"/>'s finalized records stand for (#1392): one pre-coloured image per record, in
     /// record order so record 0 is frontmost, each pixel carrying the record's palette row and the colour its
@@ -33,9 +59,10 @@ internal static class ObjCharacterImageConstants
     {
         if (Composition(oam, vram, objectSelection) is not { } composition)
             return [];
+        ReadOnlySpan<byte> memory = vram.Bytes;
+        if (lastPictured is not { } records || records.ObjectSelection != objectSelection || !memory.SequenceEqual(records.Vram))
+            lastPictured = records = new PicturedRecords(memory.ToArray(), objectSelection);
         var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
-        var standard = new RgbColor[ImageColourGroup.HalfColours];
-        RgbaPixel black = default(RgbColor).ToRgbaPixel();
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(checked((byte)objectSelection));
         int part = 0;
         for (int index = 0; index < oam.LastFinalizedSpriteCount; index++)
@@ -52,41 +79,60 @@ internal static class ObjCharacterImageConstants
                 left = Math.Min(left, placed.Position.X);
                 top = Math.Min(top, placed.Position.Y);
             }
-            var cellParts = ImmutableArray.CreateBuilder<SpriteFramePart>(cells);
-            var pixels = new RgbaPixel[size.X * size.Y];
-            var indices = new byte[pixels.Length];
-            for (int cell = 0; cell < cells; cell++)
+            var shape = new RecordShape(entry.TileNumber, entry.Palette, entry.Priority, entry.FlipX, entry.FlipY, entry.IsLarge);
+            if (!records.Frames.TryGetValue(shape, out SpriteSheetFrame? frame))
             {
-                SpriteScreenPart placed = composition.Place(part + cell);
-                SpriteFramePart cellPart = composition.Frame.Parts[part + cell];
-                cellParts.Add(cellPart with { Offset = new(checked((short)(cellPart.Offset.X - left)), checked((short)(cellPart.Offset.Y - top))) });
-                for (ushort row = 0; row < placed.Size.Y; row++)
-                for (ushort column = 0; column < placed.Size.X; column++)
-                {
-                    int character = placed.CharacterAt(new(column, row), out Position16<CharacterPixels> at);
-                    int colour = composition.Artwork.ColorIndex(character, at);
-                    if (colour == 0)
-                        continue;
-                    int pixel = (placed.Position.Y - top + row) * size.X + placed.Position.X - left + column;
-                    indices[pixel] = (byte)(placed.Palette * 16 + colour);
-                    pixels[pixel] = black;
-                }
+                frame = Picture(composition, part, cells, size, left, top, corner, index, sizes);
+                records.Frames.Add(shape, frame);
             }
-            // Each ink is the record's own palette row and colour, with no palette bits ORed in, installed as an installed
-            // sheet's manifest would record it (#1512, #1544).
-            // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514), blending as the
-            // import decides from its colours (#1633).
-            SpriteSheetFrame frame = ComposedPictures.InstallWhole($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})",
-                new(size.X, size.Y), pixels, indices, SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
-            SpriteImage image = frame.Sheet;
-            // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
-            SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
-                new SpriteFrame(image.Name, cellParts.MoveToImmutable()), composition.Artwork, sizes);
             draws.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), frame,
                 new Position16<ScreenPixels>(unchecked((ushort)left), unchecked((ushort)top)), SpriteMirror.None));
             part += cells;
         }
         return draws.ToImmutable();
+    }
+
+    /// <summary>
+    /// Pictures the record whose cells are <paramref name="cells"/> parts of <paramref name="composition"/> from
+    /// <paramref name="part"/>, with its top-left at (<paramref name="left"/>, <paramref name="top"/>): each pixel carries
+    /// the record's palette row and the colour its characters name, with the record's flips applied.
+    /// </summary>
+    private static SpriteSheetFrame Picture(CharacterSpriteDraw composition, int part, int cells, Extent16<ScreenPixels> size,
+        int left, int top, SpriteScreenPart corner, int index, ScreenObjectSizes sizes)
+    {
+        var standard = new RgbColor[ImageColourGroup.HalfColours];
+        RgbaPixel black = default(RgbColor).ToRgbaPixel();
+        var cellParts = ImmutableArray.CreateBuilder<SpriteFramePart>(cells);
+        var pixels = new RgbaPixel[size.X * size.Y];
+        var indices = new byte[pixels.Length];
+        for (int cell = 0; cell < cells; cell++)
+        {
+            SpriteScreenPart placed = composition.Place(part + cell);
+            SpriteFramePart cellPart = composition.Frame.Parts[part + cell];
+            cellParts.Add(cellPart with { Offset = new(checked((short)(cellPart.Offset.X - left)), checked((short)(cellPart.Offset.Y - top))) });
+            for (ushort row = 0; row < placed.Size.Y; row++)
+            for (ushort column = 0; column < placed.Size.X; column++)
+            {
+                int character = placed.CharacterAt(new(column, row), out Position16<CharacterPixels> at);
+                int colour = composition.Artwork.ColorIndex(character, at);
+                if (colour == 0)
+                    continue;
+                int pixel = (placed.Position.Y - top + row) * size.X + placed.Position.X - left + column;
+                indices[pixel] = (byte)(placed.Palette * 16 + colour);
+                pixels[pixel] = black;
+            }
+        }
+        // Each ink is the record's own palette row and colour, with no palette bits ORed in, installed as an installed
+        // sheet's manifest would record it (#1512, #1544).
+        // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514), blending as the
+        // import decides from its colours (#1633).
+        SpriteSheetFrame frame = ComposedPictures.InstallWhole($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})",
+            new(size.X, size.Y), pixels, indices, SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
+        SpriteImage image = frame.Sheet;
+        // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
+            new SpriteFrame(image.Name, cellParts.MoveToImmutable()), composition.Artwork, sizes);
+        return frame;
     }
 
     /// <summary>The composition of every finalized record's cells, frontmost first, or null when there is no record.</summary>

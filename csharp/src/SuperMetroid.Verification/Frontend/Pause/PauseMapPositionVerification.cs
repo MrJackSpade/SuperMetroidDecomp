@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks the pause map's animated current-position marker against retail OAM and palette.</summary>
 internal static class PauseMapPositionVerification
@@ -46,7 +48,9 @@ internal static class PauseMapPositionVerification
                 nativeTimer--;
                 int id = new[] { 0x5f, 0x60, 0x61, 0x60 }[nativeFrame];
                 pause.AdvanceAnimations();
-                var pixels = pause.Render();
+                // The frame as published; whether a repaint shows the same pixels is answered from the two frames'
+                // descriptions, drawing them only when those differ (#1532, #1757).
+                LayeredScene shown = pause.CaptureRenderSnapshot();
                 Position16<ScreenPixels> marker = samusCell.ToMapPixels().ToScreen(pause.MapScroll);
                 ushort x = marker.X, y = marker.Y;
                 var expected = new OamBuffer(); expected.BeginFrame();
@@ -55,9 +59,12 @@ internal static class PauseMapPositionVerification
                 var actual = pause.screen.Objects;
                 AssertTrue(expected.LowTable[..bytes].SequenceEqual(actual.LowTable[..bytes]), "current-position marker native OAM and animation timing");
                 AssertEqual(expected.HighTable[0], actual.HighTable[0], "current-position marker size/X bits");
+                // The frame's shown colours are composed once and every marker ink is compared with them (#1757): composing
+                // them captures the pause screen's whole picture, once per frame rather than once per ink.
+                RgbColor[] shownColours = PauseShownColours.Of(pause, RetailPresentationFixture());
                 for (int color = 0; color < markerColors.Length; color++)
-                    AssertEqual(markerColors[color], PauseShownColours.Of(pause, RetailPresentationFixture())[markerPalette + 1 + color], $"{area} frame {frame} current-position marker ink {color + 1}");
-                AssertTrue(pixels.SequenceEqual(pause.Render()), "repaint does not advance position marker");
+                    AssertEqual(markerColors[color], shownColours[markerPalette + 1 + color], $"{area} frame {frame} current-position marker ink {color + 1}");
+                AssertTrue(ScenePixels.Same(shown, pause.CaptureRenderSnapshot()), "repaint does not advance position marker");
             }
         }
         Console.WriteLine("Pause current-position marker: raw ROM OAM and palette, two room positions, and two 24-frame pulse cycles agree.");

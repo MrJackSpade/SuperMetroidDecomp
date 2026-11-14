@@ -1034,8 +1034,6 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyShotExtensionResolution),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyWaveScanReadBlocks),
             SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyWaveScanReadBlocks),
-        new(nameof(SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyXrayRevealLookupBlocks),
-            SuperMetroid.Verification.Rooms.LevelData.RoomTerrainBlockAddressingVerification.VerifyXrayRevealLookupBlocks),
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyRoomReadingOrder),
             SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyRoomReadingOrder),
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),

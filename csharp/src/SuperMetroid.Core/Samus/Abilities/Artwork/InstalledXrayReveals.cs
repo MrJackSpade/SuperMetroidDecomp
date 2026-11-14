@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// <summary>
 /// The installed blocks every X-ray copy reveal shows, and the installed item and special-room overlays. The game's
 /// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition remain compiled; there
-/// is no compiled copy of the blocks (#1596), the block an extension chain leaving the room backward shows included (#1615).
+/// is no compiled copy of the blocks (#1596). An extension chain leaving the room shows no block of its own (#1792).
 /// </summary>
 public sealed class InstalledXrayReveals
 {
@@ -21,16 +21,13 @@ public sealed class InstalledXrayReveals
     /// <summary>Creates the complete installed reveal blocks for every drawable reveal rule.</summary>
     /// <param name="entries">Exactly one set of blocks for each drawable collision kind and behaviour; shape selection and copy geometry remain fixed.</param>
     /// <param name="overlays">The installed item and special-room overlays.</param>
-    /// <param name="extensionExitBlock">The block an extension chain shows when it leaves the room backward.</param>
     /// <exception cref="ArgumentNullException">The entry sequence or the overlays are null.</exception>
     /// <exception cref="InvalidDataException">An entry has no drawable rule, shows other blocks than its rule's shape copies, duplicates another pair, or leaves drawable coverage incomplete.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">An entry or the extension exit names a block outside the tileset's block set.</exception>
-    public InstalledXrayReveals(IEnumerable<XrayRevealVisualDefinition> entries, InstalledXrayOverlays overlays, int extensionExitBlock)
+    /// <exception cref="ArgumentOutOfRangeException">An entry names a block outside the tileset's block set.</exception>
+    public InstalledXrayReveals(IEnumerable<XrayRevealVisualDefinition> entries, InstalledXrayOverlays overlays)
     {
         Ensure.NotNull(entries);
         Overlays = Ensure.NotNull(overlays);
-        _ = RoomBlockAppearance.Of(extensionExitBlock);
-        ExtensionExitBlock = extensionExitBlock;
         foreach ((RoomCollisionType type, Enum? reaction, XrayRevealVisualBlocks visual) in entries)
         {
             if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
@@ -58,9 +55,6 @@ public sealed class InstalledXrayReveals
 
     /// <summary>The installed item and special-room overlays.</summary>
     public InstalledXrayOverlays Overlays { get; }
-
-    /// <summary>The installed block an extension chain shows when its next step leaves the room backward.</summary>
-    public int ExtensionExitBlock { get; }
 
     /// <summary>
     /// Resolves the compiled shape and its installed blocks from the same collision kind and behaviour. Callers

@@ -10,9 +10,14 @@ public static class XrayRevealExtensions
     /// Returns the replacement block, or null to retain copied foreground art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
+    /// <remarks>
+    /// Every link's offset steps forward or back by its distance, along a row for a horizontal link and down or up a column
+    /// for a vertical one. A chain whose next step leaves the room reveals nothing (#1792): it neither runs on into another
+    /// row nor shows a block of its own.
+    /// </remarks>
     /// <param name="level">The room whose extension chain is followed.</param>
     /// <param name="start">The extension block the chain starts at, in the room's columns.</param>
-    /// <param name="visuals">The installed reveal blocks, which a terminal special-air block or a backward exit from the room shows.</param>
+    /// <param name="visuals">The installed reveal blocks, which a terminal special-air block shows.</param>
     public static int? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
@@ -21,27 +26,22 @@ public static class XrayRevealExtensions
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(start));
         if (block.Behavior.EndsExtension) return null;
-        int x = start.X;
-        int y = start.Y;
+        Position16<RoomBlocks> reached = start;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
-        // Both entry points read the initial offset signed. Later reads are asymmetric: only the horizontal-extension
-        // branch reads it signed again; the vertical branch reads a backward offset as a forward step of its distance
-        // short of a full offset span.
         int step = block.Behavior.ExtensionOffset;
         var visited = new HashSet<XrayRevealVisit>();
         while (true)
         {
-            if (!visited.Add(new(Position16<RoomBlocks>.Of(x, y), vertical, step)))
+            if (!visited.Add(new(reached, vertical, step)))
                 throw new InvalidDataException($"Cyclic X-ray extension chain from block {start}.");
-            int coordinate = CoordinateAxis.Wrap((vertical ? y : x) + step);
-            if (CoordinateAxis.AsSigned(coordinate) < 0) return visuals.ExtensionExitBlock;
-            if (vertical) y = coordinate; else x = coordinate;
-            // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
-            // the next row.
-            block = level.GetObjectCollisionBlock(BlockScanCycle.RevealLookupBlock(Position16<RoomBlocks>.Of(x, y), level.Size.X));
+            if (XrayRevealMap.RoomBlock(level, vertical ? reached.X : reached.X + step,
+                    vertical ? reached.Y + step : reached.Y) is not { } next)
+                return null;
+            reached = next;
+            block = level.GetObjectCollisionBlock(reached);
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {
-                step = ForwardStep(block.Behavior.ExtensionOffset);
+                step = block.Behavior.ExtensionOffset;
                 vertical = true;
                 continue;
             }
@@ -57,11 +57,4 @@ public static class XrayRevealExtensions
             return visuals.Apply(block.CollisionType, block.Behavior)?.Blocks?.TopLeft;
         }
     }
-
-    /// <summary>
-    /// The step the vertical loop takes for an extension offset: a backward offset becomes a forward step of the span of
-    /// offsets less its distance.
-    /// </summary>
-    private static int ForwardStep(int offset) =>
-        offset < 0 ? offset + (RoomBlockBehavior.MostForwardExtension - RoomBlockBehavior.MostBackwardExtension + 1) : offset;
 }

@@ -105,6 +105,13 @@ internal static class XrayTilemapVerification
         var bottom = Build();
         AssertEqual(Cell(edge, 16, 0), Cell(bottom, 16, 0), "a bottom-row square's lower blocks reach no other revealed block");
         AssertEqual(Defined(squareTopLeft), Cell(bottom, 0, 15), "a bottom-row square's top left is placed at the bottom row");
-        Console.WriteLine("  X-ray reveal: whole-block base copy across the foreground's screen edges, four-piece reveals, left predecessor, the revealed area's edges and area gate agree.");
+        // Each revealed block in the room shows its own reveal; nothing runs on from one row into another (#1792).
+        cameraPosition = new(8, 5 * 16 + 8);
+        Set(5 * RoomSide - 1, RoomCollisionType.ShootableBlock, 3);
+        AssertEqual(Copied(0, 5), Cell(Build(), 0, 0), "at the room's first column no block before it lends the first column a half");
+        cameraPosition = new(RoomSide * 16 - 256 + 8, 24);
+        Set(2 * RoomSide, RoomCollisionType.ShootableBlock, 3);
+        AssertEqual(null, Cell(Build(), 16, 0), "a cell beyond the room's right edge shows no reveal of the next row's blocks");
+        Console.WriteLine("  X-ray reveal: whole-block base copy across the foreground's screen edges, four-piece reveals, left predecessor, the revealed area's edges, the room's edges and area gate agree.");
     }
 }

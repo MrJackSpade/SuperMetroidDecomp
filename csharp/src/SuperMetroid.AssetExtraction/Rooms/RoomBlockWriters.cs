@@ -74,11 +74,10 @@ internal static class RoomBlockWriters
             .. PerFrame(catalogs.RevealAndWall.Images, RevealOrWallWrittenIn),
             new(FrameBlocks(catalogs.MaridiaElevatube.Images), state => state.MainBehavior == RoomMainBehavior.MaridiaElevatube),
             // The X-ray reveal: each reveal where the terrain holds the block it copies over, each tank where one is placed,
-            // the extension exit where an extension can lead out, and a room's overlay only there.
+            // and a room's overlay only there.
             .. XrayRevealWriters(xray),
             .. TankKinds.Select(tank => new RoomBlockWriter(new HashSet<int> { xray.Overlays.TankBlock(tank).Block },
                 state => state.PlacesCollectible((kind, _) => kind == tank))),
-            new(new HashSet<int> { xray.ExtensionExitBlock }, state => state.HoldsExtensions),
             .. xray.Overlays.rooms.Select(overlay => new RoomBlockWriter(                BlocksOf(overlay.Value.Select(tile => tile.Appearance)), state => Equals(state.XrayOverlay, overlay.Key))),
         ];
     }

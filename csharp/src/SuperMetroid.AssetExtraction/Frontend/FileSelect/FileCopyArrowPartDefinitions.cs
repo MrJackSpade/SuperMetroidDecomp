@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
@@ -6,19 +7,23 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// <summary>File-copy arrow compositions $82:CDCD/CE15/CE5D/CECD, which the file-select sheet pictures.</summary>
 internal static class FileCopyArrowPartDefinitions
 {
-    /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
-    internal const int ShapeCount = 4;
-
-    /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
-    internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
+    /// <summary>Exposes the selected native OAM part order for one of the four file-copy arrow shapes.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> is not an arrow shape.</exception>
+    internal static ReadOnlySpan<CompiledSpritePart> Parts(FileCopyArrowShape shape) => shape switch
+    {
+        FileCopyArrowShape.ShortDown => ShortDown,
+        FileCopyArrowShape.ShortUp => ShortUp,
+        FileCopyArrowShape.LongDown => LongDown,
+        FileCopyArrowShape.LongUp => LongUp,
+        _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Undefined file-copy arrow shape."),
+    };
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>
     private static CompiledSpritePart Part(Offset16<SpritePixels> offset, int tile, PictureFlip flip) => new(
         SpritePart.Create(Offset16<ScreenPixels>.Of(offset.X, offset.Y), false,
         tile, 1, 3, flip), true);
 
-    /// <summary>Four native sprite orders, including interleaved shaft and arrowhead tiles for short/long and upward/downward arrows.</summary>
-    private static readonly CompiledSpritePart[][] Shapes =
-    [
+    /// <summary>The short downward arrow's native sprite order, interleaving shaft and arrowhead tiles.</summary>
+    private static readonly CompiledSpritePart[] ShortDown =
         [
             Part(new(2, -16), 207, PictureFlip.None),
             Part(new(-6, -16), 206, PictureFlip.None),
@@ -34,7 +39,10 @@ internal static class FileCopyArrowPartDefinitions
             Part(new(-14, -16), 205, PictureFlip.None),
             Part(new(-6, -8), 189, PictureFlip.None),
             Part(new(-14, -8), 188, PictureFlip.None),
-        ],
+        ];
+
+    /// <summary>The short upward arrow's native sprite order: the short downward arrow's tiles flipped vertically.</summary>
+    private static readonly CompiledSpritePart[] ShortUp =
         [
             Part(new(-14, -16), 184, PictureFlip.Vertical),
             Part(new(-14, -8), 188, PictureFlip.Vertical),
@@ -50,7 +58,10 @@ internal static class FileCopyArrowPartDefinitions
             Part(new(-14, 0), 188, PictureFlip.Vertical),
             Part(new(2, -24), 203, PictureFlip.Vertical),
             Part(new(2, -16), 187, PictureFlip.Vertical),
-        ],
+        ];
+
+    /// <summary>The long downward arrow's native sprite order, interleaving shaft and arrowhead tiles.</summary>
+    private static readonly CompiledSpritePart[] LongDown =
         [
             Part(new(-6, 8), 189, PictureFlip.None),
             Part(new(-14, 8), 188, PictureFlip.None),
@@ -74,7 +85,10 @@ internal static class FileCopyArrowPartDefinitions
             Part(new(-14, -24), 188, PictureFlip.None),
             Part(new(2, 32), 203, PictureFlip.None),
             Part(new(2, 24), 187, PictureFlip.None),
-        ],
+        ];
+
+    /// <summary>The long upward arrow's native sprite order: the long downward arrow's tiles flipped vertically.</summary>
+    private static readonly CompiledSpritePart[] LongUp =
         [
             Part(new(-6, -16), 189, PictureFlip.Vertical),
             Part(new(-14, -16), 188, PictureFlip.Vertical),
@@ -98,6 +112,5 @@ internal static class FileCopyArrowPartDefinitions
             Part(new(-14, 16), 188, PictureFlip.Vertical),
             Part(new(2, -40), 203, PictureFlip.Vertical),
             Part(new(2, -32), 187, PictureFlip.Vertical),
-        ],
-    ];
+        ];
 }

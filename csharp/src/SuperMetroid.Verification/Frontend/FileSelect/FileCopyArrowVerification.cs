@@ -74,7 +74,7 @@ internal static class FileCopyArrowVerification
             // The arrows' rotation is typed state (#1512): each step names the shade the import pre-coloured from the
             // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
             ReadOnlySpan<RgbColor> cartridge = InstalledFixtures.ImportOf(art).Palettes.FileSelect;
-            SpriteImage arrowSheet = MenuSheetFixtures.For(art).Get(SpriteSheetId.FileSelect).Frame(FileCopyArrowDefinitions.FrameName(0)).Sheet;
+            SpriteImage arrowSheet = MenuSheetFixtures.For(art).Get(SpriteSheetId.FileSelect).Frame(FileCopyArrowDefinitions.FrameName(FileCopyArrowShape.ShortDown)).Sheet;
             int start = menu.CopyArrowRotation;
             for (int frame = 1; frame <= 12; frame++)
             {

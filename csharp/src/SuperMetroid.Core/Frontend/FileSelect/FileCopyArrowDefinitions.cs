@@ -14,7 +14,17 @@ public static class FileCopyArrowDefinitions
     public const int RotationSteps = 7;
     /// <summary>All file-copy arrows use screen X = 20.</summary>
     internal const int OriginX = 20;
+    /// <summary>The screen Y of a short arrow between slots A and B.</summary>
+    internal const int UpperShortArrowY = 88;
+    /// <summary>The screen Y of a short arrow between slots B and C.</summary>
+    internal const int LowerShortArrowY = 120;
+    /// <summary>The screen Y of a long arrow between slots A and C.</summary>
+    internal const int LongArrowY = 104;
+
+    /// <summary>Every arrow shape the file-select sheet pictures.</summary>
+    public static IReadOnlyList<FileCopyArrowShape> Shapes { get; } =
+        [FileCopyArrowShape.ShortDown, FileCopyArrowShape.ShortUp, FileCopyArrowShape.LongDown, FileCopyArrowShape.LongUp];
 
     /// <summary>The sheet frame showing arrow shape <paramref name="shape"/>.</summary>
-    public static string FrameName(int shape) => $"CopyArrow.{shape}";
+    public static string FrameName(FileCopyArrowShape shape) => $"CopyArrow.{shape}";
 }

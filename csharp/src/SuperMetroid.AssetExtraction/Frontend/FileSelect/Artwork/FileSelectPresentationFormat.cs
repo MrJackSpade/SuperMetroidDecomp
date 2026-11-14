@@ -79,5 +79,5 @@ public static class FileSelectPresentationFormat
 
     /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
     public static IEnumerable<string> SheetFrames =>
-        SpriteNames.Concat(Enumerable.Range(0, FileCopyArrowPartDefinitions.ShapeCount).Select(FileCopyArrowDefinitions.FrameName));
+        SpriteNames.Concat(FileCopyArrowDefinitions.Shapes.Select(FileCopyArrowDefinitions.FrameName));
 }

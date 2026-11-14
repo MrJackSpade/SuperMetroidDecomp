@@ -2,13 +2,14 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 /// <summary>Compares file-select cursor movement with the original filtered choice lists and cartridge branch data.</summary>
 internal static class FileSelectNavigationLookupVerification
 {
-    /// <summary>Checks all source and clear occupancy masks, directional input priority, and invalid-mask rejection.</summary>
+    /// <summary>Checks every set of occupied slots and directional input priority against the original filtered lists.</summary>
     internal static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
     {
         // Complete filtered lists produced by the old source/clear code in
@@ -20,18 +21,18 @@ internal static class FileSelectNavigationLookupVerification
             AssertEqual((byte)(1 << slot), FileSelectSourceNavigationRomByte(rom, 0x81975b + slot), "native copy occupancy bit");
             AssertEqual((byte)(1 << slot), FileSelectSourceNavigationRomByte(rom, 0x819bec + slot), "native clear occupancy bit");
         }
+        // The oracle's lists are indexed by the cartridge's occupancy bits, one per slot from A; the production
+        // navigation takes the set of occupied slots those bits name. A set cannot name a fourth slot, so the former
+        // out-of-range mask rejection has nothing left to reject.
         for (int occupied = 0; occupied < original.Length; occupied++)
         {
             int mask = occupied;
+            HashSet<SaveSlot> slots = [.. SaveSlots.All.Where(slot => (mask & (1 << SaveSlots.StoreNumber(slot))) != 0)];
             VerifyOriginalSubmenuChoices(original[mask], (selected, pressed) =>
-                FileSelectDataNavigation.MoveSourceOrClear(selected, mask, pressed),
-                $"source/clear occupancy={mask}");
+                FileSelectDataNavigation.MoveSourceOrClear(selected, slots, pressed),
+                $"source/clear occupancy={string.Join(",", slots)}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveSourceOrClear(FileSelectItem.Exit, invalid, ControllerButton.None),
-                "unsupported occupancy mask");
-        Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
+        Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states and input priority pass.");
     }
 
     /// <summary>Reads a native source/clear occupancy bit for the independent navigation oracle.</summary>
@@ -48,18 +49,14 @@ internal static class FileSelectNavigationLookupVerification
         AssertEqual(ReadVerificationWord(rom, 0x819844), ReadVerificationWord(rom, 0x8198a9),
             "both directions exclude the same live source");
         AssertEqual((ushort)4, ReadVerificationWord(rom, 0x81983f), "native destination end boundary");
-        for (int source = 0; source < original.Length; source++)
+        // The copy source is a typed slot, so the former out-of-range source rejection has nothing left to reject.
+        foreach (SaveSlot source in SaveSlots.All)
         {
-            int slot = source;
-            VerifyOriginalSubmenuChoices(original[slot], (selected, pressed) =>
-                FileSelectDataNavigation.MoveCopyDestination(selected, slot, pressed),
-                $"copy destination source={slot}");
+            VerifyOriginalSubmenuChoices(original[SaveSlots.StoreNumber(source)], (selected, pressed) =>
+                FileSelectDataNavigation.MoveCopyDestination(selected, source, pressed),
+                $"copy destination source={source}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveCopyDestination(FileSelectItem.Exit, invalid, ControllerButton.None),
-                "unsupported copy source");
-        Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
+        Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states and input priority pass.");
     }
 
     /// <summary>Reads a native destination-navigation opcode for comparison with the compiled selection rule.</summary>

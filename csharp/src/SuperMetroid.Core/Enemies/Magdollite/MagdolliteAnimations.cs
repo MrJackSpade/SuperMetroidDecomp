@@ -139,37 +139,37 @@ internal static class MagdolliteAnimations
             Show(EnemyFrameId.MagdolliteRightIdleSecond, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],
-        [P.PillarPhase0] =
+        [P.OneSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseFirst, 1),
+            Show(EnemyFrameId.MagdolliteOneSegmentPillar, 1),
         ],
-        [P.PillarPhase1] =
+        [P.TwoSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseSecond, 1),
+            Show(EnemyFrameId.MagdolliteTwoSegmentPillar, 1),
         ],
-        [P.PillarPhase2] =
+        [P.ThreeSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseThird, 1),
+            Show(EnemyFrameId.MagdolliteThreeSegmentPillar, 1),
         ],
-        [P.PillarPhase3] =
+        [P.FourSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseFourth, 1),
+            Show(EnemyFrameId.MagdolliteFourSegmentPillar, 1),
         ],
-        [P.PillarPhase4] =
+        [P.FiveSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseFifth, 1),
+            Show(EnemyFrameId.MagdolliteFiveSegmentPillar, 1),
         ],
-        [P.PillarPhase5] =
+        [P.SixSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseSixth, 1),
+            Show(EnemyFrameId.MagdolliteSixSegmentPillar, 1),
         ],
-        [P.PillarPhase6] =
+        [P.SevenSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseSeventh, 1),
+            Show(EnemyFrameId.MagdolliteSevenSegmentPillar, 1),
         ],
-        [P.PillarPhase7] =
+        [P.EightSegmentPillar] =
         [
-            Show(EnemyFrameId.MagdollitePillarPhaseEighth, 1),
+            Show(EnemyFrameId.MagdolliteEightSegmentPillar, 1),
         ],
         [P.PillarCap] =
         [
@@ -188,14 +188,14 @@ internal static class MagdolliteAnimations
         [P.RightThrow] = new([new(P.RightThrow, 0, 15, 1)], AnimationEnd.Holds),
         [P.RightSubmerge] = new([new(P.RightSubmerge, 0, 9, 1), new(P.RightRaisePillar, 0, 2, 24), new(P.RightRaisePillar, 2, 1, 1)], AnimationEnd.Holds),
         [P.RightEmerge] = new([new(P.RightEmerge, 0, 2, 1), new(P.RightLowerPillar, 0, 2, 24), new(P.RightLowerPillar, 2, 9, 1)], AnimationEnd.Holds),
-        [P.PillarPhase0] = new([new(P.PillarPhase0, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase1] = new([new(P.PillarPhase1, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase2] = new([new(P.PillarPhase2, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase3] = new([new(P.PillarPhase3, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase4] = new([new(P.PillarPhase4, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase5] = new([new(P.PillarPhase5, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase6] = new([new(P.PillarPhase6, 0, 1, 1)], AnimationEnd.Holds),
-        [P.PillarPhase7] = new([new(P.PillarPhase7, 0, 1, 1)], AnimationEnd.Holds),
+        [P.OneSegmentPillar] = new([new(P.OneSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.TwoSegmentPillar] = new([new(P.TwoSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ThreeSegmentPillar] = new([new(P.ThreeSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FourSegmentPillar] = new([new(P.FourSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FiveSegmentPillar] = new([new(P.FiveSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SixSegmentPillar] = new([new(P.SixSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SevenSegmentPillar] = new([new(P.SevenSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
+        [P.EightSegmentPillar] = new([new(P.EightSegmentPillar, 0, 1, 1)], AnimationEnd.Holds),
         [P.PillarCap] = new([new(P.PillarCap, 0, 1, 1)], AnimationEnd.Holds),
     };
 

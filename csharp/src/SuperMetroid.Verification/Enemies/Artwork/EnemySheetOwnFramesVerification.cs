@@ -93,14 +93,14 @@ internal static class EnemySheetOwnFramesVerification
         KiHuntersFamily(), WorkRobotsFamily(), TorizosFamily(), RidleysFamily(),
     ];
 
-    /// <summary>The Skree and the Metaree each run the programs their own selector table names.</summary>
+    /// <summary>The Skree and the Metaree each run the animations their own AI starts.</summary>
     private static EnemySheetOwnFrameFamily SkreeAndMetaree() => new("Skree and Metaree", SkreeMetareeAnimations.Segments.Frames.ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.Skree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt,
-                SkreeMetareeAnimationDefinitions.SkreeAnimations.Values),
+                [SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving]),
             [EnemyDefinitionId.Metaree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt,
-                SkreeMetareeAnimationDefinitions.MetareeAnimations.Values),
+                [SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving]),
         });
 
     /// <summary>Each Sidehopper and Dessgeega runs the programs of the variant its header names, on either surface.</summary>
@@ -212,7 +212,7 @@ internal static class EnemySheetOwnFramesVerification
             {
                 [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
-                [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
+                [EnemyDefinitionId.RipperII] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
                 [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight]),

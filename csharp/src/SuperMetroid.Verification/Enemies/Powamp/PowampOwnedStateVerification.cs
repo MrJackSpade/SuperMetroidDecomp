@@ -27,11 +27,16 @@ internal static class PowampOwnedStateVerification
         body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         enemies.PowampBehavior.InitializePowamp(body);
 
-        PowampEnemyState balloonState = balloon.RequireSpeciesState<PowampEnemyState>();
-        PowampEnemyState bodyState = body.RequireSpeciesState<PowampEnemyState>();
-        AssertTrue(balloonState.IsBalloon && !bodyState.IsBalloon, "parameter one selects the balloon half");
-        AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.BalloonSpawn, "the balloon keeps its spawn");
-        AssertEqual(65535, balloonState.BalloonGrappleTravelDistance, "the grapple rise keeps parameter two's full word");
+        // Parameter one selects the balloon half, which has its own state (#1845).
+        PowampBalloonState balloonState = balloon.SpeciesState<PowampBalloonState>()
+            ?? throw new InvalidOperationException("Parameter one did not set up the balloon half.");
+        PowampBodyState bodyState = body.SpeciesState<PowampBodyState>()
+            ?? throw new InvalidOperationException("The body half has no body state.");
+        AssertEqual(null, balloon.SpeciesState<PowampBodyState>(), "the balloon holds no body state");
+        AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.Spawn, "the balloon keeps its spawn");
+        AssertEqual(65535, balloonState.GrappleTravelDistance, "the grapple rise keeps parameter two's full word");
+        AssertEqual(new PowampBalloonInflation(PowampBalloonSequence.Sinking, 2), balloonState.Inflation,
+            "the balloon starts deflated, at the end of its sinking sequence");
         AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");
 
         bodyState.Action = PowampAction.Inflating;

@@ -51,8 +51,8 @@ public enum EnemyDefinitionId
     Choot,
     /// <summary>The G Ripper enemy definition.</summary>
     GRipper,
-    /// <summary>The Ripper2 enemy definition.</summary>
-    Ripper2,
+    /// <summary>The RipperII enemy definition.</summary>
+    RipperII,
     /// <summary>The Ripper enemy definition.</summary>
     Ripper,
     /// <summary>The Dragon enemy definition.</summary>

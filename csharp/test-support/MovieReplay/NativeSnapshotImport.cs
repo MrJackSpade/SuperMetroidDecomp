@@ -362,18 +362,21 @@ internal static class NativeSnapshotImport
             if (slot.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
                 kraid.HeadPlayback = kraidHeadCursors.TryPlaybackAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
-            if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
-                pipeBug.Playback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
-            if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
+            if (slot.PipeBugPlayback is not null)
+                slot.PipeBugPlayback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
+            if (runtime.Enemies.BrinstarPipeBugStates[index] is { } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = unchecked((short)words.D);
                 bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
                     == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
-                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
-                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(
-                    W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64), "recorded Pipe Bug installed animation");
+                // The game keeps the requested animation beside the installed one and installs a request in the same AI
+                // update, so Core keeps the installed animation alone (#1810) and a record whose two differ fails.
+                ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
+                if (words.E != installed)
+                    throw new InvalidDataException($"Recorded Pipe Bug {index} requests animation {words.E} while {installed} is installed.");
+                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(installed, "recorded Pipe Bug installed animation");
             }
         }
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)

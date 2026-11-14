@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -60,8 +61,8 @@ internal sealed class RidleyNativeInstructionPointers
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
             return RidleyNativeProgramOracle.BreakupPointer(actor.RequireSpeciesState<RidleyExplosionFragmentState>().Playback);
         }
-        if (enemies.PipeBugStates[actor.SlotIndex] is { } pipeBug)
-            return pipeBugs.Pointer(pipeBug.Playback);
+        if (actor.PipeBugPlayback is { } pipeBug)
+            return pipeBugs.Pointer(pipeBug);
         return null;
     }
 

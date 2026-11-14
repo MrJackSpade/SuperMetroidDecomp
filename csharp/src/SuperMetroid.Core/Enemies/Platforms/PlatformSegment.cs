@@ -6,22 +6,12 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// </summary>
 internal enum PlatformSegment
 {
-    /// <summary>The Kamer moving left animation.</summary>
-    KamerMovingLeft,
-    /// <summary>The loop.</summary>
-    KamerMovingLeftLoop,
-    /// <summary>The Kamer moving right animation.</summary>
-    KamerMovingRight,
-    /// <summary>The loop.</summary>
-    KamerMovingRightLoop,
-    /// <summary>The Kamer still left animation.</summary>
-    KamerStillLeft,
-    /// <summary>The loop.</summary>
-    KamerStillLeftLoop,
-    /// <summary>The Kamer still right animation.</summary>
-    KamerStillRight,
-    /// <summary>The loop.</summary>
-    KamerStillRightLoop,
+    /// <summary>The Kamer heading left, moving or still: it moves left and plays its loop (#1842).</summary>
+    KamerHeadingLeft,
+    /// <summary>The Kamer's loop, the same whichever way it heads and whether it moves or stays still (#1842).</summary>
+    KamerLoop,
+    /// <summary>The Kamer heading right, moving or still: it moves right and plays its loop (#1842).</summary>
+    KamerHeadingRight,
     /// <summary>The Tripper moving left animation.</summary>
     TripperMovingLeft,
     /// <summary>The loop.</summary>

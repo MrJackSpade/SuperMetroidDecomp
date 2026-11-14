@@ -888,11 +888,14 @@ internal static class LookupStream2Verification
     /// <summary>Checks five-member Pipe Bug formation positions and native spawn data.</summary>
     internal static void VerifyLookupStream2PipeBugFormation(CartridgeImportAddressSpace rom)
     {
-        for (int member = 0; member < 5; member++)
+        // The formation initializer's immediates list the roles in the formation's listing order (#1840).
+        NorfairPipeBugRole[] roles = [PipeBugDefinitions.LeaderRole, PipeBugDefinitions.UpperNearRole, PipeBugDefinitions.UpperFarRole,
+            PipeBugDefinitions.LowerNearRole, PipeBugDefinitions.LowerFarRole];
+        for (int member = 0; member < roles.Length; member++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugFormation.NorfairStaggerTarget(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), roles[member].StaggerTarget,
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(PipeBugFormation.NorfairPostRiseAction(member)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(roles[member].PostRiseAction),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -908,13 +911,13 @@ internal static class LookupStream2Verification
                 slot.AnimationClock.Repeats = WrappingCountdown.Start((ushort)(member + 8));
             }
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
-                var state = enemies.PipeBugStates[member];
+                var state = enemies.NorfairPipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(state.NorfairPostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action.")),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action.")),
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugAction.NorfairRise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
@@ -925,8 +928,6 @@ internal static class LookupStream2Verification
                     "Only leader loop counter resets");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairStaggerTarget(-1), "Formation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairPostRiseAction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 

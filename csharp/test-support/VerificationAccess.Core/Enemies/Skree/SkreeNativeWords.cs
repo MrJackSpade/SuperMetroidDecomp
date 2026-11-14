@@ -18,13 +18,24 @@ internal static class SkreeNativeWords
     });
 
     /// <summary>
-    /// The animation-phase number naming each <see cref="SkreeMetareeAnimationPhase"/>, shared by Skree and Metaree: the
-    /// requested and installed phase words, and the position of each phase's animation in the two phase tables.
+    /// The animation-phase number naming each Skree animation the AI starts: the requested and installed phase words, and
+    /// the position of the animation in the Skree's phase table (#1810: Core holds the animation itself).
     /// </summary>
-    internal static readonly NativeWordIdentities<SkreeMetareeAnimationPhase> AnimationPhases = new(new Dictionary<SkreeMetareeAnimationPhase, ushort>
+    internal static readonly NativeWordIdentities<SkreeMetareeSegment> SkreeAnimationPhases = new(new Dictionary<SkreeMetareeSegment, ushort>
     {
-        [SkreeMetareeAnimationPhase.Idling] = 0,
-        [SkreeMetareeAnimationPhase.PreparingAttack] = 1,
-        [SkreeMetareeAnimationPhase.Diving] = 2,
+        [SkreeMetareeSegment.SkreeIdling] = 0,
+        [SkreeMetareeSegment.SkreePreparingAttack] = 1,
+        [SkreeMetareeSegment.SkreeDiving] = 2,
+    });
+
+    /// <summary>
+    /// The animation-phase number naming each Metaree animation the AI starts: the requested and installed phase words,
+    /// and the position of the animation in the Metaree's phase table (#1810).
+    /// </summary>
+    internal static readonly NativeWordIdentities<SkreeMetareeSegment> MetareeAnimationPhases = new(new Dictionary<SkreeMetareeSegment, ushort>
+    {
+        [SkreeMetareeSegment.MetareeIdling] = 0,
+        [SkreeMetareeSegment.MetareePreparingAttack] = 1,
+        [SkreeMetareeSegment.MetareeDiving] = 2,
     });
 }

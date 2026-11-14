@@ -137,10 +137,10 @@ internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTyp
 internal sealed class Walk
 {
     /// <summary>
-    /// EnemyFrameId members that draw nothing and are on no sheet: the empty frame, and the Norfair lava jumper's
-    /// first frame, which shows the shared empty spritemap.
+    /// EnemyFrameId members that draw nothing and are on no sheet: the empty frame, which the Norfair lava jumper's
+    /// follower shows since #1823.
     /// </summary>
-    public static readonly string[] ExcludedEnemyFrames = ["Empty", "NorfairLavaJumperFollowerSecond"];
+    public static readonly string[] ExcludedEnemyFrames = ["Empty"];
 
     /// <summary>
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's

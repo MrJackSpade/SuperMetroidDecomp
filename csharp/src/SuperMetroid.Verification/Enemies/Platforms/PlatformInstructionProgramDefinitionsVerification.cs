@@ -36,13 +36,13 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         PlatformProgramCase[] cases =
         [
             new(true, true, PlatformHorizontalMovement.Left,
-                PlatformSegment.KamerMovingLeft),
+                PlatformSegment.KamerHeadingLeft),
             new(true, true, PlatformHorizontalMovement.Right,
-                PlatformSegment.KamerMovingRight),
+                PlatformSegment.KamerHeadingRight),
             new(true, false, PlatformHorizontalMovement.Left,
-                PlatformSegment.KamerStillLeft),
+                PlatformSegment.KamerHeadingLeft),
             new(true, false, PlatformHorizontalMovement.Right,
-                PlatformSegment.KamerStillRight),
+                PlatformSegment.KamerHeadingRight),
             new(false, true, PlatformHorizontalMovement.Left,
                 PlatformSegment.TripperMovingLeft),
             new(false, true, PlatformHorizontalMovement.Right,
@@ -69,8 +69,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == PlatformHorizontalMovement.Left
-                    ? PlatformSegment.KamerStillLeft
-                    : PlatformSegment.KamerStillRight
+                    ? PlatformSegment.KamerHeadingLeft
+                    : PlatformSegment.KamerHeadingRight
                 : testCase.Direction == PlatformHorizontalMovement.Left
                     ? PlatformSegment.TripperStillMovingLeft
                     : PlatformSegment.TripperStillMovingRight;
@@ -168,9 +168,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
             foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
-                AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
-                    NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, direction)),
+                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == PlatformHorizontalMovement.Left ? left : right),
+                    PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, direction),
                     $"platform initial program faces {direction}");
         }
     }
@@ -191,9 +190,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
             foreach (PlatformHorizontalMovement direction in Enum.GetValues<PlatformHorizontalMovement>())
-                AssertEqual(direction == PlatformHorizontalMovement.Left ? left : right,
-                    NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, direction)),
+                AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == PlatformHorizontalMovement.Left ? left : right),
+                    PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, direction),
                     $"platform animation program uses species, motion and direction {direction}");
         }
     }

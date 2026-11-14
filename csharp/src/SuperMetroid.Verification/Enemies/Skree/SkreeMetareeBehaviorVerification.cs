@@ -24,8 +24,7 @@ internal static class SkreeMetareeBehaviorVerification
         foreach (bool metaree in new[] { false, true })
         {
             string species = metaree ? "Metaree" : "Skree";
-            Func<SkreeMetareeAnimationPhase, SkreeMetareeSegment> program = metaree ? SkreeMetareeAnimationChoices.MetareeAnimation : SkreeMetareeAnimationChoices.SkreeAnimation;
-            SkreeMetareeSegment idle = program(SkreeMetareeAnimationPhase.Idling);
+            SkreeMetareeSegment idle = metaree ? SkreeMetareeSegment.MetareeIdling : SkreeMetareeSegment.SkreeIdling;
             (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationPlayback<SkreeMetareeSegment>> current, Action<SkreeMetareeSegment> start, Func<bool> attackReady) = Create(metaree);
             AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(idle), current().Animation) &&
                 current().Place == AnimationPlace.StartOfAnimation, $"{species} starts idling");
@@ -33,7 +32,7 @@ internal static class SkreeMetareeBehaviorVerification
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, idle)), $"{species} idle loop");
 
             (enemies, slot, current, start, attackReady) = Create(metaree);
-            SkreeMetareeSegment windUp = program(SkreeMetareeAnimationPhase.PreparingAttack);
+            SkreeMetareeSegment windUp = metaree ? SkreeMetareeSegment.MetareePreparingAttack : SkreeMetareeSegment.SkreePreparingAttack;
             start(windUp);
             int[] holds = [16, 8];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkreeMetareeAnimationsConstants.Spritemaps(windUp), holds),
@@ -43,7 +42,7 @@ internal static class SkreeMetareeBehaviorVerification
             AssertTrue(attackReady(), $"{species} wind-up flags the attack ready");
 
             (enemies, slot, current, start, _) = Create(metaree);
-            SkreeMetareeSegment dive = program(SkreeMetareeAnimationPhase.Diving);
+            SkreeMetareeSegment dive = metaree ? SkreeMetareeSegment.MetareeDiving : SkreeMetareeSegment.SkreeDiving;
             // The dive's cue phase runs on into the loop it then repeats.
             SkreeMetareeSegment diveLoop = SkreeMetareeAnimations.StartingWith(dive).Phases[^1].Segment;
             start(dive);

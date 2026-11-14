@@ -4,8 +4,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomirePowerBombReactions
 {
     /// <summary>Selects the reaction animation for the frame shown, rejecting skeleton frames, which never take one.</summary>
-    internal static CrocomireBodySegment ForFrame(CrocomireBodyFrame frame) =>
-        frame.Set == CrocomireBodyFrameSet.Body && (uint)frame.Index < (uint)CrocomirePowerBombReactionDefinitions.ByBodyFrame.Length
-            ? CrocomirePowerBombReactionDefinitions.ByBodyFrame[frame.Index]
-            : throw new InvalidDataException($"Crocomire power-bomb frame {frame} has no compiled reaction.");
+    internal static CrocomireBodySegment ForFrame(CrocomireBodyFrame frame) => frame.Mouth switch
+    {
+        CrocomireMouth.Closed => CrocomireBodySegment.PowerBombReactionMouthNotOpen,
+        CrocomireMouth.PartlyOpen => CrocomireBodySegment.PowerBombReactionMouthPartiallyOpen,
+        CrocomireMouth.FullyOpen => CrocomireBodySegment.PowerBombReactionMouthFullyOpen,
+        null => throw new InvalidDataException($"Crocomire power-bomb frame {frame} has no compiled reaction."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMouth)} {frame.Mouth}."),
+    };
 }

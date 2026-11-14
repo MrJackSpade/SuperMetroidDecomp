@@ -27,7 +27,7 @@ internal static class CrocomireBodyVisualsVerification
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
     internal static void VerifyCrocomireBodyFrameGeometry(CartridgeImportAddressSpace rom)
     {
-        var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
+        var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(skeleton: false));
         AssertEqual(50, original.Count, "native body frame selection count");
         AssertEqual(50, CrocomireBodyVisualDefinitionsConstants.Frames.Count, "calculated body frame count");
         ushort[] expected = original.ToArray();
@@ -53,7 +53,7 @@ internal static class CrocomireBodyVisualsVerification
     /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
     internal static void VerifyCrocomireBg2GeneratedCatalog(CartridgeImportAddressSpace rom)
     {
-        var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)
+        var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(skeleton: false)
             .Where(CrocomireBodyVisualDefinitionsConstants.HasBg2));
         SpritemapFrameDefinition[] expected = pointers.Select(pointer =>
             new SpritemapFrameDefinition(pointer, $"crocomire_body_bg2_{pointer:X4}")).ToArray();

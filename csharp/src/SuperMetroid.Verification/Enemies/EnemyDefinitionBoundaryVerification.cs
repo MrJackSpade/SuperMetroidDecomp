@@ -205,12 +205,12 @@ internal static class EnemyDefinitionBoundaryVerification
     }
 
     /// <summary>Compares all Crocomire frame mouth selections used for Power Bomb reactions with ROM.</summary>
-    private static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
+    internal static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
     {
         int tested = 0;
         for (int index = 0; index < CrocomireBodyVisualDefinitions.BodyFrameCount; index++)
         {
-            var frame = new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, index);
+            CrocomireBodyFrame frame = CrocomireBodyFramesTooling.BodyOrder[index];
             CrocomireBodySegment expected = CrocomireBodySegment.PowerBombReactionMouthNotOpen;
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFramesTooling.Spritemap(frame)));
             for (int i = 0; i < count; i++)
@@ -224,7 +224,7 @@ internal static class EnemyDefinitionBoundaryVerification
         }
         AssertEqual(50, tested, "all Crocomire reaction frames");
         AssertThrows<InvalidDataException>(() => CrocomirePowerBombReactions.ForFrame(
-            new CrocomireBodyFrame(CrocomireBodyFrameSet.Skeleton, 0)), "a skeleton frame takes no power-bomb reaction");
+            CrocomireBodyFrame.SkeletonFallingFirst), "a skeleton frame takes no power-bomb reaction");
     }
 
     /// <summary>Checks extracted RGB5 colors and invalid color and JSON rejection.</summary>

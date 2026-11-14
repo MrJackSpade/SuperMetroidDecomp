@@ -145,6 +145,17 @@ the picture's place in pixels. A number that counts the noun after it (`a statio
 later`), an area number past the game's eight areas, a family's own animation frames by decimal ordinal (`Pose 3 of the
 wave trail`) and a position by X or Y that no part is placed by stay English.
 
+SME6454 also reads the original's routine slots for Samus (#1794). In every type it reports the timer/hack handler the
+original called after her movement (`timer/hack handler`, `movement/hack handlers`, `hack handling`, `the timer hack`)
+and `gamma`, the name a reading of the original gave that slot's routines (`grab gamma`). Core names who moves her, a
+`SamusMovementOwner` that each owner takes by naming itself (`SamusMovementHandOver`), and the check that runs after her
+movement (Draygon's escape, the drained get-up); a colour's gamma correction, curve or value and another hack stay
+English. Outside hardware owners it reports a compound name a comment sets as code (`<c>MoveSamusWithDraygon</c>`,
+`<c>Power.UpRight</c>`) even where a Core member still spells it: Core cites its own code with `see cref`, `paramref` or
+`typeparamref`, which the compiler resolves, so a name set as code is the original's routine label. An expression set as
+code (`<c>InitialAngle - 32</c>`), a quoted string such as an installed key (`<c>"Power.UpRight"</c>`) and a one-word
+name stay legal.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

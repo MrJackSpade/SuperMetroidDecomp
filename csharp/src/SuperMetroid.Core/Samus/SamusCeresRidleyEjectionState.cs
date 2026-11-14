@@ -6,18 +6,19 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The two-stage Samus handler installed by Ceres Ridley's turning-floor getaway.
+/// The two-stage shove Ceres Ridley's turning-floor getaway gives Samus, which holds her movement
+/// (<see cref="SamusMovementOwner.CeresRidleyEjection"/>).
 /// </summary>
 /// <remarks>
 /// The request is made from room-main code, after Samus has already moved for that
-/// frame, so the installed handler first runs on the following gameplay frame.
+/// frame, so the shove first moves her on the following gameplay frame.
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
     /// <summary>Signed whole-pixel downward speed threshold during Ridley's shove.</summary>
     private const int TerminalDownwardSpeed = 5;
 
-    /// <summary>True while the shove's handlers own Samus movement.</summary>
+    /// <summary>True while the shove holds Samus's movement.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>True until the first shove call installs pose and velocity.</summary>
@@ -30,8 +31,8 @@ public sealed class SamusCeresRidleyEjectionState
     public CeresRidleyShoveDirection PushDirection { get; private set; }
 
     /// <summary>
-    /// Sets Samus to be pushed out of Ceres Ridley's way: installs the handlers
-    /// that the following gameplay frame executes.
+    /// Sets Samus to be pushed out of Ceres Ridley's way: the shove takes her movement
+    /// from the following gameplay frame.
     /// </summary>
     public void Request(SamusState samus)
     {
@@ -39,23 +40,22 @@ public sealed class SamusCeresRidleyEjectionState
         IsActive = true;
         InitializationPending = true;
 
-        // The shove replaces Samus's one movement handler. An
+        // The shove takes Samus's movement. An
         // uncrashed ordinary spark consequently keeps its boost as Blue Suit. If
-        // the replaced handler was Crystal Flash's raise/drain/finish, its
-        // independent suit colouring and empty pose-input handler survive instead. Neither
+        // Crystal Flash's raise/drain/finish held her, its
+        // independent suit colouring and its lock on her pose input survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
-        samus.Shinespark.RelinquishMovementHandler();
-        samus.CrystalFlash.RelinquishMovementHandler();
+        SamusMovementHandOver.To(samus, SamusMovementOwner.CeresRidleyEjection);
 
-        // Replaces only MovementHandler. The ordinary pose-input handler stays
-        // installed: held controller chords are still matched, projectile/HUD input still
+        // Takes only her movement. Her ordinary pose input stays: held controller chords
+        // are still matched, projectile/HUD input still
         // runs, and the shove specifically discards a prospective damage boost
         // while the shove remains active. Runtime owns that narrow prospective-pose clear.
-        // Do not install a locked handler pair here; doing so changes controller
+        // Do not lock her control here; doing so changes controller
         // semantics and made this cutscene indistinguishable from an elevator/message lock.
     }
 
-    /// <summary>Executes one shove handler call.</summary>
+    /// <summary>Runs one update of the shove.</summary>
     public CeresRidleyEjectionResult Step(
 
         RoomLevelData level,
@@ -82,7 +82,7 @@ public sealed class SamusCeresRidleyEjectionState
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
             SamusPresentation.InitializeAnimation(samus);
-            // The gamma initialization owns this shift. Request/BeginFrame must
+            // The shove's first update owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWrappedWholeY(
@@ -96,7 +96,7 @@ public sealed class SamusCeresRidleyEjectionState
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
 
-            // Initializes only handler state on this call. The shove does not
+            // Initializes only the shove's state on this call. The shove does not
             // perform the first collision/movement pass until the following frame.
             return new CeresRidleyEjectionResult();
         }
@@ -117,11 +117,11 @@ public sealed class SamusCeresRidleyEjectionState
             // Moving left or right ends by killing X speed when a collision is detected,
             // which cancels speed boosting and clears the extra-run speed as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-            // Restore the ordinary handlers, then
-            // The knockback's vertical collision sees the still-set collision flag,
+            // Return her movement to her pose. Then
+            // the knockback's vertical collision sees the still-set collision flag,
             // clears the movement and aligns the feet to the previous pose. The push
             // never sets knockback direction, so the knockback check does not convert the
-            // hurt pose; the knockback pose remains for the ordinary movement handler.
+            // hurt pose; the knockback pose remains for her pose's own movement.
             IsActive = false;
             PushDirection = CeresRidleyShoveDirection.None;
             samus.Kinematics.YSpeed = default;

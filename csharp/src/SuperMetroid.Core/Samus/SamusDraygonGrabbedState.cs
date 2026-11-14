@@ -6,13 +6,13 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Exact Samus-owned half of the grabbed-by-Draygon route and
+/// Exact Samus-owned half of Draygon's hold (<see cref="SamusMovementOwner.DraygonHold"/>) and
 /// the Draygon-held movement type.
 /// </summary>
 /// <remarks>
 /// Draygon is an enemy actor, so its AI computes the boss's flight position and then
-/// calls <c>MoveSamusWithDraygon</c>. This object deliberately accepts that actor position
-/// as an explicit input. It does not fabricate an enemy trajectory inside Samus physics.
+/// carries Samus to it. This object deliberately accepts
+/// that actor position as an explicit input. It does not fabricate an enemy trajectory inside Samus physics.
 /// Everything after that boundary—the signed claw offset, pose family, escape counter,
 /// release pose, velocity cleanup, and movement-type side effect—is modelled here.
 /// </remarks>
@@ -21,17 +21,26 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Escape threshold.</summary>
     public const int EscapeButtonCounterTarget = 60;
 
-    /// <summary>True while the escape handler is installed as Samus's timer/hack handler.</summary>
+    /// <summary>
+    /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
+    /// movements and counts her D-pad presses.
+    /// </summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Another behaviour replaced the empty movement handler without removing grab gamma.</summary>
-    public bool MovementHandlerReplaced { get; private set; }
+    /// <summary>
+    /// Whether another owner has taken Samus's movement while Draygon still holds her: the escape check keeps counting,
+    /// but the hold no longer keeps her still.
+    /// </summary>
+    public bool MovementTakenOver { get; private set; }
 
-    /// <summary>True only while the grab's empty handler still owns movement.</summary>
-    public bool OwnsMovement => IsActive && !MovementHandlerReplaced;
+    /// <summary>True only while the hold still keeps Samus still, before any other owner takes her movement.</summary>
+    public bool OwnsMovement => IsActive && !MovementTakenOver;
 
-    /// <summary>Preserves grab gamma while a newer movement behaviour replaces the empty handler.</summary>
-    internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
+    /// <summary>
+    /// Ends the hold's keeping Samus still when a newer owner takes her movement (<see cref="SamusMovementHandOver"/>),
+    /// while the hold and its escape check continue.
+    /// </summary>
+    internal void RelinquishMovement() => MovementTakenOver = true;
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
     private readonly SharedEscapeAndDrainCount _escapePresses;
@@ -55,8 +64,8 @@ public sealed class SamusDraygonGrabbedState
     public ControllerButton PreviousDpadInput { get; private set; }
 
     /// <summary>
-    /// Set by the release, the signal Draygon reads when Samus breaks free. Draygon's
-    /// next <c>MoveSamusWithDraygon</c> call consumes the signal and starts flying upward.
+    /// Set by the release, the signal Draygon reads when Samus breaks free. The next time
+    /// Draygon carries Samus, it consumes the signal and starts flying upward.
     /// </summary>
     public bool ReleasePublishedToOwner { get; private set; }
 
@@ -74,11 +83,11 @@ public sealed class SamusDraygonGrabbedState
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         IsActive = true;
-        MovementHandlerReplaced = false;
+        MovementTakenOver = false;
         _escapePresses.ClearEscapePresses();
-        // Grab installs an empty movement handler, but leaves the Flash palette and its shared
+        // The grab takes Samus's movement and keeps her still, but leaves the Flash palette and its shared
         // shine timer alive. A later release must not resume Flash draining.
-        samus.CrystalFlash.RelinquishMovementHandler();
+        SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
@@ -89,7 +98,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs <c>MoveSamusWithDraygon</c> after enemy AI has updated the
+    /// Places Samus where Draygon carries her, after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
     /// Samus who has just escaped, until it consumes the escape flag right after this placement.
@@ -129,7 +138,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the escape handler: optionally suppress the already-selected input transition while a
+    /// Runs the escape check after Samus's movement: optionally suppress the already-selected input transition while a
     /// grapple is locked in place, then count a newly pressed D-pad pattern only when it is
     /// nonzero and different from the last counted pattern.
     /// </summary>
@@ -176,10 +185,9 @@ public sealed class SamusDraygonGrabbedState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
-        // Death calls this even when Samus was never grabbed. Installing normal
-        // movement interrupts a spark without resetting its independent boost/palette.
-        samus.Shinespark.RelinquishMovementHandler();
-        samus.CrystalFlash.RelinquishMovementHandler();
+        // Death calls this even when Samus was never grabbed. Returning her movement to her
+        // pose interrupts a spark without resetting its independent boost/palette.
+        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.DraygonHold);
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose step to observe the standing pose.
@@ -203,17 +211,17 @@ public sealed class SamusDraygonGrabbedState
         return published;
     }
 
-    /// <summary>Rejects escape-handler calls before Draygon installs Samus's grab state.</summary>
+    /// <summary>Rejects escape checks before Draygon grabs Samus.</summary>
     private void EnsureActiveGrabbedPose()
     {
         if (!IsActive)
         {
             throw new InvalidOperationException(
-                "Draygon owner/hack handling requires SetSamusIntoTheGrabbedByDraygonPose first.");
+                "Draygon's escape check requires Draygon to have grabbed Samus first.");
         }
 
-        // Gamma and the enemy's placement of Samus are independent of the pose
-        // and movement handler. Crystal Flash can replace both while still held.
+        // The escape check and the enemy's placement of Samus are independent of her pose
+        // and of who moves her. Crystal Flash can take both while she is still held.
     }
 
     /// <summary>Requires a pose of the Draygon-held movement type before running Draygon-held movement.</summary>

@@ -7,14 +7,14 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Crystal Flash's three movement handlers: raising, the main bubble phase, and the
-/// ending.
+/// Crystal Flash's three phases of moving Samus (<see cref="SamusMovementOwner.CrystalFlash"/>): raising, the main
+/// bubble phase, and the ending.
 /// </summary>
 /// <remarks>
 /// Crystal Flash is unusual even among Samus's scripted movement states. The game
 /// attempts it only when the power-bomb explosion centred on Samus finishes; successful
-/// initiation then replaces both the normal pose-input handler and the normal movement
-/// handler. Keeping that handler as <see cref="Phase"/> prevents <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/>
+/// initiation then takes both her pose input and her movement from her pose. Keeping that
+/// hold as <see cref="Phase"/> prevents <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/>
 /// from accidentally inheriting invented special-movement physics.
 /// </remarks>
 public sealed class SamusCrystalFlashState
@@ -22,7 +22,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
     public const ControllerButton RequiredInputWithoutShot = ControllerButtons.CrystalFlashWithoutShot;
 
-    /// <summary>The Crystal Flash movement handler currently installed.</summary>
+    /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
     public CrystalFlashPhase Phase { get; private set; }
 
     /// <summary>Initialized to nine for the ten two-pixel raise frames.</summary>
@@ -44,11 +44,14 @@ public sealed class SamusCrystalFlashState
     /// <param name="ammoCountdown">Samus's shared escape and drain count.</param>
     internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown) => _ammoCountdown = Ensure.NotNull(ammoCountdown);
 
-    /// <summary>Replaces the movement handler without clearing the live Flash palette/timer.</summary>
-    internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
+    /// <summary>
+    /// Ends Crystal Flash's hold on Samus's movement when another owner takes it (<see cref="SamusMovementHandOver"/>),
+    /// without clearing the live Flash palette/timer.
+    /// </summary>
+    internal void RelinquishMovement() => Phase = CrystalFlashPhase.Inactive;
 
     /// <summary>Another special suit colouring takes over from Crystal Flash's, along with its running timer.</summary>
-    internal void RelinquishPaletteHandler()
+    internal void RelinquishSuitColouring()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
         BubbleTimer = 0;
@@ -56,8 +59,8 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Samus's room position captured after the complete 20-pixel rise. Only the Y axis is meaningful: the finish
-    /// handler compares Samus's whole Y with it through the wrapped spatial difference and walks her down one
+    /// Samus's room position captured after the complete 20-pixel rise. Only the Y axis is meaningful: the finishing
+    /// phase compares Samus's whole Y with it through the wrapped spatial difference and walks her down one
     /// pixel per call while they differ.
     /// </summary>
     public Position16<RoomPixels> RaisedPosition { get; private set; }
@@ -109,14 +112,14 @@ public sealed class SamusCrystalFlashState
     /// <summary>
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
     /// </summary>
-    /// <param name="samus">Live actor whose admission state is checked and whose pose, handler ownership, shared timers, and hit state are updated on success.</param>
+    /// <param name="samus">Live actor whose admission state is checked and whose pose, movement owner, shared timers, and hit state are updated on success.</param>
     /// <param name="controllerInput">The held buttons; ordinary admission requires exactly Down, L, R and the Shot button held.</param>
     /// <param name="shotBinding">The button bound to Shot, defaulting to X; a binding that names no button is rejected.</param>
     /// <param name="inputCheck">
     /// True only while a title demo is ending and the game is returning from it. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make initiation fail.
     /// </param>
-    /// <returns>True after installing the raising handler; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
+    /// <returns>True after starting the raising phase; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidDataException">The held buttons or the Shot binding name something that is not a button, or the Crystal Flash pose no longer has special movement.</exception>
     public bool TryBegin(
@@ -158,22 +161,21 @@ public sealed class SamusCrystalFlashState
             throw new InvalidDataException("The Crystal Flash poses no longer have the special movement type.");
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Successful activation publishes history directly, before
-        // installing its movement handler. Rejected activation must not shift it.
+        // taking Samus's movement. Rejected activation must not shift it.
         samus.CommitPoseHistory();
 
-        // Crystal Flash reuses shinespark state but installs a distinct movement handler. The
+        // Crystal Flash reuses shinespark state but moves Samus by its own phases. The
         // states stay separate so Crystal Flash is never mistaken for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
         // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still takes over
         // Samus's special suit colouring. Keep the greyout; release only X-ray's suit
         // colouring so Crystal Flash's colouring alone colours Samus.
-        samus.Xray.RelinquishPaletteHandler();
-        samus.DraygonGrabbed.RelinquishMovementHandler();
+        samus.Xray.RelinquishSuitColouring();
         // Flash admission can occur after the Super Metroid has already installed drained
-        // crouching art. Crystal Flash then replaces that pose/movement owner; if the drained state kept
-        // its synthetic Drained phase alive, it would re-lock Samus after Flash completed
+        // crouching art, or while Draygon holds Samus. Crystal Flash takes her movement from both; if the
+        // drained state kept its Drained phase alive, it would re-lock Samus after Flash completed
         // instead of reproducing the documented adjacent timing that frees the stun.
-        samus.Drained.RelinquishMovementHandler();
+        SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseTimer = 9;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
@@ -195,19 +197,19 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
-    /// <summary>Executes one active handler call in the movement position.</summary>
-    /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
+    /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
+    /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
     /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this call changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
+    /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,
         int frameCounter)
     {
         Ensure.NotNull(samus);
         if (Phase == CrystalFlashPhase.Inactive)
-            throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
+            throw new InvalidOperationException("Crystal Flash does not hold Samus's movement.");
 
         CrystalFlashPhase phaseAtStart = Phase;
 
@@ -219,7 +221,7 @@ public sealed class SamusCrystalFlashState
 
             case CrystalFlashPhase.DrainingAmmo:
                 StepAmmoDrain(samus, frameCounter);
-                // The wrapper clears both values after calling the ammo handler,
+                // The main phase clears both values after each ammunition drain,
                 // including its seven no-drain frames and the final phase-changing call.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
                 samus.KnockbackTimer = 0;
@@ -246,11 +248,11 @@ public sealed class SamusCrystalFlashState
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
         // The game initializes nine, then decrements and checks for a count below zero. Values 8..0 return; the tenth call runs
-        // past zero and installs the main handler after completing its Y move.
+        // past zero and starts the main bubble phase after completing its Y move.
         if (--RaiseTimer >= 0)
             return;
 
-        // The delay animation is already on its raise loop, but the movement handler forces
+        // The delay animation is already on its raise loop, but the raise forces
         // frame six and timer three so main art begins on this precise transition frame.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 6, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
@@ -305,7 +307,7 @@ public sealed class SamusCrystalFlashState
             return;
         }
 
-        // The ammo handler switches to finish art directly; it does not wait for the main
+        // The ammunition drain switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a cue.
         Phase = CrystalFlashPhase.Finishing;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);

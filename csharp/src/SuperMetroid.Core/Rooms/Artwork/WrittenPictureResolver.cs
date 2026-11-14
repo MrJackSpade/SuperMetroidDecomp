@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// Resolves what pictures written over a room's layers show (#1392, #1466): each written picture's frame in the room's
 /// written picture sheet for the values the appearance inputs it depends on take now, where it was written (#1514). The
-/// effect overlay's page is resolved from the same kind of sheet (<c>FxOverlayPictureResolution</c>).
+/// effect overlay's page is resolved from the same kind of sheet.
 /// </summary>
 public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
 {

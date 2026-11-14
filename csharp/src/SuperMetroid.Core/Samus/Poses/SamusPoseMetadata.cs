@@ -174,13 +174,12 @@ internal static class SamusPoseMetadata
     public static void SetupForElevator(SamusState samus)
     {
         ApplyForwardFacingPoseSetup(samus);
-        // The elevator setup replaces both physical movement/input handlers. An uncrashed
+        // The elevator setup takes both Samus's movement and her pose input. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent palette timer. Neither movement owner
         // may resume after elevator travel; the setup restores ordinary pose input.
-        samus.Shinespark.RelinquishMovementHandler();
+        SamusMovementHandOver.To(samus, SamusMovementOwner.Elevator);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        samus.CrystalFlash.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.Control.LockHandlers();
     }
@@ -751,16 +750,14 @@ internal static class SamusPoseMetadata
     /// <summary>Arms the published bomb jump.</summary>
     internal static void ArmPublishedBombJump(SamusState samus)
     {
-        // Arming the bomb jump replaces, rather than suspends, the movement handler.
-        // A suit-interrupted spark may still own it despite the ordinary body pose.
+        // Arming the bomb jump takes, rather than suspends, Samus's movement.
+        // A suit-interrupted spark may still hold it despite the ordinary body pose.
         // Keep its independently running palette/boost state, but never resume it
-        // when the bomb arc restores normal movement and input.
-        samus.Shinespark.RelinquishMovementHandler();
+        // when the bomb arc returns her movement and input to her pose. The same
+        // applies when suit pickup suspended Flash: its palette keeps running, but its
+        // raising/drain must never resume after the bomb arc.
+        SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        // The same handler replacement applies when suit pickup suspended Flash.
-        // Its palette keeps running, but its raising/drain handler must never
-        // resume after the bomb arc returns control to normal movement.
-        samus.CrystalFlash.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.BombJumpRequest = samus.BombJumpRequest.Accept();
         samus.BombJumpStarting = true;

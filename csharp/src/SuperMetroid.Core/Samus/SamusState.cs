@@ -129,7 +129,7 @@ public sealed class SamusState
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
     /// <summary>
-    /// Stored-shine palette countdown and the special shinespark movement-handler state.
+    /// Stored-shine palette countdown and the shinespark's hold on her movement.
     /// Its fields are the values documented on
     /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
@@ -150,8 +150,8 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Crystal Flash initiation, ammo cadence, energy restoration, and installed handler
-    /// state. It is deliberately separate from <see cref="Shinespark"/> even though the
+    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
+    /// movement. It is deliberately separate from <see cref="Shinespark"/> even though the
     /// game shares a few values between the mutually exclusive effects.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; }
@@ -164,25 +164,25 @@ public sealed class SamusState
 
     /// <summary>
     /// Fatal-damage death-pose ownership, death pictures/palettes, whiteout, and suit explosion.
-    /// The outer music wait and post-explosion room fade are the death game states' (<c>DeathGamePhases</c>).
+    /// The outer music wait and post-explosion room fade belong to the death game states.
     /// </summary>
     public SamusDeathSequenceState DeathSequence { get; } = new();
 
     /// <summary>
-    /// Mother Brain/Baby Metroid drain poses, the drain's operations, and installed falling
-    /// movement handler. Enemy AI remains the separate caller of these drain operations.
+    /// Mother Brain/Baby Metroid drain poses, the drain's operations, and the drained
+    /// fall. Enemy AI remains the separate caller of these drain operations.
     /// </summary>
     public SamusDrainedState Drained { get; } = new();
 
     /// <summary>
-    /// The grabbed-pose hack handler and the narrow owner-position seam.
+    /// Draygon's hold: the grabbed poses, the escape check and the narrow owner-position seam.
     /// Draygon's enemy AI owns its own flight path; this child owns every Samus-side value.
     /// </summary>
     public SamusDraygonGrabbedState DraygonGrabbed { get; }
 
     /// <summary>
-    /// Ceres Ridley's dedicated push/fall handler. This is not ordinary damage
-    /// knockback: the shove replaces the movement and gamma handlers without
+    /// Ceres Ridley's dedicated push and fall. This is not ordinary damage
+    /// knockback: the shove takes her movement without
     /// consuming energy, and owns Samus until horizontal room collision.
     /// Keeping that lifetime separate prevents the five-frame hurt timer from ending the
     /// scripted ejection early or making normal controller input steer it.
@@ -363,13 +363,13 @@ public sealed class SamusState
     /// </summary>
     public SamusBombJumpRequest BombJumpRequest { get; set; }
 
-    /// <summary>True for the bomb jump's one-frame velocity-initialization handler.</summary>
+    /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
     public bool BombJumpStarting { get; set; }
 
-    /// <summary>True while the bomb jump's main handler owns the rising arc.</summary>
+    /// <summary>True while the bomb jump moves Samus along its rising arc (<see cref="SamusMovementOwner.BombJump"/>).</summary>
     public bool BombJumpActive { get; set; }
 
-    /// <summary>The bomb jump installed an empty pose-input handler; independent of the current movement handler.</summary>
+    /// <summary>The bomb jump locked her pose input; independent of who moves her now.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
     /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
@@ -401,7 +401,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Initialized to five by enemy damage collision and decremented once
-    /// per enemy-processing pass. The special handler owns movement only while
+    /// per enemy-processing pass. The knockback holds her movement only while
     /// this counter remains nonzero.
     /// </summary>
     public int KnockbackTimer { get; set; }
@@ -409,7 +409,7 @@ public sealed class SamusState
     /// <summary>
     /// Decrements Samus's two own hurt timers.
     /// This deliberately lives outside every individual movement
-    /// handler: grapple spikes can start the timers without installing knockback movement,
+    /// owner: grapple spikes can start the timers without installing knockback movement,
     /// and the gameplay tail ages them even while time is frozen.
     /// </summary>
     public void DecrementHurtTimers()
@@ -436,7 +436,7 @@ public sealed class SamusState
     public SamusVisorPaletteState VisorPalette { get; } = new();
 
     /// <summary>
-    /// Whether Samus's knockback movement handler is running. It is separate from
+    /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>
     public bool KnockbackActive { get; set; }

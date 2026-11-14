@@ -38,7 +38,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// the 8.8 and 16.16 format names. #1765 adds the original's menu and table indexes and its enemy record. #1769 adds the
 /// original's numbered routine and variable labels, read in every type, and, outside hardware owners, its game state,
 /// load station, area and pose numbers, its sound queues named for their limits and its sprite parts' stored placement and
-/// colour data.
+/// colour data. #1794 adds the original's routine slots for Samus, the timer/hack handler and gamma, read in every type,
+/// and, outside hardware owners, a compound name a comment sets as code instead of citing it.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -298,6 +299,31 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original program's routine slots for Samus in prose (#1794), read in every Core type: the timer/hack handler
+    /// the original called after her movement (a hack handler, hack-handler, hack handling or hack owner, the timer hack, a
+    /// slot written after a slash: movement/hack handlers, owner/hack handling) and gamma, the name a reading of the
+    /// original gave that slot's routines (grab gamma, the gamma initialization). Core names the ability that holds her
+    /// (<c>SamusMovementOwner</c>) and the check that runs after her movement (Draygon's escape, the drained get-up). English
+    /// stays legal: a hack that is not that slot (a neutral-jump hack, a visual hack) and a colour's gamma correction,
+    /// curve, ramp, space or value.
+    /// </summary>
+    private static readonly Regex RoutineSlotProse = new(
+        @"/\s*hack\b|\btimer[-\s]+hacks?\b|\bhack[-\s]+(?:handl(?:ers?|ing)|owners?)\b" +
+        @"|\bgamma\b(?![-\s]+(?:correct\w*|curves?|ramps?|space|encod\w*|decod\w*|values?)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A documentation code element holding one name (#1794): <c>&lt;c&gt;MoveSamusWithDraygon&lt;/c&gt;</c>,
+    /// <c>&lt;c&gt;Power.UpRight&lt;/c&gt;</c>, <c>&lt;c&gt;CalculateAngleFromXY()&lt;/c&gt;</c>. Core cites its own code
+    /// with <c>see cref</c>, <c>paramref</c> or <c>typeparamref</c>, which the compiler resolves, so a compound name set as
+    /// code is the original program's routine label, even where a Core member that ported the routine still spells it. An
+    /// expression or several words set as code (<c>InitialAngle - 32</c>), a quoted string such as an installed file's key
+    /// (<c>"Power.UpRight"</c>) and a name of one word (<c>Boyon</c>) are not read.
+    /// </summary>
+    private static readonly Regex CodeElementName = new(
+        @"<c>\s*(?<name>[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)(?:\(\))?\s*</c>", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// The C reimplementation of the original in prose (#1754), read in every Core type and case-sensitively for the
     /// language's letter: the upstream C rewrite and its bugfixes (upstream C, upstream C's), and the C port, rewrite,
     /// reimplementation, version, code, source or decompilation. Core is the game; another program's reading of the
@@ -553,7 +579,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), the
-    /// original's call structure (<see cref="CallStructureProse"/>) or the C reimplementation
+    /// original's call structure (<see cref="CallStructureProse"/>), its routine slots (<see cref="RoutineSlotProse"/>) or the C reimplementation
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals.
@@ -564,6 +590,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
             : CallStructureProse.Match(text) is { Success: true } call ? call.Value
+            : RoutineSlotProse.Match(text) is { Success: true } slot ? slot.Value
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : IsInHardwareOwner(owner) ? null
@@ -618,8 +645,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// A comment's routine label, underscore-joined or compound, its memory symbol, or its hexadecimal literal; null when it
-    /// has none.
+    /// A comment's routine label, underscore-joined, set as code (<see cref="CodeElementName"/>) or compound, its memory
+    /// symbol, or its hexadecimal literal; null when it has none.
     /// </summary>
     private static string? CommentOnlyFinding(string text, Lazy<ImmutableHashSet<string>> codeNames)
     {
@@ -627,6 +654,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             return label.Value;
         if (HexLiteral.Match(text) is { Success: true } literal)
             return literal.Value;
+        foreach (Match code in CodeElementName.Matches(text))
+        {
+            string name = code.Groups["name"].Value;
+            if (CompoundName.IsMatch(name))
+                return name;
+        }
         string prose = Markup.Replace(text, " ");
         foreach (Match symbol in MemorySymbol.Matches(prose))
         {

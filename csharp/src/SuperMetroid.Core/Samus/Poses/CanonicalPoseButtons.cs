@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
 /// The canonical action and direction buttons the transition tables name; combinations are required chords.
-/// The values are arbitrary bits: <c>SamusPoseInputDefinitions</c> maps each to the controller button standing for it.
+/// The values are arbitrary bits: <see cref="SamusPoseInputDefinitions"/> maps each to the controller button standing for it.
 /// </summary>
 [Flags]
 internal enum CanonicalPoseButtons

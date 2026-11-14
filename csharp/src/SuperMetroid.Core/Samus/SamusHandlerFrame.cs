@@ -46,6 +46,12 @@ internal sealed class SamusHandlerFrame
     /// </summary>
     internal SamusControlMode Mode { get; private set; }
 
+    /// <summary>
+    /// Who moves Samus in this frame's movement phase under <see cref="Mode"/>, resolved as the movement phase begins
+    /// (<see cref="SampleMovementOwner"/>).
+    /// </summary>
+    internal SamusMovementOwner MovementOwner { get; private set; }
+
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
     internal bool DeceleratingFallbackHasMomentum { get; private set; }
 
@@ -70,7 +76,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the locked input mode, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
     internal bool ActorLocksPoseInput { get; private set; }
 
-    /// <summary>Whether the posture-transition input step, an empty handler, skips pose input.</summary>
+    /// <summary>Whether the posture-transition input step, which reads no input, skips pose input.</summary>
     internal bool PostureTransitionSkipsPoseInput { get; private set; }
 
     /// <summary>Whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
@@ -112,7 +118,7 @@ internal sealed class SamusHandlerFrame
 
     /// <summary>
     /// Samples what locks pose input: Samus's bomb jump, the live input lock, <paramref name="otherActorLocks"/> (Shinespark,
-    /// Crystal Flash or the elevator), and the posture-transition step's empty handler.
+    /// Crystal Flash or the elevator), and the posture-transition step, which reads no input.
     /// </summary>
     internal void SamplePoseInputLocks(SamusState samus, bool otherActorLocks)
     {
@@ -139,6 +145,9 @@ internal sealed class SamusHandlerFrame
 
     /// <summary>Records whether grapple owns movement.</summary>
     internal void SampleGrappleOwnership(bool owns) => GrappleOwnsMovement = owns;
+
+    /// <summary>Samples who moves Samus in the movement phase, which then runs that owner.</summary>
+    internal void SampleMovementOwner(SamusMovementOwner owner) => MovementOwner = owner;
 
     /// <summary>Replaces the movement mode the frame runs, which an actor's control setup does before it runs.</summary>
     internal void ReplaceMovementMode(SamusMovementMode movement) => Mode = Mode with { Movement = movement };

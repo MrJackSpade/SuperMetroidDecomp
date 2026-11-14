@@ -295,6 +295,15 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { int SamusPose => 0; // SamusPose holds the pose\n }");
         Expect("class P { int Pose(int frameCount) => frameCount; // frameCount counts frames\n }");
         Expect("class P { /// <summary>See <see cref=\"Pose\"/>.</summary>\nint Pose => 0; }");
+        // A compound name set as code is a routine label even when Core spells it, since Core cites its own code with see
+        // cref (#1794); an expression, a one-word name, a cited member and a hardware owner's code element are not read.
+        Expect("class P { int MoveSamusWithDraygon() => 0; /// <summary>Runs <c>MoveSamusWithDraygon</c> after enemy AI.</summary>\nint F => 0; }",
+            "('MoveSamusWithDraygon')");
+        Expect("class P { int CalculateAngleFromXY() => 0; /// <summary>Integer octant form of <c>CalculateAngleFromXY()</c>.</summary>\nint F => 0; }",
+            "('CalculateAngleFromXY')");
+        Expect("enum Power { UpRight }\nclass P { /// <summary>Drawn as <c>Power.UpRight</c>.</summary>\nint F => 0; }", "('Power.UpRight')");
+        Expect("class P { int InitialAngle => 0; /// <summary>Turns to <c>InitialAngle - 32</c>; the <c>Boyon</c> enemy; <see cref=\"InitialAngle\"/>.</summary>\nint F => 0; }");
+        Expect("enum Power { UpRight }\nclass P { /// <summary>Installed as <c>\"Power.UpRight\"</c>.</summary>\nint F => 0; }");
         // Hex literals and compound names are read only in comments.
         Expect("class P { string Name => \"0x10 SpeedEcho\"; }");
         // Routine labels are read only in comments: a string literal's underscore-joined frame name is a presentation key.
@@ -324,6 +333,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; }\n";
         const string CompatibilityService =
             "[System.AttributeUsage(System.AttributeTargets.All)] sealed class CompatibilityServiceAttribute(string behaviour) : System.Attribute { public string Behaviour { get; } = behaviour; }\n";
+        // A hardware owner may set a routine's name as code (#1794); only types outside the owners cite Core's code by cref.
+        Expect(CompatibilityService + "/// <summary>Evidence: <c>GenerateRandomNumber</c> advances it.</summary>\n[CompatibilityService(\"random\")] class Random { }");
         Expect(EncodingOwner + "[EncodingOwner(\"fixed point\")] readonly struct F { /// <summary>Gets the signed native word of the value.</summary>\nint Raw => 0; }",
             "('native word')");
         Expect(EncodingOwner + "[EncodingOwner(\"fixed point\")] readonly struct F { /// <summary>The whole pixels as their unsigned native bit pattern.</summary>\nint W => 0; }",
@@ -412,6 +423,18 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string Name => \"func12 finished.\"; }", "('func12')");
         Expect(CompatibilityService + "/// <summary>Evidence: Func120 clears the flash.</summary>\n[CompatibilityService(\"flash\")] class Flash { }",
             "('Func120')");
+        // The original's routine slots for Samus are read in every type (#1794): the timer/hack handler and gamma.
+        Expect("class P { /// <summary>True while the escape handler is installed as Samus's timer/hack handler.</summary>\nint F => 0; }",
+            "('/hack')");
+        Expect("class P { // The movement handler calls this installed hack handler after movement\n }", "('hack handler')");
+        Expect("class P { // before the timer hack, liquid animation and velocity cleanup\n }", "('timer hack')");
+        Expect("class P { string Name => \"Draygon owner/hack handling requires the grab first.\"; }", "('/hack')");
+        Expect("class P { /// <summary>Preserves grab gamma while a newer movement behaviour takes over.</summary>\nint F => 0; }", "('gamma')");
+        Expect("class P { // The gamma initialization owns this shift\n }", "('gamma')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the shove's gamma runs first.</summary>\n[CompatibilityService(\"shove\")] class Shove { }",
+            "('gamma')");
+        // Another hack and a colour's gamma correction, curve or value are English.
+        Expect("class P { /// <summary>Neutral-jump hacks; not a visual alpha hack; the gamma correction, gamma curve and gamma value.</summary>\nint F => 0; }");
         // C#'s Func delegate and a var declaration carry no number.
         Expect("class P { /// <summary>Takes a Func of the speed; var declarations stay; the variance holds.</summary>\nint F => 0; }");
         // The original's game state, load station and area numbers outside hardware owners (#1769), spaced or hyphenated,

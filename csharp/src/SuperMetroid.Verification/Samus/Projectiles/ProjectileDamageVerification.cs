@@ -262,6 +262,49 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
     }
 
+    /// <summary>
+    /// Checks the combo ring's radius span (#1795, <see cref="ComboRingCollapse"/>): a ring grown past 255 pixels continues
+    /// from the radius past 256, a shrink never passes below zero, and a Plasma ring in its final expansion that is still
+    /// on screen at radius 254 collapses onto Samus through the production update and orbits her two pixels away.
+    /// </summary>
+    internal static void VerifyComboRingCollapsesOntoSamus()
+    {
+        AssertEqual(254, ComboRingCollapse.Grown(250, BeamComboDefinitions.PlasmaRadiusStep), "a ring grows up to the largest radius");
+        AssertEqual(0, ComboRingCollapse.Grown(252, BeamComboDefinitions.PlasmaRadiusStep), "a ring grown to 256 collapses onto Samus");
+        AssertEqual(7, ComboRingCollapse.Grown(ComboRingCollapse.LargestRadius, 8), "an outward Ice ring at 255 continues from 7");
+        AssertEqual(44, ComboRingCollapse.Grown(48, -BeamComboDefinitions.PlasmaRadiusStep), "a contracting ring shrinks");
+        AssertThrows<ArgumentOutOfRangeException>(() => ComboRingCollapse.Grown(2, -BeamComboDefinitions.PlasmaRadiusStep),
+            "a shrink never passes below zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => ComboRingCollapse.Grown(ComboRingCollapse.RadiusSpan, 0),
+            "a radius past the largest is rejected");
+
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+        var shared = new SamusBombProjectileSystem();
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        {
+            Pose = SamusPoseId.FacingRightNormalPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(1024, 1024)),
+            EquippedBeams = SamusBeamFlags.Plasma,
+            SelectedHudItem = HudItem.PowerBomb,
+            PowerBombs = 10,
+        };
+        AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _), "the Plasma special attack activates");
+        SamusProjectile ring = projectiles.Slots[0];
+        ring.PlasmaPhase = PlasmaRingPhase.FinalExpansion;
+        ring.ComboOrbitRadius = 254;
+        // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.
+        Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ring.ComboAngle, 254);
+        projectiles.Combos.StepPlasmaCombo(samus, ring, shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
+        AssertEqual(2, ring.ComboOrbitRadius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
+        TrigonometryAngle angle = ring.ComboAngle;
+        var centredOnSamus = new Position16<RoomPixels>(1024 - 128, 1024 - 112);
+        projectiles.Combos.StepPlasmaCombo(samus, ring, shared, centredOnSamus);
+        AssertEqual(new Position16<RoomPixels>(1024, 1024) + SamusComboMechanics.GetSineOffset(angle, 2), ring.Position.Whole,
+            "the collapsed ring orbits Samus two pixels away");
+        AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ring.ComboOrbitRadius, "the collapsed ring grows outward again");
+        Console.WriteLine("Combo ring: a ring grown past 255 pixels collapses onto Samus and grows outward again.");
+    }
+
     /// <summary>Runs the special-attack angle-step wrap check, which needs no cartridge.</summary>
     [VerificationCommand("--special-beam-angle-step")]
     internal static int SpecialBeamAngleStepCommand()

@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Samus;
 /// Checks the suits' damage division (#1627): Gravity quarters and Varia halves any amount of damage, fractions dropped,
 /// with no word bound on the damage. The hit every enemy, projectile and boss deals through it (#1632) leaves the
 /// energy the suit-shift arithmetic it replaced left, and periodic damage's division gives the replaced 8.8 shift's
-/// result.
+/// result for every whole damage the game reaches, dividing larger whole damage as a whole (#1795).
 /// </summary>
 internal static class SamusSuitDamageVerification
 {
@@ -71,8 +71,9 @@ internal static class SamusSuitDamageVerification
 
     /// <summary>
     /// Compares the periodic damage a suit lets through with the 8.8 shift <c>ApplyPeriodicDamage</c> wrote out
-    /// (#1632), for every fraction, the whole damage across and past the division's 256-point cycle, and each suit
-    /// combination.
+    /// (#1632), for every fraction and each suit combination: every whole damage below 256, all the periodic damage the
+    /// game's producers reach in one update, takes the replaced shift's division, and whole damage of 256 or more is
+    /// divided as a whole instead of losing its points past the lowest eight bits (#1795).
     /// </summary>
     internal static void VerifySamusPeriodicSuitDamage()
     {
@@ -99,7 +100,7 @@ internal static class SamusSuitDamageVerification
                 int expectedWhole = whole, expectedFraction = fraction;
                 if (divisorShift != 0)
                 {
-                    int overlapping = EightEight.FromSixteenSixteen(whole % 256, fraction) >> divisorShift;
+                    int overlapping = EightEight.FromSixteenSixteen(whole, fraction) >> divisorShift;
                     expectedFraction = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlapping));
                     expectedWhole = EightEight.WholeOf(overlapping);
                 }
@@ -115,7 +116,13 @@ internal static class SamusSuitDamageVerification
         long compared = (long)cases * (ushort.MaxValue + 1);
         int mismatches = mismatchesByCase.Sum();
         string? firstMismatch = firstMismatchByCase.FirstOrDefault(mismatch => mismatch is not null);
-        AssertEqual(0, mismatches, $"every periodic damage takes the replaced shift's division ({compared} compared; first mismatch: {firstMismatch})");
-        Console.WriteLine($"Samus periodic suit damage: {compared} damages take the replaced 8.8 shift's division.");
+        AssertEqual(0, mismatches, $"every periodic damage takes the suit's division of the whole damage ({compared} compared; first mismatch: {firstMismatch})");
+        // Past the lowest eight bits the division keeps the whole damage's higher points: the replaced shift took 256
+        // whole points to nothing, and the division now leaves a quarter or a half of them.
+        AssertEqual(new UnsignedSixteenSixteen(64, 0), SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(256, 0), SamusEquipmentFlags.GravitySuit),
+            "Gravity quarters 256 whole points of periodic damage");
+        AssertEqual(new UnsignedSixteenSixteen(128, 0x8000), SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(257, 0), SamusEquipmentFlags.VariaSuit),
+            "Varia halves 257 whole points of periodic damage, keeping the half point");
+        Console.WriteLine($"Samus periodic suit damage: {compared} damages take the suit's division of the whole damage, which no longer drops points past 255.");
     }
 }

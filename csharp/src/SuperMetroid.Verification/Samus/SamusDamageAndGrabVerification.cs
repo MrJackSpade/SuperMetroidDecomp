@@ -824,6 +824,27 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose,
         "left grabbed family releases to pose $02");
 
+    // The escape test compares the shared count with the target by the sign of their difference (#1795): a count another
+    // sequence left 32768 or more past the target reads as below it, so a press counted onto it does not free Samus, and
+    // one counted onto the count just short of that boundary does.
+    int target = SamusDraygonGrabbedState.EscapeButtonCounterTarget;
+    foreach ((int countLeft, bool frees) in new[] { (target + short.MaxValue - 1, true), (target + short.MaxValue, false), (ushort.MaxValue - 1, false) })
+    {
+        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
+        samus.EscapeAndDrainCount.LeaveSuitPickupStage(countLeft);
+        DraygonEscapeResult counted = samus.DraygonGrabbed.StepEscapeHandler(samus, ControllerButton.Up, grappleLockedInPlace: false);
+        AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");
+        AssertEqual(frees, counted.Released, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
+        if (!frees)
+            samus.DraygonGrabbed.Release(samus);
+    }
+    var shared = new SharedEscapeAndDrainCount();
+    foreach ((int count, bool reaches) in new[] { (0, false), (target - 1, false), (target, true), (target + short.MaxValue, true), (target + short.MaxValue + 1, false), (ushort.MaxValue, false) })
+    {
+        shared.LeaveSuitPickupStage(count);
+        AssertEqual(reaches, shared.EscapePressesReach(target), $"an escape count of {count} {(reaches ? "reaches" : "is short of")} the target {target}");
+    }
+
     Console.WriteLine("  Samus/Draygon: ten poses, owner offsets, transitions, escape, and release agree.");
 }
 

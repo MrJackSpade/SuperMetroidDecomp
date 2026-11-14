@@ -43,17 +43,10 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// D-pad presses counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
     /// pickup's stage share (<see cref="SharedEscapeAndDrainCount"/>), so it holds any value those leave, including a
-    /// wrapped countdown. A press continues from zero past 65535, and the release test is the game's signed comparison
-    /// against the target.
+    /// wrapped countdown. A press continues from zero past 65535, and the release test is the shared count's own
+    /// (<see cref="SharedEscapeAndDrainCount.EscapePressesReach"/>).
     /// </summary>
     public int EscapeButtonCounter => _escapePresses.EscapePresses;
-
-    /// <summary>
-    /// Whether a counted press reached the target. The game compares the shared count with a signed subtraction,
-    /// so a count of 32828 or more, left by another owner, reads as below it.
-    /// </summary>
-    private static bool ReachedEscapeTarget(int counter) =>
-        CoordinateAxis.Difference(counter, EscapeButtonCounterTarget) >= 0;
 
     /// <summary>
     /// The D-pad input of Draygon's escape. The game stores the entire masked D-pad
@@ -158,8 +151,8 @@ public sealed class SamusDraygonGrabbedState
             counted = true;
         }
 
-        // The game tests the signed difference only on a newly counted D-pad edge.
-        bool released = counted && ReachedEscapeTarget(EscapeButtonCounter);
+        // The game tests the count against the target only on a newly counted D-pad edge.
+        bool released = counted && _escapePresses.EscapePressesReach(EscapeButtonCounterTarget);
         if (released)
             Release(samus);
 

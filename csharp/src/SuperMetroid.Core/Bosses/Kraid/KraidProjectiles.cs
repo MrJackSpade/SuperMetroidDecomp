@@ -537,8 +537,7 @@ internal sealed class KraidProjectiles
             rock.Delete();
             return;
         }
-        rock.Velocity = rock.Velocity.WithY(
-            RestartingFallSpeed.Accelerate(rock.Velocity.Y, KraidRockLaunchDefinitions.CeilingRockGravity));
+        rock.Velocity = rock.Velocity.WithY(rock.Velocity.Y + KraidRockLaunchDefinitions.CeilingRockGravity);
     }
 
     /// <summary>Runs a nail's touch: the shared contact damage, then the nail's death.</summary>

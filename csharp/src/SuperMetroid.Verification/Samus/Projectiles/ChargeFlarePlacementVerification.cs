@@ -61,7 +61,9 @@ internal static class ChargeFlarePlacementVerification
             if (running && aim.Turning is not null)
                 continue;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
-            byte yOffset = bus.ReadCartridgeByte(record + 4);
+            // The pose's offset is signed: the cartridge's unsigned read of a negative offset is a deleted presentation
+            // quirk (#1795), so the expected placement subtracts the signed offset.
+            int yOffset = unchecked((sbyte)bus.ReadCartridgeByte(record + 4));
             var native = new OamBuffer();
             int xTable = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
             int yTable = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
@@ -102,7 +104,9 @@ internal static class ChargeFlarePlacementVerification
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
             AssertTrue(SamusFlareRows.AimAtRow(turnRow).Turning is not null, $"{pose} selects a turn row");
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
-            byte yOffset = bus.ReadCartridgeByte(record + 4);
+            // The pose's offset is signed: the cartridge's unsigned read of a negative offset is a deleted presentation
+            // quirk (#1795), so the expected placement subtracts the signed offset.
+            int yOffset = unchecked((sbyte)bus.ReadCartridgeByte(record + 4));
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             ushort x = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value + turnRow * 2)));
             ushort y = unchecked((ushort)(100 + Word(SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value + turnRow * 2) - yOffset));
@@ -135,6 +139,20 @@ internal static class ChargeFlarePlacementVerification
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,
             new ChargeFlareArtwork { Placement = stock, Objects = objects }));
         AssertTrue(original.LastFinalizedSpriteCount > 0, "Flare placement fixture draws visible sprites");
+        // A pose with a negative graphics Y offset (the drained poses' -4) lowers the flare by it, as it lowers the body:
+        // the flare drawn at that offset is the one drawn with no offset four pixels lower. The game's unsigned read
+        // raised it by 252 instead, a presentation quirk deleted (#1795).
+        OamBuffer DrawnAtOffset(int samusY, int poseYOffset)
+        {
+            var drawn = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, samusY)) };
+            return SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, drawn, Position16<RoomPixels>.Zero,
+                ChargeFlareComponent.MainFlare, null, new ChargeFlareArtwork { Placement = stock, Objects = objects },
+                new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, FacingLeft = false }));
+        }
+        OamBuffer negativeOffset = DrawnAtOffset(100, -4), noOffsetLower = DrawnAtOffset(104, 0);
+        AssertTrue(negativeOffset.LastFinalizedSpriteCount > 0, "a flare at a negative pose offset draws visible sprites");
+        AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(noOffsetLower, negativeOffset),
+            $"a negative pose offset lowers the flare by its magnitude ({noOffsetLower.FirstDifference(negativeOffset)})");
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject, InstalledFixtures.BoundContent)) && beforeSystem.SequenceEqual(GraphDigest(system, InstalledFixtures.BoundContent)), "Flare drawing changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {

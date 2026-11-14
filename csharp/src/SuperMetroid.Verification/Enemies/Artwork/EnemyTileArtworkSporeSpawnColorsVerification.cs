@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
         {
             int shown = frame;
-            enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette(frame);
+            enemies.SporeSpawnBehavior.ShowSporeSpawnHealthShade(frame);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(frame)), body.Shading,
                 $"live Spore Spawn health frame {frame}");
             AssertShade(sprites, SporeSpawnShades.Health(frame), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health frame {frame}");
@@ -91,7 +91,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         for (int frame = 0; frame < SporeSpawnColorFormat.DeathSceneFrameCount; frame++)
         {
             int shown = frame;
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame);
+            enemies.SporeSpawnBehavior.ShowSporeSpawnDeathShade(frame);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(frame)), body.Shading,
                 $"live Spore Spawn death frame {frame}");
             AssertShade(sprites, SporeSpawnShades.DeathSprite(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, shown, colour),

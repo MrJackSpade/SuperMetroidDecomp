@@ -48,7 +48,7 @@ internal sealed class RoomLoader
     private readonly ControllerInputState _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Coordinates the door loader's staged transition states.</summary>
+    /// <summary>Coordinates the door loader's transition steps.</summary>
     private readonly DoorTransitionRunner _doorTransition;
     /// <summary>The enemy state and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
     private readonly EnemySession _enemySession;
@@ -406,7 +406,7 @@ internal sealed class RoomLoader
     /// The axis the door alignment aligns, perpendicular to travel: right/left converge camera Y,
     /// while down/up converge camera X. This literal branch matters because aligning the
     /// travel axis instead moves a horizontal door frame by a row while its room
-    /// scroll is being staged.
+    /// scroll is being placed.
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
 
@@ -522,10 +522,10 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
-        // The offsets derive from the foreground position staged before setup's first call:
+        // The offsets derive from where the foreground stands before setup's first call:
         // horizontal setups had not yet taken their four-pixel step, and an upward door's
-        // correction of the source room's top row stages the foreground five (the background four) pixels lower.
-        Offset16<RoomPixels> foregroundStaging = direction switch
+        // correction of the source room's top row places the foreground five (the background four) pixels lower.
+        Offset16<RoomPixels> openingOffset = direction switch
         {
             DoorDirection.Right => new(-4, 0),
             DoorDirection.Left => new(4, 0),
@@ -533,13 +533,13 @@ internal sealed class RoomLoader
             DoorDirection.Up => new(0, 5),
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
-        Position16<RoomPixels> stagedForeground = _doorOpeningScroll.CameraPosition + foregroundStaging;
-        _backgroundScroll.BeginDoorOpeningViews(stagedForeground);
+        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition + openingOffset;
+        _backgroundScroll.BeginDoorOpeningViews(openingForeground);
         _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
         // destination scrolls in around it.
         _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsPlaneScroll(),
-            stagedForeground.AsPlaneScroll(), direction == DoorDirection.Down);
+            openingForeground.AsPlaneScroll(), direction == DoorDirection.Down);
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each directional setup immediately takes its first step, which recomputes the
         // layer scrolls from the already-advanced layer positions. Down's first update

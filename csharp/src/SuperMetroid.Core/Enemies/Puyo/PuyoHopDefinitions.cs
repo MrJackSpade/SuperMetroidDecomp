@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>Seven immutable NTSC Puyo hop definitions, independent of animation artwork.</summary>
+/// <summary>Seven immutable Puyo hop definitions, independent of animation artwork.</summary>
 public static class PuyoHopDefinitions
 {
     /// <summary>Each hop's height, horizontal speed, vertical-curve step and airborne behaviour.</summary>

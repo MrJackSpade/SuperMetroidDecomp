@@ -112,7 +112,7 @@ internal static class GrappleBeamDefinitionsVerification
                     GrappleConnectionKind.Swinging or
                     GrappleConnectionKind.LockedInPlace,
                     $"Grapple connection function ${function:X4} is catalogued");
-                AssertTrue(SamusGrappleConnectionNative.Handlers.TryDecode(handler, out _),
+                AssertTrue(SamusGrappleConnectionNative.Poses.TryDecode(handler, out _),
                     $"Grapple connection handler ${handler:X4} is catalogued");
             }
         }

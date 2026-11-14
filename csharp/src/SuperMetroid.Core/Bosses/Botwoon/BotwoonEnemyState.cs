@@ -86,8 +86,8 @@ public sealed class BotwoonEnemyState
     public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
-    [IntegerQuantity("count of health thresholds passed, zero through two, indexing the speed records")]
+    /// <summary>Movement and spit speed choice 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
+    [IntegerQuantity("count of health thresholds passed, zero through two, choosing the speeds")]
     public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }

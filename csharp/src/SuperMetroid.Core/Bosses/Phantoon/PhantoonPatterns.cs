@@ -543,7 +543,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>
-    /// Moves Phantoon in a swoop using the NTSC/Japan-USA regional values present in the target
+    /// Moves Phantoon in a swoop using the Japanese and North American values present in the target
     /// release. The asymmetric negative velocity thresholds are intentional; replacing
     /// them with tidy +/- clamps changes the retail swoop path.
     /// </summary>

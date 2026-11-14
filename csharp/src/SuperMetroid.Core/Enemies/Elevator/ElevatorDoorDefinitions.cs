@@ -5,7 +5,7 @@ public static class ElevatorDoorDefinitions
 {
     /// <summary>
     /// Frames the down-elevator door transition
-    /// counts before the door continues (48 frames, NTSC).
+    /// counts before the door continues (48 frames).
     /// </summary>
     public const int DownwardsElevatorDelayFrames = 48;
 }

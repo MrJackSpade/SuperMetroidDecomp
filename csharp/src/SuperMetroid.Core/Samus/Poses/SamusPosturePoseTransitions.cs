@@ -16,7 +16,7 @@ internal static class SamusPosturePoseTransitions
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">Optional live room-object owner receiving those collision reactions.</param>
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
-    /// <remarks>These input records bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching the larger-radius check's previous-pose radius publication.</remarks>
+    /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
     public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus, 
@@ -98,7 +98,7 @@ internal static class SamusPosturePoseTransitions
             targetPose == SamusPoseId.NeutralJumpTransitionLeftPose;
         if (!rightRoute && !leftRoute)
         {
-            // Only the two neutral jump-transition records enter this transition; aimed
+            // Only the two neutral jump-transition poses enter this transition; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
                 $"Crouch jump {samus.Pose} -> {targetPose} is not a transition-table route.");
@@ -137,7 +137,7 @@ internal static class SamusPosturePoseTransitions
 
 
     /// <summary>
-    /// Applies the ordinary or aimed crouch-start/stand-start transition records,
+    /// Applies the ordinary or aimed crouch-start/stand-start transition poses,
     /// including the posture change's bottom alignment and the larger-radius collision branch
     /// of the pose-change collision. The admitted target set is exactly
     /// the unaimed and aimed crouching and standing transitions.
@@ -188,7 +188,7 @@ internal static class SamusPosturePoseTransitions
         bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
-            // Admit exactly the crouch/stand records enumerated above.
+            // Admit exactly the crouch/stand poses enumerated above.
             throw new InvalidOperationException(
                 $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch/stand transition-table family.");
         }
@@ -259,7 +259,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
 
 
     /// <summary>
-    /// Applies the ordinary Morph-Ball entry and exit records selected by the crouch and
+    /// Applies the ordinary Morph-Ball entry and exit poses selected by the crouch and
     /// ball transition tables. This includes item gating, the posture change's bottom alignment,
     /// and the block-only expansion collision used when unmorphing.
     /// </summary>
@@ -403,7 +403,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// <remarks>
     /// The game's unmorph input table remains active before the animation's transition cue
     /// reaches its normal crouch endpoint. Up, aim, and Fire input can therefore
-    /// interrupt the transition with an ordinary movement-type-six falling record. This is
+    /// interrupt the transition with an ordinary movement-type-six falling pose. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
@@ -455,7 +455,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // InitializeAnimation resets only the target art stream. In particular, do not call
-        // start a jump or clear YDirection/YSpeed/YSubspeed: the input record can occur
+        // start a jump or clear YDirection/YSpeed/YSubspeed: the input transition can occur
         // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;

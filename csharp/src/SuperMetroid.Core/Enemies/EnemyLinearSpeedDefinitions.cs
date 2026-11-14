@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>The size of the shared linear enemy speed table.</summary>
 /// <remarks>
 /// Row <c>n</c> moves an enemy <c>n</c> sixteenths of a pixel per frame, in either direction. Reviewed for #1165
-/// against NTSC J/U v1.0; PAL authors a different table.
+/// against the Japanese and North American v1.0 release; the European release authors a different table.
 /// </remarks>
 public static class EnemyLinearSpeedDefinitions
 {

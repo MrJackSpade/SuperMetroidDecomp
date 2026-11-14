@@ -13,7 +13,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// The Varia/Gravity-suit counterpart of <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/>. Both use movement type
-    /// zero, but only the power-suit record needs the draw's extra chest-cover sprite.
+    /// zero, but only the power-suit pose needs the draw's extra chest-cover sprite.
     /// </summary>
     ForwardFacingSuitedPose,
 
@@ -31,7 +31,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-moving horizontal-fire body. It is a genuine movement-type-one
-    /// record, shares the ordinary ten-frame running delay stream, and is selected when Shot
+    /// pose, shares the ordinary ten-frame running delay stream, and is selected when Shot
     /// remains held with Right after the projectile direction has been established.
     /// </summary>
     MovingRightGunExtendedPose,
@@ -436,10 +436,10 @@ public enum SamusPoseId
     /// <summary>This pose is stationary, facing left, and aiming diagonally down-left.</summary>
     StandingAimDiagonalDownLeftPose,
 
-    /// <summary>This pose is the unused right-moving straight-up aim record.</summary>
+    /// <summary>This pose is the unused right-moving straight-up aim pose.</summary>
     RunningAimUpRightPose,
 
-    /// <summary>This pose is the unused left-moving straight-up aim record.</summary>
+    /// <summary>This pose is the unused left-moving straight-up aim pose.</summary>
     RunningAimUpLeftPose,
 
     /// <summary>This pose moves right while aiming diagonally up-right.</summary>
@@ -457,7 +457,7 @@ public enum SamusPoseId
     /// <summary>
     /// This pose is a stationary right-facing normal jump with the cannon extended. Unlike
     /// <see cref="NeutralJumpRightPose"/>, its pose table deliberately stores no no-input fallback, so the firing body can
-    /// remain active until another input-table record or landing replaces it.
+    /// remain active until another input transition or landing replaces it.
     /// </summary>
     NormalJumpGunExtendedRightPose,
 

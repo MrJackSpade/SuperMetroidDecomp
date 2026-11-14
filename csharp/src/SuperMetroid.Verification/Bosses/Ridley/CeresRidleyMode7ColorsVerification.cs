@@ -25,7 +25,7 @@ internal static class CeresRidleyMode7ColorsVerification
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; row++)
+        for (int row = 0; row < CeresRidleyShadeDefinitions.GetawayZoomStepCount; row++)
         {
             ushort nativePointer = unchecked((ushort)(
                 row * RidleySourceDefinitions.Ceres.GetawayZoomRowBytes - 0x4ef9));
@@ -65,10 +65,10 @@ internal static class CeresRidleyMode7ColorsVerification
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
             for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
                 AssertEqual(InstalledFixtures.ImportOf(original).CeresRidleyFloorColors.Resolve(row, color),
-                    cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
+                    cgram[CeresRidleyShadeDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
-        AssertEqual(CeresRidleyPaletteDefinitions.GetawayZoomStepCount, visited.Count,
+        AssertEqual(CeresRidleyShadeDefinitions.GetawayZoomStepCount, visited.Count,
             "native getaway selects every extracted zoom row");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Mode-7 zoom cycle avoids source-color ROM reads");

@@ -44,7 +44,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int ZoaActivationColumnDistance = 128;
     /// <summary>The sixteenths of a pixel in an eighth of a pixel.</summary>
     private const int SixteenthsPerEighth = 2;
-    /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
+    /// <summary>Upward travel of half a pixel per gameplay frame.</summary>
     private static readonly SignedSixteenSixteen ZoaRisingSpeed = SignedSixteenSixteen.FromParts(0, 32768);
 
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
@@ -121,8 +121,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0)
         {
-            // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
-            // this project targets the Japan/USA retail release and reads NTSC data.
+            // The Japanese and North American release subtracts exactly 0.5 px/frame; the European release's step is 0.625.
+            // This project targets the Japanese and North American retail release and reads its data.
             slot.Position = slot.Position.AdvanceY(-ZoaRisingSpeed);
             return;
         }

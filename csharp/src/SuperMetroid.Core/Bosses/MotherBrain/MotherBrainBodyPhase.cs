@@ -90,7 +90,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseRainbowRetractNeck,
     /// <summary>Waits for the timer to pass zero, queues the charge sound, and falls into downward neck extension.</summary>
     SecondPhaseRainbowWaitForCharge,
-    /// <summary>Sets downward neck targets and projectile cooldown, seeds the NTSC 16-count firing delay, and immediately runs its first call.</summary>
+    /// <summary>Sets downward neck targets and projectile cooldown, seeds the 16-count firing delay, and immediately runs its first call.</summary>
     SecondPhaseRainbowExtendNeckDown,
     /// <summary>Widens/aims the beam while an active Power Bomb freezes its countdown, then locks Samus and starts the active beam.</summary>
     SecondPhaseRainbowStartFiring,

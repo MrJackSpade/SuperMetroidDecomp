@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>Fixed NTSC launch magnitudes for the three separately dispatched Rio families.</summary>
+/// <summary>Fixed launch magnitudes for the three separately dispatched Rio families.</summary>
 public static class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>

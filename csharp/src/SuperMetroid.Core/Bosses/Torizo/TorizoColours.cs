@@ -113,7 +113,7 @@ internal sealed class TorizoColours
         Ensure.NotNull(counter);
         TorizoLook to = target ?? throw new InvalidOperationException("A Torizo's fade steps once its program names its colours.");
         int value = counter.Step;
-        if (value > TorizoPaletteDefinitions.FadeDenominator + 1)
+        if (value > TorizoShadeDefinitions.FadeDenominator + 1)
         {
             counter.Reset();
             // The last step reached the target's colours exactly; with no step since a hurt colouring, that colouring stays.

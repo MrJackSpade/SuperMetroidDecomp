@@ -10,7 +10,7 @@ internal static class ColourEffectSelection
     /// <summary>How <paramref name="colourEffect"/> starts, and the animation it starts.</summary>
     /// <remarks>Distinct effects may share an animation. The intro's start only watched a condition that does nothing, so
     /// the Mother Brain fight scene's lights start plainly (#1554). Both fields are independently checked against
-    /// supported NTSC J/U v1.0 and the pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
+    /// the supported Japanese and North American v1.0 release and the pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
     internal static ColourEffectDefinition Get(ColourEffectId colourEffect) => colourEffect switch
     {
         ColourEffectId.FadeInSuperMetroidTitleLogo => new(ColourEffectStart.Plain, ColourEffectAnimation.FadeInSuperMetroidTitleLogo),

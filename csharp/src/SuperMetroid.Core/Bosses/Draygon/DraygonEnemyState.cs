@@ -28,7 +28,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Each part's playing animation and where it stands, keyed by the part's record.</summary>
+    /// <summary>Each part's playing animation and where it stands, keyed by the part.</summary>
     private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);
 
     /// <summary><paramref name="part"/>'s playing animation and where it stands.</summary>

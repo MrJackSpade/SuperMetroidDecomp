@@ -29,7 +29,7 @@ internal static class SamusComboMechanics
     /// The special beam attacks' cost in Power Bombs: one Power Bomb for Wave, Ice,
     /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0:
+    /// <remarks>Independently reviewed for #1165 against the Japanese and North American v1.0 release:
     /// the four single-beam rows cost one and the other eight cost zero.
     /// The game keeps the equipped beams' lowest four bits as the row.
     /// Rows 12..15 are outside the table.</remarks>

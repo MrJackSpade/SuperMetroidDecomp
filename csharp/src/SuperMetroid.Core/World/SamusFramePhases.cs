@@ -625,7 +625,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 if (_player.LastShinesparkMovement.Value.WindupTimedOut)
                 {
                     // The spark publishes an interrupted vertical pose. That
-                    // priority beats an ordinary input record sampled from the shinespark windup poses
+                    // priority beats an ordinary input transition sampled from the shinespark windup poses
                     // earlier in the input phase during the timeout frame.
                     _player.ProspectiveSamusPose = null;
                     _player.ProspectiveSamusFallbackPose = null;
@@ -1252,7 +1252,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         _player.ProspectiveSamusWallCollisionPose = null;
 
         // Zero input and an unmatched nonzero table chord both reach the input fallback; a matched
-        // same-pose record does not. Writes the prospective pose slot in the input phase and
+        // same-pose transition does not. Writes the prospective pose slot in the input phase and
         // commits it after movement and animation, so the selection is captured here.
         // A retained pose still selects a transition slot whose change runs later.
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)

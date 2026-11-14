@@ -29,7 +29,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         _slotTable = slotTable;
     }
 
-    /// <summary>NTSC pause at the bottom before the top begins to rise.</summary>
+    /// <summary>The pause at the bottom before the top begins to rise.</summary>
     private const int KzanNtscRiseWaitFrames = 64;
     /// <summary>The rise of each rising update: half a pixel upward.</summary>
     private static readonly SignedSixteenSixteen KzanRisingStep = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
@@ -163,7 +163,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingSpeed = (accelerated - KzanMaximumFallingSpeed).IsNegative ? accelerated : KzanMaximumFallingSpeed;
     }
 
-    /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>
+    /// <summary>Counts down the 64-frame landing hold before switching to ascent.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
         if (--state.RiseWaitTimer == 0)
@@ -178,7 +178,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
 
-        // The NTSC build rises by exactly half a pixel per actor frame, the fraction's borrow reaching the whole pixels.
+        // The Japanese and North American release rises by exactly half a pixel per actor frame, the fraction's borrow reaching the whole pixels.
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(KzanRisingStep));
         if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {

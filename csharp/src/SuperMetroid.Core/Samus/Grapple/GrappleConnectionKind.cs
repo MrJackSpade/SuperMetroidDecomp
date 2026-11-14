@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>The kinds of grapple connection a connection record installs after the pose handler runs.</summary>
+/// <summary>The kinds of grapple connection a connection makes once it has put Samus in its pose.</summary>
 public enum GrappleConnectionKind
 {
-    /// <summary>Locked-in-place connection handler.</summary>
+    /// <summary>Samus is held in place at the anchor.</summary>
     LockedInPlace,
-    /// <summary>Ordinary swinging connection handler.</summary>
+    /// <summary>Samus swings from the anchor.</summary>
     Swinging,
-    /// <summary>Wall-grab connection handler.</summary>
+    /// <summary>Samus clings to the wall at the anchor.</summary>
     WallGrab,
 }

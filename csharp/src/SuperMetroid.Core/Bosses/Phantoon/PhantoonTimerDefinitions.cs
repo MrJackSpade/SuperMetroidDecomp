@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon timer magnitudes and independently chosen random-bucket policy.</summary>
 public static class PhantoonTimerDefinitions
 {
-    /// <summary>Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
+    /// <summary>The initial flame countdown is 120 frames; the European release uses 96.</summary>
     public const int InitialFlameDelayFrames = 120;
 
     /// <summary>Three selected exposure tiers used by the RNG-bucket policies.</summary>

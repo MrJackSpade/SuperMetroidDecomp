@@ -6,7 +6,7 @@ public static class SlopeHeights
 
     /// <summary>Returns the five-bit height for shape 0..31 and column 0..15.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release.
+    /// Independently reviewed for #1165 against the Japanese and North American v1.0 release.
     /// Flat, half-block, V, stair and rational-slope families below reproduce all 512
     /// authored values. Integer division floors nonnegative profile coordinates; the
     /// third-height family carries its division phase across block seams. Steep slopes

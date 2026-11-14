@@ -5,6 +5,6 @@ internal static class GrapplePointAnimationDefinitions
 {
     /// <summary>The endpoint animation shows four frames before returning to the first.</summary>
     internal const int FrameCount = 4;
-    /// <summary>NTSC delay: five, decremented through zero for a six-call interval.</summary>
+    /// <summary>The endpoint's frame delay: five, decremented through zero for a six-call interval.</summary>
     internal const int Delay = 5;
 }

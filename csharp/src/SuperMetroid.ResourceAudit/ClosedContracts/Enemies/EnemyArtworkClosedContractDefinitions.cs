@@ -28,6 +28,6 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresEscapeOverlays.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoSwapArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Torizo/TorizoSwapArtworkDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyShadeDefinitions.cs")]),
     ];
 }

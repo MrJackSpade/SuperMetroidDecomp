@@ -186,7 +186,7 @@ internal sealed class CeresRidleyGetaway
         // The floor's shade is chosen by the zoom's whole floor pixels per screen pixel.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = zoom.WholeFloorPixelsPerScreenPixel;
-        if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
+        if (zoomStep < CeresRidleyShadeDefinitions.GetawayZoomStepCount)
         {
             Ensure.NotNull(state).Colours.ShowFloorZoom(zoomStep);
             return;

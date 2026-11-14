@@ -130,8 +130,8 @@ internal sealed class CeresRidleyHits
             return;
 
         int band = state.HitCounter < 70
-            ? CeresRidleyPaletteDefinitions.HealthMidBand
-            : CeresRidleyPaletteDefinitions.HealthLateBand;
+            ? CeresRidleyShadeDefinitions.HealthMidBand
+            : CeresRidleyShadeDefinitions.HealthLateBand;
         state.Colours.ShowHealth(band);
     }
 

@@ -80,9 +80,9 @@ internal static class TorizoSheetShades
             foreach (TorizoLook to in FadeTargets)
             {
                 RgbColor[] goal = Colours(auxiliary, to);
-                for (int first = 1; first <= TorizoPaletteDefinitions.FadeDenominator + 1; first++)
+                for (int first = 1; first <= TorizoShadeDefinitions.FadeDenominator + 1; first++)
                 {
-                    for (int last = first; last <= TorizoPaletteDefinitions.FadeDenominator + 1; last++)
+                    for (int last = first; last <= TorizoShadeDefinitions.FadeDenominator + 1; last++)
                         shades.Add(SheetShade.Run(TorizoShades.Fading(from, to, first, last), BodyFirstInk, Faded(start, goal, first, last)));
                 }
             }
@@ -106,9 +106,9 @@ internal static class TorizoSheetShades
             foreach (TorizoLook to in FadeTargets)
             {
                 RgbColor[] goal = [.. written.Inks.Select(ink => Colours(auxiliary, to)[ink - BodyFirstInk])];
-                for (int first = 1; first <= TorizoPaletteDefinitions.FadeDenominator + 1; first++)
+                for (int first = 1; first <= TorizoShadeDefinitions.FadeDenominator + 1; first++)
                 {
-                    for (int last = first; last <= TorizoPaletteDefinitions.FadeDenominator + 1; last++)
+                    for (int last = first; last <= TorizoShadeDefinitions.FadeDenominator + 1; last++)
                         yield return new SheetShade(TorizoShades.BellyFading(record, to, first, last), written.Inks, Faded(written.Colours, goal, first, last));
                 }
             }
@@ -140,7 +140,7 @@ internal static class TorizoSheetShades
         {
             FadeLevelColour current = start[ink].FadeLevels, toward = goal[ink].FadeLevels;
             for (int step = first; step <= last; step++)
-                current = GradualColourFade.Step(step, current, toward, TorizoPaletteDefinitions.FadeDenominator);
+                current = GradualColourFade.Step(step, current, toward, TorizoShadeDefinitions.FadeDenominator);
             faded[ink] = current.ToColour();
         }
         return faded;

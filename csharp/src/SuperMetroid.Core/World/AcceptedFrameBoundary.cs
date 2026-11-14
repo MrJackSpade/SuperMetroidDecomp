@@ -88,7 +88,7 @@ internal sealed class AcceptedFrameBoundary
     /// <param name="controller1Input">The host's controller buttons.</param>
     public void BeginAcceptedFrame(ControllerButton controller1Input)
     {
-        PublishAcceptedFrameTransfers();
+        PublishAcceptedFrame();
         _input.Latch(controller1Input);
     }
 
@@ -96,13 +96,13 @@ internal sealed class AcceptedFrameBoundary
     /// Publishes the display while a loading update keeps the screen dark. No frame is shown, so neither the
     /// controller latch nor any frame counter changes.
     /// </summary>
-    internal void PublishWhileLoading() => PublishAcceptedFrameTransfers();
+    internal void PublishWhileLoading() => PublishAcceptedFrame();
 
     /// <summary>Publishes the frame's sprites, Samus's graphics, queued artwork and the rotating-view state, in that order.</summary>
-    private void PublishAcceptedFrameTransfers()
+    private void PublishAcceptedFrame()
     {
-        // Preserve this order: Samus's own frame graphics precede the general
-        // artwork queue, and both precede controller latching. The finished sprite list is
+        // Preserve this order: Samus's own frame graphics precede the rest of the
+        // queued artwork, and both precede controller latching. The finished sprite list is
         // published immediately before Samus's graphics, and the turning floor's rotation
         // after them. Retain both displayed values so rendering sees one coherent frame
         // instead of combining old sprites with a newer room-main rotation.

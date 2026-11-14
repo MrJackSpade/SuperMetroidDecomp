@@ -133,7 +133,7 @@ internal static class TorizoPaletteShakeVerification
             for (int shift = 0; shift < 15; shift += 5)
             {
                 int to = goal >> shift & 31;
-                int moved = ((31 << 8) + Math.Sign(to - 31) * (Math.Abs(to - 31) * 256 / (TorizoPaletteDefinitions.FadeDenominator - 2 + 1))) >> 8;
+                int moved = ((31 << 8) + Math.Sign(to - 31) * (Math.Abs(to - 31) * 256 / (TorizoShadeDefinitions.FadeDenominator - 2 + 1))) >> 8;
                 expected |= moved << shift;
             }
             AssertEqual((ushort)expected, fromWhite.Colours[i].ToWord(), $"Torizo fade restarted from white, colour {i}, takes one cartridge step");
@@ -197,7 +197,7 @@ internal static class TorizoPaletteShakeVerification
             for (int shift = 0; shift < 15; shift += 5)
             {
                 int from = start >> shift & 31;
-                expected |= ((from << 8) - from * 256 / TorizoPaletteDefinitions.FadeDenominator) >> 8 << shift;
+                expected |= ((from << 8) - from * 256 / TorizoShadeDefinitions.FadeDenominator) >> 8 << shift;
             }
             AssertEqual((ushort)expected, faded.Colours[colour].ToWord(), $"The glow's colour {colour} takes the cartridge's first step toward black");
         }

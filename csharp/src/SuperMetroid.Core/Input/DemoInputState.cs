@@ -21,7 +21,7 @@ public sealed class DemoInputState
     /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
     public bool IsPlaying => Enabled && Position is not null;
 
-    /// <summary>Frames remaining in the active input record, wrapping at sixteen bits.</summary>
+    /// <summary>Frames remaining in the active demo input, wrapping at sixteen bits.</summary>
     public WrappingCountdown FrameHold { get; private set; }
 
     /// <summary>The buttons the demo currently holds in place of the player's held buttons.</summary>

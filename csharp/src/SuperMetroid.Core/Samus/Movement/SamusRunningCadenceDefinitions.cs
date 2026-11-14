@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>NTSC running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
+/// <summary>Running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
 /// <remarks>
-/// Independently reviewed for #1165 against the complete NTSC J/U v1.0 catalog. Each cadence times the ten running
+/// Independently reviewed for #1165 against the complete Japanese and North American v1.0 catalog. Each cadence times the ten running
 /// frames; the running pose's own animation closes the loop after the tenth. Ordinary frames take two ticks, and the
 /// boost stages take three; two and three alternating; two; one and two alternating; and one. A stage advance restarts
 /// the boost's cadence countdown at one for stages zero through three and at two for stage four. The cadence a full
 /// sound queue selects is not authored; <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/> reproduces
-/// it (#1473). This is NTSC policy, not a PAL interpolation rule.
+/// it (#1473). This is the Japanese and North American release's timing, not an interpolation of the European release's.
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {

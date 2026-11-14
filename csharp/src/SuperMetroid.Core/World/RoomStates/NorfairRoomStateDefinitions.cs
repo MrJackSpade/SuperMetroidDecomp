@@ -59,12 +59,12 @@ public static class NorfairRoomStateDefinitions
         new(nameof(CrocomireSpeedway), RoomLevelDefinitions.CrocomireSpeedway, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireSpeedway, RoomEnemyPopulationDefinitions.CrocomireSpeedway, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrocomireSpeedway, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrocomireSpeedway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, RoomSetupBehavior.None);
 
 
-    /// <summary>The Crocomire room's state 0.</summary>
+    /// <summary>The Crocomire room's default state.</summary>
     public static RoomStateSettings CrocomireDefault { get; } =
         new(nameof(CrocomireDefault), RoomLevelDefinitions.Crocomire, RoomGraphicsSet.Crocomire, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.KraidAndPhantoonBattle)), SuperMetroid.Core.Fx.RoomFxDefinitions.Crocomire, RoomEnemyPopulationDefinitions.Crocomire, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainBehavior.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Crocomire, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireDefault, RoomSetupBehavior.None);
 
 
-    /// <summary>The Crocomire room's state 1.</summary>
+    /// <summary>The Crocomire room's state once the area's mini-boss is dead.</summary>
     public static RoomStateSettings CrocomireWhenAreaMiniBossDead { get; } =
         new(nameof(CrocomireWhenAreaMiniBossDead), RoomLevelDefinitions.Crocomire, RoomGraphicsSet.Crocomire, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Crocomire, RoomEnemyPopulationDefinitions.Crocomire, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Crocomire, null, RoomMainBehavior.CrocomireRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Crocomire, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrocomireWhenAreaMiniBossDead, RoomSetupBehavior.None);
 
@@ -109,7 +109,7 @@ public static class NorfairRoomStateDefinitions
         new(nameof(PostCrocMissile), RoomLevelDefinitions.PostCrocMissile, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocMissile, RoomEnemyPopulationDefinitions.PostCrocMissile, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocMissile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
 
 
-    /// <summary>The Grapple Tutorial room's state 3.</summary>
+    /// <summary>The Grapple Tutorial 3 room's state.</summary>
     public static RoomStateSettings GrappleTutorial3 { get; } =
         new(nameof(GrappleTutorial3), RoomLevelDefinitions.GrappleTutorial3, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial3, RoomEnemyPopulationDefinitions.GrappleTutorial3, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GrappleTutorial3, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, RoomSetupBehavior.None);
 
@@ -119,12 +119,12 @@ public static class NorfairRoomStateDefinitions
         new(nameof(PostCrocJump), RoomLevelDefinitions.PostCrocJump, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocJump, RoomEnemyPopulationDefinitions.PostCrocJump, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocJump, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocJump, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Grapple Tutorial room's state 2.</summary>
+    /// <summary>The Grapple Tutorial 2 room's state.</summary>
     public static RoomStateSettings GrappleTutorial2 { get; } =
         new(nameof(GrappleTutorial2), RoomLevelDefinitions.GrappleTutorial2, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial2, RoomEnemyPopulationDefinitions.GrappleTutorial2, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GrappleTutorial2, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GrappleTutorial2, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernVertical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Grapple Tutorial room's state 1.</summary>
+    /// <summary>The Grapple Tutorial 1 room's state.</summary>
     public static RoomStateSettings GrappleTutorial1 { get; } =
         new(nameof(GrappleTutorial1), RoomLevelDefinitions.GrappleTutorial1, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial1, RoomEnemyPopulationDefinitions.GrappleTutorial1, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GrappleTutorial1, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
 
@@ -289,12 +289,12 @@ public static class NorfairRoomStateDefinitions
         new(nameof(MainHall), RoomLevelDefinitions.MainHall, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.MainHall, RoomEnemyPopulationDefinitions.MainHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MainHall, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MainHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernVerticalRuins, RoomSetupBehavior.None);
 
 
-    /// <summary>The Golden Torizo room's state 0.</summary>
+    /// <summary>The Golden Torizo room's default state.</summary>
     public static RoomStateSettings GoldenTorizoDefault { get; } =
         new(nameof(GoldenTorizoDefault), RoomLevelDefinitions.GoldenTorizo, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizo, RoomEnemyPopulationDefinitions.GoldenTorizo, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizo, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Golden Torizo room's state 1.</summary>
+    /// <summary>The Golden Torizo room's state once the area's Torizo is dead.</summary>
     public static RoomStateSettings GoldenTorizoWhenAreaTorizoDead { get; } =
         new(nameof(GoldenTorizoWhenAreaTorizoDead), RoomLevelDefinitions.GoldenTorizo, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizo, RoomEnemyPopulationDefinitions.GoldenTorizo, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GoldenTorizo, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizo, null, RoomSetupBehavior.None);
 
@@ -309,12 +309,12 @@ public static class NorfairRoomStateDefinitions
         new(nameof(GTEnergyRefill), RoomLevelDefinitions.GTEnergyRefill, RoomGraphicsSet.BlueRefill, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.GTEnergyRefill, RoomEnemyPopulationDefinitions.GTEnergyRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GTEnergyRefill, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Ridley room's state 0.</summary>
+    /// <summary>The Ridley room's default state.</summary>
     public static RoomStateSettings RidleyDefault { get; } =
         new(nameof(RidleyDefault), RoomLevelDefinitions.Ridley, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.StatueHall)), SuperMetroid.Core.Fx.RoomFxDefinitions.Ridley, RoomEnemyPopulationDefinitions.Ridley, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainBehavior.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Ridley, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 
 
-    /// <summary>The Ridley room's state 1.</summary>
+    /// <summary>The Ridley room's state once the area's boss is dead.</summary>
     public static RoomStateSettings RidleyWhenAreaBossDead { get; } =
         new(nameof(RidleyWhenAreaBossDead), RoomLevelDefinitions.Ridley, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.Ridley, RoomEnemyPopulationDefinitions.Ridley, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainBehavior.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Ridley, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 

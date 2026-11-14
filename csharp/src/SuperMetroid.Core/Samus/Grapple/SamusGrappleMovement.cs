@@ -734,8 +734,8 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.HorizontalExtension:
                 case RoomCollisionType.VerticalExtension:
-                    // Horizontal extensions lead their signed behaviour in blocks along the rows, vertical ones in rows.
-                    // behaviour zero is the terminator and behaves as air.
+                    // A horizontal extension repeats the block a signed number of blocks along its row, a vertical one along its column;
+                    // an extension that ends the chain behaves as air.
                     if (block.Behavior.EndsExtension)
                         return GrappleBlockReaction.Passes;
                     block = level.LinkedBlockOrEdgeSolid(block);
@@ -750,9 +750,9 @@ public static class SamusGrappleMovement
                     if (block.Behavior.Grapple is GrappleReaction.Anchor or GrappleReaction.UnrevealedAnchor)
                         return GrappleBlockReaction.Connects;
 
-                    // behaviour one/two spawn the breakable grapple room objects. Their setup synchronously saves the
-                    // complete terrain block and clears the behaviour before connecting the beam; the new room object
-                    // executes its first timer/draw record later in this same gameplay frame.
+                    // Respawning and permanent breakable anchors spawn the breakable grapple room objects. Their setup synchronously saves the
+                    // complete terrain block and clears its grapple reaction before connecting the beam; the new room object
+                    // runs its first timed step later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
                     if (block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor)
@@ -876,41 +876,41 @@ public static class SamusGrappleMovement
 
         bool movingVertically =
             samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-        GrappleConnectionTable connectionTable = movingVertically
-            ? GrappleConnectionTable.MovingVertically
+        GrappleConnectionPolicy policy = movingVertically
+            ? GrappleConnectionPolicy.MovingVertically
             : sourceMovementType == SamusMovementType.Crouching
-                ? GrappleConnectionTable.Crouching
-                : GrappleConnectionTable.Default;
-        var connection = GrappleConnections.ResolveConnection(connectionTable, grapple.FireDirection);
+                ? GrappleConnectionPolicy.Crouching
+                : GrappleConnectionPolicy.Default;
+        var connection = GrappleConnections.ResolveConnection(policy, grapple.FireDirection);
         GrappleConnectionKind nextKind = connection.Kind;
-        GrappleConnectionHandler handler = connection.Handler;
+        GrappleConnectionPose connectionPose = connection.Pose;
 
-        // Each tiny connection handler installs one prospective grappling pose and then jumps
-        // to either the swinging or the stuck tail. Keep the handlers distinct:
+        // Each connection pose installs one prospective grappling pose and then continues
+        // to either the swinging or the stuck connection. Keep the connection poses distinct:
         // pose alone is insufficient to distinguish malformed fallback data from data.
-        (SamusPoseId pose, bool swinging) = handler switch
+        (SamusPoseId pose, bool swinging) = connectionPose switch
         {
-            GrappleConnectionHandler.SwingClockwise =>
+            GrappleConnectionPose.SwingClockwise =>
                 new GrappleConnectedPose(SamusPoseId.GrappleSwingRightPose, true),
-            GrappleConnectionHandler.SwingAnticlockwise =>
+            GrappleConnectionPose.SwingAnticlockwise =>
                 new GrappleConnectedPose(SamusPoseId.GrappleSwingLeftPose, true),
-            GrappleConnectionHandler.StandingUpRight =>
+            GrappleConnectionPose.StandingUpRight =>
                 new GrappleConnectedPose(SamusPoseId.GrappleStandingRightPose, false),
-            GrappleConnectionHandler.StandingRight =>
+            GrappleConnectionPose.StandingRight =>
                 new GrappleConnectedPose(SamusPoseId.GrappleStandingDownRightPose, false),
-            GrappleConnectionHandler.StandingDown =>
+            GrappleConnectionPose.StandingDown =>
                 new GrappleConnectedPose(SamusPoseId.GrappleStandingDownLeftPose, false),
-            GrappleConnectionHandler.StandingUpLeft =>
+            GrappleConnectionPose.StandingUpLeft =>
                 new GrappleConnectedPose(SamusPoseId.GrappleStandingLeftPose, false),
-            GrappleConnectionHandler.CrouchingUpRight =>
+            GrappleConnectionPose.CrouchingUpRight =>
                 new GrappleConnectedPose(SamusPoseId.GrappleCrouchingRightPose, false),
-            GrappleConnectionHandler.CrouchingRight =>
+            GrappleConnectionPose.CrouchingRight =>
                 new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownRightPose, false),
-            GrappleConnectionHandler.CrouchingDownLeft =>
+            GrappleConnectionPose.CrouchingDownLeft =>
                 new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownLeftPose, false),
-            GrappleConnectionHandler.CrouchingUpLeft =>
+            GrappleConnectionPose.CrouchingUpLeft =>
                 new GrappleConnectedPose(SamusPoseId.GrappleCrouchingLeftPose, false),
-            _ => throw new InvalidOperationException($"Undefined GrappleConnectionHandler {handler}."),
+            _ => throw new InvalidOperationException($"Undefined GrappleConnectionPose {connectionPose}."),
         };
         GrappleConnectionKind expectedKind = swinging
             ? GrappleConnectionKind.Swinging
@@ -918,8 +918,8 @@ public static class SamusGrappleMovement
         if (nextKind != expectedKind)
         {
             throw new InvalidDataException(
-                $"Grapple connection handler {handler} requires connection {expectedKind}, " +
-                $"but the record names {nextKind}.");
+                $"Grapple connection pose {connectionPose} requires connection {expectedKind}, " +
+                $"but the connection names {nextKind}.");
         }
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,

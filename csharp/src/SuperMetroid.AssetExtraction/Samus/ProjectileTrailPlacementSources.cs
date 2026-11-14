@@ -20,7 +20,7 @@ internal static class ProjectileTrailPlacementSources
     /// <exception cref="ArgumentOutOfRangeException">No selector row's family names <paramref name="list"/>.</exception>
     internal static SnesAddress Start(IImportCartridgeSource cartridge, ProjectileTrailPlacementList list)
     {
-        foreach ((ProjectileTrailSelectorRow row, ProjectileTrailFamily? family) in ProjectileTrailPlacementDefinitions.Families)
+        foreach ((ProjectileTrailChoice row, ProjectileTrailFamily? family) in ProjectileTrailPlacementDefinitions.Families)
         {
             if (family is not { } named)
                 continue;

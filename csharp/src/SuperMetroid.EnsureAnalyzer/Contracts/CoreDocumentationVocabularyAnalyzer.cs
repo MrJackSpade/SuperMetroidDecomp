@@ -39,7 +39,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// original's numbered routine and variable labels, read in every type, and, outside hardware owners, its game state,
 /// load station, area and pose numbers, its sound queues named for their limits and its sprite parts' stored placement and
 /// colour data. #1794 adds the original's routine slots for Samus, the timer/hack handler and gamma, read in every type,
-/// and, outside hardware owners, a compound name a comment sets as code instead of citing it.
+/// and, outside hardware owners, a compound name a comment sets as code instead of citing it. #1797 adds, outside
+/// hardware owners, the machine's display transfers, staging and NTSC and PAL video standards, the common room elements,
+/// and the original's selector tables, record tables and input and pose records.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -441,6 +443,33 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b(?:nine|9)[-\s]+bits?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The machine's display transfers, staging and video standard and the original's tables and records in prose (#1797),
+    /// outside hardware owners: a frame, artwork, graphics, sprite, palette, picture, layer, display, queued or general
+    /// transfer and a transfer queue, buffer, slot, size, length, source, destination or entry; a staging buffer, copy,
+    /// area, list or queue, a foreground, background, scroll, layer, picture, artwork, graphics or sprite staging, staging
+    /// one of those (stages the foreground) and one of those or a position staged (the scroll is being staged); the NTSC and
+    /// PAL video standards, read case-sensitively; the common room elements, spaced or hyphenated; a selector table or row;
+    /// and a record table, an input-table record, an input record and a pose record. Core publishes whole frames, places
+    /// the views where they stand, names the release (the Japanese and North American release, the European release),
+    /// names the shared door, item and block pictures every room carries, and names the choice, the entry, the input
+    /// transition or the pose. English stays legal: the reserve tanks' transfer (a manual, reserve or energy transfer),
+    /// transferring a value or a position, a stage of an animation or an ending, a staged fight or a staging point, a
+    /// lower-case pal, a common room, a selector alone and a record alone or of something (a record of kills).
+    /// </summary>
+    private static readonly Regex MachineTableProse = new(
+        @"\b(?:frame|artwork|graphics|sprite|palette|picture|layer|display|queued|general)[-\s]+transfers?\b" +
+        @"|\btransfers?[-\s]+(?:queues?|buffers?|slots?|sizes?|lengths?|sources?|destinations?|entries)\b" +
+        @"|\bstaging[-\s]+(?:buffers?|copy|copies|areas?|lists?|queues?)\b" +
+        @"|\b(?:foreground|background|scroll|layer|picture|artwork|graphics|sprite)[-\s]+staging\b" +
+        @"|\bstag(?:e|es|ed|ing)\s+(?:the\s+|its\s+|a\s+)?(?:foreground|background|scroll|layers?|pictures?|artwork|graphics|sprites?)\b" +
+        @"|\b(?:foreground|background|scroll|layers?|pictures?|artwork|graphics|sprites?|position)\s+(?:(?:is|was|were|are|being|been)\s+)*staged\b" +
+        @"|(?-i:\bNTSC\b|\bPAL\b)" +
+        @"|\bcommon[-\s]+room[-\s]+elements?\b" +
+        @"|\bselector[-\s]+(?:tables?|rows?)\b" +
+        @"|\brecord[-\s]+tables?\b|\b(?:input[-\s]+table|input|pose)[-\s]+records?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>The numbers a game state, station or queue is cited by: digits, or a word from zero through ninety.</summary>
     private const string NumberWord = @"(?:[0-9]+|" + NumberWordsOnly + ")";
 
@@ -616,6 +645,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : PoseNumberProse.Match(text) is { Success: true } poseNumber ? poseNumber.Value
             : QueueLimitProse.Match(text) is { Success: true } queueLimit ? queueLimit.Value
             : SpritePartProse.Match(text) is { Success: true } spritePart ? spritePart.Value
+            : MachineTableProse.Match(text) is { Success: true } machineTable ? machineTable.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

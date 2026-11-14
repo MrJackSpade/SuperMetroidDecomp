@@ -65,7 +65,7 @@ public static class Trigonometry
     /// <summary>The game's small sine table and cosine continuation:
     /// min(255, floor(256*sin(index*pi/128))) for index 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 NTSC values.
+    /// Independently checked for #1165 against all 128 of the game's values.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
     /// Invalid indices throw ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation stay in callers.
@@ -79,7 +79,7 @@ public static class Trigonometry
     /// <summary>The game's unsigned sine table:
     /// floor(65535*sin(index*pi/128)) for index 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 NTSC values.
+    /// Independently checked for #1165 against all 128 of the game's values.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before SignedSixteenBitSine's shift and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.

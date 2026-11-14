@@ -2240,7 +2240,7 @@ internal static class LookupStream4Verification
             BossShadeColours.Lay(cgram, shades, RidleyShades.Baby(CeresBabyShade.Resting), BossShadeColours.Sprites);
             for (int color = 0; color < 15; color++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)),
-                    cgram[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby resting colours over the start");
+                    cgram[CeresRidleyShadeDefinitionsConstants.BabyCgramIndex + color], "Baby resting colours over the start");
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");

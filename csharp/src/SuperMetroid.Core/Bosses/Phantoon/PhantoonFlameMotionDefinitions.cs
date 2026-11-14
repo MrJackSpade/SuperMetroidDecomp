@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>How Phantoon's enraged and spiral flames move and sound (the NTSC Japan/USA values; PAL values differ).</summary>
+/// <summary>How Phantoon's enraged and spiral flames move and sound (the Japanese and North American values; the European release's differ).</summary>
 internal static class PhantoonFlameMotionDefinitions
 {
     /// <summary>The turn an enraged flame makes round the body each update, clockwise or counterclockwise: two steps.</summary>

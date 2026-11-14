@@ -165,7 +165,7 @@ internal sealed class DraygonCombat
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
     internal static void UpdateDraygonHealthBand(DraygonEnemyState state)
     {
-        int band = DraygonHealthPalette.BandForHealth(state.Body.Health);
+        int band = DraygonHealthShades.BandForHealth(state.Body.Health);
 
         if (band == state.HealthBand)
             return;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// The poses with records that no path of the game gives Samus (#1513, #1535). No pose-input list, no-input pose,
+/// The poses that no path of the game gives Samus (#1513, #1535). No pose-input list, no-input pose,
 /// animation transition, pose-table fallback, mirror, movement handler or outside write installs one of them,
 /// so Samus never holds them and the body never draws them.
 /// </summary>
@@ -16,12 +16,12 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusUnreachablePoseDefinitions
 {
     /// <summary>
-    /// The unreachable poses: the running-aimed-straight-up records, whose tables pair the
+    /// The unreachable poses: the running-aimed-straight-up poses, whose tables pair the
     /// standing aim-up top and tops facing other ways with running legs and which nothing writes; the glitch-ball and
-    /// instant morphing transitions, the compact airborne records, the grapple airborne records, the Draygon grab and the
-    /// compact and Draygon-held transitions. These keep their records because their animations are laid out after reachable
+    /// instant morphing transitions, the compact airborne poses, the grapple airborne poses, the Draygon grab and the
+    /// compact and Draygon-held transitions. These keep their definitions because their animations are laid out after reachable
     /// ones and a read past an animation's end runs them under the reading pose; nothing installs the poses themselves. The
-    /// records of the poses no path reaches in any way, not even by such a read, have no pose at all (#1517).
+    /// definitions of the poses no path reaches in any way, not even by such a read, have no pose at all (#1517).
     /// </summary>
     internal static readonly SamusPoseId[] Poses =
     [

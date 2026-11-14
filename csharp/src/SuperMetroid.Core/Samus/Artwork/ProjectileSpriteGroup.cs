@@ -5,31 +5,31 @@ public enum ProjectileSpriteGroup
 {
     /// <summary>The empty composition an invisible projectile draws.</summary>
     Nothing,
-    /// <summary>The eight one-cell Power beam poses.</summary>
+    /// <summary>The eight small Power beam poses.</summary>
     Power,
-    /// <summary>Plasma's axial four-part and diagonal six-part strips.</summary>
+    /// <summary>Plasma's axial and diagonal strips.</summary>
     Plasma,
-    /// <summary>The missile explosion's growth from one central part to five four-quadrant poses.</summary>
+    /// <summary>The missile explosion's growth from a small central flash to five full bursts.</summary>
     MissileExplosion,
-    /// <summary>The bomb explosion's five four-quadrant stages.</summary>
+    /// <summary>The bomb explosion's five growing bursts.</summary>
     BombExplosion,
     /// <summary>The super-missile explosion's cores, core with spikes, ring and ring with spikes.</summary>
     SuperMissileExplosion,
     /// <summary>The three Power Bomb poses.</summary>
     PowerBomb,
-    /// <summary>The beam explosion's two single-part cores and four four-quadrant stages.</summary>
+    /// <summary>The beam explosion's two small cores and four growing bursts.</summary>
     BeamExplosion,
     /// <summary>The four bomb poses.</summary>
     Bomb,
-    /// <summary>The eight missile compass poses: each two-part axial pose followed by a three-part diagonal one.</summary>
+    /// <summary>The eight missile compass poses: each axial pose followed by a diagonal one.</summary>
     Missile,
-    /// <summary>The eight super-missile compass poses: each two-part axial pose followed by a three-part diagonal one.</summary>
+    /// <summary>The eight super-missile compass poses: each axial pose followed by a diagonal one.</summary>
     SuperMissile,
-    /// <summary>The Wave beam's centered cell and its four stages in each of eight displacement directions.</summary>
+    /// <summary>The Wave beam's centred core and its four stages in each of eight displacement directions.</summary>
     Wave,
-    /// <summary>Charged Wave's two four-quadrant cores, then its paired four-quadrant lobes.</summary>
+    /// <summary>Charged Wave's two cores, then its paired lobes.</summary>
     ChargedWave,
-    /// <summary>Charged IceWave's two four-quadrant cores, then its paired four-quadrant lobes.</summary>
+    /// <summary>Charged IceWave's two cores, then its paired lobes.</summary>
     ChargedIceWave,
     /// <summary>PlasmaWave's cores and lobes in each of its twelve orientations and alternates.</summary>
     PlasmaWave,
@@ -37,9 +37,9 @@ public enum ProjectileSpriteGroup
     Spazer,
     /// <summary>Charged Spazer's seeds and spreads in its axial and diagonal orientations.</summary>
     ChargedSpazer,
-    /// <summary>Charged Power's sixteen four-quadrant poses.</summary>
+    /// <summary>Charged Power's sixteen poses.</summary>
     ChargedPower,
-    /// <summary>Charged Ice's four four-quadrant poses.</summary>
+    /// <summary>Charged Ice's four poses.</summary>
     ChargedIce,
     /// <summary>Ice beam's four centered poses.</summary>
     Ice,
@@ -47,7 +47,7 @@ public enum ProjectileSpriteGroup
     SpazerStartup,
     /// <summary>Charged Plasma's startup growth across its axial and diagonal orientations.</summary>
     PlasmaStartup,
-    /// <summary>The charge, Hyper and grapple flare: three one-object poses and the four-object crest.</summary>
+    /// <summary>The charge, Hyper and grapple flare: three small poses and the large crest.</summary>
     FlareMain,
     /// <summary>The six slow right-facing spark poses.</summary>
     FlareSlowSparksRight,
@@ -58,8 +58,8 @@ public enum ProjectileSpriteGroup
     /// <summary>The six fast left-facing spark poses.</summary>
     FlareFastSparksLeft,
     /// <summary>
-    /// The burst a hit of Samus's weapon shows at an enemy it hurts (#1713): four poses, each four mirrored pieces, nearest
-    /// its centre first.
+    /// The burst a hit of Samus's weapon shows at an enemy it hurts (#1713): four poses of a burst mirrored about its centre,
+    /// smallest first.
     /// </summary>
     HitBurst,
 }

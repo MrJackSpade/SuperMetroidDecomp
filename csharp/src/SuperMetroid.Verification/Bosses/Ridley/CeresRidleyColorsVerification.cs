@@ -39,7 +39,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyColorFormat.EyeFadeColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.EyeFadeColorCount,
                 color => native.ResolveEyeFade(row, color));
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
+        for (int row = 0; row < CeresRidleyShadeDefinitions.BodyFadeShadeCount; row++)
             Check(RidleySourceDefinitions.Ceres.BodyFadeColors + row *
                 CeresRidleyColorFormat.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.BodyFadeColorCount,
@@ -80,7 +80,7 @@ internal static class CeresRidleyColorsVerification
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
         CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
-            document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
+            document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = RidleyFadeIn.TickEyeFadeIn;
@@ -96,24 +96,24 @@ internal static class CeresRidleyColorsVerification
             AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
                 $"installed eye fade step {step} advances");
             CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
-                CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
+                CeresRidleyShadeDefinitionsConstants.EyeFadeCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
         state.Phase = RidleyPhase.FadeInBody;
-        for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
+        for (int row = 0; row < CeresRidleyShadeDefinitions.BodyFadeShadeCount; row++)
         {
             state.FadeStep = row;
             state.PhaseTimer = 1;
             bodyTick(slot, state);
-            AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
+            AssertEqual(row == CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
                 state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
-                CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
+                CeresRidleyShadeDefinitionsConstants.BodyFadeBgCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
-                CeresRidleyPaletteDefinitionsConstants.BodyFadeObjCgramIndex,
+                CeresRidleyShadeDefinitionsConstants.BodyFadeObjCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
@@ -122,10 +122,10 @@ internal static class CeresRidleyColorsVerification
         {
             state.HitCounter = count;
             healthTick(state);
-            int row = count < 70 ? CeresRidleyPaletteDefinitions.HealthMidBand :
-                CeresRidleyPaletteDefinitions.HealthLateBand;
+            int row = count < 70 ? CeresRidleyShadeDefinitions.HealthMidBand :
+                CeresRidleyShadeDefinitions.HealthLateBand;
             CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
-                CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
+                CeresRidleyShadeDefinitionsConstants.HealthCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
@@ -141,10 +141,10 @@ internal static class CeresRidleyColorsVerification
         AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
-            CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,
+            CeresRidleyShadeDefinitionsConstants.RetreatBgCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveRetreatBg, "Ceres Ridley retreat BG");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
-            CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
+            CeresRidleyShadeDefinitionsConstants.RetreatSharedBgCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveRetreatShared, "Ceres Ridley retreat shared BG");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");

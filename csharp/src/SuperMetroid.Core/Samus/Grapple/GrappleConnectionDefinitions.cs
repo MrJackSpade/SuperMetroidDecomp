@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionKind;
-using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
+using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionPose;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection;
 using SuperMetroid.Core.Samus.Poses;
@@ -17,12 +17,12 @@ internal static class GrappleConnectionDefinitions
     /// vertically always swings, clockwise for the five directions from up (facing right) to down (facing right) and
     /// anticlockwise for the other five. Standing and crouching swing from the upward diagonals and verticals and lock
     /// Samus in place otherwise; crouching locks in its own crouching poses except when aiming down, where both
-    /// policies use the standing down handler.
+    /// policies use the standing down pose.
     /// </summary>
-    internal static readonly FrozenDictionary<GrappleConnectionTable, FrozenDictionary<SamusProjectileDirection, GrappleConnection>> Directional =
-        new Dictionary<GrappleConnectionTable, FrozenDictionary<SamusProjectileDirection, GrappleConnection>>
+    internal static readonly FrozenDictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>> Directional =
+        new Dictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>>
         {
-            [GrappleConnectionTable.Default] = new Dictionary<SamusProjectileDirection, GrappleConnection>
+            [GrappleConnectionPolicy.Default] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
                 [UpFacingRight] = new(Swinging, SwingClockwise),
                 [UpRight] = new(Swinging, SwingClockwise),
@@ -35,7 +35,7 @@ internal static class GrappleConnectionDefinitions
                 [UpLeft] = new(Swinging, SwingAnticlockwise),
                 [UpFacingLeft] = new(Swinging, SwingAnticlockwise),
             }.ToFrozenDictionary(),
-            [GrappleConnectionTable.MovingVertically] = new Dictionary<SamusProjectileDirection, GrappleConnection>
+            [GrappleConnectionPolicy.MovingVertically] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
                 [UpFacingRight] = new(Swinging, SwingClockwise),
                 [UpRight] = new(Swinging, SwingClockwise),
@@ -48,7 +48,7 @@ internal static class GrappleConnectionDefinitions
                 [UpLeft] = new(Swinging, SwingAnticlockwise),
                 [UpFacingLeft] = new(Swinging, SwingAnticlockwise),
             }.ToFrozenDictionary(),
-            [GrappleConnectionTable.Crouching] = new Dictionary<SamusProjectileDirection, GrappleConnection>
+            [GrappleConnectionPolicy.Crouching] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
                 [UpFacingRight] = new(Swinging, SwingClockwise),
                 [UpRight] = new(Swinging, SwingClockwise),

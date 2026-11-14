@@ -59,8 +59,8 @@ internal static class SamusHudDefinitionsVerification
             state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue));
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
-            SamusHudHandler handler = HandlerOf(rom, movement);
-            AssertEqual(handler, SamusHudObservations.MovementHandler(SamusMovementTypeNumbers.Of(movement)), "Every named movement's native HUD handler identity");
+            SamusHudSelectionMode handler = HandlerOf(rom, movement);
+            AssertEqual(handler, SamusHudObservations.SelectionMode(SamusMovementTypeNumbers.Of(movement)), "Every named movement's native HUD handler identity");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })
@@ -72,9 +72,9 @@ internal static class SamusHudDefinitionsVerification
                 if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
                 samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
-                    (handler is SamusHudHandler.Standard or SamusHudHandler.Grapple or SamusHudHandler.DraygonHeld ||
-                        handler == SamusHudHandler.Turning && turn != 0 ||
-                        handler == SamusHudHandler.Transition && Transition(SamusPoseNumbering.FromNumber(pose), false));
+                    (handler is SamusHudSelectionMode.Standard or SamusHudSelectionMode.Grapple or SamusHudSelectionMode.DraygonHeld ||
+                        handler == SamusHudSelectionMode.Turning && turn != 0 ||
+                        handler == SamusHudSelectionMode.Transition && Transition(SamusPoseNumbering.FromNumber(pose), false));
                 AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(samus, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission), "Actual Grapple HUD admission");
             }
         }
@@ -96,10 +96,10 @@ internal static class SamusHudDefinitionsVerification
             AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
-            SamusHudHandler handler = HandlerOf(rom, movement);
+            SamusHudSelectionMode handler = HandlerOf(rom, movement);
             bool ball = SamusPoseMetadata.IsStableBallPose(pose);
-            bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudHandler.Jump ||
-                handler == SamusHudHandler.Turning && turn == 0 || handler == SamusHudHandler.Transition && !Transition(pose, false);
+            bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudSelectionMode.Jump ||
+                handler == SamusHudSelectionMode.Turning && turn == 0 || handler == SamusHudSelectionMode.Transition && !Transition(pose, false);
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
@@ -128,23 +128,23 @@ internal static class SamusHudDefinitionsVerification
     /// The HUD handler each cartridge movement-handler pointer names (#1491): the import side of the identity check, so
     /// the comparison is of identities and nothing reads the enum's values.
     /// </summary>
-    private static readonly Dictionary<ushort, SamusHudHandler> HandlerAt = new()
+    private static readonly Dictionary<ushort, SamusHudSelectionMode> HandlerAt = new()
     {
-        [0xdd3d] = SamusHudHandler.Standard,
-        [0xbf9d] = SamusHudHandler.MorphBall,
-        [0xddb6] = SamusHudHandler.Jump,
-        [0xdd6f] = SamusHudHandler.Grapple,
-        [0xddd8] = SamusHudHandler.DraygonHeld,
-        [0xdd74] = SamusHudHandler.Turning,
-        [0xdd8c] = SamusHudHandler.Transition,
+        [0xdd3d] = SamusHudSelectionMode.Standard,
+        [0xbf9d] = SamusHudSelectionMode.MorphBall,
+        [0xddb6] = SamusHudSelectionMode.Jump,
+        [0xdd6f] = SamusHudSelectionMode.Grapple,
+        [0xddd8] = SamusHudSelectionMode.DraygonHeld,
+        [0xdd74] = SamusHudSelectionMode.Turning,
+        [0xdd8c] = SamusHudSelectionMode.Transition,
     };
 
     /// <summary>The HUD handler the cartridge's movement-handler table names for <paramref name="movement"/>.</summary>
     /// <exception cref="InvalidDataException">The table names a handler the identity table does not know.</exception>
-    private static SamusHudHandler HandlerOf(CartridgeImportAddressSpace rom, int movement)
+    private static SamusHudSelectionMode HandlerOf(CartridgeImportAddressSpace rom, int movement)
     {
         ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
-        return HandlerAt.TryGetValue(word, out SamusHudHandler handler) ? handler
+        return HandlerAt.TryGetValue(word, out SamusHudSelectionMode handler) ? handler
             : throw new InvalidDataException($"Movement type {movement} names unknown HUD handler ${word:X4}.");
     }
 

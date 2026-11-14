@@ -72,8 +72,8 @@ internal static class GrappleConnections
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 
-    /// <summary>The connection <paramref name="table"/>'s policy installs for a grapple fired in <paramref name="fireDirection"/>.</summary>
+    /// <summary>The connection <paramref name="policy"/> installs for a grapple fired in <paramref name="fireDirection"/>.</summary>
     /// <exception cref="KeyNotFoundException">The policy or direction is not a defined member.</exception>
-    internal static GrappleConnection ResolveConnection(GrappleConnectionTable table, SamusProjectileDirection fireDirection) =>
-        Directional[table][fireDirection];
+    internal static GrappleConnection ResolveConnection(GrappleConnectionPolicy policy, SamusProjectileDirection fireDirection) =>
+        Directional[policy][fireDirection];
 }

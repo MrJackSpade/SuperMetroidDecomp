@@ -5,18 +5,18 @@ using L = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailPlacementList;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Where projectile trails start: the family each trail selector gives a beam combination, the list each family gives a
+/// Where projectile trails start: the family each group gives a beam combination, the list each family gives a
 /// direction, and each list's placements by animation frame.
 /// </summary>
 internal static class ProjectileTrailPlacementDefinitions
 {
     /// <summary>
-    /// The family each selector row names. Uncharged and charged rows twelve to fifteen read the following table's first
-    /// rows. Null is a row that names no family: an empty row, whose direction table is left-over values, or a row
-    /// past the special beam attack table's ten, which reads list data whose values name no trail list.
+    /// The family each choice names. Uncharged and charged combinations twelve to fifteen read the following group's first
+    /// choices. Null is a choice that names no family: an empty one, whose directions are left-over values, or a choice
+    /// past the special beam attacks' ten, which reads list data whose values name no trail list.
     /// </summary>
-    internal static readonly FrozenDictionary<ProjectileTrailSelectorRow, ProjectileTrailFamily?> Families =
-        new Dictionary<ProjectileTrailSelectorRow, ProjectileTrailFamily?>
+    internal static readonly FrozenDictionary<ProjectileTrailChoice, ProjectileTrailFamily?> Families =
+        new Dictionary<ProjectileTrailChoice, ProjectileTrailFamily?>
         {
             [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.Power)] = ProjectileTrailFamily.UnchargedDefault,
             [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.Wave)] = ProjectileTrailFamily.UnchargedWave,

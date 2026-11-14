@@ -7,9 +7,9 @@ public static class PhantoonDeathExplosionDefinitions
 {
     /// <summary>Thirteen explosions, each with a position, a type and a delay.</summary>
     public const int Count = 13;
-    /// <summary>Repeat from record five after the initial pass.</summary>
+    /// <summary>Repeat from explosion five after the initial pass.</summary>
     public const int RepeatStart = 5;
-    /// <summary>Finish after three trips through the end of the record table.</summary>
+    /// <summary>Finish after three trips through the end of the explosion list.</summary>
     public const int PassCount = 3;
 
     /// <summary>Signed X/Y offsets, misc-dust explosion animation, and delay until the next request.</summary>

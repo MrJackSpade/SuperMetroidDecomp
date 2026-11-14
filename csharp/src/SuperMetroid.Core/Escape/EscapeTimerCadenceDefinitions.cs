@@ -12,7 +12,7 @@ internal static class EscapeTimerCadenceDefinitions
     internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
     /// <summary>Decimal timer time unit: one second contains100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;
-    /// <summary>Nominal NTSC video cadence used to quantize the countdown rate; this is a time-unit parameter, not a host clock dependency.</summary>
+    /// <summary>The game's nominal sixty updates per second, used to quantize the countdown rate; this is a time-unit parameter, not a host clock dependency.</summary>
     internal const int NominalFramesPerSecond = 60;
     /// <summary>Round one128-frame period to the nearest integer centisecond; result213 (43 one-unit and85 two-unit corrections).</summary>
     internal const int PeriodCentiseconds = (PeriodFrames * CentisecondsPerSecond + NominalFramesPerSecond / 2) / NominalFramesPerSecond;

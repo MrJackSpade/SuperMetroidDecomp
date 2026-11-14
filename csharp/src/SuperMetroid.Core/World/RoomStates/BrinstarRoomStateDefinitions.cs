@@ -64,12 +64,12 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(SporeSpawnKihunters), RoomLevelDefinitions.SporeSpawnKihunters, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.GreenBrinstar, RoomMusicTrack.Plays(MusicTrack.GreenBrinstar)), SuperMetroid.Core.Fx.RoomFxDefinitions.SporeSpawnKihunters, RoomEnemyPopulationDefinitions.SporeSpawnKihunters, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SporeSpawnKihunters, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarHorizontalGlowPatches, RoomSetupBehavior.None);
 
 
-    /// <summary>The Spore Spawn room's state 0.</summary>
+    /// <summary>The Spore Spawn room's default state.</summary>
     public static RoomStateSettings SporeSpawnDefault { get; } =
         new(nameof(SporeSpawnDefault), RoomLevelDefinitions.SporeSpawn, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.MiniBossFight, RoomMusicTrack.Plays(MusicTrack.MiniBossBattle)), SuperMetroid.Core.Fx.RoomFxDefinitions.SporeSpawn, RoomEnemyPopulationDefinitions.SporeSpawn, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AllOpen, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SporeSpawn, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Spore Spawn room's state 1.</summary>
+    /// <summary>The Spore Spawn room's state once the area's mini-boss is dead.</summary>
     public static RoomStateSettings SporeSpawnWhenAreaMiniBossDead { get; } =
         new(nameof(SporeSpawnWhenAreaMiniBossDead), RoomLevelDefinitions.SporeSpawn, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.SporeSpawn, RoomEnemyPopulationDefinitions.SporeSpawn, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AllOpen, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SporeSpawn, null, RoomSetupBehavior.None);
 
@@ -84,32 +84,32 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(GreenHillZone), RoomLevelDefinitions.GreenHillZone, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.GreenBrinstar, RoomMusicTrack.Plays(MusicTrack.GreenBrinstar)), SuperMetroid.Core.Fx.RoomFxDefinitions.GreenHillZone, RoomEnemyPopulationDefinitions.GreenHillZone, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenHillZone, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GreenHillZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarSpheresPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Morph Ball room's state 0.</summary>
+    /// <summary>The Morph Ball room's default state.</summary>
     public static RoomStateSettings MorphBallDefault { get; } =
         new(nameof(MorphBallDefault), RoomLevelDefinitions.MorphBall, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.BlueBrinstarArrival)), SuperMetroid.Core.Fx.RoomFxDefinitions.MorphBallDefault, RoomEnemyPopulationDefinitions.MorphBallDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MorphBall, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MorphBallDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Morph Ball room's state 1.</summary>
+    /// <summary>The Morph Ball room's state once Zebes is awake.</summary>
     public static RoomStateSettings MorphBallWhenZebesAwake { get; } =
         new(nameof(MorphBallWhenZebesAwake), RoomLevelDefinitions.MorphBall, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MorphBall, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MorphBallWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Construction Zone room's state 0.</summary>
+    /// <summary>The Construction Zone room's default state.</summary>
     public static RoomStateSettings ConstructionZoneDefault { get; } =
         new(nameof(ConstructionZoneDefault), RoomLevelDefinitions.ConstructionZone, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ConstructionZoneDefault, RoomEnemyPopulationDefinitions.ConstructionZoneDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ConstructionZone, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ConstructionZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Construction Zone room's state 1.</summary>
+    /// <summary>The Construction Zone room's state once Zebes is awake.</summary>
     public static RoomStateSettings ConstructionZoneWhenZebesAwake { get; } =
         new(nameof(ConstructionZoneWhenZebesAwake), RoomLevelDefinitions.ConstructionZone, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ConstructionZone, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ConstructionZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Blue Brinstar E Tank room's state 0.</summary>
+    /// <summary>The Blue Brinstar E Tank room's default state.</summary>
     public static RoomStateSettings BlueBrinstarETankDefault { get; } =
         new(nameof(BlueBrinstarETankDefault), RoomLevelDefinitions.BlueBrinstarETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueBrinstarETankDefault, RoomEnemyPopulationDefinitions.BlueBrinstarETankDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Blue Brinstar E Tank room's state 1.</summary>
+    /// <summary>The Blue Brinstar E Tank room's state once Zebes is awake.</summary>
     public static RoomStateSettings BlueBrinstarETankWhenZebesAwake { get; } =
         new(nameof(BlueBrinstarETankWhenZebesAwake), RoomLevelDefinitions.BlueBrinstarETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
@@ -254,12 +254,12 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(WarehouseKihunter), RoomLevelDefinitions.WarehouseKihunter, RoomGraphicsSet.RedBrinstarKraid, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.RedBrinstar)), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseKihunter, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseKihunter, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseKihunter, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Mini Kraid room's state 0.</summary>
+    /// <summary>The Mini Kraid room's default state.</summary>
     public static RoomStateSettings MiniKraidDefault { get; } =
         new(nameof(MiniKraidDefault), RoomLevelDefinitions.MiniKraid, RoomGraphicsSet.RedBrinstarKraid, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.BossRoomTension)), SuperMetroid.Core.Fx.RoomFxDefinitions.MiniKraid, RoomEnemyPopulationDefinitions.MiniKraid, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MiniKraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarNarrowVerticalTowerBrickVines, RoomSetupBehavior.None);
 
 
-    /// <summary>The Mini Kraid room's state 1.</summary>
+    /// <summary>The Mini Kraid room's state once the area's boss is dead.</summary>
     public static RoomStateSettings MiniKraidWhenAreaBossDead { get; } =
         new(nameof(MiniKraidWhenAreaBossDead), RoomLevelDefinitions.MiniKraid, RoomGraphicsSet.RedBrinstarKraid, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.MiniKraid, RoomEnemyPopulationDefinitions.MiniKraid, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MiniKraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarNarrowVerticalTowerBrickVines, RoomSetupBehavior.None);
 
@@ -269,12 +269,12 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(KraidEyeDoor), RoomLevelDefinitions.KraidEyeDoor, RoomGraphicsSet.RedBrinstarKraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.KraidEyeDoor, RoomEnemyPopulationDefinitions.KraidEyeDoor, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.KraidEyeDoor, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.KraidEyeDoor, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Kraid room's state 0.</summary>
+    /// <summary>The Kraid room's default state.</summary>
     public static RoomStateSettings KraidDefault { get; } =
         new(nameof(KraidDefault), RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, new RoomMusic(MusicDataSet.KraidAndPhantoonBattles, RoomMusicTrack.Plays(MusicTrack.BossRoomTension)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarKraidUpperLower, RoomSetupBehavior.None);
 
 
-    /// <summary>The Kraid room's state 1.</summary>
+    /// <summary>The Kraid room's state once the area's boss is dead.</summary>
     public static RoomStateSettings KraidWhenAreaBossDead { get; } =
         new(nameof(KraidWhenAreaBossDead), RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.KraidDead, RoomSetupBehavior.None);
 

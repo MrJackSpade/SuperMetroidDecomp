@@ -21,14 +21,14 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         ushort[] thresholds = new ushort[8];
         for (int index = 0; index < thresholds.Length; index++)
         {
-            thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthPaletteDefinitions.NativeThresholdAddress + index * 2));
+            thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthShadeDefinitions.NativeThresholdAddress + index * 2));
         }
         AssertEqual((ushort)0xffff,
-            CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthPaletteDefinitions.NativeThresholdAddress + 16)),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthShadeDefinitions.NativeThresholdAddress + 16)),
             "Draygon health threshold native terminator");
 
         for (ushort health = 0;
-             health <= DraygonHealthPaletteDefinitions.MaximumAuthoredHealth;
+             health <= DraygonHealthShadeDefinitions.MaximumAuthoredHealth;
              health++)
         {
             int expectedIndex = Array.FindIndex(
@@ -36,12 +36,12 @@ internal static class DraygonHealthPaletteDefinitionsVerification
                 threshold => unchecked((short)(health - threshold)) >= 0);
             AssertTrue(expectedIndex >= 0, $"Draygon health {health} matches a native band");
             AssertEqual(expectedIndex,
-                DraygonHealthPalette.BandForHealth(health),
+                DraygonHealthShades.BandForHealth(health),
                 $"Draygon health {health} compiled palette band");
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonHealthPalette.BandForHealth(6001),
+            () => DraygonHealthShades.BandForHealth(6001),
             "Draygon rejects health above its authored enemy-header maximum");
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
@@ -62,7 +62,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             state.HealthBand = null;
             update(state);
             AssertEqual(
-                DraygonHealthPalette.BandForHealth(health),
+                DraygonHealthShades.BandForHealth(health),
                 state.HealthBand,
                 $"production Draygon health {health} palette band");
         }
@@ -86,6 +86,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
     /// <summary>Forbids reads of the native threshold words and their terminator during palette selection.</summary>
     private static CartridgeReadGuard NewDraygonHealthThresholdReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .ForbidRange(DraygonHealthPaletteDefinitions.NativeThresholdAddress, 18,
+            .ForbidRange(DraygonHealthShadeDefinitions.NativeThresholdAddress, 18,
                 address => $"Draygon palette selection attempted threshold read ${address:X6}.");
 }

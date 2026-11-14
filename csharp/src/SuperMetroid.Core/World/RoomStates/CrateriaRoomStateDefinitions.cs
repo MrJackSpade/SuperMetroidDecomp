@@ -8,47 +8,47 @@ namespace SuperMetroid.Core.World.RoomStates;
 [NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class CrateriaRoomStateDefinitions
 {
-    /// <summary>The Landing Site room's state 0.</summary>
+    /// <summary>The Landing Site room's default state.</summary>
     public static RoomStateSettings LandingSiteDefault { get; } =
         new(nameof(LandingSiteDefault), RoomLevelDefinitions.LandingSite, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.CrateriaArrival)), SuperMetroid.Core.Fx.RoomFxDefinitions.LandingSiteDefaultOrWhenZebesAwake, RoomEnemyPopulationDefinitions.LandingSite012, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LandingSite, null, RoomMainBehavior.ScrollingSkyLand, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyLandingSite, RoomSetupBehavior.ScrollingSkyLand);
 
 
-    /// <summary>The Landing Site room's state 1.</summary>
+    /// <summary>The Landing Site room's state once Zebes is awake.</summary>
     public static RoomStateSettings LandingSiteWhenZebesAwake { get; } =
         new(nameof(LandingSiteWhenZebesAwake), RoomLevelDefinitions.LandingSite, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.CrateriaArrivalZebesAwake)), SuperMetroid.Core.Fx.RoomFxDefinitions.LandingSiteDefaultOrWhenZebesAwake, RoomEnemyPopulationDefinitions.LandingSite012, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LandingSite, null, RoomMainBehavior.ScrollingSkyLand, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyLandingSite, RoomSetupBehavior.ScrollingSkyLand);
 
 
-    /// <summary>The Landing Site room's state 2.</summary>
+    /// <summary>The Landing Site room's state once Samus has Power Bombs.</summary>
     public static RoomStateSettings LandingSiteWithPowerBombs { get; } =
         new(nameof(LandingSiteWithPowerBombs), RoomLevelDefinitions.LandingSite, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.LandingSiteWithPowerBombs, RoomEnemyPopulationDefinitions.LandingSite012, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LandingSite, null, RoomMainBehavior.ScrollingSkyLand, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyLandingSite, RoomSetupBehavior.ScrollingSkyLand);
 
 
-    /// <summary>The Landing Site room's state 3.</summary>
+    /// <summary>The Landing Site room's state once the Zebes time bomb is set.</summary>
     public static RoomStateSettings LandingSiteWhenZebesTimebombSet { get; } =
         new(nameof(LandingSiteWhenZebesTimebombSet), RoomLevelDefinitions.LandingSite, RoomGraphicsSet.UpperCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.LandingSiteWhenZebesTimebombSet, RoomEnemyPopulationDefinitions.LandingSiteWhenZebesTimebombSet, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LandingSite, null, RoomMainBehavior.ScrollingSkyLandZebesTimebombSet, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LandingSiteWhenZebesTimebombSet, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyLandingSite, RoomSetupBehavior.LandSkyWithLandingSiteQuake);
 
 
-    /// <summary>The Gauntlet Entrance room's state 0.</summary>
+    /// <summary>The Gauntlet Entrance room's default state.</summary>
     public static RoomStateSettings GauntletEntranceDefault { get; } =
         new(nameof(GauntletEntranceDefault), RoomLevelDefinitions.GauntletEntrance, RoomGraphicsSet.UpperCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GauntletEntrance, RoomEnemyPopulationDefinitions.GauntletEntrance, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GauntletEntrance, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaHorizontalPatternRocks, RoomSetupBehavior.None);
 
 
-    /// <summary>The Gauntlet Entrance room's state 1.</summary>
+    /// <summary>The Gauntlet Entrance room's state once Zebes is awake.</summary>
     public static RoomStateSettings GauntletEntranceWhenZebesAwake { get; } =
         new(nameof(GauntletEntranceWhenZebesAwake), RoomLevelDefinitions.GauntletEntrance, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.GauntletEntrance, RoomEnemyPopulationDefinitions.GauntletEntrance, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GauntletEntrance, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaHorizontalPatternRocks, RoomSetupBehavior.None);
 
 
-    /// <summary>The Parlor room's state 0.</summary>
+    /// <summary>The Parlor room's default state.</summary>
     public static RoomStateSettings ParlorDefault { get; } =
         new(nameof(ParlorDefault), RoomLevelDefinitions.Parlor, RoomGraphicsSet.UpperCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ParlorDefault, RoomEnemyPopulationDefinitions.ParlorDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Parlor, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ParlorDefaultOrWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaRocks, RoomSetupBehavior.None);
 
 
-    /// <summary>The Parlor room's state 1.</summary>
+    /// <summary>The Parlor room's state once Zebes is awake.</summary>
     public static RoomStateSettings ParlorWhenZebesAwake { get; } =
         new(nameof(ParlorWhenZebesAwake), RoomLevelDefinitions.Parlor, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.ParlorWhenZebesAwake, RoomEnemyPopulationDefinitions.ParlorWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Parlor, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ParlorDefaultOrWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaRocks, RoomSetupBehavior.None);
 
 
-    /// <summary>The Parlor room's state 2.</summary>
+    /// <summary>The Parlor room's state once the Zebes time bomb is set.</summary>
     public static RoomStateSettings ParlorWhenZebesTimebombSet { get; } =
         new(nameof(ParlorWhenZebesTimebombSet), RoomLevelDefinitions.Parlor, RoomGraphicsSet.UpperCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ParlorWhenZebesTimebombSet, RoomEnemyPopulationDefinitions.ParlorWhenZebesTimebombSet, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Parlor, null, RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ParlorWhenZebesTimebombSet, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaRocks, RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen);
 
@@ -128,67 +128,67 @@ public static class CrateriaRoomStateDefinitions
         new(nameof(PreBowling), RoomLevelDefinitions.PreBowling, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.PreBowling, RoomEnemyPopulationDefinitions.PreBowling, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.ScrollingSkyOcean, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PreBowling, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyBowlingAlley, RoomSetupBehavior.ScrollingSkyOcean);
 
 
-    /// <summary>The Climb room's state 0.</summary>
+    /// <summary>The Climb room's default state.</summary>
     public static RoomStateSettings ClimbDefault { get; } =
         new(nameof(ClimbDefault), RoomLevelDefinitions.Climb, RoomGraphicsSet.OldTourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ClimbDefault, RoomEnemyPopulationDefinitions.ClimbDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Climb, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ClimbDefaultOrWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Climb room's state 1.</summary>
+    /// <summary>The Climb room's state once Zebes is awake.</summary>
     public static RoomStateSettings ClimbWhenZebesAwake { get; } =
         new(nameof(ClimbWhenZebesAwake), RoomLevelDefinitions.Climb, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.ClimbWhenZebesAwake, RoomEnemyPopulationDefinitions.ClimbWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Climb, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ClimbDefaultOrWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Climb room's state 2.</summary>
+    /// <summary>The Climb room's state once the Zebes time bomb is set.</summary>
     public static RoomStateSettings ClimbWhenZebesTimebombSet { get; } =
         new(nameof(ClimbWhenZebesTimebombSet), RoomLevelDefinitions.Climb, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Escape)), SuperMetroid.Core.Fx.RoomFxDefinitions.ClimbWhenZebesTimebombSet, RoomEnemyPopulationDefinitions.ClimbWhenZebesTimebombSet, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Climb, null, RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ClimbWhenZebesTimebombSet, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.AutoDestroyWallDuringEscape);
 
 
-    /// <summary>The Pit room's state 0.</summary>
+    /// <summary>The Pit room's default state.</summary>
     public static RoomStateSettings PitDefault { get; } =
         new(nameof(PitDefault), RoomLevelDefinitions.Pit, RoomGraphicsSet.OldTourian, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.PitDefault, RoomEnemyPopulationDefinitions.PitDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Pit, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PitDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Pit room's state 1.</summary>
+    /// <summary>The Pit room's state once Samus has the Morph Ball and missiles.</summary>
     public static RoomStateSettings PitWithMorphBallAndMissiles { get; } =
         new(nameof(PitWithMorphBallAndMissiles), RoomLevelDefinitions.Pit, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.PitWithMorphBallAndMissiles, RoomEnemyPopulationDefinitions.PitWithMorphBallAndMissiles, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Pit, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PitWithMorphBallAndMissiles, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Elev To Blue Brinstar room's state 0.</summary>
+    /// <summary>The Elev To Blue Brinstar room's default state.</summary>
     public static RoomStateSettings ElevToBlueBrinstarDefault { get; } =
         new(nameof(ElevToBlueBrinstarDefault), RoomLevelDefinitions.ElevToBlueBrinstar, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(MusicTrack.CrateriaArrival)), SuperMetroid.Core.Fx.RoomFxDefinitions.ElevToBlueBrinstarDefault, RoomEnemyPopulationDefinitions.ElevToBlueBrinstar, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ElevToBlueBrinstar, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ElevToBlueBrinstar, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Elev To Blue Brinstar room's state 1.</summary>
+    /// <summary>The Elev To Blue Brinstar room's state once Samus has the Morph Ball and missiles.</summary>
     public static RoomStateSettings ElevToBlueBrinstarWithMorphBallAndMissiles { get; } =
         new(nameof(ElevToBlueBrinstarWithMorphBallAndMissiles), RoomLevelDefinitions.ElevToBlueBrinstar, RoomGraphicsSet.LowerCrateria, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.ElevToBlueBrinstarWithMorphBallAndMissiles, RoomEnemyPopulationDefinitions.ElevToBlueBrinstar, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ElevToBlueBrinstar, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ElevToBlueBrinstar, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Bomb Torizo room's state 0.</summary>
+    /// <summary>The Bomb Torizo room's default state.</summary>
     public static RoomStateSettings BombTorizoDefault { get; } =
         new(nameof(BombTorizoDefault), RoomLevelDefinitions.BombTorizo, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.BombTorizoDefaultOrWhenAreaTorizoDead, RoomEnemyPopulationDefinitions.BombTorizo01, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Bomb Torizo room's state 1.</summary>
+    /// <summary>The Bomb Torizo room's state once the area's Torizo is dead.</summary>
     public static RoomStateSettings BombTorizoWhenAreaTorizoDead { get; } =
         new(nameof(BombTorizoWhenAreaTorizoDead), RoomLevelDefinitions.BombTorizo, RoomGraphicsSet.LowerCrateria, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.BombTorizoDefaultOrWhenAreaTorizoDead, RoomEnemyPopulationDefinitions.BombTorizo01, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Bomb Torizo room's state 2.</summary>
+    /// <summary>The Bomb Torizo room's state once the Zebes time bomb is set.</summary>
     public static RoomStateSettings BombTorizoWhenZebesTimebombSet { get; } =
         new(nameof(BombTorizoWhenZebesTimebombSet), RoomLevelDefinitions.BombTorizo, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BombTorizoWhenZebesTimebombSet, RoomEnemyPopulationDefinitions.BombTorizoWhenZebesTimebombSet, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks, RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BombTorizoWhenZebesTimebombSet, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape);
 
 
-    /// <summary>The Flyway room's state 0.</summary>
+    /// <summary>The Flyway room's default state.</summary>
     public static RoomStateSettings FlywayDefault { get; } =
         new(nameof(FlywayDefault), RoomLevelDefinitions.Flyway, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.FlywayDefaultOrWhenAreaTorizoDead, RoomEnemyPopulationDefinitions.Flyway01, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FlywayDefaultOrWhenAreaTorizoDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaBrickRoomWallArtDark, RoomSetupBehavior.None);
 
 
-    /// <summary>The Flyway room's state 1.</summary>
+    /// <summary>The Flyway room's state once the area's Torizo is dead.</summary>
     public static RoomStateSettings FlywayWhenAreaTorizoDead { get; } =
         new(nameof(FlywayWhenAreaTorizoDead), RoomLevelDefinitions.Flyway, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.LowerCrateria)), SuperMetroid.Core.Fx.RoomFxDefinitions.FlywayDefaultOrWhenAreaTorizoDead, RoomEnemyPopulationDefinitions.Flyway01, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FlywayDefaultOrWhenAreaTorizoDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaBrickRoomWallArtDark, RoomSetupBehavior.None);
 
 
-    /// <summary>The Flyway room's state 2.</summary>
+    /// <summary>The Flyway room's state once the Zebes time bomb is set.</summary>
     public static RoomStateSettings FlywayWhenZebesTimebombSet { get; } =
         new(nameof(FlywayWhenZebesTimebombSet), RoomLevelDefinitions.Flyway, RoomGraphicsSet.LowerCrateria, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Escape)), SuperMetroid.Core.Fx.RoomFxDefinitions.FlywayWhenZebesTimebombSet, RoomEnemyPopulationDefinitions.FlywayWhenZebesTimebombSet, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FlywayWhenZebesTimebombSet, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaBrickRoomWallArtDark, RoomSetupBehavior.None);
 
@@ -228,22 +228,22 @@ public static class CrateriaRoomStateDefinitions
         new(nameof(CrateriaSuper), RoomLevelDefinitions.CrateriaSuper, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrateriaSuper, RoomEnemyPopulationDefinitions.CrateriaSuper, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrateriaSuper, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrateriaSuper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Final Missile Bombway room's state 0.</summary>
+    /// <summary>The Final Missile Bombway room's default state.</summary>
     public static RoomStateSettings FinalMissileBombwayDefault { get; } =
         new(nameof(FinalMissileBombwayDefault), RoomLevelDefinitions.FinalMissileBombway, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FinalMissileBombwayDefault, RoomEnemyPopulationDefinitions.FinalMissileBombwayDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FinalMissileBombway, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FinalMissileBombwayDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaBrickRoom, RoomSetupBehavior.None);
 
 
-    /// <summary>The Final Missile Bombway room's state 1.</summary>
+    /// <summary>The Final Missile Bombway room's state once Zebes is awake.</summary>
     public static RoomStateSettings FinalMissileBombwayWhenZebesAwake { get; } =
         new(nameof(FinalMissileBombwayWhenZebesAwake), RoomLevelDefinitions.FinalMissileBombway, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FinalMissileBombwayWhenZebesAwake, RoomEnemyPopulationDefinitions.FinalMissileBombwayWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FinalMissileBombway, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FinalMissileBombwayWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaBrickRoom, RoomSetupBehavior.None);
 
 
-    /// <summary>The Final Missile room's state 0.</summary>
+    /// <summary>The Final Missile room's default state.</summary>
     public static RoomStateSettings FinalMissileDefault { get; } =
         new(nameof(FinalMissileDefault), RoomLevelDefinitions.FinalMissile, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FinalMissileDefault, RoomEnemyPopulationDefinitions.FinalMissileDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FinalMissile, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FinalMissileDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Final Missile room's state 1.</summary>
+    /// <summary>The Final Missile room's state once Zebes is awake.</summary>
     public static RoomStateSettings FinalMissileWhenZebesAwake { get; } =
         new(nameof(FinalMissileWhenZebesAwake), RoomLevelDefinitions.FinalMissile, RoomGraphicsSet.LowerCrateria, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FinalMissileWhenZebesAwake, RoomEnemyPopulationDefinitions.FinalMissileWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FinalMissile, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FinalMissileWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CrateriaMechanical, RoomSetupBehavior.None);
 

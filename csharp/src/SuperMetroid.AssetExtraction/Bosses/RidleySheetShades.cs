@@ -121,7 +121,7 @@ internal static class RidleySheetShades
             shades.Add(SheetShade.Run(RidleyShades.EyeFade(shown), OwnRow + EyeFirstColour,
                 Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(shown, colour))));
         }
-        for (int shade = 0; shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; shade++)
+        for (int shade = 0; shade < CeresRidleyShadeDefinitions.BodyFadeShadeCount; shade++)
         {
             int shown = shade;
             RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(shown, colour));
@@ -158,7 +158,7 @@ internal static class RidleySheetShades
             SheetShade.Run(RidleyShades.RetreatRoom, TilesFourth + 1, Colours(CeresRidleyColorFormat.RetreatBgColorCount, ceres.ResolveRetreatBg)),
             SheetShade.Run(RidleyShades.RetreatShared, TilesFirst + 1, Colours(CeresRidleyColorFormat.RetreatSharedColorCount, ceres.ResolveRetreatShared)),
         };
-        for (int step = 0; step < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; step++)
+        for (int step = 0; step < CeresRidleyShadeDefinitions.GetawayZoomStepCount; step++)
         {
             int shown = step;
             shades.Add(SheetShade.Run(RidleyShades.FloorZoom(shown), TilesFourth + 1,

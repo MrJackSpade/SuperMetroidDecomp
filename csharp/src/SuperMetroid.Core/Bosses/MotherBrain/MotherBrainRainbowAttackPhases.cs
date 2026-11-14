@@ -279,9 +279,9 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.NeckLoweredSamusCooldown;
         _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-        _state.NeckAngleDelta = 1280; // NTSC value of the regional pair 1280/1792.
+        _state.NeckAngleDelta = 1280; // The Japanese and North American value; the European release uses 1792.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartFiring;
-        _state.PhaseTimer = 16; // NTSC value of the regional pair 16/12.
+        _state.PhaseTimer = 16; // The Japanese and North American value; the European release uses 12.
         return true;
     }
 

@@ -37,7 +37,7 @@ internal static class BossResetOnLoadVerification
         };
         // Every boss of every area, every event and door, and every third pickup.
         foreach (AreaId area in AreaIds.All)
-            snapshot.Progress.SetDefeatedBosses(area, DefeatedBossKinds.AllKnown);
+            snapshot.Progress.SetDefeatedBosses(area, DefeatedBosses.AreaBoss | DefeatedBosses.AreaMiniBoss | DefeatedBosses.AreaTorizo);
         snapshot.Progress.Events.AddAll();
         snapshot.Progress.OpenedDoors.AddAll();
         for (int place = 0; place < ItemLocationDefinitions.All.Count; place++)
@@ -59,7 +59,7 @@ internal static class BossResetOnLoadVerification
             foreach (AreaId area in AreaIds.All)
             {
                 bool resetArea = enabled && area != AreaId.Tourian;
-                AssertEqual(resetArea ? DefeatedBosses.None : DefeatedBossKinds.AllKnown, runtime.System.BossesDefeatedIn(area),
+                AssertEqual(resetArea ? DefeatedBosses.None : DefeatedBosses.AreaBoss | DefeatedBosses.AreaMiniBoss | DefeatedBosses.AreaTorizo, runtime.System.BossesDefeatedIn(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
             foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())

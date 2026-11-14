@@ -22,7 +22,7 @@ internal static class NorfairGlowCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
-        runtime.Player.IntroducedSamus.Control.LockHandlers();
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         LayeredScene? original = null;
         RgbaPixel[]? initialPixels = null;
         int maximumChanged = 0;

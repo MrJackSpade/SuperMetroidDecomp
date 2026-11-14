@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// The game session's per-update audio advance (#1303, #1304, #1410): it applies the update's
 /// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, runs the clock for one
-/// update, publishes the acknowledgements the next update's sound handlers read, and turns the
+/// update, publishes the acknowledgements the next update's sound queues read, and turns the
 /// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
 /// <remarks>

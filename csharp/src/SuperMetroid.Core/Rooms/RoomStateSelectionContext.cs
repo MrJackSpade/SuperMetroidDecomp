@@ -24,12 +24,7 @@ public readonly record struct RoomStateSelectionContext(
             : throw new ArgumentOutOfRangeException(nameof(storyEvent), storyEvent, "Undefined story event.");
 
     /// <summary>Tests whether any of <paramref name="bosses"/> is defeated in the selected area.</summary>
-    /// <param name="bosses">Bosses of the proven kinds of <see cref="Progression.DefeatedBosses"/>; none is allowed.</param>
+    /// <param name="bosses">The bosses asked for; none is allowed.</param>
     /// <returns>True when at least one of them is defeated; asking for none returns false.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> names an unproven kind of boss.</exception>
-    public bool IsBossDead(DefeatedBosses bosses)
-    {
-        ProvenDefeatedBosses.Validate(bosses, "Room-state boss selector");
-        return (DefeatedBosses & bosses) != Progression.DefeatedBosses.None;
-    }
+    public bool IsBossDead(DefeatedBosses bosses) => (DefeatedBosses & bosses) != Progression.DefeatedBosses.None;
 }

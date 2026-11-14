@@ -58,8 +58,6 @@ public enum ColourEffectId
     SamusLoadingGravitySuit,
     /// <summary>The glare on the Super Metroid icon after the credits.</summary>
     PostCreditsSuperMetroidIcon,
-    /// <summary>An object that shows nothing and deletes itself.</summary>
-    Nothing,
     /// <summary>Draygon's statue in the Tourian entrance greying out.</summary>
     GreyOutTourianStatueDraygon,
     /// <summary>Kraid's statue in the Tourian entrance greying out.</summary>

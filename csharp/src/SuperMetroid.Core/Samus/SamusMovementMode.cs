@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus;
 internal enum SamusMovementMode
 {
     /// <summary>
-    /// Ordinary play: movement, the timer handler, animation, pose transitions, periodic damage and the low-energy check.
+    /// Ordinary play: movement, the escape timer, animation, pose transitions, periodic damage and the low-energy check.
     /// </summary>
     Normal,
 

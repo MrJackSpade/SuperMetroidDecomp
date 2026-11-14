@@ -216,7 +216,7 @@ internal static class ProjectileInheritanceProbeVerification
         AssertTrue(beforeFreeze.SequenceEqual(records.CaptureDistanceRecords()),
             "Frozen gameplay skips the projectile alpha and preserves directional records");
         runtime.Freeze.GameplayTimeFrozen = false;
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         runtime.StepFrame(0);
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Input-locked projectile alpha still clears directional movement records");

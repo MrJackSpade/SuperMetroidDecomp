@@ -158,7 +158,7 @@ internal static class ReserveAutoFrontendVerification
         // while a generic locked handler must not acquire that responsibility.
         samus.Health = 31; audio.Reset(); game.StepCaptured(0);
         AssertTrue(!samus.HealthWarning.IsActive, "ordinary beta stops warning at healthy threshold");
-        samus.Control.LockHandlers(); samus.Health = 30;
+        samus.Control.LockOutPlayer(); samus.Health = 30;
         audio.Reset(); game.StepCaptured(0);
         AssertTrue(!samus.HealthWarning.IsActive, "locked handler does not run ordinary health check");
         samus.Control.Unlock();

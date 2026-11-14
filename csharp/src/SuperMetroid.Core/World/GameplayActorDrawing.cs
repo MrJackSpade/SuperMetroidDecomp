@@ -204,7 +204,7 @@ internal sealed class GameplayActorDrawing
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
                 {
                     // Omitting the live counter intentionally selects `Draw`'s default
-                    // even value. The elevator handler calls the body renderer below the ordinary
+                    // even value. The elevator ride draws the body below the ordinary
                     // invincibility test, so this path cannot flicker twice.
                     _player.Samus.Presentation.Draw(_player.Samus, 
                         _sprites,

@@ -62,7 +62,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         // native ticks that reach F8 instead of rewriting fake-bus ROM bytes.
         var endpoint = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = source };
         if (locked)
-            endpoint.Control.LockHandlers();
+            endpoint.Control.LockOutPlayer();
         SamusPresentation.InitializeAnimation(endpoint);
         for (int tick = 0; tick < 6; tick++)
             SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new SharedRandom(), ProspectiveInputPose = selected });

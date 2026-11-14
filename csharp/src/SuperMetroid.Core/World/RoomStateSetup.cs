@@ -62,7 +62,6 @@ internal static class RoomStateSetup
             case RoomSetupBehavior.ScrollingSkyOcean:
             case RoomSetupBehavior.RunStatueUnlockingAnimations:
             case RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile:
-            case RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause:
             case RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking:
             case RoomSetupBehavior.SetLightHorizontalRoomShaking:
             case RoomSetupBehavior.SetMediumHorizontalRoomShaking:

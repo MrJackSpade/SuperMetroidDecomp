@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What one sound library reports back to the game's sound handler: nothing, the request it acted on, or, for the
+/// What one sound library reports back to the game's sound queue: nothing, the request it acted on, or, for the
 /// music-load reporter while new music loads, the load in progress, which matches no request
 /// (<see cref="SoundAcceptanceClock{TLibrary, TSound}"/>).
 /// </summary>

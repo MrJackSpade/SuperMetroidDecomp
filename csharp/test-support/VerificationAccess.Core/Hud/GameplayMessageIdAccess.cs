@@ -4,11 +4,11 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
 
-/// <summary>Verification access to <see cref="GameplayMessageIds"/> members production does not use.</summary>
-internal static class GameplayMessageIdsAccess
+/// <summary>Verification access to <see cref="GameplayMessageId"/> members production does not use.</summary>
+internal static class GameplayMessageIdAccess
 {
     /// <summary>Converts native message bytes into the closed gameplay catalog with source-aware failure details.</summary>
-    extension(GameplayMessageIds)
+    extension(GameplayMessageId)
     {
         /// <summary>
         /// Converts a byte read from a translated cartridge owner into the closed retail

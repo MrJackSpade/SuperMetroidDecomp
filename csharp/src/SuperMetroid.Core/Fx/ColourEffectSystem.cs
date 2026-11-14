@@ -44,7 +44,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     public ColourEffectSystem(ColourEffectSessionState session) => _session = Ensure.NotNull(session);
 
     /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
-    public bool HandlerEnabled => _session.HandlerEnabled;
+    public bool ColourEffectsRun => _session.ColourEffectsRun;
 
     /// <summary>
     /// The audio requests the colour effects' sounds join as they make them: the runtime's update's, once it points the

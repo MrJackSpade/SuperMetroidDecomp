@@ -512,7 +512,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Tourian statue sequence's operations.</summary>
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
-    /// <summary>The enemies' colour effect glows and flashes the room's colour effect handler shows.</summary>
+    /// <summary>The enemies' colour effect glows and flashes the room's colour effects show.</summary>
     internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(BombTorizoBehavior, TourianEntranceStatueBehavior,
         SlotTable);
 

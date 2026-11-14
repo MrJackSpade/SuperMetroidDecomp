@@ -31,7 +31,7 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The cycle position of the last palette record written, or none before the first handler call.</summary>
+    /// <summary>The cycle position of the last palette record written, or none before its first update.</summary>
     public int? CurrentFrameIndex { get; private set; }
 
     /// <summary>
@@ -68,8 +68,8 @@ public sealed class HyperBeamColourEffectState
                 $"{definition.Start}, program {definition.InitialAnimation}.");
         }
 
-        // The handler decrements before testing. A timer of two therefore displays a frame
-        // on the load call and one following call, then advances on the third handler call.
+        // The effect decrements before testing. A timer of two therefore displays a frame
+        // on the starting update and one following update, then advances on the third update.
         FrameHold--;
         if (FrameHold != 0)
         {

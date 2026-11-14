@@ -339,7 +339,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(199, samus.Health, "energy station restores health to cartridge maximum");
         AssertEqual(1, roomObjects.Stations.StationActivationEvents.Count,
             "energy station publishes one shared message request");
-        AssertEqual(GameplayMessageIds.EnergyRechargeCompleted,
+        AssertEqual(GameplayMessageId.EnergyRechargeCompleted,
             roomObjects.Stations.StationActivationEvents[0].Message,
             "energy station uses cartridge message $15");
 
@@ -1229,7 +1229,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops * 8 - 1,
             completionFrame,
             "save animation publishes completion after all 21 alternating native loops");
-        AssertEqual(GameplayMessageIds.SaveCompleted, completion.Message,
+        AssertEqual(GameplayMessageId.SaveCompleted, completion.Message,
             "save animation publishes game-saved message only after its draw loop");
         roomObjects.Stations.CompleteSaveStation(completion);
         AssertTrue(!samus.Control.InputLocked, "game-saved message return unlocks Samus");
@@ -1366,7 +1366,7 @@ internal static class RoomObjectPopulationVerification
 
         var messages = new GameplayMessageArtwork(null, notices: presentation);
         var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageId.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1403,7 +1403,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageId.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)

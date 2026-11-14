@@ -272,10 +272,8 @@ public static class ProgressionTableCodec
     }
 
     /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a value that names no boss.</exception>
     public static byte EncodeBossMask(DefeatedBosses bosses)
     {
-        ProvenDefeatedBosses.Validate(bosses, "Encoded boss mask");
         int value = 0;
         for (int bit = 0; bit < BossFlagBits.Length; bit++)
         {

@@ -372,7 +372,7 @@ public sealed class SamusProjectileSystem
         if (projectileProducerEnabled && !preservesJumpCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
-            // The X-ray HUD handler calls the normal beam handler when selected X-ray's Run
+            // The X-ray HUD item fires the normal beam when selected X-ray's Run
             // action is released. Holding Run owns this dispatch even if setup is
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.

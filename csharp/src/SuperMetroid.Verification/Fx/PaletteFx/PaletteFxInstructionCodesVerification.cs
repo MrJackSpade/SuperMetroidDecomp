@@ -59,7 +59,6 @@ internal static class PaletteFxInstructionCodesVerification
             ReadPaletteFxCatalogPointerTargets(bus, catalog);
 
         Suite(nameof(VerifyBeaconSoundInstruction), () => VerifyBeaconSoundInstruction(bus));
-        Suite(nameof(VerifyPaletteFxDeleteDefinitions), () => VerifyPaletteFxDeleteDefinitions(bus));
         Suite(nameof(VerifyTitleLogoFadePaletteFxColorDefinitions), () => VerifyTitleLogoFadePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyNintendoLogoFadePaletteFxColorDefinitions), () => VerifyNintendoLogoFadePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyCeresCinematicLightPaletteFxColorDefinitions), () => VerifyCeresCinematicLightPaletteFxColorDefinitions(bus));
@@ -106,31 +105,6 @@ internal static class PaletteFxInstructionCodesVerification
     private static ushort[] NativeWords<TIdentity>(SuperMetroid.AssetExtraction.Cartridge.NativeWordIdentities<TIdentity> words)
         where TIdentity : struct, Enum =>
         Enum.GetValues<TIdentity>().Select(words.Word).ToArray();
-
-    /// <summary>Checks both standalone delete programs' compiled words and cartridge locations.</summary>
-    private static void VerifyPaletteFxDeleteDefinitions(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
-    {
-
-        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFxSession = new ColourEffectSessionState();
-        var paletteFx = new ColourEffectSystem(paletteFxSession);
-        paletteFx.Start(
-            ColourEffectId.Nothing,
-            equippedItems: 0);
-        AssertTrue(paletteFx.IsRunning(
-                ColourEffectId.Nothing),
-            "empty room palette-FX definition occupies a slot before its first handler pass");
-        StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!paletteFx.IsRunning(
-                ColourEffectId.Nothing),
-            "empty room palette-FX definition deletes itself on its first handler pass");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "empty room palette-FX deletion performs no mechanics ROM reads");
-        AssertEqual(0, guardedPresentationReads.Value,
-            "empty room palette-FX deletion has no presentation payload");
-    }
-
 
     /// <summary>Checks the copyright fade through its goto against bank-$8D words.</summary>
     private static void VerifyNintendoLogoFadePaletteFxColorDefinitions(

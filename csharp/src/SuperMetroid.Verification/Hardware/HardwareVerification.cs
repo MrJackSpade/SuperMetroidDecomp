@@ -162,9 +162,6 @@ internal static void VerifyBossBitfield()
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.RecordBossesDefeated(-1, DefeatedBosses.AreaBoss), "negative area rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => state.RecordBossesDefeated(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, DefeatedBosses.AreaBoss), "area past the game's rejected");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => state.RecordBossesDefeated(0, ~DefeatedBossKinds.AllKnown),
-        "unnamed boss bit rejected by typed API");
     AssertThrows<InvalidDataException>(
         () => BossMaskCodec.Decode(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");

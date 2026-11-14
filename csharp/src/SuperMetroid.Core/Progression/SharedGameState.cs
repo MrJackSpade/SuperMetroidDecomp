@@ -170,31 +170,19 @@ public sealed class SharedGameState
     }
 
     /// <summary>Records <paramref name="bosses"/> as defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
-    public void RecordBossesDefeated(AreaId area, DefeatedBosses bosses)
-    {
-        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to record");
+    public void RecordBossesDefeated(AreaId area, DefeatedBosses bosses) =>
         Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) | bosses);
-    }
 
     /// <summary>
     /// Forgets <paramref name="bosses"/> as defeated in <paramref name="area"/>, as an otherwise unused original
     /// step does; the encounter reset on loading a save uses it.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
-    public void ForgetBossesDefeated(AreaId area, DefeatedBosses bosses)
-    {
-        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to forget");
+    public void ForgetBossesDefeated(AreaId area, DefeatedBosses bosses) =>
         Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) & ~bosses);
-    }
 
     /// <summary>Whether any of <paramref name="bosses"/> is defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
-    public bool HasDefeatedAnyOf(AreaId area, DefeatedBosses bosses)
-    {
-        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to ask for");
-        return (Progress.BossesDefeatedIn(area) & bosses) != DefeatedBosses.None;
-    }
+    public bool HasDefeatedAnyOf(AreaId area, DefeatedBosses bosses) =>
+        (Progress.BossesDefeatedIn(area) & bosses) != DefeatedBosses.None;
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
     public DefeatedBosses BossesDefeatedIn(AreaId area) => Progress.BossesDefeatedIn(area);

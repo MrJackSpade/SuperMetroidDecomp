@@ -36,7 +36,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
-        samus.Control.LockHandlers();
+        samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,

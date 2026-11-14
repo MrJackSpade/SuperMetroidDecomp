@@ -12,9 +12,15 @@ public interface IRoomSamusControl
     /// <summary>Locks Samus in place without animating her, as the n00b tube's break does.</summary>
     void LockStationary();
 
-    /// <summary>Locks Samus's handlers, as a save station does.</summary>
-    void LockHandlers();
+    /// <summary>
+    /// Locks the player out, as a save station does: the player's input no longer moves Samus, and nothing moves her but
+    /// an elevator she rides.
+    /// </summary>
+    void LockOutPlayer();
 
-    /// <summary>Locks Samus into a refill station's handler.</summary>
-    void LockIntoRefillStation();
+    /// <summary>
+    /// Locks Samus at a refill or map station: the player is locked out and nothing moves or animates her until the
+    /// pause menu closes.
+    /// </summary>
+    void LockAtStation();
 }

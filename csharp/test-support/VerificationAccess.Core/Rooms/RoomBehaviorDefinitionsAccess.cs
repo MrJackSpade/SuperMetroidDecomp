@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>
 /// The import oracle's map from the bank-$8F code offsets the cartridge stores to the typed room callbacks; production
 /// knows only the typed identities. Every offset whose routine returns at once decodes to the callback's <c>None</c>,
-/// as offset zero does, so the many return instructions the cartridge points at are one behaviour (#1787); an offset
-/// the map does not know is refused.
+/// as offset zero does, so the many return instructions the cartridge points at are one behaviour (#1787), and so does
+/// Draygon's room's setup, which acts only on the room's display (#1827); an offset the map does not know is refused.
 /// </summary>
 internal static class RoomBehaviorDefinitionsAccess
 {
@@ -57,7 +57,7 @@ internal static class RoomBehaviorDefinitionsAccess
         [0xc8d2] = RoomSetupBehavior.None,
         [0xc8d3] = RoomSetupBehavior.SetupShaktoolRoomObject,
         [0xc8dc] = RoomSetupBehavior.None,
-        [0xc8dd] = RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause,
+        [0xc8dd] = RoomSetupBehavior.None,
         [0xc90a] = RoomSetupBehavior.SetCollectedMap,
         [0xc91e] = RoomSetupBehavior.None,
         [0xc91f] = RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking,
@@ -69,6 +69,9 @@ internal static class RoomBehaviorDefinitionsAccess
         [0xc97b] = RoomSetupBehavior.SpawnCeresRidleyArenaHaze,
     };
 
+    /// <summary>The setup offsets whose routine acts only on the room's display, which decode to no behaviour.</summary>
+    private static readonly HashSet<ushort> DisplayOnlySetups = [0xc8dd];
+
     /// <summary>Decodes the room main and setup callbacks the cartridge's room states point at.</summary>
     extension(RoomBehaviorDefinitions)
     {
@@ -79,6 +82,13 @@ internal static class RoomBehaviorDefinitionsAccess
         /// <summary>Every nonzero bank-$8F room-setup code offset the import knows, each naming a routine.</summary>
         internal static IReadOnlyDictionary<ushort, RoomSetupBehavior> SetupRoutines =>
             SetupCallbacks.Where(pair => pair.Key != 0).ToDictionary();
+
+        /// <summary>
+        /// The bank-$8F room-setup code offsets that decode to <see cref="RoomSetupBehavior.None"/> although their routine
+        /// does not return at once: Draygon's room's, which only has the room restore its display effects when the game
+        /// unpauses, and the port draws the room without them (#1827).
+        /// </summary>
+        internal static IReadOnlySet<ushort> DisplayOnlySetupRoutines => DisplayOnlySetups;
 
         /// <summary>Resolves a bank-$8F room-main pointer read from the cartridge to its typed callback.</summary>
         internal static RoomMainBehavior ResolveMain(ushort pointer) =>

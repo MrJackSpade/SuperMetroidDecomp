@@ -58,8 +58,6 @@ public enum ColourEffectAnimation
     SamusLoadingGravitySuit,
     /// <summary>The animation of <see cref="ColourEffectId.PostCreditsSuperMetroidIcon"/>.</summary>
     PostCreditsSuperMetroidIcon,
-    /// <summary>The animation of <see cref="ColourEffectId.Nothing"/>.</summary>
-    Nothing,
     /// <summary>The animation of <see cref="ColourEffectId.GreyOutTourianStatueDraygon"/>.</summary>
     GreyOutTourianStatueDraygon,
     /// <summary>The animation of <see cref="ColourEffectId.GreyOutTourianStatueKraid"/>.</summary>

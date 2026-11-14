@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// music player checks every library's request on its own clock, every 512 of its 32,040-per-second
 /// samples, so a check falls a little earlier in each successive update. A check serves the libraries in a fixed order;
 /// for each it acts on the request it took at the previous check, reports that request back as acknowledged, and takes
-/// the game's current request; a request replaced before a check is never seen. The game's sound handlers compare the
+/// the game's current request; a request replaced before a check is never seen. The game's sound queues compare the
 /// acknowledgement with the request they are waiting on, so when a request is accepted changes which sounds play and
 /// when handlers move on to the next.
 /// </summary>

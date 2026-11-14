@@ -623,7 +623,13 @@ internal static class NativeEnemyFamilyStateImport
             mama.Action = words.A == 0 ? null : MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
             mama.Velocity = mama.Velocity.WithX(mama.Velocity.X.WithWholePixels(unchecked((short)words.E)));
-            mama.AsleepFlag = unchecked((short)words.F);
+            // The game keeps a wake count of one that a baby's touch or shot clears.
+            mama.Asleep = words.F switch
+            {
+                0 => false,
+                1 => true,
+                _ => throw new InvalidDataException($"Recorded Mama Turtle wake count {words.F} is neither zero nor one."),
+            };
         }
         if (enemies.HibashiStates[index] is { } hibashi)
         {

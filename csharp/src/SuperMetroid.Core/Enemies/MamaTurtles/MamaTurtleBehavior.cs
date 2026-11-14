@@ -131,7 +131,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MamaTurtleEnemyState
         {
             Action = MamaTurtleAction.Initial,
-            AsleepFlag = 1,
+            Asleep = true,
         };
         slot.SetSpeciesState(state);
 
@@ -239,7 +239,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if (state.AsleepFlag == 0)
+        if (!state.Asleep)
         {
             state.Action = MamaTurtleAction.LeavingShell;
             mama.Contact = mama.Contact.Without(EnemyContact.IgnoresSamus);
@@ -739,11 +739,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveBabyTurtleShotAfterCommon(RoomEnemySlot baby) =>
         WakeMamaTurtle(baby);
 
-    /// <summary>Decrements the asleep flag of <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
+    /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
     private void WakeMamaTurtle(RoomEnemySlot baby)
     {
         MamaTurtleEnemyState parent = RequireMamaTurtleParent(baby);
-        parent.AsleepFlag = Math.Max(0, parent.AsleepFlag - 1);
+        parent.Asleep = false;
     }
 
     /// <summary>Runs Mama's expanded private damage box.</summary>

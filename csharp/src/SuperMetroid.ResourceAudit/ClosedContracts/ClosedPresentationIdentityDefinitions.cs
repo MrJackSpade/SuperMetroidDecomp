@@ -62,6 +62,13 @@ internal static class ClosedPresentationIdentityDefinitions
         ("MapSpriteSheet", "Draw", "id") => MapSpriteArtwork.FrameNames.Select(frame => (int)frame.Id).ToArray(),
         ("PauseReserveTankPresentation", "Draw", "visual") => PauseReserveTankParts.Frames().Select(frame => (int)frame.Id).ToArray(),
         ("TitleSpriteDrawing", "DrawSprite", "sprite") => TitleGraphicsFormat.Sprites.Select(sprite => (int)sprite).ToArray(),
+        // A drawer does not reveal its family: a pose qualifies when some intro family owns it.
+        ("CinematicSpriteSheet", "Draw", "pose") => IntroCaretSpriteDefinitions.Frames
+            .Concat(IntroNextPageArrowSpriteDefinitions.Frames)
+            .Concat(IntroMotherBrainSpriteDefinitions.Frames).Concat(IntroMotherBrainExplosionSpriteDefinitions.Frames)
+            .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
+            .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
+            .Select(frame => (int)frame.Pose).Distinct().ToArray(),
         ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
         ("InstalledXrayOverlays", "TankBlock", "tank") =>
             [(int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.EnergyTank, (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.MissileTank,

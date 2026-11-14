@@ -595,6 +595,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="context">The projectile, Samus and the camera of the pass running the animation.</param>
     /// <param name="cue">The cue the animation published.</param>
+    /// <param name="pastCue">Where the play stands just past the cue; a death cue converts or runs on without reading it.</param>
     public AnimationContinuation<EnemyDeathProjectileSegment>? RunCue(EnemyProjectileCueContext context, EnemyDeathProjectileCue cue,
         AnimationPlayback<EnemyDeathProjectileSegment> pastCue) =>
         ApplyEnemyDeathProjectileCue(context.Projectile, cue) is { } converted

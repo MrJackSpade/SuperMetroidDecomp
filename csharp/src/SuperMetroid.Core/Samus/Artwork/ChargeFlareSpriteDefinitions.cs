@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>The charge/Hyper flare and its directional sparks.</summary>
@@ -16,15 +18,23 @@ public static class ChargeFlareSpriteDefinitions
     /// <summary>The twenty-eight distinct flare and spark compositions, in family order.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Groups.SelectMany(group => group.Members)];
 
-    /// <summary>
-    /// The main flare composition each of the main flare's thirty pictures shows, by its place among the four main
-    /// compositions: the first two alternate for eight pictures, the third and second for eight more, and the third and
-    /// fourth for the last fourteen, which the main flare's loop repeats. Both facings show the same pictures.
-    /// </summary>
-    internal static readonly int[] MainFlarePictures =
-    [
-        0, 1, 0, 1, 0, 1, 0, 1,
-        2, 1, 2, 1, 2, 1, 2, 1,
-        2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,
-    ];
+    /// <summary>The place among the four main flare compositions of each main flare picture; both facings show the same.</summary>
+    internal static readonly IReadOnlyDictionary<ChargeFlarePicture, int> MainFlareCompositions = new Dictionary<ChargeFlarePicture, int>
+    {
+        [ChargeFlarePicture.MainFirst] = 0,
+        [ChargeFlarePicture.MainSecond] = 1,
+        [ChargeFlarePicture.MainThird] = 2,
+        [ChargeFlarePicture.MainFourth] = 3,
+    };
+
+    /// <summary>The place among its facing's six compositions of each spark ring picture.</summary>
+    internal static readonly IReadOnlyDictionary<ChargeFlarePicture, int> SparkCompositions = new Dictionary<ChargeFlarePicture, int>
+    {
+        [ChargeFlarePicture.SparksFirst] = 0,
+        [ChargeFlarePicture.SparksSecond] = 1,
+        [ChargeFlarePicture.SparksThird] = 2,
+        [ChargeFlarePicture.SparksFourth] = 3,
+        [ChargeFlarePicture.SparksFifth] = 4,
+        [ChargeFlarePicture.SparksSixth] = 5,
+    };
 }

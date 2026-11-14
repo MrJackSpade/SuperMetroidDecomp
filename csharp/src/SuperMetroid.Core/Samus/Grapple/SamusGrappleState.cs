@@ -177,13 +177,14 @@ public sealed class SamusGrappleState
     public GrappleFlareStage FlareStage { get; set; }
 
     /// <summary>
-    /// The main-flare picture the grapple's flare shows, one of the main flare's pictures: the flare restarts at the
-    /// main flare's loop when fired and plays its animation on from there.
+    /// The place in the main flare's animation whose picture the grapple's flare shows: the flare restarts at the main
+    /// flare's loop when fired and plays its animation on from there.
     /// </summary>
-    public ChargeFlarePhase FlarePicture
+    [IntegerQuantity("beats into the main flare's animation")]
+    public int FlarePlace
     {
         get;
-        set => field = ChargeFlareAnimations.IsPicture(ChargeFlareComponent.MainFlare, value.Index)
+        set => field = ChargeFlareAnimations.IsPicture(ChargeFlareComponent.MainFlare, value)
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The grapple's flare shows only the main flare's pictures.");
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
@@ -23,7 +24,7 @@ internal sealed class PortDrivenSpcPlayer
 
     /// <summary>Records the raw request number to the library at the driver's zero-based <paramref name="library"/>; zero requests nothing.</summary>
     internal void RequestSound(int library, byte value) =>
-        clock.Request(SoundEffectLibraries.FromQueueIndex(library), value == 0 ? null : value);
+        clock.Request(SoundLibraryNumbers.FromDriverIndex(library), value == 0 ? null : value);
 
     /// <summary>Applies an upload stream to the player and the music load to the clock.</summary>
     internal void Upload(ReadOnlySpan<byte> stream)
@@ -42,7 +43,7 @@ internal sealed class PortDrivenSpcPlayer
 
     /// <summary>The acknowledgement the library at the driver's zero-based <paramref name="library"/> reports.</summary>
     /// <remarks>Zero stands for nothing acknowledged, and the original port's byte for a music load.</remarks>
-    internal byte Acknowledgement(int library) => clock.Acknowledgements[SoundEffectLibraries.FromQueueIndex(library)] switch
+    internal byte Acknowledgement(int library) => clock.Acknowledgements[SoundLibraryNumbers.FromDriverIndex(library)] switch
     {
         { IsMusicLoading: true } => MusicLoadByte,
         { Sound: byte request } => request,

@@ -166,7 +166,7 @@ internal static class AudioClipExporter
         SoundEffectKey key,
         List<SoundEffectRenderShare> shares)
     {
-        int libraryIndex = SoundEffectLibraries.ToQueueIndex(key.Library);
+        int libraryIndex = SoundLibraryNumbers.DriverIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);

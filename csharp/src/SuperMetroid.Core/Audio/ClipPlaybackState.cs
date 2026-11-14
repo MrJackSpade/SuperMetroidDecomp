@@ -9,8 +9,9 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
 public sealed class ClipPlaybackState(BeatLength initialBeat)
 {
-    /// <summary>The three sound libraries, in queue order.</summary>
-    internal readonly ClipLibraryState[] Libraries = [new(), new(), new()];
+    /// <summary>Each sound library's clip playback, kept by its library (#1755).</summary>
+    internal readonly Dictionary<SoundEffectLibrary, ClipLibraryState> Libraries =
+        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new ClipLibraryState());
 
     /// <summary>Clips cut by a newer sound, a song change or a clip-set switch, fading out.</summary>
     internal readonly List<ReleasingClip> Releasing = [];

@@ -14,8 +14,8 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="command">The request byte.</param>
 internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
-    /// <summary>Where the emulated driver keeps the library's state: its queue position.</summary>
-    private readonly int libraryIndex = SoundEffectLibraries.ToQueueIndex(soundLibrary);
+    /// <summary>Where the emulated driver keeps the library's state.</summary>
+    private readonly int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
 
     /// <summary>Most channels any library allocates (library 1).</summary>
     private const int MaximumChannels = 4;

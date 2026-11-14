@@ -364,7 +364,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, OnePixelPerFrame.Negative);
+        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, -OnePixelPerFrame);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
@@ -388,7 +388,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,
-            signedOffset < 0 ? OnePixelPerFrame.Negative : OnePixelPerFrame.Positive);
+            signedOffset < 0 ? -OnePixelPerFrame : OnePixelPerFrame);
         Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
         int distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
@@ -608,8 +608,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceX(movingLeft ? -state.FlightSpeed : state.FlightSpeed);
     }
 
-    /// <summary>The linear-speed row a Norfair bug rises and staggers at.</summary>
-    private static EnemyLinearSpeedRow OnePixelPerFrame => EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
+    /// <summary>The speed a Norfair bug rises and staggers at, one pixel per frame.</summary>
+    private static readonly SignedSixteenSixteen OnePixelPerFrame = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(

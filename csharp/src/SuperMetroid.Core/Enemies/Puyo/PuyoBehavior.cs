@@ -160,12 +160,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
             timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
-            QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
+            QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
 
             // Summing each mark's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
             // find the initial curve mark.
             distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
-                speedRow.CoarseToward(EnemySpeedSign.Positive));
+                curveSpeed.CoarseToward(EnemySpeedSign.Positive));
             if (!WrappingCounter.IsBehind(jumpHeight, distanceAccumulator))
                 continue;
 
@@ -292,8 +292,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        QuadraticCurveSpeed speedRow = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
-        SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
+        QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
+        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {

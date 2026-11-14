@@ -273,21 +273,23 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
     }
 
+    /// <summary>The speed Oum rolls at, one pixel per frame.</summary>
+    private static readonly SignedSixteenSixteen OnePixelPerFrame = SignedSixteenSixteen.FromWholePixels(1);
+
     /// <summary>Temporarily extends the collision probe toward Samus, then retracts it after wall resolution.</summary>
     private void MoveMaridiaLargeSnailHorizontally(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(EnemyLinearSpeedDefinitions.OnePixelPerFrameRow);
-        SignedSixteenSixteen speed = state.MovingLeft ? speeds.Negative : speeds.Positive;
+        SignedSixteenSixteen speed = state.MovingLeft ? -OnePixelPerFrame : OnePixelPerFrame;
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
-            // performs collision, then retracts the center. Net velocity remains the table
-            // speed while wall clipping naturally passes the lost distance to Samus.
+            // performs collision, then retracts the center. Net velocity remains one
+            // pixel per frame while wall clipping naturally passes the lost distance to Samus.
             speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft ? -16 : 16));
         }
 

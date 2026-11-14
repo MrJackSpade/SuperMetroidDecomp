@@ -55,8 +55,6 @@ internal sealed class KraidRise
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
     internal void InitializeKraidBody(RoomEnemySlot body)
     {
-        KraidParts.Require(body, _parts.Body, "body");
-
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
         _access.AttachKraidPart(body, state);

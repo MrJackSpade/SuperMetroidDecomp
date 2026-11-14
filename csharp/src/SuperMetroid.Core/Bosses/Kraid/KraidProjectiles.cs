@@ -37,7 +37,7 @@ internal sealed class KraidProjectiles
         _access = access;
     }
 
-    /// <summary>Initializes one lint part and verifies it is in that part's place.</summary>
+    /// <summary>Initializes one lint part.</summary>
     private void InitializeKraidLint(RoomEnemySlot lint, KraidLintPart expected)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
@@ -46,7 +46,6 @@ internal sealed class KraidProjectiles
             KraidEncounterAccess.MarkKraidPartDead(lint);
             return;
         }
-        KraidParts.Require(lint, _parts.Lint(expected), "lint");
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
@@ -61,10 +60,9 @@ internal sealed class KraidProjectiles
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
     /// deleting themselves only once his body's health reads below one.
     /// </summary>
-    internal void InitializeKraidNail(RoomEnemySlot nail, RoomEnemySlot expected)
+    internal void InitializeKraidNail(RoomEnemySlot nail)
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
-        KraidParts.Require(nail, expected, "fingernail");
         _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
@@ -159,13 +157,13 @@ internal sealed class KraidProjectiles
     /// <summary>Runs KraidNail's initialization AI.</summary>
     internal void RunKraidNailInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidNail(slot, _parts.FirstNail);
+        InitializeKraidNail(slot);
     }
 
     /// <summary>Runs KraidNailBad's initialization AI.</summary>
     internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
     {
-        InitializeKraidNail(slot, _parts.SecondNail);
+        InitializeKraidNail(slot);
     }
 
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>

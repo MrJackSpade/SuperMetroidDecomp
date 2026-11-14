@@ -34,6 +34,7 @@ internal static class KraidCeilingRockPositionsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
+        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
         enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
         var requests = enemies.BossFrameResults.KraidObjects;

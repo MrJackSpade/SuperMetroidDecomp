@@ -39,7 +39,6 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return;
         }
-        KraidParts.Require(arm, _parts.Arm, "arm");
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
         state.ArmState.Phase = null;
@@ -56,7 +55,6 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return;
         }
-        KraidParts.Require(foot, _parts.Foot, "foot");
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);

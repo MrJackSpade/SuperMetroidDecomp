@@ -12,7 +12,10 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (KraidPartDefinitions.Parts[Slot.DefinitionId])
+        KraidPart part = KraidPartDefinitions.Parts[Slot.DefinitionId];
+        // Each part registers as the part its definition names before it sets up, so his parts reach one another (#1877).
+        species.Parts.Register(part, Slot);
+        switch (part)
         {
             case KraidPart.Kraid:
                 species.Rise.InitializeKraidBody(Slot);

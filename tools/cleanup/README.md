@@ -311,7 +311,10 @@ text, as a cref in a shipped assembly to moved code does.
 pwsh -File tools/cleanup/status.ps1
 ```
 
-prints `STATUS`: `idle`, `running`, `failed` or `stopped`, the tip, what happened, and the run's log. A failed run, a
+prints `STATUS`: `idle`, `running`, `failed` or `stopped`, the tip, what happened, and the run's log. When the state is
+`failed`, it also prints how many runs in a row have failed (from `service.log`, since the last run that pushed or found
+nothing to clean), when the first of them failed, and the last clean tip: a failure that persists over several tips is a
+defect in the cleanup's own tools on `main`, which every new tip runs into again (#1882), and is fixed there. A failed run, a
 stop and a trigger that cannot start the service also raise a Windows toast (`notify.ps1`, through Windows
 PowerShell), which never takes focus. Every run's full output is `logs\<utc>-<tip>.log`, with its code-fix summaries,
 retired fields, build logs and commit message in `logs\<utc>-<tip>\`. `service.log` and `trigger.log` record every

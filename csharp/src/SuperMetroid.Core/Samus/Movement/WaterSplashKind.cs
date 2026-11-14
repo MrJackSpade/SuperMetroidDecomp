@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Physical water-entry particle layouts selected by Samus's movement type.</summary>
+/// <summary>The water-entry splash Samus's movement type selects. Its values are arbitrary.</summary>
 internal enum WaterSplashKind
 {
     /// <summary>Single diving water-entry splash used by airborne movement.</summary>
-    Diving = 0,
+    Diving,
     /// <summary>Paired surface splashes used by grounded postures.</summary>
-    GroundedPair = 1,
+    GroundedPair,
 }

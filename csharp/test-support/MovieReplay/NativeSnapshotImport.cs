@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction;
@@ -234,8 +235,7 @@ internal static class NativeSnapshotImport
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSnapshotWords.DecodeSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
-        samus.Kinematics.YDirection = ClosedEnumWordDecoding.Decode<SamusVerticalDirection>(
-            W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
+        samus.Kinematics.YDirection = SamusVerticalDirectionCodec.FromNative(W(NativeSnapshotMemory.VerticalDirection));
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
@@ -282,7 +282,7 @@ internal static class NativeSnapshotImport
                 new(W(NativeSnapshotMemory.AtmosphericX + place * 2), W(NativeSnapshotMemory.AtmosphericY + place * 2)));
         }
         samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
-        samus.LiquidPhysics.LiquidPhysicsType = ClosedEnumWordDecoding.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
+        samus.LiquidPhysics.LiquidPhysicsType = SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType));
         samus.LiquidPhysics.PendingPeriodicDamage = new SuperMetroid.Core.Spatial.UnsignedSixteenSixteen(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage));
 
         // The snapshot was recorded after the entering door PLM deleted itself.

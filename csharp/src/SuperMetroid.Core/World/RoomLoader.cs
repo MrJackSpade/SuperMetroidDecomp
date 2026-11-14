@@ -306,8 +306,8 @@ internal sealed class RoomLoader
         // Initializing Samus clears all of her state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
-        // Initialization clears Pose; the model's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
+        // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
+        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = SamusPoseId.ForwardFacingPowerSuitPose, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 public enum RoomTurningFloor
 {
     /// <summary>The room shows no turning floor.</summary>
-    None = 1,
+    None,
 
     /// <summary>
     /// The Ceres elevator shaft's floor: the whole shaft, shown turned while the room was entered through its elevator door,

@@ -30,11 +30,11 @@ public static class CreditsRollLines
         IReadOnlyList<CreditsLineDefinition> roles = CreditsRoles.Lines;
         var lines = ImmutableArray.CreateBuilder<CreditsRollLine>(roles.Count);
         int top = 0;
-        for (int line = 0; line < roles.Count; line++)
+        foreach (CreditsLineDefinition role in roles)
         {
-            top += roles[line].SpaceBefore;
-            int height = HeightOf(roles[line].Style);
-            lines.Add(new CreditsRollLine(EndingPictureNames.CreditsLine(line), top, height));
+            top += role.SpaceBefore;
+            int height = HeightOf(role.Style);
+            lines.Add(new CreditsRollLine(EndingPictureNames.CreditsLine(role.Role), top, height));
             top += height;
         }
         int length = top + CreditsRollDefinitions.TrailingSpace;

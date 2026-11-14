@@ -87,7 +87,7 @@ public sealed class CreditsPresentation
         for (int index = 0; index < definitions.Count; index++)
         {
             CreditsLineDefinition definition = definitions[index];
-            string id = CreditsRoleKeys.Of(index);
+            string id = definition.Role;
             CreditsLineDocument line = document.Lines[index];
             if (!string.Equals(line.Id, id, StringComparison.Ordinal))
             {

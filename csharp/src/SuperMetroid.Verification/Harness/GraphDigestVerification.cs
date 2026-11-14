@@ -51,6 +51,18 @@ internal static class GraphDigestVerification
         return comparing.Same;
     }
 
+    /// <summary>
+    /// Whether <paramref name="value"/>, naming what it reaches of <paramref name="content"/> by path, has the graph
+    /// <paramref name="graph"/>, which <see cref="SerializeGraph"/> wrote of a value bound to the same content: the comparison
+    /// <see cref="SameGraph(object, object, object[])"/> makes, with one side written once for many comparisons (#1757).
+    /// </summary>
+    internal static bool MatchesGraph(object value, byte[] graph, params object[] content)
+    {
+        using var comparing = new ComparingStream(graph);
+        DebuggerObjectGraphSerializer.Serialize(comparing, value, Bound(content));
+        return comparing.Same;
+    }
+
     /// <summary>This thread's buffer for the left graph of a <see cref="SameGraph(object, object[], object, object[])"/>, kept between comparisons.</summary>
     [ThreadStatic] private static MemoryStream? leftGraph;
 

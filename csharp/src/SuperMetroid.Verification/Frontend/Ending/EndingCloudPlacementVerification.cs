@@ -50,6 +50,17 @@ internal static class EndingCloudPlacementVerification
         int checkedFrames = 0;
         int steppedFrames = 0;
         EndingCreditsPhase? comparedPhase = null;
+        // The shades the import installs for the ending's screen are built once for every compared frame (#1757).
+        Dictionary<PictureShade, SuperMetroid.AssetExtraction.Artwork.SheetShade> installedShades = EndingShownColours.InstalledShades(ending);
+        int objectSelection = SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(
+            EndingSpriteSheets.Clouds);
+        // Scene B's three phases leave the same loads in the screen memory, so its image, the native cloud characters
+        // written over it, is composed once and read by every compared frame (#1757); each compared frame requires its
+        // phase's loads to be the ones the image was composed from.
+        EndingScreenLoads sceneLoads = EndingScreenLoads.Of(ending.Stage.Phase);
+        byte[] nativeVram = ending.ShownVram();
+        nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
+            SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
@@ -79,12 +90,8 @@ internal static class EndingCloudPlacementVerification
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            RgbColor[] actualColours = EndingShownColours.Of(ending);
-            int objectSelection = SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(
-                EndingSpriteSheets.Clouds);
-            byte[] nativeVram = ending.ShownVram();
-            nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
-                SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));
+            RgbColor[] actualColours = EndingShownColours.Of(ending, installedShades);
+            AssertEqual(sceneLoads, EndingScreenLoads.Of(ending.Stage.Phase), $"scene B frame {frame} shows the loads its memory image holds");
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = actual.Paint.WithNativeColoursAndOam(nativeVram, actualColours,
                 oamBytes, oam.LastFinalizedSpriteCount, objectSelection);

@@ -48,7 +48,7 @@ internal static class RightFacingGateGlitchVerification
     }
 
     /// <summary>Compares every actual-room launch origin with ten native right-gate positives and their negative controls.</summary>
-    private static void VerifyPinkBrinstarRightFacingGateGlitch()
+    internal static void VerifyPinkBrinstarRightFacingGateGlitch()
     {
         string[] expected = File.ReadLines(
             "csharp/test-fixtures/movement-release/right-gate-404-native.csv").
@@ -159,12 +159,15 @@ internal static class RightFacingGateGlitchVerification
         foreach (SharedGameState columnState in gameStateByColumn)
             columnState.ClearEvent(StoryEvent.ZebesAwake);
         // Each column's state is compared with a new state, the columns on every core (#1757): one comparison of every
-        // column's state on one thread took longer than the whole sweep. The first column's comparison runs alone, so the
-        // shared indexes every comparison reads are complete before the others read them.
+        // column's state on one thread took longer than the whole sweep. A new state's graph is the same for every column,
+        // so it is written once and each column's graph is compared with it as it is written. The new state is written
+        // and the first column's comparison runs alone, so the shared indexes every comparison reads are complete before
+        // the others read them.
+        byte[] newStateGraph = SerializeGraph(new SharedGameState(new SharedRandom()));
         var columnUnchanged = new bool[gameStateByColumn.Length];
-        columnUnchanged[0] = SameGraph(gameStateByColumn[0], new SharedGameState(new SharedRandom()));
+        columnUnchanged[0] = MatchesGraph(gameStateByColumn[0], newStateGraph);
         ParallelSweep.For(1, gameStateByColumn.Length, column =>
-            columnUnchanged[column] = SameGraph(gameStateByColumn[column], new SharedGameState(new SharedRandom())));
+            columnUnchanged[column] = MatchesGraph(gameStateByColumn[column], newStateGraph));
         AssertTrue(columnUnchanged.All(unchanged => unchanged),
             "No gate-glitch position writes any other part of the game state its column's positions share");
         // Column by column and row by row within a column, the order the native matrix lists its positives in.
@@ -181,7 +184,7 @@ internal static class RightFacingGateGlitchVerification
     }
 
     /// <summary>Compares nine native frozen-Boyon shot timings, including the successful resumed frame, with production gameplay.</summary>
-    private static void VerifyEastTunnelFrozenEnemyGateGlitch()
+    internal static void VerifyEastTunnelFrozenEnemyGateGlitch()
     {
         EastTunnelGateRecord[] expected = File.ReadLines(
                 "csharp/test-fixtures/movement-release/east-gate-404-native.csv")

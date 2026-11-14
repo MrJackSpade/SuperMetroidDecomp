@@ -61,8 +61,8 @@ public enum RidleyPhase
     CeresInactive,
     /// <summary>Advances the Ceres self-destruct graphics, countdown setup, and optional Japanese typewriter phases.</summary>
     CeresActivateSelfDestruct,
-    /// <summary>Retains the Ceres alarm-palette update after self-destruct setup.</summary>
-    CeresSelfDestructPaletteOnly,
+    /// <summary>Keeps only the Ceres self-destruct alarm's flashing colours running after self-destruct setup.</summary>
+    CeresSelfDestructAlarmOnly,
 
     /// <summary>Moves Lower Norfair Ridley into the arena after the shared reveal.</summary>
     NorfairEnterArena,

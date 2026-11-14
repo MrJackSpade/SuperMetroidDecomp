@@ -11,7 +11,7 @@ internal sealed class TorizoCombat
 {
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
@@ -84,15 +84,15 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
-    private static void LoadTorizoDeathPalette(RoomEnemySlot torizo, TorizoEnemyState state) =>
+    private static void RestoreTorizoNormalColours(RoomEnemySlot torizo, TorizoEnemyState state) =>
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
 
     /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
-    private static void LoadGoldenTorizoHealthPalette(RoomEnemySlot torizo, TorizoEnemyState state, int health)
+    private static void ShowGoldenTorizoHealthShade(RoomEnemySlot torizo, TorizoEnemyState state, int health)
     {
         // The health gradient selects one of eight health bands from health divided by the band size, clamping
-        // the upper half to the last band; each band resolves its colours from the installed health palettes.
-        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
+        // the upper half to the last band; each band resolves its colours from the installed health shades.
+        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerBand % TorizoCombatDefinitions.HealthBandCount;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }
@@ -105,9 +105,9 @@ internal sealed class TorizoCombat
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
-                LoadGoldenTorizoHealthPalette(torizo, state, torizo.Health);
+                ShowGoldenTorizoHealthShade(torizo, state, torizo.Health);
             else
-                LoadTorizoDeathPalette(torizo, state);
+                RestoreTorizoNormalColours(torizo, state);
         }
         else
         {

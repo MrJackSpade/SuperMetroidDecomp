@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The health bands that select Mother Brain's final-phase damage colours. Each comparison is "at least".</summary>
-public static class MotherBrainHealthPaletteDefinitions
+public static class MotherBrainHealthShadeDefinitions
 {
     /// <summary>The lowest health still shown undamaged.</summary>
     public const int FirstThreshold = 9000;

@@ -621,7 +621,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.DeathSequence:
-                StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus, ref samusRainbowActivated);
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeShade))
                 {
@@ -642,7 +642,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain:
-                StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus, ref samusRainbowActivated);
                 if (--PhaseTimer < 0)
                 {
                     if (AttacksAgainReadyingElapsed >= MotherBrainReadyingDefinitions.AttacksAgainDuration)
@@ -739,8 +739,8 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidOnionRingHitResult();
     }
 
-    /// <summary>Activates Samus's healed rainbow palette when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
-    private void StepSamusRainbowPaletteAnimation(
+    /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
+    private void StepSamusRainbowColours(
         SamusState samus,
         ref bool samusRainbowActivated)
     {

@@ -50,7 +50,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
-                AssertEqual((ushort)(frame + 1), toGrey ? state.GrayFadeIndex : state.GrayTransitionCounter,
+                AssertEqual((ushort)(frame + 1), toGrey ? state.GreyFadeStep : state.GrayTransitionCounter,
                     "native grey fade cursor increments once per selected frame");
                 AssertEqual(toGrey ? 8 : 4, state.PhaseTimer,
                     "installed color frame preserves native function timer");

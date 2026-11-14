@@ -313,7 +313,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.TubeCollapseTimer = 0;
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
                 state.PhaseTimer = 0;
-                state.GrayFadeIndex = 0;
+                state.GreyFadeStep = 0;
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
 
@@ -499,9 +499,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RoomFlashFrame is not int frame)
             return;
 
-        if (state.RoomFlashTimer == MotherBrainRoomPaletteAnimationDefinitions.FlashImageTicks)
+        if (state.RoomFlashTimer == MotherBrainRoomFlashDefinitions.FlashImageTicks)
         {
-            frame = (frame + 1) % MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount;
+            frame = (frame + 1) % MotherBrainRoomFlashDefinitions.FlashFrameCount;
             state.RoomFlashFrame = frame;
             state.RoomFlashTimer = 0;
         }

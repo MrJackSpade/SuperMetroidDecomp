@@ -13,15 +13,15 @@ internal enum TorizoCueKind
     MakeVisible,
     /// <summary>Makes the body invisible.</summary>
     MakeInvisible,
-    /// <summary>Starts the palette fade to black.</summary>
+    /// <summary>Starts the colour fade to black.</summary>
     FadeToBlack,
     /// <summary>Records the boss's defeat, queues the elevator music and spawns the drops.</summary>
     FinishDeath,
     /// <summary>Advances the gradual colour fade.</summary>
     AdvanceColourFade,
-    /// <summary>Starts the palette fade to the normal colors.</summary>
+    /// <summary>Starts the colour fade to the normal colors.</summary>
     FadeToNormalColors,
-    /// <summary>Starts Bomb Torizo's fight music and belly palette effect.</summary>
+    /// <summary>Starts Bomb Torizo's fight music and belly glow.</summary>
     StartBombTorizoFight,
     /// <summary>Sets the animation lock.</summary>
     LockAnimation,
@@ -53,9 +53,9 @@ internal enum TorizoCueKind
     PlayShotSound,
     /// <summary>Queues the footstep sound.</summary>
     PlayFootstepSound,
-    /// <summary>Loads Golden Torizo's palettes.</summary>
-    LoadGoldenTorizoPalettes,
-    /// <summary>Starts Golden Torizo's fight music and belly palette effect.</summary>
+    /// <summary>Starts the colour fade to Golden Torizo's colours.</summary>
+    FadeToGoldenColors,
+    /// <summary>Starts Golden Torizo's fight music and belly glow.</summary>
     StartGoldenTorizoFight,
     /// <summary>Clears the caught-super-missile flag.</summary>
     ClearCaughtSuperMissile,

@@ -19,7 +19,7 @@ internal static class MotherBrainHealthPaletteVerification
             { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
             // The band her health selects names the shade the import pre-colours her body layer and sprites in (#1512).
-            int band = MotherBrainHealthPalette.Band(health);
+            int band = MotherBrainHealthShades.Band(health);
             AssertEqual(index, band, $"health {health} selects band {index}");
             ushort[] cgram = BossShadeColours.Filled(0);
             BossShadeColours.Lay(cgram, MotherBrainSheetShades.BodyLayer(InstalledFixtures.ImportMaps, InstalledFixtures.EnemyArtwork.Bosses),

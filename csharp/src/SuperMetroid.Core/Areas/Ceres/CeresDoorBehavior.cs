@@ -190,7 +190,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorAction.RotatingElevatorRoomDefault:
-                RunCeresDoorPaletteAnimation(slot);
+                RunCeresElevatorGlowAndPlatform(slot);
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // Entering the destruction state enters the destruction action and initializes all three
@@ -208,7 +208,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorAction.ElevatorAnimation:
-                RunCeresDoorPaletteAnimation(slot);
+                RunCeresElevatorGlowAndPlatform(slot);
                 return;
 
             default:
@@ -283,7 +283,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the game read the
     /// room's first enemy's count, which only shifts the drawn phase where another enemy is listed first.
     /// </summary>
-    internal void RunCeresDoorPaletteAnimation(RoomEnemySlot door)
+    internal void RunCeresElevatorGlowAndPlatform(RoomEnemySlot door)
     {
         int frame = Ensure.NotNull(door).FrameCounter;
 

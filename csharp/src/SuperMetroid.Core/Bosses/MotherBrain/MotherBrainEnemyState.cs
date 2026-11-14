@@ -44,8 +44,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>Zero-based count of fake-death grey palette steps taken, 0 through the eight-step table length plus one.</summary>
-    public int GrayFadeIndex { get; internal set; }
+    /// <summary>Zero-based count of fake-death grey fade steps taken, 0 through the fade's eight steps plus one.</summary>
+    public int GreyFadeStep { get; internal set; }
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
     public int FakeDeathExplosionTimer { get; internal set; }
@@ -106,7 +106,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame palette
-    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowPaletteFormat.RainbowFrameCount"/>; the
+    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowColourFormat.RainbowFrameCount"/>; the
     /// step advances it and returns to the first frame after the last.
     /// </summary>
     public int NextRainbowFrame { get; internal set; }

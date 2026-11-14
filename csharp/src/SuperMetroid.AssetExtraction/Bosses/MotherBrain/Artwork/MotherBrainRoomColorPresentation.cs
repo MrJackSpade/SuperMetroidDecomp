@@ -26,7 +26,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <exception cref="InvalidDataException">A set is missing a frame or a colour.</exception>
     internal MotherBrainRoomColorPresentation(MotherBrainRoomColours colours)
     {
-        flash = new InstalledColourRows(colours.Flash, MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount,
+        flash = new InstalledColourRows(colours.Flash, MotherBrainRoomFlashDefinitions.FlashFrameCount,
             MotherBrainRoomColorGeometry.SliceColors * 2, "Mother Brain room flash");
         finalRoom = new InstalledColourRows(colours.FinalRoom, MotherBrainRoomColorGeometry.SliceColors * 2, "Mother Brain final room");
         phaseTwoAttack = new InstalledColourRows(colours.PhaseTwoAttack, MotherBrainRoomColorGeometry.PhaseTwoColors,

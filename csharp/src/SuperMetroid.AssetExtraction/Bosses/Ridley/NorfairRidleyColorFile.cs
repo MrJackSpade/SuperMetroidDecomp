@@ -30,7 +30,7 @@ public static class NorfairRidleyColorFile
             document.Initial is null ||
             document.Initial.Length != NorfairRidleyColorFormat.InitialColorCount ||
             document.Reveal is null ||
-            document.Reveal.Length != NorfairRidleyPaletteDefinitions.RevealStepCount)
+            document.Reveal.Length != NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException("Norfair Ridley colors require the initial palette and all reveal rows.");
 
         RgbColor[] initial = Compile(document.Initial, "initial");

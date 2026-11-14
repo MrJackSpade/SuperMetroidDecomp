@@ -309,7 +309,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            state.Colours.ShowHealth(MotherBrainHealthPalette.Band(state.Head.Health));
+            state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -394,7 +394,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
-            state.Colours.ShowRainbow(MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame);
+            state.Colours.ShowRainbow(MotherBrainRainbowColourDefinitions.DrainedRainbowFrame);
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -409,7 +409,7 @@ internal sealed class MotherBrainRainbowAndDeath
             return;
 
         int frame = state.NextRainbowFrame;
-        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowPaletteFormat.RainbowFrameCount;
+        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowColourFormat.RainbowFrameCount;
         state.Colours.ShowRainbow(frame);
     }
 }

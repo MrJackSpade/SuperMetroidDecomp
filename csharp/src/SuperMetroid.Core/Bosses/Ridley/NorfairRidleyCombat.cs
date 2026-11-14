@@ -109,14 +109,14 @@ internal sealed class NorfairRidleyCombat
 
         state.PhaseTimer = 2;
         int step = state.FadeStep;
-        bool hasPalette;
-        if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
+        bool showsRevealStep;
+        if (step > NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {step} is past the reveal's end.");
-        hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
-        if (hasPalette)
+        showsRevealStep = step < NorfairRidleyRevealDefinitions.RevealStepCount;
+        if (showsRevealStep)
             state.Colours.ShowArenaReveal(step);
         state.FadeStep++;
-        if (hasPalette)
+        if (showsRevealStep)
             return;
 
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.BattleHeight,

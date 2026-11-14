@@ -71,7 +71,7 @@ internal static class RidleyNativeWords
         [RidleyPhase.CeresPublishEscapeHandoff] = 0xaa11,
         [RidleyPhase.CeresInactive] = 0xaa1b,
         [RidleyPhase.CeresActivateSelfDestruct] = 0xc04e,
-        [RidleyPhase.CeresSelfDestructPaletteOnly] = 0xaa50,
+        [RidleyPhase.CeresSelfDestructAlarmOnly] = 0xaa50,
         [RidleyPhase.NorfairEnterArena] = 0xb2f3,
         [RidleyPhase.NorfairSelectAttack] = 0xb321,
         [RidleyPhase.NorfairHoverSetup] = 0xb3ec,

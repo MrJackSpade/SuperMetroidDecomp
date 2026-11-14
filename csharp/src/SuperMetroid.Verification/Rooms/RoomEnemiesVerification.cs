@@ -1234,7 +1234,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres warning writes the C in COLONY on its third line over BG1");
     AssertEqual(CeresEscapeStatus.SelfDestructStarted, enemies.RidleyEncounter.CeresStatus,
         "Ceres escape publishes status two for door destruction");
-    AssertEqual(RidleyPhase.CeresSelfDestructPaletteOnly, state.Phase,
+    AssertEqual(RidleyPhase.CeresSelfDestructAlarmOnly, state.Phase,
         "Ceres escape retains the native palette-only actor function");
 
     Console.WriteLine(

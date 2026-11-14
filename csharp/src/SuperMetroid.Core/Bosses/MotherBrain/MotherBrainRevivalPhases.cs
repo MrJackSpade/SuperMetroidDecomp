@@ -69,14 +69,14 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.PhaseTimer = 16;
 
-            // The revival palette list reverses the same eight grey palettes used by the corpse
+            // The revival reverses the same eight grey fade steps used by the corpse
             // transition and follows them with zero. The body counter is incremented
             // before the old index is passed, so index eight is a terminating probe
             // with no copy. The existing result flag exposes each real copy cadence.
-            int paletteIndex = _state.GreyTransitionCounter;
+            int greyStep = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
-            requests.ColoursRequested = paletteIndex < 8;
-            if (paletteIndex >= 8)
+            requests.ColoursRequested = greyStep < 8;
+            if (greyStep >= 8)
             {
                 _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUp;
                 return true;

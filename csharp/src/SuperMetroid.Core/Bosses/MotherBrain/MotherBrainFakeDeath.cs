@@ -62,8 +62,8 @@ internal sealed class MotherBrainFakeDeath
         if (--state.PhaseTimer < 0)
         {
             state.PhaseTimer = 8;
-            int step = state.GrayFadeIndex++;
-            if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
+            int step = state.GreyFadeStep++;
+            if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
             {
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentCollapseTubes;
             }
@@ -532,11 +532,11 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         state.PhaseTimer = 4;
-        int paletteStep = state.GrayTransitionCounter++;
-        if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
+        int fadeStep = state.GrayTransitionCounter++;
+        if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            state.Colours.ShowFakeDeathFromGrey(paletteStep);
+            state.Colours.ShowFakeDeathFromGrey(fadeStep);
             return;
         }
 

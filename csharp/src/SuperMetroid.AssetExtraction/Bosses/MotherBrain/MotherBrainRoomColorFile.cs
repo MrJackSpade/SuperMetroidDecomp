@@ -20,7 +20,7 @@ public static class MotherBrainRoomColorFile
             json, ArtworkJson.Options, "Mother Brain room colors");
         if (document.Version != MotherBrainRoomColorFormat.Version ||
             document.Flash is null ||
-            document.Flash.Length != MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount)
+            document.Flash.Length != MotherBrainRoomFlashDefinitions.FlashFrameCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
         var flash = new RgbColor[document.Flash.Length][];
         for (int index = 0; index < flash.Length; index++)

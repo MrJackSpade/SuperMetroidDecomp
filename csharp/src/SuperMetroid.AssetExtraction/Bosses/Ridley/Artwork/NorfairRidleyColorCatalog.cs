@@ -19,7 +19,7 @@ public sealed class NorfairRidleyColorCatalog
     internal NorfairRidleyColorCatalog(RgbColor[] initial, RgbColor[][] reveal)
     {
         this.initial = new InstalledColourRows(initial, NorfairRidleyColorFormat.InitialColorCount, "Norfair Ridley initial");
-        this.reveal = new InstalledColourRows(reveal, NorfairRidleyPaletteDefinitions.RevealStepCount,
+        this.reveal = new InstalledColourRows(reveal, NorfairRidleyRevealDefinitions.RevealStepCount,
             NorfairRidleyColorFormat.RevealColorCount, "Norfair Ridley reveal");
     }
 

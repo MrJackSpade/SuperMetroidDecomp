@@ -87,7 +87,7 @@ internal static class CeresRidleyColorsVerification
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
         Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
-        for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
+        for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.FadeStepCount; step++)
         {
             state.FadeStep = step;
             state.PhaseTimer = 0;

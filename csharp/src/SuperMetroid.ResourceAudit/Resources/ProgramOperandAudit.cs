@@ -52,7 +52,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         if (!inspected.Add(owner)) return;
         string source = declaration.SyntaxTree.FilePath + ":" +
             (declaration.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
-        if (owner == typeof(MotherBrainRoomPaletteAnimationDefinitions).FullName)
+        if (owner == typeof(MotherBrainRoomFlashDefinitions).FullName)
         {
             // This finite program selects installed color rows, not OAM operands.
             MotherBrainRoomFlashAudit.Inspect(source, exports, report);

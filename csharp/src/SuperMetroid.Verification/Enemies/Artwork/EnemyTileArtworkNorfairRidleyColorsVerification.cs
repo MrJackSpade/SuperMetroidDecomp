@@ -34,7 +34,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         for (int color = 0; color < NorfairRidleyColorFormat.InitialColorCount; color++)
             CheckSource(EnemySourceDefinitions.NorfairRidleyInitialColors + color * sizeof(ushort),
                 stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
-        for (int row = 0; row < NorfairRidleyPaletteDefinitions.RevealStepCount; row++)
+        for (int row = 0; row < NorfairRidleyRevealDefinitions.RevealStepCount; row++)
         {
             int pointerAddress = (int)EnemySourceDefinitions.RevealSourcePointers + row * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
@@ -46,7 +46,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                     (stock.Bosses.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }
         int terminatorAddress = (int)EnemySourceDefinitions.RevealSourcePointers +
-            NorfairRidleyPaletteDefinitions.RevealStepCount * sizeof(ushort);
+            NorfairRidleyRevealDefinitions.RevealStepCount * sizeof(ushort);
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), terminatorAddress),
             "Norfair Ridley reveal pointer table ends after fifteen color rows");
         forbidden.Add(terminatorAddress);
@@ -61,7 +61,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         installed.RoomFx.BindRoomFx(installedLiquid);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
-        for (int call = 0; call <= NorfairRidleyPaletteDefinitions.RevealStepCount * 3; call++)
+        for (int call = 0; call <= NorfairRidleyRevealDefinitions.RevealStepCount * 3; call++)
         {
             TickReference(nativeCgram, nativeState);
             Tick(installed, installedSlot, installedState);

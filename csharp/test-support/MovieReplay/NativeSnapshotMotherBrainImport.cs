@@ -275,8 +275,8 @@ internal static class NativeSnapshotMotherBrainImport
     /// frame; an odd offset or one beyond the terminator is not a state the game produces.
     /// </summary>
     internal static int DecodeNextRainbowFrame(ushort word) =>
-        word % 2 == 0 && word / 2 <= MotherBrainRainbowPaletteFormat.RainbowFrameCount
-            ? word / 2 % MotherBrainRainbowPaletteFormat.RainbowFrameCount
+        word % 2 == 0 && word / 2 <= MotherBrainRainbowColourFormat.RainbowFrameCount
+            ? word / 2 % MotherBrainRainbowColourFormat.RainbowFrameCount
             : throw new InvalidDataException($"Mother Brain rainbow palette list offset {word} is outside the list.");
 
     /// <summary>

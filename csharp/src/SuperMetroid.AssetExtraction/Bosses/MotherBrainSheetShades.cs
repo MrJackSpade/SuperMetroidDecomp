@@ -190,7 +190,7 @@ internal static class MotherBrainSheetShades
                 Colours(rainbow.fromGrey.BodyCount, colour => rainbow.fromGrey.Body(shown, colour)),
                 Colours(rainbow.fromGrey.LegCount, colour => rainbow.fromGrey.Leg(shown, colour))));
         }
-        for (int frame = 0; frame < MotherBrainFakeDeathPaletteDefinitions.FrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainFakeDeathFadeDefinitions.FrameCount; frame++)
         {
             int shown = frame;
             shades.Add(SheetShade.Run(MotherBrainShades.FakeDeathToGrey(shown), BrainRow + FirstColour,
@@ -261,7 +261,7 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(room);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainRoomFlashDefinitions.FlashFrameCount; frame++)
         {
             int shown = frame;
             shades.Add(Flash(MotherBrainShades.Flash(shown), colour => room.flash.Colour(shown, colour)));

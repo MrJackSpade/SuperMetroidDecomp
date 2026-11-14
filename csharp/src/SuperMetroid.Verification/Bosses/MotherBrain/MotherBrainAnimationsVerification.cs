@@ -47,10 +47,10 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>The fake-death flash is fourteen frames of the reviewed duration, then a goto back to its start.</summary>
     private static void VerifyRoomFlashList(IImportCartridgeSource cartridge)
     {
-        AssertEqual(MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount, RoomFlashRecords.Length, "the room flash has fourteen frames");
+        AssertEqual(MotherBrainRoomFlashDefinitions.FlashFrameCount, RoomFlashRecords.Length, "the room flash has fourteen frames");
         foreach ((int frame, int record) in RoomFlashRecords)
         {
-            AssertEqual(MotherBrainRoomPaletteAnimationDefinitions.FlashImageTicks, cartridge.ReadCartridgeWord(record), $"room flash frame {frame} duration");
+            AssertEqual(MotherBrainRoomFlashDefinitions.FlashImageTicks, cartridge.ReadCartridgeWord(record), $"room flash frame {frame} duration");
             AssertEqual(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(frame), unchecked((ushort)(record + 2)),
                 $"room flash frame {frame} palette operand");
         }

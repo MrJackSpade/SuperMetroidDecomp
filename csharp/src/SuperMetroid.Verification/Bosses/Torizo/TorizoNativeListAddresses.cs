@@ -171,7 +171,7 @@ internal static class TorizoNativeListAddresses
         [0xc610] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlayShotSound)), []),
         [0xc618] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlayFootstepSound)), []),
         [0xcace] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Replay>("", "Replay WhileAirborne", cue => cue.Kind == TorizoReplayKind.WhileAirborne), [TorizoOperand.ReplayedRun]),
-        [0xcade] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.LoadGoldenTorizoPalettes)), []),
+        [0xcade] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.FadeToGoldenColors)), []),
         [0xcae2] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.StartGoldenTorizoFight)), []),
         [0xcdd7] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ClearCaughtSuperMissile)), []),
         [0xd0e9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnEgg)), []),

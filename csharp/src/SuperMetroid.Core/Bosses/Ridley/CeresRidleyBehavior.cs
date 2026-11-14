@@ -74,7 +74,7 @@ internal sealed class CeresRidleyBehavior
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
-            CeresRidleyHits.UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
+            CeresRidleyHits.UpdateRidleyHurtFlash(slot, state, slot.FrameCounter);
 
         switch (state.Phase)
         {
@@ -276,7 +276,7 @@ internal sealed class CeresRidleyBehavior
                 Getaway.TickCeresRidleySelfDestruct(state);
                 return;
 
-            case RidleyPhase.CeresSelfDestructPaletteOnly:
+            case RidleyPhase.CeresSelfDestructAlarmOnly:
                 CeresRidleyGetaway.UpdateCeresSelfDestructAlarm(state, slot.FrameCounter);
                 return;
 

@@ -128,9 +128,8 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// Publishes a shot/bomb/grapple reaction at a Chozo orb or concealed item block.
-    /// The projectile family is retained for diagnostics; the item's shot setup accepts any
-    /// collision producer and reduces it to the same trigger.
+    /// Triggers the Chozo orb or concealed item block at <paramref name="block"/> that a shot, bomb or grapple reached:
+    /// whatever reached it, the item responds with the same trigger.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)

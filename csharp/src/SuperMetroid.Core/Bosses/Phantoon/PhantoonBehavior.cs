@@ -148,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonPhase phase = state.BodyState.Phase;
+        PhantoonPhase? phase = state.BodyState.Phase;
 
         switch (phase)
         {
@@ -248,7 +248,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case PhantoonPhase.Dead:
                 Death.ActivateWreckedShipAfterPhantoon(body, state);
                 break;
-            case PhantoonPhase.NoOperation:
+            case null:
                 break;
             default:
                 throw new InvalidDataException(
@@ -284,15 +284,15 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
 
-    /// <summary>Runs Phantoon's palette-only hurt AI.</summary>
+    /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonTentaclesState tentacles = state.TentaclesState;
-        bool restoreHealthPalette = body.FlashTimer == 8 ||
+        bool showHealthColours = body.FlashTimer == 8 ||
             !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && tentacles.HurtFlashShown;
-        if (restoreHealthPalette)
+        if (showHealthColours)
         {
-            CopyPhantoonHealthPalette(body);
+            ShowPhantoonHealthColours(body);
             tentacles.HurtFlashShown = false;
             return;
         }
@@ -304,8 +304,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         tentacles.HurtFlashShown = true;
     }
 
-    /// <summary>Copies the selected health colors into the visible body palette.</summary>
-    internal void CopyPhantoonHealthPalette(RoomEnemySlot body) =>
+    /// <summary>Shows his body in the colours of his health band.</summary>
+    internal void ShowPhantoonHealthColours(RoomEnemySlot body) =>
         (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
             .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>

@@ -25,29 +25,33 @@ internal static class KraidContourCaseMappingsVerification
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
 
-    /// <summary>Checks every relative Y mapping and strict projectile overlap at wrapped edge cases.</summary>
+    /// <summary>
+    /// Checks every relative Y a room can hold against the native selection, and strict projectile overlap at the
+    /// staircase's edges. The native wrapped comparison differs only more than 31,745 pixels above Kraid, which no room
+    /// reaches (#1876).
+    /// </summary>
     internal static void VerifyKraidBodyContourCases(CartridgeImportAddressSpace rom)
     {
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        const int roomHeightLimit = SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid.KeptCellCount * 256;
+        for (int relativeY = -roomHeightLimit; relativeY <= roomHeightLimit; relativeY++)
         {
-            short relativeY = unchecked((short)raw);
-            AssertEqual(NativeKraidBodyLeftEdge(rom, relativeY), KraidBodyContour.LeftEdge(relativeY),
+            AssertEqual(NativeKraidBodyLeftEdge(rom, (short)relativeY), KraidBodyContour.LeftEdge(relativeY),
                 $"Kraid contour native CMP/BPL selection at Y={relativeY}");
         }
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)).Slots[0];
-        body.Position = body.Position.WithWhole(new(256, 32768));
+        body.Position = body.Position.WithWhole(new(256, 1024));
         shot.Radius = shot.Radius.WithX(0);
-        foreach (short y in new short[] { -32768, -31746, -31745 })
+        foreach (short y in new short[] { -113, -112, -1, 0 })
         {
             shot.Position = shot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + y)));
             int edge = body.Position.X.Whole + NativeKraidBodyLeftEdge(rom, y);
             for (int delta = -1; delta <= 1; delta++)
             {
                 shot.Position = shot.Position.WithWholeX((ushort)(edge + delta));
-                AssertEqual(delta > 0, overlaps(body, shot), "Wrapped contour production edge remains strict");
+                AssertEqual(delta > 0, overlaps(body, shot), "Contour production edge remains strict");
             }
         }
     }

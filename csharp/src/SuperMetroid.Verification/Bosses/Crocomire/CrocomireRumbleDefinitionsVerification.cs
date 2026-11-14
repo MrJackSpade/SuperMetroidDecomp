@@ -28,33 +28,30 @@ internal static class CrocomireRumbleDefinitionsVerification
     {
         const int sourceAddress = 0xa498ca;
 
-        // The table's words from the first step's target on: each step's target at its cursor, a negative target's
-        // cooldown and delta in the two words after it, and the end marker twice after the last step. The two copied
-        // prefix words before the first step are never a target the rumble reaches, so the schedule omits them.
+        // The table's words from the first oscillation on (#1879): each oscillation's return offset and extreme, then
+        // the next oscillation's repeats and speed, and the end marker where the last oscillation's successor would be
+        // and twice after it. The first oscillation's repeats and speed are the code's, and the two copied prefix words
+        // before the table are never a target the rumble reaches, so the oscillations omit them.
         const int firstWord = 2;
         var expectedWords = new ushort[32];
         var assigned = new bool[32];
-        int stepCount = CrocomireRumbleDefinitions.All.Length;
-        for (int step = 0; step < stepCount; step++)
+        int count = CrocomireRumbleDefinitions.Oscillations.Length;
+        for (int oscillation = 0; oscillation < count; oscillation++)
         {
-            CrocomireRumbleDefinition definition = CrocomireRumble.At(step);
-            AssertTrue(!CrocomireRumble.IsComplete(step), $"Crocomire rumble step {step} is a target");
-            int targetIndex = CrocomireNativeWords.RumbleCursor(step) / 2;
-            AssertEqual(step, CrocomireNativeWords.RumbleStep(targetIndex * 2), $"Crocomire rumble step {step} cursor round trip");
-            expectedWords[targetIndex] = unchecked((ushort)definition.TargetYOffset);
-            assigned[targetIndex] = true;
-            if (definition.TargetYOffset >= 0)
-                continue;
-
-            // The last target ends the rumble, so the schedule carries no next phase where the cartridge holds its marker.
-            bool last = step == stepCount - 1;
-            expectedWords[targetIndex + 1] = last ? RumbleEndMarker : (ushort)definition.Cooldown;
-            expectedWords[targetIndex + 2] = last ? RumbleEndMarker : (ushort)definition.Delta;
-            assigned[targetIndex + 1] = true;
-            assigned[targetIndex + 2] = true;
+            CrocomireRumbleOscillation definition = CrocomireRumbleDefinitions.Oscillations[oscillation];
+            int returnIndex = CrocomireNativeWords.RumbleCursor(oscillation, towardExtreme: false) / 2;
+            int extremeIndex = CrocomireNativeWords.RumbleCursor(oscillation, towardExtreme: true) / 2;
+            AssertEqual((oscillation, false), CrocomireNativeWords.RumbleAt(returnIndex * 2), $"Crocomire rumble oscillation {oscillation} return cursor round trip");
+            AssertEqual((oscillation, true), CrocomireNativeWords.RumbleAt(extremeIndex * 2), $"Crocomire rumble oscillation {oscillation} extreme cursor round trip");
+            AssertTrue(definition.ReturnOffset >= 0 && definition.ExtremeOffset < 0, $"Crocomire rumble oscillation {oscillation} swings up from its return");
+            expectedWords[returnIndex] = unchecked((ushort)definition.ReturnOffset);
+            expectedWords[extremeIndex] = unchecked((ushort)definition.ExtremeOffset);
+            bool last = oscillation == count - 1;
+            expectedWords[extremeIndex + 1] = last ? RumbleEndMarker : (ushort)CrocomireRumbleDefinitions.Oscillations[oscillation + 1].Repeats;
+            expectedWords[extremeIndex + 2] = last ? RumbleEndMarker : (ushort)CrocomireRumbleDefinitions.Oscillations[oscillation + 1].Speed;
+            assigned[returnIndex] = assigned[extremeIndex] = assigned[extremeIndex + 1] = assigned[extremeIndex + 2] = true;
         }
-        AssertTrue(CrocomireRumble.IsComplete(stepCount), "Crocomire rumble completes past its last target");
-        int endIndex = CrocomireNativeWords.RumbleCursor(stepCount) / 2;
+        int endIndex = CrocomireNativeWords.RumbleCursor(count, towardExtreme: false) / 2;
         foreach (int index in new[] { endIndex, endIndex + 1 })
         {
             expectedWords[index] = RumbleEndMarker;
@@ -69,13 +66,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumble.At(stepCount),
-            "Crocomire rumble step past the schedule has no target");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireRumble.IsComplete(stepCount + 1),
-            "Crocomire rumble step outside the schedule");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireNativeWords.RumbleStep(8),
+            () => CrocomireNativeWords.RumbleAt(8),
             "Crocomire timing word cannot become a target");
 
         var guarded = NewCrocomireRumbleReadGuard(rom);
@@ -85,26 +76,29 @@ internal static class CrocomireRumbleDefinitionsVerification
         {
             BossArtwork = new BossSourceArtwork { CrocomireColors = colors },
         };
+        // The cartridge's code starts the rumble with ten repeats at one pixel an update: the first oscillation's.
+        AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
+        AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
-            RumbleCooldown = 10,
-            RumbleDelta = 1,
+            RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats,
         };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new CrocomireEnemyState(body)
         {
             DeathPhase = CrocomireDeathPhase.RumbleHiddenWall,
-            RumbleStep = CrocomireRumble.FirstStep,
+            RumbleOscillation = 0,
+            RumbleTowardExtreme = false,
         };
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
-        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleStep));
+        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme));
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
-        ushort referenceCooldown = checked((ushort)death.RumbleCooldown);
-        ushort referenceDelta = checked((ushort)death.RumbleDelta);
+        ushort referenceCooldown = 10;
+        ushort referenceDelta = 1;
         ushort referenceDeathIndex = CrocomireNativeWords.DeathPhases.Word(state.DeathPhase);
         int frames = 0;
         while (referenceIndex != 0x0080 && frames < 2048)
@@ -120,11 +114,11 @@ internal static class CrocomireRumbleDefinitionsVerification
             frames++;
 
             // The terminator writes its marker into the word the rumble shares with the melt shake counter; every
-            // melt is over by then and nothing reads either again, so production keeps neither the marker nor the step.
+            // melt is over by then and nothing reads either again, so production keeps neither the marker nor the place.
             if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
             {
-                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleStep),
-                    $"Crocomire rumble frame {frames} target step");
+                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme),
+                    $"Crocomire rumble frame {frames} target");
                 AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
                     $"Crocomire rumble frame {frames} Y offset");
             }
@@ -132,10 +126,10 @@ internal static class CrocomireRumbleDefinitionsVerification
             // the rumble ends at the next step; production loads no next phase there, so the comparison stops once the marker is loaded.
             if (referenceDelta != 0x8080)
             {
-                AssertEqual(referenceCooldown, death.RumbleCooldown,
-                    $"Crocomire rumble frame {frames} cooldown");
-                AssertEqual(referenceDelta, death.RumbleDelta,
-                    $"Crocomire rumble frame {frames} delta");
+                AssertEqual(referenceCooldown, death.RumbleRepeatsLeft,
+                    $"Crocomire rumble frame {frames} repeats left");
+                AssertEqual(referenceDelta, CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Speed,
+                    $"Crocomire rumble frame {frames} speed");
             }
             AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathPhases.Word(state.DeathPhase),
                 $"Crocomire rumble frame {frames} death index");

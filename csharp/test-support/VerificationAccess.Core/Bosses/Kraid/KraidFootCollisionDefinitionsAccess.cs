@@ -14,6 +14,8 @@ internal static class KraidFootCollisionDefinitionsAccess
     private const ushort NativeInitialFrame = 0xa565;
     /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
     private const int NativeFrameByteCount = 18;
+    /// <summary>The walk sequence's native frames from $A7:8CE3, one of which no instruction list shows.</summary>
+    private const int NativeFrameCount = 35;
 
     /// <summary>Native views of the catalog.</summary>
     extension(KraidFootCollisionDefinitions)
@@ -26,6 +28,8 @@ internal static class KraidFootCollisionDefinitionsAccess
         internal static ushort InitialFrame => NativeInitialFrame;
         /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
         internal static int FrameByteCount => NativeFrameByteCount;
+        /// <summary>The walk sequence's native frames from $A7:8CE3.</summary>
+        internal static int FrameCount => NativeFrameCount;
 
         /// <summary>Computes a foot collision frame root from the fixed native record stride.</summary>
         internal static ushort FramePointer(int index) => checked((ushort)(NativeFirstFrame + index * NativeFrameByteCount));

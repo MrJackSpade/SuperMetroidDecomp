@@ -116,7 +116,7 @@ internal sealed class KraidCombat
     /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
-        !KraidPhaseGroups.ShotsCollide.Contains(_access.Part(body).Phase);
+        _access.Part(body).Phase is { } phase && !KraidPhaseGroups.ShotsCollide.Contains(phase);
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
@@ -184,8 +184,7 @@ internal sealed class KraidCombat
             state.HurtFrameTimer = 2;
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
-            if (body.Health < 1 &&
-                KraidPhaseGroups.Fighting.Contains(state.BodyState.Phase))
+            if (body.Health < 1 && IsFighting(state.BodyState.Phase))
                 BeginKraidDeath(state);
         }
 
@@ -265,6 +264,9 @@ internal sealed class KraidCombat
         return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
     }
 
+    /// <summary>Whether Kraid fights in <paramref name="phase"/>: a fighting phase, or none while his body runs no phase.</summary>
+    private static bool IsFighting(KraidPhase? phase) => phase is not { } running || KraidPhaseGroups.Fighting.Contains(running);
+
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
     private void BeginKraidDeath(KraidEnemyState state)
     {
@@ -281,7 +283,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if (!KraidPhaseGroups.Fighting.Contains(state.BodyState.Phase))
+        if (!IsFighting(state.BodyState.Phase))
             return;
         int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -

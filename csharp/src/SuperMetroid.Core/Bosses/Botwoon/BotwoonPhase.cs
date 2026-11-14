@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public enum BotwoonPhase
 {
     /// <summary>Decrements the 256-update opening delay and selects hole traversal when it reaches zero.</summary>
-    InitialDelay = 1,
+    InitialDelay,
     /// <summary>Moves toward the target hole, detects crossing, and chooses an authored path or stationary spit action.</summary>
     ChooseNextAction,
     /// <summary>Advances an authored movement path and body history until the path ends and selects direct hole movement.</summary>

@@ -725,7 +725,6 @@ internal static class LookupStream2Verification
             {
                 CameraDistanceMode.NormalTracking => 0,
                 CameraDistanceMode.BossTracking => 1,
-                CameraDistanceMode.LeftEdge => 2,
                 CameraDistanceMode.RightEdge => 3,
                 _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
             };
@@ -816,6 +815,7 @@ internal static class LookupStream2Verification
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Access.Kraid = state;
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.Projectiles.AlignKraidPart;

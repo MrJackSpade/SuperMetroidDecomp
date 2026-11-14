@@ -27,8 +27,8 @@ internal sealed class KraidRise
     private readonly KraidParts _parts;
     /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
@@ -46,7 +46,7 @@ internal sealed class KraidRise
         _earthquake = dependencies.Earthquake;
         _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
-        _zebetiteBehavior = dependencies.ZebetiteBehavior;
+        _cameraDistance = dependencies.CameraDistance;
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
@@ -55,8 +55,6 @@ internal sealed class KraidRise
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
     internal void InitializeKraidBody(RoomEnemySlot body)
     {
-        KraidParts.Require(body, _parts.Body, "body");
-
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
         _access.AttachKraidPart(body, state);
@@ -79,7 +77,7 @@ internal sealed class KraidRise
         }
 
         // Kraid's fight tracks the camera like a boss.
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
+        _cameraDistance.Request(CameraDistanceMode.BossTracking);
         ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;
@@ -203,7 +201,6 @@ internal sealed class KraidRise
                     return;
                 FinishKraidGrowth(body, state);
                 return;
-            case KraidPhase.NoOperation:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
             case KraidPhase.MouthOpenReaction:
@@ -251,7 +248,6 @@ internal sealed class KraidRise
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a growth phase.");
         }
@@ -317,7 +313,7 @@ internal sealed class KraidRise
         KraidEnemyState state,
         SamusState? samus)
     {
-        KraidPhase phase = state.BodyState.Phase;
+        KraidPhase? phase = state.BodyState.Phase;
         switch (phase)
         {
             case KraidPhase.RestrictSamusToFirstScreen:
@@ -392,7 +388,6 @@ internal sealed class KraidRise
                 }
                 return;
 
-            case KraidPhase.NoOperation:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
             case KraidPhase.GrowShowLowerBodyInFront:
@@ -440,7 +435,6 @@ internal sealed class KraidRise
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");

@@ -31,8 +31,8 @@ internal sealed class CrocomireFight
     private readonly EnemyPresentation _presentation;
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
@@ -49,7 +49,7 @@ internal sealed class CrocomireFight
         _earthquake = dependencies.Earthquake;
         _presentation = dependencies.Presentation;
         _collision = dependencies.Collision;
-        _zebetiteBehavior = dependencies.ZebetiteBehavior;
+        _cameraDistance = dependencies.CameraDistance;
         _roomStatus = dependencies.RoomStatus;
         _access = dependencies.Access;
         _combat = dependencies.Combat;
@@ -71,7 +71,7 @@ internal sealed class CrocomireFight
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
             slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-            state.DeathPhase = CrocomireDeathPhase.DefeatedRoomAdvance;
+            state.DeathPhase = CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);
@@ -86,7 +86,7 @@ internal sealed class CrocomireFight
         state.DeathPhase = CrocomireDeathPhase.Fighting;
         state.Phase = CrocomirePhase.Sleeping;
         // On the living branch only.
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
+        _cameraDistance.Request(CameraDistanceMode.BossTracking);
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
         slot.CollidesByFrameHitboxes = true;
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)

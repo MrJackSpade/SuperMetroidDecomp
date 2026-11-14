@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -39,8 +40,8 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Zebetite behavior.</summary>
-    public required ZebetiteBehavior ZebetiteBehavior { get; init; }
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    public required RoomCameraDistance CameraDistance { get; init; }
 
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }

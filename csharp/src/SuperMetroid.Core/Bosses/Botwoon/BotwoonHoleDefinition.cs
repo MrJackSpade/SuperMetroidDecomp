@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>One rectangular Botwoon hole and its four-pixel inset movement target.</summary>
+/// <param name="Hole">Which hole this is.</param>
 /// <param name="TopLeft">The left and top boundaries of the hole hitbox.</param>
-internal readonly record struct BotwoonHoleDefinition(Position16<RoomPixels> TopLeft)
+internal readonly record struct BotwoonHoleDefinition(BotwoonHole Hole, Position16<RoomPixels> TopLeft)
 {
     /// <summary>
     /// The exclusive right and bottom boundaries: all four hole hitboxes are

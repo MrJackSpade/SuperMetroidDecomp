@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
-            enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
+            enemies.PhantoonBehavior.ShowPhantoonHealthColours(body);
             AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(band)), Shown(state), $"Phantoon live health restore band {band}");
             AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
@@ -121,7 +121,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         state.EyeState.FadeDenominator = 12;
         state.EyeState.FadeNumerator = 13;
-        bool complete = PhantoonDeath.AdvanceWreckedShipPowerPalette(state, state.EyeState);
+        bool complete = PhantoonDeath.AdvanceWreckedShipPowerOn(state, state.EyeState);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses, new RgbColor[ImageColourGroup.HalfColours])
             .Single(shade => shade.Shade == PhantoonShades.PowerOn(13));

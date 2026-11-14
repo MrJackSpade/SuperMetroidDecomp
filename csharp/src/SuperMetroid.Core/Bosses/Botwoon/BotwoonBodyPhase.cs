@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal enum BotwoonBodyPhase
 {
     /// <summary>Enemy projectile behaviour: botwoons body, main.</summary>
-    Main = 1,
+    Main,
     /// <summary>Enemy projectile behaviour: botwoons body, dying, set delay.</summary>
     BeginDying,
     /// <summary>Enemy projectile behaviour: botwoons body, dying, delay.</summary>

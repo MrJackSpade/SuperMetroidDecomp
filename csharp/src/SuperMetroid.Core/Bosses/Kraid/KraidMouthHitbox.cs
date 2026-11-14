@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal enum KraidMouthHitbox
 {
     /// <summary>Closed-mouth vulnerable shape.</summary>
-    ClosedVulnerable = 1,
+    ClosedVulnerable,
     /// <summary>First opening-stage vulnerable shape.</summary>
     OpeningVulnerable,
     /// <summary>Second opening-stage vulnerable shape.</summary>

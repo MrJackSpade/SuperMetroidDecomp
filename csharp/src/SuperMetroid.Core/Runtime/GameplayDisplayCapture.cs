@@ -109,10 +109,10 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, backgroundScroll) : null;
         SampledScrollWave? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, backgroundScroll.Y) : null;
-        // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
-        ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
-            ? DraygonBodyBand.ShownLines(draygon, scrolls.ForegroundPosition) : ScreenLineBand.Gameplay;
-        ScreenLayers displayedLayers = latched.ShownLayers;
+        // Draygon's body shows whole where it lies (#1873); once he is deleted his body layer shows nothing.
+        ScreenLayers displayedLayers = bosses.DraygonBody is { Deleted: true }
+            ? latched.ShownLayers & ~ScreenLayers.Background
+            : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
         // below their cameras, so the backend draws the view with no offset of its own. A sky room's background shows the
         // sky's rows down the screen.
@@ -123,7 +123,6 @@ public static class GameplayDisplayCapture
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedLayers),
-            backgroundLines.FirstLine, backgroundLines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
         LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;

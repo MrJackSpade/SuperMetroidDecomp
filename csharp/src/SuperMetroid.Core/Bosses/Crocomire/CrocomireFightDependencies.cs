@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 ﻿using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -28,8 +29,8 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
-    public required ZebetiteBehavior ZebetiteBehavior { get; init; }
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    public required RoomCameraDistance CameraDistance { get; init; }
 
     /// <summary>Updates boss completion and room-state flags.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }

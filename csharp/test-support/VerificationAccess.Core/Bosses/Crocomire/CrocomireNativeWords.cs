@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Verification's native view of Crocomire's identities and packed words (#1413): the cartridge words naming each
-/// member, how the cartridge packs the fight latches with the mouth-hit count, and where each rumble step's target sits
-/// in the cartridge's rumble table. Core's values are arbitrary; a native snapshot or ROM oracle translates through
+/// member, how the cartridge packs the fight latches with the mouth-hit count, and where each rumble oscillation's
+/// targets sit in the cartridge's rumble table. Core's values are arbitrary; a native snapshot or ROM oracle translates through
 /// these tables.
 /// </summary>
 internal static class CrocomireNativeWords
@@ -47,7 +47,7 @@ internal static class CrocomireNativeWords
         [CrocomireDeathPhase.InstallSecondMeltImage] = 44,
         [CrocomireDeathPhase.BeginSecondMeltPass] = 46,
         [CrocomireDeathPhase.ShowSecondMeltBands] = 48,
-        [CrocomireDeathPhase.ShippedSpacer] = 50,
+        [CrocomireDeathPhase.WaitBeforeSixthHopRise] = 50,
         [CrocomireDeathPhase.SixthHopRise] = 52,
         [CrocomireDeathPhase.StartSecondDissolve] = 54,
         [CrocomireDeathPhase.DissolveSecondImage] = 56,
@@ -61,10 +61,10 @@ internal static class CrocomireNativeWords
         [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = 72,
         [CrocomireDeathPhase.ClearWallAndOpenScrolls] = 74,
         [CrocomireDeathPhase.WaitForStableSkeleton] = 76,
-        [CrocomireDeathPhase.WaitOneUpdate] = 78,
+        [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = 78,
         [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = 80,
         [CrocomireDeathPhase.InertCorpse] = 82,
-        [CrocomireDeathPhase.DefeatedRoomAdvance] = 84,
+        [CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer] = 84,
         [CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement] = 86,
         [CrocomireDeathPhase.RiverSkeletonDetour] = 88,
     });
@@ -102,20 +102,13 @@ internal static class CrocomireNativeWords
         [CrocomireTongueFrame.MeltingPose4] = 0xcaf6,
     });
 
-    /// <summary>The bank-$A4 hitbox-list word naming each <see cref="CrocomireTongueHitboxList"/>.</summary>
-    internal static readonly NativeWordIdentities<CrocomireTongueHitboxList> TongueHitboxLists = new(new Dictionary<CrocomireTongueHitboxList, ushort>
-    {
-        [CrocomireTongueHitboxList.Fight] = 0xcbb3,
-        [CrocomireTongueHitboxList.Melting] = 0xcc3b,
-    });
-
     /// <summary>Whether a recorded body variable B holds the damage-reaction latch.</summary>
     internal static bool DamageReactionPending(ushort word) => (word & DamageReactionPendingBit) != 0;
 
 
     /// <summary>
     /// Imports the body's values the cartridge keeps in record words D, E and F (#1476): during the fight the queued
-    /// steps and the projectile counter (E's reaction timer is read by nothing); while the wall rumbles the rumble step; otherwise in the
+    /// steps and the projectile counter (E's reaction timer is read by nothing); while the wall rumbles the rumble's place; otherwise in the
     /// death sequence the death-phase delay or the vertical acceleration in D, the vertical speed or the skeleton speed's
     /// fraction in E, and the vertical subpixel (the high byte) or the skeleton speed's whole pixels in F. Of the values
     /// one death-phase word holds, only the phase's own is read, so each is imported from the word.
@@ -132,7 +125,7 @@ internal static class CrocomireNativeWords
 
         if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
         {
-            state.RumbleStep = RumbleStep(wordD);
+            (state.RumbleOscillation, state.RumbleTowardExtreme) = RumbleAt(wordD);
         }
         else
         {
@@ -144,26 +137,31 @@ internal static class CrocomireNativeWords
         state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)wordF), wordE);
     }
 
-    /// <summary>The rumble table's byte cursor of the first step's target: two copied prefix words precede it.</summary>
+    /// <summary>The rumble table's byte cursor of the first oscillation's return target: two copied prefix words precede it.</summary>
     private const int RumbleFirstCursor = 4;
 
-    /// <summary>The bytes one oscillation occupies: a return target, then a negative target and its two timing words.</summary>
+    /// <summary>
+    /// The bytes one oscillation occupies in the cartridge's flat table: its return target, its extreme, then the next
+    /// oscillation's repeats and speed, whose sign-tested extreme told the table's reader they follow.
+    /// </summary>
     private const int RumbleOscillationBytes = 8;
 
     /// <summary>
-    /// The rumble table's byte cursor of <paramref name="step"/>'s target; the step past the last target is the
-    /// cursor of the table's end marker.
+    /// The rumble table's byte cursor of <paramref name="oscillation"/>'s return target, or its extreme when
+    /// <paramref name="towardExtreme"/>; the oscillation past the last is the cursor of the table's end marker.
     /// </summary>
-    internal static int RumbleCursor(int step) =>
-        RumbleFirstCursor + step / 2 * RumbleOscillationBytes + step % 2 * sizeof(ushort);
+    internal static int RumbleCursor(int oscillation, bool towardExtreme) =>
+        RumbleFirstCursor + oscillation * RumbleOscillationBytes + (towardExtreme ? sizeof(ushort) : 0);
 
-    /// <summary>The rumble step whose target a recorded byte cursor names.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="cursor"/> names no step's target.</exception>
-    internal static int RumbleStep(int cursor)
+    /// <summary>The oscillation and heading a recorded byte cursor names.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="cursor"/> names no oscillation's target.</exception>
+    internal static (int Oscillation, bool TowardExtreme) RumbleAt(int cursor)
     {
-        for (int step = 0; step <= CrocomireRumbleDefinitions.All.Length; step++)
-            if (RumbleCursor(step) == cursor)
-                return step;
+        for (int oscillation = 0; oscillation <= CrocomireRumbleDefinitions.Oscillations.Length; oscillation++)
+            foreach (bool towardExtreme in new[] { false, true })
+                if (RumbleCursor(oscillation, towardExtreme) == cursor &&
+                    (oscillation < CrocomireRumbleDefinitions.Oscillations.Length || !towardExtreme))
+                    return (oscillation, towardExtreme);
         throw new InvalidDataException($"Crocomire rumble cursor ${cursor:X4} names no rumble target.");
     }
 }

@@ -3602,10 +3602,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(footOracle.Rom)),
             "Kraid foot coordinate oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidFootFirstX), () => VerifyKraidFootFirstX(footOracle));
-        Suite(nameof(VerifyKraidFootFirstY), () => VerifyKraidFootFirstY(footOracle));
-        Suite(nameof(VerifyKraidFootSecondX), () => VerifyKraidFootSecondX(footOracle));
-        Suite(nameof(VerifyKraidFootSecondY), () => VerifyKraidFootSecondY(footOracle));
+        Suite(nameof(VerifyKraidFootCoordinates), () => VerifyKraidFootCoordinates(footOracle));
         Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(footOracle));
         Console.WriteLine("Kraid foot coordinates: four fields across 35 frames plus initial alias, shared geometry/callbacks, membership and bounds pass.");
         return 0;

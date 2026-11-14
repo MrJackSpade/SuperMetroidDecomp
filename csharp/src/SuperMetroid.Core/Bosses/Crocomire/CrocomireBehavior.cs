@@ -53,10 +53,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Access = dependencies.Access;
         BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Access = Access, Combat = Combat });
-        BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, BodyLayer, Access, Combat);
+        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, CameraDistance = dependencies.CameraDistance, RoomStatus = dependencies.RoomStatus, Access = Access, Combat = Combat });
+        BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.CameraDistance, BodyLayer, Access, Combat);
         Melting = new CrocomireMelting(BodyLayer, Access, _bossArtwork);
-        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access, Combat);
+        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.CameraDistance, Access, Combat);
     }
 
     /// <summary>Body X threshold at which Crocomire begins breaking the arena bridge.</summary>
@@ -103,8 +103,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
                     ? RoomScrollState.Closed : RoomScrollState.OpenAlignedToTop);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
-            // Main state zero always finishes through the body-layer placement, including the frame in
-            // which the bridge approach changes the death index to two.
+            // The fight's update always finishes by placing his body layer, including the update in which the bridge
+            // approach starts his death sequence.
             BodyLayer.PlaceCrocomireBodyLayer(state);
         }
         else
@@ -206,7 +206,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.ShowSecondMeltBands:
                 Melting.ShowNextCrocomireMeltBand(state);
                 return;
-            case CrocomireDeathPhase.ShippedSpacer:
+            case CrocomireDeathPhase.WaitBeforeSixthHopRise:
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
@@ -252,7 +252,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
                     state.DeathPhase = state.DeathPhase.Next();
                 return;
-            case CrocomireDeathPhase.WaitOneUpdate:
+            case CrocomireDeathPhase.WaitBeforeRecordingDefeat:
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.PublishDefeatAndRestoreMusic:
@@ -260,7 +260,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case CrocomireDeathPhase.InertCorpse:
                 return;
-            case CrocomireDeathPhase.DefeatedRoomAdvance:
+            case CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer:
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement:

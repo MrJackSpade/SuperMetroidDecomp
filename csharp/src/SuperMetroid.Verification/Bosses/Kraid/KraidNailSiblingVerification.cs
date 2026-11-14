@@ -63,6 +63,7 @@ internal static class KraidNailSiblingVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.Kraid, enemies.SlotTable.Slots[0].Definition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;

@@ -1,7 +1,7 @@
 ﻿
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Cartridge values and helpers of <see cref="CrocomireTongueCollisionDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of the tongue's frames that only verification reads.</summary>
 internal static class CrocomireTongueCollisionDefinitionsConstants
 {
     /// <summary>Native bank containing the selected Crocomire extended frames.</summary>

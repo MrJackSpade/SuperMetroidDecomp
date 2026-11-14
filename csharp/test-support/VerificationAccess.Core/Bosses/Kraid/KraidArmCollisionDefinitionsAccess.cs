@@ -17,13 +17,13 @@ internal static class KraidArmCollisionDefinitionsAccess
     /// <summary>Each hitbox list's bank-$A7 address.</summary>
     private static readonly NativeWordIdentities<KraidArmHitboxList> HitboxListAddresses = new(new Dictionary<KraidArmHitboxList, ushort>
     {
-        [KraidArmHitboxList.Articulated0] = 0x92d1,
-        [KraidArmHitboxList.Articulated1] = 0x92eb,
-        [KraidArmHitboxList.Articulated2] = 0x92f9,
-        [KraidArmHitboxList.Articulated3] = 0x9313,
-        [KraidArmHitboxList.Articulated4] = 0x9321,
-        [KraidArmHitboxList.Articulated5] = 0x933b,
-        [KraidArmHitboxList.Articulated6] = 0x9349,
+        [KraidArmHitboxList.ArticulatedFirst] = 0x92d1,
+        [KraidArmHitboxList.ArticulatedSecond] = 0x92eb,
+        [KraidArmHitboxList.ArticulatedThird] = 0x92f9,
+        [KraidArmHitboxList.ArticulatedFourth] = 0x9313,
+        [KraidArmHitboxList.ArticulatedFifth] = 0x9321,
+        [KraidArmHitboxList.ArticulatedSixth] = 0x933b,
+        [KraidArmHitboxList.ArticulatedSeventh] = 0x9349,
         [KraidArmHitboxList.ConnectorSecond] = 0x9371,
         [KraidArmHitboxList.ConnectorThird] = 0x937f,
         [KraidArmHitboxList.ConnectorFinal] = 0x9399,
@@ -34,9 +34,6 @@ internal static class KraidArmCollisionDefinitionsAccess
         [KraidArmHitboxList.FinalPoseFirst] = 0x946f,
         [KraidArmHitboxList.FinalPoseSecond] = 0x947d,
     });
-
-    /// <summary>The bank-$A7 address of hitbox list <paramref name="list"/>.</summary>
-    internal static ushort AddressOf(KraidArmHitboxList list) => HitboxListAddresses.Word(list);
 
     /// <summary>The hitbox list stored at bank-$A7 address <paramref name="pointer"/>.</summary>
     internal static KraidArmHitboxList HitboxListAt(ushort pointer) =>

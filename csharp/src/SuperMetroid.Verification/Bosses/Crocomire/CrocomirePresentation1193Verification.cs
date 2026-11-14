@@ -57,10 +57,10 @@ internal static class CrocomirePresentation1193Verification
         {
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathPhase = CrocomireDeathPhase.RumbleHiddenWall;
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
-            boss.RumbleStep = 1;
+            boss.RumbleOscillation = 0;
+            boss.RumbleTowardExtreme = true;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
-            death.RumbleCooldown = 10;
-            death.RumbleDelta = 1;
+            death.RumbleRepeatsLeft = 10;
         }
         int[] sources = [0x879d84, 0x879e04, 0x879e84, 0x879e04, 0x879d84];
         int sourceIndex = 0;

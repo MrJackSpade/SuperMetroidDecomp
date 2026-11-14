@@ -20,6 +20,7 @@ internal static class KraidNailBounceVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         Action<RoomEnemySlot, RoomLevelData> tick = enemies.KraidBehavior.Projectiles.TickKraidNailFlight;
         var nail = enemies.SlotTable.Slots[6];
         nail.Radius = new(4, 4);

@@ -204,7 +204,7 @@ internal sealed class PhantoonDeath
             return;
 
         state.EyeState.FadeDenominator = 12;
-        if (!AdvanceWreckedShipPowerPalette(state, state.EyeState))
+        if (!AdvanceWreckedShipPowerOn(state, state.EyeState))
             return;
 
         // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
@@ -241,7 +241,7 @@ internal sealed class PhantoonDeath
     /// toward its powered colour, which the room shows as the import's shade of each step.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    internal static bool AdvanceWreckedShipPowerPalette(PhantoonEnemyState state, PhantoonEyeState eye)
+    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state, PhantoonEyeState eye)
     {
         int denominator = eye.FadeDenominator;
         int numerator = eye.FadeNumerator;

@@ -55,8 +55,10 @@ internal static class PhantoonNativeWords
         [PhantoonPhase.DyingFadeOut] = 0xda86,
         [PhantoonPhase.AlmostDead] = 0xdad7,
         [PhantoonPhase.Dead] = 0xdb3d,
-        [PhantoonPhase.NoOperation] = 0xd4a8,
     });
+
+    /// <summary>The bank-$A7 return the body's phase word names while it runs no phase.</summary>
+    internal const ushort NoPhase = 0xd4a8;
 
     /// <summary>The tentacles' word E bit set once the swoop target turns back.</summary>
     internal const int SwoopReturningBit = 0x8000;

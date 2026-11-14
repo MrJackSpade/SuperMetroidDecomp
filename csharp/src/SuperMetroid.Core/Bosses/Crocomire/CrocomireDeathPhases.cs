@@ -33,8 +33,8 @@ public static class CrocomireDeathPhases
         [CrocomireDeathPhase.SixthHopSink] = CrocomireDeathPhase.InstallSecondMeltImage,
         [CrocomireDeathPhase.InstallSecondMeltImage] = CrocomireDeathPhase.BeginSecondMeltPass,
         [CrocomireDeathPhase.BeginSecondMeltPass] = CrocomireDeathPhase.ShowSecondMeltBands,
-        [CrocomireDeathPhase.ShowSecondMeltBands] = CrocomireDeathPhase.ShippedSpacer,
-        [CrocomireDeathPhase.ShippedSpacer] = CrocomireDeathPhase.SixthHopRise,
+        [CrocomireDeathPhase.ShowSecondMeltBands] = CrocomireDeathPhase.WaitBeforeSixthHopRise,
+        [CrocomireDeathPhase.WaitBeforeSixthHopRise] = CrocomireDeathPhase.SixthHopRise,
         [CrocomireDeathPhase.SixthHopRise] = CrocomireDeathPhase.StartSecondDissolve,
         [CrocomireDeathPhase.StartSecondDissolve] = CrocomireDeathPhase.DissolveSecondImage,
         [CrocomireDeathPhase.DissolveSecondImage] = CrocomireDeathPhase.ClearSecondMeltImage,
@@ -47,10 +47,10 @@ public static class CrocomireDeathPhases
         [CrocomireDeathPhase.ArcSkeletonIntoArena] = CrocomireDeathPhase.WaitForSkeletonTerminalImage,
         [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = CrocomireDeathPhase.ClearWallAndOpenScrolls,
         [CrocomireDeathPhase.ClearWallAndOpenScrolls] = CrocomireDeathPhase.WaitForStableSkeleton,
-        [CrocomireDeathPhase.WaitForStableSkeleton] = CrocomireDeathPhase.WaitOneUpdate,
-        [CrocomireDeathPhase.WaitOneUpdate] = CrocomireDeathPhase.PublishDefeatAndRestoreMusic,
+        [CrocomireDeathPhase.WaitForStableSkeleton] = CrocomireDeathPhase.WaitBeforeRecordingDefeat,
+        [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = CrocomireDeathPhase.PublishDefeatAndRestoreMusic,
         [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = CrocomireDeathPhase.InertCorpse,
-        [CrocomireDeathPhase.DefeatedRoomAdvance] = CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement,
+        [CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer] = CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement,
     };
 
     /// <summary>The phase <paramref name="phase"/> hands over to when it finishes.</summary>

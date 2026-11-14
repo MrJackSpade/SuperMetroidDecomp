@@ -53,26 +53,23 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitionsConstants.FramePointer(9), "tongue frame index past end");
     }
 
-    /// <summary>Checks each frame's single component and its empty native hitbox list.</summary>
+    /// <summary>
+    /// Checks that each native tongue frame has one component whose hitbox list is empty, which is why the port's tongue
+    /// has no hitboxes at all (#1870), and that the tongue's frames are exactly the native ones.
+    /// </summary>
     internal static void VerifyCrocomireTongueComponentCases(CartridgeImportAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
         foreach (ushort frame in frames)
         {
-            var component = CrocomireTongueCollision.ComponentAt(frame);
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame)),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8)), CrocomireNativeWords.TongueHitboxLists.Word(component.HitboxList),
-                "Crocomire tongue native hitbox-list pointer");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | CrocomireNativeWords.TongueHitboxLists.Word(component.HitboxList))), "tongue native empty hitboxes");
-            AssertEqual(0, CrocomireTongueCollision.HitboxCountAt(component.HitboxList), "tongue empty hitbox case");
+            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8));
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | list)), "tongue native empty hitboxes");
         }
         for (int frame = 0; frame <= ushort.MaxValue; frame++)
             AssertEqual(Array.IndexOf(frames, (ushort)frame) >= 0,
-                CrocomireTongueCollision.HasFrame((ushort)frame), "tongue exact frame domain");
-        foreach (ushort frame in new ushort[] { 0, 0xc65d, 0xc65f, 0xc686, 0xcacd, 0xcacf, 0xcb00, 0xffff })
-            AssertThrows<InvalidDataException>(() => CrocomireTongueCollision.ComponentAt(frame), "tongue rejects non-frame identity");
-        AssertThrows<InvalidDataException>(() => CrocomireTongueCollision.HitboxCountAt(CrocomireNativeWords.TongueHitboxLists.Decode(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
+                CrocomireTongueCollisionDefinitionsAccess.HasFrame((ushort)frame), "tongue exact frame domain");
     }
     /// <summary>Compares touch and shot collision outcomes for all tongue frames at wrapped and ordinary positions.</summary>
     internal static void VerifyCrocomireTongueCollisionDefinitions()
@@ -98,9 +95,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         for (int frameIndex = 0; frameIndex < CrocomireTongueCollisionDefinitionsConstants.FrameCount; frameIndex++)
         {
             ushort frame = CrocomireTongueCollisionDefinitionsConstants.FramePointer(frameIndex);
-            CrocomireTongueCollisionComponent component =
-                CrocomireTongueCollision.ComponentAt(frame);
-            seenLists.Add(CrocomireNativeWords.TongueHitboxLists.Word(component.HitboxList));
+            seenLists.Add(rom.ReadCartridgeWord(0xa40000 | frame + 8));
             nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame);
             foreach ((ushort x, ushort y) in new VerifyCrocomireTongueCollisionDefinitionsCase[]
                      {
@@ -135,15 +130,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         {
             AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa40000 | list)),
                 $"Crocomire tongue $A4:{list:X4} native hitbox list is empty");
-            AssertEqual(0, CrocomireTongueCollision.HitboxCountAt(CrocomireNativeWords.TongueHitboxLists.Decode(list, "compiled Crocomire tongue hitbox list")),
-                "Crocomire tongue compiled hitbox list is empty");
         }
-        AssertThrows<InvalidDataException>(
-            () => CrocomireTongueCollision.ComponentAt(0x8000),
-            "unknown Crocomire tongue frame fails loudly");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireTongueCollision.HitboxCountAt(CrocomireNativeWords.TongueHitboxLists.Decode(0x8000, "compiled Crocomire tongue hitbox list")),
-            "unknown Crocomire tongue hitbox list fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire tongue collision never reads ROM bytes");
         Console.WriteLine($"Crocomire tongue collision: nine frames, two empty lists, " +

@@ -364,8 +364,8 @@ internal sealed class CrocomireCombat
     /// <summary>Projects a projectile angle into signed 1/256-pixel X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
-        // A negative sine scales exactly as a positive one does. The
-        // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
+        // A negative sine scales exactly as a positive one does. The bearing is used as a heading without
+        // conversion, so X is its sine and Y its negative cosine.
         TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
         return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
             Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,
@@ -419,21 +419,13 @@ internal sealed class CrocomireCombat
         return false;
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on the tongue's frame, or null when the occupant is not the tongue.</summary>
-    /// <exception cref="InvalidDataException">The tongue's frame has no compiled collision.</exception>
+    /// <summary>
+    /// Whether the probe overlaps one of the tongue's hitboxes, or null when the occupant is not the tongue. The tongue has
+    /// no hitboxes in any frame (#1870), so a probe never touches it and it never reacts.
+    /// </summary>
     internal static bool? FindCrocomireTongueHitboxReaction(RoomEnemySlot enemy, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (enemy.DefinitionId != EnemyDefinitionId.CrocomireTongue)
-            return null;
-
-        // These nine selected frames have one component each, but both
-        // referenced hitbox lists are empty. Validate the exact
-        // engine-owned frame identity and return no touch/shot reaction.
-        CrocomireTongueCollisionComponent component =
-            CrocomireTongueCollision.ComponentAt(enemy.Frame);
-        _ = CrocomireTongueCollision.HitboxCountAt(
-            component.HitboxList);
-        return false;
+        return enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue ? false : null;
     }
 }

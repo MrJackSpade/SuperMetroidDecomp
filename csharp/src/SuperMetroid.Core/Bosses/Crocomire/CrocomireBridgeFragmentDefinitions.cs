@@ -20,7 +20,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// </remarks>
     private static ReadOnlySpan<int> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 
-    /// <summary>The eleven floor columns begin at X1808 with16-pixel spacing.</summary>
+    /// <summary>The eleven floor columns begin 1808 pixels into the room, sixteen pixels apart.</summary>
     private const int FirstColumnX = 1808;
 
     /// <summary>

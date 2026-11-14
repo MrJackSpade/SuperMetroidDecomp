@@ -247,7 +247,7 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(100, 54));
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
-        death.RumbleCooldown = delay;
+        death.SkeletonFallDelay = delay;
         state.DeathPhase = CrocomireDeathPhase.DelaySkeletonFall;
 
         // The drift right of the broken wall, while the skeleton is left of X 224.

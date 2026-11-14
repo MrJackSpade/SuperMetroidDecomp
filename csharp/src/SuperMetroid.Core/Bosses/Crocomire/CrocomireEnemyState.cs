@@ -58,7 +58,7 @@ public sealed class CrocomireEnemyState
     /// <summary>Crocomire's tongue, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
-    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
+    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }
 
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
@@ -89,14 +89,17 @@ public sealed class CrocomireEnemyState
     public int DeathPhaseDelay { get; internal set; }
 
     /// <summary>
-    /// While the hidden wall rumbles: the step of the current target in <see cref="CrocomireRumbleDefinitions.All"/>,
-    /// up to the schedule's length once its last target completes.
+    /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,
+    /// up to their count once the last has finished.
     /// </summary>
-    public int RumbleStep
+    public int RumbleOscillation
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.All.Length, value);
+        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.Oscillations.Length, value);
     }
+
+    /// <summary>Whether the rumbling wall is heading for its oscillation's extreme rather than back to its return offset.</summary>
+    public bool RumbleTowardExtreme { get; internal set; }
 
     /// <summary>
     /// While the body sinks or rises: the vertical acceleration per frame. The sink clamps its whole part at forty-eight

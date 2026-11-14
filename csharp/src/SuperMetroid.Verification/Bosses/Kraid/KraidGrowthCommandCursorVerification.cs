@@ -36,6 +36,7 @@ internal static class KraidGrowthCommandCursorVerification
         var state = new KraidEnemyState();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.KraidBehavior.Access.Kraid = state;
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
         Action<RoomEnemySlot, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, cameraY);
         var body = enemies.SlotTable.Slots[0];
@@ -54,7 +55,7 @@ internal static class KraidGrowthCommandCursorVerification
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidPhase.GrowReleaseCamera, state.BodyState.PhaseToResume, "growth schedules camera release");
         AssertEqual(180, state.BodyState.PhaseTimer, "growth function timer");
-        AssertEqual(KraidPhase.NoOperation, state.FootState.Phase, "growth stops the foot lunge");
+        AssertEqual((KraidPhase?)null, state.FootState.Phase, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
         // Confirm the growth resume for every cursor form, including cries and list ends adjacent to the next list:

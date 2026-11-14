@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public enum PhantoonBodyLayer
 {
     /// <summary>His body is hidden: the state a part's start and a kill leave.</summary>
-    Hidden = 1,
+    Hidden,
 
     /// <summary>His body is shown as the room shows it, as the wavy fade-in and the first round set.</summary>
     Shown,

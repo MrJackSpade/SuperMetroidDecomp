@@ -117,11 +117,15 @@ internal static class NativeEnemyFamilyStateImport
             phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
             phantoonBody.PhaseTimer = CoordinateAxis.AsSigned(words.E);
             if (words.F != 0)
-                phantoonBody.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+                phantoonBody.Phase = words.F == PhantoonNativeWords.NoPhase
+                    ? null
+                    : PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
-            kraidPartRecord.Phase = (KraidPhase)words.A;
+            kraidPartRecord.Phase = words.A is 0 or KraidNativeWords.NoPhase
+                ? null
+                : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
@@ -192,7 +196,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
-            draygonRecord.Phase = (DraygonPhase)words.A;
+            draygonRecord.Phase = words.A == 0
+                ? DraygonPhase.None
+                : DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
             switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
@@ -235,9 +241,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
-            botwoonRecord.Phase = words.D == 0 ? null : (BotwoonPhase)words.D;
-            botwoonRecord.Movement = words.E == 0 ? null : (BotwoonMovement)words.E;
-            botwoonRecord.HeadAction = words.F == 0 ? null : (BotwoonHeadAction)words.F;
+            botwoonRecord.Phase = words.D == 0 ? null : BotwoonNativeWords.Phases.Decode(words.D, "recorded BotwoonPhase");
+            botwoonRecord.Movement = words.E == 0 ? null : BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement");
+            botwoonRecord.HeadAction = words.F == 0 ? null : BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
         }
         if (slot.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
         {

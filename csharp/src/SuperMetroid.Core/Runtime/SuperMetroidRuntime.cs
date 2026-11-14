@@ -845,7 +845,7 @@ internal sealed class SuperMetroidRuntime
                         MovementType: SamusPoseMetadata.ReadMovementType(samus),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
                         Facing: SamusPoseMetadata.ReadFacingDirection(samus),
-                        CameraDistance: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistance),
+                        CameraDistance: Room.LoadedScope.Enemies.RoomMainHooks.CameraDistance),
                     Freeze.TimeIsFrozen);
                 camera.TrackMovedSamusVertically(
                     previousCameraPoint,

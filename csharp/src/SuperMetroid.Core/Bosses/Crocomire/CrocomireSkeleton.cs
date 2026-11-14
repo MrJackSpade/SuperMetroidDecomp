@@ -22,15 +22,15 @@ internal sealed class CrocomireSkeleton
     private readonly EnemyPresentation _presentation;
     /// <summary>Produces the distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The room camera's distance mode, which the fight requests.</summary>
+    private readonly RoomCameraDistance _cameraDistance;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>Crocomire's combat, whose projectile behaviour the spike wall's pieces are bound to.</summary>
     private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access,
+    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, RoomCameraDistance cameraDistance, CrocomireEncounterAccess access,
         CrocomireCombat combat)
     {
         _combat = combat;
@@ -38,7 +38,7 @@ internal sealed class CrocomireSkeleton
         _projectiles = projectiles;
         _presentation = presentation;
         _deathsAndDrops = deathsAndDrops;
-        _zebetiteBehavior = zebetiteBehavior;
+        _cameraDistance = cameraDistance;
         _access = access;
     }
 
@@ -68,7 +68,7 @@ internal sealed class CrocomireSkeleton
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.HiddenWallScreen, RoomScrollState.Closed);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.RightEdge;
+        _cameraDistance.Request(CameraDistanceMode.RightEdge);
         RoomEnemySlot body = state.Body;
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         if (state.Tongue is { } tongue)
@@ -76,12 +76,12 @@ internal sealed class CrocomireSkeleton
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
-        state.RumbleStep = CrocomireRumble.FirstStep;
+        state.RumbleOscillation = 0;
+        state.RumbleTowardExtreme = false;
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.RumbleYOffset = 0;
-        death.RumbleCooldown = 10;
-        death.RumbleDelta = 1;
+        death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
         state.DamageReactionPending = false;
         body.Radius = body.Radius.WithY(56);
         state.DeathPhase = state.DeathPhase.Next();
@@ -91,7 +91,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (CrocomireRumble.IsComplete(state.RumbleStep))
+        if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
         {
             state.DeathPhaseDelay = 128;
             state.Colours.ShowWallSpikes();
@@ -102,31 +102,34 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        CrocomireRumbleDefinition definition = CrocomireRumble.At(state.RumbleStep);
-        int target = definition.TargetYOffset;
+        CrocomireRumbleOscillation oscillation = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation];
+        int target = state.RumbleTowardExtreme ? oscillation.ExtremeOffset : oscillation.ReturnOffset;
         if (death.RumbleYOffset == target)
         {
-            if (target < 0)
+            // Reaching an offset takes the update: the wall turns around on the next one.
+            if (!state.RumbleTowardExtreme)
             {
-                if (death.RumbleCooldown != 0)
-                {
-                    death.RumbleCooldown--;
-                    // Repeat the oscillation: back to its return target.
-                    state.RumbleStep--;
-                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
-                    return;
-                }
-
-                death.RumbleCooldown = definition.Cooldown;
-                death.RumbleDelta = definition.Delta;
+                state.RumbleTowardExtreme = true;
+                return;
             }
-            state.RumbleStep++;
+
+            state.RumbleTowardExtreme = false;
+            if (death.RumbleRepeatsLeft != 0)
+            {
+                death.RumbleRepeatsLeft--;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
+                return;
+            }
+
+            state.RumbleOscillation++;
+            if (state.RumbleOscillation < CrocomireRumbleDefinitions.Oscillations.Length)
+                death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats;
             return;
         }
 
         death.RumbleYOffset = death.RumbleYOffset >= target
-            ? death.RumbleYOffset - death.RumbleDelta
-            : death.RumbleYOffset + death.RumbleDelta;
+            ? death.RumbleYOffset - oscillation.Speed
+            : death.RumbleYOffset + oscillation.Speed;
     }
 
     /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
@@ -142,7 +145,7 @@ internal sealed class CrocomireSkeleton
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
-        death.RumbleCooldown = 80;
+        death.SkeletonFallDelay = 80;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
@@ -171,9 +174,9 @@ internal sealed class CrocomireSkeleton
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
-        if (death.RumbleCooldown == 0)
+        if (death.SkeletonFallDelay == 0)
             return;
-        if (--death.RumbleCooldown != 0)
+        if (--death.SkeletonFallDelay != 0)
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFalling);
@@ -238,7 +241,7 @@ internal sealed class CrocomireSkeleton
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.BossRoomTension), MusicQueueDelay.Shortest);
-        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
+        _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
         _access.SpawnCrocomireDust(state, -16);
         _access.SpawnCrocomireDust(state, 16);

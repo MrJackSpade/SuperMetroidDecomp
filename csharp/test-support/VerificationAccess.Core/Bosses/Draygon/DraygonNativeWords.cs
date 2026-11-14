@@ -8,6 +8,41 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal static class DraygonNativeWords
 {
+    /// <summary>The bank-$A5 routine word naming each <see cref="DraygonPhase"/> after the fight begins: the body's record word A.</summary>
+    internal static readonly NativeWordIdentities<DraygonPhase> Phases = new(new Dictionary<DraygonPhase, ushort>
+    {
+        [DraygonPhase.IntroInitialDelay] = 0x871b,
+        [DraygonPhase.IntroDance] = 0x878b,
+        [DraygonPhase.SwoopRightSetup] = 0x87f4,
+        [DraygonPhase.SwoopRightDescending] = 0x88b1,
+        [DraygonPhase.SwoopRightApex] = 0x8922,
+        [DraygonPhase.SwoopRightAscending] = 0x8951,
+        [DraygonPhase.SwoopLeftSetup] = 0x89b3,
+        [DraygonPhase.SwoopLeftDescending] = 0x8a00,
+        [DraygonPhase.SwoopLeftApex] = 0x8a50,
+        [DraygonPhase.SwoopLeftAscending] = 0x8a90,
+        [DraygonPhase.GoopRightSetup] = 0x8b0a,
+        [DraygonPhase.GoopRight] = 0x8b52,
+        [DraygonPhase.GoopRightTail] = 0x8bae,
+        [DraygonPhase.GoopRightRecovery] = 0x8c33,
+        [DraygonPhase.GoopLeftSetup] = 0x8c8e,
+        [DraygonPhase.GoopLeft] = 0x8cd4,
+        [DraygonPhase.GoopLeftTail] = 0x8d30,
+        [DraygonPhase.GoopLeftRecovery] = 0x8db2,
+        [DraygonPhase.TryGrabSamus] = 0x8e19,
+        [DraygonPhase.GrabbedSamus] = 0x8f10,
+        [DraygonPhase.CarrySamus] = 0x8f1e,
+        [DraygonPhase.FlailWithSamus] = 0x8fd6,
+        [DraygonPhase.TailWhipWithSamus] = 0x90d4,
+        [DraygonPhase.FinalTailWhips] = 0x9105,
+        [DraygonPhase.FinalTailWhipsWait] = 0x9124,
+        [DraygonPhase.ReleaseSamus] = 0x9128,
+        [DraygonPhase.FlyStraightUp] = 0x9154,
+        [DraygonPhase.Dying] = 0x9185,
+        [DraygonPhase.DyingSink] = 0x9294,
+        [DraygonPhase.DyingFinish] = 0x92ab,
+    });
+
     /// <summary>The bank-$A5 routine word naming each <see cref="DraygonEyeAction"/>.</summary>
     internal static readonly NativeWordIdentities<DraygonEyeAction> EyeActions = new(new Dictionary<DraygonEyeAction, ushort>
     {

@@ -51,25 +51,20 @@ public sealed class BotwoonEnemyState
     public int SmallExplosionTimer { get; internal set; }
     /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or path steps taken per authored-path update.</summary>
     public int Speed { get; internal set; }
-    /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>
-    public int TargetHoleIndex { get; internal set; }
+    /// <summary>The hole that direct movement targets and the next walk starts from.</summary>
+    public BotwoonHole TargetHole { get; internal set; }
     /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
     public RotationAngle SpitAngle { get; internal set; }
+    /// <summary>The authored path being walked; none before his first walk.</summary>
+    internal BotwoonPathDefinition? Path { get; set; }
     /// <summary>
-    /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the visible
-    /// half of the table or, from inside a hole, the hidden half.
-    /// </summary>
-    public int PathChoice { get; internal set; }
-    /// <summary>The authored path being walked, an index into <see cref="BotwoonPathDefinitions.Paths"/>.</summary>
-    public int PathIndex { get; internal set; }
-    /// <summary>
-    /// The next step of <see cref="PathIndex"/> to take. A forward walk ends when it passes the last step and a backward
+    /// The next step of <see cref="Path"/> to take. A forward walk ends when it passes the last step and a backward
     /// walk when it passes the first, so it ranges from one before the first step to one after the last.
     /// </summary>
     public int PathStep { get; internal set; }
-    /// <summary>Which way <see cref="PathIndex"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
+    /// <summary>Which way <see cref="Path"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
@@ -103,16 +98,16 @@ public sealed class BotwoonEnemyState
     public bool SpitFrameReached { get; internal set; }
     /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
     public bool PendingDeath { get; internal set; }
-    /// <summary>Tail synchronization signal set when body argument zero crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
+    /// <summary>Tail synchronization signal set when the tail segment crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
     /// <summary>Shared death-start flag observed by all thirteen independent body-projectile turns to replace their normal animation with staggered falling.</summary>
     public bool BodyDeathStarted { get; internal set; }
-    /// <summary>Landing signal from retained body argument zero, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
+    /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Thirteen actors, indexed by spawn argument 0,2,...24 divided by two.</summary>
+    /// <summary>The thirteen body segments, from the tail (zero) to the segment behind the head (twelve).</summary>
     public EnemyProjectile?[] BodySegments { get; } =
         new EnemyProjectile?[13];
 

@@ -39,12 +39,11 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return;
         }
-        KraidParts.Require(arm, _parts.Arm, "arm");
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
-        state.ArmState.Phase = KraidPhase.NoOperation;
+        state.ArmState.Phase = null;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmRisingOrSinking);
-        state.ArmState.PhaseToResume = KraidPhase.NoOperation;
+        state.ArmState.PhaseToResume = null;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
@@ -56,12 +55,11 @@ internal sealed class KraidLimbs
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return;
         }
-        KraidParts.Require(foot, _parts.Foot, "foot");
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = KraidPhase.NoOperation;
-        state.FootState.PhaseToResume = 0;
+        state.FootState.Phase = null;
+        state.FootState.PhaseToResume = null;
     }
 
     /// <summary>
@@ -147,7 +145,7 @@ internal sealed class KraidLimbs
 
         RoomEnemySlot foot = _parts.Foot;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = KraidPhase.NoOperation;
+        state.FootState.Phase = null;
         RoomEnemySlot arm = _parts.Arm;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
         foreach (RoomEnemySlot lint in _parts.Lints)
@@ -206,7 +204,7 @@ internal sealed class KraidLimbs
         KraidFootState part = state.FootState;
         switch (state.FootState.Phase)
         {
-            case KraidPhase.NoOperation:
+            case null:
                 return;
             case KraidPhase.FootFirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
@@ -285,7 +283,6 @@ internal sealed class KraidLimbs
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
-            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Kraid foot has no behaviour for phase {state.FootState.Phase}.");

@@ -2,14 +2,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// The phase each of Kraid's parts runs, held in each part's phase and the phase it resumes after its timer. Each
-/// member names the behaviour it runs; the part stores the member.
+/// member names the behaviour it runs; the part stores the member, and a part with no phase runs nothing.
 /// </summary>
 public enum KraidPhase
 {
-    /// <summary>A cleared part is in no phase.</summary>
-    None = 0,
-    /// <summary>An explicit no-op phase retaining the part slot.</summary>
-    NoOperation = 1,
     /// <summary>Breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>
     GrowBreakCeilingPlatforms,
     /// <summary>Brings Kraid's grown body in front of the room's sprites and shows its upper half.</summary>

@@ -9,8 +9,6 @@ public enum CameraDistanceMode
     NormalTracking,
     /// <summary>Boss tracking, selected by Kraid and Crocomire.</summary>
     BossTracking,
-    /// <summary>Samus 32 pixels from the left edge. Nothing in the game selects it.</summary>
-    LeftEdge,
     /// <summary>Samus 32 pixels from the right edge; Crocomire selects this target mode.</summary>
     RightEdge,
 }

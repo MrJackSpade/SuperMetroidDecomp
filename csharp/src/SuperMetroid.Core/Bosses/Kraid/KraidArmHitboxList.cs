@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal enum KraidArmHitboxList
 {
     /// <summary>The first of the seven shapes the outer articulated components advance through.</summary>
-    Articulated0,
+    ArticulatedFirst,
     /// <summary>The second articulated shape.</summary>
-    Articulated1,
+    ArticulatedSecond,
     /// <summary>The third articulated shape.</summary>
-    Articulated2,
+    ArticulatedThird,
     /// <summary>The fourth articulated shape.</summary>
-    Articulated3,
+    ArticulatedFourth,
     /// <summary>The fifth articulated shape.</summary>
-    Articulated4,
+    ArticulatedFifth,
     /// <summary>The sixth articulated shape.</summary>
-    Articulated5,
+    ArticulatedSixth,
     /// <summary>The seventh and last articulated shape.</summary>
-    Articulated6,
+    ArticulatedSeventh,
     /// <summary>The connecting components' second shape.</summary>
     ConnectorSecond,
     /// <summary>The connecting components' third shape.</summary>

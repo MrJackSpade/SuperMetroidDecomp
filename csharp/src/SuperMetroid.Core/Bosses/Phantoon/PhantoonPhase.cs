@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public enum PhantoonPhase
 {
     /// <summary>Allocates the introductory circle of eight flames from the physical projectile pool.</summary>
-    SpawnStartingFlames = 1,
+    SpawnStartingFlames,
     /// <summary>Waits before activating the introductory flame circle's spin.</summary>
     WaitBeforeActivatingStartingFlames,
     /// <summary>Waits for the introductory flame orbit to finish before wavy materialization.</summary>
@@ -68,6 +68,4 @@ public enum PhantoonPhase
     AlmostDead,
     /// <summary>Restores the powered Wrecked Ship palette, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
     Dead,
-    /// <summary>An explicit return entry with no encounter-state mutation.</summary>
-    NoOperation,
 }

@@ -72,7 +72,7 @@ internal sealed class PhantoonPatterns
         if (--state.EyeState.ClosedTimer > 0)
             return;
 
-        state.BodyState.Phase = PhantoonPhase.NoOperation;
+        state.BodyState.Phase = null;
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeOpen);
         state.BodyState.FlameRainRequested = false;
         SpawnPhantoonSpiralFlames(body);
@@ -249,7 +249,7 @@ internal sealed class PhantoonPatterns
             state.TentaclesState.RoundDamage = 0;
             if (!state.TentaclesState.SwoopRequested)
             {
-                state.BodyState.Phase = PhantoonPhase.NoOperation;
+                state.BodyState.Phase = null;
                 PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
                 PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);

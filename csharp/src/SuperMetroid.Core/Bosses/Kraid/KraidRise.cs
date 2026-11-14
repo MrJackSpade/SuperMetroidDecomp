@@ -105,10 +105,11 @@ internal sealed class KraidRise
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>
     private void ApplyKraidScrolls(KraidScrollLayout layout)
     {
-        for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
-            _room.Services.RoomScroll.Write(index, layout == KraidScrollLayout.Grown
-                ? KraidCamera.GrownScroll(index)
-                : KraidCamera.InitialScroll(index));
+        ScreenScrollChange[] changes = layout == KraidScrollLayout.Grown
+            ? KraidCameraDefinitions.GrownScrolls
+            : KraidCameraDefinitions.InitialScrolls;
+        foreach (ScreenScrollChange change in changes)
+            _room.Services.RoomScroll.Write(change.Screen, change.State);
     }
 
     /// <summary>

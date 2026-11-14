@@ -300,8 +300,8 @@ internal sealed class CrocomireBridgeCollapse
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         state.DeathPhase = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFlowingDownRiver);
-        _room.Services.RoomScroll.Write(4, RoomScrollState.OpenAlignedToTop);
-        _room.Services.RoomScroll.Write(5, RoomScrollState.OpenAlignedToTop);
+        _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
+        _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
         if (state.Tongue is { } tongue)
             tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);

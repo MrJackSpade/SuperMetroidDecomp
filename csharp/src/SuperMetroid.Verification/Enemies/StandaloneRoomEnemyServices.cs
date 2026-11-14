@@ -107,10 +107,8 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void SetDefeated(DefeatedBosses bosses) => throw Missing($"set the area {bosses} flag");
         /// <summary>Fails when AI asks after the statue's hand without an installed room-object service.</summary>
         public bool BombTorizoHandRemains => throw Missing("ask whether the statue's hand still stands");
-        /// <summary>Fails when AI reads scroll-zone state without an installed room-scroll service.</summary>
-        public RoomScrollState Read(int index) => throw Missing("read a room scroll state");
-        /// <summary>Fails when AI changes a scroll zone without an installed room-scroll service.</summary>
-        public void Write(int index, RoomScrollState state) => throw Missing("write a room scroll state");
+        /// <summary>Fails when AI reads a screen's scroll state without an installed room-scroll service.</summary>
+        public RoomScrollState Read(Position16<RoomScreens> screen) => throw Missing("read a screen's scroll state");
         /// <summary>Fails when AI changes a screen's scroll state without an installed room-scroll service.</summary>
         public void Write(Position16<RoomScreens> screen, RoomScrollState state) => throw Missing("write a screen's scroll state");
         /// <summary>Fails when AI enables Samus's controls without an installed lock service.</summary>

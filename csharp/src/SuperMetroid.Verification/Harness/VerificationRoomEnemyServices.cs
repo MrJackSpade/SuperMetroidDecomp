@@ -35,8 +35,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Func<bool>? IsAreaTorizoDefeated { get; set; }
     /// <summary>Optional case-owned callback when the area's Torizo is defeated.</summary>
     public Action? SetAreaTorizoDefeated { get; set; }
-    /// <summary>Optional case-owned callback for room scroll-zone writes.</summary>
-    public Action<int, RoomScrollState>? SetRoomScrollState { get; set; }
+    /// <summary>Optional case-owned callback for writes of a screen's scroll state.</summary>
+    public Action<Position16<RoomScreens>, RoomScrollState>? SetRoomScrollState { get; set; }
     /// <summary>Optional case-owned callback for Mother Brain glass hit-count increments.</summary>
     public Action? IncrementMotherBrainGlassRoomArgument { get; set; }
 
@@ -107,21 +107,18 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded($"set the area {bosses} flag").Bosses.SetDefeated(bosses);
     }
 
-    /// <summary>Reads scroll-zone state from the services installed by room loading.</summary>
-    RoomScrollState IRoomScrollZoneAccess.Read(int index) => Loaded("read a room scroll state").RoomScroll.Read(index);
+    /// <summary>Reads a screen's scroll state from the services installed by room loading.</summary>
+    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) =>
+        Loaded("read a screen's scroll state").RoomScroll.Read(screen);
 
-    /// <summary>Writes scroll-zone state through the case callback or loaded services.</summary>
-    public void Write(int index, RoomScrollState state)
+    /// <summary>Writes a screen's scroll state through the case callback or the services installed by room loading.</summary>
+    public void Write(Position16<RoomScreens> screen, RoomScrollState state)
     {
         if (SetRoomScrollState is { } write)
-            write(index, state);
+            write(screen, state);
         else
-            Loaded("write a room scroll state").RoomScroll.Write(index, state);
+            Loaded("write a screen's scroll state").RoomScroll.Write(screen, state);
     }
-
-    /// <summary>Writes a screen's scroll state through the services installed by room loading.</summary>
-    public void Write(Position16<RoomScreens> screen, RoomScrollState state) =>
-        Loaded("write a screen's scroll state").RoomScroll.Write(screen, state);
 
     /// <summary>Forwards enabling Samus's controls to loaded room services.</summary>
     public void EnableControls() => Loaded("enable Samus's controls").SamusControls.EnableControls();

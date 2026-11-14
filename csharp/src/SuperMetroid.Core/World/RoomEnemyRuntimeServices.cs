@@ -51,11 +51,8 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Installs an enemy-supplied seed into the shared system RNG.</summary>
     public void Seed(int value) => system.SetRandomNumber(value);
 
-    /// <summary>Reads a camera scroll-zone cell without changing it.</summary>
-    RoomScrollState IRoomScrollZoneAccess.Read(int index) => room.LoadedCamera.Scrolls.ReadState(index);
-
-    /// <summary>Writes one camera scroll-zone cell of the room's kept scroll cells.</summary>
-    public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetCell(index, state);
+    /// <inheritdoc/>
+    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => room.LoadedCamera.Scrolls.ReadScreen(screen);
 
     /// <inheritdoc/>
     public void Write(Position16<RoomScreens> screen, RoomScrollState state) => room.LoadedCamera.Scrolls.SetLogicalState(screen, state);

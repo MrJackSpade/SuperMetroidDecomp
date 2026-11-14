@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -104,7 +105,7 @@ internal static class CrocomireCutsceneVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetCell;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
@@ -132,7 +133,7 @@ internal static class CrocomireCutsceneVerification
         // native wait-for-Samus handoff using the retail room's original scrolls.
         scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetCell;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
         state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
@@ -165,11 +166,47 @@ internal static class CrocomireCutsceneVerification
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");
     }
 
+    /// <summary>
+    /// Crocomire's initializer (#1741): a living fight closes the two leftmost screens of his room's row of eight, the
+    /// original's cells 0 and 1, and a defeated room opens the four leftmost, cells 0 to 3, with the camera aligned to their
+    /// top. No other kept cell changes.
+    /// </summary>
+    internal static void VerifyCrocomireArenaScrolls()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(new Extent16<RoomScreens>(8, 1), RoomDefinitions.Crocomire.Size, "Crocomire's room is one row of eight screens");
+        foreach (bool defeated in new[] { false, true })
+        {
+            RoomScrollGrid scrolls = RoomScrollGrid.LoadNativeTable(
+                Enumerable.Repeat(RoomScrollState.Open.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray(),
+                RoomDefinitions.Crocomire.Size);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
+            {
+                BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
+            };
+            enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
+            enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
+            body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
+            enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
+            string room = defeated ? "a defeated room" : "a living fight";
+            for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
+            {
+                RoomScrollState expected = defeated
+                    ? cell < 4 ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Open
+                    : cell < 2 ? RoomScrollState.Closed : RoomScrollState.Open;
+                AssertEqual(expected, scrolls.ReadState(cell), $"{room} leaves cell {cell} {expected}");
+            }
+        }
+        Console.WriteLine("  Crocomire arena scrolls: the living fight closes cells 0 and 1, a defeated room opens cells 0 to 3.");
+    }
+
     /// <summary>Runs the Crocomire death cutscene camera boundary checks.</summary>
     [VerificationCommand("--crocomire-cutscene-camera")]
     internal static int CrocomireCutsceneCameraCommand()
     {
         Suite(nameof(VerifyCrocomireCutsceneCamera), () => VerifyCrocomireCutsceneCamera());
+        Suite(nameof(VerifyCrocomireArenaScrolls), () => VerifyCrocomireArenaScrolls());
         return 0;
     }
 

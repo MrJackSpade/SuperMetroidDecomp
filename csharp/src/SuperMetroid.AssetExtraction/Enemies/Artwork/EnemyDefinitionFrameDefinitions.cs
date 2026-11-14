@@ -1145,24 +1145,21 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseRipper</c>.</summary>
     private static readonly EnemyFrameId[] CorpseRipperFrames =
     [
-        EnemyFrameId.DeadRipperCorpseFirst,
-        EnemyFrameId.DeadRipperCorpseSecond,
+        EnemyFrameId.DeadRipperCorpseLevel,
+        EnemyFrameId.DeadRipperCorpseTilted,
     ];
 
     /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseSkree</c>.</summary>
     private static readonly EnemyFrameId[] CorpseSkreeFrames =
     [
-        EnemyFrameId.DeadSkreeCorpseFirst,
-        EnemyFrameId.DeadSkreeCorpseSecond,
-        EnemyFrameId.DeadSkreeCorpseThird,
+        EnemyFrameId.DeadSkreeCorpse,
     ];
 
     /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseZoomer</c>.</summary>
     private static readonly EnemyFrameId[] CorpseZoomerFrames =
     [
-        EnemyFrameId.DeadZoomerCorpseFirst,
-        EnemyFrameId.DeadZoomerCorpseSecond,
-        EnemyFrameId.DeadZoomerCorpseThird,
+        EnemyFrameId.DeadZoomerCorpseOnItsBack,
+        EnemyFrameId.DeadZoomerCorpseUpright,
     ];
 
     /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Sciser</c>.</summary>

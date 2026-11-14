@@ -1696,22 +1696,16 @@ public enum EnemyFrameId
     RinkaOrdinaryLoopFifth,
     /// <summary>The dead Torizo: stationary.</summary>
     DeadTorizoStationary,
-    /// <summary>The dead Zoomer: corpse, first frame.</summary>
-    DeadZoomerCorpseFirst,
-    /// <summary>The dead Zoomer: corpse, second frame.</summary>
-    DeadZoomerCorpseSecond,
-    /// <summary>The dead Zoomer: corpse, third frame.</summary>
-    DeadZoomerCorpseThird,
-    /// <summary>The dead Ripper: corpse, first frame.</summary>
-    DeadRipperCorpseFirst,
-    /// <summary>The dead Ripper: corpse, second frame.</summary>
-    DeadRipperCorpseSecond,
-    /// <summary>The dead Skree: corpse, first frame.</summary>
-    DeadSkreeCorpseFirst,
-    /// <summary>The dead Skree: corpse, second frame.</summary>
-    DeadSkreeCorpseSecond,
-    /// <summary>The dead Skree: corpse, third frame.</summary>
-    DeadSkreeCorpseThird,
+    /// <summary>The dead Zoomer: lying on its back.</summary>
+    DeadZoomerCorpseOnItsBack,
+    /// <summary>The dead Zoomer: lying the right way up.</summary>
+    DeadZoomerCorpseUpright,
+    /// <summary>The dead Ripper: lying level.</summary>
+    DeadRipperCorpseLevel,
+    /// <summary>The dead Ripper: lying tilted on a diagonal.</summary>
+    DeadRipperCorpseTilted,
+    /// <summary>The dead Skree: its corpse.</summary>
+    DeadSkreeCorpse,
     /// <summary>The dead Sidehopper: hop body.</summary>
     DeadSidehopperHopBody,
     /// <summary>The dead Sidehopper: hopping, crouched low with its legs spread.</summary>

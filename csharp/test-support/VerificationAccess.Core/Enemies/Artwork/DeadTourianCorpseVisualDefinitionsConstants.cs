@@ -3,8 +3,11 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Cartridge values of <see cref="DeadTourianCorpseVisualDefinitions"/> that only verification reads.</summary>
 internal static class DeadTourianCorpseVisualDefinitionsConstants
 {
-    /// <summary>Eight corpse images precede the Sidehopper images in the extracted atlas.</summary>
-    public const int CorpseFrameCount = 8;
+    /// <summary>
+    /// Five corpse images precede the Sidehopper images in the extracted atlas: one per way a dead Zoomer, Ripper or Skree
+    /// lies (#1810).
+    /// </summary>
+    public const int CorpseFrameCount = 5;
     /// <summary>Total images in the shared corpse and Sidehopper atlas.</summary>
     public const int FrameCount = CorpseFrameCount + SidehopperFrameCount;
     /// <summary>Five Sidehopper images follow the corpse images in the extracted atlas.</summary>

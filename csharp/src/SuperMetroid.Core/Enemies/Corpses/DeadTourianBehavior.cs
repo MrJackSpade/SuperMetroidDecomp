@@ -55,8 +55,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);
         DeadTourianCorpseDefinition definition = slot.SpawnSettings<CorpseSpawnSettings>().Corpse;
-        int variant = Array.IndexOf(DeadTourianCorpseDefinitions.Variants[profile.Species], definition);
-        if (variant < 0)
+        if (definition.Species != profile.Species)
         {
             throw new InvalidDataException(
                 $"Dead {profile.Species} placement names a corpse that is not one of its species'.");

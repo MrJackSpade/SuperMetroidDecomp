@@ -4,17 +4,17 @@
 internal static class EnemySpritemapDefinitionsConstants
 {
     /// <summary>Revision 60 prefix before gunship display compositions.</summary>
-    internal const int PreGunshipFrameCount = 1046;
+    internal const int PreGunshipFrameCount = 1043;
     /// <summary>Revision 59 prefix before Botwoon visual frames.</summary>
-    internal const int PreBotwoonFrameCount = 1030;
+    internal const int PreBotwoonFrameCount = 1027;
     /// <summary>Revision 58 prefix before Yard enemy visual frames.</summary>
-    internal const int PreYardFrameCount = 926;
+    internal const int PreYardFrameCount = 923;
     /// <summary>Revision 57 prefix before work-robot visual frames.</summary>
-    internal const int PreWorkRobotFrameCount = 899;
+    internal const int PreWorkRobotFrameCount = 896;
     /// <summary>Revision 56 prefix before Evir visual frames.</summary>
-    internal const int PreEvirFrameCount = 875;
+    internal const int PreEvirFrameCount = 872;
     /// <summary>Revision 55 prefix before Mochtroid visual frames.</summary>
-    internal const int PreMochtroidFrameCount = 869;
+    internal const int PreMochtroidFrameCount = 866;
     /// <summary>Revision 54 prefix before Tourian corpse artwork.</summary>
     internal const int PreDeadTourianCorpseFrameCount = 856;
     /// <summary>Revision 53 prefix before stationary dead Torizo artwork.</summary>

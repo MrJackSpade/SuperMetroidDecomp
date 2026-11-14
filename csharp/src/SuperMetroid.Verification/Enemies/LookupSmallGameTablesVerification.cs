@@ -112,7 +112,7 @@ internal static class LookupSmallGameTablesVerification
         foreach (DeadTourianCorpseSpecies species in new[] { DeadTourianCorpseSpecies.Zoomer, DeadTourianCorpseSpecies.Ripper, DeadTourianCorpseSpecies.Skree })
         {
             IReadOnlyList<DeadTourianCorpseVariant> variants = DeadTourianCorpseStagingDefinitions.Variants(species);
-            AssertEqual(DeadTourianCorpseDefinitions.Variants[species].Length, variants.Count, $"Dead {species} stages each of its variants");
+            AssertEqual(SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpses.VariantCount(species), variants.Count, $"Dead {species} stages each of its variants");
             for (int variant = 0; variant < variants.Count; variant++)
             {
                 var layout = variants[variant];

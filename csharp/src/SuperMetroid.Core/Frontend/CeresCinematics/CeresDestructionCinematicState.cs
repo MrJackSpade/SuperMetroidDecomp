@@ -124,8 +124,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private int brightness;
     /// <summary>Alternating-call delay between brightness changes.</summary>
     private int fadeCounter = 1;
-    /// <summary>Phase-specific hold or mosaic size countdown.</summary>
+    /// <summary>Phase-specific hold countdown.</summary>
     private int phaseTimer;
+    /// <summary>
+    /// The width of the square blocks the Zebes reveal draws its planet picture in (#1774), which also counts the reveal
+    /// down: every fourth update of the reveal's fade-in and of the removal that follows, the blocks narrow by one pixel,
+    /// and the removal ends on the step that leaves them one pixel wide, the picture unpixelated. A step from one-pixel
+    /// blocks starts again from the coarsest (<see cref="CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth"/>).
+    /// That restart is load-bearing: the fade-in clears the picture once before the removal's first step, so the reveal
+    /// pixelates a second time from the coarsest blocks, and lasts that much longer, before it ends.
+    /// </summary>
+    [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
+    private int revealBlockWidth = 1;
     /// <summary>Fallback music wait when no shared audio queue is present.</summary>
     private int musicQueueTimer = 14;
     /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
@@ -325,14 +335,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FadeInZebes:
-                StepZebesMosaic();
+                StepRevealPixelation();
                 StepSlowFadeIn();
                 if (brightness == 15)
                     Phase = CeresDestructionPhase.RemoveZebesMosaic;
                 break;
 
             case CeresDestructionPhase.RemoveZebesMosaic:
-                if (StepZebesMosaic())
+                if (StepRevealPixelation())
                     SetupZebesFloorActors();
                 break;
 
@@ -448,7 +458,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
-    /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and mosaic state.</summary>
+    /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and pixelation.</summary>
     private void SetupZebesReveal()
     {
         if (Artwork is null)
@@ -468,7 +478,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Zoom = FloorZoom.OwnSize;
         brightness = 0;
         fadeCounter = 1;
-        phaseTimer = CeresDestructionSceneDefinitions.Timing.InitialMosaicSize;
+        revealBlockWidth = CeresDestructionSceneDefinitions.RevealPixelation.StartingBlockWidth;
         usesFloor = false;
     }
 
@@ -519,16 +529,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Reduces the planet reveal's mosaic size every fourth cinematic frame until clear. The fade-in already steps it,
-    /// so it passes zero before the removal phase tests it and wraps from the smallest size to the largest.
+    /// Narrows the Zebes reveal's pixelation blocks by one pixel every fourth cinematic frame, from one-pixel blocks
+    /// starting again from the coarsest (<see cref="revealBlockWidth"/>), and reports whether this step left the planet
+    /// picture unpixelated.
     /// </summary>
-    private bool StepZebesMosaic()
+    private bool StepRevealPixelation()
     {
-        if (!CeresCinematicCadenceDefinitions.ZebesMosaicStepEveryFourthUpdate.IsDue(cinematicFrameCounter))
+        if (!CeresCinematicCadenceDefinitions.RevealPixelationStepEveryFourthUpdate.IsDue(cinematicFrameCounter))
             return false;
-        phaseTimer = (phaseTimer + CeresDestructionSceneDefinitions.Timing.MosaicSizeCount - 1) %
-            CeresDestructionSceneDefinitions.Timing.MosaicSizeCount;
-        return phaseTimer == 0;
+        revealBlockWidth = revealBlockWidth == 1
+            ? CeresDestructionSceneDefinitions.RevealPixelation.CoarsestBlockWidth
+            : revealBlockWidth - 1;
+        return revealBlockWidth == 1;
     }
 
     /// <summary>Waits for queued music, using a fixed fallback when audio is absent.</summary>
@@ -854,10 +866,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         else
         {
-            // Preserve the existing non-mosaicked path. Mosaic implementation
-            // is a game-correctness change, not an implicit part of this extraction.
-            // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
-            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed), Offset16<PlanePixels>.Zero)];
+            // The Zebes reveal shows the planet's installed picture once it is loaded (#1467), pixelated in the reveal's
+            // blocks (#1774); its sprites are not pixelated.
+            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed), Offset16<PlanePixels>.Zero)
+            {
+                Pixelation = new BackgroundPixelation(revealBlockWidth),
+            }];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];

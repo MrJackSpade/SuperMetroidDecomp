@@ -64,17 +64,28 @@ internal static class CeresDestructionSceneDefinitions
         internal const int QueueDelay = 14;
     }
 
-    /// <summary>Authored holds and the planet reveal's mosaic fade, in updates.</summary>
+    /// <summary>Authored holds, in updates.</summary>
     internal static class Timing
     {
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
         internal const int ZebesHoldFrames = 64;
-        /// <summary>The planet reveal's starting mosaic size; each fade step lowers it by one until it clears at zero.</summary>
-        internal const int InitialMosaicSize = 8;
-        /// <summary>The mosaic sizes the screen's mosaic setting holds; lowering the smallest wraps to the largest.</summary>
-        internal const int MosaicSizeCount = 16;
+    }
+
+    /// <summary>
+    /// The square blocks the Zebes reveal draws its planet picture in (#1774), in screen pixels, which also count the reveal
+    /// down: each of its steps narrows them by one pixel.
+    /// </summary>
+    internal static class RevealPixelation
+    {
+        /// <summary>The blocks the planet picture shows in as the reveal is set up.</summary>
+        internal const int StartingBlockWidth = 9;
+        /// <summary>
+        /// The coarsest blocks the reveal shows: a step from one-pixel blocks, an unpixelated picture, starts again from
+        /// blocks this wide.
+        /// </summary>
+        internal const int CoarsestBlockWidth = 16;
     }
 
     /// <summary>The floor's zoom thresholds and the scenes' fixed-point velocities.</summary>

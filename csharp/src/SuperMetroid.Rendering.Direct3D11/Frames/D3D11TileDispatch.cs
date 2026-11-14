@@ -50,4 +50,7 @@ internal sealed record D3D11TileDispatch
 
     /// <summary>The screen pixels a layer pass draws within (#1514), or null for the whole screen.</summary>
     public ScreenWindow? Window { get; init; } = null;
+
+    /// <summary>How a layer pass pixelates what it draws (#1774); the default leaves it unpixelated.</summary>
+    public BackgroundPixelation Pixelation { get; init; } = default;
 }

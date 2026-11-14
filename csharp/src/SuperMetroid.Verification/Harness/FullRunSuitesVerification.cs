@@ -1202,6 +1202,9 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyPlanetZebesTextFades),
             () => SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyPlanetZebesTextFades(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.CeresCinematics.ZebesRevealPixelationVerification.VerifyZebesRevealPixelation),
+            () => SuperMetroid.Verification.Frontend.CeresCinematics.ZebesRevealPixelationVerification.VerifyZebesRevealPixelation(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(SuperMetroid.Verification.Frontend.Intro.IntroFightLightsVerification.VerifyOldMotherBrainFightLights),
             () => SuperMetroid.Verification.Frontend.Intro.IntroFightLightsVerification.VerifyOldMotherBrainFightLights(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),

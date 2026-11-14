@@ -21,4 +21,10 @@ public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixel
     /// alpha rather than what lies behind. A place no picture covers still shows what lies behind.
     /// </summary>
     public bool DrawsOpaque { get; init; }
+
+    /// <summary>
+    /// How the plane is pixelated (#1774): each square block of the screen shows the plane as its top-left pixel shows it,
+    /// a clear pixel there leaving the whole block showing what lies behind. The default leaves the plane unpixelated.
+    /// </summary>
+    public BackgroundPixelation Pixelation { get; init; }
 }

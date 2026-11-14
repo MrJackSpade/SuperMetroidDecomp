@@ -819,11 +819,13 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case PicturedPlaneLayer pictured:
-                    // The plane's placed pictures, every pixel of each (#1467, #1514), scrolled by its offset (#1555).
+                    // The plane's placed pictures, every pixel of each (#1467, #1514), scrolled by its offset (#1555) and
+                    // pixelated in its blocks (#1774).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         Table = roomLevels.PlaneTable(pictured.Plane), Scroll = PlaneScroll(pictured.Scroll),
                         RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.DrawsOpaque ? 0u : 1u,
+                        Pixelation = pictured.Pixelation,
                     });
                     break;
                 case HudLayer hudLayer:
@@ -907,6 +909,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
+        // Header word 27 is a layer pass's mosaic block size (#1774); a block one pixel wide groups nothing.
+        data[27] = (uint)tile.Pixelation.Size;
         // A layer drawn within a window (#1514) marks it in header word two and packs its shapes.
         if (tile.Window is { } window)
         {

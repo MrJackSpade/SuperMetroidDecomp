@@ -325,7 +325,8 @@ internal sealed class Walk
             // A behaviour's handler starting a program on an object of a family its code spawns (a touch, shot, frame
             // behaviour or step restarting it) changes an object drawing where that code spawned it: Mother Brain's
             // turrets, onion rings, tubes and drool, spawned with the room's graphics, draw from the shared sheet, never
-            // her own (#1513).
+            // her own (#1513). A frame-behaviour restart only some kinds' motions run is not met here: the kinds carry it to
+            // where they are spawned (#1854), as Spore Spawn's spawner cadence restarts only his spawners, on his own sheet.
             Collected[] spawnedThere = named.Family is { } family
                 ? [.. spawned.Where(spawn => spawn.Families.Contains(family)).Select(spawn => spawn.Collected)]
                 : [];
@@ -658,7 +659,6 @@ internal sealed class Walk
             return;
         }
         Action<Collected>? add = null;
-        INamedTypeSymbol? startedFamily = null;
         if (SymbolEqualityComparer.Default.Equals(type, _model.EnemyProjectileFrameId))
         {
             if (!ExcludedProjectileFrames.Contains(member.Name))
@@ -678,17 +678,34 @@ internal sealed class Walk
             }
             add = collected => collected.SpriteObjects.Add(member.Name);
         }
-        else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind) && _model.StartedFamily(member) is { } started)
+        else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind))
         {
-            // A typed start names the program its kind starts the family in, when its construction names one (#1513).
-            IReadOnlySet<string>? programs = _model.StartedPrograms(member);
-            add = collected => collected.AddFamily(started, programs);
-            startedFamily = started;
-            if (context == WalkContext.Own)
-                Own.AddFamily(started, programs);
+            // A typed start names the program its kind starts the family in, when its construction names one (#1513); the
+            // restarts a frame-behaviour handler makes only under the kind's motion run on its objects too (#1854).
+            List<(INamedTypeSymbol Family, IReadOnlySet<string>? Programs)> starts =
+                [.. _model.KindRestarts.Of(member).Select(restart => (restart.Family, restart.Programs))];
+            if (_model.StartedFamily(member) is { } started)
+                starts.Insert(0, (started, _model.StartedPrograms(member)));
+            foreach ((INamedTypeSymbol family, IReadOnlySet<string>? programs) in starts)
+            {
+                if (context == WalkContext.Own)
+                    Own.AddFamily(family, programs);
+                Route(unit, scan, member, collected => collected.AddFamily(family, programs), family);
+            }
+            return;
         }
         if (add is null)
             return;
+        Route(unit, scan, member, add, startedFamily: null);
+    }
+
+    /// <summary>
+    /// Adds what <paramref name="unit"/>'s naming of <paramref name="member"/> spawns (by <paramref name="add"/>, starting
+    /// <paramref name="startedFamily"/> when it starts one) to the sheets its spawn calls naming it draw from, or, when the
+    /// unit spawns nothing itself, to wherever its spawning callers, or the helpers it hands the member to, spawn.
+    /// </summary>
+    private void Route(Unit unit, UnitScan scan, IFieldSymbol member, Action<Collected> add, INamedTypeSymbol? startedFamily)
+    {
         Spawners.Add(unit);
         add(Evidence(unit));
         if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)

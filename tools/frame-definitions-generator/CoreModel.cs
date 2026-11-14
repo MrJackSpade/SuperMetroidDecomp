@@ -72,6 +72,7 @@ internal sealed class CoreModel
         EnemyProjectileFrameId = SingleType("EnemyProjectileFrameId");
         RoomSpriteObjectKind = SingleType("RoomSpriteObjectKind");
         RoomEnemyProjectileKind = SingleType("RoomEnemyProjectileKind");
+        EnemyProjectileFrameBehavior = SingleType("EnemyProjectileFrameBehavior");
         EnemyDefinitionId = SingleType("EnemyDefinitionId");
         ArchitectureReview = SingleType("ArchitectureReviewAttribute");
         EnemySheetDraw = SingleType("EnemySheetDraw");
@@ -132,6 +133,9 @@ internal sealed class CoreModel
     /// <summary>The enemy definition identity.</summary>
     public INamedTypeSymbol EnemyDefinitionId { get; }
 
+    /// <summary>How an enemy projectile moves itself each pass (its motion), which its kind's definition gives it.</summary>
+    public INamedTypeSymbol EnemyProjectileFrameBehavior { get; }
+
     /// <summary>The explicit draw of a named definition's sheet frame.</summary>
     public INamedTypeSymbol EnemySheetDraw { get; }
 
@@ -154,6 +158,11 @@ internal sealed class CoreModel
     public ProjectileProgramFrames ProgramFrames => _programFrames ??= new ProjectileProgramFrames(this);
 
     private ProjectileProgramFrames? _programFrames;
+
+    /// <summary>The programs frame-behaviour handlers restart only the objects of some kinds in, read once (#1854).</summary>
+    public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
+
+    private KindRestarts? _kindRestarts;
 
     /// <summary>Whether <paramref name="type"/> is an entity type: one implementing IEnemyEntity.</summary>
     public bool IsEntityType(INamedTypeSymbol type)

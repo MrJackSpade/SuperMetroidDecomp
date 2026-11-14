@@ -131,9 +131,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseThird,
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFourth,
         EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFifth,
-        EnemyProjectileFrameId.SporeSpawnSporeFirst,
-        EnemyProjectileFrameId.SporeSpawnSporeSecond,
-        EnemyProjectileFrameId.SporeSpawnSporeThird,
         EnemyProjectileFrameId.SporeSpawnStalk,
     ];
 
@@ -2545,11 +2542,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] SporeSpawnSharedProjectiles =
     [
-        EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFirst,
-        EnemyProjectileFrameId.SporeSpawnSpawnerReleaseSecond,
-        EnemyProjectileFrameId.SporeSpawnSpawnerReleaseThird,
-        EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFourth,
-        EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFifth,
         EnemyProjectileFrameId.SporeSpawnSporeFirst,
         EnemyProjectileFrameId.SporeSpawnSporeSecond,
         EnemyProjectileFrameId.SporeSpawnSporeThird,

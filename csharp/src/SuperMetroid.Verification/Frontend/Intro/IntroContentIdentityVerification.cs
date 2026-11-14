@@ -44,9 +44,9 @@ internal static class IntroContentIdentityVerification
         };
         foreach ((string family, int count) in new[]
         {
-            new VerifyIntroContentIdentityCase("flight", CeresFlightActorDefinitions.RearViewActorCount),
-            new VerifyIntroContentIdentityCase("reveal", CeresDestructionActorDefinitions.RevealPlacementCount),
-            new VerifyIntroContentIdentityCase("destruction", CeresDestructionActorDefinitions.InitialActorCount),
+            new VerifyIntroContentIdentityCase("flight", Enum.GetValues<CeresRearViewActorRole>().Length),
+            new VerifyIntroContentIdentityCase("reveal", Enum.GetValues<ZebesRevealActorRole>().Length),
+            new VerifyIntroContentIdentityCase("destruction", Enum.GetValues<CeresDestructionActorRole>().Length),
         })
         for (int index = 0; index < count; index++)
         {
@@ -101,7 +101,7 @@ internal static class IntroContentIdentityVerification
             IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))),
             IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))),
             IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))),
-            IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))),
+            IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name), IntroEggEffectSpriteFormat.Version)),
             IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name), IntroDiscoveryActorSpriteFormat.Version)),
             IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name), IntroScientistSpriteFormat.Version)),
             CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name), CeresDestructionSpriteFormat.Version)));
@@ -137,26 +137,26 @@ internal static class IntroContentIdentityVerification
         // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
         RgbColor Backdrop(string name) => new FadeLevelColour(edit == name ? 1 : 0, 0, 0).ToColour();
 
-        var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
+        var flightActors = Enum.GetValues<CeresRearViewActorRole>().Select((role, index) =>
             new CeresFlightActorPlacement
             {
-                Id = CeresFlightActors.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
+                Role = role, X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         var flight = CeresFlightSourceArtwork.Read(
             Backdrop("flight-backdrop"),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
-        var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.RevealPlacementCount).Select(index =>
+        var revealActors = Enum.GetValues<ZebesRevealActorRole>().Select((role, index) =>
             new CeresRevealActorPlacement
             {
-                Id = CeresDestructionActors.ZebesPlacementId(index), X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
+                Role = role, X = index + (edit == $"reveal-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"reveal-actor-{index}-y" ? 1 : 0),
             }).ToArray();
-        var destructionActors = Enumerable.Range(0, CeresDestructionActorDefinitions.InitialActorCount).Select(index =>
+        var destructionActors = Enum.GetValues<CeresDestructionActorRole>().Select((role, index) =>
             new CeresDestructionActorPlacement
             {
-                Id = CeresDestructionActors.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
+                Role = role, X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"destruction-actor-{index}-y" ? 1 : 0),
             }).ToArray();
         var destruction = CeresDestructionArtworkFile.Read(

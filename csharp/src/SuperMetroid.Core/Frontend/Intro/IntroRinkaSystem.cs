@@ -74,12 +74,12 @@ internal sealed class IntroRinkaSystem
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.SpawnRinkas0And1:
+            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
                 Spawn(0);
                 Spawn(1);
                 return;
 
-            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
                 Spawn(2);
                 Spawn(3);
                 return;

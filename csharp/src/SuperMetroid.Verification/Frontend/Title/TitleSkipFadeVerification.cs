@@ -24,13 +24,13 @@ internal static class TitleSkipFadeVerification
     private static readonly TitleSequencePhase[] AcceptingSteps =
     [
         TitleSequencePhase.YearText,
-        TitleSequencePhase.SceneZeroPan,
+        TitleSequencePhase.LowerPan,
         TitleSequencePhase.NintendoText,
-        TitleSequencePhase.SceneOnePan,
+        TitleSequencePhase.UpperPan,
         TitleSequencePhase.PresentsText,
-        TitleSequencePhase.SceneTwoPan,
+        TitleSequencePhase.DownwardPan,
         TitleSequencePhase.MetroidThreeText,
-        TitleSequencePhase.SceneThreeZoom,
+        TitleSequencePhase.FinalZoom,
     ];
 
     /// <summary>Updates the natural title may take to reach its idle title screen.</summary>

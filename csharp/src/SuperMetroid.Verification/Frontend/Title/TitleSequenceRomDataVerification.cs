@@ -29,13 +29,13 @@ internal static class TitleSequenceRomDataVerification
         TitleSequencePhase[] naturalOrder =
         [
             TitleSequencePhase.YearText,
-            TitleSequencePhase.SceneZeroPan,
+            TitleSequencePhase.LowerPan,
             TitleSequencePhase.NintendoText,
-            TitleSequencePhase.SceneOnePan,
+            TitleSequencePhase.UpperPan,
             TitleSequencePhase.PresentsText,
-            TitleSequencePhase.SceneTwoPan,
+            TitleSequencePhase.DownwardPan,
             TitleSequencePhase.MetroidThreeText,
-            TitleSequencePhase.SceneThreeZoom,
+            TitleSequencePhase.FinalZoom,
             TitleSequencePhase.TitleLogoFade,
             TitleSequencePhase.CopyrightFade,
             TitleSequencePhase.TitleScreen,
@@ -148,19 +148,19 @@ internal static class TitleSequenceRomDataVerification
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Year,
-            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene0));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.StartLowerPan));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Nintendo,
-            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene1));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.StartUpperPan));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.Presents,
-            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene2));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.StartDownwardPan));
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceDefinitions.TextSequences.MetroidThree,
-            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.TriggerScene3));
+            TitleNativeWords.Instructions.Word(TitleSequenceScriptStep.StartFinalZoom));
         WriteRomWord(
             rom,
             (int)FrontendSourceDefinitions.TitleLogoSpritemapOperand,

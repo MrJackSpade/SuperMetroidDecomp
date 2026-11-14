@@ -38,7 +38,7 @@ internal static class RepeatingFloors
     /// <summary>The frontend floor sheets whose scenes repeat the floor beyond its edges: the ending's escape and explosion.</summary>
     private static readonly FrozenSet<SpriteSheetId> RepeatedFrontendFloors = new[]
     {
-        SpriteSheetId.EndingEscapeAFloor, SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor,
+        SpriteSheetId.EndingSideCloudEscapeFloor, SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, SpriteSheetId.EndingPlanetExplosionFloor,
     }.ToFrozenSet();
 
     /// <summary>Whether the scene showing frontend floor sheet <paramref name="floor"/> repeats the floor beyond its edges.</summary>

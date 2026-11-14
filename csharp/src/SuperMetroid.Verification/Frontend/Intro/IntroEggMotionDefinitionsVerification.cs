@@ -57,16 +57,18 @@ internal static class IntroEggMotionDefinitionsVerification
                 AssertEqual(Word(address + index * 4 + 2), actual.Fraction, "Egg motion native fraction word");
             }
         }
-        for (int index = 0; index < 6; index++)
+        // The cartridge holds the fragments' starts and speeds in spawn order.
+        IReadOnlyList<IntroEggShellFragment> fragments = IntroEggEffectDefinitions.ShellFragments;
+        for (int index = 0; index < fragments.Count; index++)
         {
-            var actual = IntroEggMotion.FragmentInitialPosition(index);
+            var actual = IntroEggMotion.FragmentInitialPosition(fragments[index]);
             int address = IntroEggMotionDefinitions.InitialPositionReferenceAddress + index * 4;
             AssertEqual(unchecked((ushort)(Word(address) + 0x0010)), actual.X,
-                $"Egg fragment {index} initial X");
+                $"Egg fragment {fragments[index]} initial X");
             AssertEqual(unchecked((ushort)(Word(address + 2) + 0x003b)), actual.Y,
-                $"Egg fragment {index} initial Y");
+                $"Egg fragment {fragments[index]} initial Y");
         }
-        Compare(0x8ba9ea, 6, IntroEggMotion.FragmentX);
+        Compare(0x8ba9ea, fragments.Count, index => IntroEggMotion.FragmentX(fragments[index]));
         Compare(0x8baa02, 41, frame => IntroEggMotion.FragmentY(frame, pastCurve));
         Compare(0x8bab35, 5, IntroEggMotion.SlimeX);
         Compare(0x8bab49, 62, frame => IntroEggMotion.SlimeY(frame, true));
@@ -80,7 +82,7 @@ internal static class IntroEggMotionDefinitionsVerification
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(actorIndex, pastCurve) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
+                object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
                 IntroDiscoverySprite sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
                 uint x = new FixedCoordinate(sprite.WholePosition.X, fraction).RawValue;
@@ -109,7 +111,8 @@ internal static class IntroEggMotionDefinitionsVerification
                 AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition(6), "Fragment initial-position boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition((IntroEggShellFragment)fragments.Count),
+            "Fragment initial position rejects an undefined fragment");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentY(41, pastCurve), "Fragment curve boundary after native overread");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(62, true), "Odd slime curve boundary");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.SlimeY(69, false), "Even slime curve boundary");

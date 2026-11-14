@@ -13,8 +13,8 @@ internal static class EndingArtworkSources
     /// </summary>
     public static EndingFloorSources Floor(EndingFloorSceneId id) => id switch
     {
-        EndingFloorSceneId.EscapeA => new(EndingSourceDefinitions.Artwork.EscapeACharacters, EndingSourceDefinitions.Artwork.EscapeAPackedMap),
-        EndingFloorSceneId.EscapeB => new(EndingSourceDefinitions.Artwork.EscapeBCharacters, EndingSourceDefinitions.Artwork.EscapeBPackedMap),
+        EndingFloorSceneId.SideCloudEscape => new(EndingSourceDefinitions.Artwork.SideCloudEscapeCharacters, EndingSourceDefinitions.Artwork.SideCloudEscapePackedMap),
+        EndingFloorSceneId.TopAndBottomCloudEscape => new(EndingSourceDefinitions.Artwork.TopAndBottomCloudEscapeCharacters, EndingSourceDefinitions.Artwork.TopAndBottomCloudEscapePackedMap),
         EndingFloorSceneId.PlanetExplosion => new(EndingSourceDefinitions.Artwork.ExplosionCharacters, EndingSourceDefinitions.Artwork.ExplosionPackedMap),
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };

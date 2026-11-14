@@ -77,7 +77,7 @@ internal static class TitleSnapshotTestsVerification
                 AssertEqual(control.FloorZoom, scene.FloorZoom, "capture does not advance zoom");
                 if (scene.FileSelectRequested)
                 {
-                    AssertTrue(phases.Contains(TitleSequencePhase.SceneThreeZoom), "snapshot covers natural zoom");
+                    AssertTrue(phases.Contains(TitleSequencePhase.FinalZoom), "snapshot covers natural zoom");
                     AssertTrue(sheetsBefore.AsSpan().SequenceEqual(UnboundGraphDigest(drawnSheets)),
                         $"title {source} sheets the held packets name are unchanged by the scene's advancement");
                     Console.WriteLine($"  Title snapshots ({source}): {comparisons} exact frames, {phases.Count} phases and retained packets agree.");

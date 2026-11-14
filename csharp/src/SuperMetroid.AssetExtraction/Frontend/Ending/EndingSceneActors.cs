@@ -24,13 +24,13 @@ internal static class EndingSceneActors
         [SpriteSheetId.EndingShootingSprites] = Shooting,
     };
 
-    /// <summary>The escapes' clouds: the first escape's four and the second's four (#1513).</summary>
+    /// <summary>The escapes' clouds: the side-cloud escape's four and the top-and-bottom-cloud escape's four (#1513).</summary>
     private static readonly EndingSpriteDefinition[] EscapeClouds =
     [
-        EndingActorDefinitions.EscapeACloudRightTop, EndingActorDefinitions.EscapeACloudLeftTop,
-        EndingActorDefinitions.EscapeACloudRightBottom, EndingActorDefinitions.EscapeACloudLeftBottom,
-        EndingActorDefinitions.EscapeBCloudTopA, EndingActorDefinitions.EscapeBCloudTopB,
-        EndingActorDefinitions.EscapeBCloudBottomA, EndingActorDefinitions.EscapeBCloudBottomB,
+        EndingActorDefinitions.SideCloudRightLeading, EndingActorDefinitions.SideCloudLeftLeading,
+        EndingActorDefinitions.SideCloudRightTrailing, EndingActorDefinitions.SideCloudLeftTrailing,
+        EndingActorDefinitions.TopCloudPattern, EndingActorDefinitions.TopCloudEdge,
+        EndingActorDefinitions.BottomCloudEdge, EndingActorDefinitions.BottomCloudPattern,
     ];
 
     /// <summary>The planet explosion's actors: the planet, its lava, glow, stars and silhouette, the side stars and the afterglow (#1513).</summary>

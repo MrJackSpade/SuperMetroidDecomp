@@ -2,29 +2,23 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// The installed spawn positions of the three persistent actors behind Ceres's explosion, as the player left them; the
-/// installation is their only source (#1596). Their animations, wrap behavior, and movement remain compiled mechanics.
+/// The installed spawn positions of the three persistent actors behind Ceres's explosion, as the player left them, keyed
+/// by role (#1768); the installation is their only source (#1596). Their animations, wrap behavior, and movement remain
+/// compiled mechanics.
 /// </summary>
 public sealed class CeresDestructionActorPlacements
 {
-    /// <summary>The installed placements, in spawn order.</summary>
-    internal readonly CeresDestructionActorPlacement[] placements;
+    /// <summary>The installed placements, by role.</summary>
+    internal readonly Dictionary<CeresDestructionActorRole, CeresDestructionActorPlacement> placements;
 
     /// <summary>Keeps the complete installed layout.</summary>
-    /// <param name="placements">The three placements, in spawn order.</param>
-    /// <exception cref="InvalidDataException">The layout does not hold exactly the three actors.</exception>
-    internal CeresDestructionActorPlacements(CeresDestructionActorPlacement[] placements)
-    {
-        Ensure.NotNull(placements);
-        if (placements.Length != CeresDestructionActorDefinitions.InitialActorCount)
-            throw new InvalidDataException("Ceres destruction requires exactly three ordered actor placements.");
-        this.placements = [.. placements];
-    }
+    /// <param name="placements">One placement for each destruction role, in any order.</param>
+    /// <exception cref="InvalidDataException">The layout does not place each of the three actors exactly once.</exception>
+    internal CeresDestructionActorPlacements(IEnumerable<CeresDestructionActorPlacement> placements) =>
+        this.placements = CeresPlacementsByRole.Index(placements, placement => placement.Role, "The Ceres destruction");
 
-    /// <summary>The installed starting placement of one persistent destruction-scene actor.</summary>
-    /// <param name="actorIndex">Zero-based spawn-order index: large asteroids, small asteroids, then the stationary vortex.</param>
-    /// <returns>The fixed actor identity and encoded whole-pixel starting screen coordinates.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 2.</exception>
-    public CeresDestructionActorPlacement this[int actorIndex] =>
-        (uint)actorIndex < (uint)placements.Length ? placements[actorIndex] : throw new ArgumentOutOfRangeException(nameof(actorIndex));
+    /// <summary>The installed starting placement of the persistent destruction-scene actor that shows <paramref name="role"/>.</summary>
+    /// <returns>The actor's role and whole-pixel starting screen coordinates.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="role"/> is not a destruction role.</exception>
+    public CeresDestructionActorPlacement this[CeresDestructionActorRole role] => CeresPlacementsByRole.Of(placements, role);
 }

@@ -1,82 +1,79 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks the import's Ceres actor placement sources against immediate operands in bank $8B.</summary>
 internal static class CeresPlacementSelectorsVerification
 {
-    /// <summary>Checks the five rear-view actors' X and Y native placement immediates.</summary>
+    /// <summary>Checks the five rear-view actors' roles and X and Y native placement immediates.</summary>
     internal static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
     {
-        // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
-        // not ROM strings. Native initializer operands independently confirm their source views.
-        CinematicPlacementSourceDefinition[] original =
+        // Original maintained extraction table at d12fa8fa, now keyed by role (#1768). Native initializer operands
+        // independently confirm their source views.
+        CinematicPlacementSourceDefinition<CeresRearViewActorRole>[] original =
         [
-            new("large-asteroid", 0xbf23),
-            new("station-under-attack", 0xbf4d),
-            new("small-asteroid", 0xbf77),
-            new("vortex", 0xbfb4),
-            new("rear-stars", 0xbea3),
+            new(CeresRearViewActorRole.LargeAsteroids, 0xbf23),
+            new(CeresRearViewActorRole.StationUnderAttack, 0xbf4d),
+            new(CeresRearViewActorRole.SmallAsteroids, 0xbf77),
+            new(CeresRearViewActorRole.Vortex, 0xbfb4),
+            new(CeresRearViewActorRole.RearStars, 0xbea3),
         ];
-        AssertEqual(original.Length, CeresFlightActorDefinitions.RearViewActorCount, "rear placement count");
-        for (int i = 0; i < original.Length; i++)
+        AssertSequenceEqual(original, CeresCinematicSourceDefinitions.RearViewPlacements,
+            "the import reads the original rear placement operands under each actor's role");
+        AssertSequenceEqual(CeresFlightActorDefinitions.RearViewSpawnOrder, original.Select(source => source.Role),
+            "the import writes the rear placements in spawn order");
+        foreach (var actual in CeresCinematicSourceDefinitions.RearViewPlacements)
         {
-            var actual = CeresCinematicSourceDefinitions.RearViewPlacements[i];
-            AssertEqual(original[i], actual, "the import reads the original rear placement operands under the Core actor id");
             VerifyPlacementOperand(rom, actual.FirstOperand);
             VerifyPlacementOperand(rom, actual.SecondOperand);
         }
-        foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFlightActors.RearViewPlacementId(i), "rear selector bounds");
     }
 
-    /// <summary>Checks the six Zebes reveal actors' and the Japanese subtitle's X and Y native placement immediates.</summary>
+    /// <summary>Checks the six Zebes reveal actors' and the Japanese subtitle's roles and X and Y native placement immediates.</summary>
     internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
-        CinematicPlacementSourceDefinition[] original =
+        CinematicPlacementSourceDefinition<ZebesRevealActorRole>[] original =
         [
-            new("planet", 0xc83c),
-            new("stars-upper-left", 0xc944),
-            new("stars-upper-right", 0xc958),
-            new("stars-lower-left", 0xc96c),
-            new("stars-lower-right", 0xc980),
-            new("planet-zebes-title", 0xc993),
-            new("planet-zebes-subtitle", 0xc9e7),
+            new(ZebesRevealActorRole.Planet, 0xc83c),
+            new(ZebesRevealActorRole.StarsUpperLeft, 0xc944),
+            new(ZebesRevealActorRole.StarsUpperRight, 0xc958),
+            new(ZebesRevealActorRole.StarsLowerLeft, 0xc96c),
+            new(ZebesRevealActorRole.StarsLowerRight, 0xc980),
+            new(ZebesRevealActorRole.Title, 0xc993),
+            new(ZebesRevealActorRole.JapaneseSubtitle, 0xc9e7),
         ];
-        AssertEqual(original.Length, CeresDestructionActorDefinitions.RevealPlacementCount, "reveal placement count");
-        for (int i = 0; i < original.Length; i++)
+        AssertSequenceEqual(original, CeresCinematicSourceDefinitions.ZebesPlacements,
+            "the import reads the original reveal placement operands under each actor's role");
+        AssertSequenceEqual(CeresDestructionActorDefinitions.RevealSpawnOrder.Append(ZebesRevealActorRole.JapaneseSubtitle),
+            original.Select(source => source.Role), "the import writes the reveal placements in spawn order, then the subtitle's");
+        foreach (var actual in CeresCinematicSourceDefinitions.ZebesPlacements)
         {
-            var actual = CeresCinematicSourceDefinitions.ZebesPlacements[i];
-            AssertEqual(original[i], actual, "the import reads the original reveal placement operands under the Core actor id");
             VerifyPlacementOperand(rom, actual.FirstOperand);
             VerifyPlacementOperand(rom, actual.SecondOperand);
         }
-        foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.ZebesPlacementId(i), "reveal selector bounds");
     }
 
-    /// <summary>Checks the three initial destruction actors' ids and the import's X and Y native placement immediates.</summary>
+    /// <summary>Checks the three initial destruction actors' roles and the import's X and Y native placement immediates.</summary>
     internal static void VerifyCeresInitialPlacementSelector(ISnesAddressSpace rom)
     {
-        CinematicPlacementImmediates[] original =
+        CinematicPlacementImmediates<CeresDestructionActorRole>[] original =
         [
-            new("large-asteroid", 0xbf23, 0xbf29),
-            new("small-asteroid", 0xbf77, 0xbf7d),
-            new("vortex", 0xbfa6, 0xbfba),
+            new(CeresDestructionActorRole.LargeAsteroids, 0xbf23, 0xbf29),
+            new(CeresDestructionActorRole.SmallAsteroids, 0xbf77, 0xbf7d),
+            new(CeresDestructionActorRole.Vortex, 0xbfa6, 0xbfba),
         ];
-        AssertEqual(original.Length, CeresDestructionActorDefinitions.InitialActorCount, "initial placement count");
-        for (int i = 0; i < original.Length; i++)
+        AssertSequenceEqual(original, CeresCinematicSourceDefinitions.DestructionPlacements,
+            "the import reads the original initial placement operands under each actor's role");
+        AssertSequenceEqual(CeresDestructionActorDefinitions.DestructionSpawnOrder, original.Select(source => source.Role),
+            "the import writes the initial placements in spawn order");
+        foreach (var actual in CeresCinematicSourceDefinitions.DestructionPlacements)
         {
-            AssertEqual(original[i].Id, CeresDestructionActors.InitialPlacementId(i), "original initial placement selector");
-            CinematicPlacementImmediates actual = CeresCinematicSourceDefinitions.DestructionPlacements[i];
-            AssertEqual(original[i], actual, "the import reads the original initial placement operands under the Core actor id");
             VerifyPlacementOperand(rom, actual.FirstOperand);
             VerifyPlacementOperand(rom, actual.SecondOperand);
         }
-        foreach (int i in new[] { int.MinValue, -1, original.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionActors.InitialPlacementId(i), "initial selector bounds");
     }
 
     /// <summary>Requires an immediate LDA before the coordinate the import reads.</summary>

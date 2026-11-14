@@ -32,10 +32,11 @@ public static class IntroCinematicArtworkFiles
     /// <summary>
     /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636),
     /// 23 installs the Japanese text's next-page arrow compositions (#1655), 24 installs no palette (#1637), 25 installs no
-    /// layout (#1638), 26 installs neither, 27 installs no sprite composition (#1638), 28 installs no manifest (#1693), and
-    /// 29 installs no Mode 7 map (#1693).
+    /// layout (#1638), 26 installs neither, 27 installs no sprite composition (#1638), 28 installs no manifest (#1693),
+    /// 29 installs no Mode 7 map (#1693), and 30 keys the Ceres actor placements by role and names the egg shell's
+    /// pieces (#1768).
     /// </summary>
-    private const int FormatVersion = 29;
+    private const int FormatVersion = 30;
 
     /// <summary>
     /// The component's character pages (#1636) and the colour documents only the import pre-colours sheets from (#1637),

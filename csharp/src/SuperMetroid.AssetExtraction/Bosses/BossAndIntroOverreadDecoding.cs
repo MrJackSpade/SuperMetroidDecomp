@@ -45,7 +45,7 @@ internal static class BossAndIntroOverreadDecoding
     private static List<BossAndIntroOverreadDocument.FallStep> ShellFragmentFallPastCurve(IImportCartridgeSource cartridge)
     {
         int framesRead = 0;
-        for (int fragment = 0; fragment < IntroEggEffectDefinitions.ParticleCount; fragment++)
+        foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
         {
             var y = new FixedCoordinate(IntroEggMotion.FragmentInitialPosition(fragment).Y, 0);
             int frame = 0;

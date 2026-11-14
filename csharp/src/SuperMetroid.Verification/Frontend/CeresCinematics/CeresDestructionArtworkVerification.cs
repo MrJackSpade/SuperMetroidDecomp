@@ -117,8 +117,8 @@ internal static class CeresDestructionArtworkVerification
         for (int index = 0; index < actorsDocument.Actors.Length; index++)
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
-            AssertEqual(source.Id, actorsDocument.Actors[index].Id,
-                $"Zebes reveal actor {index} retains its native identity");
+            AssertEqual(source.Role, actorsDocument.Actors[index].Role,
+                $"Zebes reveal actor {index} retains its role");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 actorsDocument.Actors[index].X,
@@ -128,13 +128,13 @@ internal static class CeresDestructionArtworkVerification
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
         }
-        actorsDocument.Actors[0] = actorsDocument.Actors[0] with { Id = "wrong-actor" };
+        actorsDocument.Actors[0] = actorsDocument.Actors[0] with { Role = ZebesRevealActorRole.Title };
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
             CeresRevealActorLayoutFile.Write(invalid, actorsDocument);
             _ = CeresRevealActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
-        }, "Zebes reveal layout rejects missing or reordered actor identities on read");
+        }, "Zebes reveal layout rejects a missing or repeated actor role on read");
 
         string destructionActorsName = CeresDestructionActorLayoutFormat.FileName;
         string destructionActorsPath = Path.Combine(installation.IntroCinematicDirectory,
@@ -145,10 +145,9 @@ internal static class CeresDestructionArtworkVerification
             throw new InvalidDataException("Stock Ceres destruction actor layout is empty.");
         for (int index = 0; index < destructionActorsDocument.Actors.Length; index++)
         {
-            CinematicPlacementImmediates source = CeresCinematicSourceDefinitions.DestructionPlacements[index];
-            AssertEqual(CeresDestructionActors.InitialPlacementId(index),
-                destructionActorsDocument.Actors[index].Id,
-                $"Ceres destruction actor {index} retains its native role");
+            CinematicPlacementImmediates<CeresDestructionActorRole> source = CeresCinematicSourceDefinitions.DestructionPlacements[index];
+            AssertEqual(source.Role, destructionActorsDocument.Actors[index].Role,
+                $"Ceres destruction actor {index} retains its role");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 destructionActorsDocument.Actors[index].X, $"Ceres destruction actor {index} X is its initializer's immediate");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
@@ -156,14 +155,14 @@ internal static class CeresDestructionArtworkVerification
         }
         destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
         {
-            Id = "wrong-actor",
+            Role = CeresDestructionActorRole.Vortex,
         };
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
             CeresDestructionActorLayoutFile.Write(invalid, destructionActorsDocument);
             _ = CeresDestructionActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
-        }, "Ceres destruction layout rejects missing or reordered actor identities on read");
+        }, "Ceres destruction layout rejects a missing or repeated actor role on read");
 
         string spritesName = CeresDestructionSpriteFormat.FileName;
         string spritesPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), spritesName);

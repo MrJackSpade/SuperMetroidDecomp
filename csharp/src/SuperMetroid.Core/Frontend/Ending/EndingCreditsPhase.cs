@@ -3,22 +3,22 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Ending cinematic coroutine positions, from setup waits to the terminal result display.</summary>
 internal enum EndingCreditsPhase
 {
-    /// <summary>Waits out the setup updates before loading the first cloud scene.</summary>
+    /// <summary>Waits out the setup updates before loading the side-cloud escape.</summary>
     SetupEscapeFromZebes,
     /// <summary>Holds the cloud scene until the queued escape music finishes loading.</summary>
     WaitForEscapeMusic,
-    /// <summary>Reveals the first rotating turning-floor cloud scene.</summary>
-    FadeInEscapeSceneA,
-    /// <summary>Continues zooming the first cloud scene to its authored threshold.</summary>
-    EscapeSceneA,
-    /// <summary>Blanks the first cloud scene before loading the second.</summary>
-    FadeOutEscapeSceneA,
-    /// <summary>Reveals the second cloud scene and its grey-cloud palette effect.</summary>
-    FadeInEscapeSceneB,
-    /// <summary>Continues the second cloud zoom toward the planet explosion.</summary>
-    EscapeSceneB,
-    /// <summary>Blanks the second cloud scene before the explosion handoff.</summary>
-    FadeOutEscapeSceneB,
+    /// <summary>Reveals the side-cloud escape's rotating turning floor.</summary>
+    FadeInSideCloudEscape,
+    /// <summary>Continues zooming the side-cloud escape to its authored threshold.</summary>
+    SideCloudEscape,
+    /// <summary>Blanks the side-cloud escape before loading the top-and-bottom-cloud escape.</summary>
+    FadeOutSideCloudEscape,
+    /// <summary>Reveals the top-and-bottom-cloud escape and its grey-cloud palette effect.</summary>
+    FadeInTopAndBottomCloudEscape,
+    /// <summary>Continues the top-and-bottom-cloud escape's zoom toward the planet explosion.</summary>
+    TopAndBottomCloudEscape,
+    /// <summary>Blanks the top-and-bottom-cloud escape before the explosion handoff.</summary>
+    FadeOutTopAndBottomCloudEscape,
     /// <summary>Reveals the explosion while object and background colors crossfade.</summary>
     FadeInZebesExplosion,
     /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>

@@ -5,8 +5,12 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Fixed actor metadata and motion parameters for Samus's flight toward Ceres.</summary>
 internal static class CeresFlightActorDefinitions
 {
-    /// <summary>Number of actors allocated for the flight.</summary>
-    public const int RearViewActorCount = 5;
+    /// <summary>The rear view's actors in the order its setup spawns them, which is the order they update and draw in.</summary>
+    internal static IReadOnlyList<CeresRearViewActorRole> RearViewSpawnOrder { get; } =
+    [
+        CeresRearViewActorRole.LargeAsteroids, CeresRearViewActorRole.StationUnderAttack, CeresRearViewActorRole.SmallAsteroids,
+        CeresRearViewActorRole.Vortex, CeresRearViewActorRole.RearStars,
+    ];
 
     /// <summary>The acceleration applied to the opening star field on each update.</summary>
     public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
@@ -19,7 +23,7 @@ internal static class CeresFlightActorDefinitions
     /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #1014: front stars and RearViewActor(4) alias the
+    /// Issues #625 and #1014: front stars and the rear view's rear stars alias the
     /// same star definition and animation. Its four
     /// steps match the authored data: duration
     /// 10, the star frame, then a jump back to the start.

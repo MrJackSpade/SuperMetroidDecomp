@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>Reads and writes the installed layout of the Zebes reveal's actors.</summary>
 public static class CeresRevealActorLayoutFile
 {
-    /// <summary>Validates the seven fixed reveal placement identities and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
+    /// <summary>Validates that each reveal role is placed once and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
     /// <returns>The seven installed placements of the reveal.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
@@ -28,19 +28,16 @@ public static class CeresRevealActorLayoutFile
             throw new InvalidDataException("Invalid Ceres reveal actor layout JSON.", error);
         }
 
-        if (document.Version != CeresRevealActorLayoutFormat.Version ||
-            document.Actors is not { Length: CeresDestructionActorDefinitions.RevealPlacementCount })
-            throw new InvalidDataException("Ceres reveal requires exactly seven ordered actor placements.");
-        for (int index = 0; index < document.Actors.Length; index++)
+        if (document.Version != CeresRevealActorLayoutFormat.Version || document.Actors is null)
+            throw new InvalidDataException("Ceres reveal requires a placement for each of its seven actors.");
+        foreach (CeresRevealActorPlacement placement in document.Actors)
         {
-            CeresRevealActorPlacement placement = document.Actors[index];
-            if (placement is null ||
-                placement.Id != CeresDestructionActors.ZebesPlacementId(index) ||
-                !CeresActorScreenCoordinate.IsSigned(placement.X) ||
-                !CeresActorScreenCoordinate.IsSigned(placement.Y))
+            if (placement is not null &&
+                (!CeresActorScreenCoordinate.IsSigned(placement.X) || !CeresActorScreenCoordinate.IsSigned(placement.Y)))
                 throw new InvalidDataException(
-                    $"Ceres reveal actor {index} must retain its identity and signed screen-pixel coordinates.");
+                    $"The Zebes reveal's {placement.Role} actor must start at signed screen-pixel coordinates.");
         }
+        // Each role must be placed exactly once; the placements reject a missing, repeated or unknown role.
         return new CeresRevealActorPlacements(document.Actors);
     }
 

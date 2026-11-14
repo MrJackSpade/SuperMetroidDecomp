@@ -31,7 +31,7 @@ internal static class RetailFrontendTests
             {
                 var expected = title.Render();
                 var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
-                if (title.Phase == TitleSequencePhase.SceneThreeZoom && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is null)
+                if (title.Phase == TitleSequencePhase.FinalZoom && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is null)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
                 if (title.Phase == TitleSequencePhase.YearText && (packet.Floor ?? throw new InvalidOperationException("Verification requires packet.Floor.")).Gradient is not null)
                     throw new InvalidOperationException("Title gradient spawned before its native scene command.");
@@ -42,7 +42,7 @@ internal static class RetailFrontendTests
             }
             else title.Step(0);
         }
-        if (!title.FileSelectRequested || !phases.Contains(TitleSequencePhase.SceneThreeZoom))
+        if (!title.FileSelectRequested || !phases.Contains(TitleSequencePhase.FinalZoom))
             throw new InvalidOperationException("Retail title did not cover natural zoom and reach file select.");
 
         var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());

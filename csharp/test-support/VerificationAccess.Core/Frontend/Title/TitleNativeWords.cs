@@ -12,10 +12,10 @@ internal static class TitleNativeWords
     internal static readonly NativeWordIdentities<TitleSequenceScriptStep> Instructions = new(new Dictionary<TitleSequenceScriptStep, ushort>
     {
         [TitleSequenceScriptStep.Delete] = 0x9438,
-        [TitleSequenceScriptStep.TriggerScene0] = 0x9ce1,
-        [TitleSequenceScriptStep.TriggerScene1] = 0x9d5d,
-        [TitleSequenceScriptStep.TriggerScene2] = 0x9dd6,
-        [TitleSequenceScriptStep.TriggerScene3] = 0x9e58,
+        [TitleSequenceScriptStep.StartLowerPan] = 0x9ce1,
+        [TitleSequenceScriptStep.StartUpperPan] = 0x9d5d,
+        [TitleSequenceScriptStep.StartDownwardPan] = 0x9dd6,
+        [TitleSequenceScriptStep.StartFinalZoom] = 0x9e58,
     });
 
     /// <summary>$8C:879D, TitleSequenceSpritemaps_SuperMetroidTitleLogo: the logo composition's bank-$8C word.</summary>

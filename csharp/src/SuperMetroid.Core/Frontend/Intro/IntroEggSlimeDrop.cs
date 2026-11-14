@@ -63,7 +63,7 @@ internal sealed class IntroEggSlimeDrop
             {
                 // Landing changes both animation and frame behaviour, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
-                sprite.Start(CinematicSpriteSegment.MetroidEggParticleHitGround);
+                sprite.Start(CinematicSpriteSegment.MetroidEggSlimeImpact);
                 sprite.InstallFrameBehavior(
                     CinematicSpriteFrameBehavior.NoOp);
                 motionEnabled = false;

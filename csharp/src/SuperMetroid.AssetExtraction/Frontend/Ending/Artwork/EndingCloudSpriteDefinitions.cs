@@ -12,11 +12,11 @@ public static class EndingCloudSpriteDefinitions
     /// </summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("scene-b-upper-a", CinematicSpritePose.CloudSceneBUpperA, 16),
-        new("scene-b-upper-b", CinematicSpritePose.CloudSceneBUpperB, 16),
-        new("scene-b-lower-a", CinematicSpritePose.CloudSceneBLowerA, 16),
-        new("scene-b-lower-b", CinematicSpritePose.CloudSceneBLowerB, 16),
-        new("scene-a-right", CinematicSpritePose.CloudSceneARight, 32),
-        new("scene-a-left", CinematicSpritePose.CloudSceneALeft, 32),
+        new("top-cloud-pattern", CinematicSpritePose.TopCloudPattern, 16),
+        new("top-cloud-edge", CinematicSpritePose.TopCloudEdge, 16),
+        new("bottom-cloud-edge", CinematicSpritePose.BottomCloudEdge, 16),
+        new("bottom-cloud-pattern", CinematicSpritePose.BottomCloudPattern, 16),
+        new("right-side-cloud", CinematicSpritePose.RightSideCloud, 32),
+        new("left-side-cloud", CinematicSpritePose.LeftSideCloud, 32),
     ];
 }

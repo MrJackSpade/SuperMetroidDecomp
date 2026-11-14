@@ -33,10 +33,10 @@ internal sealed record EndingScreenLoads(EndingFloorSceneId? FloorScene, bool Fl
     internal static EndingScreenLoads Of(EndingCreditsPhase phase) => phase switch
     {
         EndingCreditsPhase.SetupEscapeFromZebes => None,
-        EndingCreditsPhase.WaitForEscapeMusic or EndingCreditsPhase.FadeInEscapeSceneA or EndingCreditsPhase.EscapeSceneA
-            or EndingCreditsPhase.FadeOutEscapeSceneA => None with { FloorScene = EndingFloorSceneId.EscapeA },
-        EndingCreditsPhase.FadeInEscapeSceneB or EndingCreditsPhase.EscapeSceneB
-            or EndingCreditsPhase.FadeOutEscapeSceneB => None with { FloorScene = EndingFloorSceneId.EscapeB },
+        EndingCreditsPhase.WaitForEscapeMusic or EndingCreditsPhase.FadeInSideCloudEscape or EndingCreditsPhase.SideCloudEscape
+            or EndingCreditsPhase.FadeOutSideCloudEscape => None with { FloorScene = EndingFloorSceneId.SideCloudEscape },
+        EndingCreditsPhase.FadeInTopAndBottomCloudEscape or EndingCreditsPhase.TopAndBottomCloudEscape
+            or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape => None with { FloorScene = EndingFloorSceneId.TopAndBottomCloudEscape },
         EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade
             or EndingCreditsPhase.ZebesExplosionHold => None with { FloorScene = EndingFloorSceneId.PlanetExplosion, ExplosionMaps = true },
         EndingCreditsPhase.ZebesExplosionAnimation or EndingCreditsPhase.WaitForPlanetEscapeMusic

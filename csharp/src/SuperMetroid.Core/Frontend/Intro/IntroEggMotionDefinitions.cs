@@ -4,30 +4,32 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEggMotionDefinitions
 {
 
-    /// <summary>The values <see cref="IntroEggMotion.FragmentInitialPosition"/> selects, in index order.</summary>
-    internal static readonly Position16<ScreenPixels>[] FragmentInitialPositions =
-    [
-        new(108, 147),
-        new(115, 147),
-        new(105, 152),
-        new(112, 150),
-        new(118, 153),
-        new(115, 155),
-    ];
+    /// <summary>Where each piece of the shell starts, which <see cref="IntroEggMotion.FragmentInitialPosition"/> selects.</summary>
+    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Position16<ScreenPixels>> FragmentInitialPositions =
+        new Dictionary<IntroEggShellFragment, Position16<ScreenPixels>>
+        {
+            [IntroEggShellFragment.UpperLeft] = new(108, 147),
+            [IntroEggShellFragment.UpperRight] = new(115, 147),
+            [IntroEggShellFragment.Left] = new(105, 152),
+            [IntroEggShellFragment.Centre] = new(112, 150),
+            [IntroEggShellFragment.Right] = new(118, 153),
+            [IntroEggShellFragment.Lower] = new(115, 155),
+        };
 
-    /// <summary>The values <see cref="IntroEggMotion.FragmentX"/> selects, in index order.</summary>
-    internal static readonly SignedSixteenSixteen[] FragmentXVelocities =
-    [
-        SignedSixteenSixteen.FromSixteenthsOfPixel(-12),
-        SignedSixteenSixteen.FromSixteenthsOfPixel(4),
-        SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
-        SignedSixteenSixteen.FromSixteenthsOfPixel(-14),
-        SignedSixteenSixteen.FromSixteenthsOfPixel(8),
-        SignedSixteenSixteen.FromSixteenthsOfPixel(2),
-    ];
+    /// <summary>Each piece of the shell's horizontal launch speed, which <see cref="IntroEggMotion.FragmentX"/> selects.</summary>
+    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
+        new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
+        {
+            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromSixteenthsOfPixel(-12),
+            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromSixteenthsOfPixel(4),
+            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
+            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromSixteenthsOfPixel(-14),
+            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromSixteenthsOfPixel(8),
+            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromSixteenthsOfPixel(2),
+        };
 
     /// <summary>
-    /// The shell gravity curve's frame count: 38 records. Fragments zero and one fall for three frames past it, whose
+    /// The shell gravity curve's frame count: 38 records. The upper-left and upper-right fragments fall for three frames past it, whose
     /// steps the installed <see cref="ShellFragmentFallPastCurve"/> holds (#1500).
     /// </summary>
     /// <remarks>

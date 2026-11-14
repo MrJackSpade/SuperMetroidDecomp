@@ -6,15 +6,15 @@ public enum TitleSequencePhase
     /// <summary>Runs the progressive 1994 title card over black, including its initial blank hold, before triggering the lower-background pan.</summary>
     YearText,
     /// <summary>Pans the lower turning-floor scene left by 1.5 pixels per update until X falls below -7 pixels, then starts the Nintendo card.</summary>
-    SceneZeroPan,
+    LowerPan,
     /// <summary>Runs the progressive Nintendo title card with the turning-floor background hidden, then triggers the upper-background pan.</summary>
     NintendoText,
     /// <summary>Pans the upper turning-floor scene left by 1.5 pixels per update until X falls below -176 pixels, then starts the Presents card.</summary>
-    SceneOnePan,
+    UpperPan,
     /// <summary>Runs the progressive Presents title card over black before triggering the downward-background pan.</summary>
     PresentsText,
     /// <summary>Pans the turning-floor scene down by 1.5 pixels per update until Y reaches 163 pixels, then starts the Metroid 3 card.</summary>
-    SceneTwoPan,
+    DownwardPan,
     /// <summary>Runs the progressive Metroid 3 title card, including its 120-update final hold, before triggering the final zoom.</summary>
     MetroidThreeText,
     /// <summary>
@@ -22,7 +22,7 @@ public enum TitleSequencePhase
     /// alternating updates; the next alternating update after reaching its own size completes the zoom. The last step
     /// that accepts the skip.
     /// </summary>
-    SceneThreeZoom,
+    FinalZoom,
     /// <summary>Displays the title logo at the completed turning-floor transform for the 32-update logo stage before showing the copyright; refuses the skip.</summary>
     TitleLogoFade,
     /// <summary>Displays the logo and Nintendo copyright for the 32-update copyright stage before starting the idle-title demo countdown; refuses the skip.</summary>

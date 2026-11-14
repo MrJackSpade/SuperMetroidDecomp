@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresInitialActo
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresZebesActorMetadataVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
@@ -20,14 +21,10 @@ internal static class CeresDestructionActorDefinitionsVerification
 
         Suite(nameof(VerifyCeresZebesActorMetadata), () => VerifyCeresZebesActorMetadata(retail));
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDestructionActors.InitialActor(
-                CeresDestructionActorDefinitions.InitialActorCount),
-            "destruction initial actor definition boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDestructionActors.ZebesActor(
-                CeresDestructionActorDefinitions.ZebesActorCount),
-            "Zebes reveal actor definition boundary");
+        AssertSequenceEqual(Enum.GetValues<CeresDestructionActorRole>(),
+            CeresDestructionActorDefinitions.DestructionSpawnOrder.Order(), "the destruction spawns each of its roles once");
+        AssertSequenceEqual(Enum.GetValues<ZebesRevealActorRole>().Where(role => role != ZebesRevealActorRole.JapaneseSubtitle),
+            CeresDestructionActorDefinitions.RevealSpawnOrder.Order(), "the reveal spawns each role but the title's subtitle once");
 
 
         var guard = NewCeresDestructionActorDefinitionReadGuard(retail);

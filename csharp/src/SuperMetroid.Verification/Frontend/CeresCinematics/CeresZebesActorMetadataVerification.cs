@@ -9,14 +9,15 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 /// <summary>Checks six Ceres planet, star, and title actor records and the Japanese subtitle's against native setup metadata.</summary>
 internal static class CeresZebesActorMetadataVerification
 {
-    /// <summary>Compares spawn, slide, and completion callbacks while rejecting invalid actor ordinals.</summary>
+    /// <summary>Compares spawn, slide, and completion callbacks while rejecting roles outside the reveal.</summary>
     internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
         int[] attributeAddresses = [0x8bc848, 0x8bc950, 0x8bc964, 0x8bc978, 0x8bc98c, 0x8bc99f];
-        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
+        // The reveal's setup spawns its actors with consecutive spawn instructions, in spawn order.
+        for (int index = 0; index < CeresDestructionActorDefinitions.RevealSpawnOrder.Count; index++)
         {
-            CeresDestructionActorDefinition actor =
-                CeresDestructionActors.ZebesActor(index);
+            ZebesRevealActorRole role = CeresDestructionActorDefinitions.RevealSpawnOrder[index];
+            CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(role);
             int spawnOperand = 0x8bc811 + 6 * index;
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperand - 1), "native spawn LDY");
             ushort pointer = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperand);
@@ -25,48 +26,49 @@ internal static class CeresZebesActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation), "native reveal program");
             AssertEqual(SignedSixteenSixteen.Zero, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
-            AssertEqual(index == 4, actor.CompletesScene, "only native star5 callback at C8F2 loads game");
+            AssertEqual(role == ZebesRevealActorRole.StarsLowerRight, actor.CompletesScene,
+                "only the lower-right stars' native callback at C8F2 loads game");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), CeresSheetInks.SpriteSet(actor.Colouring),
-                $"Zebes reveal actor {index} attributes");
+                $"Zebes reveal {role} attributes");
         }
 
         CeresDestructionActorDefinition planet =
-            CeresDestructionActors.ZebesActor(0);
+            CeresDestructionActors.ZebesActor(ZebesRevealActorRole.Planet);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc857), planet.SlideFrameBehavior.NativeAddress,
             "Zebes planet slide callback");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc862), planet.SlideAcceleration.RawValue,
             "Zebes planet slide acceleration");
-        for (int index = 1; index <= 3; index++)
+        foreach (ZebesRevealActorRole quarter in new[]
+            { ZebesRevealActorRole.StarsUpperLeft, ZebesRevealActorRole.StarsUpperRight, ZebesRevealActorRole.StarsLowerLeft })
         {
-            CeresDestructionActorDefinition star =
-                CeresDestructionActors.ZebesActor(index);
+            CeresDestructionActorDefinition star = CeresDestructionActors.ZebesActor(quarter);
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc902), star.SlideFrameBehavior.NativeAddress,
-                $"Zebes star {index + 1} slide callback");
+                $"Zebes {quarter} slide callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc90d), star.SlideAcceleration.RawValue,
-                $"Zebes star {index + 1} slide acceleration");
+                $"Zebes {quarter} slide acceleration");
         }
         CeresDestructionActorDefinition completionStar =
-            CeresDestructionActors.ZebesActor(4);
+            CeresDestructionActors.ZebesActor(ZebesRevealActorRole.StarsLowerRight);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8b3), completionStar.SlideFrameBehavior.NativeAddress,
             "Zebes completion star slide callback");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8be), completionStar.SlideAcceleration.RawValue,
             "Zebes completion star slide acceleration");
         AssertTrue(completionStar.CompletesScene,
-            "Zebes stars 5 retains scene-completion ownership");
+            "Zebes lower-right stars retain scene-completion ownership");
         CeresDestructionActorDefinition title =
-            CeresDestructionActors.ZebesActor(5);
+            CeresDestructionActors.ZebesActor(ZebesRevealActorRole.Title);
         AssertEqual((ushort)0, title.SlideFrameBehavior.NativeAddress,
             "PLANET ZEBES title cannot enter slide motion");
         AssertEqual(SignedEightEight.Zero, title.SlideAcceleration,
             "PLANET ZEBES title has no slide acceleration");
 
-        foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
+        foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<ZebesRevealActorRole>().Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresDestructionActors.ZebesActor(index), "Zebes metadata invalid index");
+                () => CeresDestructionActors.ZebesActor((ZebesRevealActorRole)undefined), "Zebes metadata undefined role");
 
         // The title's Japanese-text instruction ($8B:C9AF) spawns the subtitle's definition ($8B:CEB5), whose initializer
         // ($8B:C9E6) selects the title's sprite colours and whose list ends before the slide (#1733).
-        CeresDestructionActorDefinition subtitle = CeresDestructionActorDefinitions.ZebesSubtitle;
+        CeresDestructionActorDefinition subtitle = CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
         AssertEqual((byte)0xa0, retail.ReadCartridgeByte(0x8bc9b5), "subtitle spawn LDY");
         ushort subtitleDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9b6);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 2), subtitle.ActiveFrameBehavior.NativeAddress,

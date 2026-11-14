@@ -9,8 +9,8 @@ internal sealed class IntroEggParticle
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
     internal readonly IntroDiscoverySprite sprite;
 
-    /// <summary>The fragment, 0 through 5: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
-    private readonly int fragment;
+    /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
+    private readonly IntroEggShellFragment fragment;
 
     /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
     private int framesFallen;
@@ -19,18 +19,17 @@ internal sealed class IntroEggParticle
     private readonly ShellFragmentFallPastCurve fallPastCurve;
 
     /// <summary>Spawns one of six shell fragments at its compiled position with its selected animation.</summary>
-    /// <param name="index">The fragment, 0 through 5.</param>
+    /// <param name="fragment">Which piece of the shell to spawn.</param>
     /// <param name="fallPastCurve">The installed steps a fragment falls by once it has fallen past its gravity curve.</param>
-    public IntroEggParticle(int index, ShellFragmentFallPastCurve fallPastCurve)
+    public IntroEggParticle(IntroEggShellFragment fragment, ShellFragmentFallPastCurve fallPastCurve)
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
-        CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
-        fragment = index;
-        // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
-        // the two fixed biases. The compiled catalog is independently checked against all
+        CinematicActorDefinition definition = IntroEggParticleActors.Particle(fragment);
+        this.fragment = fragment;
+        // The compiled start of each fragment is independently checked against all
         // twelve authored values so this physical spawn does not read game data.
         sprite = new IntroDiscoverySprite(
-            IntroEggMotion.FragmentInitialPosition(index),
+            IntroEggMotion.FragmentInitialPosition(fragment),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);

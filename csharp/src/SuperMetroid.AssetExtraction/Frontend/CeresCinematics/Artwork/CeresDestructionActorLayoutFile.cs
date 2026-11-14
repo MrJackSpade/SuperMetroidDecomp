@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>Reads and writes the installed layout of the persistent actors behind Ceres's explosion.</summary>
 public static class CeresDestructionActorLayoutFile
 {
-    /// <summary>Loads the supported layout schema, requiring the three persistent actor IDs in spawn order and signed screen-pixel starting coordinates.</summary>
+    /// <summary>Loads the supported layout schema, requiring one placement for each of the three destruction roles at signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
     /// <returns>Validated persistent-actor placements, without changing asteroid motion/wrap, vortex behavior, explosion spawn events, or later Zebes artwork.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -28,20 +28,16 @@ public static class CeresDestructionActorLayoutFile
             throw new InvalidDataException("Invalid Ceres destruction actor layout JSON.", error);
         }
 
-        if (document.Version != CeresDestructionActorLayoutFormat.Version ||
-            document.Actors is not { Length: CeresDestructionActorDefinitions.InitialActorCount })
-            throw new InvalidDataException(
-                "Ceres destruction requires exactly three ordered actor placements.");
-        for (int index = 0; index < document.Actors.Length; index++)
+        if (document.Version != CeresDestructionActorLayoutFormat.Version || document.Actors is null)
+            throw new InvalidDataException("Ceres destruction requires a placement for each of its three actors.");
+        foreach (CeresDestructionActorPlacement placement in document.Actors)
         {
-            CeresDestructionActorPlacement placement = document.Actors[index];
-            if (placement is null ||
-                placement.Id != CeresDestructionActors.InitialPlacementId(index) ||
-                !CeresActorScreenCoordinate.IsSigned(placement.X) ||
-                !CeresActorScreenCoordinate.IsSigned(placement.Y))
+            if (placement is not null &&
+                (!CeresActorScreenCoordinate.IsSigned(placement.X) || !CeresActorScreenCoordinate.IsSigned(placement.Y)))
                 throw new InvalidDataException(
-                    $"Ceres destruction actor {index} must retain its identity and signed screen-pixel coordinates.");
+                    $"The Ceres destruction's {placement.Role} actor must start at signed screen-pixel coordinates.");
         }
+        // Each role must be placed exactly once; the placements reject a missing, repeated or unknown role.
         return new CeresDestructionActorPlacements(document.Actors);
     }
 

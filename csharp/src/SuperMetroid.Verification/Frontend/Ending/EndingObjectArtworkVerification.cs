@@ -63,7 +63,7 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Compares the six cloud compositions with native OAM.</summary>
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
-        string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
+        string[] names = ["top-cloud-pattern", "top-cloud-edge", "bottom-cloud-edge", "bottom-cloud-pattern", "right-side-cloud", "left-side-cloud"];
         var catalog = EndingCloudSpriteDefinitions.Frames;
         AssertEqual(6, catalog.Count, "cloud catalog count");
         for (int index = 0; index < catalog.Count; index++)
@@ -211,7 +211,7 @@ internal static class EndingObjectArtworkVerification
         AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Stage.Phase,
             "installed OBJ art retains the native completed-time credits handoff");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
-                phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
+                phases.Contains(EndingCreditsPhase.FadeInTopAndBottomCloudEscape) &&
                 phases.Contains(EndingCreditsPhase.FadeInZebesExplosion) &&
                 phases.Contains(EndingCreditsPhase.PlanetEscapeFast) &&
                 phases.Contains(EndingCreditsPhase.OperationSuccessfulText),
@@ -223,7 +223,7 @@ internal static class EndingObjectArtworkVerification
             JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
-        cloudDocument.Frames.Remove("scene-a-right");
+        cloudDocument.Frames.Remove("right-side-cloud");
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();

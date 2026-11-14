@@ -11,9 +11,9 @@ internal static class EndingCreditsPhaseGroups
     /// <summary>The escape from Zebes, before the planet's explosion fades in.</summary>
     internal static readonly FrozenSet<EndingCreditsPhase> BeforeZebesExplosion = new[]
     {
-        EndingCreditsPhase.SetupEscapeFromZebes, EndingCreditsPhase.WaitForEscapeMusic, EndingCreditsPhase.FadeInEscapeSceneA,
-        EndingCreditsPhase.EscapeSceneA, EndingCreditsPhase.FadeOutEscapeSceneA, EndingCreditsPhase.FadeInEscapeSceneB,
-        EndingCreditsPhase.EscapeSceneB, EndingCreditsPhase.FadeOutEscapeSceneB,
+        EndingCreditsPhase.SetupEscapeFromZebes, EndingCreditsPhase.WaitForEscapeMusic, EndingCreditsPhase.FadeInSideCloudEscape,
+        EndingCreditsPhase.SideCloudEscape, EndingCreditsPhase.FadeOutSideCloudEscape, EndingCreditsPhase.FadeInTopAndBottomCloudEscape,
+        EndingCreditsPhase.TopAndBottomCloudEscape, EndingCreditsPhase.FadeOutTopAndBottomCloudEscape,
     }.ToFrozenSet();
 
     /// <summary>The escape and the explosion's fade-in and crossfade, before the explosion's hold.</summary>

@@ -20,11 +20,11 @@ public static class EndingMotionDefinitions
     /// <summary>The zoom at which escape scenes A and B begin fading out: one and a half floor pixels per screen pixel.</summary>
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
-    /// <summary>The zoom enabling side-cloud motion in escape scene A.</summary>
+    /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>
     public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(96);
 
-    /// <summary>The zoom below which scene B's top and bottom clouds keep moving.</summary>
-    public static FloorZoom CloudSceneBZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(176);
+    /// <summary>The zoom below which the top-and-bottom-cloud escape's clouds keep moving.</summary>
+    public static FloorZoom TopAndBottomCloudZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(176);
 
     /// <summary>The space view's initial zoom for the gunship's emergence: twelve floor pixels per screen pixel.</summary>
     public static FloorZoom PlanetEscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(12);

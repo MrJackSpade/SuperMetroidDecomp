@@ -11,10 +11,10 @@ internal static class TitleCards
         TitleSequencePhase.NintendoText => TitleCardDefinitions.Nintendo,
         TitleSequencePhase.PresentsText => TitleCardDefinitions.Presents,
         TitleSequencePhase.MetroidThreeText => TitleCardDefinitions.MetroidThree,
-        TitleSequencePhase.SceneZeroPan or
-            TitleSequencePhase.SceneOnePan or
-            TitleSequencePhase.SceneTwoPan or
-            TitleSequencePhase.SceneThreeZoom or
+        TitleSequencePhase.LowerPan or
+            TitleSequencePhase.UpperPan or
+            TitleSequencePhase.DownwardPan or
+            TitleSequencePhase.FinalZoom or
             TitleSequencePhase.TitleLogoFade or
             TitleSequencePhase.CopyrightFade or
             TitleSequencePhase.TitleScreenFadeIn or

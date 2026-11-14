@@ -12,8 +12,8 @@ public static class EndingFloorDefinitions
     /// <summary>The installed sheet of each shot's floor, coloured with the palette its scene loads.</summary>
     public static IReadOnlyDictionary<EndingFloorShot, SpriteSheetId> Sheets { get; } = new Dictionary<EndingFloorShot, SpriteSheetId>
     {
-        [EndingFloorShot.EscapeA] = SpriteSheetId.EndingEscapeAFloor,
-        [EndingFloorShot.EscapeB] = SpriteSheetId.EndingEscapeBFloor,
+        [EndingFloorShot.SideCloudEscape] = SpriteSheetId.EndingSideCloudEscapeFloor,
+        [EndingFloorShot.TopAndBottomCloudEscape] = SpriteSheetId.EndingTopAndBottomCloudEscapeFloor,
         [EndingFloorShot.PlanetExplosion] = SpriteSheetId.EndingPlanetExplosionFloor,
         [EndingFloorShot.Flyaway] = SpriteSheetId.EndingFlyawayFloor,
         [EndingFloorShot.RewardIcon] = SpriteSheetId.EndingRewardIconFloor,
@@ -22,8 +22,8 @@ public static class EndingFloorDefinitions
     /// <summary>The scenery each shot's floor is, which names the colour effects it shows (#1544).</summary>
     public static IReadOnlyDictionary<EndingFloorShot, EndingScenery> Scenery { get; } = new Dictionary<EndingFloorShot, EndingScenery>
     {
-        [EndingFloorShot.EscapeA] = EndingScenery.EscapeSceneAFloor,
-        [EndingFloorShot.EscapeB] = EndingScenery.EscapeSceneBFloor,
+        [EndingFloorShot.SideCloudEscape] = EndingScenery.SideCloudEscapeFloor,
+        [EndingFloorShot.TopAndBottomCloudEscape] = EndingScenery.TopAndBottomCloudEscapeFloor,
         [EndingFloorShot.PlanetExplosion] = EndingScenery.PlanetExplosionFloor,
         [EndingFloorShot.Flyaway] = EndingScenery.FlyawayFloor,
         [EndingFloorShot.RewardIcon] = EndingScenery.PostCreditsShotFloor,

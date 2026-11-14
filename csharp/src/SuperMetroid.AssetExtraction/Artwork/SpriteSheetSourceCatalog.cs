@@ -125,7 +125,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
             SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
-            SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
+            SpriteSheetId.EndingSideCloudEscapeFloor or SpriteSheetId.EndingTopAndBottomCloudEscapeFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
             SpriteSheetId.EndingRewardIconFloor =>
             SamusSheetSources.For(samus.Value, sheet),

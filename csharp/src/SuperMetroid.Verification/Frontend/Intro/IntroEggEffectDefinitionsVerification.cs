@@ -13,25 +13,28 @@ internal static class IntroEggEffectDefinitionsVerification
     internal static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
-            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggParticleActors.Particle(index),
-                $"intro egg particle {index}");
+        // The hatching egg spawns its shell's pieces from consecutive definitions, in spawn order.
+        IReadOnlyList<IntroEggShellFragment> fragments = IntroEggEffectDefinitions.ShellFragments;
+        AssertEqual(Enum.GetValues<IntroEggShellFragment>().Length, fragments.Distinct().Count(), "the egg spawns each piece of its shell once");
+        for (int index = 0; index < fragments.Count; index++)
+            VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggParticleActors.Particle(fragments[index]),
+                $"intro egg shell {fragments[index]}");
         Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, 0xcef1, IntroEggEffectDefinitions.SlimeDrop,
             "intro egg slime drop"));
         AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroEggParticleActors.Particle(IntroEggEffectDefinitions.ParticleCount),
-            "intro egg particle definition boundary");
+            () => IntroEggParticleActors.Particle((IntroEggShellFragment)fragments.Count),
+            "intro egg particle definition rejects an undefined fragment");
 
         var guarded = NewIntroEggEffectDefinitionGuard(retail);
-        var particles = Enumerable.Range(0, IntroEggEffectDefinitions.ParticleCount)
-            .Select(index => new IntroEggParticle((byte)index, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve))
+        var particles = fragments
+            .Select(fragment => new IntroEggParticle(fragment, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve))
             .ToArray();
         for (int index = 0; index < particles.Length; index++)
         {
             particles[index].Step();
             var sprite = particles[index].sprite;
             AssertEqual((ushort)(0x8f7e + index * 7), CinematicSpritePoseSpritemaps.Of(sprite.Pose),
-                $"intro egg fragment {index} selects its own first visual frame");
+                $"intro egg shell {fragments[index]} selects its own first visual frame");
         }
         for (int frame = 0; frame < 128 && particles.Any(static actor => actor.IsActive); frame++)
             foreach (IntroEggParticle particle in particles)

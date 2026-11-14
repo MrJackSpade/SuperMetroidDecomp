@@ -8,8 +8,9 @@ public sealed record CeresRevealActorPlacement
     [System.Text.Json.Serialization.JsonIgnore]
     public Position16<ScreenPixels> Position => Position16<ScreenPixels>.Wrapped(X, Y);
 
-    /// <summary>Case-sensitive presentation role, required to match its fixed index among the installed reveal layout's actors.</summary>
-    public required string Id { get; init; }
+    /// <summary>The actor the placement places, by what it shows (#1768): its installed key.</summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<ZebesRevealActorRole>))]
+    public required ZebesRevealActorRole Role { get; init; }
     /// <summary>Initial horizontal screen-pixel coordinate, -32768 through 32767, negative left of the screen (#1627); not a room-world or block coordinate.</summary>
     public required int X { get; init; }
     /// <summary>Initial vertical screen-pixel coordinate, -32768 through 32767, negative above the screen (#1627); increases downward.</summary>

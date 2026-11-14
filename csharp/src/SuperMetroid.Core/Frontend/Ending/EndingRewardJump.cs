@@ -144,8 +144,8 @@ internal sealed class EndingRewardJump
             case CinematicSpriteCueKind.SpawnMinutesTens:
             case CinematicSpriteCueKind.SpawnMinutesUnits:
             case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnRinkas0And1:
-            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
+            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
             case CinematicSpriteCueKind.SpawnSuitedJump:
             case CinematicSpriteCueKind.SpawnSuitlessJump:
             case CinematicSpriteCueKind.StartFlyingToZebes:

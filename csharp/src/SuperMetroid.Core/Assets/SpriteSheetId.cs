@@ -131,10 +131,10 @@ public enum SpriteSheetId
     TitleFloor,
     /// <summary>The Ceres flight's and destruction's turning floor in each of their shots, under the flight's palette (#1392, #1467).</summary>
     CeresFloor,
-    /// <summary>The ending's first escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
-    EndingEscapeAFloor,
-    /// <summary>The ending's second escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
-    EndingEscapeBFloor,
+    /// <summary>The ending's side-cloud escape's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingSideCloudEscapeFloor,
+    /// <summary>The ending's top-and-bottom-cloud escape's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingTopAndBottomCloudEscapeFloor,
     /// <summary>The ending's planet explosion's turning floor under the explosion palette (#1392, #1467).</summary>
     EndingPlanetExplosionFloor,
     /// <summary>The flyaway gunship's turning floor under the escape palette (#1392, #1467).</summary>

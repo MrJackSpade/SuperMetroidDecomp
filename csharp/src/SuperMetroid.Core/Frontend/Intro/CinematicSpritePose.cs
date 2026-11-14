@@ -108,18 +108,18 @@ public enum CinematicSpritePose
     LargeBlast2,
     /// <summary>Large blast 3.</summary>
     LargeBlast3,
-    /// <summary>Egg fragment 0.</summary>
-    EggFragment0,
-    /// <summary>Egg fragment 1.</summary>
-    EggFragment1,
-    /// <summary>Egg fragment 2.</summary>
-    EggFragment2,
-    /// <summary>Egg fragment 3.</summary>
-    EggFragment3,
-    /// <summary>Egg fragment 4.</summary>
-    EggFragment4,
-    /// <summary>Egg fragment 5.</summary>
-    EggFragment5,
+    /// <summary>The piece at the upper left of the egg's shell.</summary>
+    EggShellUpperLeft,
+    /// <summary>The piece at the upper right of the egg's shell.</summary>
+    EggShellUpperRight,
+    /// <summary>The piece at the left of the egg's shell.</summary>
+    EggShellLeft,
+    /// <summary>The piece at the centre of the egg's shell.</summary>
+    EggShellCentre,
+    /// <summary>The piece at the right of the egg's shell.</summary>
+    EggShellRight,
+    /// <summary>The piece at the bottom of the egg's shell.</summary>
+    EggShellLower,
     /// <summary>Slime moving.</summary>
     SlimeMoving,
     /// <summary>Slime impact 0.</summary>
@@ -324,18 +324,18 @@ public enum CinematicSpritePose
     EscapePod2,
     /// <summary>Escape pod 3.</summary>
     EscapePod3,
-    /// <summary>Cloud scene b upper a.</summary>
-    CloudSceneBUpperA,
-    /// <summary>Cloud scene b upper b.</summary>
-    CloudSceneBUpperB,
-    /// <summary>Cloud scene b lower a.</summary>
-    CloudSceneBLowerA,
-    /// <summary>Cloud scene b lower b.</summary>
-    CloudSceneBLowerB,
-    /// <summary>Cloud scene a right.</summary>
-    CloudSceneARight,
-    /// <summary>Cloud scene a left.</summary>
-    CloudSceneALeft,
+    /// <summary>The upper clouds' pattern, above their edge.</summary>
+    TopCloudPattern,
+    /// <summary>The upper clouds' lower edge.</summary>
+    TopCloudEdge,
+    /// <summary>The lower clouds' upper edge.</summary>
+    BottomCloudEdge,
+    /// <summary>The lower clouds' pattern, below their edge.</summary>
+    BottomCloudPattern,
+    /// <summary>The cloud passing on the right of the side-cloud escape.</summary>
+    RightSideCloud,
+    /// <summary>The cloud passing on the left of the side-cloud escape.</summary>
+    LeftSideCloud,
     /// <summary>Suitless idle upper.</summary>
     SuitlessIdleUpper,
     /// <summary>Suitless lower.</summary>

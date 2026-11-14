@@ -154,9 +154,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
-        // The game exchanges the height's two halves; every authored height is below 256 pixels, so that
-        // makes the height the whole part of a 1/256-pixel distance.
-        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
+        // The search sums distances in 256ths of a pixel, so the jump height is compared in the same units.
+        int jumpHeight = UnsignedEightEight.FromParts(whole: hop.JumpHeight, fraction: 0);
 
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
@@ -167,7 +166,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             // find the initial curve mark.
             distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
-            if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
+            if (!WrappingCounter.IsBehind(jumpHeight, distanceAccumulator))
                 continue;
 
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator);
@@ -268,9 +267,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the constant-speed collision fall.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        int packed = Hop(state).YIndexDelta;
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(packed);
-        if (!_terrain.MoveEnemyVertically(level, slot, displacement))
+        if (!_terrain.MoveEnemyVertically(level, slot, PuyoHopDefinitions.DropSpeed))
             return;
 
         // The bounce picks one of the two dropped bounce heights from the same advanced hop roll.
@@ -322,7 +319,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
         SetPuyoAirborneAnimation(slot, state);
 
-        state.StepAirbornePlace(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Hop(state).YIndexDelta));
+        state.StepAirbornePlace(Hop(state).CurveStep);
 
         // X speed is authored as 1/256 pixels, but the Japanese and North American release moves it by the whole pixels only
         // and zeroes the subspeed; only the European release uses the fraction. The giant

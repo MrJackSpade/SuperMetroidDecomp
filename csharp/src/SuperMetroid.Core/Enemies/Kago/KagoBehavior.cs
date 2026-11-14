@@ -363,7 +363,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugWaiting;
-        projectile.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
+        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));
         return true;
     }
 

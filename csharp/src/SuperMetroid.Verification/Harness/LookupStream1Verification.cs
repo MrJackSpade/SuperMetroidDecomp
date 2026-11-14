@@ -1116,14 +1116,12 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForSlot(invalid), "spread native slot rejection");
-        for (int index = 0; index < 22; index++)
+        for (int index = 0; index < HibashiDefinitions.EruptionSteps.Length; index++)
         {
-            var frame = HibashiEruption.ActivityFrame(index);
+            var frame = HibashiDefinitions.EruptionSteps[index];
             AssertEqual(Word(0xa68dbb + index * 2), frame.YOffset, "Hibashi native collision rise");
             AssertEqual(Word(0xa68de7 + index * 2), frame.YRadius, "Hibashi native collision radius");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 22, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HibashiEruption.ActivityFrame(invalid), "Hibashi native frame rejection");
         for (ushort selector = 0; selector < 6; selector++)
         {
             AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, DragonNativeWords.Animations.Decode(selector, "Dragon animation ordinal")), "Dragon native phase/facing program");

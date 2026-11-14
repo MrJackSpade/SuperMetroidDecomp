@@ -18,4 +18,6 @@ internal enum KagoBugProjectileSegment
     JumpLoop,
     /// <summary>The shot animation.</summary>
     Shot,
+    /// <summary>The still pose a new bug holds while it waits to make its first jump.</summary>
+    Waiting,
 }

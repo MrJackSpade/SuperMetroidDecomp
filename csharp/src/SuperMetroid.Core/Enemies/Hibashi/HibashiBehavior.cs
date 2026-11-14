@@ -34,9 +34,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             case HibashiCueKind.PlayEruptionSound:
                 PlayHibashiEruptionSound();
                 break;
-            case HibashiCueKind.ActivityFrame:
-                // Each of the 22 activity cues selects the correspondingly indexed Y-offset/radius pair.
-                ApplyHibashiActivityFrame(slot, cue.Value);
+            case HibashiCueKind.EruptionStep:
+                ApplyHibashiEruptionStep(slot, cue.Step ?? throw new InvalidOperationException("A Hibashi rising cue names no eruption step."));
                 break;
             case HibashiCueKind.FinishActivity:
                 FinishHibashiActivity(slot);
@@ -134,22 +133,17 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the activity cues. The 22 cues differ only by their
-    /// direct activity index; frame zero additionally restores the fixed eight-pixel X
-    /// radius.
+    /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
+    /// half-height, and the first step its eight-pixel half-width.
     /// </summary>
-    internal void ApplyHibashiActivityFrame(RoomEnemySlot graphics, int frameIndex)
+    internal void ApplyHibashiEruptionStep(RoomEnemySlot graphics, HibashiEruptionStep step)
     {
-        if ((uint)frameIndex >= 22)
-            throw new ArgumentOutOfRangeException(nameof(frameIndex));
-
         HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
-        HibashiActivityDefinition frame = HibashiEruption.ActivityFrame(frameIndex);
         hitbox.Position = hitbox.Position.WithWrappedWholeY(
-            state.SpawnHeight.Y - frame.YOffset);
-        hitbox.Radius = hitbox.Radius.WithY(frame.YRadius);
-        if (frameIndex == 0)
+            state.SpawnHeight.Y - step.YOffset);
+        hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
+        if (step.RestoresWidth)
             hitbox.Radius = hitbox.Radius.WithX(8);
     }
 

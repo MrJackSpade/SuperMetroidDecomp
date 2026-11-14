@@ -19,6 +19,8 @@ internal static class KagoBugProjectileNativeListAddresses
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.JumpStart, 0xd052),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.JumpLoop, 0xd05c),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Shot, 0xd064),
+        // A new bug waits on the list Kraid's rocks share; the port gives it its own animation of that pose.
+        new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Waiting, 0x9c7d),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:D03C-D07F, which production must never read.</summary>

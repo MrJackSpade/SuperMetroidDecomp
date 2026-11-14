@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -57,7 +56,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing GunshipDust =
         new(ComposedEncounter.Gunship, [GunshipTakeoffDefinitions.TakeoffLook.Name])
         {
-            Projectiles = [.. GunshipDustVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. GunshipDustAnimations.Segments.Frames],
         };
 
     /// <summary>Crocomire's skeleton, shown only once his death has bared it.</summary>

@@ -56,6 +56,10 @@ internal static class KagoBugProjectileAnimations
             Show(EnemyProjectileFrameId.KagoBugShotFifth, 4),
             Cue(new(K.SpawnDrop)),
         ],
+        [P.Waiting] =
+        [
+            Hold(EnemyProjectileFrameId.KraidRockSharedPoseFirst),
+        ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -67,6 +71,7 @@ internal static class KagoBugProjectileAnimations
         [P.JumpStart] = new([new(P.JumpStart, 0, 3, 1), new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.JumpLoop] = new([new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Shot] = new([new(P.Shot, 0, 7, 1), new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Waiting] = new([new(P.Waiting, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

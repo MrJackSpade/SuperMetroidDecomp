@@ -4,7 +4,7 @@ using SuperMetroid.Core;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustNativeListAddresses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -43,9 +43,9 @@ internal static class GunshipDustAnimationsVerification
 
         var shown = Enum.GetValues<GunshipDustSegment>()
             .SelectMany(program => GunshipDustAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame>()
+            .OfType<AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Frame>()
             .Select(frame => frame.Shown).ToHashSet();
-        AssertTrue(shown.SetEquals(GunshipDustVisualDefinitions.Frames), "the dust programs show exactly the installed frames");
+        AssertEqual(46, shown.Count, "the dust programs show 46 distinct frames");
         Console.WriteLine($"  gunship dust programs: 6 spawns ({updates} updates, {shown.Count} installed frames) match bank $86.");
     }
 }

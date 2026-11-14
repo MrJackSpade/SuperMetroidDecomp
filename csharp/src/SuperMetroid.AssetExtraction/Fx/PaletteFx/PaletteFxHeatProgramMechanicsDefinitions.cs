@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -21,20 +21,20 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
     /// <summary>Compiled heat palette control for the Power Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Power = new()
     {
-        Suit = PaletteFxHeatSuit.Power,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatPowerSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        Suit = ColourEffectHeatSuit.Power,
+        ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.SamusInHeatPowerSuit, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Varia Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new()
     {
-        Suit = PaletteFxHeatSuit.Varia,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatVariaSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        Suit = ColourEffectHeatSuit.Varia,
+        ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.SamusInHeatVariaSuit, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new()
     {
-        Suit = PaletteFxHeatSuit.Gravity,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatGravitySuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        Suit = ColourEffectHeatSuit.Gravity,
+        ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.SamusInHeatGravitySuit, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
 
     /// <summary>The Power, Varia, and Gravity programs in selection order.</summary>

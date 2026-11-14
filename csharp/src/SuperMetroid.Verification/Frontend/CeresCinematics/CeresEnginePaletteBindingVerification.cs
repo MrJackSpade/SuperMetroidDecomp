@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -85,7 +85,7 @@ internal static class CeresEnginePaletteBindingVerification
         static RgbColor EngineColour(CeresDestructionCinematicState owner, SpriteSheet floor)
         {
             PictureShade shade = owner.FloorShading.Shades.Single();
-            AssertEqual(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, new PaletteFxFrame(PaletteFxSegment.CutsceneGunshipEngineFlicker1, 0)).Effect, shade.Effect,
+            AssertEqual(ColourEffectShades.Of(ColourEffectColours.CutsceneGunshipEngine, new ColourEffectFrame(ColourEffectAnimation.CutsceneGunshipEngineFlicker, 0)).Effect, shade.Effect,
                 "the floor's shading names the gunship engine flicker's record");
             return floor.Image.Shade(shade).Substitutions.Single().Shown;
         }

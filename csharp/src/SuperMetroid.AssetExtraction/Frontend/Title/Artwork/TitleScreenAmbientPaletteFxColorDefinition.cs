@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -14,7 +14,7 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
     /// <summary>Semantic title-palette owner selecting the tube or the displays definition; not a runtime palette-object slot index.</summary>
     public required TitleScreenAmbientPaletteFxProgramOwner Owner { get; init; }
     /// <summary>The colours the program animates.</summary>
-    public required PaletteFxColours Colours { get; init; }
+    public required ColourEffectColours Colours { get; init; }
     /// <summary>Timed palette-image records per loop: eight tube shades or two display states, distinct from the number of palette updates spent in the loop.</summary>
     public required int FrameCount { get; init; }
     /// <summary>Editable packed RGB5 words per timed record: four for the tube light or two for the displays, excluding duration and wait control words.</summary>

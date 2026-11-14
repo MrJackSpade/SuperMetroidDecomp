@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres;

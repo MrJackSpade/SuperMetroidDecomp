@@ -6,7 +6,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses;
@@ -35,7 +35,7 @@ internal sealed class BossFrameResultBuilder
     /// <summary>Spore Spawn's ceiling room object.</summary>
     internal SporeSpawnCeilingMutation? SporeSpawnCeiling { get; set; }
 
-    /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>
+    /// <summary>The belly glow a Torizo's fight start asks the colour effect handler for, or null.</summary>
     internal TorizoBellyGlowRequest? TorizoBellyGlow { get; set; }
 
     /// <summary>Phantoon's door change (#1678): the fight's door as the starting flames close in, or the restored door.</summary>

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -41,8 +41,8 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>The statue's eye, where its release's eye glow and soul appear, and the glow it lights.</summary>
     public required TourianStatueEye Eye { get; init; }
 
-    /// <summary>The palette-FX object spawned during release.</summary>
-    public required PaletteFxObject PaletteFx { get; init; }
+    /// <summary>The colour effect spawned during release.</summary>
+    public required ColourEffectId ColourEffect { get; init; }
 
     /// <summary>The statue greyed, which it shows once its eight colours take the common grey colours (#1512).</summary>
     public required PictureShade GreyShade { get; init; }

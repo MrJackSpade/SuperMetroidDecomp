@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -14,7 +14,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     /// <summary>The mutually exclusive environmental palette owner.</summary>
     public required NorfairEnvironmentalPaletteOwner Owner { get; init; }
     /// <summary>The palette-FX object that installs this program.</summary>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
     /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
     public required bool PublishesHeatPhase { get; init; }
 

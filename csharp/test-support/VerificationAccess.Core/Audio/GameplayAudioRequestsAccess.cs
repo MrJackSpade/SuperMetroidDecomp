@@ -79,7 +79,7 @@ internal static class GameplayAudioRequestsAccess
     }
 
     /// <summary>Reads the colour effects' sound requests.</summary>
-    extension(RoomPaletteFxSystem self)
+    extension(ColourEffectSystem self)
     {
         /// <summary>The update's sound requests in the record the colour effects' sounds join, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;

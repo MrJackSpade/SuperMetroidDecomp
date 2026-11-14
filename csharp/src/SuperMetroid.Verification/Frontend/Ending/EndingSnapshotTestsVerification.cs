@@ -10,7 +10,7 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using System.Collections.Immutable;
@@ -297,7 +297,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                 {
                     gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
-                        .Where(shade => shade.Effect == PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(PaletteFxSegment.GunshipEmergingFromZebesExplosion, 0)).Effect)));
+                        .Where(shade => shade.Effect == ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion, new ColourEffectFrame(ColourEffectAnimation.GunshipEmergingFromZebesExplosion, 0)).Effect)));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? WhiteWash.Steps : Math.Max(0, WhiteWash.Steps - 1 - (elapsed - 193) / 8);
                     var flight = Live();

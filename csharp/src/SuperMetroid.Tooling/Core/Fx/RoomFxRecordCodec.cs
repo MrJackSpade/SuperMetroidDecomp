@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;
 
@@ -210,12 +210,12 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// The palette effects a record's palette-effect byte starts in a room of <paramref name="area"/>, in ascending bit
-    /// order, leaving out <see cref="PaletteFxObject.Nothing"/>, whose program only stops.
+    /// order, leaving out <see cref="ColourEffectId.Nothing"/>, whose program only stops.
     /// </summary>
-    internal static ImmutableArray<PaletteFxObject> PaletteEffects(AreaId area, byte value) =>
+    internal static ImmutableArray<ColourEffectId> PaletteEffects(AreaId area, byte value) =>
         [.. SetBits(value).Select(bit => AreaPaletteFxObjects.Read(area, bit) ?? throw new InvalidDataException(
                 $"A {area} record sets palette-effect bit {bit}, which selects the glow copy no retail room sets."))
-            .Where(effect => effect != PaletteFxObject.Nothing)];
+            .Where(effect => effect != ColourEffectId.Nothing)];
 
     /// <summary>
     /// The animated-tile objects a record's animated-tile byte starts in a room of <paramref name="area"/>, in ascending

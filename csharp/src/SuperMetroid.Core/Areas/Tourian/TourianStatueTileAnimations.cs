@@ -42,7 +42,7 @@ internal static class TourianStatueTileAnimations
                 Cue(new(K.SpawnEyeGlow)),
                 Show(F.Released, 192),
                 Cue(new(K.SpawnSoul)),
-                Cue(new(K.SpawnGreyPaletteFx)),
+                Cue(new(K.SpawnGreyColourEffect)),
                 Show(F.Released, 128),
                 Cue(new(K.SetGreyEvent)),
                 Cue(new(K.FinishRelease)),

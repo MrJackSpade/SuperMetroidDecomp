@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -21,14 +21,14 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
         new()
         {
             Owner = BrinstarBlueSporePaletteOwner.StandardRooms,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.BrinstarBlueBackgroundSporesCycle, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.BrinstarBlueBackgroundSpores, ColorsPerFrame),
         };
     /// <summary>The Spore Spawn entry that deletes itself after the area's mini-boss dies.</summary>
     private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
         new()
         {
             Owner = BrinstarBlueSporePaletteOwner.SporeSpawnRoom,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SporeSpawnBlueBackgroundSporesCycle, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.SporeSpawnBlueBackgroundSpores, ColorsPerFrame),
         };
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>

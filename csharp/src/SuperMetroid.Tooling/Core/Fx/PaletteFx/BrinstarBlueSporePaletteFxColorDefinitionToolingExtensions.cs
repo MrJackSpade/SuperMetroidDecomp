@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Development-tool instance members of <see cref="BrinstarBlueSporePaletteFxColorDefinition"/>.</summary>
 internal static class BrinstarBlueSporePaletteFxColorDefinitionToolingExtensions

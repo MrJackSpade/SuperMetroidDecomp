@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Zebes exploding in the ending: the finale and burst displays and the crossfade between them.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingZebesExplosion
 {
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
@@ -56,7 +56,7 @@ internal sealed class EndingZebesExplosion
         // The cloud palette effects end before the crossfade begins; otherwise their next record would show over it.
         // The crossfade fades the escape's far background out and the explosion's planet and lava in, from colours the
         // import scales at every level (#1512).
-        _stage.ResetPaletteFx();
+        _stage.ResetColourEffects();
         explosionFadeStep = 0;
         screen.Colours.Fade(EndingFade.ExplosionLava, 0);
         screen.Colours.Fade(EndingFade.ExplodingPlanet, 0);

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
@@ -122,7 +122,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
         AssertEqual("blend-EE", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
-        AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([PaletteFxObject.BeaconFlashing], AreaId.Crateria),
+        AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([ColourEffectId.BeaconFlashing], AreaId.Crateria),
             "Crateria's eighth palette effect");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }

@@ -34,7 +34,7 @@ public sealed class SamusDrainedState
     /// The drained Samus's Hyper Beam glow colouring. It animates the glow's colours independently of the earlier
     /// full-body rainbow colouring.
     /// </summary>
-    public HyperBeamPaletteFxState HyperBeamPaletteFx { get; } = new();
+    public HyperBeamColourEffectState HyperBeamColourEffect { get; } = new();
 
     /// <summary>
     /// The super-special-palette flag, set by the rainbow start and cleared
@@ -378,7 +378,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Wave |
             SamusBeamFlags.Plasma;
         samus.HyperBeamEnabled = true;
-        HyperBeamPaletteFx.Spawn();
+        HyperBeamColourEffect.Spawn();
         samus.ResumeChargingBeamSoundPending = false;
     }
 

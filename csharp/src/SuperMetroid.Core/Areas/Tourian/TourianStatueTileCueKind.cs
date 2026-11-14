@@ -31,7 +31,7 @@ internal enum TourianStatueTileCueKind
     SpawnSoul,
 
     /// <summary>Spawns the palette effect that greys the statue out.</summary>
-    SpawnGreyPaletteFx,
+    SpawnGreyColourEffect,
 
     /// <summary>Sets the statue's grey event.</summary>
     SetGreyEvent,

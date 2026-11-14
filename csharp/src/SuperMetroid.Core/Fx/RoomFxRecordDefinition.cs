@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -24,7 +24,7 @@ public sealed record RoomFxRecordDefinition(
     RoomVisorAnimation VisorAnimation,
     RoomEffectBlend? EffectBlend,
     RoomLiquid? Liquid,
-    ImmutableArray<PaletteFxObject> PaletteEffects,
+    ImmutableArray<ColourEffectId> PaletteEffects,
     ImmutableArray<AnimatedTileObject> AnimatedTiles,
     RoomFxPaletteBlend PaletteBlend)
 {

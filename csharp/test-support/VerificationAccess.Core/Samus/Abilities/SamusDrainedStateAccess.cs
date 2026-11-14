@@ -11,6 +11,6 @@ internal static class SamusDrainedStateAccess
         /// True after controller function three writes equipped beams <c>$1009</c>, writes
         /// hyper-beam flag <c>$8000</c>, and spawns the persistent bank-$8D palette object.
         /// </summary>
-        internal bool HyperBeamPaletteFxRequested => self.HyperBeamPaletteFx.IsActive;
+        internal bool HyperBeamPaletteFxRequested => self.HyperBeamColourEffect.IsActive;
     }
 }

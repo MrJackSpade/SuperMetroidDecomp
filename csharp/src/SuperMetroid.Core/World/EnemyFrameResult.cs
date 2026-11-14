@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 
@@ -28,4 +28,4 @@ public readonly record struct EnemyFrameResult(
     bool StopLiquidMotion,
     GunshipFrameEvent Gunship,
     EnemyRoomEffectRequests RoomEffects,
-    PaletteFxObject? ColourEffect);
+    ColourEffectId? ColourEffect);

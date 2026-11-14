@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
 
@@ -9,5 +9,5 @@ internal static class GunshipLightDefinitions
     /// The colour effect the top hull's placement starts, on every placement: its lights' glow over the colour every piece
     /// draws its lights in, which runs for as long as the room does.
     /// </summary>
-    internal const PaletteFxObject Glow = PaletteFxObject.GunshipGlow;
+    internal const ColourEffectId Glow = ColourEffectId.GunshipGlow;
 }

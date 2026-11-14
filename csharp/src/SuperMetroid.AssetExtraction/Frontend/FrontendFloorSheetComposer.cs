@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -104,10 +104,10 @@ internal static class FrontendFloorSheetComposer
         ComposedSpriteSheet floor = FloorSheetComposer.Compose(pictures, ScreenPaletteColours.TitleColours(palette));
         // The floor shows each record the console lights show (#1512), over the inks each light recolours.
         var shades = new List<SheetShade>();
-        foreach (PaletteFxColours light in TitleSheetInks.FloorLights)
+        foreach (ColourEffectColours light in TitleSheetInks.FloorLights)
         {
             shades.AddRange(PaletteFxScreenShades.Of(
-                [TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, TitleSequenceDefinitions.ConsolePaletteFx.FastLights],
+                [TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, TitleSequenceDefinitions.ConsoleColourEffects.FastLights],
                 light, TitleSheetInks.FloorLight(light), palette));
         }
         return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(shades) } };

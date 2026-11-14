@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Animation;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// Verification access: the cartridge colour a palette-FX colour group starts at (#1464), for checks that compare
@@ -15,40 +15,40 @@ internal static class PaletteFxColoursPositions
     /// cinematic screen's set colour, Samus's suit or beam colour, or an enemy sprite set's colour. Core holds no colour
     /// positions (#1512); the import pre-colours each record as a shade, and native checks place the group here.
     /// </summary>
-    private static readonly Dictionary<PaletteFxColours, int> NativeStarts = new()
+    private static readonly Dictionary<ColourEffectColours, int> NativeStarts = new()
     {
-        [PaletteFxColours.BabyMetroidTubeLight] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 10,
-        [PaletteFxColours.TitleScreenDisplays] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 14,
-        [PaletteFxColours.CutsceneGunshipEngine] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 15,
-        [PaletteFxColours.CeresNavigationLightsBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 6 * GameplayColourPositionDefinitions.SetColours + 13,
-        [PaletteFxColours.OldMotherBrainBackgroundLights] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 4,
-        [PaletteFxColours.WideZebesExplosionForeground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.WideZebesExplosionBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.ZebesExplosionFinale] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.SpaceDuringZebesExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.ExplodingZebesLava] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.ExplodingZebesCrust] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.TitleLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.PlanetZebesText] = GameplayColourPositionDefinitions.SpriteSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.GunshipGlow] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 15,
-        [PaletteFxColours.ZoomedOutExplodingZebes] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.PostCreditsSuperMetroidIcon] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.NintendoCopyright] = GameplayColourPositionDefinitions.SamusSuitFirst + 9,
-        [PaletteFxColours.SamusLoadingSuit] = GameplayColourPositionDefinitions.SamusSuitFirst + 0,
-        [PaletteFxColours.HeatSuitGlow] = GameplayColourPositionDefinitions.SamusSuitFirst + 1,
-        [PaletteFxColours.CeresNavigationLightsSprite] = GameplayColourPositionDefinitions.SamusBeamsFirst + 13,
-        [PaletteFxColours.ZebesPlanetAfterglow] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
-        [PaletteFxColours.HyperBeam] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
-        [PaletteFxColours.RidleyStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.PhantoonStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 0,
-        [PaletteFxColours.TorizoBelly] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
-        [PaletteFxColours.TourianShutters] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
+        [ColourEffectColours.BabyMetroidTubeLight] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 10,
+        [ColourEffectColours.TitleScreenDisplays] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 14,
+        [ColourEffectColours.CutsceneGunshipEngine] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 15,
+        [ColourEffectColours.CeresNavigationLightsBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 6 * GameplayColourPositionDefinitions.SetColours + 13,
+        [ColourEffectColours.OldMotherBrainBackgroundLights] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 4,
+        [ColourEffectColours.WideZebesExplosionForeground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.WideZebesExplosionBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.ZebesExplosionFinale] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.SpaceDuringZebesExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.ExplodingZebesLava] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.ExplodingZebesCrust] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.TitleLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.PlanetZebesText] = GameplayColourPositionDefinitions.SpriteSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [ColourEffectColours.GunshipGlow] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 15,
+        [ColourEffectColours.ZoomedOutExplodingZebes] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.PostCreditsSuperMetroidIcon] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.NintendoCopyright] = GameplayColourPositionDefinitions.SamusSuitFirst + 9,
+        [ColourEffectColours.SamusLoadingSuit] = GameplayColourPositionDefinitions.SamusSuitFirst + 0,
+        [ColourEffectColours.HeatSuitGlow] = GameplayColourPositionDefinitions.SamusSuitFirst + 1,
+        [ColourEffectColours.CeresNavigationLightsSprite] = GameplayColourPositionDefinitions.SamusBeamsFirst + 13,
+        [ColourEffectColours.ZebesPlanetAfterglow] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
+        [ColourEffectColours.HyperBeam] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
+        [ColourEffectColours.RidleyStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.PhantoonStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 0,
+        [ColourEffectColours.TorizoBelly] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
+        [ColourEffectColours.TourianShutters] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
     };
 
     /// <summary>Native view of a palette-FX colour group.</summary>
-    extension(PaletteFxColours self)
+    extension(ColourEffectColours self)
     {
         /// <summary>The cartridge colour the group's first written colour is.</summary>
         internal int CartridgeColour
@@ -64,17 +64,17 @@ internal static class PaletteFxColoursPositions
     }
 
     /// <summary>The colour groups a palette-FX object's programs name.</summary>
-    extension(PaletteFxObject self)
+    extension(ColourEffectId self)
     {
         /// <summary>
         /// The one colour group every program the object can reach names, read from its programs' cues through
         /// falls, jumps and counted repeats.
         /// </summary>
-        internal PaletteFxColours AnimatedColours
+        internal ColourEffectColours AnimatedColours
         {
             get
             {
-                PaletteFxColours[] named = [.. NamedColours(RoomPaletteFxSelection.Get(self).InitialAnimation).Distinct()];
+                ColourEffectColours[] named = [.. NamedColours(ColourEffectSelection.Get(self).InitialAnimation).Distinct()];
                 return named.Length == 1
                     ? named[0]
                     : throw new InvalidOperationException($"Palette-FX object {self} names {named.Length} colour groups.");
@@ -87,11 +87,11 @@ internal static class PaletteFxColoursPositions
     /// at the recorded cartridge colour; none for a free slot, or for a slot whose colour index is still the zero its
     /// spawn wrote because its program has not yet named colours starting anywhere else.
     /// </summary>
-    internal static PaletteFxColours? FromCartridge(PaletteFxObject? running, int position)
+    internal static ColourEffectColours? FromCartridge(ColourEffectId? running, int position)
     {
         if (running is not { } paletteFxObject)
             return null;
-        PaletteFxColours[] matching = [.. NamedColours(RoomPaletteFxSelection.Get(paletteFxObject).InitialAnimation)
+        ColourEffectColours[] matching = [.. NamedColours(ColourEffectSelection.Get(paletteFxObject).InitialAnimation)
             .Distinct().Where(colours => colours.CartridgeColour == position)];
         return matching.Length switch
         {
@@ -103,35 +103,24 @@ internal static class PaletteFxColoursPositions
     }
 
     /// <summary>
-    /// Every colour group the animation starting at <paramref name="start"/> names, and those of the animations its
-    /// conditions restart it at.
+    /// Every colour group <paramref name="start"/> names; a restart plays on in the same animation, so it names no others.
     /// </summary>
-    private static IEnumerable<PaletteFxColours> NamedColours(PaletteFxSegment start)
+    private static IEnumerable<ColourEffectColours> NamedColours(ColourEffectAnimation start)
     {
-        var seen = new HashSet<PaletteFxSegment>();
-        var pending = new Stack<PaletteFxSegment>([start]);
-        while (pending.TryPop(out PaletteFxSegment animation))
+        foreach (AnimationPhase<ColourEffectAnimation> phase in ColourEffectAnimations.Of(start).Phases)
         {
-            if (!seen.Add(animation))
-                continue;
-            foreach (AnimationPhase<PaletteFxSegment> phase in PaletteFxAnimations.StartingWith(animation).Phases)
+            IReadOnlyList<AnimationBeat<int, ColourEffectCue>> beats = ColourEffectAnimations.Steps.Beats(phase.Segment);
+            for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
             {
-                IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(phase.Segment);
-                for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
+                switch (beats[beat])
                 {
-                    switch (beats[beat])
-                    {
-                        case AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.SetColours setColours }:
-                            yield return setColours.Target;
-                            break;
-                        case AnimationBeat<int, PaletteFxCue>.Event { Raised: PaletteFxCue.Watch { Condition: ColourEffectCondition.RestartsWhileSamusIsHigh high } }:
-                            pending.Push(high.Restart);
-                            break;
-                        case AnimationBeat<int, PaletteFxCue>.Event or AnimationBeat<int, PaletteFxCue>.Frame:
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Undefined animation beat {beats[beat]}.");
-                    }
+                    case AnimationBeat<int, ColourEffectCue>.Event { Raised: ColourEffectCue.SetColours setColours }:
+                        yield return setColours.Target;
+                        break;
+                    case AnimationBeat<int, ColourEffectCue>.Event or AnimationBeat<int, ColourEffectCue>.Frame:
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Undefined animation beat {beats[beat]}.");
                 }
             }
         }

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.RenderVerification.Harness;
@@ -83,7 +83,7 @@ internal static class CinematicColourEffectTests
         PictureShade caption = CeresShades.Drawn(CeresSpriteColouring.ZebesTitle);
         int? setUp = null, fadeIn = null, fadeOut = null;
         int checks = 0, showing = 0;
-        PaletteFxFrame? previous = null;
+        ColourEffectFrame? previous = null;
         for (int update = 0; !scene.Finished; update++)
         {
             if (update >= 6_000)
@@ -93,10 +93,10 @@ internal static class CinematicColourEffectTests
             if (!wasSetUp && scene.FloorShot is not null)
                 setUp = update;
             // A fade starts on the update its caption fade first shows a record of its own.
-            PaletteFxFrame? shown = scene.PaletteFx.FrameOf(PaletteFxColours.PlanetZebesText);
+            ColourEffectFrame? shown = scene.ColourEffects.FrameOf(ColourEffectColours.PlanetZebesText);
             if (shown is { } frame && frame.Animation != previous?.Animation)
             {
-                if (frame.Animation == PaletteFxSegment.FadeInPlanetZebesText)
+                if (frame.Animation == ColourEffectAnimation.FadeInPlanetZebesText)
                     fadeIn = update;
                 else
                     fadeOut = update;

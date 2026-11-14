@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// Native bank-$8D commands executed by palette-FX instruction streams.

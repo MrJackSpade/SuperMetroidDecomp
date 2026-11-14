@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.MovieReplay;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
@@ -110,5 +110,5 @@ internal sealed class NativeColourEffectRun
     private ushort Word(int address) => cartridge.ReadCartridgeWord(PaletteFxListWords.ListBank | address);
 
     /// <summary>The bank-$8D address of the record <paramref name="frame"/> shows, as the port numbers the records.</summary>
-    internal static ushort RecordOf(PaletteFxFrame frame) => PaletteFxColorLayoutAccess.RecordAddress(PaletteFxRecord.Of(frame));
+    internal static ushort RecordOf(ColourEffectFrame frame) => PaletteFxColorLayoutAccess.RecordAddress(PaletteFxRecord.Of(frame));
 }

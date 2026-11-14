@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend;
 
 using SuperMetroid.AssetExtraction.Video;

@@ -4,7 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
@@ -60,7 +60,7 @@ internal static class CeresSheetInks
     /// </summary>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the engine's set.</exception>
     internal static IReadOnlyList<SheetShade> EngineShades(IPaletteFxColorSource colours) =>
-        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.GunshipEngineFlicker], PaletteFxColours.CutsceneGunshipEngine,
+        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.GunshipEngineFlicker], ColourEffectColours.CutsceneGunshipEngine,
             new InkRange(EngineFirst, EngineEnd), Ensure.NotNull(colours));
 
     /// <summary>
@@ -69,7 +69,7 @@ internal static class CeresSheetInks
     /// </summary>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the lights' set.</exception>
     internal static IReadOnlyList<SheetShade> FloorNavigationLightShades(IPaletteFxColorSource colours) =>
-        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.NavigationLights], PaletteFxColours.CeresNavigationLightsBackground,
+        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.NavigationLights], ColourEffectColours.CeresNavigationLightsBackground,
             RunToSetEnd(NavigationLightsBackgroundSet, NavigationLightsColour), Ensure.NotNull(colours));
 
     /// <summary>
@@ -78,7 +78,7 @@ internal static class CeresSheetInks
     /// </summary>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the station's set.</exception>
     internal static IReadOnlyList<SheetShade> StationNavigationLightShades(IPaletteFxColorSource colours) =>
-        PaletteFxScreenShades.Of([CeresFlightSceneDefinitions.NavigationLights], PaletteFxColours.CeresNavigationLightsSprite,
+        PaletteFxScreenShades.Of([CeresFlightSceneDefinitions.NavigationLights], ColourEffectColours.CeresNavigationLightsSprite,
             RunToSetEnd(SpriteSet(CeresSpriteColouring.Station), NavigationLightsColour), Ensure.NotNull(colours));
 
     /// <summary>
@@ -88,7 +88,7 @@ internal static class CeresSheetInks
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the caption's set.</exception>
     internal static IReadOnlyList<SheetShade> ZebesTitleFadeShades(IPaletteFxColorSource colours) =>
         PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.ZebesTextFadeIn, CeresDestructionSceneDefinitions.ZebesTextFadeOut],
-            PaletteFxColours.PlanetZebesText, RunToSetEnd(SpriteSet(CeresSpriteColouring.ZebesTitle), ZebesTitleFadeColour), Ensure.NotNull(colours));
+            ColourEffectColours.PlanetZebesText, RunToSetEnd(SpriteSet(CeresSpriteColouring.ZebesTitle), ZebesTitleFadeColour), Ensure.NotNull(colours));
 
     /// <summary>The inks from colour <paramref name="colour"/> of set <paramref name="set"/> to that set's end.</summary>
     private static InkRange RunToSetEnd(int set, int colour) => new(set * SetColours + colour, (set + 1) * SetColours);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// The shades the import pre-colours the Ceres cinematics' sprite sheets in (#1512): each colouring a Ceres actor draws
-/// in. The gunship engine's flicker is a palette-effect shade (<see cref="Fx.PaletteFx.PaletteFxShades"/>). Which inks each
+/// in. The gunship engine's flicker is a palette-effect shade (<see cref="Fx.ColourEffects.ColourEffectShades"/>). Which inks each
 /// recolours, and to what, is the import's.
 /// </summary>
 public static class CeresShades

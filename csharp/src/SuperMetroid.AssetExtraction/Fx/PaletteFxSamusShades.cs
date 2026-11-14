@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -17,19 +17,19 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class PaletteFxSamusShades
 {
     /// <summary>The first colour of her suit each of her suit's groups recolours.</summary>
-    private static readonly ImmutableDictionary<PaletteFxColours, int> FirstSuitColours = new Dictionary<PaletteFxColours, int>
+    private static readonly ImmutableDictionary<ColourEffectColours, int> FirstSuitColours = new Dictionary<ColourEffectColours, int>
     {
-        [PaletteFxColours.HeatSuitGlow] = 1,
-        [PaletteFxColours.SamusLoadingSuit] = 0,
+        [ColourEffectColours.HeatSuitGlow] = 1,
+        [ColourEffectColours.SamusLoadingSuit] = 0,
     }.ToImmutableDictionary();
 
     /// <summary>Every suit's heat shimmer start, which runs on into the suit's whole heat pulse (#1512, #1598).</summary>
-    private static readonly PaletteFxSegment[] HeatPrograms = [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatAnimations.Start)];
+    private static readonly ColourEffectAnimation[] HeatPrograms = [.. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Start)];
 
     /// <summary>The objects whose programs recolour her suit: the heat glow and her three suits' loading.</summary>
-    private static readonly ImmutableArray<PaletteFxObject> SuitObjects =
+    private static readonly ImmutableArray<ColourEffectId> SuitObjects =
     [
-        PaletteFxObject.SamusLoadingPowerSuit, PaletteFxObject.SamusLoadingVariaSuit, PaletteFxObject.SamusLoadingGravitySuit,
+        ColourEffectId.SamusLoadingPowerSuit, ColourEffectId.SamusLoadingVariaSuit, ColourEffectId.SamusLoadingGravitySuit,
     ];
 
     /// <summary>Every record of her suit's groups, shaded from <paramref name="colours"/> over her sheets' suit inks.</summary>
@@ -37,8 +37,8 @@ internal static class PaletteFxSamusShades
     internal static IReadOnlyList<SheetShade> Of(IPaletteFxColorSource colours)
     {
         Ensure.NotNull(colours);
-        ShownPaletteFxFrame[] shown = PaletteFxRecordShades.Shown(
-            [.. HeatPrograms, .. SuitObjects.Select(suitObject => RoomPaletteFxSelection.Get(suitObject).InitialAnimation)]);
+        ShownColourEffectFrame[] shown = PaletteFxRecordShades.Shown(
+            [.. HeatPrograms, .. SuitObjects.Select(suitObject => ColourEffectSelection.Get(suitObject).InitialAnimation)]);
         return [.. shown.Where(entry => FirstSuitColours.ContainsKey(entry.Colours))
             .Select(entry => PaletteFxRecordShades.Shade(entry.Colours, entry.Frame,
                 new InkRange(SamusSheetInks.Suit + FirstSuitColours[entry.Colours], SamusSheetInks.Suit + SamusSheetInks.GroupColours), colours))];

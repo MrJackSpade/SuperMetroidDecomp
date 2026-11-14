@@ -29,7 +29,7 @@ internal static class PaletteDefinitionAudit
     {
         InstallColorIdentities(exports);
         int before = report.ReferenceCount;
-        foreach (Type catalog in typeof(RoomPaletteFxSystem).Assembly.GetTypes()
+        foreach (Type catalog in typeof(ColourEffectSystem).Assembly.GetTypes()
             .Where(type => type.Name.Contains("PaletteFx", StringComparison.Ordinal) &&
                 type.Name.EndsWith("ProgramMechanicsDefinitions", StringComparison.Ordinal))
             .OrderBy(type => type.FullName, StringComparer.Ordinal))

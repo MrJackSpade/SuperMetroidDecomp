@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -35,7 +35,7 @@ internal sealed class TorizoColours
     private InclusiveRange? fade;
 
     /// <summary>The step his belly's glow shows, or null before his fight starts it.</summary>
-    private PaletteFxFrame? glow;
+    private ColourEffectFrame? glow;
 
     /// <summary>
     /// The counter value of the first step the running fade took over the glow's current step, or null for none: the glow
@@ -57,7 +57,7 @@ internal sealed class TorizoColours
             // The zero step moves nothing, so the glow's colours move from their first step past zero.
             return fade is { } running && running.Last > 0 && glowFadeFirst is { } first && target is { } goal
                 ? shading.With(TorizoShades.BellyFading(step, goal, Math.Max(first, 1), running.Last))
-                : shading.With(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, step));
+                : shading.With(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, step));
         }
     }
 
@@ -80,7 +80,7 @@ internal sealed class TorizoColours
     }
 
     /// <summary>Shows step <paramref name="step"/> of his belly's glow over its glowing colours; a running fade continues from it.</summary>
-    internal void ShowBellyGlow(PaletteFxFrame step)
+    internal void ShowBellyGlow(ColourEffectFrame step)
     {
         glow = step;
         glowFadeFirst = null;

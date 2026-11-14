@@ -1,7 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -32,9 +32,9 @@ public static class RoomPaletteFxPresentationFile
         {
             PaletteRgb5[][]? frames = definition.Suit switch
             {
-                PaletteFxHeatSuit.Power => document.SamusHeatPowerSuit,
-                PaletteFxHeatSuit.Varia => document.SamusHeatVariaSuit,
-                PaletteFxHeatSuit.Gravity => document.SamusHeatGravitySuit,
+                ColourEffectHeatSuit.Power => document.SamusHeatPowerSuit,
+                ColourEffectHeatSuit.Varia => document.SamusHeatVariaSuit,
+                ColourEffectHeatSuit.Gravity => document.SamusHeatGravitySuit,
                 _ => throw new InvalidDataException($"Unsupported heat suit {definition.Suit}."),
             };
             ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames, definition.ColorFrames, colors);

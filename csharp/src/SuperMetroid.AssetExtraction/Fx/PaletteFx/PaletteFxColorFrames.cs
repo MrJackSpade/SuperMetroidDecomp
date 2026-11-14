@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
-
-using SuperMetroid.Core.Fx.PaletteFx;
+﻿using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -14,43 +12,25 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
 {
     /// <summary>
-    /// The frames <paramref name="program"/> shows: the consecutive records of its segment's frames and, where its list runs
-    /// on into the list authored next (<see cref="PaletteFxListLayout.RunOnIntoNext"/>), of each list it runs on into.
+    /// The frames <paramref name="animation"/> shows (#1739): the consecutive records of its frames, in the order it shows
+    /// them.
     /// </summary>
-    /// <param name="program">The segment whose first frame is the family's first frame.</param>
+    /// <param name="animation">The animation whose frames are the family's frames.</param>
     /// <param name="colorsPerFrame">The colours each frame writes.</param>
-    public static PaletteFxColorFrames Of(PaletteFxSegment program, int colorsPerFrame)
+    /// <exception cref="InvalidOperationException">The animation shows no record, or its records do not lie one after another.</exception>
+    public static PaletteFxColorFrames Of(ColourEffectAnimation animation, int colorsPerFrame)
     {
-        int first = -1, count = 0;
-        PaletteFxSegment[] authored = Enum.GetValues<PaletteFxSegment>();
-        for (PaletteFxSegment running = program; ; running = authored[Array.IndexOf(authored, running) + 1])
+        int count = PaletteFxRecords.FrameCount(animation);
+        if (count == 0)
+            throw new InvalidOperationException($"Colour effect animation {animation} shows no record.");
+        int first = PaletteFxRecord.Of(new ColourEffectFrame(animation, 0)).Record;
+        for (int frame = 1; frame < count; frame++)
         {
-            int frame = 0;
-            foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(running))
-            {
-                if (beat is not AnimationBeat<int, PaletteFxCue>.Frame)
-                    continue;
-                int record = PaletteFxRecord.Of(new PaletteFxFrame(running, frame++)).Record;
-                if (first < 0)
-                {
-                    first = record;
-                    count = 1;
-                }
-                else if (record == first + count)
-                    count++;
-                else
-                    throw new InvalidOperationException($"Palette-FX segment {program} shows {new PaletteFxFrame(running, frame - 1)} out of order.");
-            }
-            if (!PaletteFxListLayout.RunOnIntoNext.Contains(running))
-                return Found(program, first, count, colorsPerFrame);
+            if (PaletteFxRecord.Of(new ColourEffectFrame(animation, frame)).Record != first + frame)
+                throw new InvalidOperationException($"Colour effect animation {animation} shows {new ColourEffectFrame(animation, frame)} out of its records' order.");
         }
+        return new(first, count, colorsPerFrame);
     }
-
-    /// <summary>The frames found, rejecting a program that shows nothing.</summary>
-    private static PaletteFxColorFrames Found(PaletteFxSegment program, int first, int count, int colorsPerFrame) =>
-        first < 0
-            ? throw new InvalidOperationException($"Palette-FX program {program} shows no record.")
-            : new(first, count, colorsPerFrame);
 
     /// <summary>The record shown as frame <paramref name="frame"/>.</summary>
     public PaletteFxRecord Frame(int frame) => (uint)frame < FrameCount

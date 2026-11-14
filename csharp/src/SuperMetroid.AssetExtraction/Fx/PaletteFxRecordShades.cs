@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -17,19 +17,19 @@ internal static class PaletteFxRecordShades
 {
     /// <summary>
     /// Every colour group and frame <paramref name="starts"/> can show, each once, ordered by group, then by program and
-    /// frame, the order of the cartridge's records (<see cref="PaletteFxShownFrames"/>).
+    /// frame, the order of the cartridge's records (<see cref="ColourEffectShownFrames"/>).
     /// </summary>
-    internal static ShownPaletteFxFrame[] Shown(IEnumerable<PaletteFxSegment> starts) => PaletteFxShownFrames.From(starts);
+    internal static ShownColourEffectFrame[] Shown(IEnumerable<ColourEffectAnimation> starts) => ColourEffectShownFrames.From(starts);
 
-    /// <summary>The frames the initial programs of <paramref name="objects"/> can show, as <see cref="Shown(IEnumerable{PaletteFxSegment})"/> gives them.</summary>
-    internal static ShownPaletteFxFrame[] ShownBy(IEnumerable<PaletteFxObject> objects) => PaletteFxShownFrames.ShownBy(objects);
+    /// <summary>The frames the initial animations of <paramref name="objects"/> can show, as <see cref="Shown(IEnumerable{ColourEffectAnimation})"/> gives them.</summary>
+    internal static ShownColourEffectFrame[] ShownBy(IEnumerable<ColourEffectId> objects) => ColourEffectShownFrames.ShownBy(objects);
 
     /// <summary>
     /// The shade of <paramref name="group"/> showing <paramref name="frame"/> over <paramref name="inks"/>, coloured from
     /// <paramref name="colours"/> with the colours of the record the frame shows, skipping the colours its layout skips.
     /// </summary>
     /// <exception cref="InvalidDataException">A colour is not installed, or the record writes at or past the end of <paramref name="inks"/>.</exception>
-    internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame frame, InkRange inks, IPaletteFxColorSource colours)
+    internal static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, InkRange inks, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(colours);
         PaletteFxRecord record = PaletteFxRecord.Of(frame);
@@ -54,6 +54,6 @@ internal static class PaletteFxRecordShades
                 shades.Add(shown);
             }
         }
-        return new SheetShade(PaletteFxShades.Of(group, frame), [.. written], [.. shades]);
+        return new SheetShade(ColourEffectShades.Of(group, frame), [.. written], [.. shades]);
     }
 }

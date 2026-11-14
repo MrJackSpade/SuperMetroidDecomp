@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Verification access to <see cref="PlanetZebesTextPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class PlanetZebesTextPaletteFxColorDefinitionAccess
@@ -11,7 +11,7 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionAccess
         /// <summary>Native four-byte definition identity selected by fade direction.</summary>
         internal ushort DefinitionPointer => (ushort)(PlanetZebesTextPaletteFxColorDefinitions.FadeInDefinition + (int)self.Owner * 4);
         /// <summary>The colour group the definition's object animates.</summary>
-        internal PaletteFxColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
+        internal ColourEffectColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -15,7 +15,7 @@ public sealed class PaletteFxHeatProgramDefinition
     public const int ColorsPerFrame = 15;
 
     /// <summary>The mutually exclusive suit palette represented by this program.</summary>
-    public required PaletteFxHeatSuit Suit { get; init; }
+    public required ColourEffectHeatSuit Suit { get; init; }
 
     /// <summary>The sixteen phase records and the colours each writes.</summary>
     public required PaletteFxColorFrames ColorFrames { get; init; }

@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Cartridge values and helpers of <see cref="TitleScreenAmbientPaletteFxColorDefinitions"/> that only verification reads.</summary>
 internal static class TitleScreenAmbientPaletteFxColorDefinitionsConstants

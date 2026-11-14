@@ -203,6 +203,22 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     }
 
     /// <summary>
+    /// The place of <paramref name="animation"/> whose next beat shows <paramref name="frame"/> in <paramref name="segment"/>,
+    /// in the first phase playing that beat.
+    /// </summary>
+    /// <exception cref="ArgumentException">The segment shows no such frame, or no phase of the animation plays it.</exception>
+    internal AnimationPlace PlaceOfFrame(Animation<TSegment> animation, TSegment segment, TFrame frame)
+    {
+        AnimationBeat<TFrame, TEvent>[] shown = beats[segment];
+        for (int beat = 0; beat < shown.Length; beat++)
+        {
+            if (shown[beat].ShownFrame is { } candidate && EqualityComparer<TFrame>.Default.Equals(candidate, frame))
+                return PlaceOf(animation, segment, beat);
+        }
+        throw new ArgumentException($"Segment {segment} shows no frame {frame}.", nameof(frame));
+    }
+
+    /// <summary>
     /// The place of <paramref name="animation"/> whose next beat is beat <paramref name="beat"/> of <paramref name="segment"/>,
     /// in the first phase playing it.
     /// </summary>

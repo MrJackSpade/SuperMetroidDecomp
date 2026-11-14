@@ -10,7 +10,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -223,17 +223,17 @@ internal static class CeresColourEffectsVerification
             }
             fadeIn?.Step();
             fadeOut?.Step();
-            PaletteFxFrame? record = scene.PaletteFx.FrameOf(PaletteFxColours.PlanetZebesText);
+            ColourEffectFrame? record = scene.ColourEffects.FrameOf(ColourEffectColours.PlanetZebesText);
             NativeColourEffectRun? showing = fadeOut ?? fadeIn;
             if (showing is null)
             {
                 AssertTrue(record is null, $"no caption fade shows before the caption first shows ({text} update {update})");
                 continue;
             }
-            PaletteFxFrame frame = record ?? throw new InvalidOperationException($"{text} destruction update {update} shows no caption fade.");
+            ColourEffectFrame frame = record ?? throw new InvalidOperationException($"{text} destruction update {update} shows no caption fade.");
             AssertEqual(showing.Record, NativeColourEffectRun.RecordOf(frame),
                 $"{text} destruction update {update} shows the record the cartridge's {(fadeOut is null ? "fade in" : "fade out")} list shows");
-            PictureShading faded = PictureShading.Shaded(drawn).With(PaletteFxShades.Of(PaletteFxColours.PlanetZebesText, frame));
+            PictureShading faded = PictureShading.Shaded(drawn).With(ColourEffectShades.Of(ColourEffectColours.PlanetZebesText, frame));
             foreach (ImageSpriteDraw subtitle in subtitles)
             {
                 subtitleDraws++;
@@ -293,7 +293,7 @@ internal static class CeresColourEffectsVerification
             }
             engine?.Step();
             lights?.Step();
-            PaletteFxFrame? flicker = flight.ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours);
+            ColourEffectFrame? flicker = flight.ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours);
             if (engine is null)
             {
                 AssertTrue(flicker is null, $"the flight shows no engine flicker before its rear view (update {update})");
@@ -301,13 +301,13 @@ internal static class CeresColourEffectsVerification
             }
             else
             {
-                PaletteFxFrame record = flicker ?? throw new InvalidOperationException($"Flight update {update} shows no engine flicker.");
+                ColourEffectFrame record = flicker ?? throw new InvalidOperationException($"Flight update {update} shows no engine flicker.");
                 AssertEqual(engine.Record, NativeColourEffectRun.RecordOf(record), $"flight update {update} shows the record the cartridge's engine list shows");
-                AssertEqual(PictureShading.Standard.With(PaletteFxShades.Of(CeresFlightSceneDefinitions.EngineColours, record)), flight.FloorShading,
+                AssertEqual(PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, record)), flight.FloorShading,
                     $"flight update {update} shades the floor with the engine's record");
             }
-            PaletteFxFrame? shown = flight.ColourEffects.FrameOf(PaletteFxColours.CeresNavigationLightsSprite);
-            PictureShade? shade = shown is { } frame ? PaletteFxShades.Of(PaletteFxColours.CeresNavigationLightsSprite, frame) : null;
+            ColourEffectFrame? shown = flight.ColourEffects.FrameOf(ColourEffectColours.CeresNavigationLightsSprite);
+            PictureShade? shade = shown is { } frame ? ColourEffectShades.Of(ColourEffectColours.CeresNavigationLightsSprite, frame) : null;
             if (lights is null)
                 AssertTrue(shown is null, $"the flight shows no navigation lights before its rear view (update {update})");
             else
@@ -348,10 +348,10 @@ internal static class CeresColourEffectsVerification
             if (!setUp && scene.FloorShot is not null)
                 lights = new NativeColourEffectRun(cartridge, DestructionLightsDefinition);
             lights?.Step();
-            PaletteFxFrame? shown = scene.PaletteFx.FrameOf(PaletteFxColours.CeresNavigationLightsBackground);
+            ColourEffectFrame? shown = scene.ColourEffects.FrameOf(ColourEffectColours.CeresNavigationLightsBackground);
             if (revealed)
             {
-                AssertTrue(shown is null && scene.PaletteFx.FrameOf(PaletteFxColours.CutsceneGunshipEngine) is not null,
+                AssertTrue(shown is null && scene.ColourEffects.FrameOf(ColourEffectColours.CutsceneGunshipEngine) is not null,
                     $"the Zebes reveal (update {update}) clears the navigation lights and shows the engine's flicker");
                 AssertEqual(1, scene.FloorShading.Shades.Length, "the revealed floor shows the engine's flicker alone");
                 continue;
@@ -361,9 +361,9 @@ internal static class CeresColourEffectsVerification
                 AssertTrue(shown is null, $"the destruction shows no lights before the station is set up (update {update})");
                 continue;
             }
-            PaletteFxFrame frame = shown ?? throw new InvalidOperationException($"Destruction update {update} shows no lights.");
+            ColourEffectFrame frame = shown ?? throw new InvalidOperationException($"Destruction update {update} shows no lights.");
             AssertEqual(lights.Record, NativeColourEffectRun.RecordOf(frame), $"destruction update {update} shows the record the cartridge's lights list shows");
-            AssertEqual(PictureShading.Standard.With(PaletteFxShades.Of(PaletteFxColours.CeresNavigationLightsBackground, frame)), scene.FloorShading,
+            AssertEqual(PictureShading.Standard.With(ColourEffectShades.Of(ColourEffectColours.CeresNavigationLightsBackground, frame)), scene.FloorShading,
                 $"destruction update {update} shades the floor with the lights' record");
         }
         AssertTrue(lights is not null, "the destruction sets the station up before the Zebes reveal");
@@ -398,13 +398,13 @@ internal static class CeresColourEffectsVerification
     /// Checks the spawn at <paramref name="spawn"/>: an immediate load of <paramref name="definition"/> and a call of the
     /// colour effects' spawn, whose definition runs the list <paramref name="effect"/> starts with.
     /// </summary>
-    internal static void AssertSpawn(IImportCartridgeSource cartridge, int spawn, ushort definition, PaletteFxObject effect, string site)
+    internal static void AssertSpawn(IImportCartridgeSource cartridge, int spawn, ushort definition, ColourEffectId effect, string site)
     {
         AssertEqual(LoadY, Byte(cartridge, spawn), $"{site} loads a colour effect's definition");
         AssertEqual(definition, cartridge.ReadCartridgeWord(spawn + 1), $"{site} names {effect}'s definition");
         AssertEqual(LongCall, Byte(cartridge, spawn + 3), $"{site} calls the colour effects' spawn");
         AssertEqual(SpawnRoutine, Long(cartridge, spawn + 4), $"{site} spawns the definition it names");
-        AssertEqual(PaletteFxNativeListAddresses.Entry(RoomPaletteFxSelection.Get(effect).InitialAnimation),
+        AssertEqual(PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(effect).InitialAnimation),
             cartridge.ReadCartridgeWord(PaletteFxListWords.ListBank | (definition + sizeof(ushort))), $"{effect} runs its definition's list");
     }
 

@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// Verification's native view of the palette-FX colour families: each record's and colour's bank-$8D address, resolved

@@ -14,7 +14,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// continues through the first narration card, the complete first illustrated/typewriter
 /// page, and the palette transition into the Mother Brain gameplay flashback.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own flashback level, Samus projectiles and palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own flashback level, Samus projectiles and colour effects for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class IntroCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
@@ -154,7 +154,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The opening's colour effects (#1733): the old Mother Brain fight's background lights, from the end of the crossfade
     /// into the fight until page two's crossfade recolours the room.
     /// </summary>
-    internal RoomPaletteFxSystem ColourEffects { get; private set; } = new(new PaletteFxSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
     /// <summary>Samus gameplay state shared by the Mother Brain and SR388 flashbacks.</summary>
     internal SamusState? CurrentFlashbackSamus { get; private set; }
     /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
@@ -582,7 +582,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
-            ColourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay palette.</summary>
@@ -676,7 +676,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // text palette step, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
         // The crossfade recolours every colour from the opening's own, so the fight lights' last record no longer shows.
-        ColourEffects = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
@@ -1239,8 +1239,8 @@ level, samus, frameCounter);
     /// over it while they run (#1733).
     /// </summary>
     internal PictureShading FightRoomShading =>
-        ColourEffects.FrameOf(PaletteFxColours.OldMotherBrainBackgroundLights) is { } lights
-            ? crossfade.SceneShading.With(PaletteFxShades.Of(PaletteFxColours.OldMotherBrainBackgroundLights, lights))
+        ColourEffects.FrameOf(ColourEffectColours.OldMotherBrainBackgroundLights) is { } lights
+            ? crossfade.SceneShading.With(ColourEffectShades.Of(ColourEffectColours.OldMotherBrainBackgroundLights, lights))
             : crossfade.SceneShading;
 
     /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>

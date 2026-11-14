@@ -39,7 +39,7 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;

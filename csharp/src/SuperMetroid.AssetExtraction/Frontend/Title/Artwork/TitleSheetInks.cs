@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
@@ -29,31 +29,31 @@ internal static class TitleSheetInks
     internal const int CopyrightRedColour = 10;
 
     /// <summary>The first floor ink each console light recolours, and the ink after the last it may recolour.</summary>
-    private static readonly Dictionary<PaletteFxColours, InkRange> FloorInks = new()
+    private static readonly Dictionary<ColourEffectColours, InkRange> FloorInks = new()
     {
-        [PaletteFxColours.BabyMetroidTubeLight] = new(2 * GroupColours + 10, 3 * GroupColours),
-        [PaletteFxColours.TitleScreenDisplays] = new(2 * GroupColours + 14, 3 * GroupColours),
+        [ColourEffectColours.BabyMetroidTubeLight] = new(2 * GroupColours + 10, 3 * GroupColours),
+        [ColourEffectColours.TitleScreenDisplays] = new(2 * GroupColours + 14, 3 * GroupColours),
     };
 
     /// <summary>
     /// The first sprite ink each fade recolours, and the ink after the last it may recolour (#1714): the logo's fade writes
     /// the logo set's fifteen colours after its transparent one, the copyright's fade the copyright's glyph white and tint.
     /// </summary>
-    private static readonly Dictionary<PaletteFxColours, InkRange> FadeInks = new()
+    private static readonly Dictionary<ColourEffectColours, InkRange> FadeInks = new()
     {
-        [PaletteFxColours.TitleLogo] = new(2 * GroupColours + 1, 3 * GroupColours),
-        [PaletteFxColours.NintendoCopyright] = new(4 * GroupColours + CopyrightWhiteColour, 5 * GroupColours),
+        [ColourEffectColours.TitleLogo] = new(2 * GroupColours + 1, 3 * GroupColours),
+        [ColourEffectColours.NintendoCopyright] = new(4 * GroupColours + CopyrightWhiteColour, 5 * GroupColours),
     };
 
     /// <summary>The console lights the floor shows.</summary>
-    internal static IEnumerable<PaletteFxColours> FloorLights => FloorInks.Keys;
+    internal static IEnumerable<ColourEffectColours> FloorLights => FloorInks.Keys;
 
     /// <summary>The colour groups the title's fades animate on its sheet.</summary>
-    internal static IEnumerable<PaletteFxColours> Fades => FadeInks.Keys;
+    internal static IEnumerable<ColourEffectColours> Fades => FadeInks.Keys;
 
     /// <summary>The sheet inks the fade of <paramref name="colours"/> recolours: its first, and the one after the last it may.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No title fade animates such colours.</exception>
-    internal static InkRange Fade(PaletteFxColours colours) => FadeInks.TryGetValue(colours, out var inks)
+    internal static InkRange Fade(ColourEffectColours colours) => FadeInks.TryGetValue(colours, out var inks)
         ? inks
         : throw new ArgumentOutOfRangeException(nameof(colours), colours, "No title fade animates such colours.");
 
@@ -65,7 +65,7 @@ internal static class TitleSheetInks
 
     /// <summary>The floor inks <paramref name="light"/> recolours: its first, and the one after the last it may.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The floor shows no such light.</exception>
-    internal static InkRange FloorLight(PaletteFxColours light) => FloorInks.TryGetValue(light, out var inks)
+    internal static InkRange FloorLight(ColourEffectColours light) => FloorInks.TryGetValue(light, out var inks)
         ? inks
         : throw new ArgumentOutOfRangeException(nameof(light), light, "The title floor shows no such light.");
 }

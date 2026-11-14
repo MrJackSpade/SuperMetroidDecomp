@@ -1,5 +1,5 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Drawing;

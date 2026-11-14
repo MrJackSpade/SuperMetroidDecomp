@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
@@ -21,38 +21,38 @@ internal static class PaletteFxRoomShades
     private const int GroupInks = 16;
 
     /// <summary>The first ink of a room picture each of the room's colour groups recolours.</summary>
-    private static readonly ImmutableDictionary<PaletteFxColours, int> FirstInks = new Dictionary<PaletteFxColours, int>
+    private static readonly ImmutableDictionary<ColourEffectColours, int> FirstInks = new Dictionary<ColourEffectColours, int>
     {
-        [PaletteFxColours.DraygonStatue] = 96,
-        [PaletteFxColours.KraidStatue] = 112,
-        [PaletteFxColours.WreckedShipGreenLights] = 76,
-        [PaletteFxColours.LandingSiteLightning] = 84,
-        [PaletteFxColours.BrinstarBlueSpores] = 113,
-        [PaletteFxColours.BrinstarRedGlow] = 100,
-        [PaletteFxColours.Beacon] = 113,
-        [PaletteFxColours.NorfairHeatForeground] = 53,
-        [PaletteFxColours.NorfairGreenForeground] = 65,
-        [PaletteFxColours.NorfairPurpleForeground] = 81,
-        [PaletteFxColours.NorfairDarkForeground] = 97,
-        [PaletteFxColours.MaridiaSandPits] = 36,
-        [PaletteFxColours.MaridiaSandFalls] = 40,
-        [PaletteFxColours.MaridiaBackgroundWaterfalls] = 52,
-        [PaletteFxColours.TourianArkanoidBlocksAndOrbs] = 116,
-        [PaletteFxColours.TourianBackground] = 56,
-        [PaletteFxColours.TourianLevel] = 84,
-        [PaletteFxColours.OldTourianLevel] = 81,
-        [PaletteFxColours.OldTourianRailings] = 105,
-        [PaletteFxColours.OldTourianPanels] = 85,
-        [PaletteFxColours.UpperCrateriaLevel] = 65,
-        [PaletteFxColours.CrateriaEscapeLightning] = 81,
-        [PaletteFxColours.ParlorEscapeSky] = 87,
+        [ColourEffectColours.DraygonStatue] = 96,
+        [ColourEffectColours.KraidStatue] = 112,
+        [ColourEffectColours.WreckedShipGreenLights] = 76,
+        [ColourEffectColours.LandingSiteLightning] = 84,
+        [ColourEffectColours.BrinstarBlueSpores] = 113,
+        [ColourEffectColours.BrinstarRedGlow] = 100,
+        [ColourEffectColours.Beacon] = 113,
+        [ColourEffectColours.NorfairHeatForeground] = 53,
+        [ColourEffectColours.NorfairGreenForeground] = 65,
+        [ColourEffectColours.NorfairPurpleForeground] = 81,
+        [ColourEffectColours.NorfairDarkForeground] = 97,
+        [ColourEffectColours.MaridiaSandPits] = 36,
+        [ColourEffectColours.MaridiaSandFalls] = 40,
+        [ColourEffectColours.MaridiaBackgroundWaterfalls] = 52,
+        [ColourEffectColours.TourianArkanoidBlocksAndOrbs] = 116,
+        [ColourEffectColours.TourianBackground] = 56,
+        [ColourEffectColours.TourianLevel] = 84,
+        [ColourEffectColours.OldTourianLevel] = 81,
+        [ColourEffectColours.OldTourianRailings] = 105,
+        [ColourEffectColours.OldTourianPanels] = 85,
+        [ColourEffectColours.UpperCrateriaLevel] = 65,
+        [ColourEffectColours.CrateriaEscapeLightning] = 81,
+        [ColourEffectColours.ParlorEscapeSky] = 87,
     }.ToImmutableDictionary();
 
     /// <summary>The objects Tourian's statue room spawns as each boss's statue greys out, which no FX record names.</summary>
-    private static readonly ImmutableArray<PaletteFxObject> StatueGreyOuts =
+    private static readonly ImmutableArray<ColourEffectId> StatueGreyOuts =
     [
-        PaletteFxObject.GreyOutTourianStatueDraygon, PaletteFxObject.GreyOutTourianStatueKraid,
-        PaletteFxObject.GreyOutTourianStatueRidley, PaletteFxObject.GreyOutTourianStatuePhantoon,
+        ColourEffectId.GreyOutTourianStatueDraygon, ColourEffectId.GreyOutTourianStatueKraid,
+        ColourEffectId.GreyOutTourianStatueRidley, ColourEffectId.GreyOutTourianStatuePhantoon,
     ];
 
     /// <summary>
@@ -66,7 +66,7 @@ internal static class PaletteFxRoomShades
     {
         Ensure.NotNull(rooms);
         Ensure.NotNull(colours);
-        var objects = new HashSet<PaletteFxObject>();
+        var objects = new HashSet<ColourEffectId>();
         foreach (SelectedRoom room in rooms)
         {
             foreach (RoomFxRecordDefinition record in room.State.Fx?.Records ?? [])
@@ -80,12 +80,12 @@ internal static class PaletteFxRoomShades
 
     /// <summary>The first ink of a room picture the room's colour group <paramref name="group"/> recolours.</summary>
     /// <exception cref="InvalidDataException">The group recolours no room picture.</exception>
-    internal static int FirstInk(PaletteFxColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
+    internal static int FirstInk(ColourEffectColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
         : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
 
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="frame"/>, coloured from <paramref name="colours"/>.</summary>
     /// <exception cref="InvalidDataException">A colour is not installed, or the frame's record writes past its group's colours.</exception>
-    internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame frame, IPaletteFxColorSource colours)
+    internal static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);
         return PaletteFxRecordShades.Shade(group, frame, new InkRange(first, (first / GroupInks + 1) * GroupInks), colours);

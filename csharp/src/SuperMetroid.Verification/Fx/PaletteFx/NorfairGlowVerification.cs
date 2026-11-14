@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
@@ -24,8 +24,8 @@ internal static class NorfairGlowVerification
             [new Stream(0xf785, 0x6a), new Stream(0xf789, 0x82), new Stream(0xf78d, 0xa2), new Stream(0xf791, 0xc2)];
         foreach (var stream in streams)
         {
-            var fxSession = new PaletteFxSessionState();
-            var fx = new RoomPaletteFxSystem(fxSession);
+            var fxSession = new ColourEffectSessionState();
+            var fx = new ColourEffectSystem(fxSession);
             var colors = new SnesCgram();
             fx.Start(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;
@@ -33,7 +33,7 @@ internal static class NorfairGlowVerification
             for (int phase = 0; phase < holds.Length; phase++)
             for (int tick = 0; tick < holds[phase]; tick++)
             {
-                fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                fx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 // The glow's groups show their records over the room's pictures as the import's shades of them (#1512).
                 PaletteFxRoomLook.LayRoomShades(fx, colors, new ReferencePaletteFxColorSource(bus));
                 int rampIndex = phase < 8 ? phase : 15 - phase;

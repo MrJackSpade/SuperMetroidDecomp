@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -31,8 +31,8 @@ internal static class TorizoBellyGlowEndVerification
     internal static void VerifyTorizoBellyGlowEnd()
     {
         VerifyTorizoRooms();
-        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, PaletteFxObject.BombTorizoBelly, isGolden: false);
-        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, PaletteFxObject.GoldenTorizoBelly, isGolden: true);
+        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, ColourEffectId.BombTorizoBelly, isGolden: false);
+        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, ColourEffectId.GoldenTorizoBelly, isGolden: true);
         Console.WriteLine("Torizo belly glow: the Bomb and Golden Torizo rooms hold their Torizo alone in the first place, and each glow ends on the update its Torizo has no health left, as the original's first-place test ends it.");
     }
 
@@ -61,7 +61,7 @@ internal static class TorizoBellyGlowEndVerification
     /// <see cref="Updates"/> updates, its health dropping to one and then to zero, and checks each update against the
     /// original's test: the glow runs until the first update the first place's health reads zero, and ends on it.
     /// </summary>
-    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, PaletteFxObject glow, bool isGolden)
+    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, ColourEffectId glow, bool isGolden)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -80,9 +80,9 @@ internal static class TorizoBellyGlowEndVerification
         AssertEqual(glow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
         AssertTrue(ReferenceEquals(state, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
-        var fx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        var fx = new ColourEffectSystem(new ColourEffectSessionState());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);
-        var conditions = new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
+        var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         bool originalEnded = false;
         for (int update = 0; update < Updates; update++)
         {

@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -546,14 +546,14 @@ internal sealed class MotherBrainThirdPhaseDeath
             return false;
 
         // The last readying update performs the full escape-door handoff on that call: start escape music, hold the quake
-        // indefinitely, create four palette-FX objects and initialize text. The door's
+        // indefinitely, create four colour effects and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
         requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
-        requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
-        requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
-        requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
-        requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
+        requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);
+        requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianBackgroundRedFlashing);
+        requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianGeneralLevelRedFlashing);
+        requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs);
         requests.EscapeTypewriterSetupRequested = true;
         _state.PhaseTimer = 32;
         _state.Phase = frame.AlternateEscapeText

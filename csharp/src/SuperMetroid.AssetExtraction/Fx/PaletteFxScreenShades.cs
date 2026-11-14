@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -24,7 +24,7 @@ internal static class PaletteFxScreenShades
     /// </param>
     /// <param name="colours">The records' installed colours.</param>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes at or past the end of <paramref name="inks"/>.</exception>
-    internal static IReadOnlyList<SheetShade> Of(IEnumerable<PaletteFxObject> objects, PaletteFxColours group, InkRange inks,
+    internal static IReadOnlyList<SheetShade> Of(IEnumerable<ColourEffectId> objects, ColourEffectColours group, InkRange inks,
         IPaletteFxColorSource colours) =>
         [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => entry.Colours == group)
             .Select(entry => PaletteFxRecordShades.Shade(group, entry.Frame, inks, colours))];

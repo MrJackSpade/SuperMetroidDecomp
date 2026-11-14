@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Fx;
@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// One colour effect running in a room or on a screen (#1554, #1598, #1600): the glow, flash, fade or shimmer it shows, the
 /// colours it shows its frames in, the condition it watches, the animation it plays and where it stands in it, and the
-/// updates left until its next frame. Its animations are <see cref="PaletteFxAnimations"/>; the
-/// <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
+/// updates left until its next frame. Its animations are <see cref="ColourEffectAnimations"/>; the
+/// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
 internal sealed class RoomColourEffect
 {
-    /// <summary>Starts <paramref name="effect"/> playing the animation that starts at <paramref name="segment"/>, due on its first turn.</summary>
+    /// <summary>Starts <paramref name="effect"/> playing <paramref name="animation"/>, due on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
-    /// <param name="segment">The segment its animation starts at.</param>
+    /// <param name="animation">The animation it plays.</param>
     /// <param name="litTorizo">The Torizo whose belly the effect lights, or null for an effect that lights none.</param>
-    internal RoomColourEffect(PaletteFxObject effect, PaletteFxSegment segment, ILitTorizo? litTorizo)
+    internal RoomColourEffect(ColourEffectId effect, ColourEffectAnimation animation, ILitTorizo? litTorizo)
     {
         Effect = effect;
         LitTorizo = litTorizo;
-        Animation = PaletteFxAnimations.StartingWith(segment);
+        Animation = ColourEffectAnimations.Of(animation);
         Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
     }
 
     /// <summary>What the effect shows.</summary>
-    internal PaletteFxObject Effect { get; }
+    internal ColourEffectId Effect { get; }
 
     /// <summary>
     /// The Torizo whose belly the effect lights (#1700), which <see cref="ColourEffectCondition.EndsWhenTorizoDies"/>
@@ -34,13 +34,13 @@ internal sealed class RoomColourEffect
     internal ILitTorizo? LitTorizo { get; }
 
     /// <summary>The colours the effect shows its frames in; none until its animation names them.</summary>
-    internal PaletteFxColours? Colours { get; set; }
+    internal ColourEffectColours? Colours { get; set; }
 
     /// <summary>The condition the effect checks at the start of its turn; none until its animation names one.</summary>
     internal ColourEffectCondition? Condition { get; set; }
 
     /// <summary>The animation the effect plays.</summary>
-    internal Animation<PaletteFxSegment> Animation { get; private set; }
+    internal Animation<ColourEffectAnimation> Animation { get; private set; }
 
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
     internal AnimationPlace Place { get; set; }
@@ -59,7 +59,7 @@ internal sealed class RoomColourEffect
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
     /// until its next one; none before its first.
     /// </summary>
-    internal PaletteFxFrame? Frame { get; set; }
+    internal ColourEffectFrame? Frame { get; set; }
 
     /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
     internal bool Ended { get; private set; }
@@ -74,18 +74,18 @@ internal sealed class RoomColourEffect
     internal void End() => Ended = true;
 
     /// <summary>Restarts the effect playing <paramref name="animation"/> from <paramref name="place"/>, due on this turn.</summary>
-    internal void Restart(Animation<PaletteFxSegment> animation, AnimationPlace place)
+    internal void Restart(Animation<ColourEffectAnimation> animation, AnimationPlace place)
     {
         Animation = Ensure.NotNull(animation);
         Place = place;
         UpdatesUntilNextStep = 1;
     }
 
-    /// <summary>Restarts the effect at the start of <paramref name="animation"/>, due on this turn.</summary>
-    internal void Restart(Animation<PaletteFxSegment> animation)
+    /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>
+    /// <exception cref="InvalidOperationException">The effect's animation does not loop.</exception>
+    internal void RestartCycle()
     {
-        Animation = Ensure.NotNull(animation);
-        Place = AnimationPlace.StartOfAnimation;
+        Place = AnimationPlace.Before(Animation.CyclePhase);
         UpdatesUntilNextStep = 1;
     }
 
@@ -97,38 +97,38 @@ internal sealed class RoomColourEffect
     /// colours and conditions its animation names itself and hands every other event, a heat phase or a sound, to
     /// <paramref name="carryOut"/>.
     /// </summary>
-    /// <returns>The frame shown, of the segment that holds it, or null when the effect ended.</returns>
-    internal PaletteFxFrame? Advance(Action<PaletteFxCue> carryOut)
+    /// <returns>The frame shown, of the animation that shows it, or null when the effect ended.</returns>
+    internal ColourEffectFrame? Advance(Action<ColourEffectCue> carryOut)
     {
         Ensure.NotNull(carryOut);
         AnimationPlace place = Place;
         WrappingCountdown repeats = Repeats;
-        AnimationShown<PaletteFxSegment, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, ref repeats, cue =>
+        AnimationShown<ColourEffectAnimation, int> shown = ColourEffectAnimations.Steps.PlayToNextFrame(Animation, ref place, ref repeats, cue =>
         {
             switch (cue)
             {
-                case PaletteFxCue.SetColours setColours:
+                case ColourEffectCue.SetColours setColours:
                     Colours = setColours.Target;
                     break;
-                case PaletteFxCue.Watch watch:
+                case ColourEffectCue.Watch watch:
                     Condition = watch.Condition;
                     break;
-                case PaletteFxCue.PublishHeatPhase or PaletteFxCue.QueueSound:
+                case ColourEffectCue.PublishHeatPhase or ColourEffectCue.QueueSound:
                     carryOut(cue);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(PaletteFxCue)} {cue}.");
+                    throw new InvalidOperationException($"Undefined {nameof(ColourEffectCue)} {cue}.");
             }
         });
         Place = place;
         Repeats = repeats;
         switch (shown)
         {
-            case AnimationShown<PaletteFxSegment, int>.Frame frame:
+            case AnimationShown<ColourEffectAnimation, int>.Frame frame:
                 UpdatesUntilNextStep = frame.Duration;
-                Frame = new PaletteFxFrame(frame.Segment, frame.Shown);
+                Frame = new ColourEffectFrame(frame.Segment, frame.Shown);
                 return Frame;
-            case AnimationShown<PaletteFxSegment, int>.Ended:
+            case AnimationShown<ColourEffectAnimation, int>.Ended:
                 End();
                 Settled = true;
                 return null;

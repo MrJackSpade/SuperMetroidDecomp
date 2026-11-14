@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 using SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -9,23 +9,23 @@ namespace SuperMetroid.Core.Frontend.Title;
 public static class TitleSequenceDefinitions
 {
     /// <summary>The console lights title setup and the skip path start.</summary>
-    public static class ConsolePaletteFx
+    public static class ConsoleColourEffects
     {
         /// <summary>The Baby Metroid tube's slow ten-update light.</summary>
-        public const PaletteFxObject SlowLights = PaletteFxObject.TitleScreenBabyMetroidTubeLight;
+        public const ColourEffectId SlowLights = ColourEffectId.TitleScreenBabyMetroidTubeLight;
 
         /// <summary>The flickering displays' alternating colours.</summary>
-        public const PaletteFxObject FastLights = PaletteFxObject.TitleScreenFlickeringDisplays;
+        public const ColourEffectId FastLights = ColourEffectId.TitleScreenFlickeringDisplays;
     }
 
     /// <summary>The colour effects that fade the logo and the copyright in from black as each first shows (#1714).</summary>
     public static class Fades
     {
         /// <summary>The logo's fade, started on the update the final zoom completes and the logo first shows.</summary>
-        public const PaletteFxObject Logo = PaletteFxObject.FadeInSuperMetroidTitleLogo;
+        public const ColourEffectId Logo = ColourEffectId.FadeInSuperMetroidTitleLogo;
 
         /// <summary>The copyright's fade, started on the update the logo's hold ends and the copyright first shows.</summary>
-        public const PaletteFxObject Copyright = PaletteFxObject.FadeInNintendoCopyright;
+        public const ColourEffectId Copyright = ColourEffectId.FadeInNintendoCopyright;
     }
 
     /// <summary>The tracks the normal and skip paths select.</summary>
@@ -106,11 +106,11 @@ public static class TitleSequenceDefinitions
         /// The colour group of each colouring whose colours a fade animates (#1714): a composition drawn in the colouring
         /// shows the record the fade last showed over its drawn colours.
         /// </summary>
-        public static IReadOnlyDictionary<TitleSpriteColouring, PaletteFxColours> FadedColours { get; } =
-            new Dictionary<TitleSpriteColouring, PaletteFxColours>
+        public static IReadOnlyDictionary<TitleSpriteColouring, ColourEffectColours> FadedColours { get; } =
+            new Dictionary<TitleSpriteColouring, ColourEffectColours>
             {
-                [TitleSpriteColouring.Logo] = PaletteFxColours.TitleLogo,
-                [TitleSpriteColouring.Copyright] = PaletteFxColours.NintendoCopyright,
+                [TitleSpriteColouring.Logo] = ColourEffectColours.TitleLogo,
+                [TitleSpriteColouring.Copyright] = ColourEffectColours.NintendoCopyright,
             };
     }
 

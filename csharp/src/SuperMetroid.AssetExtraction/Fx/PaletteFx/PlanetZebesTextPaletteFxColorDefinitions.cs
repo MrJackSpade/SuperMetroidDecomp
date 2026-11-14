@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -25,12 +25,12 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeIn,
-                ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.FadeInPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.FadeInPlanetZebesText, ColorsPerFrame),
             },
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeOut,
-                ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.FadeOutPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.FadeOutPlanetZebesText, ColorsPerFrame),
             },
         ];
 

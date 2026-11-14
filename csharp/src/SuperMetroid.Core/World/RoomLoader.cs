@@ -26,7 +26,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
@@ -97,8 +97,8 @@ internal sealed class RoomLoader
     private readonly ActiveRoomState _room;
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
-    private readonly PaletteFxSessionState _paletteFxSession;
+    /// <summary>The colour effect handler state each room's colour effects reads.</summary>
+    private readonly ColourEffectSessionState _colourEffectSession;
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
     /// <summary>Provides persistent events and defeated bosses used by room-state selectors.</summary>
@@ -134,7 +134,7 @@ internal sealed class RoomLoader
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
-        _paletteFxSession = dependencies.PaletteFxSession;
+        _colourEffectSession = dependencies.ColourEffectSession;
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _assists = dependencies.Assists;
@@ -239,14 +239,14 @@ internal sealed class RoomLoader
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(_player.IntroducedSamus, frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
-        PaletteFxObject loadAppearance =
+        ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? SavedGameAppearanceDefinitions.GravitySuitGlow
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? SavedGameAppearanceDefinitions.VariaSuitGlow
                     : SavedGameAppearanceDefinitions.PowerSuitGlow;
         _player.BeginLoadAppearance(loadAppearance, SavedGameAppearanceDefinitions.FrameCount);
-        _room.LoadedScope.PaletteFx.Start(
+        _room.LoadedScope.ColourEffects.Start(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
@@ -871,7 +871,7 @@ internal sealed class RoomLoader
 
         // Loading the FX definition selects the door-specific record, applies its palette
         // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
-        // effect and animtile state before palette-FX objects and enemies begin running.
+        // effect and animtile state before colour effects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
@@ -894,14 +894,14 @@ internal sealed class RoomLoader
         // record names two independent effect lists. The palette half must
         // be created on every shared room-load path; Landing Site's lightning replaces the
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
-        var roomPaletteFx = RoomPaletteFxSystem.ForRoom(
-            _paletteFxSession,
+        var roomColourEffects = ColourEffectSystem.ForRoom(
+            _colourEffectSession,
             room.State.Fx,
             door,
             _player.Samus?.EquippedItems ?? 0,
             _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
-        roomPaletteFx.BindAudioRequests(_audioRequests);
-        scope.PaletteFx = roomPaletteFx;
+        roomColourEffects.BindAudioRequests(_audioRequests);
+        scope.ColourEffects = roomColourEffects;
 
 
         // Loading destroys room-owned objects before constructing the destination: the
@@ -1043,10 +1043,10 @@ internal sealed class RoomLoader
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupBehavior == RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomPaletteFx, enemies);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomColourEffects, enemies);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
-        _enemyRoomEffects.StartEnemyColourEffect(enemies.LastEnemyFrame.ColourEffect, roomPaletteFx);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, roomObjects, enemies);
+        _enemyRoomEffects.StartEnemyColourEffect(enemies.LastEnemyFrame.ColourEffect, roomColourEffects);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 

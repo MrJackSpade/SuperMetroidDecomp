@@ -6,7 +6,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.Verification.Samus.Abilities.DrainedPoseHistoryVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
@@ -213,9 +213,9 @@ level, right, unchecked((ushort)(frame + 1))),
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
-    AssertEqual(1, left.Drained.HyperBeamPaletteFx.FrameHold,
+    AssertEqual(1, left.Drained.HyperBeamColourEffect.FrameHold,
         "palette-FX spawn installs native timer one");
-    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamPaletteFx.Place,
+    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamColourEffect.Place,
         "palette-FX spawn starts the object's program");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color
@@ -227,14 +227,14 @@ level, right, unchecked((ushort)(frame + 1))),
     for (int call = 0; call < 21; call++)
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
-        bool paletteWritten = left.Drained.HyperBeamPaletteFx.FrameHold == 1;
-        left.Drained.HyperBeamPaletteFx.Step(drainedColours);
-        int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
-        AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
+        bool paletteWritten = left.Drained.HyperBeamColourEffect.FrameHold == 1;
+        left.Drained.HyperBeamColourEffect.Step(drainedColours);
+        int expectedFrame = (call / 2) % HyperBeamColourEffectState.FrameCount;
+        AssertEqual(expectedFrame, left.Drained.HyperBeamColourEffect.CurrentFrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
         AssertEqual((call & 1) == 0, paletteWritten,
             $"Hyper Beam palette-FX call {call + 1} write cadence");
-        for (int color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        for (int color = 0; color < HyperBeamColourEffectState.ColorsPerFrame; color++)
         {
             AssertEqual(
                 unchecked((ushort)(0x0100 + expectedFrame * 0x20 + color)),
@@ -868,11 +868,11 @@ static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus
     WriteTestWord(bus, 0x8de1f2, 0xd900);
     WriteTestWord(bus, 0x8dd900, 0xc655);
     WriteTestWord(bus, 0x8dd902, 0x01c2);
-    for (ushort frame = 0; frame < HyperBeamPaletteFxState.FrameCount; frame++)
+    for (ushort frame = 0; frame < HyperBeamColourEffectState.FrameCount; frame++)
     {
         int record = 0x8dd904 + frame * 20;
         WriteTestWord(bus, record, 2);
-        for (ushort color = 0; color < HyperBeamPaletteFxState.ColorsPerFrame; color++)
+        for (ushort color = 0; color < HyperBeamColourEffectState.ColorsPerFrame; color++)
         {
             WriteTestWord(
                 bus,

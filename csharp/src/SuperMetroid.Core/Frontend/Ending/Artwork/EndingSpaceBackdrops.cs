@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -12,18 +12,18 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class EndingSpaceBackdrops
 {
     /// <summary>The backdrop each frame of the space's colours shows.</summary>
-    private readonly FrozenDictionary<PaletteFxFrame, RgbColor> backdrops;
+    private readonly FrozenDictionary<ColourEffectFrame, RgbColor> backdrops;
 
     /// <summary>Keeps the backdrop each frame of the space's colours shows.</summary>
     /// <param name="backdrops">The backdrop of each frame, by the frame.</param>
-    public EndingSpaceBackdrops(IReadOnlyDictionary<PaletteFxFrame, RgbColor> backdrops)
+    public EndingSpaceBackdrops(IReadOnlyDictionary<ColourEffectFrame, RgbColor> backdrops)
     {
         this.backdrops = Ensure.NotNull(backdrops).ToFrozenDictionary();
     }
 
     /// <summary>The backdrop <paramref name="frame"/> of the space's colours shows.</summary>
     /// <exception cref="InvalidDataException">The frame's backdrop is not installed.</exception>
-    public RgbColor Of(PaletteFxFrame frame) => backdrops.TryGetValue(frame, out RgbColor backdrop)
+    public RgbColor Of(ColourEffectFrame frame) => backdrops.TryGetValue(frame, out RgbColor backdrop)
         ? backdrop
         : throw new InvalidDataException($"Colour-effect frame {frame} of the space behind the exploding planet has no installed backdrop.");
 }

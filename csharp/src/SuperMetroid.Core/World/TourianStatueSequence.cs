@@ -21,14 +21,14 @@ public sealed class TourianStatueSequence
 
     /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Supplies equipped items to palette FX created during the release animation.</summary>
+    /// <summary>Supplies equipped items to colour effects started during the release animation.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;
     /// <summary>Creates the palette effect selected by a statue animation cue.</summary>
-    private readonly RoomPaletteFxSystem _roomPaletteFx;
+    private readonly ColourEffectSystem _roomColourEffects;
     /// <summary>Tracks boss and statue events, the area's defeated bosses, RNG, and the final Tourian unlock event.</summary>
     private readonly SharedGameState _system;
     /// <summary>The open-statues assist skips the statue animation and starts the statue at its completed offset.</summary>
@@ -39,18 +39,18 @@ public sealed class TourianStatueSequence
     /// <summary>Builds one room's statue sequence over the session services that run its statue and background descent animations.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
-    /// <param name="roomPaletteFx">The room's palette FX.</param>
+    /// <param name="roomColourEffects">The room's colour effects.</param>
     /// <param name="roomObjects">The room's room-object system, which receives the Tourian access room object when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomFxOverlayState roomFxOverlay,
-        RoomPaletteFxSystem roomPaletteFx, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
+        ColourEffectSystem roomColourEffects, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
     {
 
         _enemies = Ensure.NotNull(enemies);
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
-        _roomPaletteFx = Ensure.NotNull(roomPaletteFx);
+        _roomColourEffects = Ensure.NotNull(roomColourEffects);
         _system = dependencies.System;
         _assists = dependencies.Assists;
         _freeze = dependencies.Freeze;
@@ -238,8 +238,8 @@ public sealed class TourianStatueSequence
                 case TourianStatueTileCueKind.SpawnSoul:
                     statue.SpawnSoul(definition.Eye);
                     return null;
-                case TourianStatueTileCueKind.SpawnGreyPaletteFx:
-                    _roomPaletteFx.Start(definition.PaletteFx, _player.IntroducedSamus.EquippedItems);
+                case TourianStatueTileCueKind.SpawnGreyColourEffect:
+                    _roomColourEffects.Start(definition.ColourEffect, _player.IntroducedSamus.EquippedItems);
                     return null;
                 case TourianStatueTileCueKind.SetGreyEvent:
                     _system.SetEvent(definition.GreyEvent);

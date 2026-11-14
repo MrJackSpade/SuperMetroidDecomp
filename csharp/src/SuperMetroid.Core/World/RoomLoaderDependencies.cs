@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [ArchitectureReview("wide-dependencies", "The room composer: a room load builds every room-lifetime owner (level, " +
-    "camera, FX, palette FX, backgrounds, projectiles, room objects, enemies, Tourian statues) over the session owners each one " +
+    "camera, FX, colour effects, backgrounds, projectiles, room objects, enemies, Tourian statues) over the session owners each one " +
     "outlives, as the room load initializes them in one pass; each member is one of those session owners.")]
 internal sealed record RoomLoaderDependencies
 {
@@ -84,8 +84,8 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect overlay FX reads.</summary>
     public required RoomFxSession RoomFx { get; init; }
 
-    /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
-    public required PaletteFxSessionState PaletteFxSession { get; init; }
+    /// <summary>The colour effect handler state each room's colour effects reads.</summary>
+    public required ColourEffectSessionState ColourEffectSession { get; init; }
 
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     public required TourianStatueSequenceDependencies TourianStatueDependencies { get; init; }

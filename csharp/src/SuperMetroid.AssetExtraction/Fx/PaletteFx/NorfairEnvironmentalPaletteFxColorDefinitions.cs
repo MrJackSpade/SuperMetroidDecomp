@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -31,20 +31,20 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         NorfairEnvironmentalPaletteOwner.DarkForeground,
     ];
     /// <summary>The palette-FX object of each program, by owner.</summary>
-    internal static readonly PaletteFxObject[] Objects =
+    internal static readonly ColourEffectId[] Objects =
     [
-        PaletteFxObject.NorfairForegroundAndHeatPhase,
-        PaletteFxObject.NorfairGreenForegroundHeatGlow,
-        PaletteFxObject.NorfairPurpleForegroundHeatGlow,
-        PaletteFxObject.NorfairDarkForegroundHeatGlow,
+        ColourEffectId.NorfairForegroundAndHeatPhase,
+        ColourEffectId.NorfairGreenForegroundHeatGlow,
+        ColourEffectId.NorfairPurpleForegroundHeatGlow,
+        ColourEffectId.NorfairDarkForegroundHeatGlow,
     ];
     /// <summary>The program each object runs, by owner: the heat-phase program, then the green, purple and dark foreground glows.</summary>
-    internal static readonly PaletteFxSegment[] Programs =
+    internal static readonly ColourEffectAnimation[] Programs =
     [
-        PaletteFxSegment.NorfairForegroundAndHeatPhaseCycle,
-        PaletteFxSegment.NorfairGreenForegroundHeatGlowCycle,
-        PaletteFxSegment.NorfairPurpleForegroundHeatGlowCycle,
-        PaletteFxSegment.NorfairDarkForegroundHeatGlowCycle,
+        ColourEffectAnimation.NorfairForegroundAndHeatPhase,
+        ColourEffectAnimation.NorfairGreenForegroundHeatGlow,
+        ColourEffectAnimation.NorfairPurpleForegroundHeatGlow,
+        ColourEffectAnimation.NorfairDarkForegroundHeatGlow,
     ];
 
     /// <summary>The four real environmental programs in definition order.</summary>

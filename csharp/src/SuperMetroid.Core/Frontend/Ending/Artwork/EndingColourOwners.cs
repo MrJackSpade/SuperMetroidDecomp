@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -52,15 +52,15 @@ internal static class EndingColourOwners
             Add(EndingShades.Flashed(flash), Required(EndingColourOwnerDefinitions.Flashes, flash));
         Add(EndingShades.LogoCrossfade(0), EndingColourOwnerDefinitions.LogoCrossfade);
         // A colour group's shades form one family per animation that shows in it (#1598).
-        ShownPaletteFxFrame[] shownFrames = PaletteFxShownFrames.ShownBy(Enum.GetValues<PaletteFxObject>());
-        foreach (KeyValuePair<PaletteFxColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.PaletteFx)
+        ShownColourEffectFrame[] shownFrames = ColourEffectShownFrames.ShownBy(Enum.GetValues<ColourEffectId>());
+        foreach (KeyValuePair<ColourEffectColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.ColourEffects)
         {
-            PaletteFxSegment[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
+            ColourEffectAnimation[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
                 .Select(shown => shown.Frame.Animation).Distinct()];
             if (animations.Length == 0)
                 throw new InvalidDataException($"The ending lists what {group.Key} is authored for, which no colour effect shows.");
-            foreach (PaletteFxSegment animation in animations)
-                Add(PaletteFxShades.Of(group.Key, new PaletteFxFrame(animation, 0)), group.Value);
+            foreach (ColourEffectAnimation animation in animations)
+                Add(ColourEffectShades.Of(group.Key, new ColourEffectFrame(animation, 0)), group.Value);
         }
         return listed.ToFrozenDictionary(StringComparer.Ordinal);
 

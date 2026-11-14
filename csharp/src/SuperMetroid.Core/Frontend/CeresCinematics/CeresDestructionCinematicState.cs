@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class CeresDestructionCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
@@ -88,7 +88,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
     /// </summary>
-    internal RoomPaletteFxSystem PaletteFx { get; private set; } = new(new PaletteFxSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
     /// <summary>Planet actor whose sliding frame behaviour uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
@@ -405,8 +405,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The cinematic's game state runs the colour effects after cinematic objects, every update from the setup on,
         // including the update which starts an effect. Their records are shades the import pre-colours the scene's pictures
         // in (#1512); the scene names the record each running effect shows (#1597).
-        PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        if (PaletteFx.AudioRequests.SoundRequests.Count != 0)
+        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        if (ColourEffects.AudioRequests.SoundRequests.Count != 0)
             throw new InvalidDataException("A Ceres destruction colour effect unexpectedly requested audio.");
 
         // The cinematic's game state increments the shared cinematic frame counter after calling the
@@ -425,8 +425,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         FloorShot = CeresFloorShot.Station;
         Backdrop = content.CeresFlight.Backdrop;
         // The setup clears the colour effects and starts the station's navigation lights (#1733).
-        PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        PaletteFx.Start(CeresDestructionSceneDefinitions.NavigationLights, 0);
+        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        ColourEffects.Start(CeresDestructionSceneDefinitions.NavigationLights, 0);
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -451,8 +451,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ZebesRevealed = true;
         FloorShot = CeresFloorShot.ZebesApproach;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
-        PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        PaletteFx.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
+        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        ColourEffects.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
 
         actors.Clear();
         Background = FixedPosition<FloorPixels>.Zero;
@@ -754,12 +754,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             case CinematicSpriteCueKind.FadeInZebesText:
                 // The caption starts fading in from black as it first shows (#1733).
-                PaletteFx.Start(CeresDestructionSceneDefinitions.ZebesTextFadeIn, 0);
+                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeIn, 0);
                 return;
 
             case CinematicSpriteCueKind.FadeOutZebesText:
                 // The caption fades out to black as its hold ends, and stays black (#1733).
-                PaletteFx.Start(CeresDestructionSceneDefinitions.ZebesTextFadeOut, 0);
+                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeOut, 0);
                 return;
 
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
@@ -880,10 +880,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         get
         {
             PictureShading shading = PictureShading.Standard;
-            foreach (PaletteFxColours colours in CeresDestructionSceneDefinitions.FloorColours)
+            foreach (ColourEffectColours colours in CeresDestructionSceneDefinitions.FloorColours)
             {
-                if (PaletteFx.FrameOf(colours) is { } frame)
-                    shading = shading.With(PaletteFxShades.Of(colours, frame));
+                if (ColourEffects.FrameOf(colours) is { } frame)
+                    shading = shading.With(ColourEffectShades.Of(colours, frame));
             }
             return shading;
         }
@@ -896,10 +896,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private PictureShading ActorShading(PictureShade drawn)
     {
         PictureShading shading = PictureShading.Shaded(drawn);
-        foreach ((CeresSpriteColouring colouring, PaletteFxColours colours) in CeresDestructionSceneDefinitions.FadedColours)
+        foreach ((CeresSpriteColouring colouring, ColourEffectColours colours) in CeresDestructionSceneDefinitions.FadedColours)
         {
-            if (CeresShades.Drawn(colouring) == drawn && PaletteFx.FrameOf(colours) is { } frame)
-                shading = shading.With(PaletteFxShades.Of(colours, frame));
+            if (CeresShades.Drawn(colouring) == drawn && ColourEffects.FrameOf(colours) is { } frame)
+                shading = shading.With(ColourEffectShades.Of(colours, frame));
         }
         return shading;
     }

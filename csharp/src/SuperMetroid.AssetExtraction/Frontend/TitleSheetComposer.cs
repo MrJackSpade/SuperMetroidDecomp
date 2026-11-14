@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -83,7 +83,7 @@ internal static class TitleSheetComposer
             [palette.SkipCopyrightWhite, palette.SkipCopyrightRed]));
         // The logo and the copyright show each record their fades show over the inks each fade recolours (#1714), laid
         // over their drawn shades.
-        foreach (PaletteFxColours faded in TitleSheetInks.Fades)
+        foreach (ColourEffectColours faded in TitleSheetInks.Fades)
         {
             shades.AddRange(PaletteFxScreenShades.Of([TitleSequenceDefinitions.Fades.Logo, TitleSequenceDefinitions.Fades.Copyright],
                 faded, TitleSheetInks.Fade(faded), paletteFx));

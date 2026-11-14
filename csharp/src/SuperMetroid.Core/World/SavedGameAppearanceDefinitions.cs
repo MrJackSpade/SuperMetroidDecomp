@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 
@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.World;
 internal static class SavedGameAppearanceDefinitions
 {
     /// <summary>The loading glow Samus shows in the Power Suit.</summary>
-    public const PaletteFxObject PowerSuitGlow = PaletteFxObject.SamusLoadingPowerSuit;
+    public const ColourEffectId PowerSuitGlow = ColourEffectId.SamusLoadingPowerSuit;
 
     /// <summary>The loading glow Samus shows in the Varia Suit.</summary>
-    public const PaletteFxObject VariaSuitGlow = PaletteFxObject.SamusLoadingVariaSuit;
+    public const ColourEffectId VariaSuitGlow = ColourEffectId.SamusLoadingVariaSuit;
 
     /// <summary>The loading glow Samus shows in the Gravity Suit, which takes precedence over the Varia Suit.</summary>
-    public const PaletteFxObject GravitySuitGlow = PaletteFxObject.SamusLoadingGravitySuit;
+    public const ColourEffectId GravitySuitGlow = ColourEffectId.SamusLoadingGravitySuit;
 
     /// <summary>Frames the saved-game appearance lasts before Samus takes ordinary input.</summary>
     public const int FrameCount = 360;

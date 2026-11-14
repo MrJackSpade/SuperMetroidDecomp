@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -26,14 +26,14 @@ public static class TorizoBellyPaletteFxColorDefinitions
         new()
         {
             Owner = TorizoBellyPaletteOwner.BombTorizo,
-            Object = PaletteFxObject.BombTorizoBelly,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.BombTorizoBelly1, ColorsPerFrame),
+            Object = ColourEffectId.BombTorizoBelly,
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.BombTorizoBelly, ColorsPerFrame),
         },
         new()
         {
             Owner = TorizoBellyPaletteOwner.GoldenTorizo,
-            Object = PaletteFxObject.GoldenTorizoBelly,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.GoldenTorizoBelly1, ColorsPerFrame),
+            Object = ColourEffectId.GoldenTorizoBelly,
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.GoldenTorizoBelly, ColorsPerFrame),
         },
     ];
 }

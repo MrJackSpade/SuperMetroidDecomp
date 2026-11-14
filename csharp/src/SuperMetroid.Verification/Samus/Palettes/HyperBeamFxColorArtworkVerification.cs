@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Video;
@@ -30,7 +30,7 @@ internal static class HyperBeamFxColorArtworkVerification
 
         // The Hyper Beam lays a cycle frame's shade over her beams; the import pre-colours each frame's shade from the
         // installed cycle, whose colours each step compares with the cartridge's frame.
-        var extracted = new HyperBeamPaletteFxState();
+        var extracted = new HyperBeamColourEffectState();
         var extractedColours = new SamusColours();
         SamusShadeSources stockSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = colours };
 

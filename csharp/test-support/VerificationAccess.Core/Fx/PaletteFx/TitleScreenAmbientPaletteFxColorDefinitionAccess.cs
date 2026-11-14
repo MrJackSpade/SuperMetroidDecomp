@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-namespace SuperMetroid.Core.Fx.PaletteFx;
+namespace SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Title;
 
 /// <summary>Verification access to <see cref="TitleScreenAmbientPaletteFxColorDefinition"/> members production does not use.</summary>
@@ -10,7 +10,7 @@ internal static class TitleScreenAmbientPaletteFxColorDefinitionAccess
     extension(TitleScreenAmbientPaletteFxColorDefinition self)
     {
         /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
-        internal ushort DefinitionPointer => PaletteFxObjectAccess.NativeAddress(self.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight ? TitleSequenceDefinitions.ConsolePaletteFx.SlowLights : TitleSequenceDefinitions.ConsolePaletteFx.FastLights);
+        internal ushort DefinitionPointer => PaletteFxObjectAccess.NativeAddress(self.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight ? TitleSequenceDefinitions.ConsoleColourEffects.SlowLights : TitleSequenceDefinitions.ConsoleColourEffects.FastLights);
 
         /// <summary>The complete loop duration in frames.</summary>
         internal int CycleFrames => self.FrameCount * self.FrameDuration;

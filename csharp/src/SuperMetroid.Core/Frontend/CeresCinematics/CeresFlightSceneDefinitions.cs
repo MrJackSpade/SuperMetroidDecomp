@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -15,21 +15,21 @@ internal static class CeresFlightSceneDefinitions
     /// The gunship engine's flickering colours on the rear view's floor, started as the rear view is set up, just before the
     /// station's navigation lights (#1733).
     /// </summary>
-    internal const PaletteFxObject GunshipEngineFlicker = CeresDestructionSceneDefinitions.GunshipEngineFlicker;
+    internal const ColourEffectId GunshipEngineFlicker = CeresDestructionSceneDefinitions.GunshipEngineFlicker;
 
     /// <summary>The colour group the rear view's floor shows the engine flicker's records of (#1733).</summary>
-    internal const PaletteFxColours EngineColours = PaletteFxColours.CutsceneGunshipEngine;
+    internal const ColourEffectColours EngineColours = ColourEffectColours.CutsceneGunshipEngine;
 
     /// <summary>The station's blinking navigation lights on its sprites, started as the rear view is set up (#1733).</summary>
-    internal const PaletteFxObject NavigationLights = PaletteFxObject.CutsceneCeresNavigationLightsSprite;
+    internal const ColourEffectId NavigationLights = ColourEffectId.CutsceneCeresNavigationLightsSprite;
 
     /// <summary>
     /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
     /// record the effect last showed over its drawn colours.
     /// </summary>
-    internal static IReadOnlyDictionary<CeresSpriteColouring, PaletteFxColours> LitColours { get; } =
-        new Dictionary<CeresSpriteColouring, PaletteFxColours>
+    internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> LitColours { get; } =
+        new Dictionary<CeresSpriteColouring, ColourEffectColours>
         {
-            [CeresSpriteColouring.Station] = PaletteFxColours.CeresNavigationLightsSprite,
+            [CeresSpriteColouring.Station] = ColourEffectColours.CeresNavigationLightsSprite,
         };
 }

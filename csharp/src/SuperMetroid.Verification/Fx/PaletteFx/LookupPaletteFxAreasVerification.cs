@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 

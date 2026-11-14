@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -20,8 +20,8 @@ public static class CeresCinematicLightPaletteFxColorDefinitions
     public const int NavigationLightsColorsPerFrame = 2;
 
     /// <summary>The gunship engine's records and the colour each writes.</summary>
-    public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CutsceneGunshipEngineFlicker1, GunshipEngineColorsPerFrame);
+    public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.CutsceneGunshipEngineFlicker, GunshipEngineColorsPerFrame);
 
     /// <summary>The navigation lights' records and the colours each writes.</summary>
-    public static PaletteFxColorFrames NavigationLightsFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CommonCeresNavigationLights, NavigationLightsColorsPerFrame);
+    public static PaletteFxColorFrames NavigationLightsFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.CutsceneCeresNavigationLightsSprite, NavigationLightsColorsPerFrame);
 }

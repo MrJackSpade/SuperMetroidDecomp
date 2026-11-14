@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -17,18 +17,18 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
-            Object = PaletteFxObject.TourianShutterRedFlashing,
+            Object = ColourEffectId.TourianShutterRedFlashing,
             Duration = 2,
             ColorsPerFrame = 6,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TourianShutterRedFlashingCycle, 6),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.TourianShutterRedFlashing, 6),
         },
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Background,
-            Object = PaletteFxObject.TourianBackgroundRedFlashing,
+            Object = ColourEffectId.TourianBackgroundRedFlashing,
             Duration = 4,
             ColorsPerFrame = 4,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TourianBackgroundRedFlashingCycle, 4),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.TourianBackgroundRedFlashing, 4),
         },
     ];
 

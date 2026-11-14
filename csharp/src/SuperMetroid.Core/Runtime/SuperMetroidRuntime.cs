@@ -11,7 +11,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -221,7 +221,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -355,8 +355,8 @@ internal sealed class SuperMetroidRuntime
     public ShownHud AcceptedHud =>
         Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
 
-    /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
-    public PaletteFxSessionState PaletteFxSession { get; } = new();
+    /// <summary>The colour effect handler enable bit and heat phases, which outlive each room's colour effects.</summary>
+    public ColourEffectSessionState ColourEffectSession { get; } = new();
 
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
     internal DoorFade DoorFade { get; } = new();
@@ -474,7 +474,7 @@ internal sealed class SuperMetroidRuntime
         RunEffectsBeforePhase();
         var context = new GameplayFrameContext(SampleSamusCameraPoint());
         PrepareEnemyProcessingList();
-        RunPaletteFx();
+        RunColourEffects();
         BeginSpriteFrame();
         PrepareEnemiesAndHoistedEnemyMain(context);
         if (Player.Samus is not null && Room.Camera is not null)
@@ -601,15 +601,15 @@ internal sealed class SuperMetroidRuntime
     private void PrepareEnemyProcessingList()
     {
         // Main gameplay begins by determining which enemies to process,
-        // before palette FX and Samus. The grapple scan uses this list.
+        // before colour effects and Samus. The grapple scan uses this list.
         if (Room.Camera is not null && Room.LoadedScope.Enemies.IsLoaded)
             Room.LoadedScope.Enemies.ProcessingWindow.PrepareEnemyProcessingList(Room.Camera.PixelPosition);
     }
 
-    /// <summary>Runs the palette-FX handler and Hyper Beam's palette object.</summary>
-    private void RunPaletteFx()
+    /// <summary>Runs the colour effect handler and Hyper Beam's palette object.</summary>
+    private void RunColourEffects()
     {
-        // Main gameplay runs the palette-FX handler before Samus's update and
+        // Main gameplay runs the colour effect handler before Samus's update and
         // before enemies are processed. The Hyper Beam is equipped by the
         // Baby during that later enemy phase, so a newly spawned Hyper Beam palette object naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
@@ -619,24 +619,24 @@ internal sealed class SuperMetroidRuntime
         // Running the room's effects before the separately owned Hyper Beam effect keeps that
         // order.
         // Door destination drawing borrows this frame path, but the door's destination
-        // fade does not call the palette-FX handler. Its colors must remain
+        // fade does not call the colour effect handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (Room.LoadedScope.PaletteFx.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
-            Player.Samus?.Xray.ArePaletteFxSuspended != true)
+        if (Room.LoadedScope.ColourEffects.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
+            Player.Samus?.Xray.AreColourEffectsSuspended != true)
         {
-            Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
+            Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasDefeatedAnyOf(paletteRoom.AreaIndex, DefeatedBosses.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
-            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.SuitShown)
-                Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));
+            foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.SuitShown)
+                Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
             // The enemies' groups show over their owners' own colours as the frames that wrote them (#1512).
-            foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.EnemyShown)
-                Room.LoadedScope.Enemies.PaletteFxShows.Show(colours, frame);
+            foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.EnemyShown)
+                Room.LoadedScope.Enemies.ColourEffectShows.Show(colours, frame);
         }
         // Hyper Beam's palette object lives in the same pool and handler.
-        if (Room.LoadedScope.PaletteFx.HandlerEnabled)
+        if (Room.LoadedScope.ColourEffects.HandlerEnabled)
         {
-            Player.Samus?.Drained.HyperBeamPaletteFx.Step(Player.Colours);
+            Player.Samus?.Drained.HyperBeamColourEffect.Step(Player.Colours);
         }
     }
 
@@ -891,9 +891,9 @@ internal sealed class SuperMetroidRuntime
         if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
-            // dispatcher, whites the target palettes and disables palette FX.
+            // dispatcher, whites the target palettes and disables colour effects.
             TimeUpRequested = true;
-            PaletteFxSession.DisableHandler();
+            ColourEffectSession.DisableHandler();
         }
         if (runEscapeTimerHandler && EscapeTimer.IsActive)
         {
@@ -1058,7 +1058,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
     private IEnumerable<IGameplayShadingSource> ShadingSources()
     {
-        yield return Room.LoadedScope.PaletteFx;
+        yield return Room.LoadedScope.ColourEffects;
         yield return Room.LoadedScope.FxOverlay;
         foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
             yield return boss;

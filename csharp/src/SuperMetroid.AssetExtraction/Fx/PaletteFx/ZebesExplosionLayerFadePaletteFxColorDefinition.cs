@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -15,7 +15,7 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
 
     /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks>One object fades the crust and the other the grey clouds.</remarks>
-    public required PaletteFxObject Object { get; init; }
+    public required ColourEffectId Object { get; init; }
 
 
     /// <summary>The authored duration of each timed record.</summary>

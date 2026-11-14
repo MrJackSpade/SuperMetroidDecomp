@@ -19,7 +19,7 @@ using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
@@ -328,12 +328,12 @@ internal sealed class EnemySheetShades
             }
             case EnemyDefinitionId.ShutterDestroyable:
                 // The first escape room's shutters show the escape's red flash over their own row.
-                shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
+                shades.AddRange(PaletteFxSpriteShades.Of(ColourEffectId.TourianShutterRedFlashing, ColourEffectColours.TourianShutters,
                     first, (inputs.Maps ?? throw Missing("Tourian shutter flash colours")).RoomPaletteFx));
                 break;
             case EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance:
                 // The gunship's pieces show its lights' glow, which its placement starts, over their own row (#1733).
-                shades.AddRange(PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, PaletteFxColours.GunshipGlow,
+                shades.AddRange(PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow,
                     first, (inputs.Maps ?? throw Missing("gunship glow colours")).RoomPaletteFx));
                 break;
             case EnemyDefinitionId.Coven:
@@ -344,7 +344,7 @@ internal sealed class EnemySheetShades
                 // The Torizos' colourings over their own rows (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
                     (inputs.Maps ?? throw Missing("Torizo belly glow colours")).RoomPaletteFx,
-                    enemy is EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb ? PaletteFxObject.GoldenTorizoBelly : PaletteFxObject.BombTorizoBelly));
+                    enemy is EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb ? ColourEffectId.GoldenTorizoBelly : ColourEffectId.BombTorizoBelly));
                 break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
                 or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
@@ -563,10 +563,10 @@ internal sealed class EnemySheetShades
         yield return SheetShade.Run(TourianStatueShades.RidleyGrey, ridley, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
         // The sprite statues grey out through palette-FX records over their own rows, Ridley's and the statue body's.
         IPaletteFxColorSource paletteFx = (inputs.Maps ?? throw Missing("Tourian statue grey-out colours")).RoomPaletteFx;
-        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(PaletteFxObject.GreyOutTourianStatueRidley, PaletteFxColours.RidleyStatue,
+        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(ColourEffectId.GreyOutTourianStatueRidley, ColourEffectColours.RidleyStatue,
                      ridley, paletteFx))
             yield return greyOut;
-        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(PaletteFxObject.GreyOutTourianStatuePhantoon, PaletteFxColours.PhantoonStatue,
+        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(ColourEffectId.GreyOutTourianStatuePhantoon, ColourEffectColours.PhantoonStatue,
                      body, paletteFx))
             yield return greyOut;
     }

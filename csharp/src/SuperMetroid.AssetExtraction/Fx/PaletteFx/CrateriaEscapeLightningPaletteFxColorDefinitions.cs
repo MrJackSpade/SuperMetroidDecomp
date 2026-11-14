@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -15,17 +15,17 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition YellowLightning = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.YellowLightning,
-        Object = PaletteFxObject.CrateriaEscapeYellowLightning,
+        Object = ColourEffectId.CrateriaEscapeYellowLightning,
         ColorsPerFrame = 11,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.CrateriaEscapeYellowLightningCycle, 11),
+        ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.CrateriaEscapeYellowLightning, 11),
     };
     /// <summary>The Parlor's sky program targets the lightning's five-color dark tail from colour byte $AE.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorSky = new()
     {
         Owner = CrateriaEscapeLightningPaletteOwner.ParlorSky,
-        Object = PaletteFxObject.ParlorEscapeSkyFlicker,
+        Object = ColourEffectId.ParlorEscapeSkyFlicker,
         ColorsPerFrame = 5,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.ParlorEscapeSkyFlickerCycle, 5),
+        ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.ParlorEscapeSkyFlicker, 5),
     };
     /// <summary>The yellow-lightning and Parlor sky programs in definition order.</summary>
     public static IReadOnlyList<CrateriaEscapeLightningPaletteFxColorDefinition> All { get; } = [YellowLightning, ParlorSky];

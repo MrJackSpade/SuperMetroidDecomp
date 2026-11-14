@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Identifies one compiled Ceres cinematic-light palette program.</summary>
 public enum CeresCinematicLightPaletteFxProgramOwner

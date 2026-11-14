@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>Cartridge values and helpers of <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramDefinition"/> that only verification reads.</summary>
 internal static class PaletteFxHeatProgramDefinitionConstants
@@ -10,11 +10,11 @@ internal static class PaletteFxHeatProgramDefinitionConstants
     /// protected suits; Power uses3 before its loop. These explicit endpoint roles
     /// and the symmetric interior reproduce all48 original durations. No schedule
     /// array remains. Source: supported NTSC J/U v1.0 and pinned bank_8D.asm.</remarks>
-    internal static ushort Duration(PaletteFxHeatSuit suit, int phase)
+    internal static ushort Duration(ColourEffectHeatSuit suit, int phase)
     {
         if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
         if (phase == 0) return 16;
-        if (phase == 15) return (ushort)(suit == PaletteFxHeatSuit.Power ? 3 : 16);
+        if (phase == 15) return (ushort)(suit == ColourEffectHeatSuit.Power ? 3 : 16);
         return (ushort)Math.Min(8, Math.Max(4, Math.Min(phase, 15 - phase) + 2));
     }
 }

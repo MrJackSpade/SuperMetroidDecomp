@@ -41,7 +41,7 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -113,15 +113,15 @@ internal static class LookupStream4Verification
         AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-        var fxSession = new PaletteFxSessionState();
-        var fx = new RoomPaletteFxSystem(fxSession);
+        var fxSession = new ColourEffectSessionState();
+        var fx = new ColourEffectSystem(fxSession);
         var cgram = new SnesCgram();
         fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
@@ -140,7 +140,7 @@ internal static class LookupStream4Verification
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!fx.IsRunning(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
@@ -206,15 +206,15 @@ internal static class LookupStream4Verification
             AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-            var fxSession = new PaletteFxSessionState();
-            var fx = new RoomPaletteFxSystem(fxSession);
+            var fxSession = new ColourEffectSessionState();
+            var fx = new ColourEffectSystem(fxSession);
             var cgram = new SnesCgram();
             fx.Start(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
@@ -241,21 +241,21 @@ internal static class LookupStream4Verification
         var document = Document();
         var selected = TitlePaletteFile.Read(new MemoryStream(json));
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-        var fxSession = new PaletteFxSessionState();
-        var fx = new RoomPaletteFxSystem(fxSession);
+        var fxSession = new ColourEffectSessionState();
+        var fx = new ColourEffectSystem(fxSession);
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.Start(program.DefinitionPointer, 0);
         for (int tick = 0; tick <= 80; tick++)
         {
             // A frontend screen's step shows each loop's record without writing colours (#1512); the import pre-colours
             // the record's shade from the selected colours, which must hold the frame's authored colours.
-            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                 int frame = tick / program.FrameDuration % program.FrameCount;
-                PaletteFxFrame record = fx.FrameOf(program.Colours)
+                ColourEffectFrame record = fx.FrameOf(program.Colours)
                     ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
                 RgbColor[] shown = PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours;
                 for (int index = 0; index < program.ColorsPerFrame; index++)
@@ -307,17 +307,17 @@ internal static class LookupStream4Verification
         foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
-                                                                 var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeSession = new ColourEffectSessionState();
+            var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = new ColourEffectSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                native.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                installed.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
@@ -351,17 +351,17 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
-                                                                 var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeSession = new ColourEffectSessionState();
+            var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
+                                                                 var installed = new ColourEffectSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                native.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+                installed.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }

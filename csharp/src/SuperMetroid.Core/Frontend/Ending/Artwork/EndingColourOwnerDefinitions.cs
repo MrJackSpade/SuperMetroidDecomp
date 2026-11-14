@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -67,7 +67,7 @@ internal static class EndingColourOwnerDefinitions
         new Dictionary<EndingColourLoad, EndingRestoredEffects>
         {
             [EndingColourLoad.ExplosionBackgrounds] = new([EndingFade.ExplosionBackground], []),
-            [EndingColourLoad.FinalGunship] = new([], [PaletteFxColours.GunshipEmergingFromExplosion]),
+            [EndingColourLoad.FinalGunship] = new([], [ColourEffectColours.GunshipEmergingFromExplosion]),
             [EndingColourLoad.RestoredShot] = new([EndingFade.Shot], []),
             [EndingColourLoad.LogoInitial] = new([], []),
         }.ToFrozenDictionary();
@@ -101,19 +101,19 @@ internal static class EndingColourOwnerDefinitions
     internal static readonly EndingEffectOwners LogoCrossfade = new([EndingSpriteColouring.Logo], [EndingScenery.LogoPicture]);
 
     /// <summary>What each palette effect's colours the ending shows are authored for.</summary>
-    internal static readonly FrozenDictionary<PaletteFxColours, EndingEffectOwners> PaletteFx =
-        new Dictionary<PaletteFxColours, EndingEffectOwners>
+    internal static readonly FrozenDictionary<ColourEffectColours, EndingEffectOwners> ColourEffects =
+        new Dictionary<ColourEffectColours, EndingEffectOwners>
         {
-            [PaletteFxColours.WideZebesExplosionForeground] = new([], [EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.WideZebesExplosionBackground] = new([], [EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.ZebesExplosionFinale] = new([], [EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.SpaceDuringZebesExplosion] = new([], [EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.ExplodingZebesLava] = new([], [EndingScenery.EscapeSceneAFloor]),
-            [PaletteFxColours.ExplodingZebesCrust] = new([], [EndingScenery.EscapeSceneAFloor]),
-            [PaletteFxColours.ExplodingZebesGreyClouds] = new([], [EndingScenery.EscapeSceneBFloor]),
-            [PaletteFxColours.GunshipEmergingFromExplosion] = new([], [EndingScenery.FlyawayFloor]),
-            [PaletteFxColours.ZebesPlanetAfterglow] = new([EndingSpriteColouring.ExplosionAfterglow], []),
-            [PaletteFxColours.ZoomedOutExplodingZebes] = new([EndingSpriteColouring.ExplodingPlanet], []),
-            [PaletteFxColours.PostCreditsSuperMetroidIcon] = new([EndingSpriteColouring.Logo], []),
+            [ColourEffectColours.WideZebesExplosionForeground] = new([], [EndingScenery.ExplosionPictures]),
+            [ColourEffectColours.WideZebesExplosionBackground] = new([], [EndingScenery.ExplosionPictures]),
+            [ColourEffectColours.ZebesExplosionFinale] = new([], [EndingScenery.ExplosionPictures]),
+            [ColourEffectColours.SpaceDuringZebesExplosion] = new([], [EndingScenery.ExplosionPictures]),
+            [ColourEffectColours.ExplodingZebesLava] = new([], [EndingScenery.EscapeSceneAFloor]),
+            [ColourEffectColours.ExplodingZebesCrust] = new([], [EndingScenery.EscapeSceneAFloor]),
+            [ColourEffectColours.ExplodingZebesGreyClouds] = new([], [EndingScenery.EscapeSceneBFloor]),
+            [ColourEffectColours.GunshipEmergingFromExplosion] = new([], [EndingScenery.FlyawayFloor]),
+            [ColourEffectColours.ZebesPlanetAfterglow] = new([EndingSpriteColouring.ExplosionAfterglow], []),
+            [ColourEffectColours.ZoomedOutExplodingZebes] = new([EndingSpriteColouring.ExplodingPlanet], []),
+            [ColourEffectColours.PostCreditsSuperMetroidIcon] = new([EndingSpriteColouring.Logo], []),
         }.ToFrozenDictionary();
 }

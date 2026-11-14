@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingEscapeScenes
 {
     /// <summary>Queues the authored ending music transitions.</summary>
@@ -60,8 +60,8 @@ internal sealed class EndingEscapeScenes
     /// <summary>Installs the second cloud backdrop and grey-cloud palette effect before its fade-in.</summary>
     internal void SetupEscapeSceneB()
     {
-        _stage.ResetPaletteFx();
-        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GreyClouds, 0);
+        _stage.ResetColourEffects();
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GreyClouds, 0);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
@@ -112,7 +112,7 @@ internal sealed class EndingEscapeScenes
         switch (cue)
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
-                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.FadePlanet, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
@@ -125,9 +125,9 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.StartZebesExplosion:
                 ExplosionBurstDisplay = true;
-                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Supernova, 0);
-                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Explosion, 0);
-                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.WideExplosion, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Supernova, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Explosion, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.WideExplosion, 0);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -138,7 +138,7 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.ExplosionFinale:
                 ExplosionFinaleDisplay = true;
-                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.SupernovaFinale, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.SupernovaFinale, 0);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);

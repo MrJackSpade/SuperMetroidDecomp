@@ -26,4 +26,10 @@ internal sealed record Animation<TSegment>
     /// <summary>How the animation ends once its last phase has played.</summary>
     internal AnimationEnd End { get; }
 
+    /// <summary>The phase a looping animation's cycle starts at: the phase it loops from.</summary>
+    /// <exception cref="InvalidOperationException">The animation does not loop, so it has no cycle.</exception>
+    internal int CyclePhase => End is AnimationEnd.Loop loop
+        ? loop.Phase
+        : throw new InvalidOperationException($"An animation that ends with {End} has no cycle.");
+
 }

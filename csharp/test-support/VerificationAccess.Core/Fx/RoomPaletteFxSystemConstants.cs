@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Fx;
 
-/// <summary>Cartridge values and helpers of <see cref="RoomPaletteFxSystem"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="ColourEffectSystem"/> that only verification reads.</summary>
 internal static class RoomPaletteFxSystemConstants
 {
     /// <summary>

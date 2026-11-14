@@ -346,7 +346,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             }
 
             // X-ray's freeze disables enemy room.Projectiles, room objects, block animations,
-            // and palette FX while time is frozen. Normal bombs cannot be placed or
+            // and colour effects while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD handler runs the shared cooldown, then the morph ball's producer.
             if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
@@ -1353,10 +1353,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         if (!_player.AdvanceLoadAppearance())
             return;
-        if (_player.LoadAppearancePaletteFx is { } loadAppearance && room.PaletteFx.IsRunning(loadAppearance))
+        if (_player.LoadAppearanceColourEffect is { } loadAppearance && room.ColourEffects.IsRunning(loadAppearance))
         {
             throw new InvalidDataException(
-                $"Samus load palette FX {loadAppearance} " +
+                $"Samus load colour effect {loadAppearance} " +
                 "outlived the 360-frame load appearance.");
         }
 

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
+[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingStage
 {
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
@@ -104,7 +104,7 @@ internal sealed class EndingStage
     /// Scene boundaries clear the palette effects' slots (#1544): the records they showed stop showing, as the effects
     /// that showed them have ended.
     /// </summary>
-    internal void ResetPaletteFx() => screen.Colours.ResetPaletteFx();
+    internal void ResetColourEffects() => screen.Colours.ResetColourEffects();
 
     /// <summary>
     /// Shows the installed colours <paramref name="load"/> (#1512, #1544, #1597): a scene's whole screen of colours also
@@ -240,7 +240,7 @@ internal sealed class EndingStage
     }
 
     /// <summary>The palette effects the ending runs, which its colours own (#1597).</summary>
-    internal RoomPaletteFxSystem PaletteFxSystem => screen.Colours.PaletteFx;
+    internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops? Backdrops { get; private set; }

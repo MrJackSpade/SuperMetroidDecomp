@@ -9,9 +9,8 @@ using SuperMetroid.Core.World;
 internal static class DachoraPhaseCountdownsVerification
 {
     /// <summary>
-    /// Confirms the warning countdown leaves the next run starting at rest with the speed's fraction kept, and the charge
-    /// countdown leaves the launch starting fully at rest, as the countdown that ends at zero in the speed's place does
-    /// on the cartridge.
+    /// Confirms the warning countdown starts while the waiting Dachora stays at rest, and the charge countdown stops a
+    /// running Dachora so the launch starts at rest.
     /// </summary>
     internal static void VerifyDachoraPhaseCountdowns()
     {
@@ -20,12 +19,10 @@ internal static class DachoraPhaseCountdownsVerification
         var state = new DachoraEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Speed = SignedSixteenSixteen.FromParts(3, 0x8000);
         state.StartBlinking(5);
         AssertEqual(5, state.PhaseTimer, "the warning countdown starts");
-        AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), state.Speed,
-            "the run after the warning countdown starts at rest, keeping the speed's fraction");
-        state.Speed = SignedSixteenSixteen.FromParts(7, 0x8000);
+        AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the run after the warning countdown starts at rest");
+        state.Speed = SignedSixteenSixteen.FromWholePixels(7) + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
         state.StartCharging(5);
         AssertEqual(5, state.PhaseTimer, "the charge countdown starts");
         AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the launch after the charge countdown starts at rest");

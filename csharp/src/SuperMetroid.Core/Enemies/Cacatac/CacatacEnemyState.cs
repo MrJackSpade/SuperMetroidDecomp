@@ -2,21 +2,18 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The state of a Cacatac: its patrol velocities, direction and action, plus its two patrol bounds.
+/// The state of a Cacatac: its patrol speed, direction and action, plus its two patrol bounds.
 /// </summary>
 public sealed class CacatacEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }
 
-    /// <summary>Signed 1/65536-room-pixel displacement added to X on every rightward patrol update.</summary>
-    public SignedSixteenSixteen RightVelocity { get; internal set; }
-
     /// <summary>
-    /// Signed 1/65536-room-pixel displacement added to X on every leftward patrol update (negative for the authored
-    /// speeds).
+    /// The distance it patrols each update, in pixels: added to X while it walks right and subtracted while it walks
+    /// left.
     /// </summary>
-    public SignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>The way it patrols: left, right, or, placed to stop at first, still until its first idle step.</summary>
     public CacatacDirection Direction { get; internal set; }

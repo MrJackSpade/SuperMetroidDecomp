@@ -11,21 +11,16 @@ public sealed class AlcoonEnemyState
     public AlcoonAction? Action { get; internal set; }
 
     /// <summary>
-    /// Motion per step. Y is the signed 1/65536-pixel vertical velocity: emergence starts at -12 and retreat at -4, and
-    /// acceleration carries from the fraction into the whole pixels. X is the signed whole-pixel horizontal velocity
-    /// (retail uses -2, 0 or +2); Alcoon has no horizontal fraction, so a velocity with a nonzero X fraction is rejected.
+    /// The whole pixels it walks each movement step: -2 walking left, 2 walking right, and 0 from the start of each jump
+    /// until it picks the side Samus is on. Its sign is also the way it faces while airborne and firing.
     /// </summary>
-    public FixedVector<RoomPixels> Velocity
-    {
-        get;
-        internal set
-        {
-            if (value.X.Fraction != 0)
-                throw new InvalidOperationException(
-                    $"Alcoon has no horizontal subvelocity; X fraction {value.X.Fraction} cannot be stored.");
-            field = value;
-        }
-    }
+    public int WalkingSpeed { get; internal set; }
+
+    /// <summary>
+    /// Its vertical velocity in pixels per update: a jump starts at 12 pixels up and a retreat at 4 pixels up, and its
+    /// acceleration pulls it back down.
+    /// </summary>
+    public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>
     /// The population's whole-pixel spawn position. Y is restored after the initialization floor search and after

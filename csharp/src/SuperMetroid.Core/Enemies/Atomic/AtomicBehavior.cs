@@ -24,14 +24,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         AtomicSpawnSettings settings = slot.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
 
-        // The atomic moves at its speed toward increasing coordinates and at the same speed back.
         state.Speed = settings.Speed;
-        state.NegativeSpeed = SignedSixteenSixteen.Zero - settings.Speed;
     }
 
     /// <summary>
-    /// Runs the Atomic's current action, any of its four.
-    /// Atomic deliberately ignores terrain and chooses both signs again every frame.
+    /// Moves the Atomic one step toward Samus on each axis. It ignores terrain and chooses both directions again every
+    /// update.
     /// </summary>
     private static void RunAtomicMain(
         RoomEnemySlot slot,
@@ -41,45 +39,18 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Atomic movement requires the active Samus actor.");
 
-        // The game treats equality as the positive direction: down for Y and right for
-        // X. Compare by whether the wrapped coordinate difference is negative, as the game does, rather than with a plain
-        // integer comparison that would disagree across the room coordinates' wrap.
-        state.VerticalMovement = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
-            ? AtomicVerticalMovement.MoveUp
-            : AtomicVerticalMovement.MoveDown;
-        state.HorizontalMovement = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-            ? AtomicHorizontalMovement.MoveLeft
-            : AtomicHorizontalMovement.MoveRight;
+        // Being level with Samus counts as her being below or to the right, so it moves down or right. The comparison is
+        // by whether the coordinate difference across the room's wrap is negative, so an Atomic and Samus on either side
+        // of the wrap still chase the short way.
+        SignedSixteenSixteen vertical = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
+            ? -state.Speed
+            : state.Speed;
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(vertical));
 
-        switch (state.VerticalMovement)
-        {
-            case AtomicVerticalMovement.MoveUp:
-                slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(state.NegativeSpeed));
-                break;
-
-            case AtomicVerticalMovement.MoveDown:
-                slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(state.Speed));
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Atomic has no behaviour for vertical movement {state.VerticalMovement.ToString() ?? "none"}.");
-        }
-
-        switch (state.HorizontalMovement)
-        {
-            case AtomicHorizontalMovement.MoveLeft:
-                slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(state.NegativeSpeed));
-                break;
-
-            case AtomicHorizontalMovement.MoveRight:
-                slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(state.Speed));
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Atomic has no behaviour for horizontal movement {state.HorizontalMovement.ToString() ?? "none"}.");
-        }
+        SignedSixteenSixteen horizontal = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+            ? -state.Speed
+            : state.Speed;
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(horizontal));
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>

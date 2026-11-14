@@ -394,8 +394,8 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
-            cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));
-            cacatacRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
+            // The record holds the speed and its negation for walking left; the speed alone is the state.
+            cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
             cacatacRecord.Direction = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection");
             cacatacRecord.Action = words.E == 0 ? null : CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
         }
@@ -632,15 +632,11 @@ internal static class NativeEnemyFamilyStateImport
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnHeight = new Position16<RoomPixels>(0, words.D);
         }
-        if (enemies.AtomicStates[index] is { } atomic)
-        {
-            atomic.VerticalMovement = words.A == 0 ? null : AtomicNativeWords.AtomicVerticalMovements.Decode(words.A, "recorded AtomicVerticalMovement");
-            atomic.HorizontalMovement = words.B == 0 ? null : AtomicNativeWords.AtomicHorizontalMovements.Decode(words.B, "recorded AtomicHorizontalMovement");
-        }
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
             alcoon.Action = words.A == 0 ? null : AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
-            alcoon.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.D, 0, words.B, words.C);
+            alcoon.WalkingSpeed = CoordinateAxis.AsSigned(words.D);
+            alcoon.VerticalVelocity = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.B), words.C);
             alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)

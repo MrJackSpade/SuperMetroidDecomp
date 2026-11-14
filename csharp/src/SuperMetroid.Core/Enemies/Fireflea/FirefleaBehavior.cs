@@ -37,9 +37,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation);
 
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
-        state.Speeds = new EnemyLinearSpeedRow(settings.Speed, SignedSixteenSixteen.Zero - settings.Speed);
+        state.Speed = settings.Speed;
         state.SpeedSign = settings.SpeedSign;
-        state.AngularSpeed = TurnPerUpdate(state.Speeds.Toward(state.SpeedSign));
+        state.AngularSpeed = TurnPerUpdate(state.Velocity);
         state.Radius = settings.Radius;
 
         if (state.UsesCircularMovement)
@@ -78,11 +78,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.AdvanceY(state.Speeds.Toward(state.SpeedSign));
+        slot.Position = slot.Position.AdvanceY(state.Velocity);
 
         // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
         // bounds comparisons. The actor is intentionally allowed to overshoot before its
-        // speed reverses to the row's other sign.
+        // speed reverses.
         bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
         bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
         if (crossedMinimum || reachedMaximum)

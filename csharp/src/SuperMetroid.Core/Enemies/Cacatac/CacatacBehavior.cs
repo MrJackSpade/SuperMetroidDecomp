@@ -64,8 +64,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var state = new CacatacEnemyState
         {
-            RightVelocity = settings.Speed,
-            LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
+            Speed = settings.Speed,
             Direction = direction,
             Action = direction switch
             {
@@ -104,15 +103,15 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the Cacatac along its patrol: the 1/65536-pixel velocity is added to X with the
-    /// fraction's overflow into the whole, then the wrapped signed distance to the patrol limit decides the turn.
+    /// Moves the Cacatac along its patrol by its speed, then the wrapped signed distance to the patrol limit decides the
+    /// turn.
     /// </summary>
     private static void MoveCacatac(
         RoomEnemySlot slot,
         CacatacEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
+        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
 
         if (direction != HorizontalDirection.Right)
         {

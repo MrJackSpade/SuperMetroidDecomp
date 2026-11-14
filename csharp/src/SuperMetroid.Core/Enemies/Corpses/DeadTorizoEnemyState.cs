@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Dead Torizo's corpse state: its phase and velocity, rot schedule, its own rows as the rot has left them, contact delay
-/// and the rot calls its sand heap forms by.
+/// One dead Torizo's corpse state: its pose, phase and velocity, rot schedule, its own rows as the rot has left them,
+/// contact delay and the rot calls its sand heap forms by.
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
@@ -13,7 +15,10 @@ public sealed class DeadTorizoEnemyState
         Rot = Ensure.NotNull(rot);
     }
 
-    /// <summary>The room's first-listed enemy, owning the corpse's position and collision and animation state.</summary>
+    /// <summary>The corpse's typed pose and where it stands in it (#641, #1600).</summary>
+    internal AnimationPlayback<DeadTorizoSegment> Playback { get; set; }
+
+    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }

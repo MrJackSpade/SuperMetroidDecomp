@@ -21,7 +21,7 @@ internal static class DeadTorizoBehaviorVerification
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
-        enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
+        DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
             EnemyInstructionRunner.ShownFrames(corpse, 3), "Dead Torizo stationary pose");

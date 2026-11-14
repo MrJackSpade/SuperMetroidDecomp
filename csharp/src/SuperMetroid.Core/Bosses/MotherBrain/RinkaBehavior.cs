@@ -394,7 +394,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
         ExemptFromGenericDeath = true,
-        AfterCommon = (enemy, _) => ResolveRinkaCombatAfterCommon(enemy),
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Applies the private death tail after projectile damage but not immediate freezing.</summary>

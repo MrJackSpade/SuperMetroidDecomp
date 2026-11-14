@@ -510,8 +510,8 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("A loaded destination and Samus are required.");
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
-        if (_room.LoadedScope.Enemies.Elevator.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
-            _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, _player.Samus.Position.Whole);
+        if (_room.LoadedScope.Enemies.Elevator.ConsumeElevatorArrivalPlacement() is { } elevator)
+            _pendingLoaderSamusPlacement = new LoaderSamusPlacement(elevator, _player.Samus.Position.Whole);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
             door,
@@ -582,7 +582,7 @@ internal sealed class RoomLoader
         // The scroll moves at the start of the update; room loading's progress follows.
         if (_pendingLoaderSamusPlacement is { } placement)
         {
-            if (loaderProgress.HasInitializedEnemySlot(placement.EnemySlot))
+            if (loaderProgress.HasInitialized(placement.Elevator))
             {
                 state.PlaceSamusOnElevator(placement.Position);
                 _pendingLoaderSamusPlacement = null;
@@ -590,7 +590,7 @@ internal sealed class RoomLoader
             else if (completed)
             {
                 throw new InvalidDataException(
-                    $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
+                    $"The door scroll finished before the loader initialized the arriving elevator in slot {placement.Elevator.SlotIndex}.");
             }
         }
         _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);

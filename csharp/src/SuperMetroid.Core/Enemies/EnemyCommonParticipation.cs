@@ -15,7 +15,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     internal static EnemyShotReaction CommonShot { get; } = new();
 
     /// <summary>The Power Bomb reaction that ignores the blast: it replaces common damage with nothing.</summary>
-    internal static EnemyPowerBombReaction IgnoringPowerBomb { get; } = new() { ReplacesCommon = static (_, _) => { } };
+    internal static EnemyPowerBombReaction IgnoringPowerBomb { get; } = new() { ReplacesCommon = static _ => { } };
 
     /// <summary>Whether <paramref name="definition"/> names a shared touch reaction: the ordinary one or the ignoring one.</summary>
     /// <param name="definition">The occupant's definition.</param>

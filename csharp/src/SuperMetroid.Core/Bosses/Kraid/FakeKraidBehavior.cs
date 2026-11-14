@@ -428,7 +428,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Mini Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
         // death explosion.
-        ReplacesGenericDeath = (enemy, _) => KillFakeKraid(enemy),
+        ReplacesGenericDeath = c => KillFakeKraid(c.Enemy),
     };
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>

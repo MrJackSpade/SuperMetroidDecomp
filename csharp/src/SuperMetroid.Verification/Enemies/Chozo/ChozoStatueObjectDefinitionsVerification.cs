@@ -105,10 +105,13 @@ internal static class ChozoStatueObjectDefinitionsVerification
                     AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, left.Behavior, "Wrecked Ship hand installs its special-solid behaviour");
                     break;
                 case ChozoStatueRoomObject.PlugCrumbleAtHand:
-                    AssertEqual(ChozoStatueRoomDefinitions.HandCrumbleSetupBlock, left.Terrain, "the hand's plug crumble leaves the block the room's load last drew");
+                    // The spawn at a fixed block leaves the empty draw program, read as block 416 mirrored both ways.
+                    AssertEqual(RoomTerrainBlock.Of(416, BlockMirroring.Both, RoomCollisionType.Air), left.Terrain,
+                        "the hand's plug crumble, spawned at a fixed block, leaves block 416 mirrored both ways as air");
                     break;
                 case ChozoStatueRoomObject.PlugCrumbleUnderFootstep:
-                    AssertEqual(ChozoStatueRoomDefinitions.FootstepCrumbleSetupBlock, left.Terrain, "the footstep's plug crumble leaves block zero");
+                    AssertEqual(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air), left.Terrain,
+                        "the footstep's plug crumble, spawned at the block the footstep found, leaves block zero as air");
                     break;
                 case ChozoStatueRoomObject.LowerNorfairHand:
                 case ChozoStatueRoomObject.SlopeAccessOpening:

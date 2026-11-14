@@ -162,7 +162,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyPowerBombReaction FirefleaPowerBombReaction => field ??= new()
     {
         // Reactions around common power-bomb damage.
-        BeforeGenericDeath = (_, _) => AdvanceFirefleaDarkness(),
+        BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
     };
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>

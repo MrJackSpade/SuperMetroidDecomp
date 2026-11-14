@@ -120,8 +120,9 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DeadSidehopperEntity, DeadSidehopperEnemyState>())];
 
-        /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
-        internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior.DeadTorizo;
+        /// <summary>Dead Torizo corpse state indexed by physical enemy slot.</summary>
+        internal IReadOnlyList<DeadTorizoEnemyState?> DeadTorizos =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<DeadTorizoEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
         internal IReadOnlyList<SkreeEnemyState?> SkreeStates =>

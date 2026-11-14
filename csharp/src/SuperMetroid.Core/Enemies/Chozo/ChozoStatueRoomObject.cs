@@ -19,14 +19,14 @@ public enum ChozoStatueRoomObject
     SlopeAccessClosing,
 
     /// <summary>
-    /// The Lower Norfair room's plug crumbling as the hand wakes the statue; its spawn leaves the block the room's load
-    /// last drew (<see cref="ChozoStatueRoomDefinitions.HandCrumbleSetupBlock"/>).
+    /// The Lower Norfair room's plug crumbling as the hand wakes the statue; its spawn at the room's fixed plug block
+    /// leaves block 416 mirrored both ways, as air (<see cref="CrumblePlugLeftBlock"/>).
     /// </summary>
     PlugCrumbleAtHand,
 
     /// <summary>
-    /// A plug crumbling under the walking statue's footstep; its spawn leaves block zero
-    /// (<see cref="ChozoStatueRoomDefinitions.FootstepCrumbleSetupBlock"/>).
+    /// A plug crumbling under the walking statue's footstep; its spawn at the block the footstep found leaves block zero,
+    /// as air (<see cref="CrumblePlugLeftBlock"/>).
     /// </summary>
     PlugCrumbleUnderFootstep,
 }

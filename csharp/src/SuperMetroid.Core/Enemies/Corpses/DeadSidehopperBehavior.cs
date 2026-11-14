@@ -59,11 +59,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Remembers level data for the private power-bomb reaction, which has no level argument.</summary>
-    private RoomLevelData? _deadSidehopperLevel;
-    /// <summary>Remembers the camera position for the private power-bomb AI dispatch.</summary>
-    private Position16<RoomPixels> _deadSidehopperCamera;
-
     /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
     private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
 
@@ -131,13 +126,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,
-        Position16<RoomPixels> camera)
-    {
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        _deadSidehopperLevel = level;
-        _deadSidehopperCamera = camera;
-        RunDeadSidehopperState(slot, state, samus, level, camera);
-    }
+        Position16<RoomPixels> camera) =>
+        RunDeadSidehopperState(slot, RequireDeadSidehopperState(slot), samus, level, camera);
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
     internal void RunDeadSidehopperState(
@@ -355,8 +345,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Resolves a power bomb reaching the dead Sidehopper.</summary>
-    private void ResolveDeadSidehopperPowerBomb(RoomEnemySlot slot, SamusState? samus)
+    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
     {
+        RoomEnemySlot slot = context.Enemy;
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         if (state.IsDrained)
         {
@@ -364,15 +355,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
         }
 
-        // Before the corpse is ready, the private power-bomb reaction literally invokes
-        // the actor's main step once. Use the last scheduled room context because the
-        // outer power-bomb pass does not carry level/camera arguments.
-        RunDeadSidehopperState(
-            slot,
-            state,
-            samus,
-            _deadSidehopperLevel,
-            _deadSidehopperCamera);
+        // Before the corpse is ready, the private power-bomb reaction runs the actor's main step once, reading the
+        // room's terrain and the camera as the power-bomb pass sees them this update.
+        RunDeadSidehopperState(slot, state, context.Samus, context.Level, context.Camera);
     }
 
     /// <summary>Starts decay and keeps the corpse updating offscreen without further Samus collision.</summary>

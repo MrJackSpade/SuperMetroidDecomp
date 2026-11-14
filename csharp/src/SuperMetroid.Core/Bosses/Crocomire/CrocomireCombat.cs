@@ -180,7 +180,7 @@ internal sealed class CrocomireCombat
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
     internal EnemyPowerBombReaction CrocomirePowerBombReaction => field ??= new()
     {
-        ReplacesCommon = (enemy, _) => ResolveCrocomirePowerBombReaction(enemy),
+        ReplacesCommon = c => ResolveCrocomirePowerBombReaction(c.Enemy),
     };
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>

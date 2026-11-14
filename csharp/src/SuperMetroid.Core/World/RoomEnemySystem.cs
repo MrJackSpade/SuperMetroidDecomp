@@ -708,7 +708,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
-        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio);
+        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, SlotTable);
         DachoraBehavior = new DachoraBehavior(Terrain, SlotTable, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus  });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);

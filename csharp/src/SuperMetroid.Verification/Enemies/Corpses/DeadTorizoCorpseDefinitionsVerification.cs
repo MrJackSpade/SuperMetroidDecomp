@@ -24,16 +24,23 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
-        Action<RoomEnemySlot> initialize = enemies.DeadTorizoBehavior.InitializeDeadTorizo;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        Action<RoomEnemySlot> initialize = DeadTorizoBehavior.InitializeDeadTorizo;
+        // A corpse keeps its own state on its own slot, wherever the room lists it (#1808): one listed first and one
+        // listed later each start their own fresh schedule.
+        int[] places = [0, 3];
+        foreach (int place in places)
+            initialize(enemies.SlotTable.Slots[place]);
 
-        initialize(slot);
-
-        DeadTorizoEnemyState state = (enemies.DeadTorizo ?? throw new InvalidOperationException("Verification requires enemies.DeadTorizo."));
-        CorpseRotScheduleChecks.AssertFreshSchedule(DeadTorizoCorpseDefinitions.RowCount, state.Rot, "dead Torizo production");
+        foreach (int place in places)
+        {
+            DeadTorizoEnemyState state = enemies.DeadTorizos[place] ?? throw new InvalidOperationException($"The dead Torizo in slot {place} has no state.");
+            AssertTrue(ReferenceEquals(enemies.SlotTable.Slots[place], state.Slot), $"the dead Torizo in slot {place} owns its own state");
+            CorpseRotScheduleChecks.AssertFreshSchedule(DeadTorizoCorpseDefinitions.RowCount, state.Rot, $"dead Torizo production in slot {place}");
+        }
+        AssertTrue(!ReferenceEquals(enemies.DeadTorizos[places[0]], enemies.DeadTorizos[places[1]]), "each dead Torizo has its own state");
 
         Console.WriteLine(
-            "Dead Torizo corpse definitions: the decoded configuration's height and upload list, and the real initializer's own fresh rot schedule pass.");
+            "Dead Torizo corpse definitions: the decoded configuration's height and upload list, and the real initializer's own fresh rot schedule on each corpse's slot pass.");
     }
 
 

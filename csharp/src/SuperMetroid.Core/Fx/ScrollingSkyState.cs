@@ -46,7 +46,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// </summary>
     public static bool SetupSpawnsBands(RoomSetupBehavior setup) =>
         setup is RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean
-            or RoomSetupBehavior.ShakeScreenAndCallScrollingSkyLandDuringEscape;
+            or RoomSetupBehavior.LandSkyWithLandingSiteQuake;
 
     /// <summary>
     /// Whether a room state spawns the sky's bands when entered with <paramref name="selectedFx"/> as its effect: the sky

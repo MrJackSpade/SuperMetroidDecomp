@@ -34,30 +34,23 @@ internal sealed class EscapeRoomEffects
         // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupBehavior.SetLightHorizontalRoomShaking or
-            RoomSetupBehavior.SetupEscapeRoom4ObjectAndMediumHorizontalShaking)
+            RoomSetupBehavior.MediumHorizontalShakingWithRisingLava)
             diagonalQuake.Countdown = WrappingCountdown.Start(0);
         EarthquakeShake? shake = setup switch
         {
             RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking or
             RoomSetupBehavior.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
             RoomSetupBehavior.SetMediumHorizontalRoomShaking or
-            RoomSetupBehavior.SetupEscapeRoom4ObjectAndMediumHorizontalShaking => ZebesEscapeDefinitions.MediumHorizontal,
+            RoomSetupBehavior.MediumHorizontalShakingWithRisingLava => ZebesEscapeDefinitions.MediumHorizontal,
             RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
-            RoomSetupBehavior.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeDefinitions.LandingQuake,
+            RoomSetupBehavior.LandSkyWithLandingSiteQuake => ZebesEscapeDefinitions.LandingQuake,
             RoomSetupBehavior.None or RoomSetupBehavior.AutoDestroyWallDuringEscape or
                 RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape or
-                RoomSetupBehavior.ReturnAfterEscapeWallSetup or RoomSetupBehavior.ReturnBeforeEscapeSkySetup or
                 RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean or
-                RoomSetupBehavior.Return or RoomSetupBehavior.ReturnAfterOceanSkySetup or
-                RoomSetupBehavior.ReturnBeforeStatueSetupA or RoomSetupBehavior.ReturnBeforeStatueSetupB or
-                RoomSetupBehavior.RunStatueUnlockingAnimations or RoomSetupBehavior.SharedReturn or
-                RoomSetupBehavior.SharedReturnB or RoomSetupBehavior.SharedReturnC or
-                RoomSetupBehavior.SharedReturnD or RoomSetupBehavior.OrdinaryReturn or
-                RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile or RoomSetupBehavior.BossRoomReturn or
-                RoomSetupBehavior.BossRoomReturnB or RoomSetupBehavior.BossRoomReturnC or
-                RoomSetupBehavior.SetupShaktoolRoomObject or RoomSetupBehavior.ReturnBeforeDraygonSetup or
-                RoomSetupBehavior.SetPausingCodeForDraygon or RoomSetupBehavior.SetCollectedMap or
-                RoomSetupBehavior.ReturnBeforeZebesTimebombSetup or
+                RoomSetupBehavior.RunStatueUnlockingAnimations or
+                RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile or
+                RoomSetupBehavior.SetupShaktoolRoomObject or
+                RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause or RoomSetupBehavior.SetCollectedMap or
                 RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
                 RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
             _ => throw new InvalidOperationException($"Undefined room setup {setup}."),

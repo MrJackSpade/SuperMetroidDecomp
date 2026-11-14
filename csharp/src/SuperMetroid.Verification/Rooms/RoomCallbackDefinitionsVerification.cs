@@ -6,11 +6,15 @@ namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks typed room setup and main callbacks against every compiled retail room state.</summary>
 internal static class RoomCallbackDefinitionsVerification
 {
-    /// <summary>Traverses selectable room states and checks callback round trips and unknown-pointer rejection.</summary>
+    /// <summary>
+    /// Traverses selectable room states and checks each compiled callback is the one the state's cartridge pointer decodes
+    /// to, that every typed callback occurs, and that unknown pointers are refused.
+    /// </summary>
     internal static void VerifyCompiledRoomCallbackDefinitions()
     {
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -38,10 +42,10 @@ internal static class RoomCallbackDefinitionsVerification
 
             RoomMainBehavior main = state.MainBehavior;
             RoomSetupBehavior setup = state.SetupBehavior;
-            AssertEqual(main, RoomBehaviorDefinitions.ResolveMain(RoomBehaviorDefinitions.PointerOf(main)),
-                $"room state $8F:{state.Pointer:X4} main callback round trip");
-            AssertEqual(setup, RoomBehaviorDefinitions.ResolveSetup(RoomBehaviorDefinitions.PointerOf(setup)),
-                $"room state $8F:{state.Pointer:X4} setup callback round trip");
+            AssertEqual(RoomBehaviorDefinitions.ResolveMain(CartridgeRoomStateImporter.MainCodePointer(bus, state.Pointer)), main,
+                $"room state $8F:{state.Pointer:X4} main callback is the one its cartridge pointer decodes to");
+            AssertEqual(RoomBehaviorDefinitions.ResolveSetup(CartridgeRoomStateImporter.SetupCodePointer(bus, state.Pointer)), setup,
+                $"room state $8F:{state.Pointer:X4} setup callback is the one its cartridge pointer decodes to");
             mainCallbacks.Add(main);
             setupCallbacks.Add(setup);
         }
@@ -58,12 +62,6 @@ internal static class RoomCallbackDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomBehaviorDefinitions.ResolveSetup(0xffff),
             "room-setup dispatch rejects unknown native pointers");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomBehaviorDefinitions.PointerOf((RoomMainBehavior)byte.MaxValue),
-            "room-main reverse mapping rejects unknown typed identities");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomBehaviorDefinitions.PointerOf((RoomSetupBehavior)byte.MaxValue),
-            "room-setup reverse mapping rejects unknown typed identities");
         AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
                 RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door callback retains its haze side effect");

@@ -18,17 +18,19 @@ internal static class RoomSetupCodeCatalogVerification
     }
 
     /// <summary>
-    /// Audits every state reachable from the retail room headers and proves every nonzero
-    /// setup callback is represented exactly once by the dedicated bank-$8F catalog.
+    /// Audits every state reachable from the retail room headers and proves every nonzero setup callback the cartridge
+    /// stores belongs to the import's bank-$8F catalog, every catalogued routine occurs, each acting behaviour has one
+    /// routine, and exactly the routines that return at once decode to <see cref="RoomSetupBehavior.None"/> (#1787).
     /// </summary>
     internal static void VerifyRoomSetupCodeCatalog()
     {
-        ushort[] catalog = Enum.GetValues<RoomSetupBehavior>()
-            .Where(callback => callback != RoomSetupBehavior.None)
-            .Select(callback => RoomBehaviorDefinitions.PointerOf(callback))
-            .ToArray();
-        AssertEqual(catalog.Length, catalog.Distinct().Count(),
-            "room-setup callback catalog has no aliases");
+        IReadOnlyDictionary<ushort, RoomSetupBehavior> routines = RoomBehaviorDefinitions.SetupRoutines;
+        ushort[] catalog = [.. routines.Keys];
+        foreach (RoomSetupBehavior acting in Enum.GetValues<RoomSetupBehavior>().Where(callback => callback != RoomSetupBehavior.None))
+        {
+            AssertEqual(1, routines.Values.Count(callback => callback == acting),
+                $"room-setup behaviour {acting} is one routine");
+        }
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
@@ -56,9 +58,17 @@ internal static class RoomSetupCodeCatalogVerification
                 RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.SetupBehavior != RoomSetupBehavior.None)
-                    retailSetupPointers.Add(RoomBehaviorDefinitions.PointerOf(state.SetupBehavior));
+                ushort setupPointer = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.SetupCodePointer(bus, state.Pointer);
+                if (setupPointer != 0)
+                    retailSetupPointers.Add(setupPointer);
             }
+        }
+
+        foreach ((ushort pointer, RoomSetupBehavior callback) in routines)
+        {
+            AssertEqual(callback == RoomSetupBehavior.None,
+                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
+                $"room-setup routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once");
         }
 
         foreach (ushort pointer in retailSetupPointers)

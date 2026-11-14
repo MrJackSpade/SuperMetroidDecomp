@@ -175,18 +175,10 @@ internal static class RoomDefinitionIntegrationVerification
             }
         }
 
-        foreach (RoomMainBehavior callback in Enum.GetValues<RoomMainBehavior>())
-        {
-            ushort pointer = RoomBehaviorDefinitions.PointerOf(callback);
-            if (pointer != 0)
-                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
-        }
-        foreach (RoomSetupBehavior callback in Enum.GetValues<RoomSetupBehavior>())
-        {
-            ushort pointer = RoomBehaviorDefinitions.PointerOf(callback);
-            if (pointer != 0)
-                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
-        }
+        foreach (ushort pointer in RoomBehaviorDefinitions.MainRoutines.Keys)
+            forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
+        foreach (ushort pointer in RoomBehaviorDefinitions.SetupRoutines.Keys)
+            forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, statePointers.Count,
             "combined definition guard reaches every retail room state");

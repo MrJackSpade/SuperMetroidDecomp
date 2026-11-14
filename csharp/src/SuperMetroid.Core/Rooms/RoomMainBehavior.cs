@@ -3,7 +3,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mutually exclusive room-main behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
 public enum RoomMainBehavior
 {
-    /// <summary>No room-specific main behaviour runs.</summary>
+    /// <summary>
+    /// No room-specific main behaviour runs: the state names no main, or one that returns at once and leaves the working
+    /// value <see cref="SuperMetroid.Core.Compatibility.RoomMainCarryover"/> holds untouched (#1787).
+    /// </summary>
     None,
     /// <summary>Updates the land scrolling sky.</summary>
     ScrollingSkyLand,
@@ -19,8 +22,6 @@ public enum RoomMainBehavior
     MaridiaElevatube,
     /// <summary>Advances the Ceres shaft elevator behavior.</summary>
     CeresElevatorShaft,
-    /// <summary>A present room-main behaviour that returns without changing state.</summary>
-    Return,
     /// <summary>Spawns falling debris in the Ceres pre-elevator hall.</summary>
     SpawnCeresPreElevatorHallFallingDebris,
     /// <summary>Advances Ridley's Ceres getaway cutscene.</summary>

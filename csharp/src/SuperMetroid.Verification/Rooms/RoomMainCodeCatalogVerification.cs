@@ -20,17 +20,20 @@ internal static class RoomMainCodeCatalogVerification
     }
 
     /// <summary>
-    /// Enumerates every state reachable from every named retail room header and proves
-    /// every nonzero main callback belongs to the dedicated bank-$8F catalog.
+    /// Enumerates every state reachable from every named retail room header and proves every nonzero main callback the
+    /// cartridge stores belongs to the import's bank-$8F catalog, every catalogued routine occurs, each acting
+    /// behaviour has one routine, and exactly the routines that return at once decode to <see cref="RoomMainBehavior.None"/>
+    /// (#1787).
     /// </summary>
     internal static void VerifyRoomMainCodeCatalog()
     {
-        ushort[] catalog = Enum.GetValues<RoomMainBehavior>()
-            .Where(callback => callback != RoomMainBehavior.None)
-            .Select(callback => RoomBehaviorDefinitions.PointerOf(callback))
-            .ToArray();
-        AssertEqual(catalog.Length, catalog.Distinct().Count(),
-            "room-main callback catalog has no aliases");
+        IReadOnlyDictionary<ushort, RoomMainBehavior> routines = RoomBehaviorDefinitions.MainRoutines;
+        ushort[] catalog = [.. routines.Keys];
+        foreach (RoomMainBehavior acting in Enum.GetValues<RoomMainBehavior>().Where(callback => callback != RoomMainBehavior.None))
+        {
+            AssertEqual(1, routines.Values.Count(callback => callback == acting),
+                $"room-main behaviour {acting} is one routine");
+        }
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
@@ -59,9 +62,17 @@ internal static class RoomMainCodeCatalogVerification
                 RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.MainBehavior != RoomMainBehavior.None)
-                    retailMainPointers.Add(RoomBehaviorDefinitions.PointerOf(state.MainBehavior));
+                ushort mainPointer = SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.MainCodePointer(bus, state.Pointer);
+                if (mainPointer != 0)
+                    retailMainPointers.Add(mainPointer);
             }
+        }
+
+        foreach ((ushort pointer, RoomMainBehavior callback) in routines)
+        {
+            AssertEqual(callback == RoomMainBehavior.None,
+                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
+                $"room-main routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once");
         }
 
         foreach (ushort pointer in retailMainPointers)

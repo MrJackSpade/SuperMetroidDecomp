@@ -117,7 +117,7 @@ internal sealed class AcceptedFrameBoundary
         RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
         Displays?.Phantoon?.BodyWave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.MosaicBlockSize);
+            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.PixelationBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);
@@ -175,8 +175,8 @@ internal sealed class AcceptedFrameBoundary
         : null;
 
     /// <summary>
-    /// The body a boss shows (#1352-#1356, #1466, #1617, #1802): its parts, and where Kraid's, Draygon's, Crocomire's and
-    /// Mother Brain's lie in the room, as each boss holds it.
+    /// The body a boss shows (#1352-#1356, #1466, #1617, #1802, #1858): its parts, and where Kraid's, Phantoon's, Draygon's,
+    /// Crocomire's and Mother Brain's lie in the room, as each boss holds it.
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
@@ -184,6 +184,7 @@ internal sealed class AcceptedFrameBoundary
         return new(
             Displays?.BossBody,
             Displays?.KraidBodyOrigin,
+            Displays?.Phantoon?.BodyOrigin,
             Displays?.Draygon is { } draygon
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyOrigin, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
                 : null,

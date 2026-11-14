@@ -10,10 +10,15 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public static class BossLineScrolls
 {
-    /// <summary>Phantoon's wave as a sine wave over every screen line.</summary>
+    /// <summary>
+    /// Phantoon's wave as a sine wave over every screen line (#1858): the boss publishes the room column his body's area's
+    /// left edge lies on, and <paramref name="camera"/> shows the area from there.
+    /// </summary>
     /// <param name="wave">The wave the boss published.</param>
-    public static ScrollWave Of(PhantoonWave wave) => new(Ensure.NotNull(wave).BaseScroll, wave.Amplitude, wave.Phase, wave.Period, 0,
-        ScreenGeometry.ScreenHeightPixels);
+    /// <param name="camera">The frame's camera, the room pixel at the screen's top-left.</param>
+    public static ScrollWave Of(PhantoonWave wave, Position16<RoomPixels> camera) =>
+        new(CoordinateAxis.Wrap(camera.X - Ensure.NotNull(wave).BodyLeft), wave.Amplitude, wave.Phase, wave.Period, 0,
+            ScreenGeometry.ScreenHeightPixels);
 
     /// <summary>
     /// Crocomire's melt as a stretch of his body, in the rows of his body's area the screen's top shows (#1514, #1802): the

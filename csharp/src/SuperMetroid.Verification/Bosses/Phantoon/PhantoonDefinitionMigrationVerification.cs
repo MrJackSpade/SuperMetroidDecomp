@@ -46,8 +46,8 @@ internal static class PhantoonDefinitionMigrationVerification
         AssertEqual(0xffc0, unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX), "swoop minimum X word");
 
         // The death mosaic's sizes are the MOSAIC values the cartridge writes.
-        AssertEqual(0x02, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.InitialMosaicSize), "first death mosaic word");
-        AssertEqual(0xf2, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.FinalMosaicSize), "last death mosaic word");
+        AssertEqual(0x02, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.InitialPixelationSize), "first death mosaic word");
+        AssertEqual(0xf2, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.FinalPixelationSize), "last death mosaic word");
 
         // The AI functions: every phase has its routine word.
         foreach (PhantoonPhase phase in Enum.GetValues<PhantoonPhase>())

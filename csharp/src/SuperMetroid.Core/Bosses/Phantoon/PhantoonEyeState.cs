@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Phantoon's eye's own state: its closed timer and shot marker, the figure-eight's direction, the body's colour fades,
-/// its rage waves, its dying fades and death mosaic, and the length of the wave it carries.
+/// its rage waves, its dying fades and death pixelation, and the length of the wave it carries.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts: the dying fade cycles start from the zero the figure-eight
@@ -21,15 +21,15 @@ public sealed class PhantoonEyeState
     /// <summary>The eye's completed dying fade cycles.</summary>
     public int DyingFadeCycles { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>The eye's death-mosaic block size in screen pixels while the mosaic grows.</summary>
-    public int DeathMosaicSize
+    /// <summary>The eye's death pixelation block size in screen pixels while the pixelation grows.</summary>
+    public int DeathPixelationSize
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialMosaicSize, PhantoonDeathDefinitions.FinalMosaicSize, value);
-    } = PhantoonDeathDefinitions.InitialMosaicSize;
+        internal set => field = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialPixelationSize, PhantoonDeathDefinitions.FinalPixelationSize, value);
+    } = PhantoonDeathDefinitions.InitialPixelationSize;
 
-    /// <summary>Whether the eye's death mosaic has finished growing and the fade-out runs.</summary>
-    public bool DeathMosaicFinished { get; internal set; }
+    /// <summary>Whether the eye's death pixelation has finished growing and the fade-out runs.</summary>
+    public bool DeathPixelationFinished { get; internal set; }
 
     /// <summary>The eye's palette fade denominator.</summary>
     public int FadeDenominator { get; internal set => field = Ensure.AtLeastZero(value); }

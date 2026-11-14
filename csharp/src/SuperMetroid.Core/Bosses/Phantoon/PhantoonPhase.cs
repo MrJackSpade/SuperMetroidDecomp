@@ -60,9 +60,9 @@ public enum PhantoonPhase
     DyingFadeInOut,
     /// <summary>Schedules physical death explosions and prepares the final distortion.</summary>
     DyingExplosions,
-    /// <summary>Initializes the final wave and mosaic death presentation.</summary>
+    /// <summary>Initializes the final wave and pixelation death presentation.</summary>
     BeginFinalWavyDeath,
-    /// <summary>Advances the final wavy/mosaic palette fade-out.</summary>
+    /// <summary>Advances the final wavy, pixelated palette fade-out.</summary>
     DyingFadeOut,
     /// <summary>Clears Phantoon graphics and releases distortion before Wrecked Ship activation.</summary>
     AlmostDead,

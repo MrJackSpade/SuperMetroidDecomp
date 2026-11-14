@@ -79,9 +79,9 @@ internal static class PhantoonNativeWords
     /// <summary>Imports the eye's death mosaic from its recorded word C, when it holds a mosaic word.</summary>
     internal static void ImportDeathMosaic(PhantoonEyeState part, ushort wordC)
     {
-        part.DeathMosaicFinished = wordC == DeathMosaicFinished;
-        for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
+        part.DeathPixelationFinished = wordC == DeathMosaicFinished;
+        for (int size = PhantoonDeathDefinitions.InitialPixelationSize; size <= PhantoonDeathDefinitions.FinalPixelationSize; size++)
             if (wordC == DeathMosaicWord(size))
-                part.DeathMosaicSize = size;
+                part.DeathPixelationSize = size;
     }
 }

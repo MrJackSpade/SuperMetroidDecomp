@@ -25,7 +25,7 @@ public sealed class PhantoonBodyVisibilityEffect
     /// <summary>How his body shows as the last display latch captured it, unaffected by later updates until latched again.</summary>
     public PhantoonBodyVisibility DisplayedVisibility { get; private set; }
     /// <summary>His body's pixelation block size in screen pixels latched for display, before this frame's enemy AI changes it; one means none.</summary>
-    public int DisplayedMosaicBlockSize { get; private set; } = 1;
+    public int DisplayedPixelationBlockSize { get; private set; } = 1;
 
     /// <summary>
     /// Advances one ordinary-gameplay update: his body shows as the room shows it during the two setup updates and after
@@ -51,16 +51,16 @@ public sealed class PhantoonBodyVisibilityEffect
     }
 
     /// <summary>Copies the live visibility and the supplied pixelation size to displayed state at the display latch, without advancing the effect.</summary>
-    /// <param name="mosaicBlockSize">His body's pixelation block size in screen pixels, 1..16; one means none.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mosaicBlockSize"/> is outside 1..16.</exception>
-    public void LatchDisplay(int mosaicBlockSize = 1)
+    /// <param name="pixelationBlockSize">His body's pixelation block size in screen pixels, 1..16; one means none.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelationBlockSize"/> is outside 1..16.</exception>
+    public void LatchDisplay(int pixelationBlockSize = 1)
     {
-        if (mosaicBlockSize is < 1 or > MaximumMosaicBlockSize)
-            throw new ArgumentOutOfRangeException(nameof(mosaicBlockSize), mosaicBlockSize, "Pixelation blocks are one through sixteen pixels.");
+        if (pixelationBlockSize is < 1 or > MaximumPixelationBlockSize)
+            throw new ArgumentOutOfRangeException(nameof(pixelationBlockSize), pixelationBlockSize, "Pixelation blocks are one through sixteen pixels.");
         DisplayedVisibility = Visibility;
-        DisplayedMosaicBlockSize = mosaicBlockSize;
+        DisplayedPixelationBlockSize = pixelationBlockSize;
     }
 
     /// <summary>The largest pixelation block, in screen pixels.</summary>
-    private const int MaximumMosaicBlockSize = 16;
+    private const int MaximumPixelationBlockSize = 16;
 }

@@ -30,14 +30,8 @@ public sealed class BackgroundScrollState
     /// <summary>The room pixel the foreground's view starts at: its position at the last scroll calculation, or a room main's shift.</summary>
     public Position16<RoomPixels> ForegroundScroll { get; private set; }
 
-    /// <summary>The background pixel the background's view starts at: its position at the last scroll calculation, or a boss's placement.</summary>
+    /// <summary>The background pixel the background's view starts at: its position at the last scroll calculation.</summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
-
-    /// <summary>
-    /// Places the background's view where a boss that shows its body on the background puts it (Phantoon). His room's
-    /// fixed background axes leave the view where he put it during the ordinary scroll calculation.
-    /// </summary>
-    public void PlaceBackgroundView(Position16<BackgroundPixels> placement) => BackgroundScroll = placement;
 
     /// <summary>Shifts the foreground's view to row <paramref name="vertical"/> without moving the camera (a room main's rumble).</summary>
     public void SetForegroundVerticalScroll(int vertical) => ForegroundScroll = ForegroundScroll.WithY(vertical);

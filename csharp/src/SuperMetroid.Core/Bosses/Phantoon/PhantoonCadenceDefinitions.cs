@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// The counter cadences and phases of Phantoon's fight and death (#1606): his flash, fades, figure-eight reversal,
-/// first eye-closed delay, flames, death mosaic and the Wrecked Ship's power returning.
+/// first eye-closed delay, flames, death pixelation and the Wrecked Ship's power returning.
 /// </summary>
 internal static class PhantoonCadenceDefinitions
 {
@@ -43,10 +43,10 @@ internal static class PhantoonCadenceDefinitions
     internal static readonly UpdateCounterField RisingFlameDriftsLeft = new(0, 1);
 
     /// <summary>
-    /// The updates on which the death mosaic over the dying Phantoon grows one size: every sixteenth update of the frame
+    /// The updates on which the death pixelation over the dying Phantoon grows one size: every sixteenth update of the frame
     /// counter, on its first place.
     /// </summary>
-    internal static readonly UpdateCadence DeathMosaicGrowsEverySixteenthUpdate = new(16, 0);
+    internal static readonly UpdateCadence DeathPixelationGrowsEverySixteenthUpdate = new(16, 0);
 
     /// <summary>
     /// The updates on which the Wrecked Ship's colours take a step back to powered once Phantoon is dead: every fourth

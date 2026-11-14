@@ -14,7 +14,7 @@ public sealed class PhantoonBodyWaveEffect
     /// <summary>The length the wave's last setup selected; null before any setup.</summary>
     private PhantoonWaveLength? _setupLength;
     /// <summary>
-    /// The phase, amplitude and base scroll the wave last held (#1353): its last update, or the death fill as a flat
+    /// The phase, amplitude and body column the wave last held (#1353, #1858): its last update, or the death fill as a flat
     /// zero-amplitude wave. Setup and ending the wave keep them.
     /// </summary>
     private PhantoonWaveShape _built;
@@ -30,19 +30,19 @@ public sealed class PhantoonBodyWaveEffect
     public PhantoonWave? DisplayedWave { get; private set; }
 
     /// <summary>
-    /// The wave as it now stands (#1468), or null before any setup: his body at the base scroll the wave last held,
+    /// The wave as it now stands (#1468), or null before any setup: his body at the room column the wave last held,
     /// rippled down the whole screen by its amplitude at its phase's angle, over its length's period.
     /// </summary>
     internal PhantoonWave? CurrentWave => _setupLength is { } length ? Describe(length, _built) : null;
 
     /// <summary>
-    /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body layer at the shape's base scroll,
+    /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body at the shape's room column,
     /// rippled down the whole screen by its amplitude from its phase's angle, over the length's period: one
     /// sine wave, repeating down the screen from its first line.
     /// </summary>
     /// <param name="length">The wave's length.</param>
-    /// <param name="shape">The phase, 0 through 511, amplitude and base scroll the wave was built from.</param>
-    internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.BaseScroll, shape.Amplitude,
+    /// <param name="shape">The phase, 0 through 511, amplitude and body column the wave was built from.</param>
+    internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.BodyLeft, shape.Amplitude,
         new TrigonometryAngle(PhaseInCycle(shape.Phase) / PhantoonWaveDefinitions.PhasesPerAngleStep),
         Period(length));
 
@@ -56,11 +56,11 @@ public sealed class PhantoonBodyWaveEffect
     };
 
     /// <summary>
-    /// A fatal hit flattens the wave: every line shows the base scroll, a wave of
+    /// A fatal hit flattens the wave: every line shows his body where it lies, a wave of
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
-    /// <param name="bodyHorizontalScroll">His body's base horizontal scroll in whole pixels, which every line shows.</param>
-    public void InitializeDeathScroll(int bodyHorizontalScroll) => _built = new(_built.Phase, 0, bodyHorizontalScroll);
+    /// <param name="bodyLeft">The room column his body's area's left edge lies on, which every line shows.</param>
+    public void InitializeDeathScroll(int bodyLeft) => _built = new(_built.Phase, 0, bodyLeft);
 
     /// <summary>Requests a new wave; its setup runs at the next update.</summary>
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
@@ -71,7 +71,7 @@ public sealed class PhantoonBodyWaveEffect
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once the eye's length is cleared or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and his body's base scroll remain boss-owned inputs.</param>
+    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and where his body lies remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
@@ -93,7 +93,7 @@ public sealed class PhantoonBodyWaveEffect
         Phase = PhaseInCycle(Phase + 2 * boss.MouthState.WavyPhaseDelta);
         if (boss.EyeState.WaveLength != _setupLength)
             throw new InvalidOperationException($"Phantoon's wave length {boss.EyeState.WaveLength} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.MouthState.WaveAmplitude, boss.BodyLayerPlacement.X);
+        _built = new(Phase, boss.MouthState.WaveAmplitude, boss.BodyOrigin.X);
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>

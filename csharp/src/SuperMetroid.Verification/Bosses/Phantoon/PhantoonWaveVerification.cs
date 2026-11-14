@@ -38,8 +38,8 @@ internal static class PhantoonWaveVerification
             AssertEqual(phase, wave.Phase, "original-CPU phase progression");
             PhantoonWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
             AssertEqual(new PhantoonWave(0, 3072, new TrigonometryAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
-                current, "the wave stands at its base scroll, amplitude, phase's angle and period");
-            AssertEqual(first, ScrollShapeLines.WaveScroll(BossLineScrolls.Of(current), 0), "original-CPU first scroll word");
+                current, "the wave stands at its body column, amplitude, phase's angle and period");
+            AssertEqual(first, ScrollShapeLines.WaveScroll(BossLineScrolls.Of(current, default), 0), "original-CPU first scroll word");
         }
         wave.LatchDisplay();
         PhantoonWave savedDisplay = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
@@ -72,7 +72,7 @@ internal static class PhantoonWaveVerification
     private static void VerifyPhantoonDeathMosaicSizes()
     {
         int steps = 0;
-        for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
+        for (int size = PhantoonDeathDefinitions.InitialPixelationSize; size <= PhantoonDeathDefinitions.FinalPixelationSize; size++)
         {
             byte mosaic = (byte)PhantoonNativeWords.DeathMosaicWord(size);
             AssertEqual(BackgroundMosaicSamplingConstants.ForBg2(mosaic).Size, size, $"death mosaic step {steps} block size");
@@ -109,14 +109,14 @@ internal static class PhantoonWaveVerification
         }
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility, "translucency takes priority over a cleared body");
-        visibility.LatchDisplay(mosaicBlockSize: 5);
-        boss.MosaicBlockSize = 6;
+        visibility.LatchDisplay(pixelationBlockSize: 5);
+        boss.PixelationBlockSize = 6;
         boss.Translucent = false;
         boss.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "a shown body shows as the room does, not as the previous update showed it");
         AssertEqual(PhantoonBodyVisibility.Translucent, visibility.DisplayedVisibility, "a live change cannot change the latched visibility");
-        AssertEqual(5, visibility.DisplayedMosaicBlockSize, "a live pixelation change waits for the next display latch");
+        AssertEqual(5, visibility.DisplayedPixelationBlockSize, "a live pixelation change waits for the next display latch");
         boss.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Hidden, visibility.Visibility, "a hidden body is hidden");
@@ -132,7 +132,7 @@ internal static class PhantoonWaveVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBodyVisibilityEffect>(stream);
         restored.Step(boss);
         AssertEqual(visibility.Visibility, restored.Visibility, "the ended effect survives a debugger roundtrip");
-        AssertEqual(5, restored.DisplayedMosaicBlockSize, "the displayed pixelation survives a debugger roundtrip");
+        AssertEqual(5, restored.DisplayedPixelationBlockSize, "the displayed pixelation survives a debugger roundtrip");
     }
 
     /// <summary>Runs only the Phantoon wave lifecycle check.</summary>

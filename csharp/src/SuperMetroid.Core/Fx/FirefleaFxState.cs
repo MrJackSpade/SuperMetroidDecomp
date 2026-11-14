@@ -10,13 +10,16 @@ namespace SuperMetroid.Core.Fx;
 public sealed class FirefleaFxState
 {
     /// <summary>
-    /// Frames until the next flashing-index step, held while time is frozen. A step
+    /// Frames until the next flash phase, held while time is frozen. A step
     /// that reaches zero restarts it; one that starts from zero, before the FX initializes, wraps instead.
     /// </summary>
     public WrappingCountdown Timer { get; private set; }
 
-    /// <summary>The current flashing-table element index, 0 through 11.</summary>
-    public int Index { get; private set; }
+    /// <summary>
+    /// The room's place in its flash cycle, 0 through 11: the shade brightens over the first six phases and dims over
+    /// the last six (<see cref="FirefleaShades.FlashingShade"/>).
+    /// </summary>
+    public int FlashPhase { get; private set; }
 
     /// <summary>
     /// The darkness step published from the enemies' death count: one step per Fireflea killed, from none through
@@ -30,13 +33,13 @@ public sealed class FirefleaFxState
     /// </summary>
     public RgbColor Tint { get; private set; } = Shade(0, 0);
 
-    /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state, and shows its shade.</summary>
+    /// <summary>Seeds the initial flash duration, the cycle's first phase, and the undarkened room, and shows its shade.</summary>
     internal void Initialize()
     {
         Timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
-        Index = 0;
+        FlashPhase = 0;
         DarknessStep = 0;
-        Tint = Shade(Index, DarknessStep);
+        Tint = Shade(FlashPhase, DarknessStep);
     }
 
     /// <summary>
@@ -49,30 +52,30 @@ public sealed class FirefleaFxState
         if (frozen) return;
         CountdownStep step = Timer.Decrement();
         WrappingCountdown timer = step.Remaining;
-        int index = Index;
+        int phase = FlashPhase;
         if (step.IsZero)
         {
             timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
             if (darknessStep < FirefleaFxDefinitions.SteadyDarknessStep)
             {
-                index++;
-                if (index >= FirefleaFxDefinitions.FlashCount) index = 0;
+                phase++;
+                if (phase >= FirefleaFxDefinitions.FlashCount) phase = 0;
             }
-            else index = FirefleaFxDefinitions.SteadyFlashIndex;
-            Index = index;
+            else phase = FirefleaFxDefinitions.SteadyFlashPhase;
+            FlashPhase = phase;
         }
         Timer = timer;
 
-        Tint = Shade(index, darknessStep);
+        Tint = Shade(phase, darknessStep);
     }
 
     /// <summary>
-    /// The grey of the flashing shade at <paramref name="index"/> deepened by darkness step <paramref name="darknessStep"/>:
+    /// The grey of the flashing shade at flash phase <paramref name="phase"/> deepened by darkness step <paramref name="darknessStep"/>:
     /// the two fade levels add, and their sum never passes the scale's full level.
     /// </summary>
-    private static RgbColor Shade(int index, int darknessStep)
+    private static RgbColor Shade(int phase, int darknessStep)
     {
-        int level = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darknessStep);
+        int level = FirefleaShades.FlashingShade(phase) + FirefleaShades.DarknessShade(darknessStep);
         return new FadeLevelColour(level, level, level).ToColour();
     }
 }

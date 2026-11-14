@@ -3,8 +3,9 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// An authored order of identities: each identity's position in a sequence the game data defines, such as a palette's
-/// colour order or a table's row order. Positions come from the sequence, never from the identities' values.
+/// An authored order of identities: each identity's position in a sequence the game data defines, such as a Yapping
+/// Maw's aims clockwise from straight up or the turret directions around the compass in Mother Brain's room. Positions
+/// come from the sequence, never from the identities' values.
 /// </summary>
 /// <typeparam name="T">The identity.</typeparam>
 internal sealed class IdentitySequence<T>

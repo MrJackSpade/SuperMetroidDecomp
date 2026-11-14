@@ -149,7 +149,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
-            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
             state.ActionTimer = EyeTransitionDuration;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right

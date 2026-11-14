@@ -5,7 +5,7 @@ internal static class NuclearWaffleDefinitions
 {
 
     /// <summary>The Sidehopper landing sound, queued when a joint makes its rising turn.</summary>
-    internal static readonly SoundEffectId TurnSoundEffect = EnemySound.SidehopperLanding;
+    internal static readonly SoundEffectId TurnSoundEffect = EnemySound.LowThud;
 
     /// <summary>The sweep endpoint pairs mirror around angle 320.</summary>
     private const int SweepCenter = 320;

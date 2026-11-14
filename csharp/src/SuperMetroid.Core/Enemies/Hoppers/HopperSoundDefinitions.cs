@@ -7,5 +7,5 @@ internal static class HopperSoundDefinitions
     internal static readonly SoundEffectId Hop = EnemySound.SidehopperJump;
 
     /// <summary>The landing sound, queued as a Sidehopper's landed animation starts.</summary>
-    internal static readonly SoundEffectId Land = EnemySound.SidehopperLanding;
+    internal static readonly SoundEffectId Land = EnemySound.LowThud;
 }

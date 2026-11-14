@@ -50,7 +50,7 @@ internal static class SpeedBoosterEchoStopVerification
             SamusPostDrawAudio.Step(samus, SamusMovementType.RanIntoWall, 0);
             foreach (var request in samus.LiquidPhysics.SoundRequests)
             {
-                if (request.SoundEffect == RoomSound.SpeedBoosterEnd)
+                if (request.SoundEffect == RoomSound.SpeedBoosterOrElevatorStop)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
                     AssertEqual(SoundRequestPriority.Essential, request.Priority, "echo stop is requested at essential priority");
@@ -70,7 +70,7 @@ internal static class SpeedBoosterEchoStopVerification
                 if (!library3)
                     continue;
                 if (value != library3Port && value == RoomSound.SpeedBooster) starts++;
-                if (value != library3Port && value == RoomSound.SpeedBoosterEnd) stops++;
+                if (value != library3Port && value == RoomSound.SpeedBoosterOrElevatorStop) stops++;
                 library3Port = value;
             }
             var pcm = renderer.RenderFrame(commands);
@@ -111,7 +111,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0);
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertTrue(!speed.EchoSoundPlaying, "the post-draw pass after the boost ends stops the echo sound");
-        AssertEqual(RoomSound.SpeedBoosterEnd, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
+        AssertEqual(RoomSound.SpeedBoosterOrElevatorStop, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 
         speed.EchoSoundPlaying = true;

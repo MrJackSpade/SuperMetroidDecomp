@@ -69,9 +69,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Enemy-library sound queued when Samus wakes the tutorial Dachora.</summary>
     private static readonly SoundEffectId DachoraActivationSound =
         EnemySoundEffectDefinitions.DachoraActivationSound;
-    /// <summary>Enemy-library sound queued at the scripted wall turn.</summary>
-    private static readonly SoundEffectId DachoraWallImpactSound =
-        EnemySoundEffectDefinitions.DachoraWallImpactSound;
+    /// <summary>Enemy-library silence queued at the scripted wall turn, stopping the run's Speed Booster sound.</summary>
+    private static readonly SoundEffectId DachoraSpeedBoosterSoundStop =
+        EnemySoundEffectDefinitions.DachoraSpeedBoosterSoundStop;
     /// <summary>Enemy-library sound queued while Dachora stores its shinespark.</summary>
     private static readonly SoundEffectId DachoraChargeSound =
         EnemySoundEffectDefinitions.DachoraChargeSound;
@@ -246,7 +246,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen displacement = AccelerateDachora(slot, state, level);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
-            _audio.QueueEnemySound(DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(DachoraSpeedBoosterSoundStop, priority: SoundRequestPriority.Normal);
             StartDachoraAnimation(slot, state, DachoraSegment.RunningLeft);
             state.Action = DachoraAction.RunningLeft;
             state.FacingRight = false;

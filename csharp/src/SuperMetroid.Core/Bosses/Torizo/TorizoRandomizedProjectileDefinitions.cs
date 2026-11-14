@@ -35,10 +35,10 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// velocities with its aimed launch.
     /// </summary>
     internal static readonly TorizoRandomizedProjectileDefinition GoldenEyeBeamRight =
-        new(TorizoProjectileSegment.EyeBeamNormal, new(20, -30),
+        new(TorizoProjectileSegment.EyeBeam, new(20, -30),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(1024, 1024));
     /// <summary>Golden Torizo's left-facing eye-beam record.</summary>
     internal static readonly TorizoRandomizedProjectileDefinition GoldenEyeBeamLeft =
-        new(TorizoProjectileSegment.EyeBeamNormal, new(-20, -30),
+        new(TorizoProjectileSegment.EyeBeam, new(-20, -30),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1024, 1024));
 }

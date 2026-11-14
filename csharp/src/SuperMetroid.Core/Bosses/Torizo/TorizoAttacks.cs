@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -113,15 +114,17 @@ internal sealed class TorizoAttacks
         }
 
         /// <inheritdoc/>
-        public TorizoProjectileSegment? RunCue(EnemyProjectileCueContext context, TorizoProjectileCue cue) =>
-            owner.ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue);
+        public AnimationContinuation<TorizoProjectileSegment>? RunCue(EnemyProjectileCueContext context, TorizoProjectileCue cue,
+            AnimationPlayback<TorizoProjectileSegment> pastCue) =>
+            owner.ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue, pastCue);
     }
 
     /// <summary>
-    /// Carries out one cue of a Torizo projectile's animation, returning the segment a conditional cue continues at, or
-    /// null to run on.
+    /// Carries out one cue of a Torizo projectile's animation, returning where a conditional cue continues the play from
+    /// <paramref name="pastCue"/>, the place just past it, or null to run on.
     /// </summary>
-    internal TorizoProjectileSegment? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue)
+    internal AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue,
+        AnimationPlayback<TorizoProjectileSegment> pastCue)
     {
         switch (cue)
         {
@@ -148,15 +151,16 @@ internal sealed class TorizoAttacks
                 projectile.Delete();
                 return null;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
-                return projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft;
-            case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
+                return TorizoProjectileAnimations.ContinueWith(
+                    projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft);
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled }:
             {
                 TorizoEnemyState state = GoldenTorizo ??
                     throw new InvalidOperationException("Golden Torizo's eye beam has no owning Torizo state.");
-                return state.EyeBeamExplosionsEnabled ? null : goToIfEyeBeamExplosionsDisabled.Target;
+                return state.EyeBeamExplosionsEnabled ? null : TorizoProjectileAnimations.ReplayPhase(pastCue);
             }
             case TorizoProjectileCue.GoToSometimes goToSometimes:
-                return _projectiles.TakeOneInFourBranch() ? goToSometimes.Target : null;
+                return _projectiles.TakeOneInFourBranch() ? TorizoProjectileAnimations.ContinueWith(goToSometimes.Target) : null;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
                 SetGoldenTorizoSuperMissileVelocity(
                     projectile,
@@ -295,7 +299,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
             TorizoProjectiles,
             graphics: default);
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.SwipeInitial));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosiveSwipe));
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole +
@@ -318,7 +322,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
             TorizoProjectiles,
             graphics: default);
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosionLowHealthInitial));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.LowHealthExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
         projectile.State = new AnchoredProjectileState(projectile.Position.Whole);
     }
@@ -334,7 +338,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.BombTorizoDeathExplosion,
             TorizoProjectiles,
             graphics: default);
-        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosionDeathInitial));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DeathExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
         projectile.State = new AnchoredProjectileState(torizo.Position.Whole);
     }
@@ -455,7 +459,7 @@ internal sealed class TorizoAttacks
             SpriteGraphics.SpawnedBy(torizo));
         bool facingRight = _access.FacesRight(torizo);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(torizo.Position.X.Whole + (facingRight ? 30 : -30)), CoordinateAxis.Wrap(torizo.Position.Y.Whole - 52)));
-        projectile.StartAnimation(new TorizoProjectileAnimation(facingRight ? TorizoProjectileSegment.SuperMissileRightInitial : TorizoProjectileSegment.SuperMissileLeftInitial));
+        projectile.StartAnimation(new TorizoProjectileAnimation(facingRight ? TorizoProjectileSegment.SuperMissileRight : TorizoProjectileSegment.SuperMissileLeft));
     }
 
     /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>

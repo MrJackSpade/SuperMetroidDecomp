@@ -20,12 +20,8 @@ internal abstract record TorizoProjectileCue
     /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
     internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
-    /// <summary>Continues at the target while Golden Torizo's eye-beam explosions are disabled.</summary>
-    /// <param name="Target">The segment a conditional cue continues at.</param>
-    internal sealed record GoToIfEyeBeamExplosionsDisabled(TorizoProjectileSegment Target) : TorizoProjectileCue;
-
-    /// <summary>Continues at the target one time in four.</summary>
-    /// <param name="Target">The segment a conditional cue continues at.</param>
+    /// <summary>Continues in the target animation, from its start, one time in four.</summary>
+    /// <param name="Target">The animation the cue continues in.</param>
     internal sealed record GoToSometimes(TorizoProjectileSegment Target) : TorizoProjectileCue;
 
     /// <summary>Requests a sound at the priority the cue states.</summary>

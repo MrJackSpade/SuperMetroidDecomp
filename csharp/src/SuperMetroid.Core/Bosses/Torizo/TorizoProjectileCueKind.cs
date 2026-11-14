@@ -1,13 +1,13 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's projectile animations does: stop, delete, return or aim the projectile, raise a dust cloud, request an orb's drop, stop it blocking or damaging, or continue at a hatched egg.</summary>
+/// <summary>What a cue of Torizo's projectile animations does: stop, delete, return or aim the projectile, raise a dust cloud, request an orb's drop, stop it blocking or damaging, continue in a hatched egg, or replay a run while the eye beam's explosions are disabled.</summary>
 internal enum TorizoProjectileCueKind
 {
     /// <summary>Stops the projectile's movement.</summary>
     ClearFrameBehavior,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Continues at the egg's facing hatched segment.</summary>
+    /// <summary>Continues in the egg's facing hatched animation.</summary>
     Hatch,
     /// <summary>Aims a thrown super missile at Samus.</summary>
     AimSuperMissileTowardSamus,
@@ -25,6 +25,11 @@ internal enum TorizoProjectileCueKind
     StopHarmingSamus,
     /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
-    /// <summary>Does nothing: the sonic boom's wall-impact loop calls the bare return.</summary>
+    /// <summary>Does nothing: the sonic boom's wall impact calls the bare return.</summary>
     NoOperation,
+    /// <summary>
+    /// Plays the run of steps the cue is in again, from that run's first step, while Golden Torizo's eye-beam explosions are
+    /// disabled (#1788): the eye beam's floor spark sparks again.
+    /// </summary>
+    ReplayWhileEyeBeamExplosionsDisabled,
 }

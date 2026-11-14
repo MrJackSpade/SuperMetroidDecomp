@@ -238,10 +238,9 @@ internal static class AudioClipExporter
             (SpcDriverDefinitions.SoundEffects.LowHealthMode, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Enter,
             _ => throw new InvalidDataException($"Configuration {configuration} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
         };
-        if (fromLow.VoicesToSetup != fromHigh.VoicesToSetup)
-            throw new InvalidDataException($"Configuration {configuration} allocates voices by state.");
+        // The voices the configuration sets up stay the driver's: the render plays them, and the clips carry the result
+        // (#1749).
         return new SoundEffectClipPolicy(
-            fromLow.VoicesToSetup,
             priority,
             mode,
             IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),

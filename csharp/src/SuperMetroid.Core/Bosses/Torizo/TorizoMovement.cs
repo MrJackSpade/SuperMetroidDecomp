@@ -117,7 +117,7 @@ internal sealed class TorizoMovement
             torizo.Health < BombTorizoBehavior.BombTorizoHeadExplosionHealth)
         {
             state.InterruptedPlayback = state.BodyPlayback;
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.SpecialCallableBlowUpBombTorizosGut));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoGutBlowingUp));
             return;
         }
 
@@ -125,9 +125,9 @@ internal sealed class TorizoMovement
             torizo.Health < BombTorizoBehavior.BombTorizoCoreExplosionHealth)
         {
             state.ReturnPlayback = TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodySegment.FacingLeftFacelessTurningLeft
-                : TorizoBodySegment.FacingRightFacelessTurningRight);
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.CallableBlowUpBombTorizosFace));
+                ? TorizoAnimation.FacelessTurningLeft
+                : TorizoAnimation.FacelessTurningRight);
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoFaceBlowingUp));
             return;
         }
 
@@ -237,11 +237,11 @@ internal sealed class TorizoMovement
             {
                 TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(alternateLanding
                     ? (_access.FacesRight(torizo)
-                        ? TorizoBodySegment.FacingLeftFacelessTurningLeft
-                        : TorizoBodySegment.FacingRightFacelessTurningRight)
+                        ? TorizoAnimation.FacelessTurningLeft
+                        : TorizoAnimation.FacelessTurningRight)
                     : (_access.FacesRight(torizo)
-                        ? TorizoBodySegment.FacingLeftTurningLeft
-                        : TorizoBodySegment.FacingRightTurningRight)));
+                        ? TorizoAnimation.TurningLeft
+                        : TorizoAnimation.TurningRight)));
                 return;
             }
         }
@@ -251,8 +251,8 @@ internal sealed class TorizoMovement
             // Bomb Torizo's fall swaps to the authored in-air animation while the downward probe remains
             // clear. Landing itself is handled by the animation-installed gravity/jump behaviour.
             TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodySegment.FacingRightFalling0
-                : TorizoBodySegment.FacingLeftFalling0));
+                ? TorizoAnimation.FacingRightFalling
+                : TorizoAnimation.FacingLeftFalling));
             state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }
@@ -270,8 +270,8 @@ internal sealed class TorizoMovement
             if (--state.AirTransitionTimer == 0)
             {
                 TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                    ? TorizoBodySegment.GoldenTurningLeft
-                    : TorizoBodySegment.GoldenTurningRight));
+                    ? TorizoAnimation.GoldenTurningLeft
+                    : TorizoAnimation.GoldenTurningRight));
                 return;
             }
         }
@@ -279,8 +279,8 @@ internal sealed class TorizoMovement
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodySegment.FacingRightFalling0
-                : TorizoBodySegment.FacingLeftFalling0));
+                ? TorizoAnimation.FacingRightFalling
+                : TorizoAnimation.FacingLeftFalling));
             state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }

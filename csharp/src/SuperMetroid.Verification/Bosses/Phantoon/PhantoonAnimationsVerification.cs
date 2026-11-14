@@ -196,7 +196,7 @@ internal static class PhantoonAnimationsVerification
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, (patterns, body) => patterns.SpawnPhantoonCasualFlame(body), "casual"), PhantoonFlameSegment.CasualFalling0, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, body) => patterns.SpawnPhantoonCasualFlame(body), "casual"), PhantoonFlameSegment.CasualFalling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
         AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.DestroyableIdle, "rage flame");
     }

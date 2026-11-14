@@ -8,13 +8,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoAnimationsConstants
 {
     /// <summary>
-    /// The extended spritemaps <paramref name="programs"/> show, in authored order with repeats: the artwork schema's
+    /// The extended spritemaps <paramref name="animations"/> show, in step order with repeats: the artwork schema's
     /// first-seen frame order.
     /// </summary>
-    internal static IEnumerable<ushort> Spritemaps(params TorizoBodySegment[] programs) =>
-        programs.SelectMany(program => TorizoAnimations.Segments.Beats(program))
+    internal static IEnumerable<ushort> Spritemaps(params TorizoAnimation[] animations) =>
+        animations.SelectMany(animation => TorizoAnimations.Segments.Beats(animation))
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Frame>()
             .Select(frame => TorizoFrameDefinitionsConstants.Spritemap(frame.Shown));
-    /// <summary>Every body program, in authored address order.</summary>
-    internal static TorizoBodySegment[] AllPrograms { get; } = Enum.GetValues<TorizoBodySegment>();
+
+    /// <summary>Every body animation.</summary>
+    internal static TorizoAnimation[] AllAnimations { get; } = Enum.GetValues<TorizoAnimation>();
 }

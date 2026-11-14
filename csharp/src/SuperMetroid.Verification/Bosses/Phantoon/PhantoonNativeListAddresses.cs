@@ -63,7 +63,7 @@ internal static class PhantoonNativeListAddresses
         new FlameEntry(PhantoonFlameSegment.CasualResting, 0x9782),
         new FlameEntry(PhantoonFlameSegment.Dying, 0x979a),
         new FlameEntry(PhantoonFlameSegment.RainImpact, 0x97ac),
-        new FlameEntry(PhantoonFlameSegment.CasualFalling0, 0x97b4),
+        new FlameEntry(PhantoonFlameSegment.CasualFalling, 0x97b4),
         new FlameEntry(PhantoonFlameSegment.StartingFlame, 0x97e8),
         new FlameEntry(PhantoonFlameSegment.Delete, 0x97f8),
         new FlameEntry(PhantoonFlameSegment.DestroyableShot, 0x97fa),

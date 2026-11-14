@@ -122,7 +122,7 @@ internal sealed class TorizoCombat
             return;
         state.DeathStarted = true;
         state.Phase = TorizoPhase.Idle;
-        TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.DeathSequence0));
+        TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.Dying));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
@@ -225,8 +225,8 @@ internal sealed class TorizoCombat
                 torizoState.Phase = TorizoPhase.Idle;
                 enemy.AnimationClock.StepOnNextUpdate();
                 _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
-                    ? TorizoBodySegment.GoldenDodgeTurningRight
-                    : TorizoBodySegment.GoldenDodgeTurningLeft);
+                    ? TorizoAnimation.GoldenDodgeTurningRight
+                    : TorizoAnimation.GoldenDodgeTurningLeft);
                 return true;
             }
 
@@ -241,11 +241,11 @@ internal sealed class TorizoCombat
                     enemy.AnimationClock.StepOnNextUpdate();
                     _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
                         ? _access.FacesRight(enemy)
-                            ? TorizoBodySegment.GoldenCaughtSuperFacingRightLeftLegFwd
-                            : TorizoBodySegment.GoldenCaughtSuperFacingLeftRightLegFwd
+                            ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
+                            : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
                         : _access.FacesRight(enemy)
-                            ? TorizoBodySegment.GoldenCaughtSuperFacingRightRightLegFwd
-                            : TorizoBodySegment.GoldenCaughtSuperFacingLeftLeftLegFwd);
+                            ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward
+                            : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward);
                     return true;
                 }
             }

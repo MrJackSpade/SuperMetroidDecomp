@@ -1,162 +1,149 @@
-﻿using SuperMetroid.Core.Animation;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
+﻿using System.Collections.Frozen;
+using SuperMetroid.Core.Animation;
+using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed body animations (#641, #1600): each frame shows a <see cref="EnemyFrameId"/>,
-/// each cue is a <see cref="TorizoCue"/> with the values it acts on, and each artwork change names the
-/// <see cref="TorizoArtworkLook"/> it shows. A cue that pauses for a fixed time is followed by a wait of that
-/// length.
+/// Bomb and Golden Torizo's body animations (#641, #1600, #1788): each animation's steps, each frame showing a
+/// <see cref="EnemyFrameId"/>, each cue a <see cref="TorizoCue"/> with the values it acts on, each artwork change naming
+/// the <see cref="TorizoArtworkLook"/> it shows; the phases it plays them in, each a run of its steps played a number of
+/// times; and whether it then stops, loops or holds. A cue that pauses for a fixed time is followed by a wait of that
+/// length. The runs several animations play alike are one array of steps each reuses (<see cref="TorizoSharedSteps"/>).
 /// </summary>
 internal static class TorizoAnimations
 {
-    /// <summary>Every body segment's beats.</summary>
-    internal static AnimationSegments<TorizoBodySegment, EnemyFrameId, TorizoCue> Segments { get; } = new(
-        new Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
+    /// <summary>Every animation's steps.</summary>
+    internal static AnimationSegments<TorizoAnimation, EnemyFrameId, TorizoCue> Segments { get; } = new(
+        new Dictionary<TorizoAnimation, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
             [.. TorizoEncounterAnimations.Segments, .. TorizoFacingLeftAnimations.Segments, .. TorizoFacingRightAnimations.Segments,
              .. GoldenTorizoAnimations.Segments]));
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<TorizoBodySegment, Animation<TorizoBodySegment>> StartingAt { get; } = new Dictionary<TorizoBodySegment, Animation<TorizoBodySegment>>
+    /// <summary>How each animation plays its own steps.</summary>
+    internal static IReadOnlyDictionary<TorizoAnimation, Animation<TorizoAnimation>> StartingAt { get; } = new Dictionary<TorizoAnimation, Animation<TorizoAnimation>>
     {
-        [P.SpecialCallableBlowUpBombTorizosGut] = new([new(P.SpecialCallableBlowUpBombTorizosGut, 0, 12, 1)], AnimationEnd.Holds),
-        [P.CallableBlowUpBombTorizosFace] = new([new(P.CallableBlowUpBombTorizosFace, 0, 18, 1)], AnimationEnd.Holds),
-        [P.DeathSequence0] = new([new(P.DeathSequence0, 0, 2, 1), new(P.DeathSequence1, 0, 3, 8), new(P.DeathSequence1, 3, 1, 1), new(P.DeathSequence2, 0, 21, 14), new(P.DeathSequence2, 21, 2, 1)], AnimationEnd.Stops),
-        [P.BombTorizoInitial0] = new([new(P.BombTorizoInitial0, 0, 4, 1)], AnimationEnd.Holds),
-        [P.BombTorizoInitial0Resumed] = new([new(P.BombTorizoInitial0Resumed, 0, 10, 1), new(P.BombTorizoInitial1, 0, 8, 2), new(P.BombTorizoInitial1, 8, 13, 1), new(P.BombTorizoInitial2, 0, 2, 16), new(P.BombTorizoInitial2, 2, 4, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(5)),
-        [P.Stunned0] = new([new(P.Stunned0, 0, 3, 1), new(P.Stunned1, 0, 8, 2), new(P.Stunned1, 8, 5, 1)], AnimationEnd.Holds),
-        [P.FacingLeftTurningLeft] = new([new(P.FacingLeftTurningLeft, 0, 3, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftWalkingRightLegMoving] = new([new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftWalkingLeftLegMoving] = new([new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftSpewingChozoOrbsRightFootFwd0] = new([new(P.FacingLeftSpewingChozoOrbsRightFootFwd0, 0, 8, 1), new(P.FacingLeftSpewingChozoOrbsRightFootFwd1, 0, 2, 3), new(P.FacingLeftSpewingChozoOrbsRightFootFwd1, 2, 6, 1), new(P.FacingLeftSpewingChozoOrbsLeftFootFwd0, 0, 8, 1), new(P.FacingLeftSpewingChozoOrbsLeftFootFwd1, 0, 2, 3), new(P.FacingLeftSpewingChozoOrbsLeftFootFwd1, 2, 6, 1), new(P.FacingLeftSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingLeftSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(17)),
-        [P.FacingLeftSpewingChozoOrbsLeftFootFwd0] = new([new(P.FacingLeftSpewingChozoOrbsLeftFootFwd0, 0, 8, 1), new(P.FacingLeftSpewingChozoOrbsLeftFootFwd1, 0, 2, 3), new(P.FacingLeftSpewingChozoOrbsLeftFootFwd1, 2, 6, 1), new(P.FacingLeftSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingLeftSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(14)),
-        [P.FacingLeftSonicBoomsRightFootForward0] = new([new(P.FacingLeftSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingLeftSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(11)),
-        [P.FacingLeftSonicBoomsLeftFootForward0] = new([new(P.FacingLeftSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingLeftSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingLeftSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(8)),
-        [P.FacingLeftExplosiveSwipeRightFootForward] = new([new(P.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(5)),
-        [P.FacingLeftExplosiveSwipeLeftFootForward] = new([new(P.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.FacingLeftJumpingForwards0] = new([new(P.FacingLeftJumpingForwards0, 0, 4, 1), new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingLeftJumpingForwards1] = new([new(P.FacingLeftJumpingForwards1, 0, 2, 1), new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingLeftFalling0] = new([new(P.FacingLeftFalling0, 0, 2, 1), new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftFalling1] = new([new(P.FacingLeftFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftFalling2] = new([new(P.FacingLeftFalling2, 0, 3, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftJumpingBackwardLandLeftFootFwd0] = new([new(P.FacingLeftJumpingBackwardLandLeftFootFwd0, 0, 4, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd1, 0, 2, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingLeftJumpingBackwardLandLeftFootFwd1] = new([new(P.FacingLeftJumpingBackwardLandLeftFootFwd1, 0, 2, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingLeftJumpingBackwardLandLeftFootFwd2] = new([new(P.FacingLeftJumpingBackwardLandLeftFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftJumpingBackwardLandLeftFootFwd3] = new([new(P.FacingLeftJumpingBackwardLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftJumpingBackwardLandLeftFootFwd4] = new([new(P.FacingLeftJumpingBackwardLandLeftFootFwd4, 0, 4, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftJumpingBackwardRightFootFwd0] = new([new(P.FacingLeftJumpingBackwardRightFootFwd0, 0, 4, 1), new(P.FacingLeftJumpingBackwardRightFootFwd1, 0, 2, 1), new(P.FacingLeftJumpingBackwardRightFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingLeftJumpingBackwardRightFootFwd1] = new([new(P.FacingLeftJumpingBackwardRightFootFwd1, 0, 2, 1), new(P.FacingLeftJumpingBackwardRightFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingLeftJumpingBackwardRightFootFwd2] = new([new(P.FacingLeftJumpingBackwardRightFootFwd2, 0, 2, 1), new(P.FacingLeftJumpingBackwardRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftJumpingBackwardRightFootFwd3] = new([new(P.FacingLeftJumpingBackwardRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftJumpingBackwardRightFootFwd4] = new([new(P.FacingLeftJumpingBackwardRightFootFwd4, 0, 4, 1), new(P.FacingLeftWalkingLeftLegMoving, 0, 20, 1), new(P.FacingLeftWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftFacelessTurningLeft] = new([new(P.FacingLeftFacelessTurningLeft, 0, 3, 1), new(P.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1), new(P.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingLeftFacelessWalkingRightLegMoving] = new([new(P.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1), new(P.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftFacelessWalkingLeftLegMoving] = new([new(P.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1), new(P.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftFacelessWalkingLeftLegMovingTrailing] = new([new(P.FacingLeftFacelessWalkingLeftLegMovingTrailing, 0, 3, 1)], AnimationEnd.Holds),
-        [P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed] = new([new(P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed, 0, 14, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightTurningRight] = new([new(P.FacingRightTurningRight, 0, 3, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightWalkingLeftLegMoving] = new([new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightWalkingRightLegMoving] = new([new(P.FacingRightWalkingRightLegMoving, 0, 20, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightSpewingChozoOrbsLeftFootFwd0] = new([new(P.FacingRightSpewingChozoOrbsLeftFootFwd0, 0, 8, 1), new(P.FacingRightSpewingChozoOrbsLeftFootFwd1, 0, 2, 3), new(P.FacingRightSpewingChozoOrbsLeftFootFwd1, 2, 6, 1), new(P.FacingRightSpewingChozoOrbsRightFootFwd0, 0, 8, 1), new(P.FacingRightSpewingChozoOrbsRightFootFwd1, 0, 2, 3), new(P.FacingRightSpewingChozoOrbsRightFootFwd1, 2, 6, 1), new(P.FacingRightSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingRightSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(17)),
-        [P.FacingRightSpewingChozoOrbsRightFootFwd0] = new([new(P.FacingRightSpewingChozoOrbsRightFootFwd0, 0, 8, 1), new(P.FacingRightSpewingChozoOrbsRightFootFwd1, 0, 2, 3), new(P.FacingRightSpewingChozoOrbsRightFootFwd1, 2, 6, 1), new(P.FacingRightSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingRightSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(14)),
-        [P.FacingRightSonicBoomsLeftFootForward0] = new([new(P.FacingRightSonicBoomsLeftFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsLeftFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsLeftFootForward1, 22, 2, 1), new(P.FacingRightSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(11)),
-        [P.FacingRightSonicBoomsRightFootForward0] = new([new(P.FacingRightSonicBoomsRightFootForward0, 0, 1, 1), new(P.FacingRightSonicBoomsRightFootForward1, 0, 22, 4), new(P.FacingRightSonicBoomsRightFootForward1, 22, 2, 1), new(P.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(8)),
-        [P.FacingRightExplosiveSwipeLeftFootForward] = new([new(P.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1), new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(5)),
-        [P.FacingRightExplosiveSwipeRightFootForward] = new([new(P.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1), new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.FacingRightJumpingForwards0] = new([new(P.FacingRightJumpingForwards0, 0, 4, 1), new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingRightJumpingForwards1] = new([new(P.FacingRightJumpingForwards1, 0, 2, 1), new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingRightFalling0] = new([new(P.FacingRightFalling0, 0, 2, 1), new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightFalling1] = new([new(P.FacingRightFalling1, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightFalling2] = new([new(P.FacingRightFalling2, 0, 3, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightJumpBackwardLandRightFootFwd0] = new([new(P.FacingRightJumpBackwardLandRightFootFwd0, 0, 4, 1), new(P.FacingRightJumpBackwardLandRightFootFwd1, 0, 2, 1), new(P.FacingRightJumpBackwardLandRightFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardLandRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingRightJumpBackwardLandRightFootFwd1] = new([new(P.FacingRightJumpBackwardLandRightFootFwd1, 0, 2, 1), new(P.FacingRightJumpBackwardLandRightFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardLandRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingRightJumpBackwardLandRightFootFwd2] = new([new(P.FacingRightJumpBackwardLandRightFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardLandRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightJumpBackwardLandRightFootFwd3] = new([new(P.FacingRightJumpBackwardLandRightFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightJumpBackwardLandRightFootFwd4] = new([new(P.FacingRightJumpBackwardLandRightFootFwd4, 0, 4, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightJumpBackwardsLandLeftFootFwd0] = new([new(P.FacingRightJumpBackwardsLandLeftFootFwd0, 0, 4, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd1, 0, 2, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.FacingRightJumpBackwardsLandLeftFootFwd1] = new([new(P.FacingRightJumpBackwardsLandLeftFootFwd1, 0, 2, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FacingRightJumpBackwardsLandLeftFootFwd2] = new([new(P.FacingRightJumpBackwardsLandLeftFootFwd2, 0, 2, 1), new(P.FacingRightJumpBackwardsLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightJumpBackwardsLandLeftFootFwd3] = new([new(P.FacingRightJumpBackwardsLandLeftFootFwd3, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightJumpBackwardsLandLeftFootFwd4] = new([new(P.FacingRightJumpBackwardsLandLeftFootFwd4, 0, 4, 1), new(P.FacingRightWalkingRightLegMoving, 0, 20, 1), new(P.FacingRightWalkingLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightFacelessTurningRight] = new([new(P.FacingRightFacelessTurningRight, 0, 3, 1), new(P.FacingRightFacelessWalkingLeftLegMoving, 0, 16, 1), new(P.FacingRightFacelessWalkingRightLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FacingRightFacelessWalkingLeftLegMoving] = new([new(P.FacingRightFacelessWalkingLeftLegMoving, 0, 16, 1), new(P.FacingRightFacelessWalkingRightLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightFacelessWalkingRightLegMoving] = new([new(P.FacingRightFacelessWalkingRightLegMoving, 0, 16, 1), new(P.FacingRightFacelessWalkingLeftLegMoving, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GoldenInitial0] = new([new(P.GoldenInitial0, 0, 5, 1)], AnimationEnd.Holds),
-        [P.GoldenInitial0Resumed] = new([new(P.GoldenInitial0Resumed, 0, 1, 1), new(P.GoldenInitial1, 0, 19, 1), new(P.GoldenInitial2, 0, 8, 2), new(P.GoldenInitial2, 8, 13, 1), new(P.GoldenInitial3, 0, 2, 16), new(P.GoldenInitial3, 2, 4, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(6)),
-        [P.GoldenInitial1] = new([new(P.GoldenInitial1, 0, 19, 1), new(P.GoldenInitial2, 0, 8, 2), new(P.GoldenInitial2, 8, 13, 1), new(P.GoldenInitial3, 0, 2, 16), new(P.GoldenInitial3, 2, 4, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(5)),
-        [P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0] = new([new(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingLeftRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 22, 2, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(25)),
-        [P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0] = new([new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingLeftRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 22, 2, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(22)),
-        [P.GoldenSonicBoomsFacingLeftRightFootFwd0] = new([new(P.GoldenSonicBoomsFacingLeftRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftRightFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 22, 2, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(19)),
-        [P.GoldenSonicBoomsFacingLeftLeftFootFwd0] = new([new(P.GoldenSonicBoomsFacingLeftLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingLeftLeftFootFwd1, 22, 2, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(16)),
-        [P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0] = new([new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1, 3, 6, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(13)),
-        [P.GoldenSpewChozoOrbFacingLeftRightFootFwd0] = new([new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, 0, 7, 1), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 0, 3, 6), new(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1, 3, 6, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(10)),
-        [P.GoldenSonicBoomsFacingRightLeftFootFwd0] = new([new(P.GoldenSonicBoomsFacingRightLeftFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightLeftFootFwd1, 22, 2, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(7)),
-        [P.GoldenSonicBoomsFacingRightRightFootFwd0] = new([new(P.GoldenSonicBoomsFacingRightRightFootFwd0, 0, 1, 1), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 0, 22, 4), new(P.GoldenSonicBoomsFacingRightRightFootFwd1, 22, 2, 1), new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd] = new([new(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd] = new([new(P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd, 0, 1, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenLandedFromBackwardsJumpFacingRightRightFootFwd] = new([new(P.GoldenLandedFromBackwardsJumpFacingRightRightFootFwd, 0, 1, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd] = new([new(P.GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd, 0, 1, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenCaughtSuperFacingLeftLeftLegFwd] = new([new(P.GoldenCaughtSuperFacingLeftLeftLegFwd, 0, 25, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenCaughtSuperFacingLeftRightLegFwd] = new([new(P.GoldenCaughtSuperFacingLeftRightLegFwd, 0, 25, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenCaughtSuperFacingRightRightLegFwd] = new([new(P.GoldenCaughtSuperFacingRightRightLegFwd, 0, 23, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenCaughtSuperFacingRightLeftLegFwd] = new([new(P.GoldenCaughtSuperFacingRightLeftLegFwd, 0, 23, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenSitDownAttackFacingLeft] = new([new(P.GoldenSitDownAttackFacingLeft, 0, 26, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenSitDownAttackFacingRight] = new([new(P.GoldenSitDownAttackFacingRight, 0, 26, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenReleaseGoldenTorizoEggs0] = new([new(P.GoldenReleaseGoldenTorizoEggs0, 0, 10, 1), new(P.GoldenReleaseGoldenTorizoEggs1, 0, 3, 6), new(P.GoldenReleaseGoldenTorizoEggs2, 0, 15, 1)], AnimationEnd.Holds),
-        [P.GoldenReleaseGoldenTorizoEggs2] = new([new(P.GoldenReleaseGoldenTorizoEggs2, 0, 15, 1)], AnimationEnd.Holds),
-        [P.GoldenEyeBeamAttack0] = new([new(P.GoldenEyeBeamAttack0, 0, 4, 1), new(P.GoldenEyeBeamAttack0, 4, 1, 1), new(P.GoldenEyeBeamAttack1, 0, 2, 4), new(P.GoldenEyeBeamAttack1, 2, 1, 1), new(P.GoldenEyeBeamAttack2, 0, 8, 2), new(P.GoldenEyeBeamAttack2, 8, 6, 1)], AnimationEnd.Holds),
-        [P.GoldenDodgeTurningLeft] = new([new(P.GoldenDodgeTurningLeft, 0, 5, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenTurningLeft] = new([new(P.GoldenTurningLeft, 0, 3, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenWalkingLeftRightLegMoving] = new([new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GoldenWalkingLeftLeftLegMoving] = new([new(P.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(P.GoldenWalkingLeftRightLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GoldenDodgeTurningRight] = new([new(P.GoldenDodgeTurningRight, 0, 5, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenTurningRight] = new([new(P.GoldenTurningRight, 0, 3, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GoldenWalkingRightLeftLegMoving] = new([new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GoldenWalkingRightRightLegMoving] = new([new(P.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(P.GoldenWalkingRightLeftLegMoving, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-    };
+        [A.BombTorizoGutBlowingUp] = new([new(A.BombTorizoGutBlowingUp, 0, 12, 1)], AnimationEnd.Holds),
+        [A.BombTorizoFaceBlowingUp] = new([new(A.BombTorizoFaceBlowingUp, 0, 18, 1)], AnimationEnd.Holds),
+        [A.Dying] = new([new(A.Dying, 0, 2, 1), new(A.Dying, 2, 3, 8), new(A.Dying, 5, 1, 1), new(A.Dying, 6, 21, 14), new(A.Dying, 27, 2, 1)], AnimationEnd.Stops),
+        [A.BombTorizoDormant] = new([new(A.BombTorizoDormant, 0, 4, 1)], AnimationEnd.Holds),
+        [A.BombTorizoAwakening] = new([new(A.BombTorizoAwakening, 0, 10, 1), new(A.BombTorizoAwakening, 10, 8, 2), new(A.BombTorizoAwakening, 18, 13, 1), new(A.BombTorizoAwakening, 31, 2, 16), new(A.BombTorizoAwakening, 33, 4, 1), new(A.BombTorizoAwakening, 37, 20, 1), new(A.BombTorizoAwakening, 57, 20, 1)], AnimationEnd.LoopsFrom(5)),
+        [A.Stunned] = new([new(A.Stunned, 0, 3, 1), new(A.Stunned, 3, 8, 2), new(A.Stunned, 11, 5, 1)], AnimationEnd.Holds),
+        [A.TurningLeft] = new([new(A.TurningLeft, 0, 3, 1), new(A.TurningLeft, 3, 20, 1), new(A.TurningLeft, 23, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftSpewingChozoOrbsRightFootForward] = new([new(A.FacingLeftSpewingChozoOrbsRightFootForward, 0, 8, 1), new(A.FacingLeftSpewingChozoOrbsRightFootForward, 8, 2, 3), new(A.FacingLeftSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.FacingLeftSpewingChozoOrbsLeftFootForward] = new([new(A.FacingLeftSpewingChozoOrbsLeftFootForward, 0, 8, 1), new(A.FacingLeftSpewingChozoOrbsLeftFootForward, 8, 2, 3), new(A.FacingLeftSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.FacingLeftSonicBoomsRightFootForward] = new([new(A.FacingLeftSonicBoomsRightFootForward, 0, 1, 1), new(A.FacingLeftSonicBoomsRightFootForward, 1, 22, 4), new(A.FacingLeftSonicBoomsRightFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.FacingLeftSonicBoomsLeftFootForward] = new([new(A.FacingLeftSonicBoomsLeftFootForward, 0, 1, 1), new(A.FacingLeftSonicBoomsLeftFootForward, 1, 22, 4), new(A.FacingLeftSonicBoomsLeftFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.FacingLeftExplosiveSwipeRightFootForward] = new([new(A.FacingLeftExplosiveSwipeRightFootForward, 0, 33, 1)], AnimationEnd.Holds),
+        [A.FacingLeftExplosiveSwipeLeftFootForward] = new([new(A.FacingLeftExplosiveSwipeLeftFootForward, 0, 33, 1)], AnimationEnd.Holds),
+        [A.FacingLeftJumpingForward] = new([new(A.FacingLeftJumpingForward, 0, 4, 1), new(A.FacingLeftJumpingForward, 4, 2, 1), new(A.FacingLeftJumpingForward, 6, 2, 1), new(A.FacingLeftJumpingForward, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingLeftFalling] = new([new(A.FacingLeftFalling, 0, 2, 1), new(A.FacingLeftFalling, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLanding] = new([new(A.FacingLeftLanding, 0, 3, 1), new(A.FacingLeftLanding, 3, 20, 1), new(A.FacingLeftLanding, 23, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftJumpingBackwardToLeftFoot] = new([new(A.FacingLeftJumpingBackwardToLeftFoot, 0, 4, 1), new(A.FacingLeftJumpingBackwardToLeftFoot, 4, 2, 1), new(A.FacingLeftJumpingBackwardToLeftFoot, 6, 2, 1), new(A.FacingLeftJumpingBackwardToLeftFoot, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingLeftFallingBackwardToLeftFoot] = new([new(A.FacingLeftFallingBackwardToLeftFoot, 0, 2, 1), new(A.FacingLeftFallingBackwardToLeftFoot, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLandingBackwardOnLeftFoot] = new([new(A.FacingLeftLandingBackwardOnLeftFoot, 0, 4, 1), new(A.FacingLeftLandingBackwardOnLeftFoot, 4, 20, 1), new(A.FacingLeftLandingBackwardOnLeftFoot, 24, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftJumpingBackwardToRightFoot] = new([new(A.FacingLeftJumpingBackwardToRightFoot, 0, 4, 1), new(A.FacingLeftJumpingBackwardToRightFoot, 4, 2, 1), new(A.FacingLeftJumpingBackwardToRightFoot, 6, 2, 1), new(A.FacingLeftJumpingBackwardToRightFoot, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingLeftFallingBackwardToRightFoot] = new([new(A.FacingLeftFallingBackwardToRightFoot, 0, 2, 1), new(A.FacingLeftFallingBackwardToRightFoot, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLandingBackwardOnRightFoot] = new([new(A.FacingLeftLandingBackwardOnRightFoot, 0, 4, 1), new(A.FacingLeftLandingBackwardOnRightFoot, 4, 20, 1), new(A.FacingLeftLandingBackwardOnRightFoot, 24, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacelessTurningLeft] = new([new(A.FacelessTurningLeft, 0, 3, 1), new(A.FacelessTurningLeft, 3, 16, 1), new(A.FacelessTurningLeft, 19, 16, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftFacelessWalkingRightLegMoving] = new([new(A.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingRightLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingLeftFacelessWalkingLeftLegMoving] = new([new(A.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingLeftLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.BombTorizoDormantFacingRight] = new([new(A.BombTorizoDormantFacingRight, 0, 3, 1)], AnimationEnd.Holds),
+        [A.BombTorizoAwakeningFacingRight] = new([new(A.BombTorizoAwakeningFacingRight, 0, 14, 1), new(A.BombTorizoAwakeningFacingRight, 14, 20, 1), new(A.BombTorizoAwakeningFacingRight, 34, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.TurningRight] = new([new(A.TurningRight, 0, 3, 1), new(A.TurningRight, 3, 21, 1), new(A.TurningRight, 24, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightSpewingChozoOrbsLeftFootForward] = new([new(A.FacingRightSpewingChozoOrbsLeftFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.FacingRightSpewingChozoOrbsRightFootForward] = new([new(A.FacingRightSpewingChozoOrbsRightFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsRightFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.FacingRightSonicBoomsLeftFootForward] = new([new(A.FacingRightSonicBoomsLeftFootForward, 0, 1, 1), new(A.FacingRightSonicBoomsLeftFootForward, 1, 22, 4), new(A.FacingRightSonicBoomsLeftFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.FacingRightSonicBoomsRightFootForward] = new([new(A.FacingRightSonicBoomsRightFootForward, 0, 1, 1), new(A.FacingRightSonicBoomsRightFootForward, 1, 22, 4), new(A.FacingRightSonicBoomsRightFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.FacingRightExplosiveSwipeLeftFootForward] = new([new(A.FacingRightExplosiveSwipeLeftFootForward, 0, 33, 1)], AnimationEnd.Holds),
+        [A.FacingRightExplosiveSwipeRightFootForward] = new([new(A.FacingRightExplosiveSwipeRightFootForward, 0, 33, 1)], AnimationEnd.Holds),
+        [A.FacingRightJumpingForward] = new([new(A.FacingRightJumpingForward, 0, 4, 1), new(A.FacingRightJumpingForward, 4, 2, 1), new(A.FacingRightJumpingForward, 6, 2, 1), new(A.FacingRightJumpingForward, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingRightFalling] = new([new(A.FacingRightFalling, 0, 2, 1), new(A.FacingRightFalling, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLanding] = new([new(A.FacingRightLanding, 0, 3, 1), new(A.FacingRightLanding, 3, 20, 1), new(A.FacingRightLanding, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightJumpingBackwardToRightFoot] = new([new(A.FacingRightJumpingBackwardToRightFoot, 0, 4, 1), new(A.FacingRightJumpingBackwardToRightFoot, 4, 2, 1), new(A.FacingRightJumpingBackwardToRightFoot, 6, 2, 1), new(A.FacingRightJumpingBackwardToRightFoot, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingRightFallingBackwardToRightFoot] = new([new(A.FacingRightFallingBackwardToRightFoot, 0, 2, 1), new(A.FacingRightFallingBackwardToRightFoot, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLandingBackwardOnRightFoot] = new([new(A.FacingRightLandingBackwardOnRightFoot, 0, 4, 1), new(A.FacingRightLandingBackwardOnRightFoot, 4, 21, 1), new(A.FacingRightLandingBackwardOnRightFoot, 25, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightJumpingBackwardToLeftFoot] = new([new(A.FacingRightJumpingBackwardToLeftFoot, 0, 4, 1), new(A.FacingRightJumpingBackwardToLeftFoot, 4, 2, 1), new(A.FacingRightJumpingBackwardToLeftFoot, 6, 2, 1), new(A.FacingRightJumpingBackwardToLeftFoot, 8, 1, 1)], AnimationEnd.LoopsFrom(3)),
+        [A.FacingRightFallingBackwardToLeftFoot] = new([new(A.FacingRightFallingBackwardToLeftFoot, 0, 2, 1), new(A.FacingRightFallingBackwardToLeftFoot, 2, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLandingBackwardOnLeftFoot] = new([new(A.FacingRightLandingBackwardOnLeftFoot, 0, 4, 1), new(A.FacingRightLandingBackwardOnLeftFoot, 4, 20, 1), new(A.FacingRightLandingBackwardOnLeftFoot, 24, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacelessTurningRight] = new([new(A.FacelessTurningRight, 0, 3, 1), new(A.FacelessTurningRight, 3, 16, 1), new(A.FacelessTurningRight, 19, 16, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightFacelessWalkingLeftLegMoving] = new([new(A.FacingRightFacelessWalkingLeftLegMoving, 0, 16, 1), new(A.FacingRightFacelessWalkingLeftLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingRightFacelessWalkingRightLegMoving] = new([new(A.FacingRightFacelessWalkingRightLegMoving, 0, 16, 1), new(A.FacingRightFacelessWalkingRightLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.GoldenTorizoDormant] = new([new(A.GoldenTorizoDormant, 0, 5, 1)], AnimationEnd.Holds),
+        [A.GoldenTorizoAwakening] = new([new(A.GoldenTorizoAwakening, 0, 1, 1), new(A.GoldenTorizoAwakening, 1, 19, 1), new(A.GoldenTorizoAwakening, 20, 8, 2), new(A.GoldenTorizoAwakening, 28, 13, 1), new(A.GoldenTorizoAwakening, 41, 2, 16), new(A.GoldenTorizoAwakening, 43, 4, 1), new(A.GoldenTorizoAwakening, 47, 21, 1), new(A.GoldenTorizoAwakening, 68, 20, 1)], AnimationEnd.LoopsFrom(6)),
+        [A.GoldenFacingLeftSpewingChozoOrbsRightFootForward] = new([new(A.GoldenFacingLeftSpewingChozoOrbsRightFootForward, 0, 7, 1), new(A.GoldenFacingLeftSpewingChozoOrbsRightFootForward, 7, 3, 6), new(A.GoldenFacingLeftSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] = new([new(A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, 0, 7, 1), new(A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, 7, 3, 6), new(A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingLeftSonicBoomsRightFootForward] = new([new(A.GoldenFacingLeftSonicBoomsRightFootForward, 0, 1, 1), new(A.GoldenFacingLeftSonicBoomsRightFootForward, 1, 22, 4), new(A.GoldenFacingLeftSonicBoomsRightFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingLeftSonicBoomsLeftFootForward] = new([new(A.GoldenFacingLeftSonicBoomsLeftFootForward, 0, 1, 1), new(A.GoldenFacingLeftSonicBoomsLeftFootForward, 1, 22, 4), new(A.GoldenFacingLeftSonicBoomsLeftFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingRightSpewingChozoOrbsLeftFootForward] = new([new(A.GoldenFacingRightSpewingChozoOrbsLeftFootForward, 0, 7, 1), new(A.GoldenFacingRightSpewingChozoOrbsLeftFootForward, 7, 3, 6), new(A.GoldenFacingRightSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingRightSpewingChozoOrbsRightFootForward] = new([new(A.GoldenFacingRightSpewingChozoOrbsRightFootForward, 0, 7, 1), new(A.GoldenFacingRightSpewingChozoOrbsRightFootForward, 7, 3, 6), new(A.GoldenFacingRightSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingRightSonicBoomsLeftFootForward] = new([new(A.GoldenFacingRightSonicBoomsLeftFootForward, 0, 1, 1), new(A.GoldenFacingRightSonicBoomsLeftFootForward, 1, 22, 4), new(A.GoldenFacingRightSonicBoomsLeftFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingRightSonicBoomsRightFootForward] = new([new(A.GoldenFacingRightSonicBoomsRightFootForward, 0, 1, 1), new(A.GoldenFacingRightSonicBoomsRightFootForward, 1, 22, 4), new(A.GoldenFacingRightSonicBoomsRightFootForward, 23, 2, 1)], AnimationEnd.Holds),
+        [A.GoldenFacingLeftLandedBackwardOnLeftFoot] = new([new(A.GoldenFacingLeftLandedBackwardOnLeftFoot, 0, 1, 1), new(A.GoldenFacingLeftLandedBackwardOnLeftFoot, 1, 20, 1), new(A.GoldenFacingLeftLandedBackwardOnLeftFoot, 21, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingLeftLandedBackwardOnRightFoot] = new([new(A.GoldenFacingLeftLandedBackwardOnRightFoot, 0, 1, 1), new(A.GoldenFacingLeftLandedBackwardOnRightFoot, 1, 21, 1), new(A.GoldenFacingLeftLandedBackwardOnRightFoot, 22, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingRightLandedBackwardOnRightFoot] = new([new(A.GoldenFacingRightLandedBackwardOnRightFoot, 0, 1, 1), new(A.GoldenFacingRightLandedBackwardOnRightFoot, 1, 20, 1), new(A.GoldenFacingRightLandedBackwardOnRightFoot, 21, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingRightLandedBackwardOnLeftFoot] = new([new(A.GoldenFacingRightLandedBackwardOnLeftFoot, 0, 1, 1), new(A.GoldenFacingRightLandedBackwardOnLeftFoot, 1, 21, 1), new(A.GoldenFacingRightLandedBackwardOnLeftFoot, 22, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingLeftCatchingSuperMissileLeftLegForward] = new([new(A.GoldenFacingLeftCatchingSuperMissileLeftLegForward, 0, 25, 1), new(A.GoldenFacingLeftCatchingSuperMissileLeftLegForward, 25, 20, 1), new(A.GoldenFacingLeftCatchingSuperMissileLeftLegForward, 45, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingLeftCatchingSuperMissileRightLegForward] = new([new(A.GoldenFacingLeftCatchingSuperMissileRightLegForward, 0, 25, 1), new(A.GoldenFacingLeftCatchingSuperMissileRightLegForward, 25, 21, 1), new(A.GoldenFacingLeftCatchingSuperMissileRightLegForward, 46, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingRightCatchingSuperMissileRightLegForward] = new([new(A.GoldenFacingRightCatchingSuperMissileRightLegForward, 0, 23, 1), new(A.GoldenFacingRightCatchingSuperMissileRightLegForward, 23, 20, 1), new(A.GoldenFacingRightCatchingSuperMissileRightLegForward, 43, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] = new([new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 0, 23, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 23, 21, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 44, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingLeftSittingDownAttack] = new([new(A.GoldenFacingLeftSittingDownAttack, 0, 26, 1), new(A.GoldenFacingLeftSittingDownAttack, 26, 21, 1), new(A.GoldenFacingLeftSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingRightSittingDownAttack] = new([new(A.GoldenFacingRightSittingDownAttack, 0, 26, 1), new(A.GoldenFacingRightSittingDownAttack, 26, 21, 1), new(A.GoldenFacingRightSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenReleasingEggs] = new([new(A.GoldenReleasingEggs, 0, 10, 1), new(A.GoldenReleasingEggs, 10, 3, 6), new(A.GoldenReleasingEggs, 13, 15, 1)], AnimationEnd.Holds),
+        [A.GoldenEyeBeamAttack] = new([new(A.GoldenEyeBeamAttack, 0, 4, 1), new(A.GoldenEyeBeamAttack, 4, 1, 1), new(A.GoldenEyeBeamAttack, 5, 2, 4), new(A.GoldenEyeBeamAttack, 7, 1, 1), new(A.GoldenEyeBeamAttack, 8, 8, 2), new(A.GoldenEyeBeamAttack, 16, 6, 1)], AnimationEnd.Holds),
+        [A.GoldenDodgeTurningLeft] = new([new(A.GoldenDodgeTurningLeft, 0, 5, 1), new(A.GoldenDodgeTurningLeft, 5, 20, 1), new(A.GoldenDodgeTurningLeft, 25, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenTurningLeft] = new([new(A.GoldenTurningLeft, 0, 3, 1), new(A.GoldenTurningLeft, 3, 20, 1), new(A.GoldenTurningLeft, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenWalkingLeftLeftLegMoving] = new([new(A.GoldenWalkingLeftLeftLegMoving, 0, 21, 1), new(A.GoldenWalkingLeftLeftLegMoving, 21, 20, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.GoldenDodgeTurningRight] = new([new(A.GoldenDodgeTurningRight, 0, 5, 1), new(A.GoldenDodgeTurningRight, 5, 20, 1), new(A.GoldenDodgeTurningRight, 25, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenTurningRight] = new([new(A.GoldenTurningRight, 0, 3, 1), new(A.GoldenTurningRight, 3, 20, 1), new(A.GoldenTurningRight, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenWalkingRightRightLegMoving] = new([new(A.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(A.GoldenWalkingRightRightLegMoving, 21, 20, 1)], AnimationEnd.LoopsFrom(0)),
+    }.ToFrozenDictionary();
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TorizoBodySegment> StartingWith(TorizoBodySegment segment) => StartingAt[segment];
+    /// <summary>Each animation's identity, by the animation itself.</summary>
+    private static readonly FrozenDictionary<Animation<TorizoAnimation>, TorizoAnimation> Identities =
+        StartingAt.ToFrozenDictionary<KeyValuePair<A, Animation<A>>, Animation<A>, A>(pair => pair.Value, pair => pair.Key, ReferenceEqualityComparer.Instance);
 
-    /// <summary>A playback of the animation that starts at <paramref name="segment"/>, before its first play.</summary>
-    internal static AnimationPlayback<TorizoBodySegment> Start(TorizoBodySegment segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// The animation each sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
+    /// trigger do; no other animation sleeps.
+    /// </summary>
+    private static readonly FrozenDictionary<A, A> ResumesAfterSleep = new Dictionary<A, A>
+    {
+        [A.BombTorizoDormant] = A.BombTorizoAwakening,
+        [A.BombTorizoDormantFacingRight] = A.BombTorizoAwakeningFacingRight,
+        [A.GoldenTorizoDormant] = A.GoldenTorizoAwakening,
+    }.ToFrozenDictionary();
 
-    /// <summary>A cue's continuation into the animation that starts at <paramref name="segment"/>, as a goto continues there.</summary>
-    internal static AnimationContinuation<TorizoBodySegment> ContinueWith(TorizoBodySegment segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
+    /// <summary>How <paramref name="animation"/> plays.</summary>
+    internal static Animation<TorizoAnimation> StartingWith(TorizoAnimation animation) => StartingAt[animation];
+
+    /// <summary>A playback of <paramref name="animation"/>, before its first play.</summary>
+    internal static AnimationPlayback<TorizoAnimation> Start(TorizoAnimation animation) => new(StartingWith(animation), AnimationPlace.StartOfAnimation);
+
+    /// <summary>A cue's continuation into <paramref name="animation"/>, from its start.</summary>
+    internal static AnimationContinuation<TorizoAnimation> ContinueWith(TorizoAnimation animation) => new(StartingWith(animation), AnimationPlace.StartOfAnimation);
 
     /// <summary>A cue's continuation where <paramref name="playback"/> stood, as a return to a saved place continues there.</summary>
-    internal static AnimationContinuation<TorizoBodySegment> ContinueAt(AnimationPlayback<TorizoBodySegment> playback) =>
+    internal static AnimationContinuation<TorizoAnimation> ContinueAt(AnimationPlayback<TorizoAnimation> playback) =>
         new(Ensure.NotNull(playback.Animation), playback.Place);
 
     /// <summary>
-    /// The segment <paramref name="playback"/> stands in: before its first play, the segment its animation starts at;
-    /// otherwise the segment its playing phase plays, the one its next play shows a frame of, or rests in.
+    /// A replay cue's continuation (<see cref="TorizoCue.Replay"/>): the start of the phase <paramref name="continuation"/>,
+    /// the place just past the cue, stands in, so the run the cue is in plays again from its first step.
     /// </summary>
-    internal static TorizoBodySegment SegmentOf(AnimationPlayback<TorizoBodySegment> playback) =>
-        playback.Place == AnimationPlace.StartOfAnimation
-            ? StartingAt.Single(pair => ReferenceEquals(pair.Value, playback.Animation)).Key
-            : playback.Animation.Phases[playback.Place.Phase].Segment;
+    internal static AnimationContinuation<TorizoAnimation> ReplayPhase(AnimationPlayback<TorizoAnimation> continuation) =>
+        new(Ensure.NotNull(continuation.Animation), AnimationPlace.Before(continuation.Place.Phase));
+
+    /// <summary>The animation <paramref name="playback"/> plays.</summary>
+    internal static TorizoAnimation Playing(AnimationPlayback<TorizoAnimation> playback) => Identities[Ensure.NotNull(playback.Animation)];
 
     /// <summary>
-    /// The segment each sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do; no other animation sleeps.
+    /// The animation a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
+    /// trigger do.
     /// </summary>
-    private static readonly Dictionary<P, P> ResumesAfterSleep = new()
-    {
-        [P.BombTorizoInitial0] = P.BombTorizoInitial0Resumed,
-        [P.FacingLeftFacelessWalkingLeftLegMovingTrailing] = P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed,
-        [P.GoldenInitial0] = P.GoldenInitial0Resumed,
-    };
-
-    /// <summary>
-    /// The segment a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake
-    /// and Golden Torizo's trigger do.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The animation at <paramref name="segment"/> does not sleep.</exception>
-    internal static TorizoBodySegment AfterSleep(TorizoBodySegment segment) =>
-        ResumesAfterSleep.TryGetValue(segment, out P resumed)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> does not sleep.</exception>
+    internal static TorizoAnimation AfterSleep(TorizoAnimation animation) =>
+        ResumesAfterSleep.TryGetValue(animation, out A resumed)
             ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code.");
+            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation does not sleep.");
 }

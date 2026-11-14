@@ -55,12 +55,14 @@ internal static class GoldenTorizoCartridgeFallbackVerification
                     $"Cartridge-backed Golden Torizo failed at frame {frame}, " +
                     $"playback={state.BodyPlayback.Place}.", error);
             }
-            // The awakening hands off to the walking-left lists; every later Golden Torizo list is combat.
-            enteredCombat |= TorizoAnimations.SegmentOf(state.BodyPlayback) >= TorizoBodySegment.GoldenWalkingLeftLeftLegMoving;
+            // The awakening hands off to its walk left, the phase its cycle starts at; every other Golden Torizo animation is combat.
+            TorizoAnimation playing = TorizoAnimations.Playing(state.BodyPlayback);
+            enteredCombat |= playing is not (TorizoAnimation.GoldenTorizoDormant or TorizoAnimation.GoldenTorizoAwakening)
+                || (playing == TorizoAnimation.GoldenTorizoAwakening && state.BodyPlayback.Place.Phase >= TorizoAnimations.StartingWith(playing).CyclePhase);
         }
         AssertTrue(enteredCombat,
             "cartridge-backed installed-art Golden Torizo reaches walking combat; " +
-            $"segment={TorizoAnimations.SegmentOf(state.BodyPlayback)}, health={samus.Health}");
+            $"animation={TorizoAnimations.Playing(state.BodyPlayback)}, health={samus.Health}");
         Console.WriteLine("Golden Torizo cartridge fallback: 850 wake/combat frames with installed artwork.");
     }
 }

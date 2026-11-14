@@ -50,7 +50,7 @@ internal sealed class TorizoBody
         _attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 
     /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
-    internal static void StartTorizoBodyAnimation(RoomEnemySlot torizo, TorizoEnemyState state, AnimationPlayback<TorizoBodySegment> playback)
+    internal static void StartTorizoBodyAnimation(RoomEnemySlot torizo, TorizoEnemyState state, AnimationPlayback<TorizoAnimation> playback)
     {
         state.BodyPlayback = playback;
         torizo.AnimationClock.StepOnNextUpdate();

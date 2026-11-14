@@ -21,7 +21,7 @@ internal static class StatueWalkDefinitionsVerification
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoBodySegment>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
+        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
         Action<RoomEnemySlot, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -32,7 +32,7 @@ internal static class StatueWalkDefinitionsVerification
         {
             int offset = step * 2;
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            AnimationContinuation<TorizoBodySegment>? next = walk(slot, torizo, null, level, step);
+            AnimationContinuation<TorizoAnimation>? next = walk(slot, torizo, null, level, step);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");

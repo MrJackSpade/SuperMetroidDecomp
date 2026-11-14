@@ -91,9 +91,7 @@ internal sealed class DraygonGrab
 
         samus.DraygonGrabbed.Begin(samus, state.FacingRight);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
-        // The spiral setup sets the whole spiral center only; the Y fraction carries over from
-        // the previous spiral of this fight, so the first lift after a re-grab borrows on the frame.
-        state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonBehavior.DraygonSpiralTarget);
+        state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonBehavior.DraygonSpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
         state.SpiralAngleDelta = DraygonBehavior.DraygonInitialSpiralAngleDelta;
@@ -168,7 +166,7 @@ internal sealed class DraygonGrab
         RoomEnemySlot body = state.Body;
         // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
         // negative.
-        body.Position = body.Position.WithWhole(state.SpiralCenter.Whole + new Offset16<RoomPixels>(
+        body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
             EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
             EnemyMath.ReadEightBitNegativeSineProduct(
                 state.SpiralAngle.ToTrigonometryAngle(),
@@ -192,8 +190,8 @@ internal sealed class DraygonGrab
         state.SpiralAngleDelta -= DraygonBehavior.DraygonSpiralTurnSlowing;
         state.SpiralAngle += state.SpiralAngleDelta.WholeStep;
 
-        state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonBehavior.DraygonSpiralCenterLift);
-        if (CoordinateAxis.Difference(state.SpiralCenter.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)
+        state.SpiralCenter = state.SpiralCenter.Lifted(DraygonBehavior.DraygonSpiralCenterLift);
+        if (CoordinateAxis.Difference(state.SpiralCenter.Center.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)
         {
             state.Phase = DraygonPhase.FinalTailWhips;
             return;

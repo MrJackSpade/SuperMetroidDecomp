@@ -87,8 +87,8 @@ internal static class DraygonStateQuantitiesVerification
         state.SpiralAngle = RotationAngle.FromSteps(angle);
         state.SpiralAngleDelta = RotationAngle.FromRaw(angleDeltaRaw);
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
-        state.SpiralCenter = FixedPosition<RoomPixels>.FromWhole(new(256, 64));
-        Position16<RoomPixels> center = state.SpiralCenter.Whole;
+        state.SpiralCenter = DraygonRegrabSpiralLift.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
+        Position16<RoomPixels> center = state.SpiralCenter.Center.Whole;
         state.Phase = DraygonPhase.FlailWithSamus;
 
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));

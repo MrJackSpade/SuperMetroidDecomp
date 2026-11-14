@@ -209,7 +209,7 @@ internal static class NativeSnapshotImport
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
-        samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
+        samus.EnergyFraction = SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth));
         samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         samus.ArmCannon.PreviousSelectedHudItem = samus.SelectedHudItem;
         samus.AutoCancelHudItemIndex = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));

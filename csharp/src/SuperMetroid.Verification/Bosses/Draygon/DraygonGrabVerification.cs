@@ -41,7 +41,7 @@ internal static class DraygonGrabVerification
         const ushort leftoverFraction = 16384;
         var (_, _, draygon) = GrabSamus(spiralYFraction: leftoverFraction, pendingPose: null);
         AssertEqual(DraygonPhase.CarrySamus, draygon.Phase, "Draygon carries Samus");
-        AssertEqual(leftoverFraction, draygon.SpiralCenter.Y.Fraction, "the grab keeps the previous spiral's Y fraction");
+        AssertEqual(leftoverFraction, draygon.SpiralCenter.Center.Y.Fraction, "the grab keeps the previous spiral's Y fraction");
         Console.WriteLine("Draygon grab spiral fraction: the grab keeps the leftover spiral Y fraction.");
     }
 
@@ -61,7 +61,7 @@ internal static class DraygonGrabVerification
         DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Phase = DraygonPhase.TryGrabSamus;
-        draygon.SpiralCenter = draygon.SpiralCenter.WithFractionY(spiralYFraction);
+        draygon.SpiralCenter = DraygonRegrabSpiralLift.At(draygon.SpiralCenter.Center.WithFractionY(spiralYFraction));
         // The claw sits eight pixels ahead of the body, on Samus's row.
         int clawOffset = draygon.FacingRight ? 8 : -8;
         draygon.Body.Position = FixedPosition<RoomPixels>.FromWhole(

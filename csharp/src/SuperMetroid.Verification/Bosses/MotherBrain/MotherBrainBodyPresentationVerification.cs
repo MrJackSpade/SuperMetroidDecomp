@@ -41,12 +41,13 @@ internal static class MotherBrainBodyPresentationVerification
             .Select(beat => MotherBrainBodyVisualDefinitionsConstants.Frame(beat.Shown).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
-        foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+        foreach (MotherBrainBodyFrame shown in MotherBrainBodyVisualDefinitionsConstants.CartridgeOrder)
         {
+            NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(shown);
             baseline.SetFrame(frame.Pointer, fresh: true);
             baseline.ClearBg2();
             AssertBodyOam(baseline.DrawInto, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies, () => baseline.BodyFrameShowsNothing, frame.Name);
-            AssertBodyBg2(baseline.Bg2Words, stockBg2, frame.Name);
+            AssertBodyBg2(baseline.Bg2Words, stockBg2, MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown));
 
             baseline.SetFrame(frame.Pointer, fresh: false);
             baseline.MarkBg2();
@@ -67,8 +68,9 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws.
-        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(Build(stockOam, bg2: null).Bosses, BossBodyOwner.MotherBrain),
+        // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
+        // boss artwork is composed, so the enemy artwork is not read again for it.
+        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),
             "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
@@ -77,12 +79,12 @@ internal static class MotherBrainBodyPresentationVerification
 
         // She draws from sheets composed over the installed enemy artwork, so the fixture starts from it and replaces only
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
-        ImportEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument? bg2)
+        ImportEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2)
         {
             EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
             tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
             return new(tiles,
-                new BossSourceArtwork { MotherBrainBodyBg2Frames = bg2 is null ? null : MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
+                new BossSourceArtwork { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
                 new AreaSourceArtwork());
         }
 
@@ -172,13 +174,15 @@ internal static class MotherBrainBodyPresentationVerification
     }
 
     /// <summary>Checks the exact BG2 tilemap words, each authored cell's tile encoded through the codec, and destinations written for a selected body pose.</summary>
-    private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
+    private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, EnemyFrameId shown)
     {
         // Her body shows each of her frames whole (#1459, #1515): every word a frame writes shows, and a frame the cartridge
-        // writes over another shows that frame elsewhere, so only the written cells are compared.
-        if (!authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
+        // writes over another shows that frame elsewhere, so only the written cells are compared. Only the sprite-only
+        // initial dummy writes no BG2; every body-layer frame has its authored writes under its installed BG2 name.
+        if (!MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(shown))
             return;
-        foreach (EnemyBg2WriteDocument write in writes)
+        string name = MotherBrainBodyBg2FrameDefinitions.Frames.Single(frame => frame.Frame == shown).Name;
+        foreach (EnemyBg2WriteDocument write in authored.Frames[name])
             for (int tile = 0; tile < write.Tiles.Length; tile++)
                 AssertEqual(write.Tiles[tile].PackedWord, actual[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile],
                     "body BG2 exact ordered runs and destinations");

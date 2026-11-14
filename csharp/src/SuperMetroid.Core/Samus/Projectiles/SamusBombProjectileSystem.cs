@@ -432,7 +432,7 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
-            samus.PowerBombs = SamusQuantity.DecrementWrapping(samus.PowerBombs);
+            samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
             PowerBombExplosion.Arm();
         }
 

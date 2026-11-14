@@ -1115,7 +1115,7 @@ internal static void VerifySamusAtmosphericEffects()
     // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
     samus.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     samus.Health = 99;
-    samus.SubunitHealth = 0;
+    samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
     samus.EquippedItems = 0;
     int beforeSpray = particles.Count;
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
@@ -1131,7 +1131,7 @@ internal static void VerifySamusAtmosphericEffects()
         "lava fractional damage accumulates from ROM");
     samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
     AssertEqual(98, samus.Health, "fractional lava subtraction borrows one energy");
-    AssertEqual(0x8000, samus.SubunitHealth, "fractional energy retains wrapped half");
+    AssertEqual(0x8000, samus.EnergyFraction.Parts, "fractional energy retains wrapped half");
     AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
         "periodic consumer clears fractional accumulator");
     // An even frame inside the spray's wait starts no spray and requests no spray sound.
@@ -1591,32 +1591,32 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = 0 };
 
         samus.Health = 50;
-        samus.SubunitHealth = ThreeQuarterUnits;
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits);
         samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
-        AssertEqual(QuarterUnit, samus.SubunitHealth, "a covered fraction keeps its remainder without borrowing");
+        AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
-        samus.SubunitHealth = QuarterUnit;
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(QuarterUnit);
         samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
-        AssertEqual(ThreeQuarterUnits, samus.SubunitHealth, "an uncovered fraction wraps to the remainder");
+        AssertEqual(ThreeQuarterUnits, samus.EnergyFraction.Parts, "an uncovered fraction wraps to the remainder");
 
         samus.Health = 0;
-        samus.SubunitHealth = 0;
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
         samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 0);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
-        AssertEqual(0, samus.SubunitHealth, "a fatal borrow clears the fraction instead of wrapping it");
+        AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
-        samus.SubunitHealth = HalfUnit;
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(HalfUnit);
         samus.LiquidPhysics.AccumulatePeriodicDamage(0, 2);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");
-        AssertEqual(0, samus.SubunitHealth, "fatal whole damage clears the fraction too");
+        AssertEqual(0, samus.EnergyFraction.Parts, "fatal whole damage clears the fraction too");
     }
 
     /// <summary>Checks movement effects from the room's atmosphere.</summary>

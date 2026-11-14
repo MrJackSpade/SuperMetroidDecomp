@@ -214,43 +214,34 @@ public sealed class SamusState
     public int PreviousHealthForHurtCheck { get; set; } = 99;
 
     /// <summary>
-    /// Fractional energy, 0 through 65535 in units of 1/65536 of one <see cref="Health"/> unit. Ordinary HUD and
-    /// debug output shows only <see cref="Health"/>, but periodic damage borrows from this fraction
-    /// (<see cref="TakeFractionalEnergyDamage"/>) so sub-energy cannot be rounded independently on every frame.
-    /// The setter rejects values outside the range.
+    /// The fraction of one energy Samus holds beyond <see cref="Health"/>. The HUD shows only <see cref="Health"/>, but
+    /// periodic damage takes its fraction from this one first (<see cref="TakeFractionalEnergyDamage"/>), so the damage
+    /// of one update is never rounded on its own; how it borrows is the compatibility layer's
+    /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public int SubunitHealth
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, value);
-    }
-
-    /// <summary>How many <see cref="SubunitHealth"/> units make one <see cref="Health"/> unit.</summary>
-    private const int SubunitsPerHealthUnit = 65536;
+    public PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
-    /// Takes periodic damage as the game's periodic damage does: the fractional damage comes off <see cref="SubunitHealth"/>
-    /// first, and when it takes the fraction below zero the fraction wraps to the remainder and one more whole unit is
-    /// owed; the whole damage and that borrowed unit then come off <see cref="Health"/>. A result below zero energy
-    /// clamps both the energy and its fraction to zero instead.
+    /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
+    /// first, borrowing one more whole energy when it is more than the fraction held
+    /// (<see cref="PeriodicDamageEnergyFraction.Borrows"/>); the whole damage and any borrowed energy then come off
+    /// <see cref="Health"/>. A result below zero energy leaves no energy and no fraction instead.
     /// </summary>
-    /// <param name="subunitDamage">Fractional damage, 0 through 65535 subunits.</param>
+    /// <param name="fraction">Fractional damage, 0 through one part short of an energy, in <see cref="PeriodicDamageEnergyFraction.PartsPerEnergy"/>ths.</param>
     /// <param name="wholeDamage">Whole damage in energy units, zero or more.</param>
-    internal void TakeFractionalEnergyDamage(int subunitDamage, int wholeDamage)
+    internal void TakeFractionalEnergyDamage(int fraction, int wholeDamage)
     {
-        Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, subunitDamage);
+        bool borrows = EnergyFraction.Borrows(fraction);
         Ensure.AtLeastZero(wholeDamage);
-        int subunit = SubunitHealth - subunitDamage;
-        int borrowed = subunit < 0 ? 1 : 0;
-        int health = Health - wholeDamage - borrowed;
+        int health = Health - wholeDamage - (borrows ? 1 : 0);
         if (health < 0)
         {
-            SubunitHealth = 0;
+            EnergyFraction = PeriodicDamageEnergyFraction.None;
             Health = 0;
             return;
         }
 
-        SubunitHealth = subunit + borrowed * SubunitsPerHealthUnit;
+        EnergyFraction = EnergyFraction.After(fraction);
         Health = health;
     }
 

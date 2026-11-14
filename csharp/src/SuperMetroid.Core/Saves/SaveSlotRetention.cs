@@ -70,7 +70,7 @@ internal static class SaveSlotRetention
     }
 
     /// <summary>A quantity as the save keeps it: checked against the range a count holds.</summary>
-    private static int Kept(int quantity) => SamusQuantity.Require(quantity);
+    private static int Kept(int quantity) => CountsRunBelowZero.Require(quantity);
 
     /// <summary>A selection the save keeps, rejected when it names no member of its kind.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is undefined.</exception>

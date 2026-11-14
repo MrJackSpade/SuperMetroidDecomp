@@ -130,9 +130,9 @@ public sealed class DraygonEnemyState
     /// Center point of the carry spiral, initialized to (256, 384).
     /// The Y axis carries its fractional part: retail subtracts a quarter pixel each
     /// spiral frame, lifting the center by one pixel every four. X has no fractional part and
-    /// stays whole.
+    /// stays whole. A grab keeps the part of a pixel the last spiral left (<see cref="DraygonRegrabSpiralLift"/>).
     /// </summary>
-    public FixedPosition<RoomPixels> SpiralCenter { get; internal set; }
+    public DraygonRegrabSpiralLift SpiralCenter { get; internal set; }
 
     /// <summary>
     /// Draygon's position around the carry spiral, in 256ths of a turn: three quarters when a grab starts, advanced by

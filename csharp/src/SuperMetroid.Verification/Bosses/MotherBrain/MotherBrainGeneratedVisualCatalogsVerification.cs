@@ -10,27 +10,50 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Checks generated Mother Brain body OAM and BG2 frame catalogs.</summary>
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
-    /// <summary>Pinned bank A9 body frame addresses and names, including the initial dummy pose.</summary>
+    /// <summary>
+    /// Pinned bank A9 body frame addresses and the names the installed extended-frame document stores them under (#1623),
+    /// including the initial dummy pose.
+    /// </summary>
     private static readonly NativeEnemySpritemapDefinition[] OriginalMotherBrainFrames =
     [
-        new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
-        new(0xa9, 0x9fea, "mother_brain_body_oam_walking_0"),
-        new(0xa9, 0xa03c, "mother_brain_body_oam_walking_1"),
-        new(0xa9, 0xa08e, "mother_brain_body_oam_walking_2"),
-        new(0xa9, 0xa0e0, "mother_brain_body_oam_walking_3"),
-        new(0xa9, 0xa12a, "mother_brain_body_oam_walking_4"),
-        new(0xa9, 0xa174, "mother_brain_body_oam_walking_5"),
-        new(0xa9, 0xa1be, "mother_brain_body_oam_walking_6"),
-        new(0xa9, 0xa208, "mother_brain_body_oam_walking_7"),
-        new(0xa9, 0xa252, "mother_brain_body_oam_crouched"),
-        new(0xa9, 0xa28c, "mother_brain_body_oam_uncrouching"),
-        new(0xa9, 0xa2d6, "mother_brain_body_oam_leaning_down"),
-        new(0xa9, 0xa320, "mother_brain_body_oam_initial_dummy"),
-        new(0xa9, 0xa384, "mother_brain_body_oam_death_beam_0"),
-        new(0xa9, 0xa3ce, "mother_brain_body_oam_death_beam_1"),
-        new(0xa9, 0xa418, "mother_brain_body_oam_death_beam_2"),
-        new(0xa9, 0xa462, "mother_brain_body_oam_death_beam_3"),
+        new(0xa9, 0x9fa0, "mother_brain_body_standing"),
+        new(0xa9, 0x9fea, "mother_brain_body_walking_first"),
+        new(0xa9, 0xa03c, "mother_brain_body_walking_second"),
+        new(0xa9, 0xa08e, "mother_brain_body_walking_third"),
+        new(0xa9, 0xa0e0, "mother_brain_body_walking_fourth"),
+        new(0xa9, 0xa12a, "mother_brain_body_walking_fifth"),
+        new(0xa9, 0xa174, "mother_brain_body_walking_sixth"),
+        new(0xa9, 0xa1be, "mother_brain_body_walking_seventh"),
+        new(0xa9, 0xa208, "mother_brain_body_walking_eighth"),
+        new(0xa9, 0xa252, "mother_brain_body_crouched"),
+        new(0xa9, 0xa28c, "mother_brain_body_uncrouching"),
+        new(0xa9, 0xa2d6, "mother_brain_body_leaning_down"),
+        new(0xa9, 0xa320, "mother_brain_body_initial_dummy"),
+        new(0xa9, 0xa384, "mother_brain_body_hand_beam_second"),
+        new(0xa9, 0xa3ce, "mother_brain_body_hand_beam_third"),
+        new(0xa9, 0xa418, "mother_brain_body_hand_beam_fourth"),
+        new(0xa9, 0xa462, "mother_brain_body_hand_beam_fifth"),
+    ];
 
+    /// <summary>Pinned names the installed body-layer document stores each frame's BG2 half under, in frame order, without the dummy.</summary>
+    private static readonly string[] OriginalMotherBrainBg2Names =
+    [
+        "mother_brain_body_bg2_standing",
+        "mother_brain_body_bg2_walking_0",
+        "mother_brain_body_bg2_walking_1",
+        "mother_brain_body_bg2_walking_2",
+        "mother_brain_body_bg2_walking_3",
+        "mother_brain_body_bg2_walking_4",
+        "mother_brain_body_bg2_walking_5",
+        "mother_brain_body_bg2_walking_6",
+        "mother_brain_body_bg2_walking_7",
+        "mother_brain_body_bg2_crouched",
+        "mother_brain_body_bg2_uncrouching",
+        "mother_brain_body_bg2_leaning_down",
+        "mother_brain_body_bg2_death_beam_0",
+        "mother_brain_body_bg2_death_beam_1",
+        "mother_brain_body_bg2_death_beam_2",
+        "mother_brain_body_bg2_death_beam_3",
     ];
 
     /// <summary>Checks 17 OAM identities, native part counts, iteration, and bounds.</summary>
@@ -58,8 +81,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     internal static void VerifyMotherBrainGeneratedBg2Catalog(CartridgeImportAddressSpace rom)
     {
         SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
-            .Select(frame => new SpritemapFrameDefinition(frame.Pointer,
-                frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal))).ToArray();
+            .Select((frame, index) => new SpritemapFrameDefinition(frame.Pointer, OriginalMotherBrainBg2Names[index])).ToArray();
         AssertEqual(16, MotherBrainBodyBg2FrameDefinitions.Frames.Length, "Mother Brain BG2 count");
         for (int i = 0; i < expected.Length; i++)
             AssertEqual(expected[i], new SpritemapFrameDefinition(MotherBrainBodyBg2FrameDefinitions.Frames[i].Pointer, MotherBrainBodyBg2FrameDefinitions.Frames[i].Name),

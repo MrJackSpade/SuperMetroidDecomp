@@ -627,19 +627,16 @@ public sealed class SamusLiquidPhysicsState
 
         UnsignedSixteenSixteen applied = SamusSuitDamage.ReducePeriodic(PendingPeriodicDamage, samus.EquippedItems);
 
-        // The game stops at its crash handler when the whole damage passes the largest amount it applies.
+        // The game stops at its crash handler when the whole damage is so large it reads as below zero.
         // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
         // into plausible damage.
-        if (applied.Whole > LargestPeriodicWholeDamage)
+        if (WrappingCounter.ReadsBelowZero(applied.Whole))
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
         samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
 
         PendingPeriodicDamage = default;
     }
-
-    /// <summary>The largest whole periodic damage the game applies; more sends it to its crash handler.</summary>
-    private const int LargestPeriodicWholeDamage = 32767;
 
     /// <summary>
     /// Adds one fractional periodic-damage contribution to the periodic damage.

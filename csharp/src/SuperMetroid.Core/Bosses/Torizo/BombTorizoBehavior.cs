@@ -233,11 +233,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shows the look artwork swap <paramref name="swap"/> gives the Torizo at this update (#1406, #1538): from now on its
-    /// frames show their finished pictures of that look.
+    /// Shows artwork look <paramref name="look"/> on the Torizo at this update (#1406, #1538, #1761): from now on its frames
+    /// show their finished pictures of that look.
     /// </summary>
-    private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkSwap swap) =>
-        _presentation.ShowLook(swap.Look(state.IsGolden ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo));
+    private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkLook look) =>
+        _presentation.ShowLook(look.Of(state.IsGolden ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo));
 
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a branch, call or return
@@ -576,7 +576,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     walk.Step);
 
             case TorizoCue.ShowArtwork showArtwork:
-                ShowTorizoArtwork(state, showArtwork.Swap);
+                ShowTorizoArtwork(state, showArtwork.Look);
                 return null;
 
             default:

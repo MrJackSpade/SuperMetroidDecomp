@@ -5,7 +5,7 @@ internal enum TorizoTilePage
 {
     /// <summary>Characters shared by the death and recovery swaps.</summary>
     SharedDeath,
-    /// <summary>Alternating statue crumble characters.</summary>
+    /// <summary>The four stages of the eyes' glow, which the Torizos copy as their eyes light up.</summary>
     StatueCrumble,
     /// <summary>Left-facing attack and death characters.</summary>
     LeftAttack,

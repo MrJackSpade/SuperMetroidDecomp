@@ -50,9 +50,9 @@ internal abstract record TorizoCue
     /// <param name="FrameBehavior">The frame behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 
-    /// <summary>Shows a piece of artwork under the body's poses (the game's common artwork copy).</summary>
-    /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>
-    internal sealed record ShowArtwork(TorizoArtworkSwap Swap) : TorizoCue;
+    /// <summary>Shows a look of the body's artwork under its poses.</summary>
+    /// <param name="Look">The look a <see cref="ShowArtwork"/> cue shows.</param>
+    internal sealed record ShowArtwork(TorizoArtworkLook Look) : TorizoCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
+using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -14,7 +15,7 @@ internal static class GoldenTorizoAnimations
     {
         [P.GoldenInitial0] =
         [
-            ShowArtwork(21),
+            ShowArtwork(L.Awakening),
             Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenWaitForSamus)),
@@ -37,25 +38,25 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Posture(TorizoPostureKind.SitDown, Step: 0)),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 48),
-            ShowArtwork(22),
+            ShowArtwork(L.EyesLightingUp1),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
-            ShowArtwork(23),
+            ShowArtwork(L.EyesLightingUp2),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 16),
-            ShowArtwork(24),
+            ShowArtwork(L.EyesLightingUp3),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 8),
-            ShowArtwork(25),
+            ShowArtwork(L.EyesLightingUp4),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
         ],
         [P.GoldenInitial2] =
         [
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(26),
+            ShowArtwork(L.EyesLightingAgain1),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(27),
+            ShowArtwork(L.EyesLightingAgain2),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(28),
+            ShowArtwork(L.EyesLightingAgain3),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(29),
+            ShowArtwork(L.EyesLightingAgain4),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 0)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpFirst, 12),
@@ -476,14 +477,14 @@ internal static class GoldenTorizoAnimations
         [P.GoldenReleaseGoldenTorizoEggs0] =
         [
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
-            ShowArtwork(30),
-            ShowArtwork(31),
+            ShowArtwork(L.ChestOpening1Top),
+            ShowArtwork(L.ChestOpening1),
             Wait(8),
-            ShowArtwork(32),
-            ShowArtwork(33),
+            ShowArtwork(L.ChestOpening2Top),
+            ShowArtwork(L.ChestOpening2),
             Wait(8),
-            ShowArtwork(34),
-            ShowArtwork(35),
+            ShowArtwork(L.ChestOpenTop),
+            ShowArtwork(L.ChestOpen),
             Wait(16),
         ],
         [P.GoldenReleaseGoldenTorizoEggs1] =
@@ -496,17 +497,17 @@ internal static class GoldenTorizoAnimations
         [
             Wait(1),
             Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfEyeBeamActive, Target: P.GoldenReleaseGoldenTorizoEggs2)),
-            ShowArtwork(36),
-            ShowArtwork(37),
+            ShowArtwork(L.ChestHeldOpenTop),
+            ShowArtwork(L.ChestHeldOpen),
             Wait(8),
-            ShowArtwork(38),
-            ShowArtwork(39),
+            ShowArtwork(L.ChestClosing1Top),
+            ShowArtwork(L.ChestClosing1),
             Wait(8),
-            ShowArtwork(40),
-            ShowArtwork(41),
+            ShowArtwork(L.ChestClosing2Top),
+            ShowArtwork(L.ChestClosing2),
             Wait(8),
-            ShowArtwork(42),
-            ShowArtwork(43),
+            ShowArtwork(L.ChestClosedTop),
+            ShowArtwork(L.ChestClosed),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
@@ -527,13 +528,13 @@ internal static class GoldenTorizoAnimations
         [P.GoldenEyeBeamAttack2] =
         [
             Wait(3),
-            ShowArtwork(44),
+            ShowArtwork(L.EyeBeamGlow1),
             Wait(3),
-            ShowArtwork(45),
+            ShowArtwork(L.EyeBeamGlow2),
             Wait(3),
-            ShowArtwork(46),
+            ShowArtwork(L.EyeBeamGlow3),
             Wait(3),
-            ShowArtwork(47),
+            ShowArtwork(L.EyeBeamGlow4),
             Cue(new TorizoCue.Signal(K.EnableEyeBeamExplosions)),
             Wait(8),
             Cue(new TorizoCue.Signal(K.DisableEyeBeamExplosions)),

@@ -29,16 +29,4 @@ internal static class EncounterCharacterPlacementDefinitions
 
     /// <summary>The characters from one skeleton row to the next.</summary>
     internal const int SkeletonCharactersPerRow = 16;
-
-    /// <summary>The character each Torizo swap's characters begin at, in swap order ($AA, bank-$A0 $814B destinations).</summary>
-    internal static readonly TorizoSwapDestination[] TorizoDestinations =
-    [
-        new(304), new(320), new(487), new(503), new(485), new(501), new(456), new(458),
-        new(472), new(474), new(488), new(504), new(415), new(472), new(472), new(472),
-        new(472), new(472), new(472), new(472), new(472), new(208), new(472), new(472),
-        new(472), new(472), new(472), new(472), new(472), new(472), new(304), new(320),
-        new(304), new(320), new(304), new(320), new(304), new(320), new(304), new(320),
-        new(304), new(320), new(304), new(320), new(472), new(472), new(472), new(472),
-        new(472), new(472), new(472), new(472),
-    ];
 }

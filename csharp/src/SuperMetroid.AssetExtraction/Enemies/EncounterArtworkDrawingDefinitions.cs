@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
@@ -74,30 +75,34 @@ internal static class EncounterArtworkDrawingDefinitions
         };
 
     /// <summary>
-    /// Bomb Torizo's body: drawn as a statue and as it crumbles (its first eight swaps); its gut's swaps land in one update,
-    /// seen at the twelfth swap; its face's swaps land in two updates, seen at the sixteenth and the twenty-first.
+    /// Bomb Torizo's body: drawn as a statue and as its eyes light up and flicker back on; its gut's looks land in one update,
+    /// seen blown up; its face's looks land in two updates, seen half blown away and blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(Enumerable.Range(0, 8)), .. Bomb([11, 15, 20])])
+        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
+            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4, L.GutBlownUp, L.FaceBlowingUp4, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
-        new(ComposedEncounter.BombTorizo, [.. Bomb([7, 11, 15, 20])])
+        new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesLightingAgain4, L.GutBlownUp, L.FaceBlowingUp4, L.FaceBlownUp)])
         {
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>
     /// Golden Torizo's body and projectiles: its awakening is its first program's first cue, before any frame shows; it is
-    /// drawn as it crumbles (its first nine swaps), its egg release's swaps land two to an update, seen at every second swap
-    /// from the eleventh to the twenty-third, and its eye glow and stun are seen at every swap from the twenty-third on.
+    /// drawn as its eyes light up and flicker back on, its chest's looks land two to an update, each seen once both its
+    /// halves have, and its eye beam's glow and its eyes lighting up after a stun are seen at every look.
     /// </summary>
     private static readonly EncounterArtworkDrawing GoldenTorizo =
-        new(ComposedEncounter.GoldenTorizo, [.. Golden(Enumerable.Range(0, 9)), .. Golden([10, 12, 14, 16, 18, 20]),
-            .. Golden(Enumerable.Range(22, TorizoArtworkSwapDefinitions.GoldenSequence.Count - 22))])
+        new(ComposedEncounter.GoldenTorizo, [.. Golden(L.Awakening, L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
+            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4,
+            L.ChestOpening1, L.ChestOpening2, L.ChestOpen, L.ChestHeldOpen, L.ChestClosing1, L.ChestClosing2, L.ChestClosed,
+            L.EyeBeamGlow1, L.EyeBeamGlow2, L.EyeBeamGlow3, L.EyeBeamGlow4,
+            L.EyesLightingAfterStun1, L.EyesLightingAfterStun2, L.EyesLightingAfterStun3, L.EyesLightingAfterStun4)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
@@ -295,11 +300,9 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainDust,
     ];
 
-    /// <summary>The names of the looks Bomb Torizo's swaps at <paramref name="places"/> of its order give it.</summary>
-    private static IEnumerable<string> Bomb(IEnumerable<int> places) =>
-        places.Select(place => TorizoArtworkSwapDefinitions.BombSequence[place].Look(EncounterArtwork.BombTorizo).Name);
+    /// <summary>The names of Bomb Torizo's <paramref name="looks"/>.</summary>
+    private static IEnumerable<string> Bomb(params TorizoArtworkLook[] looks) => looks.Select(look => look.Of(EncounterArtwork.BombTorizo).Name);
 
-    /// <summary>The names of the looks Golden Torizo's swaps at <paramref name="places"/> of its order give it.</summary>
-    private static IEnumerable<string> Golden(IEnumerable<int> places) =>
-        places.Select(place => TorizoArtworkSwapDefinitions.GoldenSequence[place].Look(EncounterArtwork.GoldenTorizo).Name);
+    /// <summary>The names of Golden Torizo's <paramref name="looks"/>.</summary>
+    private static IEnumerable<string> Golden(params TorizoArtworkLook[] looks) => looks.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name);
 }

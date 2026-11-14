@@ -78,12 +78,12 @@ internal static class TorizoAnimationsVerification
             if (ClassifyBodyWord(word) == BodyWordKind.TileTransfer)
             {
                 var copyBeat = AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(Next("tile transfer"), $"{at}: tile transfer");
-                var copy = AssertIs<TorizoCue.ShowArtwork>(copyBeat.Raised, $"{at}: artwork swap cue");
-                TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapPageDefinitions.Entries[copy.Swap.Ordinal];
-                AssertEqual(cursor, TorizoArtworkSwapDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
+                var copy = AssertIs<TorizoCue.ShowArtwork>(copyBeat.Raised, $"{at}: artwork look cue");
+                TorizoLookUpload transfer = TorizoLookUploadDefinitions.Uploads[copy.Look];
+                AssertTrue(TorizoLookUploadDefinitions.Sites.ToArray().Any(site => site.Instruction == cursor && site.Look == copy.Look), $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
-                AssertEqual(ObjCharacterNativeWords.Of(EncounterCharacterPlacementDefinitions.TorizoDestinations[copy.Swap.Ordinal].FirstCharacter), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
+                AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
                 cursor = unchecked((ushort)(cursor + TileTransferBytes));
                 continue;
             }

@@ -88,6 +88,13 @@ internal static class BeamCallbackTablesVerification
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
 
+    /// <summary>
+    /// Compares the callback tables with the cartridge, then checks that each beam's initializer installs its compiled
+    /// callback without firing it: the stream-one oracle's beam check, its own suite since the stream-one group was split
+    /// into its suites (#1757).
+    /// </summary>
+    internal static void VerifyBeamCallbackInitializers() => VerifyBeamCallbackTables(initializeOnly: true);
+
     /// <summary>Runs the beam callback table and firing-path verification.</summary>
     [VerificationCommand("--beam-callback-tables")]
     internal static int BeamCallbackTablesCommand()

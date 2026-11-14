@@ -1423,49 +1423,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the grouped stream-one import checks against the pinned cartridge revision.</summary>
-    [VerificationCommand("--lookup-stream-1")]
-    internal static int LookupStream1Command()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
-        Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior());
-        Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
-        Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
-        Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior());
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
-        Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
-        Suite(nameof(VerifyMetroidsClearedStateObject), () => VerifyMetroidsClearedStateObject(new TestAddressSpace()));
-        Suite(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior());
-        Suite(nameof(VerifySamusAtmosphericEffectDefinitions), () => VerifySamusAtmosphericEffectDefinitions(rom));
-        Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());
-        Suite(nameof(VerifySamusArmCannonDefinitions), () => VerifySamusArmCannonDefinitions(rom));
-        Suite(nameof(VerifyPoseDispatchDefinitions), () => VerifyPoseDispatchDefinitions(rom));
-        Suite(nameof(VerifyPoseCollisionDefinitions), () => VerifyPoseCollisionDefinitions(rom));
-        Suite(nameof(VerifyPoseProjectileOrigin), () => VerifyPoseProjectileOrigin(rom));
-        Suite(nameof(VerifyProjectileOrigins), () => VerifyProjectileOrigins(rom));
-        Suite(nameof(VerifyCompiledSpeedBoosterObjectPrograms), () => VerifyCompiledSpeedBoosterObjectPrograms());
-        Suite(nameof(VerifyLookupStream1), () => VerifyLookupStream1(rom));
-        Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior());
-        Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
-        Suite(nameof(DragonBehaviorVerification.VerifyDragonBehavior), () => DragonBehaviorVerification.VerifyDragonBehavior());
-        Suite(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior());
-        Suite(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior());
-        Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));
-        Suite(nameof(VerifyChargeFlareDefinitions), () => VerifyChargeFlareDefinitions(rom));
-        Suite(nameof(VerifySamusIndexedSpeeds), () => VerifySamusIndexedSpeeds(rom));
-        Suite(nameof(VerifyLookupStream1ProjectileMotion), () => VerifyLookupStream1ProjectileMotion(rom));
-        Suite(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables(initializeOnly: true));
-        Suite(nameof(VerifyLookupStream1Selection), () => VerifyLookupStream1Selection(rom));
-        Suite(nameof(VerifyLookupStream1LaunchRoles), () => VerifyLookupStream1LaunchRoles(rom));
-        Suite(nameof(VerifyPoseInputDefinitions), () => VerifyPoseInputDefinitions(rom));
-        Suite(nameof(VerifyProjectileDamage), () => VerifyProjectileDamage(rom));
-        Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(rom));
-        Console.WriteLine("Stream 1 lookup conversions: focused original-source and domain checks pass.");
-        return 0;
-    }
-
     /// <summary>Runs the grouped stream-four palette, layout, and instruction checks on the pinned image.</summary>
     [VerificationCommand("--lookup-stream-4")]
     internal static int LookupStream4Command()

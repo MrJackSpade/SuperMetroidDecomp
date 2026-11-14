@@ -158,9 +158,14 @@ internal static class RightFacingGateGlitchVerification
         });
         foreach (SharedGameState columnState in gameStateByColumn)
             columnState.ClearEvent(StoryEvent.ZebesAwake);
-        // One comparison of every column's state with as many new states: a graph comparison per column took about as long
-        // as the whole sweep.
-        AssertTrue(SameGraph(gameStateByColumn, gameStateByColumn.Select(_ => new SharedGameState(new SharedRandom())).ToArray()),
+        // Each column's state is compared with a new state, the columns on every core (#1757): one comparison of every
+        // column's state on one thread took longer than the whole sweep. The first column's comparison runs alone, so the
+        // shared indexes every comparison reads are complete before the others read them.
+        var columnUnchanged = new bool[gameStateByColumn.Length];
+        columnUnchanged[0] = SameGraph(gameStateByColumn[0], new SharedGameState(new SharedRandom()));
+        ParallelSweep.For(1, gameStateByColumn.Length, column =>
+            columnUnchanged[column] = SameGraph(gameStateByColumn[column], new SharedGameState(new SharedRandom())));
+        AssertTrue(columnUnchanged.All(unchanged => unchanged),
             "No gate-glitch position writes any other part of the game state its column's positions share");
         // Column by column and row by row within a column, the order the native matrix lists its positives in.
         List<string> actual = [.. activationsByColumn.SelectMany(column => column)];
@@ -210,8 +215,6 @@ internal static class RightFacingGateGlitchVerification
         int frozenEnemyX,
         int shootFrame)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-            Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

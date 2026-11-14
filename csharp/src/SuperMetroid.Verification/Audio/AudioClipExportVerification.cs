@@ -38,6 +38,12 @@ internal static class AudioClipExportVerification
     {
         ExtractedAudioAssetCatalog catalog = InstalledFixtures.Audio;
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-audio-clips-");
+        // The independent render reads only the catalog, never the export, so it renders on its own thread while the
+        // export renders the same track (#1757): the music check waits for the longer of the two renders, not their sum.
+        // The exported clip's length is asserted to be the length rendered before the two are compared.
+        Task<short[]>? independentMusic = music
+            ? Task.Run(() => RenderTrack(catalog, GreenBrinstarPhaseExactTrack, GreenBrinstarPhaseExactFrames))
+            : null;
         try
         {
             SoundEffectId[] effects =
@@ -55,11 +61,11 @@ internal static class AudioClipExportVerification
                     new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Enemies, SoundEffectCommands.Command(EnemySound.EtecoonTheme)),
                 ]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
-            if (music)
+            if (independentMusic is not null)
             {
-                VerifyMusic(catalog, clips.Clips, GreenBrinstarPhaseExactTrack);
                 MusicClipEntry exported = clips.Clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, GreenBrinstarPhaseExactTrack));
                 AssertEqual(GreenBrinstarPhaseExactFrames, exported.Clip.Frames, "the loop check renders the exported clip's length");
+                VerifyMusic(clips.Clips, GreenBrinstarPhaseExactTrack, independentMusic.GetAwaiter().GetResult());
                 AssertEqual(GreenBrinstarPhaseExactLoopStart, exported.LoopStart, "the loop check starts at the exported loop");
                 VerifyLoaderRejections(scratch.FullName, clips);
                 Console.WriteLine("  Music clip export: Green Brinstar track 3 equals an independent render; the loader rejects an escaping path and another format.");
@@ -76,21 +82,22 @@ internal static class AudioClipExportVerification
         }
         finally
         {
+            // A failed export still lets the render finish before the suite ends, so no render outlives its suite; its
+            // own failure, if any, is observed above.
+            independentMusic?.ContinueWith(static _ => { }, TaskScheduler.Default).Wait();
             scratch.Delete(recursive: true);
         }
     }
 
     /// <summary>
-    /// A Green Brinstar track whose tempo phase recurs every pass: its clip against the independent render, and its loop
-    /// against the render's next pass.
+    /// A Green Brinstar track whose tempo phase recurs every pass: its clip against <paramref name="independent"/>, an
+    /// independent render of the clip's length.
     /// </summary>
-    private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track)
+    private static void VerifyMusic(ClipAudioLibrary clips, int track, short[] independent)
     {
         MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, track));
         _ = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
-        long frames = entry.Clip.Frames;
-        short[] independent = RenderTrack(catalog, track, frames);
         AssertSequenceEqual(clip, independent, $"track {track} clip equals the independent render");
         AssertEqual(0L, entry.TempoSegments[0].Frame, "the tempo timeline starts at the clip's first frame");
     }
@@ -168,13 +175,15 @@ internal static class AudioClipExportVerification
         var observer = new StartObserver(backend.Player, started);
         backend.Player.Music.observer = observer;
         short[] frame = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
-        var pcm = new List<short>();
+        // The result is sized once and filled in place: a growing list copied each frame's samples twice (#1757).
+        short[] pcm = new short[checked((int)(frames * 2))];
+        int kept = 0;
         IReadOnlyList<AudioRequest>[] script =
         [
             [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
-        for (int index = 0; pcm.Count < frames * 2; index++)
+        for (int index = 0; kept < pcm.Length; index++)
         {
             observer.Frame = index;
             IReadOnlyList<AudioRequest> commands = index < script.Length ? script[index] : [];
@@ -182,10 +191,13 @@ internal static class AudioClipExportVerification
             if (observer.StartSample is long start)
             {
                 long frameStart = (long)index * ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
-                pcm.AddRange(frame.AsSpan((int)Math.Max(0, start - frameStart) * 2).ToArray());
+                ReadOnlySpan<short> fromStart = frame.AsSpan((int)Math.Max(0, start - frameStart) * 2);
+                ReadOnlySpan<short> wanted = fromStart[..Math.Min(fromStart.Length, pcm.Length - kept)];
+                wanted.CopyTo(pcm.AsSpan(kept));
+                kept += wanted.Length;
             }
         }
-        return [.. pcm.GetRange(0, (int)(frames * 2))];
+        return pcm;
     }
 
     /// <summary>Records the sample of the first tick after which the start condition holds.</summary>

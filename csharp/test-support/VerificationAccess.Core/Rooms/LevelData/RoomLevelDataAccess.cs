@@ -29,11 +29,18 @@ internal static class RoomLevelDataAccess
                 !ReferenceEquals(source.Doors, self.Doors) ||
                 source.BeyondRoom.Count != self.BeyondRoom.Count)
                 throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
-            for (int index = 0; index < source.Terrain.Length; index++)
+            // A terrain write whose terrain and shown picture the block already holds, byte for byte, changes nothing but
+            // dropping the published foreground, which every write drops, so only the first block and the blocks whose
+            // bytes differ are written (#1757): a check restoring a room per case wrote every block of it per case. A
+            // behaviour write inside the grid stores the behaviour at its own place, so the grid's behaviours are copied.
+            int index = 0;
+            while (index < source.Terrain.Length)
             {
                 self.SetObjectTerrain(index, source.Terrain[index], source.ShownForeground[index]);
-                self.SetObjectBehavior(index, source.Behaviors[index]);
+                index = Math.Min(NextDifference(self.Terrain, source.Terrain, index + 1),
+                    NextDifference(self.ShownForeground, source.ShownForeground, index + 1));
             }
+            source.Behaviors.AsSpan().CopyTo(self.Behaviors);
             for (int beyond = 0; beyond < source.BeyondRoom.Count; beyond++)
             {
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));
@@ -42,5 +49,17 @@ internal static class RoomLevelDataAccess
             self.PendingDoorTransition = source.PendingDoorTransition;
             self.ElevatorDoorContactPending = source.ElevatorDoorContactPending;
         }
+    }
+
+    /// <summary>
+    /// The first place from <paramref name="from"/> on whose element's bytes differ between <paramref name="now"/> and
+    /// <paramref name="then"/>, or their length when none does.
+    /// </summary>
+    private static int NextDifference<T>(T[] now, T[] then, int from) where T : unmanaged
+    {
+        ReadOnlySpan<byte> left = System.Runtime.InteropServices.MemoryMarshal.AsBytes(now.AsSpan(from));
+        ReadOnlySpan<byte> right = System.Runtime.InteropServices.MemoryMarshal.AsBytes(then.AsSpan(from));
+        int common = left.CommonPrefixLength(right);
+        return common == left.Length ? now.Length : from + common / System.Runtime.CompilerServices.Unsafe.SizeOf<T>();
     }
 }

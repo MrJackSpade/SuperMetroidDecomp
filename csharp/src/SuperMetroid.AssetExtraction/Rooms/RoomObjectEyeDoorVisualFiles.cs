@@ -29,7 +29,7 @@ public static class RoomObjectEyeDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates both sides' clear, eye, middle, and bottom draws, left side first.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -48,16 +48,14 @@ public static class RoomObjectEyeDoorVisualFiles
     }
 
     /// <summary>The mirrored clear shares one visual identity, keeping the installed file at 23 frames.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Editable =>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> Editable =>
         All.Where(draw => draw.Draw != EyeDoorObjectDrawDefinitions.MirroredOpeningClear);
 
     /// <summary>Builds the one-run draw list of a recognized eye-door draw from its cells' collision.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!EyeDoorDraws.TryDescribe(request, out var draw)) { list = default; return false; }
-        var collisions = new RoomCollisionType[draw.BlockCount];
-        for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = draw.CollisionAt(cell);
-        list = RoomObjectDrawListExport.SingleRun(request, draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, collisions);
+        list = RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Line(draw.Vertical, draw.Blocks));
         return true;
     }
 

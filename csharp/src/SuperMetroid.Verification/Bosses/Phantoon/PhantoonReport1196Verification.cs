@@ -55,7 +55,7 @@ internal static class PhantoonReport1196Verification
     {
         var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Combat.Phantoon;
-        (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyLayerPlacement = boss.BodyLayerPlacement.WithX(9);
+        (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyOrigin = boss.BodyOrigin.WithX(9);
         boss.MouthState.WaveAmplitude = 3072;
         boss.MouthState.WavyPhaseDelta = 8;
         var wave = boss.BodyWave;
@@ -65,22 +65,22 @@ internal static class PhantoonReport1196Verification
         AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
         boss.EyeState.WaveLength = null;
         wave.Step(boss);
-        boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
+        boss.BodyOrigin = boss.BodyOrigin.WithX(13);
         boss.Body.Health = 0;
         enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
-        enemies.PhantoonBehavior.Death.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
+        enemies.PhantoonBehavior.Death.BeginPhantoonWavyPixelatedDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
 
         // Any stale amplitude would split the body: the displayed wave is flat at BG2's own X on every line.
         PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
-        AssertEqual(13, displayed.BaseScroll, "every first-frame death scroll starts at native BG2 X");
+        AssertEqual(13, displayed.BodyLeft, "every first-frame death scroll starts at his body's column");
         AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
         boss.MouthState.WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
-        AssertTrue(wave.CurrentWave is { BaseScroll: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),
+        AssertTrue(wave.CurrentWave is { BodyLeft: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),
             "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");
     }

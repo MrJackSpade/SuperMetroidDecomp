@@ -30,12 +30,12 @@ public static class RoomObjectSpeedBoosterVisualFiles
     internal const string BombRevealVisualId = "bomb-reveal";
 
     /// <summary>The one-block reveal's draw list, built from the block the game writes.</summary>
-    internal static RoomObjectShotBlockDrawDefinitions.DrawList BombReveal =>
-        RoomObjectDrawListExport.SingleRun(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, RoomObjectRunDirection.Horizontal,
-            [SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision]);
+    internal static RoomObjectDrawLists.DrawList BombReveal =>
+        RoomObjectShapeRun.DrawList(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape,
+            RoomObjectShapeRun.Row(new(0, 0), 1));
 
     /// <summary>The sole bomb-reveal draw list.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All => [BombReveal];
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All => [BombReveal];
 
     /// <summary>Accepts only the bomb-reveal draw and rejects unrelated PLM drawings.</summary>
     internal static string VisualId(RoomObjectDraw request) => request == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw

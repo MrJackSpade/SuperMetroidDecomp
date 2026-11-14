@@ -38,7 +38,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     internal PhantoonPatterns Patterns { get; }
 
-    /// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy mosaic, and Wrecked Ship's power returning.</summary>
+    /// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy pixelation, and Wrecked Ship's power returning.</summary>
     internal PhantoonDeath Death { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
@@ -144,8 +144,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Phantoon's per-frame behaviour.</summary>
     private void RunPhantoonMain(
         RoomEnemySlot body,
-        SamusState? samus,
-        Position16<RoomPixels> camera)
+        SamusState? samus)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
         PhantoonPhase? phase = state.BodyState.Phase;
@@ -237,10 +236,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.RunPhantoonDyingExplosions(body, state);
                 break;
             case PhantoonPhase.BeginFinalWavyDeath:
-                Death.BeginPhantoonWavyMosaicDeath(body, state);
+                Death.BeginPhantoonWavyPixelatedDeath(body, state);
                 break;
             case PhantoonPhase.DyingFadeOut:
-                Death.RunPhantoonWavyMosaicDeath(state);
+                Death.RunPhantoonWavyPixelatedDeath(state);
                 break;
             case PhantoonPhase.AlmostDead:
                 Death.ClearPhantoonDeathGraphics(body, state);
@@ -256,7 +255,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
-        // drawing parts. The almost-dead phase skips the part sync and body-layer scroll entirely on that frame.
+        // drawing parts. The almost-dead phase skips the part sync and his body's placement entirely on that frame.
         if (phase == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
@@ -267,9 +266,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
         if (state.EyeState.WaveLength is null)
         {
-            state.BodyLayerPlacement = new(
-                CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + 40),
-                CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 40));
+            state.BodyOrigin = new(
+                CoordinateAxis.Wrap(body.Position.X.Whole - PhantoonBodyAreaDefinitions.LeftOfBody),
+                CoordinateAxis.Wrap(body.Position.Y.Whole - PhantoonBodyAreaDefinitions.AboveBody));
         }
     }
 
@@ -308,7 +307,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ShowPhantoonHealthColours(RoomEnemySlot body) =>
         (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
             .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
-    /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
+    /// <summary>Per-update wave increment during the wavy pixelation death animation.</summary>
     internal const int PhantoonDeathWaveDelta = 256;
     /// <summary>Wave ceiling reached before the death animation advances.</summary>
     internal const int PhantoonDeathWaveMaximum = 61440;
@@ -393,6 +392,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPhantoonMain(slot, frame.Samus, frame.Camera);
+        RunPhantoonMain(slot, frame.Samus);
     }
 }

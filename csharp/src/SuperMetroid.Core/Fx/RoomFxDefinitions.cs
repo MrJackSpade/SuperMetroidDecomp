@@ -1114,8 +1114,8 @@ public static class RoomFxDefinitions
     public static RoomFxSelection TourianEscape3 { get; } = new(nameof(TourianEscape3), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, null, [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [], RoomFxPaletteBlend.None));
 
-    /// <summary>The ToruianEscaper4 room FX.</summary>
-    public static RoomFxSelection ToruianEscaper4 { get; } = new(nameof(ToruianEscaper4), [],
+    /// <summary>The Tourian Escape Room 4 room FX.</summary>
+    public static RoomFxSelection TourianEscape4 { get; } = new(nameof(TourianEscape4), [],
         new(1504, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 64, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), [ColourEffectId.TourianBackgroundRedFlashing, ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs], [BlockAnimation.VerticalSpikes], RoomFxPaletteBlend.None));
 
     /// <summary>The UpperTourianSave room FX.</summary>
@@ -1138,8 +1138,8 @@ public static class RoomFxDefinitions
     public static RoomFxSelection DeadScientistDefault { get; } = new(nameof(DeadScientistDefault), [],
         null);
 
-    /// <summary>The Room58EscapeDefault room FX.</summary>
-    public static RoomFxSelection Room58EscapeDefault { get; } = new(nameof(Room58EscapeDefault), [],
+    /// <summary>The CeresRidleyHallwayDefault room FX.</summary>
+    public static RoomFxSelection CeresRidleyHallwayDefault { get; } = new(nameof(CeresRidleyHallwayDefault), [],
         null);
 
     /// <summary>The CeresRidleyDefault room FX.</summary>
@@ -1158,8 +1158,8 @@ public static class RoomFxDefinitions
     public static RoomFxSelection DeadScientistWhenAreaBossDead { get; } = new(nameof(DeadScientistWhenAreaBossDead), [],
         null);
 
-    /// <summary>The Room58EscapeWhenAreaBossDead room FX.</summary>
-    public static RoomFxSelection Room58EscapeWhenAreaBossDead { get; } = new(nameof(Room58EscapeWhenAreaBossDead), [],
+    /// <summary>The CeresRidleyHallwayWhenAreaBossDead room FX.</summary>
+    public static RoomFxSelection CeresRidleyHallwayWhenAreaBossDead { get; } = new(nameof(CeresRidleyHallwayWhenAreaBossDead), [],
         null);
 
     /// <summary>The CeresRidleyWhenAreaBossDead room FX.</summary>

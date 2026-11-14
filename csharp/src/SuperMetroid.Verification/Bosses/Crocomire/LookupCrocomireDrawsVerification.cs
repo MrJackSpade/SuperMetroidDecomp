@@ -33,7 +33,7 @@ internal static class LookupCrocomireDrawsVerification
             if (!owned)
             {
                 AssertTrue(shape is null, "Crocomire missing shape");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Crocomire missing DTO");
+                AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Crocomire missing DTO");
             }
         }
         int cells = 0;
@@ -67,7 +67,7 @@ internal static class LookupCrocomireDrawsVerification
                     cells++;
                     frameCells++;
                 }
-                RoomObjectShotBlockDrawDefinitions.Run written = dto.Runs.Span[run];
+                RoomObjectDrawLists.Run written = dto.Runs.Span[run];
                 Offset16<RoomBlocks> pastEnd = written.Start + (written.Direction == RoomObjectRunDirection.Vertical
                     ? new Offset16<RoomBlocks>(0, length)
                     : new Offset16<RoomBlocks>(length, 0));

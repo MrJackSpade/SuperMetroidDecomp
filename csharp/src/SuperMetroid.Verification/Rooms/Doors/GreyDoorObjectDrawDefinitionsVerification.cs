@@ -34,7 +34,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             LittleEndianBytes.Word(GreyDoorObjectDrawDefinitionsRomByte(bus, address), GreyDoorObjectDrawDefinitionsRomByte(bus, address + 1));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
+        RoomObjectDrawLists.DrawList[] lists =
             RoomObjectGreyDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         InstalledRoomObjectGreyDoorVisuals stock = InstalledRoomObjectGreyDoorVisuals.Stock();
         AssertEqual("grey-right-frame-0", RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)),
@@ -165,7 +165,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
     /// <summary>Blocks compiled ordinary, Bomb Torizo and draw-list byte ranges during resident-door playback.</summary>
     private static CartridgeReadGuard NewGreyDoorDrawGuard(
         ISnesAddressSpace source,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists) =>
+        RoomObjectDrawLists.DrawList[] lists) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84be59 and <= 0x84bffc,
                 address => $"Resident grey door reread compiled instruction ${address:X6}.")

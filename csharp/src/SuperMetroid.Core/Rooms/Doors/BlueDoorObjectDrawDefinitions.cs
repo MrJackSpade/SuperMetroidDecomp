@@ -12,7 +12,7 @@ internal static class BlueDoorObjectDrawDefinitions
     internal const int AliasPictureFrame = 0;
 
     /// <summary>
-    /// How the four cells of each of the twenty blue-cap draws collide, in authored run order. The alias makes only its
+    /// How the four blocks of each of the twenty blue-cap draws collide, from the cap's first block down its column or along its row. The alias makes only its
     /// first cell solid; frame zero carries the shootable and extension types; final vertical frames clear their middle
     /// cells, and horizontal frames stay solid.
     /// </summary>

@@ -29,9 +29,9 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         Suite(nameof(VerifyTubeCollision), () => VerifyTubeCollision(rom));
         Suite(nameof(VerifyTubeVisuals), () => VerifyTubeVisuals(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
+        RoomObjectDrawLists.DrawList[] lists =
             RoomObjectNoobTubeVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectShotBlockDrawDefinitions.DrawList cleared = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "cleared");
+        RoomObjectDrawLists.DrawList cleared = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "cleared");
         AssertEqual(0x98e3, RoomObjectDrawAddressCodec.Of(cleared.Draw), "the cleared tube is the draw the cartridge stores at $98E3");
         AssertEqual(InstalledFramePictureAssertions.NativePicture(rom, 0x98e3, out _)[cleared.Runs.Span[2].Start],
             InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x98e3)).At(cleared.Runs.Span[2].Start),
@@ -41,7 +41,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in lists)
+        foreach (RoomObjectDrawLists.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list);
         Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
@@ -51,8 +51,8 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
     /// <summary>Draws one native layout through the guarded PLM path and compares resulting blocks and streamed art.</summary>
     private static void VerifyNoobTubeNativeDrawPath(
         byte[] bank84,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists,
-        RoomObjectShotBlockDrawDefinitions.DrawList selected)
+        RoomObjectDrawLists.DrawList[] lists,
+        RoomObjectDrawLists.DrawList selected)
     {
         const int width = 16;
         const int height = 16;
@@ -76,7 +76,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
 
         RoomObjectFrameImage picture = InstalledRoomObjectNoobTubeVisuals.Stock().Image(selected.Draw);
         var expected = new Dictionary<int, RoomTerrainBlock>();
-        foreach (RoomObjectShotBlockDrawDefinitions.Run run in selected.Runs.Span)
+        foreach (RoomObjectDrawLists.Run run in selected.Runs.Span)
         {
             int entryX = originX + run.Start.X;
             int entryY = originY + run.Start.Y;
@@ -116,7 +116,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
 
     /// <summary>Rejects runtime reads of all seven compiled bank 84 draw payload ranges.</summary>
     private static CartridgeReadGuard NewNoobTubeDrawReadGuard(
-        ISnesAddressSpace source, RoomObjectShotBlockDrawDefinitions.DrawList[] lists) =>
+        ISnesAddressSpace source, RoomObjectDrawLists.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
                 int first = 0x840000 | RoomObjectDrawAddressCodec.Of(list.Draw);

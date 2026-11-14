@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class BlueDoorObjectDrawDefinitionsTooling
 {
     /// <summary>Enumerates editable door frames, then each orientation's alias frame.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

@@ -41,7 +41,7 @@ internal static class LookupBombTorizoHandDrawVerification
                 if (!owned)
                 {
                     AssertTrue(shape is null, "Torizo hand missing shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Torizo hand missing DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Torizo hand missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand missing ID");
                 }
             }

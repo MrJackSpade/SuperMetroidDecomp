@@ -29,7 +29,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> DrawLists
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
     {
         get
         {
@@ -48,13 +48,19 @@ public static class RoomObjectElevatorPlatformVisualFiles
             ? id
             : throw new InvalidOperationException($"Undefined elevator-platform draw list {request}.");
 
-    /// <summary>Builds the draw list of a platform frame from its strips.</summary>
-    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    /// <summary>
+    /// The draw list of a platform frame (#1862): its block shape written as its two upper edge blocks, the object's and
+    /// the one three right of it, then the four-block row below them.
+    /// </summary>
+    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = ElevatorPlatformDraws.TryDescribe(request, out ElevatorPlatformDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
-            : default;
-        return found;
+        if (!ElevatorPlatformDraws.TryDescribe(request, out RoomBlockShape? shape))
+        {
+            list = default;
+            return false;
+        }
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectShapeRun.Row(new(0, 0), 1), RoomObjectShapeRun.Row(new(3, 0), 1),
+            RoomObjectShapeRun.Row(new(0, 1), 4));
+        return true;
     }
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The sets are the import's knowledge alone: it decodes which set each room state names once, composes each set's
 /// pictures as the cartridge loads them, and names the variant each population's enemies draw in. The game knows no set.
 /// </remarks>
-[NumberedIdentities("Each numbered member is the enemy graphics set of one numbered room or room state, named for it; no caller indexes the sets by number.")]
+[NumberedIdentities("Each numbered member is the enemy graphics set of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes the sets by number.")]
 internal static class RoomEnemyGraphicsSetDefinitions
 {
     /// <summary>
@@ -32,13 +32,13 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Parlor room once Zebes is awake.</summary>
     internal static RoomEnemyGraphicsSetDefinition ParlorWhenZebesAwake { get; } = new(nameof(ParlorWhenZebesAwake));
     /// <summary>The enemy graphics set of the Flyway room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyGraphicsSetDefinition Flyway01 { get; } = new(nameof(Flyway01));
+    internal static RoomEnemyGraphicsSetDefinition FlywayBeforeTimebomb { get; } = new(nameof(FlywayBeforeTimebomb));
     /// <summary>The enemy graphics set of the Pit room once Samus has the Morph Ball and Missiles.</summary>
     internal static RoomEnemyGraphicsSetDefinition PitWithMorphBallAndMissiles { get; } = new(nameof(PitWithMorphBallAndMissiles));
     /// <summary>The enemy graphics set of the Gauntlet Entrance room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GauntletEntrance { get; } = new(nameof(GauntletEntrance));
     /// <summary>The enemy graphics set of the Bomb Torizo room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyGraphicsSetDefinition BombTorizo01 { get; } = new(nameof(BombTorizo01));
+    internal static RoomEnemyGraphicsSetDefinition BombTorizoBeforeTimebomb { get; } = new(nameof(BombTorizoBeforeTimebomb));
     /// <summary>The enemy graphics set of the Green Pirates Shaft room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GreenPiratesShaft { get; } = new(nameof(GreenPiratesShaft));
     /// <summary>The enemy graphics set of the Green Brinstar Elevator room.</summary>
@@ -64,7 +64,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Parlor room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition ParlorDefault { get; } = new(nameof(ParlorDefault));
     /// <summary>The enemy graphics set of the Landing Site room while the Zebes timebomb is not set.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LandingSite012 { get; } = new(nameof(LandingSite012));
+    internal static RoomEnemyGraphicsSetDefinition LandingSiteBeforeTimebomb { get; } = new(nameof(LandingSiteBeforeTimebomb));
     /// <summary>The enemy graphics set of the Crateria Super room.</summary>
     internal static RoomEnemyGraphicsSetDefinition CrateriaSuper { get; } = new(nameof(CrateriaSuper));
     /// <summary>The enemy graphics set of the Pre Bowling room.</summary>
@@ -559,8 +559,8 @@ internal static class RoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition DustTorizo { get; } = new(nameof(DustTorizo));
     /// <summary>The enemy graphics set of the Big Boy room.</summary>
     internal static RoomEnemyGraphicsSetDefinition BigBoy { get; } = new(nameof(BigBoy));
-    /// <summary>The enemy graphics set of the Mother Brain room in its first two states.</summary>
-    internal static RoomEnemyGraphicsSetDefinition MotherBrain01 { get; } = new(nameof(MotherBrain01));
+    /// <summary>The enemy graphics set of the Mother Brain room until she is defeated.</summary>
+    internal static RoomEnemyGraphicsSetDefinition MotherBrainBeforeDefeat { get; } = new(nameof(MotherBrainBeforeDefeat));
     /// <summary>The enemy graphics set of the Tourian Eye Door room.</summary>
     internal static RoomEnemyGraphicsSetDefinition TourianEyeDoor { get; } = new(nameof(TourianEyeDoor));
     /// <summary>The enemy graphics set of the Blue Hopper room.</summary>
@@ -603,8 +603,8 @@ internal static class RoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition MagnetStairsDefault { get; } = new(nameof(MagnetStairsDefault));
     /// <summary>The enemy graphics set of the Dead Scientist room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition DeadScientistDefault { get; } = new(nameof(DeadScientistDefault));
-    /// <summary>The enemy graphics set of the Room 58 Escape in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition Room58EscapeDefault { get; } = new(nameof(Room58EscapeDefault));
+    /// <summary>The enemy graphics set of the Ceres Ridley hallway in its default state.</summary>
+    internal static RoomEnemyGraphicsSetDefinition CeresRidleyHallwayDefault { get; } = new(nameof(CeresRidleyHallwayDefault));
     /// <summary>The enemy graphics set of the Ceres Ridley room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition CeresRidleyDefault { get; } = new(nameof(CeresRidleyDefault));
     /// <summary>The enemy graphics set of the Ceres Elevator room once the area's boss is dead.</summary>
@@ -615,8 +615,8 @@ internal static class RoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition MagnetStairsWhenAreaBossDead { get; } = new(nameof(MagnetStairsWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Dead Scientist room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition DeadScientistWhenAreaBossDead { get; } = new(nameof(DeadScientistWhenAreaBossDead));
-    /// <summary>The enemy graphics set of the Room 58 Escape once the area's boss is dead.</summary>
-    internal static RoomEnemyGraphicsSetDefinition Room58EscapeWhenAreaBossDead { get; } = new(nameof(Room58EscapeWhenAreaBossDead));
+    /// <summary>The enemy graphics set of the Ceres Ridley hallway once the area's boss is dead.</summary>
+    internal static RoomEnemyGraphicsSetDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = new(nameof(CeresRidleyHallwayWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Ceres Ridley room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition CeresRidleyWhenAreaBossDead { get; } = new(nameof(CeresRidleyWhenAreaBossDead));
 

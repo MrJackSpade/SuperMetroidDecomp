@@ -23,7 +23,7 @@ internal static class BotwoonWallObjectsVerification
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(BossRoomObjectProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomObjectProgramsVerification.VerifyBotwoonWallPrograms(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList draw =
+        RoomObjectDrawLists.DrawList draw =
             RoomObjectBotwoonWallVisualFiles.All.Single();
         AssertEqual((ushort)0x930f, RoomObjectDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");

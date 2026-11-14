@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Wrecked Ship room state, named for their rooms.</summary>
-[NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class WreckedShipRoomStateDefinitions
 {
 
@@ -39,12 +38,12 @@ public static class WreckedShipRoomStateDefinitions
         new(nameof(AtticWhenAreaBossDead), RoomLevelDefinitions.AtticWhenAreaBossDead, RoomGraphicsSet.WreckedShipPowerOn, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.WreckedShipPoweredUp)), SuperMetroid.Core.Fx.RoomFxDefinitions.AtticWhenAreaBossDead, RoomEnemyPopulationDefinitions.AtticWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(254), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Attic, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AtticWhenAreaBossDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShipExperimentRoom, RoomSetupBehavior.None);
 
 
-    /// <summary>Wrecked Ship's Assembly Line room's state 0.</summary>
+    /// <summary>The Assembly Line room's default state.</summary>
     public static RoomStateSettings AssemblyLineDefault { get; } =
         new(nameof(AssemblyLineDefault), RoomLevelDefinitions.AssemblyLine, RoomGraphicsSet.WreckedShipPowerOff, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.AssemblyLineDefault, RoomEnemyPopulationDefinitions.AssemblyLineDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AssemblyLineDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShipPanelsVentsVertical, RoomSetupBehavior.None);
 
 
-    /// <summary>Wrecked Ship's Assembly Line room's state 1.</summary>
+    /// <summary>The Assembly Line room's state once the area's boss is dead.</summary>
     public static RoomStateSettings AssemblyLineWhenAreaBossDead { get; } =
         new(nameof(AssemblyLineWhenAreaBossDead), RoomLevelDefinitions.AssemblyLine, RoomGraphicsSet.WreckedShipPowerOn, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.AssemblyLineWhenAreaBossDead, RoomEnemyPopulationDefinitions.AssemblyLineWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AssemblyLineWhenAreaBossDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShipPanelsVentsVertical, RoomSetupBehavior.None);
 

@@ -28,7 +28,7 @@ public static class RoomObjectGreyDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -41,11 +41,10 @@ public static class RoomObjectGreyDoorVisualFiles
     }
 
     /// <summary>Builds the draw list of a recognized grey or cleared cap from how its cells collide.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = GreyDoorCaps.TryDescribe(request, out GreyDoorCaps.Draw cap);
-        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.CollisionAt)
- : default;
+        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
         return found;
     }
 

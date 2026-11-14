@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>Checks Phantoon motion limits, figure-eight timing, and BG2 image placement.</summary>
 internal static class PhantoonPositionVerification
@@ -62,13 +63,15 @@ internal static class PhantoonPositionVerification
         for (int frame = 0; frame < 1400; frame++)
         {
             var phantoon = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
-            ushort displayedX = phantoon.BodyLayerPlacement.X;
-            ushort displayedY = phantoon.BodyLayerPlacement.Y;
+            Position16<RoomPixels> originBefore = phantoon.BodyOrigin;
+            Position16<BackgroundPixels> shown = BossBodyPlacement.Shown(originBefore, runtime.Room.LoadedCamera.PixelPosition);
+            ushort displayedX = shown.X;
+            ushort displayedY = shown.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.BodyLayerPlacement, runtime.BackgroundScroll.BackgroundScroll,
-                $"Phantoon live BG2 handoff frame {frame}");
+            AssertEqual<Position16<RoomPixels>?>(originBefore, runtime.Display.Latched.Bosses.BodyOrigin,
+                $"the accepted frame publishes where Phantoon's body lay, frame {frame}");
             if (frame == 0) continue;
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
             AssertEqual(displayedX, layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");

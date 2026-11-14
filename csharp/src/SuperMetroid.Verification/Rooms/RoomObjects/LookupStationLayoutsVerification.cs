@@ -44,7 +44,7 @@ internal static class LookupStationLayoutsVerification
                 if (!owned)
                 {
                     AssertEqual(null, shape, "Station layout missing shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Station layout missing DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Station layout missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectStationVisualFiles.VisualId(NativeObjectDraws.At<StationDraw>(pointer)), "Station layout missing ID");
                 }
             }
@@ -55,7 +55,7 @@ internal static class LookupStationLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            var shape = StationObjectDraws.TryDescribe(NativeObjectDraws.At<StationDraw>(pointer), out StationObjectDraws.Draw? described)
+            var shape = StationObjectDraws.TryDescribe(NativeObjectDraws.At<StationDraw>(pointer), out RoomBlockShape? described)
                 ? described : throw new InvalidOperationException($"${pointer:X4} is not a station draw list.");
             RoomObjectStationVisualFiles.TryGet(NativeObjectDraws.At<StationDraw>(pointer), out var dto);
             RoomObjectDraw byId = RoomObjectStationVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
@@ -64,12 +64,6 @@ internal static class LookupStationLayoutsVerification
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Station layout original export order");
                 AssertEqual(ids[index], RoomObjectStationVisualFiles.VisualId(NativeObjectDraws.At<StationDraw>(pointer)), "Station layout published ID");
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Station layout reverse ID");
-                foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Station layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Station layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Station layout word run bounds");
-                }
             }
             var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
             var roomObjects = RoomObjectFixtures.Unbound();
@@ -91,9 +85,9 @@ internal static class LookupStationLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Station layout native direction");
-                    AssertEqual(count, shape.BlockCount(run), "Station layout native calculated count");
+                    AssertEqual(count, dto.Runs.Span[run].Count, "Station layout native calculated count");
                     // The cartridge ends each run with the next run's start, and the last with no offset.
-                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    Offset16<RoomBlocks> continuation = run + 1 < dto.Runs.Length ? dto.Runs.Span[run + 1].Start : Offset16<RoomBlocks>.Zero;
                     AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Station layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
@@ -108,16 +102,13 @@ internal static class LookupStationLayoutsVerification
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
                     drawY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
-                    int selectedRun = run;
-                    foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Station layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     if (field == 1)
                     {
-                        AssertEqual(expected.Collision, shape.CollisionAt(run, cell), "Station layout original calculated collision");
+                        AssertEqual(expected.Collision, shape.CollisionAt(dto.Runs.Span[run].CellAt(cell)), "Station layout original calculated collision");
                         foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                             AssertEqual(expected.Collision, frame.Runs.Span[run].Collisions.Span[cell], "Station layout original DTO collision");
                     }
@@ -132,7 +123,6 @@ internal static class LookupStationLayoutsVerification
                 if (offset == 0) break;
                 AssertTrue(run < 7, "Station layout native run termination");
             }
-            AssertEqual(run, shape.RunCount, "Station layout native run count");
             AssertEqual(run, dto.Runs.Length, "Station layout native DTO run count");
         }
         AssertEqual(64, cells, "Station layout independent physical cell count");

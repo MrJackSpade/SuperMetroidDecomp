@@ -98,14 +98,14 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal void PublishWhileLoading() => PublishAcceptedFrame();
 
-    /// <summary>Publishes the frame's sprites, Samus's graphics, queued artwork and the rotating-view state, in that order.</summary>
+    /// <summary>
+    /// Latches what the frame shows: its finished sprites, its shown layers, the views' scrolls, the room's effects, the
+    /// bosses' displays and the room's planes with their pictures.
+    /// </summary>
     private void PublishAcceptedFrame()
     {
-        // Preserve this order: Samus's own frame graphics precede the rest of the
-        // queued artwork, and both precede controller latching. The finished sprite list is
-        // published immediately before Samus's graphics, and the turning floor's rotation
-        // after them. Retain both displayed values so rendering sees one coherent frame
-        // instead of combining old sprites with a newer room-main rotation.
+        // The whole display is latched before the controller is, and the finished sprites first among it, so rendering
+        // sees one coherent frame instead of combining old sprites with a newer room main's turning floor.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
@@ -117,7 +117,7 @@ internal sealed class AcceptedFrameBoundary
         RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
         Displays?.Phantoon?.BodyWave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.MosaicBlockSize);
+            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.PixelationBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);
@@ -153,7 +153,7 @@ internal sealed class AcceptedFrameBoundary
     {
         var room = _room.ActiveRoom;
         return new(
-            // Before the first room no FX record is selected and no effect blends.
+            // Before the first room no room effect is chosen and no effect blends.
             _room.FxOverlay?.Type ?? RoomFxType.None,
             _room.FxOverlay?.Blend,
             LatchedScrollingSky.Capture(_room.ScrollingSky),
@@ -175,8 +175,8 @@ internal sealed class AcceptedFrameBoundary
         : null;
 
     /// <summary>
-    /// The body a boss shows (#1352-#1356, #1466, #1617, #1802): its parts, and where Kraid's, Draygon's, Crocomire's and
-    /// Mother Brain's lie in the room, as each boss holds it.
+    /// The body a boss shows (#1352-#1356, #1466, #1617, #1802, #1858): its parts, and where Kraid's, Phantoon's, Draygon's,
+    /// Crocomire's and Mother Brain's lie in the room, as each boss holds it.
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
@@ -184,6 +184,7 @@ internal sealed class AcceptedFrameBoundary
         return new(
             Displays?.BossBody,
             Displays?.KraidBodyOrigin,
+            Displays?.Phantoon?.BodyOrigin,
             Displays?.Draygon is { } draygon
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyOrigin, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
                 : null,

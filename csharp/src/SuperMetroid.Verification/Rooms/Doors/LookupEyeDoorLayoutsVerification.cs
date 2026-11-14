@@ -43,7 +43,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 if (!owned)
                 {
                     AssertEqual(default(EyeDoorDraws.Draw),shape,"Eye door rejected shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),dto,"Eye door rejected DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList),dto,"Eye door rejected DTO");
                 }
             }
         int cells = 0;
@@ -52,7 +52,7 @@ internal static class LookupEyeDoorLayoutsVerification
             ushort pointer = pointers[index];
             EyeDoorDraws.TryDescribe(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer),out var shape);
             RoomObjectEyeDoorVisualFiles.TryGet(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer),out var direct);
-            var views = new List<RoomObjectShotBlockDrawDefinitions.DrawList> {direct,exported[index]};
+            var views = new List<RoomObjectDrawLists.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)
             {
                 string id = RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer));
@@ -65,11 +65,9 @@ internal static class LookupEyeDoorLayoutsVerification
             if (field == 0)
             {
                 AssertEqual(pointer,RoomObjectDrawAddressCodec.Of(exported[index].Draw),"Eye door original layout order");
-                AssertEqual(count,shape.BlockCount,"Eye door original cell count");
+                AssertEqual(count,shape.Blocks.Cells.Count,"Eye door block shape cell count");
                 AssertEqual(vertical,shape.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
-                foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(bad),"Eye door cell bounds");
             }
             foreach (var view in views)
             {
@@ -89,7 +87,7 @@ internal static class LookupEyeDoorLayoutsVerification
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + cell * 2)));
                         if (field == 1)
                         {
-                            AssertEqual(expected.Collision,shape.CollisionAt(cell),"Eye door native calculated collision");
+                            AssertEqual(expected.Collision,shape.Blocks.CollisionAt(run.CellAt(cell)),"Eye door native block-shape collision");
                             AssertEqual(expected.Collision,run.Collisions.Span[cell],"Eye door native DTO collision");
                         }
                         else

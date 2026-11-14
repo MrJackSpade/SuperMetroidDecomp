@@ -15,10 +15,10 @@ internal static class LookupElevatubeVerification
     internal static void VerifyElevatubePhysicalDraw(CartridgeImportAddressSpace rom)
     {
         // What the block shows is its installed picture, which the elevatube picture check compares with the cartridge.
-        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)).Collision, MaridiaElevatubeObjectDefinitions.Collision, "Elevatube native collision");
+        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)).Collision, MaridiaElevatubeObjectDefinitions.Shape.CollisionAt(new(0, 0)), "Elevatube native collision");
         var all = RoomObjectMaridiaElevatubeVisualFiles.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
-        RoomObjectShotBlockDrawDefinitions.DrawList selected = all.Single(draw => RoomObjectMaridiaElevatubeVisualFiles.Family.Ids[draw.Draw] == "elevatube-block");
+        RoomObjectDrawLists.DrawList selected = all.Single(draw => RoomObjectMaridiaElevatubeVisualFiles.Family.Ids[draw.Draw] == "elevatube-block");
         foreach (var draw in new[] {RoomObjectMaridiaElevatubeVisualFiles.BlockDrawList,all[0],selected})
         {
             AssertEqual((ushort)0x9367, RoomObjectDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");

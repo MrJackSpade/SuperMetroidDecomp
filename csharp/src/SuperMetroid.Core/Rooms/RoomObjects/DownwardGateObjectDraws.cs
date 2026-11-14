@@ -3,11 +3,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// How each downward gate draw is described: six vertical five-cell column frames that fill one more shootable row per
+/// How each downward gate draw is described (#1862): six five-block column frames that fill one more shootable row per
 /// step, and four trigger colours on either side. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class DownwardGateObjectDraws
 {
+    /// <summary>The blocks of the gate's column, down from its top block.</summary>
+    private const int ColumnHeight = 5;
+
     /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's picture step.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
@@ -37,37 +40,38 @@ internal static class DownwardGateObjectDraws
         return true;
     }
 
-    /// <summary>Decoded column step or colored trigger shape; how each cell collides is calculated from this draw identity.</summary>
+    /// <summary>A right trigger: its solid block and the shootable trigger right of it.</summary>
+    private static readonly RoomBlockShape RightTrigger = new(
+        [new(new(0, 0), RoomCollisionType.SolidBlock), new(new(1, 0), RoomCollisionType.ShootableBlock)]);
+
+    /// <summary>A left trigger: its solid block and the shootable trigger left of it.</summary>
+    private static readonly RoomBlockShape LeftTrigger = new(
+        [new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-1, 0), RoomCollisionType.ShootableBlock)]);
+
+    /// <summary>
+    /// The column at each of its six stages: five blocks down from its top block, the top and the rows the stage has
+    /// filled shootable and the rest air.
+    /// </summary>
+    private static readonly RoomBlockShape[] ColumnStages = [.. Enumerable.Range(0, ColumnHeight + 1).Select(stage => new RoomBlockShape(
+        [.. Enumerable.Range(0, ColumnHeight).Select(row => new RoomBlockShapeCell(new(0, row),
+            row <= stage ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air))]))];
+
+    /// <summary>Decoded column step or colored trigger shape.</summary>
     internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
     {
-        /// <summary>Whether the list writes the gate column.</summary>
+        /// <summary>Whether the draw is the gate column's.</summary>
         internal bool Column => Part == DownwardGatePart.Column;
 
-        /// <summary>Whether the list writes a right-hand trigger.</summary>
-        internal bool Right => Part == DownwardGatePart.RightTrigger;
-
-        /// <summary>Columns and right triggers occupy one run; left triggers include a separate neighboring block.</summary>
-        internal int RunCount => Column || Right ? 1 : 2;
-        /// <summary>Columns write five vertical cells; right triggers write two cells; each left-trigger run writes one.</summary>
-        internal int BlockCount(int run)
+        /// <summary>
+        /// The blocks the draw changes and how each collides: the column's shootable top and filled rows, or the trigger's
+        /// solid block and its shootable trigger beside it.
+        /// </summary>
+        internal RoomBlockShape Blocks => Part switch
         {
-            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return Column ? 5 : Right ? 2 : 1;
-        }
-
-        /// <summary>Where a run starts, in blocks from the gate's origin: a left trigger's second run one block left of it.</summary>
-        internal Offset16<RoomBlocks> Start(int run)
-        {
-            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return new(!Column && !Right && run == 1 ? -1 : 0, 0);
-        }
-        /// <summary>How a cell collides: the shootable column top and filled rows, the solid neighbour, or the shootable trigger.</summary>
-        internal RoomCollisionType CollisionAt(int run, int cell)
-        {
-            if ((uint)cell >= BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            if (Column)
-                return cell <= Frame || cell == 0 ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air;
-            return run == 0 && cell == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.ShootableBlock;
-        }
+            DownwardGatePart.Column => ColumnStages[Frame],
+            DownwardGatePart.RightTrigger => RightTrigger,
+            DownwardGatePart.LeftTrigger => LeftTrigger,
+            _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGatePart)} {Part}."),
+        };
     }
 }

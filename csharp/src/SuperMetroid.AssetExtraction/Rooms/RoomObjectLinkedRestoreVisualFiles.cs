@@ -28,11 +28,11 @@ public static class RoomObjectLinkedRestoreVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All =>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
         LinkedRestoreObjectFamily.Families.SelectMany(AllOf);
 
     /// <summary>The horizontal, vertical and square restoration layouts of <paramref name="family"/>, in that order.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> AllOf(LinkedRestoreObjectFamily family)
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllOf(LinkedRestoreObjectFamily family)
     {
         foreach (RoomObjectDraw candidate in RestorationDraws())
         {
@@ -42,11 +42,14 @@ public static class RoomObjectLinkedRestoreVisualFiles
     }
 
     /// <summary>Builds the draw list of the restoration <paramref name="request"/>, whose shape is <paramref name="draw"/>.</summary>
-    internal static RoomObjectShotBlockDrawDefinitions.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
-        RoomObjectDrawListExport.Runs(request, draw.RunCount, static _ => 2, draw.CollisionAt,
-
-            _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
-            RoomObjectDrawListExport.Stacked);
+    internal static RoomObjectDrawLists.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
+        RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Arrangement(draw.Shape switch
+        {
+            RoomObjectRestoreShape.Horizontal => RoomObjectShotBlockDrawDefinitions.Shape.Horizontal,
+            RoomObjectRestoreShape.Vertical => RoomObjectShotBlockDrawDefinitions.Shape.Vertical,
+            RoomObjectRestoreShape.Square => RoomObjectShotBlockDrawDefinitions.Shape.Square,
+            _ => throw new InvalidOperationException($"Undefined {nameof(RoomObjectRestoreShape)} {draw.Shape}."),
+        }));
 
     /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>
     internal static string VisualId(RoomObjectDraw draw) => draw switch

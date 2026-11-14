@@ -25,7 +25,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
             new(UnplacedEnemyArtwork.DeadSidehopperLivingTiles),
             new(EnemyDefinitionId.BabyMetroid),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MotherBrain01), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.MotherBrainBeforeDefeat), [
             new(EnemyDefinitionId.MotherBrainHead),
             new(EnemyDefinitionId.Rinka),
             new(EnemyDefinitionId.MotherBrainBody),

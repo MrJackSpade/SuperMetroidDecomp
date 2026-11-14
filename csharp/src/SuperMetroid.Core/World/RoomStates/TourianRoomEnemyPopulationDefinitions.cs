@@ -63,7 +63,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.CorpseSkree, new(608, 71), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Skree)),
             new(EnemyDefinitionId.CorpseSkree, new(384, 71), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new CorpseSpawnSettings(Corpse: DeadTourianCorpseDefinitions.Skree)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.MotherBrain01),
+        new(nameof(RoomEnemyPopulationDefinitions.MotherBrainBeforeDefeat),
         [
             new(EnemyDefinitionId.MotherBrainBody, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
             new(EnemyDefinitionId.MotherBrainHead, new(129, 111), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),

@@ -277,7 +277,7 @@ internal static class DoorDefinitionsAccess
         [0xdfd3] = RoomDefinitions.FallingTile,
         [0xe01d] = RoomDefinitions.MagnetStairs,
         [0xe067] = RoomDefinitions.DeadScientist,
-        [0xe0b1] = RoomDefinitions.Room58Escape,
+        [0xe0b1] = RoomDefinitions.CeresRidleyHallway,
         [0xe0fb] = RoomDefinitions.CeresRidley,
     };
 

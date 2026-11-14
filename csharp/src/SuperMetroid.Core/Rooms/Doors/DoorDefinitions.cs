@@ -602,10 +602,10 @@ public static class DoorDefinitions
         Door(nameof(CeresDoorDefinitions.MagnetStairs0), RoomDefinitions.FallingTile, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(CeresDoorDefinitions.MagnetStairs1), RoomDefinitions.DeadScientist, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(CeresDoorDefinitions.DeadScientist0), RoomDefinitions.MagnetStairs, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(CeresDoorDefinitions.DeadScientist1), RoomDefinitions.Room58Escape, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(CeresDoorDefinitions.Room58Escape0), RoomDefinitions.DeadScientist, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(CeresDoorDefinitions.Room58Escape1), RoomDefinitions.CeresRidley, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(CeresDoorDefinitions.CeresRidley), RoomDefinitions.Room58Escape, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(CeresDoorDefinitions.DeadScientist1), RoomDefinitions.CeresRidleyHallway, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(CeresDoorDefinitions.CeresRidleyHallway0), RoomDefinitions.DeadScientist, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(CeresDoorDefinitions.CeresRidleyHallway1), RoomDefinitions.CeresRidley, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(CeresDoorDefinitions.CeresRidley), RoomDefinitions.CeresRidleyHallway, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(1, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
     ];
 
     /// <summary>Every compiled door by its name.</summary>

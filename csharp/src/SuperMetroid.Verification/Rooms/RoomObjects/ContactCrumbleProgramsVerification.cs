@@ -95,7 +95,7 @@ internal static class ContactCrumbleProgramsVerification
             if (!found)
             {
                 AssertEqual(default(LinkedRestoreObjectFamily.Draw), draw, "missing restoration descriptor cleared");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
+                AssertEqual(default(RoomObjectDrawLists.DrawList), list, "missing restoration export cleared");
                 continue;
             }
             int cursor = pointer;
@@ -105,14 +105,14 @@ internal static class ContactCrumbleProgramsVerification
                 ushort nativeCount = ReadRomWord(rom, 0x840000 | cursor);
                 int count = nativeCount & 0x7fff;
                 AssertEqual(2, count, "contact restoration two words per native run");
-                AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "contact restoration native orientation");
+                AssertEqual((nativeCount & 0x8000) != 0, draw.Shape == RoomObjectRestoreShape.Vertical, "contact restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
                 AssertRunHeader(nativeCount, exportedRun, "contact restoration exported direction/count");
                 AssertEqual(count, exportedRun.Count, "contact restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
-                    AssertEqual(native.Collision, draw.CollisionAt(run, block), "contact restoration calculated parent/child collision");
+                    AssertEqual(native.Collision, draw.Blocks.CollisionAt(exportedRun.CellAt(block)), "contact restoration block-shape parent/child collision");
                     AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "contact restoration exported collision");
                     AssertEqual(native.Appearance, pictures.Image(list.Draw).At(exportedRun.CellAt(block)), "contact restoration installed picture");
                 }
@@ -122,17 +122,14 @@ internal static class ContactCrumbleProgramsVerification
                 AssertEqual(unchecked((sbyte)x), RoomObjectRunContinuationCodecConstants.X(list, run), "contact restoration next X");
                 AssertEqual(unchecked((sbyte)y), RoomObjectRunContinuationCodecConstants.Y(list, run), "contact restoration next Y");
                 AssertEqual((byte)0, x, "contact restoration calculated next row X");
-                AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "contact restoration calculated next row Y");
+                AssertEqual(run + 1 < list.Runs.Length ? (byte)1 : (byte)0, y, "contact restoration calculated next row Y");
                 run++;
                 cursor += 2;
                 if (x == 0 && y == 0) break;
             }
-            AssertEqual(run, draw.RunCount, "contact restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "contact restoration complete exported runs");
-            foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "contact restoration run bounds");
-            foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(0, invalid), "contact restoration block bounds");
+            // The block shape covers exactly the cells the cartridge writes, two per run (#1862).
+            AssertEqual(2 * run, draw.Blocks.Cells.Count, "contact restoration block shape covers every written cell");
         }
     }
 
@@ -161,11 +158,11 @@ internal static class ContactCrumbleProgramsVerification
 
         // The four shape-specific breakup animations are shared with shot and bomb
         // blocks. They must remain compiled even when a contact-crumble list selects them.
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
+        foreach (RoomObjectDrawLists.DrawList list in
                  RoomObjectShotBlockVisualFiles.All)
         {
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            foreach (RoomObjectDrawLists.Run run in list.Runs.Span)
             {
                 int length = 2 + 2 * run.Count + 2;
                 for (int offset = 0; offset < length; offset++)

@@ -44,13 +44,11 @@ public static class RoomObjectShotBlockVisualFiles
     internal static string VisualId(RoomObjectDraw draw) => VisualId(RoomObjectDraw.FrameOf<ShotBlockObjectDraws.Draw>(draw, "shot-block"));
 
     /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All => Calculated.Select(Export);
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All => Calculated.Select(Export);
 
-    /// <summary>Expands a calculated shot-block draw into ordered runs of collision and their offsets.</summary>
-    private static RoomObjectShotBlockDrawDefinitions.DrawList Export(ShotBlockObjectDraws.Draw draw) =>
-        RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.CollisionAt,
-            _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
-            RoomObjectDrawListExport.Stacked);
+    /// <summary>The draw list of a shot-block draw: its block shape written in its arrangement's runs (#1862).</summary>
+    private static RoomObjectDrawLists.DrawList Export(ShotBlockObjectDraws.Draw draw) =>
+        RoomObjectShapeRun.DrawList(RoomObjectDraw.Of(draw), draw.Blocks, RoomObjectShapeRun.Arrangement(draw.Layout));
 
     /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
     internal static IEnumerable<ShotBlockObjectDraws.Draw> Calculated

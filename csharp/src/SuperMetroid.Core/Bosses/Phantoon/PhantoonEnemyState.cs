@@ -83,10 +83,11 @@ public sealed class PhantoonEnemyState
     }
 
     /// <summary>
-    /// Where Phantoon's body layer is placed, written after the body has moved: camera minus body plus forty whole
-    /// pixels on each axis when ordinary synchronization runs. His room shows his body layer as its background layer.
+    /// Where his body lies in the room (#1858): the room pixel his body's area's top-left corner lies on, which follows his
+    /// body after it moves while no wave ripples it and holds still while one does. The display shows his body's area from
+    /// there against the frame's camera, as it shows Kraid's, Draygon's, Crocomire's and Mother Brain's.
     /// </summary>
-    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
+    public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
     /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever his
@@ -101,7 +102,7 @@ public sealed class PhantoonEnemyState
     /// Gets the live pixelation block size of his body in screen pixels before display latching: one (no quantization) until
     /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
     /// </summary>
-    public int MosaicBlockSize { get; internal set; } = 1;
+    public int PixelationBlockSize { get; internal set; } = 1;
 
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }

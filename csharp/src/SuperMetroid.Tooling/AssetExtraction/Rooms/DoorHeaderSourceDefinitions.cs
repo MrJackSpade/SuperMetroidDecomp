@@ -601,8 +601,8 @@ internal static class DoorHeaderSourceDefinitions
         [0xab7c] = CeresDoorDefinitions.MagnetStairs1,
         [0xab88] = CeresDoorDefinitions.DeadScientist0,
         [0xab94] = CeresDoorDefinitions.DeadScientist1,
-        [0xaba0] = CeresDoorDefinitions.Room58Escape0,
-        [0xabac] = CeresDoorDefinitions.Room58Escape1,
+        [0xaba0] = CeresDoorDefinitions.CeresRidleyHallway0,
+        [0xabac] = CeresDoorDefinitions.CeresRidleyHallway1,
         [0xabb8] = CeresDoorDefinitions.CeresRidley,
     };
 }

@@ -87,12 +87,15 @@ internal static class SamusEaterVisualsVerification
                 "plant draw DTO pointer ownership");
             if (frame < 0)
             {
-                AssertEqual(default(SamusEaterObjectDraws.Draw), draw, "missing plant descriptor");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "missing plant DTO");
+                AssertTrue(draw is null, "missing plant block shape");
+                AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "missing plant DTO");
                 continue;
             }
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[frame].Draw), "plant export native order");
             AssertEqual(3, dto.Runs.Length, "plant run count");
+            RoomBlockShape shape = draw ?? throw new InvalidOperationException($"${pointer:X4} has no plant block shape.");
+            // The block shape covers exactly the eight cells the cartridge writes (#1862).
+            AssertEqual(8, shape.Cells.Count, "plant block shape cell count");
             int cursor = 0x840000 | pointer;
             for (int run = 0; run < 3; run++)
             {
@@ -104,24 +107,21 @@ internal static class SamusEaterVisualsVerification
                     for (int block = 0; block < count; block++)
                     {
                         RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + block * 2));
-                        AssertEqual(native.Collision, draw.CollisionAt(run, block), "calculated plant collision");
+                        AssertEqual(native.Collision, shape.CollisionAt(dtoRun.CellAt(block)), "plant block-shape collision");
                         AssertEqual(native.Collision, dtoRun.Collisions.Span[block], "direct plant DTO collision");
                         AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "exported plant collision");
                         AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(dtoRun.CellAt(block)), "installed plant picture");
                     }
-                    foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
-                        AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(run, invalid), "plant block bounds");
                 }
                 else
                 {
-                    AssertEqual(count, SamusEaterObjectDraws.Draw.Count(run), "plant native horizontal count");
                     AssertRunHeader(count, dtoRun, "plant DTO direction/count");
                     AssertRunHeader(count, exportedRun, "plant export direction/count");
                     ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                     sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     // The cartridge ends each run with the next run's start, and the last with no offset.
-                    Offset16<RoomBlocks> continuation = run + 1 < SamusEaterObjectDraws.Draw.RunCount
-                        ? draw.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    Offset16<RoomBlocks> continuation = run + 1 < dto.Runs.Length
+                        ? dto.Runs.Span[run + 1].Start : Offset16<RoomBlocks>.Zero;
                     AssertEqual(x, continuation.X, "plant signed horizontal offset");
                     AssertEqual(y, continuation.Y, "plant signed vertical offset");
                     AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(dto, run), "plant DTO horizontal offset");
@@ -130,13 +130,6 @@ internal static class SamusEaterVisualsVerification
                     AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(exported[frame], run), "plant export vertical offset");
                 }
                 cursor += 4 + count * 2;
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, 3, 256, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterObjectDraws.Draw.Count(invalid), "plant run count bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.Start(invalid), "plant start bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "plant word run bounds");
-
             }
         }
     }

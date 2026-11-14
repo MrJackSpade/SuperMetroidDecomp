@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Norfair room state, named for their rooms.</summary>
-[NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
+[NumberedIdentities("Each numbered state is a state of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes them.")]
 public static class NorfairRoomStateDefinitions
 {
 

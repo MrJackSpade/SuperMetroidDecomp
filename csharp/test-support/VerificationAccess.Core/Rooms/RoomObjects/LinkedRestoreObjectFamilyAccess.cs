@@ -9,7 +9,7 @@ internal static class LinkedRestoreObjectFamilyAccess
     extension(LinkedRestoreObjectFamily family)
     {
         /// <summary>Converts a recognized restore drawing of this family into the shared verifier draw-list form.</summary>
-        internal bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+        internal bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
         {
             if (family.TryDescribe(request, out LinkedRestoreObjectFamily.Draw draw))
             {

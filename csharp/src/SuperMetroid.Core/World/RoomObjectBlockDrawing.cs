@@ -100,227 +100,87 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     public RoomBlockAppearance SetupBlock(RoomObjectSetupBlock block) =>
         Installed(_visuals.RoomObjectSetupBlocks, "room-object setup block").Shown(block);
 
-    /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
+    /// <summary>
+    /// Draws a compiled draw (#1862): its family's block shape, each cell colliding as the shape says and showing the
+    /// family's installed picture of the frame there. Only a collectible's block pair, which lies under the item's own
+    /// picture, writes its terrain alone.
+    /// </summary>
     public void Draw(RoomLevelData level, Position16<RoomBlocks> origin, RoomObjectDraw draw)
     {
-        // A draw is a list of runs, each a row or a column of blocks starting at its own offset from the room-object origin; the
-        // list ends at its last run. The 2x2 bomb art is consequently two horizontal runs: row zero at the origin, then
-        // row one starting one block below it.
-        if (BombedRevealObjectDraws.TryGet(draw, out var bombedReveal))
-        {
-            DrawRevealOrWall(level, bombedReveal, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw));
-            return;
-        }
-        if (CrateriaMainstreetEscapePassageDraws.TryGetDraw(draw, out var clearedPassage))
-        {
-            DrawRevealOrWall(level, clearedPassage, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw));
-            return;
-        }
-        if (OldTourianEscapeShaftWallDraws.TryGetDraw(draw, out var openWall))
-        {
-            DrawRevealOrWall(level, openWall, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw));
-            return;
-        }
-        if (EscapeAnimalWalls.TryGet(draw, out var animalWall))
-        {
-            DrawRevealOrWall(level, animalWall, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw));
-            return;
-        }
-        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var compiled })
-        {
-            RoomObjectFrameImage shotBlock = Installed(ShotBlockVisuals, "shot-block").Image(draw);
-            for (int run = 0; run < compiled.RunCount; run++)
-                for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.CollisionAt(run, block));
-            return;
-        }
-        if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
-        {
-            DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision);
-            return;
-        }
-        if (KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? kraidRoom))
-        {
+        if (BombedRevealObjectDraws.TryDescribe(draw, out RoomBlockShape? bombedReveal))
+            DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), bombedReveal);
+        else if (CrateriaMainstreetEscapePassageDraws.TryDescribe(draw, out RoomBlockShape? clearedPassage))
+            DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), clearedPassage);
+        else if (OldTourianEscapeShaftWallDraws.TryDescribe(draw, out RoomBlockShape? openWall))
+            DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), openWall);
+        else if (EscapeAnimalWalls.TryDescribe(draw, out RoomBlockShape? animalWall))
+            DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), animalWall);
+        else if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var shotBlock })
+            DrawShape(level, draw, origin, Installed(ShotBlockVisuals, "shot-block").Image(draw), shotBlock.Blocks);
+        else if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
+            DrawShape(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape);
+        else if (KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? kraidRoom))
             DrawShape(level, draw, origin, Installed(KraidVisuals, "Kraid room").Image(draw), kraidRoom);
-            return;
-        }
-        if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
-        {
-            DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Collision);
-            return;
-        }
-        if (CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? crocomireArena))
-        {
+        else if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
+            DrawShape(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), MaridiaElevatubeObjectDefinitions.Shape);
+        else if (CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? crocomireArena))
             DrawShape(level, draw, origin, Installed(CrocomireVisuals, "Crocomire arena").Image(draw), crocomireArena);
-            return;
-        }
-        if (MotherBrainFakeDeathDraws.TryDescribe(draw, out RoomBlockShape? fakeDeath))
-        {
+        else if (MotherBrainFakeDeathDraws.TryDescribe(draw, out RoomBlockShape? fakeDeath))
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectMotherBrainFakeDeathVisuals, "Mother Brain fake-death room").Images
                 .Image(RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(draw, "Mother Brain fake-death room")), fakeDeath);
-            return;
-        }
-        if (draw is RoomObjectFrameDraw<TourianAccessDraw> { Frame: var tourian })
-        {
-            int tourianRows = TourianAccessDraws.Rows(tourian);
-            RoomObjectFrameImage floor = Installed(TourianAccessVisuals, "Tourian access").Image(draw);
-            for (int row = 0; row < tourianRows; row++)
-                for (int column = 0; column < TourianAccessObjectDrawDefinitions.RowWidth; column++)
-                    DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), TourianAccessObjectDrawDefinitions.Collision);
-            return;
-        }
-        if (SporeSpawnCeilingDraws.TryDescribe(draw, out RoomBlockShape? sporeSpawnCeiling))
-        {
+        else if (TourianAccessDraws.TryDescribe(draw, out RoomBlockShape? tourianAccess))
+            DrawShape(level, draw, origin, Installed(TourianAccessVisuals, "Tourian access").Image(draw), tourianAccess);
+        else if (SporeSpawnCeilingDraws.TryDescribe(draw, out RoomBlockShape? sporeSpawnCeiling))
             DrawShape(level, draw, origin, Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw), sporeSpawnCeiling);
-            return;
-        }
-        if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
-        {
-            RoomObjectFrameImage plant = Installed(SamusEaterVisuals, "Samus Eater").Image(draw);
-            for (int run = 0; run < SamusEaterObjectDraws.Draw.RunCount; run++)
-                for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
-                    DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.CollisionAt(run, block));
-            return;
-        }
-        if (BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? botwoonWall))
-        {
+        else if (SamusEaterObjectDraws.TryDescribe(draw, out RoomBlockShape? samusEater))
+            DrawShape(level, draw, origin, Installed(SamusEaterVisuals, "Samus Eater").Image(draw), samusEater);
+        else if (BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? botwoonWall))
             DrawShape(level, draw, origin, Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw), botwoonWall);
-            return;
-        }
-        if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))
-        {
-            RoomObjectFrameImage restored = Installed(LinkedRestoreVisuals, "linked restoration").Image(draw);
-            for (int run = 0; run < linkedRestore.RunCount; run++)
-                for (int block = 0; block < 2; block++)
-                    DrawImageCell(level, draw, origin, restored, new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.CollisionAt(run, block));
-            return;
-        }
-        if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
-        {
-            RoomObjectFrameImage cap = Installed(BlueDoorVisuals, "blue-door").Image(draw);
-            for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.CollisionAt(cell));
-            return;
-        }
-        if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))
-        {
-            RoomObjectFrameImage cap = Installed(ColoredDoorVisuals, "colored-door").Image(draw);
-            for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.CollisionAt(cell));
-            return;
-        }
-        if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
-        {
-            RoomObjectFrameImage cap = Installed(GreyDoorVisuals, "grey-door").Image(draw);
-            for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.CollisionAt(cell));
-            return;
-        }
-        if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
-        {
-            RoomObjectFrameImage part = Installed(EyeDoorVisuals, "eye-door").Image(draw);
-            for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.CollisionAt(cell));
-            return;
-        }
-        if (MotherBrainGlassDraws.TryDescribe(draw, out RoomBlockShape? motherBrainGlass))
-        {
+        else if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out LinkedRestoreObjectFamily.Draw linkedRestore))
+            DrawShape(level, draw, origin, Installed(LinkedRestoreVisuals, "linked restoration").Image(draw), linkedRestore.Blocks);
+        else if (BlueDoorCaps.TryDescribe(draw, out BlueDoorCaps.Draw blueDoor))
+            DrawShape(level, draw, origin, Installed(BlueDoorVisuals, "blue-door").Image(draw), blueDoor.Blocks);
+        else if (ColoredDoorCaps.TryDescribe(draw, out ColoredDoorCaps.Draw coloredDoor))
+            DrawShape(level, draw, origin, Installed(ColoredDoorVisuals, "colored-door").Image(draw), coloredDoor.Blocks);
+        else if (GreyDoorCaps.TryDescribe(draw, out GreyDoorCaps.Draw greyDoor))
+            DrawShape(level, draw, origin, Installed(GreyDoorVisuals, "grey-door").Image(draw), greyDoor.Blocks);
+        else if (EyeDoorDraws.TryDescribe(draw, out EyeDoorDraws.Draw eyeDoor))
+            DrawShape(level, draw, origin, Installed(EyeDoorVisuals, "eye-door").Image(draw), eyeDoor.Blocks);
+        else if (MotherBrainGlassDraws.TryDescribe(draw, out RoomBlockShape? motherBrainGlass))
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectMotherBrainGlassVisuals, "Mother Brain glass").Images
                 .Image(RoomObjectDraw.FrameOf<MotherBrainGlassDraw>(draw, "Mother Brain glass")), motherBrainGlass);
-            return;
-        }
-        if (NoobTubeObjectDraws.TryDescribe(draw, out var noobTube))
-        {
-            RoomObjectFrameImage tube = Installed(NoobTubeVisuals, "n00b tube").Image(draw);
-            for (int run = 0; run < noobTube.RunCount; run++)
-                for (int cell = 0; cell < noobTube.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, tube, noobTube.Start(run) + new Offset16<RoomBlocks>(cell, 0), noobTube.CollisionAt(run, cell));
-            return;
-        }
-        if (StationObjectDraws.TryDescribe(draw, out var station))
-        {
-            RoomObjectFrameImage stationImage = Installed(StationVisuals, "station").Image(draw);
-            for (int run = 0; run < station.RunCount; run++)
-                for (int cell = 0; cell < station.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.CollisionAt(run, cell));
-            return;
-        }
-        if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
-        {
-            RoomObjectFrameImage platform = Installed(ElevatorPlatformVisuals, "elevator-platform").Image(draw);
-            for (int run = 0; run < elevator.RunCount; run++)
-                for (int cell = 0; cell < elevator.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.CollisionAt(run, cell));
-            return;
-        }
-        if (DownwardGateObjectDraws.TryDescribe(draw, out var gate))
-        {
-            RoomObjectFrameImage gatePicture = Installed(DownwardGateVisuals, "downward gate").Image(draw);
-            for (int run = 0; run < gate.RunCount; run++)
-                for (int cell = 0; cell < gate.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : cell, gate.Column ? cell : 0), gate.CollisionAt(run, cell));
-            return;
-        }
-        if (MotherBrainEscapeGateDraws.TryDescribe(draw, out RoomBlockShape? escapeGate))
-        {
+        else if (NoobTubeObjectDraws.TryDescribe(draw, out RoomBlockShape? noobTube))
+            DrawShape(level, draw, origin, Installed(NoobTubeVisuals, "n00b tube").Image(draw), noobTube);
+        else if (StationObjectDraws.TryDescribe(draw, out RoomBlockShape? station))
+            DrawShape(level, draw, origin, Installed(StationVisuals, "station").Image(draw), station);
+        else if (ElevatorPlatformDraws.TryDescribe(draw, out RoomBlockShape? elevator))
+            DrawShape(level, draw, origin, Installed(ElevatorPlatformVisuals, "elevator-platform").Image(draw), elevator);
+        else if (DownwardGateObjectDraws.TryDescribe(draw, out DownwardGateObjectDraws.Draw gate))
+            DrawShape(level, draw, origin, Installed(DownwardGateVisuals, "downward gate").Image(draw), gate.Blocks);
+        else if (MotherBrainEscapeGateDraws.TryDescribe(draw, out RoomBlockShape? escapeGate))
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images
                 .Image(RoomObjectDraw.FrameOf<MotherBrainEscapeGateDraw>(draw, "Mother Brain escape gate")), escapeGate);
-            return;
-        }
-        if (BombTorizoHandDraws.TryDescribe(draw, out RoomBlockShape? bombTorizoHand))
-        {
+        else if (BombTorizoHandDraws.TryDescribe(draw, out RoomBlockShape? bombTorizoHand))
             DrawShape(level, draw, origin, Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw), bombTorizoHand);
-            return;
-        }
-        if (DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? draygonCannon))
-        {
+        else if (DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? draygonCannon))
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectDraygonCannonVisuals, "Draygon cannon").Images
                 .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon")), draygonCannon);
-            return;
-        }
-        if (PhantoonDoorDraws.TryDescribe(draw, out RoomBlockShape? phantoonDoor))
-        {
+        else if (PhantoonDoorDraws.TryDescribe(draw, out RoomBlockShape? phantoonDoor))
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectPhantoonDoorVisuals, "Phantoon door").Images
                 .Image(RoomObjectDraw.FrameOf<PhantoonDoorDraw>(draw, "Phantoon door")), phantoonDoor);
-            return;
-        }
-        if (ChozoStatueDraws.TryDescribe(draw, out RoomBlockShape? chozoStatue))
-        {
+        else if (ChozoStatueDraws.TryDescribe(draw, out RoomBlockShape? chozoStatue))
             DrawShape(level, draw, origin, Installed(ChozoStatueVisuals, "Chozo statue").Image(draw), chozoStatue);
-            return;
-        }
         // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain, block number included.
-        if (CollectibleObjectDraws.TryGetBlockPairTerrain(draw, out RoomTerrainBlock blockPair))
-        {
+        else if (CollectibleObjectDraws.TryGetBlockPairTerrain(draw, out RoomTerrainBlock blockPair))
             DrawTerrainAt(level, draw, origin, blockPair);
-            return;
-        }
-        if (CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType collectible))
-        {
-            DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible);
-            return;
-        }
-        if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
-        {
-            // All five draws are a single block at the room-object origin. The terrain retains Grapple/air collision
-            // independently of art.
-            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Collision);
-            return;
-        }
-
-        throw new InvalidDataException($"Room-object draw {draw} has no compiled definition.");
-    }
-
-    /// <summary>
-    /// Writes each run of a reveal or wall frame from where the run starts: each cell collides as the frame's geometry says
-    /// and shows what the frame's installed <paramref name="image"/> shows there (#1557).
-    /// </summary>
-    private static void DrawRevealOrWall(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin,
-        RoomObjectFrameImage image)
-    {
-        foreach (RoomObjectShotBlockDrawDefinitions.Run run in definition.Runs.Span)
-            for (int offset = 0; offset < run.Count; offset++)
-                DrawImageCell(level, definition.Draw, origin, image, run.CellAt(offset), run.Collisions.Span[offset]);
+        else if (CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType collectible))
+            DrawShape(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), RoomBlockShapes.Block(collectible));
+        // All five Grapple-block draws are one block at the object's block; the terrain keeps Grapple or air collision
+        // whatever the art shows.
+        else if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
+            DrawShape(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), RoomBlockShapes.Block(grapple.Collision));
+        else
+            throw new InvalidDataException($"Room-object draw {draw} has no compiled definition.");
     }
 
     /// <summary>Writes a draw's terrain at <paramref name="block"/>, which must be a block a room object can reach.</summary>

@@ -374,8 +374,9 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Runs one source-room alignment call at the start of a door transition. Horizontal doors move the
-    /// camera's Y toward the nearest screen boundary; vertical doors move X. The offset from the boundary, read as
-    /// -128 through 127, deliberately takes -1 to 0 and 1 to 0 in one-pixel steps.
+    /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per call: a camera past the middle
+    /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
+    /// the boundary reaches it in one step.
     /// </summary>
     /// <returns>True only when the camera already lay on that screen boundary on entry.</returns>
     public bool AlignPendingDoorCameraOnePixel()
@@ -694,7 +695,7 @@ internal sealed class RoomLoader
 
         RoomLevelData sourceLevel = _room.LevelData;
         DoorDefinition door = sourceLevel.PendingDoorTransition
-            ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
+            ?? throw new InvalidOperationException("No door block's collision has chosen a door to go through.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
@@ -875,9 +876,9 @@ internal sealed class RoomLoader
         // then draw over (#1349, #1467); every other room shows none (#1649).
         scope.Floor = assets.CreateFloor();
 
-        // Loading the FX definition selects the door-specific record, applies its palette
-        // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
-        // effect and block animation state before colour effects and enemies begin running.
+        // Loading the room's effect chooses the entering door's own effect where it has one, applies its colour blend,
+        // chooses the picture its overlay shows, and creates its distortion and block animation state before colour
+        // effects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
@@ -896,10 +897,10 @@ internal sealed class RoomLoader
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
-        // Loading reads the FX definition after room setup and before enemies. Its selected
-        // record names two independent effect lists. The palette half must
-        // be created on every shared room-load path; Landing Site's lightning replaces the
-        // colors used by the scrolling-sky horizon on the first gameplay update.
+        // Loading reads the room's effect after room setup and before enemies. The chosen effect names two independent
+        // lists, its overlay's effects and its colour effects. The colour effects must be created on every shared
+        // room-load path; Landing Site's lightning replaces the colours the scrolling sky's horizon shows on the first
+        // gameplay update.
         var roomColourEffects = ColourEffectSystem.ForRoom(
             _colourEffectSession,
             room.State.Fx,
@@ -930,12 +931,10 @@ internal sealed class RoomLoader
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
 
-        // The room-object loader walks this list once. Each record allocates
-        // the highest free one of forty IDs before its setup executes. Immediate
-        // deletion can therefore free that same ID for the next authored record, and enemy code
-        // can observe the resulting physical identity/argument ordering. All room families
-        // enter through this one parser; an unsupported definition throws with complete record
-        // context instead of being skipped by a collection of sibling scans.
+        // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
+        // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the
+        // next placement, and enemies can observe which room object holds which place. Every room-object family enters
+        // through this one loader; an unsupported placement throws, naming it, instead of being skipped.
         // The room's room-object system is built with its bindings, then one set of runtime services
         // serves the room's room objects and enemies.
         var progress = new RoomAreaProgress(_system, room.Area);
@@ -1153,17 +1152,14 @@ internal sealed class RoomLoader
         _player.Samus.LiquidPhysics.Room = _room.ActiveRoom.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
-        // The Ceres elevator projectiles are spawned with enemy graphics and thus briefly seed both objects
-        // from enemy slot zero. Their shared initializer, however, runs
-        // before the first draw and explicitly clears that graphics index. The specialized
-        // arrival model owns that post-initialization value; passing the transient
-        // enemy graphics index here previously recolored the level-data concealer teal.
+        // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
+        // the room's own colours.
         _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
         // The locked Ceres start's frame still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
-        // the real area-six room coordinate now; subsequent normal frames keep updating it.
+        // Ceres's real room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
 

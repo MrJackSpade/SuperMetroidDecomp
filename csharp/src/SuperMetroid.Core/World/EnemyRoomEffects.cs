@@ -25,7 +25,7 @@ internal sealed class EnemyRoomEffects
     private readonly EscapeTimer _escapeTimer;
     /// <summary>Supplies Samus equipment and ends the drained get-up when the escape countdown starts.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Provides active level, area, FX record, and room scroll state.</summary>
+    /// <summary>Provides the active level, area, room effect and room scroll state.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Records defeated bosses and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;

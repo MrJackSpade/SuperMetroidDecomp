@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// that share a level (a room's event and boss states) name the same member. Each level is named for the room of the
 /// first state that uses it, in the room-state catalogs' order.
 /// </summary>
-[NumberedIdentities("Each numbered level is a different room's, numbered as the room is (the Metroid rooms, the Tourian escape rooms, the grapple tutorial rooms), or a room's own state number where its states load different levels; no caller indexes them.")]
+[NumberedIdentities("Each numbered level is a different room's, numbered as the room's own name is (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes them.")]
 public static class RoomLevelDefinitions
 {
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LandingSiteDefault"/> uses first.</summary>
@@ -739,8 +739,8 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.DeadScientistDefault"/> uses first.</summary>
     public static RoomLevelId DeadScientist { get; } = new(nameof(DeadScientist));
 
-    /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.Room58EscapeDefault"/> uses first.</summary>
-    public static RoomLevelId Room58Escape { get; } = new(nameof(Room58Escape));
+    /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.CeresRidleyHallwayDefault"/> uses first.</summary>
+    public static RoomLevelId CeresRidleyHallway { get; } = new(nameof(CeresRidleyHallway));
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.CeresRidleyDefault"/> uses first.</summary>
     public static RoomLevelId CeresRidley { get; } = new(nameof(CeresRidley));

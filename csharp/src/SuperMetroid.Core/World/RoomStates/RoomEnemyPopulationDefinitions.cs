@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Application-owned ordered enemy placements selected by all retail room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The 302 lists and 1,658 records are the populations the 323 compiled room states select. Record order governs
+/// The 301 populations and their 1,658 placements are the ones the 322 retail room states select. Placement order governs
 /// linked slot allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
 /// not an editable visual asset.
 /// </remarks>
-[NumberedIdentities("Each numbered member is the enemy population of one numbered room or room state, named for it; no caller indexes the populations by number.")]
+[NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
     /// <summary>Retail populations in their authored list order, checked complete before gameplay can use them.</summary>
@@ -23,9 +23,9 @@ public static class RoomEnemyPopulationDefinitions
         ..CeresRoomEnemyPopulationDefinitions.Build(),
     ], ListCount, PlacementCount);
 
-    /// <summary>Number of distinct populations selected by the compiled retail room states, including empty lists.</summary>
+    /// <summary>Number of distinct populations the retail room states select, empty ones included.</summary>
     public const int ListCount = 301;
-    /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
+    /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
     public const int PlacementCount = 1658;
 
     /// <summary>Each retail population by name.</summary>
@@ -49,13 +49,13 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Parlor room once Zebes is awake.</summary>
     public static RoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = Find(nameof(ParlorWhenZebesAwake));
     /// <summary>The enemy population of the Flyway room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition Flyway01 { get; } = Find(nameof(Flyway01));
+    public static RoomEnemyPopulationDefinition FlywayBeforeTimebomb { get; } = Find(nameof(FlywayBeforeTimebomb));
     /// <summary>The enemy population of the Pit room once Samus has the Morph Ball and Missiles.</summary>
     public static RoomEnemyPopulationDefinition PitWithMorphBallAndMissiles { get; } = Find(nameof(PitWithMorphBallAndMissiles));
     /// <summary>The enemy population of the Gauntlet Entrance room.</summary>
     public static RoomEnemyPopulationDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
     /// <summary>The enemy population of the Bomb Torizo room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition BombTorizo01 { get; } = Find(nameof(BombTorizo01));
+    public static RoomEnemyPopulationDefinition BombTorizoBeforeTimebomb { get; } = Find(nameof(BombTorizoBeforeTimebomb));
     /// <summary>The enemy population of the Green Pirates Shaft room.</summary>
     public static RoomEnemyPopulationDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
     /// <summary>The enemy population of the Green Brinstar Elevator room.</summary>
@@ -81,7 +81,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Parlor room in its default state.</summary>
     public static RoomEnemyPopulationDefinition ParlorDefault { get; } = Find(nameof(ParlorDefault));
     /// <summary>The enemy population of the Landing Site room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition LandingSite012 { get; } = Find(nameof(LandingSite012));
+    public static RoomEnemyPopulationDefinition LandingSiteBeforeTimebomb { get; } = Find(nameof(LandingSiteBeforeTimebomb));
     /// <summary>The enemy population of the Crateria Super room.</summary>
     public static RoomEnemyPopulationDefinition CrateriaSuper { get; } = Find(nameof(CrateriaSuper));
     /// <summary>The enemy population of the Pre Bowling room.</summary>
@@ -576,8 +576,8 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
     /// <summary>The enemy population of the Big Boy room.</summary>
     public static RoomEnemyPopulationDefinition BigBoy { get; } = Find(nameof(BigBoy));
-    /// <summary>The enemy population of the Mother Brain room in its first two states.</summary>
-    public static RoomEnemyPopulationDefinition MotherBrain01 { get; } = Find(nameof(MotherBrain01));
+    /// <summary>The enemy population of the Mother Brain room until she is defeated.</summary>
+    public static RoomEnemyPopulationDefinition MotherBrainBeforeDefeat { get; } = Find(nameof(MotherBrainBeforeDefeat));
     /// <summary>The enemy population of the Tourian Eye Door room.</summary>
     public static RoomEnemyPopulationDefinition TourianEyeDoor { get; } = Find(nameof(TourianEyeDoor));
     /// <summary>The enemy population of the Blue Hopper room.</summary>
@@ -620,8 +620,8 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition MagnetStairsDefault { get; } = Find(nameof(MagnetStairsDefault));
     /// <summary>The enemy population of the Dead Scientist room in its default state.</summary>
     public static RoomEnemyPopulationDefinition DeadScientistDefault { get; } = Find(nameof(DeadScientistDefault));
-    /// <summary>The enemy population of the Room 58 Escape in its default state.</summary>
-    public static RoomEnemyPopulationDefinition Room58EscapeDefault { get; } = Find(nameof(Room58EscapeDefault));
+    /// <summary>The enemy population of the Ceres Ridley hallway in its default state.</summary>
+    public static RoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = Find(nameof(CeresRidleyHallwayDefault));
     /// <summary>The enemy population of the Ceres Ridley room in its default state.</summary>
     public static RoomEnemyPopulationDefinition CeresRidleyDefault { get; } = Find(nameof(CeresRidleyDefault));
     /// <summary>The enemy population of the Ceres Elevator room once the area's boss is dead.</summary>
@@ -632,8 +632,8 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead { get; } = Find(nameof(MagnetStairsWhenAreaBossDead));
     /// <summary>The enemy population of the Dead Scientist room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = Find(nameof(DeadScientistWhenAreaBossDead));
-    /// <summary>The enemy population of the Room 58 Escape once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition Room58EscapeWhenAreaBossDead { get; } = Find(nameof(Room58EscapeWhenAreaBossDead));
+    /// <summary>The enemy population of the Ceres Ridley hallway once the area's boss is dead.</summary>
+    public static RoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = Find(nameof(CeresRidleyHallwayWhenAreaBossDead));
     /// <summary>The enemy population of the Ceres Ridley room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = Find(nameof(CeresRidleyWhenAreaBossDead));
 

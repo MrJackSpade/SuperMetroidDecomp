@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <remarks>
 /// Horizontal doors move the camera's Y toward the nearest screen boundary; vertical doors
-/// move its X. The offset from that boundary, read as -128 through 127, deliberately approaches
-/// zero through either 1 to 0 or -1 to 0. Completion is reported only by the
-/// following call that observes an already aligned coordinate.
+/// move its X, one pixel per call: a camera past the middle of its screen moves on to the next screen's edge and one
+/// before it back to its own. Completion is reported only by the following call that observes an already aligned
+/// coordinate.
 /// </remarks>
 [IndependentFlag("whether the camera alignment completed, a fact of the step")]
 internal readonly record struct DoorCameraAlignmentState(

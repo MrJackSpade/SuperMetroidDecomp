@@ -34,13 +34,19 @@ public static class RoomObjectDownwardGateVisualFiles
     }
 
     /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = DownwardGateObjectDraws.TryDescribe(request, out DownwardGateObjectDraws.Draw draw);
+        // The column is written as one five-block column, a right trigger as one row of two, and a left trigger as its
+        // block then the trigger left of it (#1862).
         list = found
-            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.CollisionAt,
-
-                _ => draw.Column ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.Start)
+            ? RoomObjectShapeRun.DrawList(request, draw.Blocks, draw.Part switch
+            {
+                DownwardGatePart.Column => [RoomObjectShapeRun.Column(new(0, 0), 5)],
+                DownwardGatePart.RightTrigger => [RoomObjectShapeRun.Row(new(0, 0), 2)],
+                DownwardGatePart.LeftTrigger => [RoomObjectShapeRun.Row(new(0, 0), 1), RoomObjectShapeRun.Row(new(-1, 0), 1)],
+                _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGatePart)} {draw.Part}."),
+            })
             : default;
         return found;
     }
@@ -53,11 +59,11 @@ public static class RoomObjectDownwardGateVisualFiles
         if (draw.Column) return $"column-frame-{draw.Frame}";
         // Keep published artwork IDs: the historic green/red names differ from order.
         string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
-        return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
+        return $"{color}-{(draw.Part == DownwardGatePart.RightTrigger ? "right" : "left")}-trigger";
     }
 
     /// <summary>Builds every column and trigger draw list from its calculated shape.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

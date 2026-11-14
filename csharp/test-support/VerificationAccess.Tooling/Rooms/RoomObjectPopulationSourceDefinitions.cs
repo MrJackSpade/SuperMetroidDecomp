@@ -289,7 +289,7 @@ internal static class RoomObjectPopulationSourceDefinitions
         [0xc8bd] = RoomObjectPopulationDefinitions.FallingTile,
         [0xc8bf] = RoomObjectPopulationDefinitions.MagnetStairs,
         [0xc8c1] = RoomObjectPopulationDefinitions.DeadScientist,
-        [0xc8c3] = RoomObjectPopulationDefinitions.Room58Escape,
+        [0xc8c3] = RoomObjectPopulationDefinitions.CeresRidleyHallway,
         [0xc8c5] = RoomObjectPopulationDefinitions.CeresRidley,
     };
 }

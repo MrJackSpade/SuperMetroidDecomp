@@ -88,9 +88,9 @@ internal sealed class EnemyDrawList
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
             // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
-            // room's background displacement. Ceres quake types 18 and above reload ShakeTimer for
-            // every active enemy, which is why its door sprites visibly move
-            // with the station instead of remaining pinned to host screen space.
+            // room's background displacement. An earthquake that shakes the enemies, as Ceres's does
+            // (EarthquakeShake.ShakesEnemies), reloads ShakeTimer for every active enemy, which is why its door sprites
+            // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && slot.ShakeTimer != 0)
             {
                 origin = origin.WithX(CoordinateAxis.Wrap(origin.X +
@@ -194,9 +194,9 @@ internal sealed class EnemyDrawList
         if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawShading() is { } owned)
             return owned;
 
-        // A hit flash shows the common sprite colours on alternate phases. The flash selects another row for the draw, so
-        // it lies over the enemy's own shading: pixels it moves show the selected row, and pixels whose row the selection
-        // leaves as it is keep showing what the enemy's own effects laid there.
+        // A hit flash shows the common hurt colours on alternate phases. The flash shades the draw over the enemy's own
+        // shading: the colours it changes show the flash, and the colours it leaves as they are keep showing what the
+        // enemy's own effects laid there.
         if (slot.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter))
             return slot.Shading.With(EnemyShades.HurtFlash);
 

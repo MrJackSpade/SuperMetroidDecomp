@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy mosaic, and Wrecked Ship's power returning.</summary>
+/// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy pixelation, and Wrecked Ship's power returning.</summary>
 [RoomLifetime]
 internal sealed class PhantoonDeath
 {
@@ -108,8 +108,8 @@ internal sealed class PhantoonDeath
             state.BodyState.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
 
-    /// <summary>Starts the distorted background and mosaic stages after the fatal swoop.</summary>
-    internal void BeginPhantoonWavyMosaicDeath(
+    /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
+    internal void BeginPhantoonWavyPixelatedDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
@@ -119,9 +119,9 @@ internal sealed class PhantoonDeath
         state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
         state.BodyState.Phase = PhantoonPhase.DyingFadeOut;
-        state.EyeState.DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
-        state.EyeState.DeathMosaicFinished = false;
-        state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
+        state.EyeState.DeathPixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
+        state.EyeState.DeathPixelationFinished = false;
+        state.PixelationBlockSize = PhantoonDeathDefinitions.InitialPixelationSize;
 
         // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as the death step does.
@@ -140,8 +140,8 @@ internal sealed class PhantoonDeath
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DyingCry);
     }
 
-    /// <summary>Advances death-wave and mosaic counters before room activation.</summary>
-    internal void RunPhantoonWavyMosaicDeath(
+    /// <summary>Advances death-wave and pixelation counters before room activation.</summary>
+    internal void RunPhantoonWavyPixelatedDeath(
         PhantoonEnemyState state)
     {
         PhantoonPresentation.AdvancePhantoonWaveAmplitude(
@@ -150,20 +150,20 @@ internal sealed class PhantoonDeath
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
         PhantoonEyeState eyePart = state.EyeState;
-        if (!eyePart.DeathMosaicFinished)
+        if (!eyePart.DeathPixelationFinished)
         {
-            if (!PhantoonCadenceDefinitions.DeathMosaicGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
+            if (!PhantoonCadenceDefinitions.DeathPixelationGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
                 return;
 
-            if (eyePart.DeathMosaicSize == PhantoonDeathDefinitions.FinalMosaicSize)
+            if (eyePart.DeathPixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
             {
-                eyePart.DeathMosaicFinished = true;
+                eyePart.DeathPixelationFinished = true;
                 eyePart.FadeComplete = false;
                 return;
             }
 
-            eyePart.DeathMosaicSize++;
-            state.MosaicBlockSize = eyePart.DeathMosaicSize;
+            eyePart.DeathPixelationSize++;
+            state.PixelationBlockSize = eyePart.DeathPixelationSize;
             return;
         }
 
@@ -178,7 +178,7 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        state.MosaicBlockSize = 1;
+        state.PixelationBlockSize = 1;
         state.EyeState.WaveLength = null;
         state.Translucent = false;
         state.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;

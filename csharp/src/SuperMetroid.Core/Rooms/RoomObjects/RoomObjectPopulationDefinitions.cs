@@ -2358,8 +2358,8 @@ internal static class RoomObjectPopulationDefinitions
     [
     ]);
 
-    /// <summary>The Room58Escape room-object population.</summary>
-    public static RoomObjectPopulation Room58Escape { get; } = RoomObjectPopulation.FromPlacements(nameof(Room58Escape),
+    /// <summary>The Ceres Ridley hallway's room-object population.</summary>
+    public static RoomObjectPopulation CeresRidleyHallway { get; } = RoomObjectPopulation.FromPlacements(nameof(CeresRidleyHallway),
     [
     ]);
 

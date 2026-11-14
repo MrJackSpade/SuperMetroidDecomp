@@ -254,7 +254,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.FallingTile] = 0xCDBBFE,
         [RoomLevelDefinitions.MagnetStairs] = 0xCDBD78,
         [RoomLevelDefinitions.DeadScientist] = 0xCDBFC9,
-        [RoomLevelDefinitions.Room58Escape] = 0xCDC330,
+        [RoomLevelDefinitions.CeresRidleyHallway] = 0xCDC330,
         [RoomLevelDefinitions.CeresRidley] = 0xCDC43F,
     };
 }

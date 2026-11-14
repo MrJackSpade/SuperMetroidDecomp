@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Draw">The frame's draw.</param>
 /// <param name="Runs">The frame's runs in write order; the first starts at the origin.</param>
-internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectShotBlockDrawDefinitions.Run> Runs)
+internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectDrawLists.Run> Runs)
 {
     /// <summary>The layout of a frame whose runs are described one by one, each placed where it starts.</summary>
     /// <param name="draw">The frame's draw.</param>
@@ -28,7 +28,7 @@ internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadO
     /// <summary>The layout of a frame the game draws as <paramref name="list"/>: the same runs, directions, starts and collision.</summary>
     /// <param name="list">The frame's runs as the game draws them.</param>
     /// <exception cref="InvalidDataException">The frame has no run, or its first run does not start at its origin.</exception>
-    internal static RoomObjectFrameLayout Of(RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static RoomObjectFrameLayout Of(RoomObjectDrawLists.DrawList list)
     {
         if (list.Runs.Length < 1 || list.Runs.Span[0].Start != Offset16<RoomBlocks>.Zero)
             throw new InvalidDataException($"Frame {list.Draw} does not start its first run at its origin.");
@@ -39,7 +39,7 @@ internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadO
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the frame's runs.</exception>
     internal Offset16<RoomBlocks> NextStart(int run)
     {
-        ReadOnlySpan<RoomObjectShotBlockDrawDefinitions.Run> runs = Runs.Span;
+        ReadOnlySpan<RoomObjectDrawLists.Run> runs = Runs.Span;
         if ((uint)run >= (uint)runs.Length) throw new ArgumentOutOfRangeException(nameof(run));
         return run + 1 < runs.Length ? runs[run + 1].Start : Offset16<RoomBlocks>.Zero;
     }
@@ -48,7 +48,7 @@ internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadO
     internal HashSet<Offset16<RoomBlocks>> Cells()
     {
         var cells = new HashSet<Offset16<RoomBlocks>>();
-        foreach (RoomObjectShotBlockDrawDefinitions.Run run in Runs.Span)
+        foreach (RoomObjectDrawLists.Run run in Runs.Span)
             for (int cell = 0; cell < run.Count; cell++) cells.Add(run.CellAt(cell));
         return cells;
     }

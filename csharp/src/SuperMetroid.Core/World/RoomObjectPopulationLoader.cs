@@ -67,7 +67,7 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectKind objectKind = placement.Kind;
             if (DraygonCannonObjects.IsDraygonCannonKind(objectKind) != placement.Cannon.HasValue)
                 throw new InvalidDataException(
-                    $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must carry a cannon-control word exactly when it is a Draygon cannon.");
+                    $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must name the Draygon wall cannon it controls exactly when it is a Draygon cannon.");
             var placed = new PlacedRoomObject(
                 placementIndex, objectKind, placement.Block, placement.Argument);
 
@@ -240,7 +240,7 @@ internal sealed class RoomObjectPopulationLoader
         if (DraygonCannonObjects.SetupOf(objectKind) is { } cannonSetup)
         {
             DraygonCannonObjects.SetupDraygonCannonSlot(level, slot, cannonSetup, placement.Cannon
-                ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} carries no cannon-control word."));
+                ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} names no Draygon wall cannon."));
             return true;
         }
 

@@ -41,7 +41,7 @@ internal static class LookupBlueCapVerification
                 if (!owned)
                 {
                     AssertEqual(default(BlueDoorCaps.Draw), shape, "Blue cap missing descriptor");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Blue cap missing DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Blue cap missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap missing ID");
                 }
             }
@@ -69,15 +69,15 @@ internal static class LookupBlueCapVerification
                     AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.X(frame, 0), "Blue cap DTO final X");
                     AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(frame, 0), "Blue cap DTO final Y");
                 }
-                foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid), "Blue cap calculated row bounds");
+                // The cap's block shape is its four blocks in one line (#1862).
+                AssertEqual(4, shape.Blocks.Cells.Count, "Blue cap block shape covers its four blocks");
             }
             else for (int row = 0; row < 4; row++)
             {
                 RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
                 if (field == 1)
                 {
-                    AssertEqual(expected.Collision, shape.CollisionAt(row), "Blue cap original calculated collision");
+                    AssertEqual(expected.Collision, shape.Blocks.CollisionAt(dto.Runs.Span[0].CellAt(row)), "Blue cap original calculated collision");
                     AssertEqual(expected.Collision, dto.Runs.Span[0].Collisions.Span[row], "Blue cap original DTO collision");
                     AssertEqual(expected.Collision, exported[index].Runs.Span[0].Collisions.Span[row], "Blue cap original export collision");
                 }

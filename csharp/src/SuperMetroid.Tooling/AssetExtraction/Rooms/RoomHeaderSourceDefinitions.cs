@@ -267,7 +267,7 @@ internal static class RoomHeaderSourceDefinitions
         [0xdf8d] = RoomDefinitions.FallingTile,
         [0xdfd7] = RoomDefinitions.MagnetStairs,
         [0xe021] = RoomDefinitions.DeadScientist,
-        [0xe06b] = RoomDefinitions.Room58Escape,
+        [0xe06b] = RoomDefinitions.CeresRidleyHallway,
         [0xe0b5] = RoomDefinitions.CeresRidley,
     };
 }

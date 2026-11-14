@@ -53,7 +53,7 @@ internal static class SporeSpawnCeilingObjectsVerification
     /// </summary>
     private static void VerifySporeSpawnCeilingDrawMapping(CartridgeImportAddressSpace rom)
     {
-        RoomObjectShotBlockDrawDefinitions.DrawList[] draws =
+        RoomObjectDrawLists.DrawList[] draws =
             RoomObjectSporeSpawnCeilingVisualFiles.All.ToArray();
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
@@ -68,7 +68,7 @@ internal static class SporeSpawnCeilingObjectsVerification
             if (described is null)
             {
                 AssertTrue(index < 0, "Spore ceiling frame has a shape");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
+                AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
             RoomBlockShape shape = described;
@@ -87,12 +87,12 @@ internal static class SporeSpawnCeilingObjectsVerification
                 AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(place), "Spore ceiling installed picture");
             }
         }
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
+        foreach (RoomObjectDrawLists.DrawList draw in draws)
         {
             int cursor = RoomObjectDrawAddressCodec.Of(draw.Draw);
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
-                RoomObjectShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
+                RoomObjectDrawLists.Run run = draw.Runs.Span[runIndex];
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;

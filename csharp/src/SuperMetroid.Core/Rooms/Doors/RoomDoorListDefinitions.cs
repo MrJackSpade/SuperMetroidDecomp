@@ -268,7 +268,7 @@ public static class RoomDoorListDefinitions
         [RoomDefinitions.FallingTile] = [DoorListEntry.Physical(CeresDoorDefinitions.FallingTile0), DoorListEntry.Physical(CeresDoorDefinitions.FallingTile1)],
         [RoomDefinitions.MagnetStairs] = [DoorListEntry.Physical(CeresDoorDefinitions.MagnetStairs0), DoorListEntry.Physical(CeresDoorDefinitions.MagnetStairs1)],
         [RoomDefinitions.DeadScientist] = [DoorListEntry.Physical(CeresDoorDefinitions.DeadScientist0), DoorListEntry.Physical(CeresDoorDefinitions.DeadScientist1)],
-        [RoomDefinitions.Room58Escape] = [DoorListEntry.Physical(CeresDoorDefinitions.Room58Escape0), DoorListEntry.Physical(CeresDoorDefinitions.Room58Escape1)],
+        [RoomDefinitions.CeresRidleyHallway] = [DoorListEntry.Physical(CeresDoorDefinitions.CeresRidleyHallway0), DoorListEntry.Physical(CeresDoorDefinitions.CeresRidleyHallway1)],
         [RoomDefinitions.CeresRidley] = [DoorListEntry.Physical(CeresDoorDefinitions.CeresRidley)],
     };
 }

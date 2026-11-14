@@ -19,7 +19,7 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientistDefault), [
             new(EnemyDefinitionId.CeresDoor),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Room58EscapeDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayDefault), [
             new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault), [
@@ -38,7 +38,7 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientistWhenAreaBossDead), [
             new(EnemyDefinitionId.CeresDoor),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Room58EscapeWhenAreaBossDead), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayWhenAreaBossDead), [
             new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyWhenAreaBossDead), [

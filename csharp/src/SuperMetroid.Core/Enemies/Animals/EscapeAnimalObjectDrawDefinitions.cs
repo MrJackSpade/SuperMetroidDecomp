@@ -4,19 +4,23 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The rescue walls' geometry: three-cell vertical columns. What each frame shows is its installed picture (#1557).
+/// The rescue walls' block shapes (#1862): solid three-block columns down from the wall's top block. What each frame shows
+/// is its installed picture (#1557).
 /// </summary>
 internal static class EscapeAnimalObjectDrawDefinitions
 {
-    /// <summary>How every cell of each of the four rescue-wall draws collides, repeated down its three-cell column.</summary>
-    internal static readonly Dictionary<EscapeAnimalDraw, RoomCollisionType> Collisions = new()
-    {
-        [EscapeAnimalDraw.Cracking] = RoomCollisionType.SolidBlock,
-        [EscapeAnimalDraw.Breaking] = RoomCollisionType.SolidBlock,
-        [EscapeAnimalDraw.Crumbling] = RoomCollisionType.SolidBlock,
-        [EscapeAnimalDraw.Blank] = RoomCollisionType.SolidBlock,
-    };
+    /// <summary>A solid wall three blocks tall down from its top block.</summary>
+    private static readonly RoomBlockShape SolidWall = new(
+    [
+        new(new(0, 0), RoomCollisionType.SolidBlock), new(new(0, 1), RoomCollisionType.SolidBlock), new(new(0, 2), RoomCollisionType.SolidBlock),
+    ]);
 
-    /// <summary>The blocks in each rescue-wall column.</summary>
-    internal const int WallHeight = 3;
+    /// <summary>The block shape each of the four rescue-wall draws draws: every frame keeps the wall solid.</summary>
+    internal static readonly Dictionary<EscapeAnimalDraw, RoomBlockShape> Shapes = new()
+    {
+        [EscapeAnimalDraw.Cracking] = SolidWall,
+        [EscapeAnimalDraw.Breaking] = SolidWall,
+        [EscapeAnimalDraw.Crumbling] = SolidWall,
+        [EscapeAnimalDraw.Blank] = SolidWall,
+    };
 }

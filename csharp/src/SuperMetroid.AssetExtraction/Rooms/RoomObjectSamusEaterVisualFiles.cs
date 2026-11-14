@@ -44,20 +44,26 @@ public static class RoomObjectSamusEaterVisualFiles
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
 
-    /// <summary>Builds the three runs of a supported plant draw from its phase and orientation.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    /// <summary>
+    /// The draw list of a plant draw (#1862): its block shape written as the right half of the mouth, its left half two
+    /// blocks left, and the four-wide foliage below those for a floor plant or above them for a ceiling one.
+    /// </summary>
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = SamusEaterObjectDraws.TryDescribe(request, out SamusEaterObjectDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Strips(request, SamusEaterObjectDraws.Draw.RunCount, SamusEaterObjectDraws.Draw.Count,
-                draw.CollisionAt, draw.Start)
-
-            : default;
-        return found;
+        if (!SamusEaterObjectDraws.TryDescribe(request, out RoomBlockShape? shape))
+        {
+            list = default;
+            return false;
+        }
+        bool ceiling = RoomObjectDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater") is SamusEaterDraw.CeilingIdle
+            or SamusEaterDraw.CeilingChew1 or SamusEaterDraw.CeilingChew2 or SamusEaterDraw.CeilingChew3;
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-2, 0), 2),
+            RoomObjectShapeRun.Row(new(-2, ceiling ? 1 : -1), 4));
+        return true;
     }
 
     /// <summary>Builds the eight plant layouts' draw lists.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

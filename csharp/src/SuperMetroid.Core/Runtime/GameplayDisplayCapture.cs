@@ -87,8 +87,8 @@ public static class GameplayDisplayCapture
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
-        // A boss's body (Kraid's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where it lies in the room
-        // against the frame's camera (#1617, #1802): the background shows its body's area from there, moved by the room's
+        // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where it lies in
+        // the room against the frame's camera (#1617, #1802, #1858): the background shows its body's area from there, moved by the room's
         // shake as any background is. Only a room without a placed body shows the background where its own scroll puts it.
         Position16<RoomPixels> camera = scrolls.ForegroundPosition;
         Position16<RoomPixels>? bodyOrigin = bosses.BodyOrigin;
@@ -123,9 +123,9 @@ public static class GameplayDisplayCapture
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedLayers),
-            BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
+            BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
-        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;
+        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave, camera) : lavaX ?? waterX ?? (LineScroll?)skyX;
         // Crocomire's melt owns the background's vertical scroll while it sags his body; otherwise lava's does.
         LineScroll? backgroundVertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : lavaY;
         // A sky room shows the sky's rows on the background (#1347); a boss shows its body layer there while it owns it (#1352,

@@ -38,7 +38,7 @@ public static class RoomObjectChozoStatueVisualFiles
     }
 
     /// <summary>The draw lists of the three statue draws.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -55,7 +55,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// colliding as the game's block shape for the frame says (#1622). The run form is the cartridge's; the game draws
     /// the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!ChozoStatueDraws.TryDescribe(request, out RoomBlockShape? described))
         {

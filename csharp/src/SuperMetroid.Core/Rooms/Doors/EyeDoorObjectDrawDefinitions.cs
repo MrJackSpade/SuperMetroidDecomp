@@ -28,7 +28,7 @@ internal static class EyeDoorObjectDrawDefinitions
         };
 
     /// <summary>
-    /// How the cells of each eye-door draw collide, in authored run order: the four-block clear, the two-block eye and the
+    /// How the blocks of each eye-door draw collide, from its first block down its column or along its row: the four-block clear, the two-block eye and the
     /// one-block middle and bottom. Of the eye's closed, opening, vulnerable, hit-flash and open-but-solid frames, only
     /// the vulnerable frame is shootable.
     /// </summary>

@@ -15,16 +15,16 @@ internal static class TourianAccessObjectDrawDefinitionsConstants
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
-    /// <summary>The rows of <paramref name="request"/> when it is a Tourian access draw.</summary>
+    /// <summary>The rows the block shape of <paramref name="request"/> covers when it is a Tourian access draw.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out int rows)
     {
-        bool found = RoomObjectDraw.TryFrame(request, out TourianAccessDraw frame);
-        rows = found ? TourianAccessDraws.Rows(frame) : 0;
+        bool found = TourianAccessDraws.TryDescribe(request, out RoomBlockShape? shape);
+        rows = found && shape is not null ? shape.Cells.Select(cell => cell.Cell.Y).Distinct().Count() : 0;
         return found;
     }
 
     /// <summary>The four-air-cell runs of <paramref name="request"/> when it is a Tourian access draw, including all six rows of the final clear.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDraw.TryFrame(request, out TourianAccessDraw frame);
         list = found ? RoomObjectTourianAccessVisualFiles.Compile(frame) : default;

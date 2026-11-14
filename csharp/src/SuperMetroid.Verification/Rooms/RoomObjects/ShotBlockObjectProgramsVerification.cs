@@ -115,18 +115,17 @@ internal static class ShotBlockObjectProgramsVerification
             "interleaved draw-list pointers are not misclassified as control words");
 
         int drawListCount = 0;
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
+        foreach (RoomObjectDrawLists.DrawList list in
                  RoomObjectShotBlockVisualFiles.All)
         {
             AssertTrue(list.Draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw>, "shot-block calculated draw exists");
             var calculated = RoomObjectDraw.FrameOf<ShotBlockObjectDraws.Draw>(list.Draw, "shot-block");
-            AssertEqual(list.Runs.Length, calculated.RunCount, "shot-block calculated run count");
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
             int runIndex = 0;
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            foreach (RoomObjectDrawLists.Run run in list.Runs.Span)
             {
-                AssertEqual(run.Count, calculated.BlocksPerRun, "shot-block calculated run width");
-                AssertEqual(run.Direction == RoomObjectRunDirection.Vertical, calculated.Vertical, "shot-block calculated direction");
+                AssertEqual(run.Direction == RoomObjectRunDirection.Vertical,
+                    calculated.Layout == RoomObjectShotBlockDrawDefinitions.Shape.Vertical, "shot-block arrangement's direction");
                 int blockIndex = 0;
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
@@ -135,7 +134,7 @@ internal static class ShotBlockObjectProgramsVerification
                 // What each cell shows is the installed picture, which the shot-block picture check compares with the cartridge.
                 foreach (RoomCollisionType collision in run.Collisions.Span)
                 {
-                    AssertEqual(collision, calculated.CollisionAt(runIndex, blockIndex++), "shot-block direct and exported collision agree");
+                    AssertEqual(collision, calculated.Blocks.CollisionAt(run.CellAt(blockIndex++)), "shot-block block shape and exported collision agree");
                     AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                         collision,
                         $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} collision decoded from the level word at ${cursor:X4}");
@@ -152,13 +151,10 @@ internal static class ShotBlockObjectProgramsVerification
                 runIndex++;
             }
 
-            foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(invalid, 0), "shot-block invalid run");
-                AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(0, invalid), "shot-block invalid block");
-            }
-            AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(calculated.RunCount, 0), "shot-block run upper bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(0, calculated.BlocksPerRun), "shot-block word upper bound");
+            // The block shape covers exactly the cells the cartridge writes (#1862).
+            int written = 0;
+            foreach (RoomObjectDrawLists.Run writtenRun in list.Runs.Span) written += writtenRun.Count;
+            AssertEqual(written, calculated.Blocks.Cells.Count, "shot-block block shape covers every written cell");
 
             drawListCount++;
         }

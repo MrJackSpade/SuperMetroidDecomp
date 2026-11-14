@@ -1,9 +1,10 @@
-﻿
+﻿using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="EnemyExtendedFrameDefinitions"/> that only verification reads.</summary>
+/// <summary>Places in the <see cref="EnemyExtendedFrameDefinitions"/> document that only verification reads.</summary>
 internal static class EnemyExtendedFrameDefinitionsConstants
 {
-    /// <summary>Legacy prefix before Ceres steam extended frames were added.</summary>
-    internal const int PreCeresSteamFrameCount = 202;
+    /// <summary>Frames the document lists before the Ceres steam extended frames.</summary>
+    internal static int PreCeresSteamFrameCount => EnemyExtendedFrameToolingDefinitions.FramesBefore(EnemyFrameId.CeresSteamUp);
 }

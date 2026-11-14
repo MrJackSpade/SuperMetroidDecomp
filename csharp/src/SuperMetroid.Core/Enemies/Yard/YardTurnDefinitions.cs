@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardTurnDefinitions
 {
     /// <summary>
-    /// The turn records the movement dispatcher uses for each crawling
+    /// The turn records the movement step uses for each crawling
     /// state. Ordinary turns look seven pixels along motion.
     /// </summary>
     internal static readonly Dictionary<YardMovement, YardTurnDefinition> Turns = new()

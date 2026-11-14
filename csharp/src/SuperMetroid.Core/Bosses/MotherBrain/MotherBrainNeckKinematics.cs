@@ -28,7 +28,7 @@ internal static class MotherBrainNeckKinematics
     /// Advances the lower and upper neck angles through bobbing or one-way raise/lower movement, each turning by
     /// <paramref name="angleDelta"/> 256ths of a step an update.
     /// </summary>
-    /// <remarks>The upper dispatcher runs second and observes the lower angle and movement state changed in the same frame.</remarks>
+    /// <remarks>The upper step runs second and observes the lower angle and movement state changed in the same frame.</remarks>
     internal static void StepAngles(
         ref RotationAngle lowerAngle,
         ref RotationAngle upperAngle,
@@ -96,7 +96,7 @@ internal static class MotherBrainNeckKinematics
                     $"Unsupported lower-neck movement {lowerMovement}.");
         }
 
-        // Runs the upper dispatcher after the lower dispatcher, so it observes the
+        // Runs the upper step after the lower step, so it observes the
         // lower angle and movement-index mutations made immediately above on this frame.
         switch (upperMovement)
         {

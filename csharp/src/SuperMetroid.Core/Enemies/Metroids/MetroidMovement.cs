@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 public enum MetroidMovement
 {
-    /// <summary>Chases Samus: proportional 16.16 attraction toward Samus's X and eight pixels above her Y, capped at three pixels per update.</summary>
+    /// <summary>Chases Samus: proportional 1/65536-pixel attraction toward Samus's X and eight pixels above her Y, capped at three pixels per update.</summary>
     Homing = 0,
     /// <summary>Latches onto Samus: fixed-step close-range seeking entered on touch before the attachment threshold is reached.</summary>
     ClosingOnSamus = 1,

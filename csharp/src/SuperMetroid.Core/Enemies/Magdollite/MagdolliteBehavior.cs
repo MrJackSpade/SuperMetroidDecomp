@@ -478,7 +478,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds a signed 16.16 Y velocity, carrying the fraction into the whole, and returns the whole-pixel move it made
+    /// Adds a signed 1/65536-pixel Y velocity, carrying the fraction into the whole, and returns the whole-pixel move it made
     /// (only Y is meaningful).
     /// </summary>
     private static Offset16<RoomPixels> AddMagdolliteY(

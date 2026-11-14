@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// What a shootable block or shootable air does with its behaviour (#1722, #1742): the reaction the shot, bomb and grapple
-/// dispatchers select. Its values are arbitrary; a behaviour written for another collision kind is read as one of these
+/// responses select. Its values are arbitrary; a behaviour written for another collision kind is read as one of these
 /// through <see cref="RoomBlockBehavior"/>, or as none when the shootable kinds have no reaction for it.
 /// </summary>
 public enum ShootableReaction

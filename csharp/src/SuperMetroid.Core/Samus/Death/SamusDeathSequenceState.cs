@@ -87,7 +87,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Death entry publishes history itself, before overriding the starting
-        // animation frame; the ordinary gameplay pose dispatcher is not running.
+        // animation frame; the ordinary gameplay pose step is not running.
         samus.CommitPoseHistory();
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
 

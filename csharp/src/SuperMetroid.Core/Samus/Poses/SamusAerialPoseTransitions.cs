@@ -288,7 +288,7 @@ internal static class SamusAerialPoseTransitions
         if (level is not null)
         {
             // The accepted wall contact still passes through the ordinary changed-pose
-            // collision dispatcher. Expanding a compact spin body beneath a ceiling can
+            // collision check. Expanding a compact spin body beneath a ceiling can
             // move the center away from it, reject the expansion, or select crouch.
             LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
@@ -934,7 +934,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
-    /// falling type six without replacing the live 16.16 velocities. The horizontal
+    /// falling type six without replacing the live 1/65536-pixel velocities. The horizontal
     /// gun-extended jumping and falling records use this same initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>
@@ -950,7 +950,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
         if (!SamusPoseMetadata.IsSameFacingAerialAimFireOrForwardTransition(samus.Pose, targetPose))
         {
-            // This helper models one same-facing pose family, not the general pose dispatcher.
+            // This helper models one same-facing pose family, not the general pose step.
             // A cross-family request therefore violates the method contract rather than
             // identifying an unsupported member of the admitted family.
             throw new InvalidOperationException(

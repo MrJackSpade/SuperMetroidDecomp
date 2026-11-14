@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
 /// Values of the elevator status consumed by the four-entry elevator
-/// dispatcher. The value is global because it survives the room transition between the
+/// phases. The value is global because it survives the room transition between the
 /// departing and arriving elevator actors.
 /// </summary>
 public enum ElevatorActorStatus

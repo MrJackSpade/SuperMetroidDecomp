@@ -95,14 +95,14 @@ public sealed class SamusKinematicsState
     public IReadOnlyList<ISolidEnemy?> SolidEnemyContacts => _solidEnemyContacts;
 
     /// <summary>
-    /// Room-pixel 16.16 position.
+    /// Room position in 1/65536 pixels.
     /// Collision deliberately overwrites individual halves (a right wall sets the X
     /// subposition to 65535), which the per-half operations preserve.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// External signed 16.16 displacement.
+    /// External signed 1/65536-pixel displacement.
     /// Enemy/room-object producers write it independently of Samus's own speeds;
     /// it persists until its producer clears it, and Samus's movement neither consumes nor zeroes it.
     /// </summary>

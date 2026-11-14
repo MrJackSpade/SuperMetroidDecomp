@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// their shared water/lava table selection.
 /// </summary>
 /// <remarks>
-/// This deliberately retains the game's split 16.16 magnitudes and separate vertical
+/// This deliberately retains the game's split 1/65536-pixel magnitudes and separate vertical
 /// direction. It does not use floating point, host elapsed time, or a guessed gravity
 /// curve. Solid enemies stop Samus through the shared block collision, and the displacement enemies and blocks
 /// add to her is the shared extra displacement. Ordinary
@@ -182,7 +182,7 @@ public static class SamusAerialMovement
 
         // Runs this before ordinary spin movement. Space Jump is not a
         // generic double-jump: it only accepts a fresh Jump edge while descending and
-        // while the split Y magnitude lies inside the game's dry-air 8.8 window.
+        // while the split Y magnitude lies inside the game's dry-air 1/256-pixel window.
         bool fullySubmergedWithoutGravity =
             !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             samus.LiquidPhysics.IsTopBoundarySubmerged(samus);
@@ -787,7 +787,7 @@ public static class SamusAerialMovement
             return false;
         }
 
-        // The window reads the falling speed as an 8.8 velocity without rounding, its whole pixels taken within
+        // The window reads the falling speed as a 1/256-pixel velocity without rounding, its whole pixels taken within
         // their 256-pixel cycle.
         int fallingVelocity8_8 = EightEight.FromSixteenSixteen(
             samus.Kinematics.YSpeed.Whole % SpaceJumpWindowWholeCycle, samus.Kinematics.YSpeed.Fraction);

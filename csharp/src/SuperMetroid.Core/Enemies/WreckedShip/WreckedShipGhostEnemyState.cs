@@ -31,7 +31,7 @@ public sealed class WreckedShipGhostEnemyState
     public Position16<RoomPixels> BobbingOrigin { get; internal set; }
 
     /// <summary>
-    /// The visible ghost's signed 16.16 vertical speed in pixels
+    /// The visible ghost's signed 1/65536-pixel vertical speed in pixels
     /// per update, accelerating toward <see cref="BobbingOrigin"/> with the fraction's overflow and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }

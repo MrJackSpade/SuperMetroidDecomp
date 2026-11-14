@@ -18,9 +18,9 @@ public enum BeetomAction
     StartCrawlingLeft,
     /// <summary>Installs right-facing crawling art and selects movement without moving on this setup frame.</summary>
     StartCrawlingRight,
-    /// <summary>Despite the inverted label, initializes the rising leftward short hop and its art.</summary>
+    /// <summary>Initializes the rising leftward short hop and its art.</summary>
     StartShortHopLeft,
-    /// <summary>Despite the inverted label, initializes the rising rightward short hop and its art.</summary>
+    /// <summary>Initializes the rising rightward short hop and its art.</summary>
     StartShortHopRight,
     /// <summary>Loads the long-hop speed-curve place, clears falling, and installs left-facing hop art.</summary>
     StartLongHopLeft,

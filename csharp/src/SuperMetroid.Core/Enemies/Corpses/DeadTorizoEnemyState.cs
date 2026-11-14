@@ -28,6 +28,6 @@ public sealed class DeadTorizoEnemyState
     /// <summary>The corpse phase.</summary>
     internal DeadTorizoPhase? Phase { get; set; }
 
-    /// <summary>Signed 8.8 velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
+    /// <summary>Signed 1/256-pixel velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 }

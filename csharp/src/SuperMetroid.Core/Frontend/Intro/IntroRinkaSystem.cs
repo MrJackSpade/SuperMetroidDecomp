@@ -228,7 +228,7 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>
-    /// Moves the Rinka horizontally by its whole velocity plus half a pixel, as one 16.16 displacement: every second
+    /// Moves the Rinka horizontally by its whole velocity plus half a pixel, as one 1/65536-pixel displacement: every second
     /// update the half pixels add up to one more whole pixel, and the position wraps at its width.
     /// </summary>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)

@@ -248,7 +248,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The rise decrements the subposition as a separate value, then subtracts either one
-        // or two pixels according to the old value. This is deliberately not normal 16.16
+        // or two pixels according to the old value. This is deliberately not normal 1/65536-pixel
         // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
         FixedCoordinate y = slot.Position.Y;
         bool oldSubpositionWasNonzero = y.Fraction != 0;
@@ -601,7 +601,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Applies the separately authored positive or negative 16.16 flight speed.</summary>
+    /// <summary>Applies the separately authored positive or negative 1/65536-pixel flight speed.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -622,7 +622,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = axis == Axis.Horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
     }
 
-    /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>
+    /// <summary>Adds a wrapped signed 1/65536-pixel displacement to one position axis.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
         Axis axis,

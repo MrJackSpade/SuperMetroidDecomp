@@ -10,7 +10,7 @@ public sealed class CrawlerEnemyState
     internal AnimationPlayback<CrawlerSegment> Playback { get; set; }
 
     /// <summary>
-    /// Signed 8.8 motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
+    /// Signed 1/256-pixel motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
     /// direction; on vertical surfaces Y is the tangent and X the wall-probe direction.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
@@ -33,7 +33,7 @@ public sealed class CrawlerEnemyState
     public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 
     /// <summary>
-    /// Signed 16.16 falling Y velocity per AI update, separate from attached 8.8 motion: gravity adds half a pixel per
+    /// Signed 1/65536-pixel falling Y velocity per AI update, separate from attached 1/256-pixel motion: gravity adds half a pixel per
     /// update while the whole pixels are below four, and landing clears it.
     /// </summary>
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }

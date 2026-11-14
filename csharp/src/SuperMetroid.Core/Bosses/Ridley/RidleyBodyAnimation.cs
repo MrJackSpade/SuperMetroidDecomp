@@ -113,7 +113,7 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.StartLiftoff }:
             {
                 // The shared roar/liftoff animation hands control to the real fight at
-                // the fight's start and supplies the initial upward 8.8 velocity in the same tick.
+                // the fight's start and supplies the initial upward 1/256-pixel velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Phase = RidleyPhase.NorfairEnterArena;
                 norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));

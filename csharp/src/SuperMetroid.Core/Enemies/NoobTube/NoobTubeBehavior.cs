@@ -283,7 +283,7 @@ internal sealed class NoobTubeBehavior
         MoveNoobTubeBubbleVertically(projectile);
     }
 
-    /// <summary>Advances the debris's own 16.16 horizontal position.</summary>
+    /// <summary>Advances the debris's own 1/65536-pixel horizontal position.</summary>
     private static void AdvanceNoobTubeShardX(EnemyProjectile projectile, SignedEightEight velocity)
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();

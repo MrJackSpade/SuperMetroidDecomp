@@ -72,7 +72,7 @@ internal sealed class NorfairRidleyDeath
     /// <summary>
     /// Runs the death roar. Ridley continues converging on the death point throughout the roar;
     /// expiry freezes velocity and starts lowering the room acid before entering the long
-    /// small-explosion phase in the same dispatcher call.
+    /// small-explosion phase in the same update.
     /// </summary>
     internal void TickNorfairRidleyDeathRoar(
         RoomEnemySlot body,

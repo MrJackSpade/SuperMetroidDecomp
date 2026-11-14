@@ -304,7 +304,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
     }
 
-    /// <summary>Aims at nearby Samus using the angle transform and signed 16.16 speed tables.</summary>
+    /// <summary>Aims at nearby Samus using the angle transform and signed 1/65536-pixel speed tables.</summary>
     private void TryLaunchEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -322,7 +322,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The angle of Samus from the enemy is zero up and runs clockwise. The two angle
-        // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
+        // transforms below feed the buggy table multipliers and produce signed 1/65536-pixel speed.
         TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTableAngle();
         SignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(

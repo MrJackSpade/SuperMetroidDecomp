@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Whether and where the intro shows Samus. The cinematic dispatcher runs Samus's state handlers only while it is
+/// Whether and where the intro shows Samus. The cinematic step runs Samus's state handlers only while it is
 /// nonzero, and the cinematic draw orders Samus against the cinematic objects by whether it is negative.
 /// </summary>
 internal enum IntroSamusDisplay

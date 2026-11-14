@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>What the shot-block dispatcher does with a common shootable reaction it handles.</summary>
+/// <summary>What the shot-block response does with a common shootable reaction it handles.</summary>
 public enum ShotBlockReaction
 {
     /// <summary>Any weapon breaks the block, and it restores itself later.</summary>

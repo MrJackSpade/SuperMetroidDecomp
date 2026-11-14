@@ -27,5 +27,5 @@ internal sealed class GamePhaseTable
     internal IGamePhase Of(SuperMetroidGameState state) =>
         _phases.TryGetValue(state, out IGamePhase? phase)
             ? phase
-            : throw new InvalidDataException($"Frontend dispatcher received invalid state {state}.");
+            : throw new InvalidDataException($"Frontend game-state loop received invalid state {state}.");
 }

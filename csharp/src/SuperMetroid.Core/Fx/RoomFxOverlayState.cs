@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx;
 /// Game-owned room effect the room's effect selection shows for the door Samus entered by.
 /// </summary>
 /// <remarks>
-/// Every room effect shares the liquid's level and target, its signed 8.8 level speed, and
+/// Every room effect shares the liquid's level and target, its signed 1/256-pixel level speed, and
 /// the delay before it moves, which the room effect's load sets. This owner retains those values for every effect, including those that show nothing
 /// on the effect overlay (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
 /// writes into one representation of the room effect's state.
@@ -53,12 +53,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
     /// <summary>
-    /// Rain, fog, and spores texture drift: one 8.8 running sum per axis. Its signed whole
+    /// Rain, fog, and spores texture drift: one 1/256-pixel running sum per axis. Its signed whole
     /// pixels shift the effect overlay's scroll before the next velocity step.
     /// </summary>
     private Offset16<OverlaySubpixels> drift;
     /// <summary>
-    /// Rain's horizontal texture drift per frame in 8.8 pixels, chosen from the random number when the room loads;
+    /// Rain's horizontal texture drift per frame in 1/256 pixels, chosen from the random number when the room loads;
     /// only X is set. The fall is <see cref="RainFallVelocity"/>.
     /// </summary>
     private Offset16<OverlaySubpixels> rainWindVelocity;
@@ -74,7 +74,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
     internal SignedSixteenSixteen TideOffset { get; set; }
     /// <summary>
-    /// Water's effect overlay surface drift: an 8.8 horizontal running sum whose signed whole pixels offset the surface
+    /// Water's effect overlay surface drift: a 1/256-pixel horizontal running sum whose signed whole pixels offset the surface
     /// texture. Only X moves.
     /// </summary>
     private Offset16<OverlaySubpixels> waterDrift;
@@ -142,7 +142,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? TargetSurface { get; private set; }
 
-    /// <summary>The liquid's signed 8.8 level speed in room pixels per update while it moves toward its target: negative rises.</summary>
+    /// <summary>The liquid's signed 1/256-pixel level speed in room pixels per update while it moves toward its target: negative rises.</summary>
     public SignedEightEight LiquidLevelSpeed { get; private set; }
 
     /// <summary>The updates, 0 through 255, the liquid waits before it moves toward its target, as the room effect or a room object sets it.</summary>
@@ -401,7 +401,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        // Fog anchors to the foreground and moves its texture by +80 X and -64 Y in 8.8.
+        // Fog anchors to the foreground and moves its texture by +80 X and -64 Y in 1/256 pixels.
         Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
         drift = Offset16<OverlaySubpixels>.Wrapped(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity,
             drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity);
@@ -603,8 +603,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
-    /// the liquid's move delay then expires, and only then does the signed 8.8 velocity move the
-    /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
+    /// the liquid's move delay then expires, and only then does the signed 1/256-pixel velocity move the
+    /// 1/65536-pixel base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
     private void StepLiquidRise(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
@@ -725,7 +725,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Moves the tide. The scaled sine is an 8.8 displacement, which becomes the 16.16 offset. The asymmetric phase
+    /// Moves the tide. The scaled sine is a 1/256-pixel displacement, which becomes the 1/65536-pixel offset. The asymmetric phase
     /// deltas deliberately spend different durations in each half-wave.
     /// </summary>
     internal void StepLiquidTide()
@@ -818,7 +818,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 
-    /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
+    /// <summary>Rain's texture fall each frame, in 1/256 pixels.</summary>
     private static readonly Offset16<OverlaySubpixels> RainFallVelocity =
         new(0, unchecked(-AtmosphereDriftDefinitions.RainVerticalVelocity));
 

@@ -238,7 +238,7 @@ internal sealed class DraygonGoop
         });
     }
 
-    /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
+    /// <summary>Moves a Draygon projectile in 1/65536-pixel space by its angle and speed.</summary>
     internal static void MoveDraygonProjectile(EnemyProjectile projectile) =>
         projectile.StateOf<AngledFlightState>().Advance(projectile);
 

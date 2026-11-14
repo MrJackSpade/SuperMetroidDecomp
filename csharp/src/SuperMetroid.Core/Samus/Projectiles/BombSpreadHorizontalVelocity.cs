@@ -30,7 +30,7 @@ public readonly record struct BombSpreadHorizontalVelocity
     /// <summary>The same speed in the opposite direction, as a wall collision leaves it.</summary>
     public BombSpreadHorizontalVelocity Reversed() => new(!MovingLeft, WholePixels, FractionSteps);
 
-    /// <summary>The per-frame displacement as a signed 16.16 value: leftward travel is negative.</summary>
+    /// <summary>The per-frame displacement as a signed 1/65536-pixel value: leftward travel is negative.</summary>
     public SignedSixteenSixteen Displacement
     {
         get

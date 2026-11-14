@@ -94,7 +94,7 @@ internal sealed class DownwardGateBehavior
         ResumeDownwardGate(projectile);
     }
 
-    /// <summary>Moves the gate one block at a time with signed 8.8 motion.</summary>
+    /// <summary>Moves the gate one block at a time with signed 1/256-pixel motion.</summary>
     internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();

@@ -334,10 +334,59 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The boost holds the extra speed at 7.0000.</summary>\nint F => 0; }", "('7.0000')");
         Expect("class P { // the cap reads $1.8C00\n }", "('$1.8C00')");
         Expect("class P { string Name => \"Extra speed passed 2.0000.\"; }", "('2.0000')");
-        // A decimal without a trailing zero, a format's name, a version, a native thing that is no word and a routine that is
-        // not the cartridge's are English.
+        // A decimal without a trailing zero, a version, a native thing that is no word and a routine that is not the
+        // cartridge's are English.
         Expect("class P { /// <summary>Gravity adds 0.125, the speed decays by 0.0625 and sinks 0.1875 pixels.</summary>\nint F => 0; }");
-        Expect("class P { // a signed 16.16 displacement beside an 8.8 speed, in version 0.9.0\n }");
+        Expect("class P { // a signed displacement beside a speed, in version 0.9.0\n }");
         Expect(EncodingOwner + "[EncodingOwner(\"words\")] static class W { /// <summary>The native pose number; the game's clamping routine; a word.</summary>\nstatic int N => 0; }");
+        // The original program's call structure is read in every type, hardware owners included (#1754): dispatchers, a
+        // dispatcher index, callables and a routine's labels, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>Runs the elevator's main behaviour and its four-entry dispatcher.</summary>\nvoid Run() { } }", "('dispatcher')");
+        Expect("class P { /// <summary>Dispatcher index zero, selected without a rider.</summary>\nint F => 0; }", "('Dispatcher')");
+        Expect("class P { // the outer dispatchers repeat it\n }", "('dispatchers')");
+        Expect("class P { string Name => \"Draygon part dispatcher received another family.\"; }", "('dispatcher')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original bombed-special dispatcher indexes its table.</summary>\n[CompatibilityService(\"bomb\")] class Bomb { }",
+            "('dispatcher')");
+        Expect("class P { /// <summary>Torizo animation: special callable, blow up the gut.</summary>\nint F => 0; }", "('callable')");
+        Expect("class P { /// <summary>Despite the inverted label, starts the leftward hop.</summary>\nint F => 0; }", "('inverted label')");
+        Expect("class P { /// <summary>Always clears the still-art flag at the merge label.</summary>\nvoid Run() { } }", "('merge label')");
+        Expect("class P { // Same merge-label detail as the moving helper\n }", "('merge-label')");
+        Expect("class P { // The source label's branch name is reversed\n }", "('source label')");
+        Expect(EncodingOwner + "[EncodingOwner(\"reactions\")] static class R { /// <summary>Read at the entry label.</summary>\nstatic int N => 0; }",
+            "('entry label')");
+        // The C reimplementation is read in every type (#1754), case-sensitively for the letter.
+        Expect("class P { // Preserve the game's branch, not the upstream C rewrite's bugfix.\n }", "('upstream C')");
+        Expect("class P { /// <summary>Do not use upstream C's category guard.</summary>\nint F => 0; }", "('upstream C')");
+        Expect("class P { // the C port clears it first\n }", "('the C port')");
+        Expect(CompatibilityService + "/// <summary>Kept as upstream C keeps it.</summary>\n[CompatibilityService(\"guard\")] class Guard { }", "('upstream C')");
+        // A dispatched request, a callback, the labels the game shows and the verb are English, as are C# and a C that is
+        // not that program.
+        Expect("class P { /// <summary>Dispatches the sound request; the dispatch sends the event; the callback runs.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The ENERGY label and the Exit label lit; the map's area labels; zero labels for reserves.</summary>\nint F => 0; }");
+        Expect("class P { // the select map labels the area; the label shows; each label in its colours\n }");
+        Expect("class P { // the C# port keeps it; slot C and button C; the upstream river\n }");
+        // The original's data and number encodings outside hardware owners (#1754): decompression, colour indexes, two's
+        // complement, unsigned compares and the 8.8 and 16.16 format names.
+        Expect("class P { /// <summary>Active room's decompressed foreground.</summary>\nint F => 0; }", "('decompressed')");
+        Expect("class P { // loaded by the initial artwork decompression\n }", "('decompression')");
+        Expect("class P { string Name => \"Decompressing the room failed.\"; }", "('Decompressing')");
+        Expect("class P { /// <summary>Installs the grey colours at the statue's grey colour index.</summary>\nint F => 0; }", "('colour index')");
+        Expect("class P { // The writer receives color index 241\n }", "('color index')");
+        Expect("class P { // the colour-indices stay\n }", "('colour-indices')");
+        Expect("class P { /// <summary>Leftward speed is the exact two's complement of the speed.</summary>\nint F => 0; }", "('two's complement')");
+        Expect("class P { // keeps the two's-complement form\n }", "('two's-complement')");
+        Expect("class P { // and performs an unsigned compare\n }", "('unsigned compare')");
+        Expect("class P { /// <summary>Branches on an unsigned comparison.</summary>\nint F => 0; }", "('unsigned comparison')");
+        Expect("class P { /// <summary>The tube's signed 8.8 vertical velocity.</summary>\nint F => 0; }", "('8.8')");
+        Expect("class P { // a signed 16.16 displacement beside an 8.8 speed, in version 0.9.0\n }", "('16.16')");
+        Expect("class P { // the whole pixels promoted to 16.16.\n }", "('16.16')");
+        Expect("class P { string Name => \"The product does not fit a 16.16 speed.\"; }", "('16.16')");
+        // Hardware owners describe their encodings and the arithmetic they reproduce; an uncompressed file, a colour and its
+        // index, a decimal, a version, an unsigned value and another complement are English.
+        Expect(EncodingOwner + "[EncodingOwner(\"8.8 fixed-point number\")] static class E { /// <summary>An 8.8 value; the int overloads keep two's-complement sign.</summary>\nstatic int N => 0; }");
+        Expect(EncodingOwner + "[EncodingOwner(\"palette\")] static class C { /// <summary>The colour index and the unsigned compare.</summary>\nstatic int N => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the game filled the level before decompressing the room.</summary>\n[CompatibilityService(\"terrain\")] class Terrain { }");
+        Expect("class P { /// <summary>An uncompressed stereo WAV; the colour and its index; an unsigned value; the set's complement.</summary>\nint F => 0; }");
+        Expect("class P { // gravity adds 8.25 pixels, the 18.8 seconds pass, in version 0.8.8 and release 2.16.16\n }");
     }
 }

@@ -290,7 +290,7 @@ public sealed class RoomLevelData
 
     /// <summary>
     /// Resolves a door block's behaviour through the active room's door list, then publishes the normal-door transition
-    /// request for the top-level dispatcher.
+    /// request for the top-level game-state loop.
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
         RoomBlockBehavior behavior,

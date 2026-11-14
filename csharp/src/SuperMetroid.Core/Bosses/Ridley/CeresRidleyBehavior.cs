@@ -57,7 +57,7 @@ internal sealed class CeresRidleyBehavior
     private const int RestoredHealth = 32767;
 
     /// <summary>
-    /// Runs the Ceres dispatcher reached through the end of the battle. The
+    /// Runs the Ceres step reached through the end of the battle. The
     /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
     /// palette handoff, and <c>RidleyEscaped</c> publication all keep the game's order.
     /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
@@ -69,8 +69,8 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
         slot.Health = RestoredHealth;
 
-        // The palette selection runs after the boss dispatcher and before movement. None of the
-        // dispatcher branches mutate the flash timer, so selecting the two
+        // The palette selection runs after the boss step and before movement. None of the
+        // step branches mutate the flash timer, so selecting the two
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
@@ -130,7 +130,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresLiftoffAccelerating:
-                // The rising step adds -16 to the 8.8 Y velocity before the common movement pass. Ridley rises from rest
+                // The rising step adds -16 to the 1/256-pixel Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
@@ -258,7 +258,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresPublishEscapeHandoff:
-                // The getaway handoff installs a null dispatcher and publishes the room-main cutscene
+                // The getaway handoff installs an empty step and publishes the room-main cutscene
                 // state. The renderer stops emitting Ridley's ordinary composite at
                 // this point because the rotating view owns his departure; hide the ordinary actor so
                 // it cannot remain parked over that separately scoped presentation seam.
@@ -319,7 +319,7 @@ internal sealed class CeresRidleyBehavior
         }
 
         // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the
-        // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
+        // common Ridley 1/256-pixel movement pass after every update. Keeping that order
         // matters in the rise and swoop: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
@@ -333,15 +333,15 @@ internal sealed class CeresRidleyBehavior
             CeresRidleyBabyScene.TickCeresBaby(slot, state);
     }
 
-    /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
+    /// <summary>The fastest 1/256-pixel speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
     internal static readonly SignedEightEight CeresRidleyMaximumSpeed = SignedEightEight.FromPixels(5);
-    /// <summary>The fastest 8.8 speed toward a higher target: five pixels per update the other way.</summary>
+    /// <summary>The fastest 1/256-pixel speed toward a higher target: five pixels per update the other way.</summary>
     internal static readonly SignedEightEight CeresRidleyMinimumSpeed = -CeresRidleyMaximumSpeed;
 
     /// <summary>The heading a swoop climbs toward, turned the swooping way: fifteen thirty-seconds of a turn.</summary>
     internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
 
-    /// <summary>Runs Ceres Ridley's main dispatcher.</summary>
+    /// <summary>Runs Ceres Ridley's main step.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus);
 }

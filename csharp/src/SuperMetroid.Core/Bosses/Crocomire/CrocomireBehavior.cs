@@ -63,7 +63,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int CrocomireBridgeThreshold = 1600;
     /// <summary>Body X threshold at the spiked wall that starts the death sequence.</summary>
     internal const int CrocomireSpikeWallThreshold = 768;
-    /// <summary>The melt's background distortion step stops growing at 80 pixels (8.8).</summary>
+    /// <summary>The melt's background distortion step stops growing at 80 pixels, held in 256ths of a pixel.</summary>
     internal const int MaximumCrocomireDistortionStep = 20480;
 
     /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>

@@ -16,9 +16,9 @@ internal static class RidleyExplosionDefinitions
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
     /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
     internal static readonly RandomSampleField FragmentSpeedWholePixel = new(8, 1);
-    /// <summary>The 8.8 speed of one <see cref="FragmentSpeedSixteenths"/> step, a sixteenth of a pixel per frame.</summary>
+    /// <summary>The 1/256-pixel speed of one <see cref="FragmentSpeedSixteenths"/> step, a sixteenth of a pixel per frame.</summary>
     internal const int SixteenthPixelSpeed = 16;
-    /// <summary>The 8.8 speed of a <see cref="FragmentSpeedWholePixel"/> step, one pixel per frame.</summary>
+    /// <summary>The 1/256-pixel speed of a <see cref="FragmentSpeedWholePixel"/> step, one pixel per frame.</summary>
     internal const int WholePixelSpeed = 256;
     /// <summary>
     /// The tail tip's breakup pose for each sixteenth of the turn its direction can point into, in turn order: each pose's

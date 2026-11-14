@@ -119,7 +119,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
 
-    /// <summary>Runs the indirect main dispatcher.</summary>
+    /// <summary>Runs the main step.</summary>
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if (!_earthquake.IsShaking)

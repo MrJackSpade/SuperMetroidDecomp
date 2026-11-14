@@ -11,7 +11,7 @@ public sealed class ChootEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChootSegment> Playback { get; set; }
 
-    /// <summary>The behaviour selected by Choot's main AI dispatcher.</summary>
+    /// <summary>The behaviour selected by Choot's main AI step.</summary>
     public ChootAction? Action { get; internal set; }
 
     /// <summary>

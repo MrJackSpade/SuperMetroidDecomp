@@ -315,7 +315,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YAcceleration = SignedSixteenSixteen.FromParts(0, 32768);
     }
 
-    /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
+    /// <summary>Adds the per-slot 1/65536-pixel acceleration to Alcoon's vertical velocity.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.YAcceleration);
@@ -458,7 +458,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The speed slows toward the terminal speed and then holds it; neither step leaves the 8.8 range, as the speed
+        // The speed slows toward the terminal speed and then holds it; neither step leaves the 1/256-pixel range, as the speed
         // starts at the launch speed and only moves toward the terminal speed.
         SignedEightEight velocity = projectile.Velocity.X;
         if (velocity.IsNegative)

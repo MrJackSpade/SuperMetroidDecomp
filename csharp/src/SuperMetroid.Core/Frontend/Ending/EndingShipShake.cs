@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The gunship's horizontal shake while it emerges from the exploding planet: per-step signed 16.16 displacements whose
+/// The gunship's horizontal shake while it emerges from the exploding planet: per-step signed 1/65536-pixel displacements whose
 /// fast and slow cycles each move the ship exactly two pixels (#1416: moved from the deleted ending catalog).
 /// </summary>
 /// <remarks>Repeated samples, fixed-point sign assembly and amplitudes from the common cycle displacement calculate. The

@@ -11,7 +11,7 @@ public sealed class AlcoonEnemyState
     public AlcoonAction? Action { get; internal set; }
 
     /// <summary>
-    /// Motion per step. Y is the signed 16.16 vertical velocity: emergence starts at -12 and retreat at -4, and
+    /// Motion per step. Y is the signed 1/65536-pixel vertical velocity: emergence starts at -12 and retreat at -4, and
     /// acceleration carries from the fraction into the whole pixels. X is the signed whole-pixel horizontal velocity
     /// (retail uses -2, 0 or +2); Alcoon has no horizontal fraction, so a velocity with a nonzero X fraction is rejected.
     /// </summary>

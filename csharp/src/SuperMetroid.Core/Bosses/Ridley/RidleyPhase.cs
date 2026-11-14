@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </remarks>
 public enum RidleyPhase
 {
-    /// <summary>Clears shared motion before returning to the flying dispatcher.</summary>
+    /// <summary>Clears shared motion before returning to the flying step.</summary>
     ClearVelocity = 1,
     /// <summary>Waits for the room-entry door transition before starting Ridley's reveal.</summary>
     WaitForDoorTransition,
@@ -86,7 +86,7 @@ public enum RidleyPhase
     NorfairSwoopClimb,
     /// <summary>Decelerates the swoop and chooses attack selection or grab approach.</summary>
     NorfairSwoopRecover,
-    /// <summary>The hover-action entry used by the pogo setup dispatcher.</summary>
+    /// <summary>The hover-action entry used by the pogo setup step.</summary>
     NorfairPogoSetup,
     /// <summary>The hover move-to-wall-behind entry used by the descending pogo phase.</summary>
     NorfairPogoDescending,
@@ -98,7 +98,7 @@ public enum RidleyPhase
     NorfairFireballMoveToSide,
     /// <summary>The ground-attack height-position phase.</summary>
     NorfairFireballMoveToHeight,
-    /// <summary>The pogo descending entry used by the ground-attack dispatcher.</summary>
+    /// <summary>The pogo descending entry used by the ground-attack step.</summary>
     NorfairFireballAttack,
     /// <summary>The ground-attack recovery phase before choosing the next action.</summary>
     NorfairFireballRecover,

@@ -26,7 +26,7 @@ public static class PowampMotionDefinitions
     ];
 
     /// <summary>
-    /// The signed 8.8 acceleration of a spike flying in each direction, ±32 on each axis the direction leans along.
+    /// The signed 1/256-pixel acceleration of a spike flying in each direction, ±32 on each axis the direction leans along.
     /// </summary>
     internal static readonly IReadOnlyDictionary<CompassDirection, EightEightVector<RoomPixels>> SpikeAccelerations =
         new Dictionary<CompassDirection, EightEightVector<RoomPixels>>

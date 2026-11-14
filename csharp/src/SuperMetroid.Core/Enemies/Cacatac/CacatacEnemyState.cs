@@ -9,11 +9,11 @@ public sealed class CacatacEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement added to X on every rightward patrol update.</summary>
+    /// <summary>Signed 1/65536-room-pixel displacement added to X on every rightward patrol update.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// Signed 16.16 room-pixel displacement added to X on every leftward patrol update (negative for the authored
+    /// Signed 1/65536-room-pixel displacement added to X on every leftward patrol update (negative for the authored
     /// speeds).
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }

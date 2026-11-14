@@ -893,7 +893,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// The four particles of a Skree or Metaree <paramref name="burst"/>, six pixels either side of the source: the outer pair
-    /// flies at 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 8.8.
+    /// flies at 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 1/256 pixels.
     /// </summary>
     internal void SpawnMetalParticleBurst(RoomEnemySlot source, MetalParticleBurst burst)
     {
@@ -907,7 +907,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Spawns one particle through the projectile spawn's definition copy (damage four,
     /// contact enabled, Skree or Metaree animation), then applies the shared particle
-    /// initializer's position and 8.8 velocity.
+    /// initializer's position and 1/256-pixel velocity.
     /// </summary>
     private void SpawnSkreeOrMetareeParticle(
         RoomEnemySlot source,

@@ -133,7 +133,7 @@ public sealed class SamusCeresRidleyEjectionState
         }
 
         // Accelerates only while the signed whole speed is below five. The
-        // resulting 16.16 speed is passed directly to MoveDown; unlike the common falling
+        // resulting 1/65536-pixel speed is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;

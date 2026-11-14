@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <remarks>A default request is an ordinary main-gameplay frame: departure allowed, game time advancing, deferred audio, no boundary work.</remarks>
 public sealed record RuntimeFrameRequest
 {
-    /// <summary>The outer dispatcher's state policy for this frame.</summary>
+    /// <summary>The outer game-state loop's state policy for this frame.</summary>
     public RuntimeFramePolicy Policy { get; init; } = RuntimeFramePolicy.Gameplay;
 
     /// <summary>How the frame's echo and low-health audio calls reach the game's audio queue.</summary>

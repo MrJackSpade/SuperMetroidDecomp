@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyMath
 {
     /// <summary>
-    /// Clamps a signed 16.16 velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
+    /// Clamps a signed 1/65536-pixel velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
     /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
     /// </summary>
     internal static SignedSixteenSixteen ClampWholeVelocity(SignedSixteenSixteen velocity, int maximum)
@@ -70,7 +70,7 @@ internal static class EnemyMath
         });
     }
 
-    /// <summary>Adds one signed 8.8 velocity to a wrapped 16.16 position.</summary>
+    /// <summary>Adds one signed 1/256-pixel velocity to a wrapped 1/65536-pixel position.</summary>
     internal static FixedCoordinate AddEightBitVelocity(FixedCoordinate position, SignedEightEight velocity) =>
         velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
 
@@ -145,7 +145,7 @@ internal static class EnemyMath
     /// generation deterministic avoids floating-point rounding, so each speed is exactly the game's product.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
-    /// <exception cref="OverflowException">The product does not fit a 16.16 speed.</exception>
+    /// <exception cref="OverflowException">The product does not fit a 1/65536-pixel speed.</exception>
     internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
         UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.HalfWaveIndex));
 

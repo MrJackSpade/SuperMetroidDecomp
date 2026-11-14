@@ -379,7 +379,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>The retrieval steering target relative to the falling Baby.</summary>
     private static Offset16<RoomPixels> CeresRidleyHandToBaby => new(10, 56);
 
-    /// <summary>Steers both 8.8 velocity axes toward a target, promoting zero hardware quotients to one.</summary>
+    /// <summary>Steers both 1/256-pixel velocity axes toward a target, promoting zero hardware quotients to one.</summary>
     internal static void AccelerateRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -433,7 +433,7 @@ internal sealed class CeresRidleyFlight
         return SignedEightEight.Max(run.Velocity, CeresRidleyBehavior.CeresRidleyMinimumSpeed);
     }
 
-    /// <summary>Applies Ridley's 8.8 motion and arena clamps, invoking impact only at the strict left bound.</summary>
+    /// <summary>Applies Ridley's 1/256-pixel motion and arena clamps, invoking impact only at the strict left bound.</summary>
     internal void IntegrateRidleyMovement(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -469,15 +469,15 @@ internal sealed class CeresRidleyFlight
         slot.Position = slot.Position.WithY(y);
     }
 
-    /// <summary>Integrates one 8.8 velocity into a position's fraction, in 256ths of a pixel, and clips to an arena bound.</summary>
+    /// <summary>Integrates one 1/256-pixel velocity into a position's fraction, in 256ths of a pixel, and clips to an arena bound.</summary>
     private static CeresRidleyAxisMotion IntegrateAxis(
         FixedCoordinate position,
         SignedEightEight velocity,
         int minimum,
         int maximum)
     {
-        // Ridley's velocities are signed 8.8 values that the game adds, in 256ths of a pixel, to the
-        // ordinary 16.16 position's fraction.
+        // Ridley's velocities are signed 1/256-pixel values that the game adds, in 256ths of a pixel, to the
+        // ordinary 1/65536-pixel position's fraction.
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
@@ -487,7 +487,7 @@ internal sealed class CeresRidleyFlight
         return new CeresRidleyAxisMotion(moved, velocity);
     }
 
-    /// <summary>Adds an 8.8 velocity to a position before boundary checks.</summary>
+    /// <summary>Adds a 1/256-pixel velocity to a position before boundary checks.</summary>
     private static FixedCoordinate IntegrateUnclampedAxis(FixedCoordinate position, SignedEightEight velocity) =>
         position.MovedBy(velocity);
 

@@ -816,7 +816,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, KiHunterAnimations.StartingWith(segment));
     }
 
-    /// <summary>The 0.875-pixel 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
+    /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
     internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
 
     /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
@@ -958,7 +958,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the falling acid exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
+    /// Moves the falling acid exactly: move/test Y, then X, then add capped 1/256-pixel gravity. A floor
     /// collision swaps to the splash animation; a wall collision only zeros X speed.
     /// </summary>
     internal static void RunKiHunterAcidMovement(

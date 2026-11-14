@@ -19,7 +19,7 @@ public sealed class NorfairRioEnemyState
     /// </summary>
     public Offset16<RoomPixels> FollowerOffset { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity; the horizontal component feeds the 16.16 collision helper.</summary>
+    /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour shared by parent and flame-follower dispatch.</summary>

@@ -101,7 +101,7 @@ internal sealed class BlockReactionObjects
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
     /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object handler
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
-    /// collision dispatcher independently returns solid for the triggering frame, so allocation success is not a
+    /// collision check independently returns solid for the triggering frame, so allocation success is not a
     /// collision-result substitute.
     /// </remarks>
     public bool TrySpawnSamusContactCrumbleBlock(
@@ -153,7 +153,7 @@ internal sealed class BlockReactionObjects
             return false;
         }
 
-        // The special-block dispatcher reports a pass-through contact before spawning. When every slot is occupied the
+        // The special-block response reports a pass-through contact before spawning. When every slot is occupied the
         // spawn returns that result unchanged: setup never runs, so its no-Speed-Booster rejection cannot make this
         // contact solid. Preserve the block; this is not a break animation.
         if (_slotTable.IsFull)
@@ -243,7 +243,7 @@ internal sealed class BlockReactionObjects
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
-                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object dispatcher.");
+                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object response.");
         }
 
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its

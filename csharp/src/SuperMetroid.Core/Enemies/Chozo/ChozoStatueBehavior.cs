@@ -270,7 +270,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         var motion = ChozoCarry.Read(carryStep);
         int signedVelocity = motion.Velocity;
 
-        // The slope-ignoring horizontal mover receives a signed 8.8 speed promoted to 16.16 by
+        // The slope-ignoring horizontal mover receives a signed 1/256-pixel speed promoted to 1/65536 pixels by
         // a shift by 256. The vertical mover receives its absolute magnitude in the same format.
         _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,

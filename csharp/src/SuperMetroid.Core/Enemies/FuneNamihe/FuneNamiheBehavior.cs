@@ -174,12 +174,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             : FuneNamiheAction.FuneWaitForCooldown;
     }
 
-    /// <summary>Binds the shared fireball frame behaviour to 8.8 horizontal travel and inclusive camera culling.</summary>
+    /// <summary>Binds the shared fireball frame behaviour to 1/256-pixel horizontal travel and inclusive camera culling.</summary>
     internal static void AddFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
         {
-            // Fune/Namihe: directional 8.8 flight and cull.
+            // Fune/Namihe: directional 1/256-pixel flight and cull.
             RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera);
         }, EnemyProjectileFrameBehavior.FuneNamiheFireballFlight);
     }

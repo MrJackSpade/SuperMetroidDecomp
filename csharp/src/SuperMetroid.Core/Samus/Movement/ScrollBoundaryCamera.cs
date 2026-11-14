@@ -27,7 +27,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Gets the camera's 16.16 position: whole pixels and fraction.
+    /// Gets the camera's 1/65536-pixel position: whole pixels and fraction.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
@@ -41,7 +41,7 @@ public sealed class ScrollBoundaryCamera
     public Position16<RoomPixels> IdealPosition { get; internal set; }
 
     /// <summary>
-    /// Gets the most recently calculated 16.16 camera speed on each axis:
+    /// Gets the most recently calculated 1/65536-pixel camera speed on each axis:
     /// Samus's unsigned distance moved plus one pixel, held unsigned.
     /// </summary>
     public FixedVector<RoomPixels> Speed { get; internal set; }
@@ -572,7 +572,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Compares only the whole pixels as signed wrapped values, then
-    /// subtracts the complete 16.16 pair in the selected direction and adds exactly
+    /// subtracts the complete 1/65536-pixel pair in the selected direction and adds exactly
     /// one whole pixel. Modular arithmetic keeps the game's noted subpixel corner case, where
     /// the result can still be less than 1.0.
     /// </summary>

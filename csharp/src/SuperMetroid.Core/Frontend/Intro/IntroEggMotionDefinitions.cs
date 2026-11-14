@@ -31,7 +31,7 @@ internal static class IntroEggMotionDefinitions
     /// steps the installed <see cref="ShellFragmentFallPastCurve"/> holds (#1500).
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #977: all 38 signed 16.16 records match
+    /// Issues #625 and #977: all 38 signed 1/65536-pixel records match
     /// the authored data. For
     /// frame f=0..13, group g=f/7 and remainder r=f%7 give whole=(g-2)
     /// and fraction=0 when r=0, otherwise 57344-8192*r. For f=14..37,

@@ -7,7 +7,7 @@ public sealed class WaverEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WaverSegment> Playback { get; set; }
 
-    /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
+    /// <summary>Signed 1/65536-pixel horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>The animation currently installed; a request for it installs nothing.</summary>

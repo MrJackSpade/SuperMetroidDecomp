@@ -276,7 +276,7 @@ level, targetPose, frameCounter, roomObjects))
     {
         Ensure.NotNull(samus);
         // The input phase selects a prospective pose; it does not mutate the live movement type.
-        // The owning transition dispatcher must resolve higher-priority expiry first.
+        // The owning transition step must resolve higher-priority expiry first.
         bool valid = new SamusPoseChange(sourcePose, targetPose) is
             (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose) or
             (SamusPoseId.KnockbackLeftPose, SamusPoseId.DamageBoostLeftPose);
@@ -317,7 +317,7 @@ level, targetPose, frameCounter, roomObjects))
         }
 
         // Both target families have the same radius. The pose change nevertheless runs
-        // their ordinary initializer: it preserves the live 16.16 jump velocity,
+        // their ordinary initializer: it preserves the live 1/65536-pixel jump velocity,
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
@@ -397,7 +397,7 @@ level, targetPose, frameCounter, roomObjects))
             samus.Shinespark.RelinquishMovementHandler();
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
         // flag has no field of its own; Y-direction two is its movement-visible
-        // publication and is consumed by every normal/ball dispatcher.
+        // publication and is consumed by every normal/ball step.
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.MorphBallBounceState = SamusBallBounceState.None;

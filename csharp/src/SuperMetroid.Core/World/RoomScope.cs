@@ -29,7 +29,7 @@ internal sealed record RoomScope
     /// <summary>The selected room and state definition.</summary>
     public required SelectedRoom Room { get; init; }
 
-    /// <summary>The room's decompressed, read-only asset graph.</summary>
+    /// <summary>The room's loaded, read-only asset graph.</summary>
     public required LoadedRoomAssets Assets { get; init; }
 
     /// <summary>The room's foreground, block behaviours and background, shared by rendering and collision.</summary>

@@ -42,7 +42,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private const int MaridiaLargeSnailInitialAttackCooldown = 128;
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const int MaridiaLargeSnailInitialBounceCount = 3;
-    /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
+    /// <summary>Per-frame index change, in 256ths, in the quadratic vertical speed table.</summary>
     private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailBounceAcceleration = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(384);
     /// <summary>Maximum falling speed-curve place before the next impact.</summary>
     private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailMaximumFallIndex = EnemyQuadraticSpeedIndex.FromRows(64);
@@ -457,7 +457,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Runs the common/non-damaging Oum hitbox tail after the frame-hitbox dispatcher selected a
+    /// Runs the common/non-damaging Oum hitbox tail after the frame-hitbox check selected a
     /// concrete frame hitbox. Damaging hitboxes call common touch before entering this tail.
     /// </summary>
     private static void ResolveMaridiaLargeSnailTouchAfterCommon(

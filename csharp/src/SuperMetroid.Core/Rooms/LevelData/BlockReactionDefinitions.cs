@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// The reactions several collision kinds' dispatchers name that stand for one meaning each: the crumble blocks, door caps,
+/// The reactions several collision kinds' responses name that stand for one meaning each: the crumble blocks, door caps,
 /// station accesses and gate triggers.
 /// </summary>
 public static class BlockReactionDefinitions

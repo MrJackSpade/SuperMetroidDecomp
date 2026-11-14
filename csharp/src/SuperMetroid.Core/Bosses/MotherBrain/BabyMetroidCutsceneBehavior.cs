@@ -104,8 +104,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
         slot.AnimationClock.RestartAfter(baby.FrameHold);
 
-        // The writer receives colour index 241 and count 15. Color zero is deliberately
-        // skipped in the source, preserving the room's transparent backdrop entry.
+        // The writer receives the Baby's fifteen colours after its first. The first, the transparent
+        // one, is deliberately skipped, preserving the room's backdrop.
         ShowBabyMetroidArrival();
     }
 
@@ -126,7 +126,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (!ReferenceEquals(slot, state.BabyMetroidSlot))
         {
             throw new InvalidDataException(
-                $"Baby state names slot {state.BabyMetroidSlot?.SlotIndex}, but dispatcher " +
+                $"Baby state names slot {state.BabyMetroidSlot?.SlotIndex}, but the Baby's step " +
                 $"ran slot {slot.SlotIndex}.");
         }
 

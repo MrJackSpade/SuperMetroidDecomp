@@ -90,7 +90,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Platform AI requires active room collision data.");
 
-        // Every frame starts in the rising dispatcher and changes to sinking only when the
+        // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.
         state.YMovement = IsSamusRidingPlatform(slot, samus)
@@ -138,7 +138,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         return yRemainder <= slot.Radius.Y;
     }
 
-    /// <summary>Applies horizontal movement, reversing the dispatcher and still-art animation on wall collision.</summary>
+    /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -155,7 +155,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
-        // A wall collision reverses the dispatcher and immediately installs the opposite
+        // A wall collision reverses the horizontal direction and immediately installs the opposite
         // vertically-still animation. The first step of that animation republishes the same index
         // when the animations run later in this enemy frame.
         state.XMovement = movingLeft
@@ -264,7 +264,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
     }
 
-    /// <summary>Installs moving art once per phase and always clears the still-art flag at the merge label.</summary>
+    /// <summary>Installs moving art once per phase and always clears the still-art flag, whichever art it installed.</summary>
     private static void SetPlatformVerticallyMovingAnimation(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -289,11 +289,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.VerticallyStillArtInstalled = true;
             InstallPlatformVerticallyStillForCurrentDirection(slot, state);
         }
-        // Same merge-label detail as the moving helper: the opposite flag is always clear.
+        // As in the moving helper, the opposite flag is always cleared, whichever art was installed.
         state.VerticallyMovingArtInstalled = false;
     }
 
-    /// <summary>Selects the moving animation from suspensor identity and current horizontal dispatcher.</summary>
+    /// <summary>Selects the moving animation from suspensor identity and current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -302,7 +302,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
-    /// <summary>Selects the stationary animation from suspensor identity and current horizontal dispatcher.</summary>
+    /// <summary>Selects the stationary animation from suspensor identity and current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -383,7 +383,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The frozen Tripper's frame. The frozen draw tests the complete X-movement value for zero: every nonzero value shows
-    /// the right-moving frame, including values outside the normal dispatcher domain.
+    /// the right-moving frame, including values outside the normal direction range.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;

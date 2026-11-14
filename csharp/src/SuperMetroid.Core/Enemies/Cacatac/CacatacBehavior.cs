@@ -104,7 +104,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Moves the Cacatac along its patrol: the 16.16 velocity is added to X with the
+    /// Moves the Cacatac along its patrol: the 1/65536-pixel velocity is added to X with the
     /// fraction's overflow into the whole, then the wrapped signed distance to the patrol limit decides the turn.
     /// </summary>
     private static void MoveCacatac(

@@ -67,7 +67,7 @@ public sealed class DraygonEnemyState
     public Position16<RoomPixels> RightSideReset { get; internal set; }
 
     /// <summary>
-    /// Downward 8.8 acceleration a swoop path is built with, in 1/256 pixel per frame per frame. Only the Y axis is
+    /// Downward 1/256-pixel acceleration a swoop path is built with, in 1/256 pixel per frame per frame. Only the Y axis is
     /// meaningful. It starts at 24, each eye hit adds 8 while the result stays below 160, and a tail-whip hit on
     /// grabbed Samus restores 24.
     /// </summary>
@@ -120,7 +120,7 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// Horizontal radius of the carry spiral in 16.16 pixels; the vertical radius is a quarter of its whole pixels.
+    /// Horizontal radius of the carry spiral in 1/65536 pixels; the vertical radius is a quarter of its whole pixels.
     /// It is cleared by a grab and grows by one eighth of a pixel per spiral frame, so its whole part advances every
     /// eighth frame; the spiral ends when the whole part reaches 160.
     /// </summary>

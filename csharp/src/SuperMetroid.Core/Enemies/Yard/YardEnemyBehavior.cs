@@ -550,7 +550,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             -1));
     }
 
-    /// <summary>Negates one raw 8.8 crawl velocity, wrapping in its signed range.</summary>
+    /// <summary>Negates one raw 1/256-pixel crawl velocity, wrapping in its signed range.</summary>
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
         velocity.Negated();
 

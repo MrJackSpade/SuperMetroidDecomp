@@ -71,7 +71,7 @@ public static class SamusGrappleMovement
         grapple.OriginOffset = new(origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
         grapple.FlareOffset = new(flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
 
-        // The endpoint offset is a signed 16.16 displacement from Samus plus the origin
+        // The endpoint offset is a signed 1/65536-pixel displacement from Samus plus the origin
         // table. Firing clears both axes, fraction and whole alike.
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         // Firing's palette and sound setup.
@@ -667,7 +667,7 @@ public static class SamusGrappleMovement
     /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
-        // Whole endpoint offsets are the signed whole parts of the two 16.16 sums. The signed halving is
+        // Whole endpoint offsets are the signed whole parts of the two 1/65536-pixel sums. The signed halving is
         // intentional: a left/up beam must retain sign after fractional accumulation, as the endpoint offsets
         // read as signed displacements.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
@@ -700,7 +700,7 @@ public static class SamusGrappleMovement
         {
             switch (block.CollisionType)
             {
-                // These four dispatcher entries let the beam pass: it remains live.
+                // These four block kinds let the beam pass: it remains live.
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpikeAir:
                 case RoomCollisionType.SpecialAir:
@@ -846,7 +846,7 @@ public static class SamusGrappleMovement
                 default:
                     throw new InvalidDataException(
                         $"Grapple block type {block.CollisionType} escaped the complete " +
-                        $"sixteen-entry dispatcher at {block.Position}.");
+                        $"sixteen block kinds at {block.Position}.");
             }
         }
 

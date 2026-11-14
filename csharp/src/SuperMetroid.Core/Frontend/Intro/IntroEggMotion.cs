@@ -11,7 +11,7 @@ internal static class IntroEggMotion
     /// <summary>62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
     /// <remarks>
     /// Issues #625 and #979: the odd-actor table has
-    /// 62 signed 16.16 records matching
+    /// 62 signed 1/65536-pixel records matching
     /// the authored data. For f=0..13, g=f/7 and r=f%7
     /// give whole=g-2 and fraction=0 for r=0, otherwise (7-r) eighths of a pixel.
     /// For f=14..61 the signed value is (f-14) eighths of a pixel, ending at five and seven eighths.
@@ -23,7 +23,7 @@ internal static class IntroEggMotion
     /// table; fractional addition and the overflow into the whole part stay exact.
     ///
     /// Issues #625 and #980: the separate even-actor table
-    /// has 69 signed 16.16 records matching the authored data. For
+    /// has 69 signed 1/65536-pixel records matching the authored data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
     /// otherwise (7-r) eighths of a pixel. For f=21..68 the signed value is
     /// (f-21) eighths of a pixel, ending at five and seven eighths. An even timer selects
@@ -34,7 +34,7 @@ internal static class IntroEggMotion
     /// </remarks>
     public static SignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 
-    /// <summary>Produces one bounded signed 16.16 gravity step for shell or parity-selected slime trajectories.</summary>
+    /// <summary>Produces one bounded signed 1/65536-pixel gravity step for shell or parity-selected slime trajectories.</summary>
     private static SignedSixteenSixteen Curve(int frame, int count, int negativeGroups)
     {
         if ((uint)frame >= count)
@@ -73,7 +73,7 @@ internal static class IntroEggMotion
     /// </remarks>
     public static Position16<ScreenPixels> FragmentInitialPosition(int index) => Ensure.Element(FragmentInitialPositions, index);
 
-    /// <summary>Six signed 16.16 shell-fragment horizontal velocities.</summary>
+    /// <summary>Six signed 1/65536-pixel shell-fragment horizontal velocities.</summary>
     /// <remarks>
     /// Issues #625 and #976: the authored data
     /// match all six velocities, in pixels per frame:
@@ -89,7 +89,7 @@ internal static class IntroEggMotion
     /// <summary>Five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>
     /// Issues #625 and #978: the authored data
-    /// match all five signed 16.16 speeds, in pixels per frame:
+    /// match all five signed 1/65536-pixel speeds, in pixels per frame:
     /// -1, -0.5, 1, 0.5, -0.5.
     /// The slime motion indexes them by the actor timer's count within its
     /// 256-frame cycle; the retail spawn path creates indices 0..3, while index 4 is

@@ -16,9 +16,9 @@ public enum VerticalShutterAction
     Activate,
     /// <summary>Initial inert action for the one-shot and repeatable reaction-triggered modes.</summary>
     InitialNoOp,
-    /// <summary>Adds upward 16.16 velocity, carries a rider, and stops at the minimum Y boundary.</summary>
+    /// <summary>Adds upward 1/65536-pixel velocity, carries a rider, and stops at the minimum Y boundary.</summary>
     MovingUp,
-    /// <summary>Adds downward 16.16 velocity, carries a rider, and stops at the maximum Y boundary.</summary>
+    /// <summary>Adds downward 1/65536-pixel velocity, carries a rider, and stops at the maximum Y boundary.</summary>
     MovingDown,
     /// <summary>Waits for the timer to pass zero before moving down or restoring proximity waiting.</summary>
     StoppedAfterMovingUp,

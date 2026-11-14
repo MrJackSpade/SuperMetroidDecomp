@@ -365,7 +365,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
-    /// <summary>Adds the same 16.16 Y displacement to Samus and all three ship components.</summary>
+    /// <summary>Adds the same 1/65536-pixel Y displacement to Samus and all three ship components.</summary>
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, SignedSixteenSixteen delta)
     {
         FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
@@ -594,7 +594,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the shared 8.8 velocity integrator.</summary>
+    /// <summary>Runs the shared 1/256-pixel velocity integrator.</summary>
     private void MoveEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)

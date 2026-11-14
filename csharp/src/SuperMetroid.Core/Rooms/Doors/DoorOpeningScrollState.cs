@@ -29,7 +29,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Travel axis and sign selected by the destination door definition.</summary>
     public DoorDirection Direction { get; }
 
-    /// <summary>Samus's signed 16.16 displacement for one scroll update, along the travel axis.</summary>
+    /// <summary>Samus's signed 1/65536-pixel displacement for one scroll update, along the travel axis.</summary>
     public FixedVector<RoomPixels> SamusScrollStep { get; }
 
     /// <summary>Scroll updates still required before the scroll can snap to its destination.</summary>
@@ -41,7 +41,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>The second background layer's position as the scroll carries it.</summary>
     public Position16<BackgroundPixels> BackgroundPosition { get; private set; }
 
-    /// <summary>Samus's 16.16 position as the scroll carries her.</summary>
+    /// <summary>Samus's 1/65536-pixel position as the scroll carries her.</summary>
     public FixedPosition<RoomPixels> SamusPosition { get; private set; }
 
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>

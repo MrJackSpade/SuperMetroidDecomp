@@ -95,7 +95,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialLongLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(16384, 5);
         state.InitialLungeYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 3);
 
-        // The source label's branch name is reversed. A negative Samus-minus-enemy delta
+        // Samus's side picks the facing: a negative Samus-minus-enemy delta
         // selects the left-facing animation; nonnegative selects the right-facing animation.
         SetBeetomAnimation(
             slot,

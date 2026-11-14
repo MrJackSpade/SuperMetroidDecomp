@@ -190,7 +190,7 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Adds a 16.16 speed change to the body's figure-eight speed, or subtracts it when slowing.</summary>
+    /// <summary>Adds a 1/65536-pixel speed change to the body's figure-eight speed, or subtracts it when slowing.</summary>
     private static void ChangePhantoonSpeed(PhantoonBodyState body, int low, int high, PhantoonSpeedChange direction)
     {
         SignedSixteenSixteen change = SignedSixteenSixteen.FromParts(high, low);

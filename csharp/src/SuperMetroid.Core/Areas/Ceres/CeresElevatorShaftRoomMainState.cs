@@ -46,7 +46,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>True after the elevator bounds have admitted Samus once.</summary>
     public bool DepartureRequested { get; private set; }
 
-    /// <summary>One-frame publication consumed by the outer game-state dispatcher.</summary>
+    /// <summary>One-frame publication consumed by the outer game-state loop.</summary>
     public bool DepartureRequestedThisFrame { get; private set; }
 
     /// <summary>The shaft's most recently published tilt.</summary>
@@ -108,7 +108,7 @@ public sealed class CeresElevatorShaftRoomMainState
             // Reaching the Ceres elevator chooses the facing-left or facing-right elevator pose from the current
             // facing, refreshes pose radii/animation, seeds the
             // 60-frame elevator hold, then locks Samus's input. The hold is
-            // owned by the frontend dispatcher; everything Samus-visible remains here.
+            // owned by the frontend game-state loop; everything Samus-visible remains here.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             samus.Pose = facingLeft
                 ? SamusPoseId.FacingLeftNormalPose

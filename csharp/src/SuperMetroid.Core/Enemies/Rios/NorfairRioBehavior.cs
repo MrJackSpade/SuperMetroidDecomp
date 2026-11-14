@@ -41,7 +41,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
     private const int NorfairRioHorizontalTriggerDistance = 192;
-    /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
+    /// <summary>Signed 1/256-pixel vertical speed decrement applied during dive and return.</summary>
     private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Norfair Rio.</summary>

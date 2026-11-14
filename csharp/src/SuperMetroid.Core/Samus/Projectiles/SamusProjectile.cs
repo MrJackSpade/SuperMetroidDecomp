@@ -68,9 +68,9 @@ public sealed class SamusProjectile
     /// </summary>
     public bool IsSpent { get; internal set; }
 
-    /// <summary>Room-pixel 16.16 position.</summary>
+    /// <summary>Room position in 1/65536 pixels.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Signed 8.8 per-update velocity.</summary>
+    /// <summary>Signed 1/256-pixel per-update velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The selected HUD item: the six entries of the HUD dispatchers (#1323). The selection ring,
+/// The selected HUD item: the six items of the HUD selection (#1323). The selection ring,
 /// the arm-cannon cover policy and every weapon handler index exactly this domain.
 /// </summary>
 public enum HudItem

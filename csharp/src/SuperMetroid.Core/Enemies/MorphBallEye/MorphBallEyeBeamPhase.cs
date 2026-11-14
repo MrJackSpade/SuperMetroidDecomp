@@ -7,7 +7,7 @@ public enum MorphBallEyeBeamPhase
     Inactive,
     /// <summary>The eye AI requested a beam, which appears on the next beam update, before the next enemy AI pass.</summary>
     PendingInitialization,
-    /// <summary>The beam accelerates its 16.16 angular half-width until it reaches four of the 256 angle units per full turn.</summary>
+    /// <summary>The beam accelerates its 1/65536-step angular half-width until it reaches four of the 256 angle units per full turn.</summary>
     Widening,
     /// <summary>The four-unit half-width beam follows the eye's aim and cycles sixteen yellow brightness steps while the eye stays activated.</summary>
     Full,

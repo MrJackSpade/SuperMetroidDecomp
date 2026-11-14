@@ -83,7 +83,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whole pixels per frame a body spike travels horizontally, toward the side Mini-Kraid faces.</summary>
     private const int SpikePixelsPerFrame = 2;
 
-    /// <summary>Sub-pixel steps in one whole pixel of a projectile's 8.8 velocity.</summary>
+    /// <summary>Sub-pixel steps in one whole pixel of a projectile's 1/256-pixel velocity.</summary>
     private const int SubpixelsPerPixel = 256;
 
     /// <summary>Queues one of Mini-Kraid's sounds as it makes it, after the update's earlier requests.</summary>
@@ -169,7 +169,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
-        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the signed four-pixel 16.16
+        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the signed four-pixel 1/65536-pixel
         // displacement and reverse only if the room collision helper reports a wall.
         bool reverse = --state.WalkStepTimer == 0;
         if (reverse)

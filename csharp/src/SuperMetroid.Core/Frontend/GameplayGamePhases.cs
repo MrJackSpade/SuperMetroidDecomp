@@ -319,7 +319,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         {
             // Samus's pause check executes during the already-completed
             // main-gameplay frame. It initializes both fade counters and publishes
-            // the pause state; the following dispatcher call consumes the first delay.
+            // the pause state; the following update consumes the first delay.
             session.screenFade.Reload();
             session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
@@ -327,7 +327,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         else if (session.GameplayRuntime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
         {
             // The elevator has already selected standing pose, locked Samus, and
-            // published its game state. The following dispatcher call owns the
+            // published its game state. The following update owns the
             // 60-frame hold; do not decrement it on this trigger frame.
             session.ceresDeparture.Begin();
             session.GameState = SuperMetroidGameState.MadeItToCeresElevator;
@@ -336,7 +336,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         {
             // A door hit changes the game state during the gameplay call.
             // The already-produced gameplay image remains this frame's image; the
-            // following dispatcher call begins the door state from that publication.
+            // following update begins the door state from that publication.
             // A message box opened later in the same call (a station's completion
             // notice in the room-object handler) suspends that call until it
             // closes, so the door's state waits for the box's final frame.

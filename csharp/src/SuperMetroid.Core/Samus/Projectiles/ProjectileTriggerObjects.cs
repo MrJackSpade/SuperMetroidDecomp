@@ -27,7 +27,7 @@ internal sealed class ProjectileTriggerObjects
         SamusProjectileType projectileType)
     {
         // The search runs in processing order and accepts the first matching block regardless of its definition. Preserve
-        // that generality: reaction room objects and future modelled actors must not be omitted from a family dispatcher.
+        // that generality: reaction room objects and future modelled actors must not be omitted from a family step.
         foreach (RoomObjectSlot slot in _slotTable.InProcessingOrder)
         {
             if (!slot.Active || slot.Block != block)

@@ -39,7 +39,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Samus must be strictly within 112 horizontal pixels to permit a swoop.</summary>
     private const int LowerNorfairRioHorizontalTriggerDistance = 112;
-    /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
+    /// <summary>Each flight update subtracts 32 units from the signed 1/256-pixel vertical velocity.</summary>
     private static readonly SignedEightEight LowerNorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Lower Norfair Rio.</summary>
@@ -263,11 +263,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Reverses the full signed 8.8 horizontal velocity after targeting or collision.</summary>
+    /// <summary>Reverses the full signed 1/256-pixel horizontal velocity after targeting or collision.</summary>
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.ReversedX();
 
-    /// <summary>Applies the negative 8.8 vertical acceleration after a flight step.</summary>
+    /// <summary>Applies the negative 1/256-pixel vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(state.Velocity.Y - LowerNorfairRioGravity);
 

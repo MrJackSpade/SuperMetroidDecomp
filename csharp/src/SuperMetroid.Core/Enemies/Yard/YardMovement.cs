@@ -26,6 +26,6 @@ public enum YardMovement
     CrawlingUpsideDownMovingLeft,
     /// <summary>Upward crawl with Yard's top facing left, using vertical surface and corner probes.</summary>
     CrawlingUpsideLeftMovingUp,
-    /// <summary>Applies 16.16 shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
+    /// <summary>Applies 1/65536-pixel shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
     Airborne,
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// Faithful damage side effects owned by terrain collision.
 /// </summary>
 /// <remarks>
-/// Solid spike blocks are handled synchronously by the directional movement dispatcher.
+/// Solid spike blocks are handled synchronously by the directional movement step.
 /// Spike-air is deliberately different: the inside-block reaction samples Samus's bottom, center, and
 /// top points during the input phase, before movement. Keeping both entry points
 /// here prevents their similar damage values from erasing that timing distinction.

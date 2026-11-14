@@ -52,7 +52,7 @@ internal sealed class RoomObjectFramePhase
     /// before the following frame boundary.
     /// </summary>
     /// <remarks>
-    /// The ordinary frame dispatcher intentionally suppresses room objects while the shared
+    /// The ordinary frame step intentionally suppresses room objects while the shared
     /// door/elevator freeze flag is set. This call is the game's one exception: it
     /// advances the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A two-dimensional signed 16.16 displacement or per-frame velocity. Each axis is one
-/// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, overflow and 16.16 wrap live
+/// A two-dimensional signed 1/65536-pixel displacement or per-frame velocity. Each axis is one
+/// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, overflow and 1/65536-pixel wrap live
 /// in exactly one place.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>

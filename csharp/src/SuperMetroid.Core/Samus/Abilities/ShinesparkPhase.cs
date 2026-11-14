@@ -11,7 +11,7 @@ public enum ShinesparkPhase
     Windup,
     /// <summary>The horizontal spark; moves along the facing direction until collision or the sustaining-energy check starts the crash sequence.</summary>
     Horizontal,
-    /// <summary>The vertical spark; accelerates upward with split 16.16 motion until collision or insufficient sustaining energy.</summary>
+    /// <summary>The vertical spark; accelerates upward with split 1/65536-pixel motion until collision or insufficient sustaining energy.</summary>
     Vertical,
     /// <summary>The diagonal spark; runs horizontal then upward movement, retaining the last axis's collision result rather than combining the two.</summary>
     Diagonal,

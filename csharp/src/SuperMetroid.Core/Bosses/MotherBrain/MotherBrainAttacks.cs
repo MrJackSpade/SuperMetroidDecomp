@@ -24,7 +24,7 @@ internal sealed class MotherBrainAttacks
         _rainbowAndDeath = rainbowAndDeath;
     }
 
-    /// <summary>Runs the four-entry body dispatcher.</summary>
+    /// <summary>Runs the body's current phase, one of four.</summary>
     internal static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
     {
         switch (state.HandBeamPhase)
@@ -62,7 +62,7 @@ internal sealed class MotherBrainAttacks
             default:
                 throw new InvalidDataException(
                     $"Mother Brain hand-beam phase {state.HandBeamPhase} is " +
-                    "outside the four-entry hand-beam dispatcher.");
+                    "outside the four hand-beam phases.");
         }
     }
 
@@ -107,7 +107,7 @@ internal sealed class MotherBrainAttacks
         {
             if (MotherBrainRandomDefinitions.AttacksAtFullStrength.IsTakenBy(random))
             {
-                // The attack setup installs the attack dispatcher and returns. It does not execute
+                // The attack setup installs the attack sequence and returns. It does not execute
                 // phase zero until the body's next enemy-AI call.
                 state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
                 return;
@@ -126,8 +126,8 @@ internal sealed class MotherBrainAttacks
             state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
             return;
         }
-        // The hand-beam setup installs the ordinary red hand-beam dispatcher. It does not execute phase
-        // zero until the next body AI call; the rainbow beam's dispatcher is separate and
+        // The hand-beam setup installs the ordinary red hand-beam sequence. It does not execute phase
+        // zero until the next body AI call; the rainbow beam's sequence is separate and
         // entered only when health reaches zero.
         state.Phase = MotherBrainBodyPhase.SecondPhaseHandBeam;
     }
@@ -162,7 +162,7 @@ internal sealed class MotherBrainAttacks
             default:
                 throw new InvalidDataException(
                     $"Mother Brain attack phase {state.AttackPhase} is outside the " +
-                    "three-entry attack dispatcher.");
+                    "three attack phases.");
         }
     }
 
@@ -447,7 +447,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Finishes the laser attack, including its same-frame jump back into thinking. The attack
     /// phase and cooldown intentionally remain as selected: the laser body state replaces
-    /// the dispatcher, so the chain does not pass through that dispatcher's end phase.
+    /// the attack sequence, so the chain does not pass through that sequence's end phase.
     /// </summary>
     internal void FinishMotherBrainLaserAttack(
         MotherBrainEnemyState state,

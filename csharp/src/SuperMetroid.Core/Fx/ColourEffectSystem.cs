@@ -242,7 +242,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>
     /// The heat shimmer's condition. The shimmer deliberately owns both its look and the heat's damage: an unprotected
-    /// Samus takes one quarter-unit of 16.16 damage per update, and the shimmer restarts on the heat phase the Norfair glow
+    /// Samus takes a quarter unit of fractional damage per update, and the shimmer restarts on the heat phase the Norfair glow
     /// published, which that glow, taking its turn after the shimmer, publishes for the following update.
     /// </summary>
     private void BurnSamusInHeat(

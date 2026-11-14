@@ -9,7 +9,7 @@ public enum EtecoonAction
 {
     /// <summary>Waits for Samus within 128 vertical room pixels, runs the 256-frame wake/flex countdown, and defers activation during elevator-door transition.</summary>
     WaitingForSamus = 1,
-    /// <summary>Waits for the eleven-update hop countdown, then starts the bottom-room jump at signed 16.16 Y velocity -3 pixels per update.</summary>
+    /// <summary>Waits for the eleven-update hop countdown, then starts the bottom-room jump at signed 1/65536-pixel Y velocity -3 pixels per update.</summary>
     PreJumpCountdown,
     /// <summary>Hops vertically, clears upward velocity on ceiling contact, and chooses a Samus-facing pause or another hop on downward collision.</summary>
     InitialJump,

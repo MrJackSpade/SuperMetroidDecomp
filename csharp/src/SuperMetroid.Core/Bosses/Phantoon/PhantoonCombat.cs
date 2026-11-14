@@ -560,7 +560,7 @@ internal sealed class PhantoonCombat
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
     internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius)
     {
-        // The half-wave sample is an unsigned 8.8 value of at most one: its fraction and its whole part each multiply
+        // The half-wave sample is an unsigned value in 256ths of at most one: its fraction and its whole part each multiply
         // the radius.
         int sample = Trigonometry.SignedSine(angle.InFirstHalfTurn());
         int orbit = ShortCircleProduct.RadiusInUse(radius);

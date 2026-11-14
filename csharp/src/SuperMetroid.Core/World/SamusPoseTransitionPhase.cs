@@ -204,7 +204,7 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Bomb overlap is published between the input and movement phases, but the game's
-        // interruption dispatcher considers it only AFTER movement/animation.
+        // interruption step considers it only AFTER movement/animation.
         // Active hurt values retain the request without arming or rejecting it;
         // expiry owns this frame even after clearing those values. This permits
         // a later bomb launch to retain the damaged pose, with input locked by
@@ -372,7 +372,7 @@ internal sealed class SamusPoseTransitionPhase
         // selected before collision cannot override the game's bounce result.
         // The collision table ignores ground-family type four, even if hurt
         // movement left that pose with nonzero Y speed. Do not infer an airborne
-        // landing dispatcher from velocity alone.
+        // landing step from velocity alone.
         if (!animationTransitionApplied &&
             _player.LastMorphBallMovement is { Landed: true } &&
             SamusPoseMetadata.IsAirborneMorphBallPose(frame.PoseAtFrameStart))
@@ -919,12 +919,12 @@ internal sealed class SamusPoseTransitionPhase
                 break;
             default:
                 // The movement-coverage check exhaustively audits every active retail
-                // transition pair entering this dispatcher. An authored match not
+                // transition pair entering this step. An authored match not
                 // owned by one of the explicit families above means the pose
                 // table or state was mixed from an incompatible revision.
                 throw new InvalidDataException(
                     $"Grounded input transition {frame.PoseAtFrameStart} -> " +
-                    $"{targetPose} escaped the exhaustive retail dispatcher.");
+                    $"{targetPose} escaped the exhaustive retail transition list.");
         }
     }
 

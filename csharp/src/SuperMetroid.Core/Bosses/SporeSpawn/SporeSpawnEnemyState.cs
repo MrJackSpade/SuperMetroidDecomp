@@ -55,7 +55,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
     public RotationAngle DeathAngle { get; internal set; }
     /// <summary>
-    /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining the death
+    /// Unsigned 1/65536-pixel-per-update death-drift magnitude per axis, combining the death
     /// speed and subspeed of X and of Y; <see cref="DeathAngle"/>
     /// supplies each axis's movement sign.
     /// </summary>

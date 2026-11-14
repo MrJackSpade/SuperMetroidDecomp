@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>The shootable reactions the shot-block dispatcher handles, and what it does with each.</summary>
+/// <summary>The shootable reactions the shot-block response handles, and what it does with each.</summary>
 public static class ShotBlockReactionDefinitions
 {
     /// <summary>
-    /// What the dispatcher does with each shootable reaction it handles: the respawning and permanent breaks of every size,
+    /// What the shot-block response does with each shootable reaction it handles: the respawning and permanent breaks of every size,
     /// the Power Bomb and Super Missile blocks, the empty reactions and the collision probe. The blocks that ignore shots,
     /// and the blocks that react only when solid, set off the same one-update object as the empty reaction.
     /// </summary>

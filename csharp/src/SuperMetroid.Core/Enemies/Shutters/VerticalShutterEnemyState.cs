@@ -11,7 +11,7 @@ public sealed class VerticalShutterEnemyState
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
-    /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.
+    /// The current behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.
     /// </summary>
     public VerticalShutterAction? Action { get; internal set; }
 
@@ -20,11 +20,11 @@ public sealed class VerticalShutterEnemyState
     /// it passes zero.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
-    /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>
+    /// <summary>Downward signed 1/65536-pixel velocity in pixels per update, from the common linear-speed table.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
 
     /// <summary>
-    /// Upward signed 16.16 velocity in pixels per update; its fraction is added together with the negative whole part,
+    /// Upward signed 1/65536-pixel velocity in pixels per update; its fraction is added together with the negative whole part,
     /// not negated independently.
     /// </summary>
     public SignedSixteenSixteen UpVelocity { get; internal set; }

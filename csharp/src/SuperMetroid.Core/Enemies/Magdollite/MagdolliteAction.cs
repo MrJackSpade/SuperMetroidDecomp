@@ -16,11 +16,11 @@ public enum MagdolliteAction
     HeadWaitingForReturnAnimation,
     /// <summary>Holds the arm dormant until the head clears its not-emerged flag, then initializes growth at its spawn Y.</summary>
     BodyDormant,
-    /// <summary>Adds the preceding head's upward 16.16 velocity and extends pillar segments until reaching Samus's height or the maximum rise.</summary>
+    /// <summary>Adds the preceding head's upward 1/65536-pixel velocity and extends pillar segments until reaching Samus's height or the maximum rise.</summary>
     BodyRising,
     /// <summary>Index-load/return stub that holds the grown arm stationary while the hand throws.</summary>
     NoOpAtApex,
-    /// <summary>Adds the head's downward 16.16 velocity, removes pillar segments, and releases the head when the arm lands.</summary>
+    /// <summary>Adds the head's downward 1/65536-pixel velocity, removes pillar segments, and releases the head when the arm lands.</summary>
     BodyFalling,
     /// <summary>Waits for the head to begin forming the base pillar before tracking arm growth.</summary>
     OverlayWaitingForAttack,

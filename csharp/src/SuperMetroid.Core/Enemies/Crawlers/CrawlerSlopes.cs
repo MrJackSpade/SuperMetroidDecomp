@@ -10,6 +10,6 @@ public static class CrawlerSlopes
             ? CrawlerSlopeDefinitions.Multipliers[shape]
             : throw new InvalidDataException($"Crawler slope shape {shape} exceeds the 32 slope shapes.");
 
-    /// <summary>Converts signed 8.8 tangent speed into signed 16.16 displacement without truncating the product.</summary>
+    /// <summary>Converts signed 1/256-pixel tangent speed into signed 1/65536-pixel displacement without truncating the product.</summary>
     public static SignedSixteenSixteen Scale(SignedEightEight velocity, int shape) => velocity.ScaledBy(Multiplier(shape));
 }

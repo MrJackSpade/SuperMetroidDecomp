@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 /// <remarks>
 /// This object deliberately owns only the pause-menu-local display image. The outer
-/// <see cref="SuperMetroidGame"/> dispatcher retains the pause game states, while the
+/// <see cref="SuperMetroidGame"/> game-state loop retains the pause game states, while the
 /// live <see cref="SamusState"/> remains the sole owner of inventory. Consequently an
 /// equipment-screen A press changes the same flags consumed by movement, rendering, and saving;
 /// there is no separate copy that can diverge from gameplay.
@@ -237,7 +237,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <remarks>
     /// Rendering itself is intentionally pure. The game advances these counters from its
     /// draw steps, but a host may draw the same frame more than once while paused
-    /// (for example, a screen capture). The dispatcher calls this exactly
+    /// (for example, a screen capture). The game-state loop calls this exactly
     /// once per frame so extra draws cannot change game-visible timing.
     /// </remarks>
     public void AdvanceAnimations(int frameCycle = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
@@ -628,7 +628,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The handler is chosen before movement: the handler of the category selected before the cursor moved toggles the item
         // the cursor has just moved onto.
         // A press handled from the boots column onto Plasma therefore bypasses the beam handler's Spazer/Plasma
-        // exclusion. Do not use upstream C's 'Fixed var bug' category guard: it is absent from the retail game. The page
+        // exclusion. Do not add a category guard that corrects this: the retail game has none. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(SelectedCategory);

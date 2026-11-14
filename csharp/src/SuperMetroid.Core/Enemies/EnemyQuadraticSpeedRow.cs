@@ -21,7 +21,7 @@ public readonly record struct EnemyQuadraticSpeedRow(SignedSixteenSixteen Positi
 
     /// <summary>
     /// The row's speed in the direction <paramref name="sign"/> names, in 256ths of a pixel per frame, as an unsigned
-    /// 8.8 value of 0 through 65535: the whole pixels within 256 over the fraction's 256ths.
+    /// 1/256-pixel value of 0 through 65535: the whole pixels within 256 over the fraction's 256ths.
     /// </summary>
     internal int CoarseToward(EnemySpeedSign sign) => Toward(sign).NearTwoFiftySixths;
 }

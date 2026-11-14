@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Compiled form of the complete revealed-block dispatcher: the reveal shape each collision kind and reaction selects. The
+/// Compiled form of the complete revealed-block check: the reveal shape each collision kind and reaction selects. The
 /// shapes keep the game's copy dimensions, extension traversal and Brinstar-only behaviour; the blocks each copy shows
 /// are installed pictures (#1596).
 /// </summary>

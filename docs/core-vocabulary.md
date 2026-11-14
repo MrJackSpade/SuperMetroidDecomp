@@ -151,7 +151,7 @@ There is no identifier allowance. A type marked `[CompatibilityService]` (#1401)
 hardware behaviour it reproduces (for example "as the SPC port handshake did"); documentation is not an identifier, so
 the rule never reads it. Its documentation counterpart, SME6454, exempts compatibility services and encoding owners in
 the same way, except for the machine's provenance, which it reads in every type: native words and bit patterns, the
-cartridge's routines and values written as the machine's hexadecimal fixed-point (`0.1000`, `7.0000`) (#1743). Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
+cartridge's routines and values written as the machine's hexadecimal fixed-point (`0.1000`, `7.0000`) (#1743). It reads the original program's call structure and the C reimplementation in every type too: dispatchers, callables, a routine's labels (a merge or inverted label) and the upstream C rewrite (#1754). Outside the owners it also reads the original's data and number encodings: decompression, colour indexes, two's complement, unsigned compares and the `8.8` and `16.16` format names (#1754); an encoding owner such as `EightEight` names the format it owns. Every other occurrence is renamed for the game or removed with the thing it named. No baseline,
 allowlist, count, severity change or scope change (project manifesto, section 6).
 
 ## Status

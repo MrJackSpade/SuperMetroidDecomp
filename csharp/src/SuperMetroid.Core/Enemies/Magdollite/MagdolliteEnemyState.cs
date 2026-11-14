@@ -61,12 +61,12 @@ public sealed class MagdolliteEnemyState
     public WrappingCountdown AttackTimer { get; internal set; }
 
     /// <summary>
-    /// Signed 16.16 downward velocity in room pixels per update, the spawn settings' speed; the falling arm consumes
+    /// Signed 1/65536-pixel downward velocity in room pixels per update, the spawn settings' speed; the falling arm consumes
     /// the head's copy.
     /// </summary>
     public SignedSixteenSixteen DownwardVelocity { get; internal set; }
     /// <summary>
-    /// Signed 16.16 upward velocity in room pixels per update: the spawn settings' speed, negated; the rising arm
+    /// Signed 1/65536-pixel upward velocity in room pixels per update: the spawn settings' speed, negated; the rising arm
     /// consumes the head's copy.
     /// </summary>
     public SignedSixteenSixteen UpwardVelocity { get; internal set; }

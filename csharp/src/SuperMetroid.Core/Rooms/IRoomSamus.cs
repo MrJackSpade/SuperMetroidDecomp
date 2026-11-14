@@ -74,6 +74,6 @@ public interface IRoomSamus
     /// <summary>Turns Samus to face forward, as a save station centres her.</summary>
     void FaceForward();
 
-    /// <summary>Takes periodic damage, as a chewing plant or a heated room deals it, through the 16.16 periodic-damage path.</summary>
+    /// <summary>Takes periodic damage, as a chewing plant or a heated room deals it, through the fractional periodic-damage path.</summary>
     void TakePeriodicDamage(int subDamage, int wholeDamage);
 }

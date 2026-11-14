@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
-/// game's phase boundaries, counters, 16.16 camera motion, turning-floor rotation values, and
+/// game's phase boundaries, counters, 1/65536-pixel camera motion, turning-floor rotation values, and
 /// compiled sprite animations, so the scene's progress is game state:
 /// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
@@ -105,7 +105,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
     private readonly bool japaneseText;
 
-    /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
+    /// <summary>Signed 1/65536-pixel camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(CoordinateAxis.Wrap(-44), 0), new(CoordinateAxis.Wrap(-112), 0));
     /// <summary>
     /// The floor's zoom. Every producer keeps it within zero through
@@ -197,13 +197,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             Backdrop = value.CeresFlight.Backdrop;
     }
 
-    /// <summary>Current dispatcher phase, including the alternate game-over route.</summary>
+    /// <summary>Current phase, including the alternate game-over route.</summary>
     public CeresDestructionPhase Phase { get; internal set; }
 
     /// <summary>True after the completion star leaves the Zebes screen or the terminal route ends.</summary>
     public bool Finished => Phase == CeresDestructionPhase.Finished;
 
-    /// <summary>Executes one call through the destruction cinematic's dispatcher.</summary>
+    /// <summary>Runs one update of the destruction cinematic.</summary>
     public void Step()
     {
         // The cinematic first waits nine updates with the screen black; each wait is one update
@@ -411,7 +411,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
         // The cinematic's game state increments the shared cinematic frame counter after calling the
         // current phase but before object handling. The mosaic test therefore observes
-        // this pre-increment value on its following dispatcher call.
+        // this pre-increment value on its following update.
         cinematicFrameCounter++;
     }
 
@@ -624,7 +624,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The final blast replaces the floor on the same dispatcher call that creates the final explosion. With Samus gone
+    /// The final blast replaces the floor on the same update that creates the final explosion. With Samus gone
     /// the upper half becomes the gunship viewed from the front over a cleared lower half; with Samus still aboard no
     /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). Leaving the station on either half
     /// would make the station itself flee the explosion and later carry it into the Zebes approach.
@@ -706,7 +706,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         "A PLANET ZEBES caption actor remained active when scene sliding began.");
                 }
                 actor.InstallFrameBehavior(definition.SlideFrameBehavior);
-                // Zebes accelerates by 64 in 8.8; all four star sheets use 32. Star
+                // Zebes accelerates by 64 in 1/256 pixels; all four star sheets use 32. Star
                 // sheet five owns the reveal's completion. Identify the actors
                 // by ownership, not their mutable list index: actors delete as they
                 // cross -128, so indexes necessarily shift during this loop.

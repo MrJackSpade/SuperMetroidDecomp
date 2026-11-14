@@ -11,6 +11,6 @@ internal struct EndingShootingStar
     internal int Timer;
     /// <summary>Fixed-point screen position before centering the sprite.</summary>
     internal FixedPosition<ScreenPixels> Position;
-    /// <summary>Current signed 8.8 motion accumulated by the star's acceleration.</summary>
+    /// <summary>Current signed 1/256-pixel motion accumulated by the star's acceleration.</summary>
     internal EightEightVector<ScreenPixels> Velocity;
 }

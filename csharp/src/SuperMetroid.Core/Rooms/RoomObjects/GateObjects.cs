@@ -84,7 +84,7 @@ internal sealed class GateObjects
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }
 
-    /// <summary>Runs the gate-trigger shot dispatcher and wakes its adjacent gate.</summary>
+    /// <summary>Runs the gate-trigger shot step and wakes its adjacent gate.</summary>
     public bool TrySpawnDownwardGateTrigger(
         RoomLevelData level,
         Position16<RoomBlocks> position,

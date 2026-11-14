@@ -160,7 +160,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Action = DragonAction.Attacking;
         }
 
-        // The 16.16 constant is exactly -1.0, so both
+        // The 1/65536-pixel constant is exactly -1.0, so both
         // subpositions remain untouched while body and wing rise one whole pixel.
         RoomEnemySlot wing = GetDragonWing(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
@@ -214,7 +214,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Action = DragonAction.WaitToRise;
         }
 
-        // As with rising, the regionalized 16.16 displacement is exactly one pixel.
+        // As with rising, the regionalized 1/65536-pixel displacement is exactly one pixel.
         RoomEnemySlot wing = GetDragonWing(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);

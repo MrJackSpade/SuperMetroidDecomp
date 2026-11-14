@@ -26,7 +26,7 @@ public readonly record struct DoorSamusSpeed
 
     /// <summary>
     /// A door's own push of <paramref name="subpixels"/> 1/256-pixel units per step: a forward push, so it is not negative,
-    /// and a speed, so it lies within a signed 8.8 speed's range.
+    /// and a speed, so it lies within a signed 1/256-pixel speed's range.
     /// </summary>
     public static DoorSamusSpeed SubpixelsPerStep(int subpixels) =>
         new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Ensure.AtLeastZero(subpixels)));

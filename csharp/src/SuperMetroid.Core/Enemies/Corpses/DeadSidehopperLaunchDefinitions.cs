@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Four-phase signed 8.8 launch cycle for the Tourian sidehopper corpse.</summary>
+/// <summary>Four-phase signed 1/256-pixel launch cycle for the Tourian sidehopper corpse.</summary>
 public static class DeadSidehopperLaunchDefinitions
 {
     /// <summary>

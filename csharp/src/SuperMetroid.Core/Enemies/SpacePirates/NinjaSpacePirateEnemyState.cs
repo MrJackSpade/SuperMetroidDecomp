@@ -45,7 +45,7 @@ public sealed class NinjaSpacePirateEnemyState
     }
 
     /// <summary>
-    /// The current signed 8.8 speed in 1/256 pixel per update: the spin jump's horizontal speed, which rises by 32 per
+    /// The current signed 1/256-pixel speed in 1/256 pixel per update: the spin jump's horizontal speed, which rises by 32 per
     /// update until the midpoint and falls back to zero, or the divekick's vertical speed, which starts at 1,536 and
     /// falls by 64 per update. Its sign is load-bearing: the divekick rise ends on the update the speed turns negative.
     /// </summary>

@@ -12,10 +12,10 @@ public sealed class SkulteraEnemyState
     /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
     public SkulteraAction? Action { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per swimming update to the right, from the positive half of the population's linear-speed record.</summary>
+    /// <summary>Signed 1/65536-room-pixel displacement per swimming update to the right, from the positive half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }
 
-    /// <summary>Signed 16.16 room-pixel displacement per swimming update to the left, from the negative half of the population's linear-speed record.</summary>
+    /// <summary>Signed 1/65536-room-pixel displacement per swimming update to the left, from the negative half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>The vertical oscillation's phase; only its table index is meaningful, and it wraps after a full turn.</summary>

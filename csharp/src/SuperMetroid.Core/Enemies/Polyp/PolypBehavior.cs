@@ -168,7 +168,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = source.Position;
     }
 
-    /// <summary>Runs the rock's per-frame behaviour and its rising/falling dispatcher.</summary>
+    /// <summary>Runs the rock's per-frame behaviour and its rising/falling step.</summary>
     internal static void RunPolypRockFrameBehavior(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
@@ -239,7 +239,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 
-    /// <summary>Moves the rock with the game's split signed-8.8 horizontal addition.</summary>
+    /// <summary>Moves the rock with the game's split signed-1/256-pixel horizontal addition.</summary>
     private static void MovePolypRockHorizontally(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());

@@ -13,7 +13,7 @@ internal static class FileSelectMapWindowMotions
     /// Let D=max(x,256-x,y,256-y) for the area's stock label position.
     /// An edge at distance d travels floor(256*d/D)/64 pixels per update, negative for
     /// left/top. Quantize the positive magnitude before negating, then promote to signed
-    /// 16.16. The farthest edge travels exactly four pixels per update. The edges move on
+    /// 1/65536 pixels. The farthest edge travels exactly four pixels per update. The edges move on
     /// floor(D/4)+1 updates, and the reveal completes on the last of them.
     /// The generation square is 256 high even though the edges stop at the screen's bottom.
     /// Integer numerators are at most 65536; the division comes before the speed is scaled to sixty-fourths.

@@ -40,7 +40,7 @@ internal static class ShutterRidingVerification
             // and launches Samus; no diagnostic phase write substitutes for that path.
             for (int frame = 0; frame < 220; frame++)
                 runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : 0);
-            AssertEqual(VerticalShutterAction.PermanentNoOp, (state ?? throw new InvalidOperationException("Verification requires state.")).Action,
+            AssertEqual(VerticalShutterAction.Still, (state ?? throw new InvalidOperationException("Verification requires state.")).Action,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
             AssertEqual(state.UpperEndpoint.Y, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
             AssertEqual(0, platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
@@ -49,7 +49,7 @@ internal static class ShutterRidingVerification
                 runtime.StepFrame((slot == 0 ? ControllerButton.Left : ControllerButton.Right));
             AssertTrue(Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) > platform.Radius.X + samus.Kinematics.Radius.X,
                 $"Morph Ball rolls completely clear of shutter {slot} through its upper opening (X={samus.Position.X.Whole})");
-            AssertEqual(VerticalShutterAction.PermanentNoOp, state.Action,
+            AssertEqual(VerticalShutterAction.Still, state.Action,
                 "rolling off does not spuriously reactivate the shutter");
         }
         Console.WriteLine("  Shootable shutters: real bomb activation, upper stop, rider alignment and roll-off agree in both room $01/$22 slots.");

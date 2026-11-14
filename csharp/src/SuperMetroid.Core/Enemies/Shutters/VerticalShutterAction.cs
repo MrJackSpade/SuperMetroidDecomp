@@ -14,8 +14,11 @@ public enum VerticalShutterAction
     WaitForHorizontalProximity,
     /// <summary>Selects primary upward/downward movement and queues the activation sound when on screen.</summary>
     Activate,
-    /// <summary>Initial inert action for the one-shot and repeatable reaction-triggered modes.</summary>
-    InitialNoOp,
+    /// <summary>
+    /// Stands still until a reaction starts it: a reaction-triggered shutter before its first reaction, or any shutter
+    /// that has stopped at an end for good.
+    /// </summary>
+    Still,
     /// <summary>Adds upward 1/65536-pixel velocity, carries a rider, and stops at the minimum Y boundary.</summary>
     MovingUp,
     /// <summary>Adds downward 1/65536-pixel velocity, carries a rider, and stops at the maximum Y boundary.</summary>
@@ -24,6 +27,4 @@ public enum VerticalShutterAction
     StoppedAfterMovingUp,
     /// <summary>Waits for the timer to pass zero before moving up or restoring proximity waiting.</summary>
     StoppedAfterMovingDown,
-    /// <summary>Inert endpoint selected by rest time 4080; eligible reaction modes can still reactivate it.</summary>
-    PermanentNoOp,
 }

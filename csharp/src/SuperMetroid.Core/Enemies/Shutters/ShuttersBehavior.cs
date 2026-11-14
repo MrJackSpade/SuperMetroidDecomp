@@ -288,9 +288,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(ShutterHeading)} {heading}."),
     };
 
-    /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
-    private const int PermanentStopRestTime = 4080;
-
     /// <summary>The enemy-library sound queued when an on-screen shutter begins moving.</summary>
     private static readonly SoundEffectId ShutterActivationSound =
         EnemySoundEffectDefinitions.ShutterActivationSound;
@@ -453,8 +450,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DownVelocity = speeds.Positive;
         state.UpVelocity = speeds.Negative;
 
-        state.MovedUpRestTime = settings.FirstRestTime;
-        state.MovedDownRestTime = settings.SecondRestTime;
+        state.MovedUpRest = settings.RestAfterMovingUp;
+        state.MovedDownRest = settings.RestAfterMovingDown;
 
         state.TriggerMode = settings.TriggerMode;
         state.TravelDistance = settings.TravelDistance;
@@ -521,8 +518,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 ActivateVerticalShutter(slot, state, camera);
                 break;
 
-            case VerticalShutterAction.InitialNoOp:
-            case VerticalShutterAction.PermanentNoOp:
+            case VerticalShutterAction.Still:
                 break;
 
             case VerticalShutterAction.MovingUp:
@@ -569,7 +565,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
             ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
             ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.InitialNoOp,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
             _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
@@ -621,13 +617,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>
     private static void StopVerticalShutter(VerticalShutterEnemyState state, bool atTop)
     {
-        int restTime = atTop ? state.MovedUpRestTime : state.MovedDownRestTime;
-        if (restTime == PermanentStopRestTime)
+        ShutterRest rest = atTop ? state.MovedUpRest : state.MovedDownRest;
+        if (rest.IsPermanent)
         {
-            state.Action = VerticalShutterAction.PermanentNoOp;
+            state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.ActionTimer = WrappingCountdown.Start(restTime);
+        state.ActionTimer = WrappingCountdown.Start(rest.Updates);
         state.Action = atTop ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 

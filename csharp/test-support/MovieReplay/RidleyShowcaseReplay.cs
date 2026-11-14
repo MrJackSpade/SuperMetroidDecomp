@@ -669,7 +669,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     RoomTerrainBlock actualTerrain = activeLevel.TerrainGrid[block];
                     if (actualTerrain != expectedTerrain)
                         mismatches.Add($"Room block {block}: native={expectedTerrain} port={actualTerrain}");
-                    var expectedBehavior = RoomBlockBehaviorCodec.Decode(AreaId.Ceres, memory[NativeSnapshotMemory.Bts + block]);
+                    var expectedBehavior = RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + block]);
                     RoomBlockBehavior actualBehavior = activeLevel.BehaviorGrid[block];
                     if (actualBehavior != expectedBehavior)
                         mismatches.Add($"Room behaviour {block}: native={expectedBehavior} port={actualBehavior}");

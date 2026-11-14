@@ -41,13 +41,18 @@ internal static class BlockReactionSelectorsVerification
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = BombedRevealObjectDraws.TryGet(NativeObjectDraws.At<RoomObjectBombedRevealDraw>(pointer), out var draw);
+            RoomObjectDraw request = NativeObjectDraws.At<RoomObjectBombedRevealDraw>(pointer);
+            bool found = BombedRevealObjectDraws.TryDescribe(request, out RoomBlockShape? shape);
             AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), draw, "bombed reveal missing draw cleared");
+                AssertTrue(shape is null, "bombed reveal missing shape cleared");
                 continue;
             }
+            // The import writes the reveal's one-block shape as the cartridge's one run (#1862).
+            RoomObjectDrawLists.DrawList draw = RoomObjectRevealAndWallVisualFiles.All.Single(list => list.Draw == request);
+            RoomBlockShape reveal = shape ?? throw new InvalidOperationException($"Bombed reveal ${pointer:X4} has no block shape.");
+            AssertEqual(1, reveal.Cells.Count, "bombed reveal one-block shape");
             AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(draw.Draw), "bombed reveal draw identity");
             AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
             var run = draw.Runs.Span[0];
@@ -57,6 +62,7 @@ internal static class BlockReactionSelectorsVerification
             // What the reveal shows is its installed picture, which RevealAndWallVisualsVerification compares with the cartridge.
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))).Collision,run.Collisions.Span[0],
                 "bombed reveal native physical parent");
+            AssertEqual(run.Collisions.Span[0], reveal.CollisionAt(new(0, 0)), "bombed reveal block shape collides as the cartridge's block");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodecConstants.X(draw, 0),"bombed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodecConstants.Y(draw, 0),"bombed reveal native terminal Y");
         }

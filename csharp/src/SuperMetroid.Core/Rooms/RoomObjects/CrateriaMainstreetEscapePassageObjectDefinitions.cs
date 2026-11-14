@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -20,4 +22,7 @@ internal static class CrateriaMainstreetEscapePassageObjectDefinitions
 
     /// <summary>The draw that clears the two passage blocks.</summary>
     internal static RoomObjectFrameDraw<Draw> ClearPairDraw { get; } = RoomObjectDraw.Of(Draw.ClearPair);
+
+    /// <summary>The opened passage (#1862): the object's block and the one right of it, both air.</summary>
+    internal static RoomBlockShape OpenPassage { get; } = new([new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air)]);
 }

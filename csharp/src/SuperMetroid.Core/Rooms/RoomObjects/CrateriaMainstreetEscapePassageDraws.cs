@@ -1,23 +1,18 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using static SuperMetroid.Core.Rooms.RoomObjects.CrateriaMainstreetEscapePassageObjectDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The open-passage draw of Crateria's main street escape.</summary>
+/// <summary>The open-passage draw of Crateria's main street escape and its block shape (#1862).</summary>
 internal static class CrateriaMainstreetEscapePassageDraws
 {
-    /// <summary>Recognizes the escape passage draw and supplies its two adjacent air cells.</summary>
-    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
+    /// <summary>The passage's open blocks when <paramref name="request"/> is the passage's draw.</summary>
+    /// <param name="request">The draw to describe.</param>
+    /// <param name="shape">The two open blocks; null when the draw is not the passage's.</param>
+    /// <returns>Whether the draw is the passage's.</returns>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        if (request != ClearPairDraw)
-        {
-            draw = default;
-            return false;
-        }
-        draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
-        {
-            new(RoomObjectRunDirection.Horizontal, new[] { RoomCollisionType.Air, RoomCollisionType.Air }, new(0, 0)),
-        });
-        return true;
+        shape = request == ClearPairDraw ? OpenPassage : null;
+        return shape is not null;
     }
 }

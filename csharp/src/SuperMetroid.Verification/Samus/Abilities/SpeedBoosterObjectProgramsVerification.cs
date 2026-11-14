@@ -36,18 +36,18 @@ internal static class SpeedBoosterObjectProgramsVerification
             AssertEqual(address == pointer,found,"speed reveal full pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
+                AssertEqual(default(RoomObjectDrawLists.DrawList),draw,"speed reveal missing draw cleared");
                 AssertEqual(NativeObjectDraws.Unowned,atAddress,"speed reveal unknown address yields the unowned draw");
             }
         }
         AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.Unowned),"speed reveal rejects unknown visual identity");
         AssertEqual("bomb-reveal",RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
-        RoomObjectShotBlockDrawDefinitions.DrawList byId = RoomObjectSpeedBoosterVisualFiles.All.Single(draw => RoomObjectSpeedBoosterVisualFiles.Family.Ids[draw.Draw] == "bomb-reveal");
+        RoomObjectDrawLists.DrawList byId = RoomObjectSpeedBoosterVisualFiles.All.Single(draw => RoomObjectSpeedBoosterVisualFiles.Family.Ids[draw.Draw] == "bomb-reveal");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
             AssertTrue(!RoomObjectSpeedBoosterVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal),"speed reveal ordinal ID rejection");
         RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
         // What the reveal shows is its installed picture, which the Speed Booster picture check compares with the cartridge.
-        AssertEqual(nativeTerrain.Collision,SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision,"speed reveal calculated physical collision");
+        AssertEqual(nativeTerrain.Collision,SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape.CollisionAt(new(0, 0)),"speed reveal block-shape collision");
         foreach (var draw in new[] {exported[0],byId,RoomObjectSpeedBoosterVisualFiles.BombReveal})
         {
             AssertEqual(pointer,RoomObjectDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");

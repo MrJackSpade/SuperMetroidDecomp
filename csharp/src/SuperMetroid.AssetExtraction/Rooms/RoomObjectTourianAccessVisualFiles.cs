@@ -29,7 +29,7 @@ public static class RoomObjectTourianAccessVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every Tourian access draw.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -46,8 +46,14 @@ public static class RoomObjectTourianAccessVisualFiles
         RoomObjectVisualIdDefinitions.TourianAccess.TryGetValue(draw, out string? id)
             ? id : throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
 
-    /// <summary>Builds the four-air-cell runs of a Tourian access draw.</summary>
-    internal static RoomObjectShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw) =>
-        RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), TourianAccessDraws.Rows(draw), static _ => TourianAccessObjectDrawDefinitions.RowWidth,
-            static (_, _) => TourianAccessObjectDrawDefinitions.Collision, RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
+    /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
+    internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw)
+    {
+        RoomObjectDraw request = RoomObjectDraw.Of(draw);
+        if (!TourianAccessDraws.TryDescribe(request, out RoomBlockShape? shape))
+            throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
+        int rows = draw == TourianAccessDraw.Clear ? 6 : 1;
+        return RoomObjectShapeRun.DrawList(request, shape,
+            [.. Enumerable.Range(0, rows).Select(row => RoomObjectShapeRun.Row(new(0, row), 4))]);
+    }
 }

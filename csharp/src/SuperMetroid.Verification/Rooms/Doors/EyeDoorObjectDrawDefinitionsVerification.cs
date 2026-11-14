@@ -35,9 +35,9 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         Suite(nameof(VerifyEyeDoorLayoutGeometry), () => VerifyEyeDoorLayoutGeometry(rom));
         Suite(nameof(VerifyEyeDoorLayoutCollision), () => VerifyEyeDoorLayoutCollision(rom));
         Suite(nameof(VerifyEyeDoorLayoutVisuals), () => VerifyEyeDoorLayoutVisuals(rom));
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
+        RoomObjectDrawLists.DrawList[] lists =
             RoomObjectEyeDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectShotBlockDrawDefinitions.DrawList[] entries = RoomObjectEyeDoorVisualFiles.Editable.ToArray();
+        RoomObjectDrawLists.DrawList[] entries = RoomObjectEyeDoorVisualFiles.Editable.ToArray();
         AssertEqual(24, lists.Length,
             "mirrored eye, middle and bottom components include both four-block opening clears");
         AssertEqual(23, entries.Length, "the mirrored clear preserves the existing authored visual identities");
@@ -59,7 +59,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     /// <summary>Checks each eye-door component's collision blocks.</summary>
     private static void VerifyEyeDoorNativeDrawPath(
         EyeDoorOrientation orientation,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists)
+        RoomObjectDrawLists.DrawList[] lists)
     {
         const int width = 16;
         var bus = new TestAddressSpace();
@@ -83,7 +83,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         {
             AssertTrue(RoomObjectEyeDoorVisualFiles.TryGet(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointers[component]), out var list),
                 $"{orientation} component {component} selects compiled draw data");
-            RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
+            RoomObjectDrawLists.Run run = list.Runs.Span[0];
             int stride = run.Direction == RoomObjectRunDirection.Vertical ? width : 1;
             for (int block = 0; block < run.Count; block++)
             {
@@ -102,7 +102,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     private static void VerifyEyeDoorRetailProgramPath(
         CartridgeImportAddressSpace rom,
         EyeDoorOrientation orientation,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists)
+        RoomObjectDrawLists.DrawList[] lists)
     {
         const int width = 16;
         const byte eyeX = 7;
@@ -205,7 +205,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
 
     /// <summary>Rejects runtime reads of compiled eye-door instructions and physical draw payloads.</summary>
     private static MutableCartridgeReadGuard NewEyeDoorDrawGuard(
-        ISnesAddressSpace source, RoomObjectShotBlockDrawDefinitions.DrawList[] lists)
+        ISnesAddressSpace source, RoomObjectDrawLists.DrawList[] lists)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address is >= 0x84d81e and <= 0x84da8b,

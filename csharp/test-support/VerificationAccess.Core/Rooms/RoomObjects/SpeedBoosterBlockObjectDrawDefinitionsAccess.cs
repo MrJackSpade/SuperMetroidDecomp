@@ -10,7 +10,7 @@ internal static class SpeedBoosterBlockObjectDrawDefinitionsAccess
     {
         /// <summary>Recognizes the speed-block bomb-reveal draw pointer.</summary>
         internal static bool TryGet(RoomObjectDraw request,
-            out RoomObjectShotBlockDrawDefinitions.DrawList list)
+            out RoomObjectDrawLists.DrawList list)
         {
             if (request == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
             {

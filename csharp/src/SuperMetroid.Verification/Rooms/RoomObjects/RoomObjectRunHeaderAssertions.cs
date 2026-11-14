@@ -18,6 +18,6 @@ internal static class RoomObjectRunHeaderAssertions
     }
 
     /// <summary>Asserts that <paramref name="run"/> has the direction and block count <paramref name="nativeHeader"/> states.</summary>
-    internal static void AssertRunHeader(int nativeHeader, RoomObjectShotBlockDrawDefinitions.Run run, string context) =>
+    internal static void AssertRunHeader(int nativeHeader, RoomObjectDrawLists.Run run, string context) =>
         AssertRunHeader(nativeHeader, run.Direction, run.Count, context);
 }

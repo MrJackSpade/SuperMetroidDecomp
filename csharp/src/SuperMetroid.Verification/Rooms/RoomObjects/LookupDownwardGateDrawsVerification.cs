@@ -45,7 +45,7 @@ internal static class LookupDownwardGateDrawsVerification
                 if (!owned)
                 {
                     AssertEqual(default(DownwardGateObjectDraws.Draw), shape, "Gate missing descriptor");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Gate missing DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Gate missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
             }
@@ -70,15 +70,11 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertRunHeader(count, dto.Runs.Span[run].Direction, shape.BlockCount(run), "Gate native count/direction");
-                    AssertEqual(length, shape.BlockCount(run), "Gate native run width");
-                    AssertEqual((count & 0x8000) != 0, shape.Column, "Gate runtime direction");
+                    AssertEqual((count & 0x8000) != 0, shape.Column, "Gate column draws down its column");
                     AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
                     AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
                     AssertEqual(length, dto.Runs.Span[run].Count, "Gate DTO width");
                     AssertEqual(length, exported[index].Runs.Span[run].Count, "Gate export width");
-                    foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(run, invalid), "Gate cell bounds");
                 }
                 for (int word = 0; word < length; word++, cursor += 2)
                 {
@@ -87,7 +83,7 @@ internal static class LookupDownwardGateDrawsVerification
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
                         if (field == 1)
                         {
-                            AssertEqual(expected.Collision, shape.CollisionAt(run, word), "Gate original calculated collision");
+                            AssertEqual(expected.Collision, shape.Blocks.CollisionAt(dto.Runs.Span[run].CellAt(word)), "Gate original block-shape collision");
                             AssertEqual(expected.Collision, dto.Runs.Span[run].Collisions.Span[word], "Gate original DTO collision");
                             AssertEqual(expected.Collision, exported[index].Runs.Span[run].Collisions.Span[word], "Gate original export collision");
                         }
@@ -103,7 +99,7 @@ internal static class LookupDownwardGateDrawsVerification
                 if (field == 0)
                 {
                     // The cartridge ends each run with the next run's start, and the last with no offset.
-                    AssertEqual(x, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Gate original continuation X");
+                    AssertEqual(x, run + 1 < dto.Runs.Length ? dto.Runs.Span[run + 1].Start.X : (short)0, "Gate original continuation X");
                     AssertEqual((sbyte)0, y, "Gate runtime continuation Y");
                     AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(dto, run), "Gate DTO X");
                     AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(dto, run), "Gate DTO Y");
@@ -115,18 +111,14 @@ internal static class LookupDownwardGateDrawsVerification
             }
             if (field == 0)
             {
-                AssertEqual(run, shape.RunCount, "Gate original run count");
                 AssertEqual(run, dto.Runs.Length, "Gate DTO run count");
                 AssertEqual(run, exported[index].Runs.Length, "Gate export run count");
                 int end = index == 5 ? 0xa56b : index == 13 ? 0xa627 : pointers[index + 1];
                 AssertEqual(end, cursor, "Gate original record end");
-                foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Gate run bounds");
-
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Gate start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Gate run-width bounds");
-                }
+                // The block shape covers exactly the cells the cartridge writes (#1862).
+                int written = 0;
+                foreach (RoomObjectDrawLists.Run writtenRun in dto.Runs.Span) written += writtenRun.Count;
+                AssertEqual(written, shape.Blocks.Cells.Count, "Gate block shape covers every written cell once");
             }
         }
         AssertEqual(46, cells, "Gate complete original cell domain");

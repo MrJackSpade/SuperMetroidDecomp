@@ -30,12 +30,12 @@ public static class RoomObjectMaridiaElevatubeVisualFiles
     internal const string VisualId = "elevatube-block";
 
     /// <summary>The elevatube's one-block draw list, built from the block the game writes.</summary>
-    internal static RoomObjectShotBlockDrawDefinitions.DrawList BlockDrawList =>
-        RoomObjectDrawListExport.SingleRun(MaridiaElevatubeObjectDefinitions.BlockDraw, RoomObjectRunDirection.Horizontal,
-            [MaridiaElevatubeObjectDefinitions.Collision]);
+    internal static RoomObjectDrawLists.DrawList BlockDrawList =>
+        RoomObjectShapeRun.DrawList(MaridiaElevatubeObjectDefinitions.BlockDraw, MaridiaElevatubeObjectDefinitions.Shape,
+            RoomObjectShapeRun.Row(new(0, 0), 1));
 
     /// <summary>The sole elevatube draw list.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> AllDraws => [BlockDrawList];
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllDraws => [BlockDrawList];
 
     /// <summary>Maps the elevatube draw to its asset identity and rejects unrelated draws.</summary>
     internal static string DrawVisualId(RoomObjectDraw request) => request == MaridiaElevatubeObjectDefinitions.BlockDraw

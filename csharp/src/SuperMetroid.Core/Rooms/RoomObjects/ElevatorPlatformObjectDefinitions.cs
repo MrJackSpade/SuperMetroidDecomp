@@ -18,46 +18,21 @@ internal static class ElevatorPlatformObjectDefinitions
     ];
 
     /// <summary>
-    /// Three frames, each with two upper edge cells and a four-cell lower row. All cells are solid. The strips start at
-    /// the origin, then at (3,0) and (0,1) from it.
+    /// The platform every frame draws (#1862): its two upper edge blocks, the object's block and the one three right of it,
+    /// and the four-block row below them, all solid.
     /// </summary>
-    internal static readonly Dictionary<ElevatorPlatformDraw, RoomObjectBlockStrip[]> Strips = new()
+    private static readonly RoomBlockShape Platform = new(
+    [
+        new(new(0, 0), RoomCollisionType.SolidBlock), new(new(3, 0), RoomCollisionType.SolidBlock),
+        new(new(0, 1), RoomCollisionType.SolidBlock), new(new(1, 1), RoomCollisionType.SolidBlock),
+        new(new(2, 1), RoomCollisionType.SolidBlock), new(new(3, 1), RoomCollisionType.SolidBlock),
+    ]);
+
+    /// <summary>The block shape each of the three frames draws: the same platform, whose pictures differ.</summary>
+    internal static readonly Dictionary<ElevatorPlatformDraw, RoomBlockShape> Shapes = new()
     {
-        [ElevatorPlatformDraw.First] =
-        [
-            new(new(0, 0), [RoomCollisionType.SolidBlock]),
-            new(new(3, 0), [RoomCollisionType.SolidBlock]),
-            new(new(0, 1),
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ]),
-        ],
-        [ElevatorPlatformDraw.Second] =
-        [
-            new(new(0, 0), [RoomCollisionType.SolidBlock]),
-            new(new(3, 0), [RoomCollisionType.SolidBlock]),
-            new(new(0, 1),
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ]),
-        ],
-        [ElevatorPlatformDraw.Third] =
-        [
-            new(new(0, 0), [RoomCollisionType.SolidBlock]),
-            new(new(3, 0), [RoomCollisionType.SolidBlock]),
-            new(new(0, 1),
-            [
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-                RoomCollisionType.SolidBlock,
-            ]),
-        ],
+        [ElevatorPlatformDraw.First] = Platform,
+        [ElevatorPlatformDraw.Second] = Platform,
+        [ElevatorPlatformDraw.Third] = Platform,
     };
 }

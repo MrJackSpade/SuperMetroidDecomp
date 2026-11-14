@@ -29,7 +29,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
+        RoomObjectDrawLists.DrawList[] lists =
             RoomObjectColoredDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         InstalledRoomObjectColoredDoorVisuals stock = InstalledRoomObjectColoredDoorVisuals.Stock();
         AssertEqual("green-left-frame-0", RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)),
@@ -186,7 +186,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
     /// <summary>Forbids runtime reads of the compiled bank-$84 colored-door instruction range and every owned draw payload.</summary>
     private static CartridgeReadGuard NewColoredDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists) =>
+        RoomObjectDrawLists.DrawList[] lists) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84bffd and <= 0x84c488,
                 address => $"Resident colored door reread compiled instruction ${address:X6}.")

@@ -34,7 +34,21 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
     /// The runs write a cell outside the shape, write a cell twice, or leave one of the shape's cells unwritten: the game's
     /// shape is not exactly what the cartridge writes, or the write order would be observable.
     /// </exception>
-    internal static RoomObjectFrameLayout Layout(RoomObjectDraw draw, RoomBlockShape shape, params RoomObjectShapeRun[] runs)
+    internal static RoomObjectFrameLayout Layout(RoomObjectDraw draw, RoomBlockShape shape, params RoomObjectShapeRun[] runs) =>
+        RoomObjectFrameLayout.Of(DrawList(draw, shape, runs));
+
+    /// <summary>
+    /// The draw list the import checks and pictures a frame by (#1862): <paramref name="runs"/> in the cartridge's write
+    /// order, each cell colliding as the game's <paramref name="shape"/> says.
+    /// </summary>
+    /// <param name="draw">The frame's draw.</param>
+    /// <param name="shape">The block shape the game draws the frame as.</param>
+    /// <param name="runs">The frame's runs as the cartridge writes them; the first starts at the origin.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The runs write a cell outside the shape, write a cell twice, or leave one of the shape's cells unwritten: the game's
+    /// shape is not exactly what the cartridge writes, or the write order would be observable.
+    /// </exception>
+    internal static RoomObjectDrawLists.DrawList DrawList(RoomObjectDraw draw, RoomBlockShape shape, params RoomObjectShapeRun[] runs)
     {
         var written = new HashSet<Offset16<RoomBlocks>>();
         foreach (RoomObjectShapeRun run in runs)
@@ -50,7 +64,27 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
         }
         if (written.Count != shape.Cells.Count)
             throw new InvalidOperationException($"Frame {draw} leaves {shape.Cells.Count - written.Count} cells of its block shape unwritten.");
-        return RoomObjectFrameLayout.Of(draw, runs.Length, run => runs[run].Count,
+        return RoomObjectDrawListExport.Runs(draw, runs.Length, run => runs[run].Count,
             (run, cell) => shape.CollisionAt(runs[run].CellAt(cell)), run => runs[run].Direction, run => runs[run].Start);
     }
+
+    /// <summary>
+    /// The runs the cartridge writes a shot block's or a linked restoration's <paramref name="layout"/> in: one row, the
+    /// stacked pair as one column, or the square as two rows.
+    /// </summary>
+    internal static RoomObjectShapeRun[] Arrangement(RoomObjectShotBlockDrawDefinitions.Shape layout) => layout switch
+    {
+        RoomObjectShotBlockDrawDefinitions.Shape.Single => [Row(new(0, 0), 1)],
+        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => [Row(new(0, 0), 2)],
+        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => [Column(new(0, 0), 2)],
+        RoomObjectShotBlockDrawDefinitions.Shape.Square => [Row(new(0, 0), 2), Row(new(0, 1), 2)],
+        _ => throw new InvalidOperationException($"Undefined shot-block arrangement {layout}."),
+    };
+
+    /// <summary>
+    /// The one run the cartridge writes a line-shaped frame in: the shape's cells down its column when
+    /// <paramref name="down"/>, otherwise along its row.
+    /// </summary>
+    internal static RoomObjectShapeRun Line(bool down, RoomBlockShape shape) =>
+        down ? Column(new(0, 0), shape.Cells.Count) : Row(new(0, 0), shape.Cells.Count);
 }

@@ -28,7 +28,7 @@ public static class RoomObjectBlueDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Editable
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> Editable
     {
         get
         {
@@ -42,10 +42,10 @@ public static class RoomObjectBlueDoorVisualFiles
     }
 
     /// <summary>Builds the draw list of a recognized blue cap from how its cells collide.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = BlueDoorCaps.TryDescribe(request, out BlueDoorCaps.Draw cap);
-        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.CollisionAt) : default;
+        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
         return found;
     }
 

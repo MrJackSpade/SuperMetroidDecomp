@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefiniti
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The breakup and restoration draws of the ordinary shot blocks and the terrain each writes.</summary>
+/// <summary>The breakup and restoration draws of the ordinary shot blocks and the block shape each draws (#1862).</summary>
 internal static class ShotBlockObjectDraws
 {
     /// <summary>Breakup frame <paramref name="frame"/>, 0 through 3, of a shot block of <paramref name="shape"/>.</summary>
@@ -16,6 +16,23 @@ internal static class ShotBlockObjectDraws
     internal static RoomObjectFrameDraw<Draw> Restoration(Shape shape) =>
         RoomObjectDraw.Of(new Draw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape)), 0, Restore: true));
 
+    /// <summary>The blocks a shot block of each arrangement covers besides its first: the one right of it, below it, or both and the one diagonally between.</summary>
+    private static readonly Dictionary<Shape, Offset16<RoomBlocks>[]> Children = new()
+    {
+        [Shape.Single] = [],
+        [Shape.Horizontal] = [new(1, 0)],
+        [Shape.Vertical] = [new(0, 1)],
+        [Shape.Square] = [new(1, 0), new(0, 1), new(1, 1)],
+    };
+
+    /// <summary>Every block a breakup frame of each arrangement opens: all of them air.</summary>
+    private static readonly Dictionary<Shape, RoomBlockShape> BrokenUp = Children.ToDictionary(pair => pair.Key,
+        pair => new RoomBlockShape([new(Offset16<RoomBlocks>.Zero, RoomCollisionType.Air), .. pair.Value.Select(child => new RoomBlockShapeCell(child, RoomCollisionType.Air))]));
+
+    /// <summary>The blocks a restoration of each arrangement rebuilds: a shootable parent with its other blocks linked to it.</summary>
+    private static readonly Dictionary<Shape, RoomBlockShape> Restored = Children.Where(pair => pair.Key != Shape.Single)
+        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Linked(RoomCollisionType.ShootableBlock, pair.Value));
+
     /// <summary>
     /// A shot-block draw: four breakup stages per shape, or parent/child restoration. Breakup frames are air;
     /// restoration links its children to a shootable parent. What each frame shows is its installed picture (#1557).
@@ -23,29 +40,10 @@ internal static class ShotBlockObjectDraws
     [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
     internal readonly record struct Draw(Shape Layout, int Frame, bool Restore)
     {
-        /// <summary>Gets two runs for a square or one for the other block arrangements.</summary>
-        internal int RunCount => Layout == Shape.Square ? 2 : 1;
-        /// <summary>Gets the number of blocks in each run for this shape.</summary>
-        internal int BlocksPerRun => Layout == Shape.Single ? 1 : 2;
-        /// <summary>Whether the draw writes its blocks down a column.</summary>
-        internal bool Vertical => Layout == Shape.Vertical;
         /// <summary>Whether the draw is a breakup's last stage, which leaves the broken block open.</summary>
         internal bool BreaksOpen => !Restore && Frame == BreakupFrameCount - 1;
 
-        /// <summary>How the cell at a block position collides: breakup air, or a restored parent or linked child.</summary>
-        internal RoomCollisionType CollisionAt(int run, int block)
-        {
-            if ((uint)run >= RunCount)
-                throw new ArgumentOutOfRangeException(nameof(run));
-            if ((uint)block >= BlocksPerRun)
-                throw new ArgumentOutOfRangeException(nameof(block));
-            if (!Restore)
-                return RoomCollisionType.Air;
-            int row = Vertical ? block : run;
-            int column = Vertical ? 0 : block;
-            // Parent is shootable; children link left on the first row and up below.
-            return row == 0 && column == 0 ? RoomCollisionType.ShootableBlock
-                : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-        }
+        /// <summary>The blocks the draw changes and how each collides: the arrangement opened, or rebuilt around its shootable parent.</summary>
+        internal RoomBlockShape Blocks => Restore ? Restored[Layout] : BrokenUp[Layout];
     }
 }

@@ -30,7 +30,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -57,7 +57,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!SporeSpawnCeilingDraws.TryDescribe(request, out RoomBlockShape? described))
         {

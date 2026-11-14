@@ -53,7 +53,7 @@ public static class RoomObjectKraidVisualFiles
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

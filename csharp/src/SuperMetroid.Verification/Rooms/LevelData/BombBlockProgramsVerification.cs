@@ -33,7 +33,7 @@ internal static class BombBlockProgramsVerification
             if (!found)
             {
                 AssertEqual(default(LinkedRestoreObjectFamily.Draw), draw, "missing restoration descriptor cleared");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
+                AssertEqual(default(RoomObjectDrawLists.DrawList), list, "missing restoration export cleared");
                 continue;
             }
             int cursor = pointer;
@@ -43,14 +43,14 @@ internal static class BombBlockProgramsVerification
                 ushort nativeCount = ReadRomWord(rom, 0x840000 | cursor);
                 int count = nativeCount & 0x7fff;
                 AssertEqual(2, count, "bomb restoration two words per native run");
-                AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "bomb restoration native orientation");
+                AssertEqual((nativeCount & 0x8000) != 0, draw.Shape == RoomObjectRestoreShape.Vertical, "bomb restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
                 AssertRunHeader(nativeCount, exportedRun, "bomb restoration exported direction/count");
                 AssertEqual(count, exportedRun.Count, "bomb restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
-                    AssertEqual(native.Collision, draw.CollisionAt(run, block), "bomb restoration calculated parent/child collision");
+                    AssertEqual(native.Collision, draw.Blocks.CollisionAt(exportedRun.CellAt(block)), "bomb restoration block-shape parent/child collision");
                     AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "bomb restoration exported collision");
                     AssertEqual(native.Appearance, pictures.Image(list.Draw).At(exportedRun.CellAt(block)), "bomb restoration installed picture");
                 }
@@ -60,17 +60,14 @@ internal static class BombBlockProgramsVerification
                 AssertEqual(unchecked((sbyte)x), RoomObjectRunContinuationCodecConstants.X(list, run), "bomb restoration next X");
                 AssertEqual(unchecked((sbyte)y), RoomObjectRunContinuationCodecConstants.Y(list, run), "bomb restoration next Y");
                 AssertEqual((byte)0, x, "bomb restoration calculated next row X");
-                AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "bomb restoration calculated next row Y");
+                AssertEqual(run + 1 < list.Runs.Length ? (byte)1 : (byte)0, y, "bomb restoration calculated next row Y");
                 run++;
                 cursor += 2;
                 if (x == 0 && y == 0) break;
             }
-            AssertEqual(run, draw.RunCount, "bomb restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
-            foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "bomb restoration run bounds");
-            foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(0, invalid), "bomb restoration block bounds");
+            // The block shape covers exactly the cells the cartridge writes, two per run (#1862).
+            AssertEqual(2 * run, draw.Blocks.Cells.Count, "bomb restoration block shape covers every written cell");
         }
     }
 
@@ -165,11 +162,11 @@ internal static class BombBlockProgramsVerification
         // All sixteen breakup frames are shared with the already compiled shot-block
         // family. Forbid their source bytes as well, so this production check covers
         // the complete bomb-block draw path rather than only its three unique restores.
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
+        foreach (RoomObjectDrawLists.DrawList list in
                  RoomObjectShotBlockVisualFiles.All)
         {
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            foreach (RoomObjectDrawLists.Run run in list.Runs.Span)
             {
                 int byteCountForRun = 2 + 2 * run.Count + 2;
                 for (int offset = 0; offset < byteCountForRun; offset++)

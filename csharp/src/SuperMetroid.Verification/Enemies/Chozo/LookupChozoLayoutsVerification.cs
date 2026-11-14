@@ -41,7 +41,7 @@ internal static class LookupChozoLayoutsVerification
                 if (!owned)
                 {
                     AssertTrue(shape is null, "Chozo layout missing shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Chozo layout missing DTO");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Chozo layout missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectChozoStatueVisualFiles.VisualId(NativeObjectDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
                 }
             }

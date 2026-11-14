@@ -56,7 +56,7 @@ internal static class InstalledFramePictureAssertions
     {
         int cells = 0;
         foreach (RoomObjectFrameLayout layout in family.Layouts.Values)
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in layout.Runs.Span)
+            foreach (RoomObjectDrawLists.Run run in layout.Runs.Span)
                 cells += run.Count;
         return cells;
     }
@@ -91,7 +91,7 @@ internal static class InstalledFramePictureAssertions
             int cursor = frame.Pointer;
             for (int run = 0; run < layout.Runs.Length; run++)
             {
-                RoomObjectShotBlockDrawDefinitions.Run part = layout.Runs.Span[run];
+                RoomObjectDrawLists.Run part = layout.Runs.Span[run];
                 AssertEqual(RoomObjectRunHeaderCodec.Encode(part.Direction, part.Count), ReadSamusEaterObjectWord(rom, 0x840000 | cursor),
                     family.Name + " frame " + frame.Id + " run header");
                 if (collision)

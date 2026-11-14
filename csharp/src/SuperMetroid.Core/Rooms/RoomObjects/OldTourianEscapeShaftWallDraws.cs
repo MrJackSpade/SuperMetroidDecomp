@@ -1,28 +1,18 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using static SuperMetroid.Core.Rooms.RoomObjects.OldTourianEscapeShaftWallObjectDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The open-wall draw of the old Tourian escape shaft.</summary>
+/// <summary>The open-wall draw of the old Tourian escape shaft and its block shape (#1862).</summary>
 internal static class OldTourianEscapeShaftWallDraws
 {
-    /// <summary>
-    /// A vertical run of three air cells at the room object, then another one block to
-    /// its right.
-    /// </summary>
-    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
+    /// <summary>The wall's opened blocks when <paramref name="request"/> is the wall's draw.</summary>
+    /// <param name="request">The draw to describe.</param>
+    /// <param name="shape">The opened blocks; null when the draw is not the wall's.</param>
+    /// <returns>Whether the draw is the wall's.</returns>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        if (request != OpenWallDraw)
-        {
-            draw = default;
-            return false;
-        }
-        RoomCollisionType[] column = [RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air];
-        draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
-        {
-            new(RoomObjectRunDirection.Vertical, column, new(0, 0)),
-            new(RoomObjectRunDirection.Vertical, column, new(1, 0)),
-        });
-        return true;
+        shape = request == OpenWallDraw ? OpenedWall : null;
+        return shape is not null;
     }
 }

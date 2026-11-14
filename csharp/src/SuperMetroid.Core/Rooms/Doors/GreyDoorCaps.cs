@@ -1,14 +1,17 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The grey door caps and the four shared cleared openings, and how their cells collide from
-/// <see cref="GreyDoorObjectDrawDefinitions"/>.
+/// The grey door caps and the four shared cleared openings, and the block shape each draws from
+/// <see cref="GreyDoorObjectDrawDefinitions"/> (#1862).
 /// </summary>
 internal static class GreyDoorCaps
 {
+    /// <summary>The block shape of each grey-cap draw: its four blocks down its column or along its row.</summary>
+    private static readonly Dictionary<Draw, RoomBlockShape> Shapes = GreyDoorObjectDrawDefinitions.Collisions
+        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
+
     /// <summary>One of the twenty grey door cap pictures: its facing and its animation frame.</summary>
     /// <param name="Orientation">The cap's facing.</param>
     /// <param name="Frame">The cap's animation frame, 0 through 3; none for the cleared opening, which draws no cap (#1627).</param>
@@ -20,15 +23,11 @@ internal static class GreyDoorCaps
         /// <summary>Whether this is the cleared opening rather than one of the cap's frames.</summary>
         internal bool IsCleared => Frame is null;
 
-        /// <summary>Left and right caps use a vertical four-cell run.</summary>
+        /// <summary>Whether this cap's four blocks stand in a column: a left or right cap's.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
 
-        /// <summary>How <paramref name="cell"/>, one of the cap's four cells in run order, collides.</summary>
-        internal RoomCollisionType CollisionAt(int cell)
-        {
-            if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return GreyDoorObjectDrawDefinitions.Collisions[this][cell];
-        }
+        /// <summary>The cap's four blocks from its first and how each collides.</summary>
+        internal RoomBlockShape Blocks => Shapes[this];
     }
 
     /// <summary>Describes a grey door cap's draw: its orientation and its clear or animated frame.</summary>

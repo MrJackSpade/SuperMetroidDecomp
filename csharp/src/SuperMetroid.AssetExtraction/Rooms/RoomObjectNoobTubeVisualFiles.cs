@@ -38,16 +38,32 @@ public static class RoomObjectNoobTubeVisualFiles
         yield return NoobTubeDraw.BrokenFull;
     }
 
-    /// <summary>Builds the draw list of a tube layout from its computed cells.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
+    /// <summary>
+    /// The draw list of a tube draw (#1862): its block shape written as the glass's one block, or as its twelve-block rows
+    /// top row first, the broken frames' cleared block before them.
+    /// </summary>
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = NoobTubeObjectDraws.TryDescribe(request, out NoobTubeObjectDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
-
-            : default;
-        return found;
+        if (!NoobTubeObjectDraws.TryDescribe(request, out RoomBlockShape? shape))
+        {
+            list = default;
+            return false;
+        }
+        RoomObjectShapeRun glass = RoomObjectShapeRun.Row(new(0, 0), 1);
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDraw.FrameOf<NoobTubeDraw>(request, "n00b tube") switch
+        {
+            NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened => [glass],
+            NoobTubeDraw.Cleared => TubeRows(0, 1, 2, 3),
+            NoobTubeDraw.OpenedRows => TubeRows(0, 1, 2),
+            NoobTubeDraw.BrokenLate => [glass, .. TubeRows(4, 5)],
+            NoobTubeDraw.BrokenFull => [glass, .. TubeRows(3, 4, 5)],
+            var frame => throw new InvalidOperationException($"Undefined NoobTubeDraw {frame}."),
+        });
+        return true;
     }
+
+    /// <summary>The tube's twelve-block <paramref name="rows"/>, each written from the object's column.</summary>
+    private static RoomObjectShapeRun[] TubeRows(params int[] rows) => [.. rows.Select(row => RoomObjectShapeRun.Row(new(0, row), 12))];
 
     /// <summary>Converts a validated tube draw to its artwork catalog ID.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
@@ -67,7 +83,7 @@ public static class RoomObjectNoobTubeVisualFiles
     };
 
     /// <summary>Builds each known tube layout's draw list.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

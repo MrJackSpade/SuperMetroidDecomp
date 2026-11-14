@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class ColoredDoorObjectDrawDefinitions
 {
     /// <summary>
-    /// How the four cells of each colour's cap frames collide, in authored run order. Closed caps keep the shootable and
+    /// How the four blocks of each colour's cap frames collide, from the cap's first block down its column or along its row. Closed caps keep the shootable and
     /// extension collision types. Final middle cells clear for every left cap, green and red right caps and yellow down
     /// caps; the other final caps stay solid.
     /// </summary>

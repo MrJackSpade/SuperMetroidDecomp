@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class GreyDoorObjectDrawDefinitions
 {
     /// <summary>
-    /// How the four cells of each of the twenty grey-cap draws collide, in authored run order. The clear frame has no
+    /// How the four blocks of each of the twenty grey-cap draws collide, from the cap's first block on. The clear frame has no
     /// collision; frame zero carries the shootable and extension types; opening frames are solid except the middle cells
     /// of final left and down frames, which are air.
     /// </summary>

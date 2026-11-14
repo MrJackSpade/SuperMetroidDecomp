@@ -46,8 +46,8 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 AssertEqual(owned, RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
                 if (!owned)
                 {
-                    AssertEqual(default(ElevatorPlatformDraws.Draw), shape, "ElevatorPlatform layout missing shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "ElevatorPlatform layout missing DTO");
+                    AssertTrue(shape is null, "ElevatorPlatform layout missing shape");
+                    AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "ElevatorPlatform layout missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectElevatorPlatformVisualFiles.VisualId(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
                 }
             }
@@ -58,7 +58,8 @@ internal static class LookupElevatorPlatformLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
+            RoomBlockShape shape = ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out RoomBlockShape? described)
+                ? described : throw new InvalidOperationException($"Elevator platform draw {pointer:X4} has no block shape.");
             RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
             RoomObjectDraw byId = RoomObjectElevatorPlatformVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
             if (field == 0)
@@ -66,12 +67,9 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "ElevatorPlatform layout original export order");
                 AssertEqual(ids[index], RoomObjectElevatorPlatformVisualFiles.VisualId(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "ElevatorPlatform layout reverse ID");
-                foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "ElevatorPlatform layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "ElevatorPlatform layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "ElevatorPlatform layout word run bounds");
-                }
+                // The block shape covers exactly the cells the cartridge writes (#1862): six, none outside its runs.
+                AssertEqual(6, shape.Cells.Count, "ElevatorPlatform block shape cell count");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(new(1, 0)), "ElevatorPlatform block shape leaves the gap between its edges");
             }
             var level = CreateEmptyRoom(new(32, 16));
             var roomObjects = RoomObjectFixtures.Unbound();
@@ -93,9 +91,9 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "ElevatorPlatform layout native direction");
-                    AssertEqual(count, shape.BlockCount(run), "ElevatorPlatform layout native calculated count");
+                    AssertEqual(count, dto.Runs.Span[run].Count, "ElevatorPlatform layout native exported count");
                     // The cartridge ends each strip with the next strip's start, and the last with no offset.
-                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    Offset16<RoomBlocks> continuation = run + 1 < dto.Runs.Length ? dto.Runs.Span[run + 1].Start : Offset16<RoomBlocks>.Zero;
                     AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "ElevatorPlatform layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
@@ -110,16 +108,13 @@ internal static class LookupElevatorPlatformLayoutsVerification
                             "ElevatorPlatform decoded native block at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
                     drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
-                    int selectedRun = run;
-                    foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "ElevatorPlatform layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     RoomObjectFrameImage picture = pictures.Image(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer));
                     Offset16<RoomBlocks> place = dto.Runs.Span[run].CellAt(cell);
-                    AssertCellField(field, expected, shape.CollisionAt(run, cell), picture, place, "ElevatorPlatform layout original calculated field");
+                    AssertCellField(field, expected, shape.CollisionAt(place), picture, place, "ElevatorPlatform layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                         AssertCellField(field, expected, frame.Runs.Span[run].Collisions.Span[cell], picture, frame.Runs.Span[run].CellAt(cell), "ElevatorPlatform layout original DTO field");
                 }
@@ -129,7 +124,6 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 if (offset == 0) break;
                 AssertTrue(run < 6, "ElevatorPlatform layout native run termination");
             }
-            AssertEqual(run, shape.RunCount, "ElevatorPlatform layout native run count");
             AssertEqual(run, dto.Runs.Length, "ElevatorPlatform layout native DTO run count");
         }
         AssertEqual(18, cells, "ElevatorPlatform layout independent physical cell count");

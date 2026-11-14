@@ -32,16 +32,32 @@ public static class RoomObjectRevealAndWallVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Every reveal and wall frame's draw list, built from the geometry and collision the game writes.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
+            // Each reveal is written as one block, the passage as one row of two, the shaft wall as two columns of three and
+            // each rescue wall as one column of three (#1862).
             foreach (RoomObjectBombedRevealDraw reveal in Enum.GetValues<RoomObjectBombedRevealDraw>())
-                yield return Required(BombedRevealObjectDraws.TryGet(RoomObjectDraw.Of(reveal), out var draw), draw);
-            yield return Required(CrateriaMainstreetEscapePassageDraws.TryGetDraw(CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw, out var passage), passage);
-            yield return Required(OldTourianEscapeShaftWallDraws.TryGetDraw(OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw, out var wall), wall);
+            {
+                RoomObjectDraw draw = RoomObjectDraw.Of(reveal);
+                yield return RoomObjectShapeRun.DrawList(draw, Required(draw, BombedRevealObjectDraws.TryDescribe(draw, out var shape), shape),
+                    RoomObjectShapeRun.Row(new(0, 0), 1));
+            }
+            RoomObjectDraw passage = CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw;
+            yield return RoomObjectShapeRun.DrawList(passage,
+                Required(passage, CrateriaMainstreetEscapePassageDraws.TryDescribe(passage, out var passageShape), passageShape),
+                RoomObjectShapeRun.Row(new(0, 0), 2));
+            RoomObjectDraw wall = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw;
+            yield return RoomObjectShapeRun.DrawList(wall, Required(wall, OldTourianEscapeShaftWallDraws.TryDescribe(wall, out var wallShape), wallShape),
+                RoomObjectShapeRun.Column(new(0, 0), 3), RoomObjectShapeRun.Column(new(1, 0), 3));
             foreach (EscapeAnimalDraw frame in Enum.GetValues<EscapeAnimalDraw>())
-                yield return Required(EscapeAnimalWalls.TryGet(RoomObjectDraw.Of(frame), out var animalWall), animalWall);
+            {
+                RoomObjectDraw animalWall = RoomObjectDraw.Of(frame);
+                yield return RoomObjectShapeRun.DrawList(animalWall,
+                    Required(animalWall, EscapeAnimalWalls.TryDescribe(animalWall, out var animalShape), animalShape),
+                    RoomObjectShapeRun.Column(new(0, 0), 3));
+            }
         }
     }
 
@@ -62,8 +78,8 @@ public static class RoomObjectRevealAndWallVisualFiles
     };
 
 
-    /// <summary>The draw list a frame's own family describes.</summary>
+    /// <summary>The block shape a frame's own family describes.</summary>
     /// <exception cref="InvalidOperationException">The family does not describe the frame.</exception>
-    private static RoomObjectShotBlockDrawDefinitions.DrawList Required(bool described, RoomObjectShotBlockDrawDefinitions.DrawList draw) =>
-        described ? draw : throw new InvalidOperationException($"Reveal and wall frame {draw.Draw} has no draw list.");
+    private static RoomBlockShape Required(RoomObjectDraw draw, bool described, RoomBlockShape? shape) =>
+        described && shape is not null ? shape : throw new InvalidOperationException($"Reveal and wall frame {draw} has no block shape.");
 }

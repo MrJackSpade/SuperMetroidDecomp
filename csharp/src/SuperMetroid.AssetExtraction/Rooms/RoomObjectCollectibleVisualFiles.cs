@@ -72,7 +72,7 @@ public static class RoomObjectCollectibleVisualFiles
     }
 
     /// <summary>Every installed frame's one-cell draw list, built from the collision the game writes.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Frames =>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> Frames =>
         Editable.Select(frame => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Collision]));
 
     /// <summary>

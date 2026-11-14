@@ -26,7 +26,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
+        RoomObjectDrawLists.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
@@ -137,7 +137,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
     /// <summary>Forbids production reads from compiled blue-door instructions and all selected draw-list payloads.</summary>
     private static CartridgeReadGuard NewBlueDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists) =>
+        RoomObjectDrawLists.DrawList[] lists) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84c489 and <= 0x84c54c,
                 address => $"Production blue-door instruction reread bank-$84 byte ${address:X6}.")

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions;
+using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -61,15 +62,4 @@ internal static class RoomObjectDrawListExport
     /// <param name="collisions">How each of the run's cells collides.</param>
     internal static DrawList SingleRun(RoomObjectDraw draw, RoomObjectRunDirection direction, RoomCollisionType[] collisions) =>
         new(draw, new Run[] { new(direction, collisions, new(0, 0)) });
-
-    /// <summary>Builds the one four-cell run of a door cap, down its column or along its row.</summary>
-    /// <param name="draw">The cap's draw.</param>
-    /// <param name="vertical">Whether the cap writes its cells down a column.</param>
-    /// <param name="collisionAt">How one of the cap's four cells collides, in run order.</param>
-    internal static DrawList Cap(RoomObjectDraw draw, bool vertical, Func<int, RoomCollisionType> collisionAt)
-    {
-        var collisions = new RoomCollisionType[4];
-        for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = collisionAt(cell);
-        return SingleRun(draw, vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, collisions);
-    }
 }

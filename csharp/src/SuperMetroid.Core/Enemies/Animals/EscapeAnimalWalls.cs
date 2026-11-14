@@ -1,26 +1,26 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>Lays the escape animals' rescue walls.</summary>
+/// <summary>Lays the escape animals' rescue walls (#1862).</summary>
 internal static class EscapeAnimalWalls
 {
-    /// <summary>Maps one of four rescue-wall draw identities to three vertical solid cells, or rejects another family's draw.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
+    /// <summary>The block shape of <paramref name="request"/> when it is one of the four rescue-wall draws.</summary>
+    /// <param name="request">The draw to describe; another family's draw is rejected.</param>
+    /// <param name="shape">The wall's column; null when the draw is not a rescue wall's.</param>
+    /// <returns>Whether the draw is a rescue wall's.</returns>
+    /// <exception cref="InvalidOperationException">The draw is a rescue wall with no shape.</exception>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        if (request is not RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: var list })
+        if (request is not RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: var wall })
         {
-            draw = default;
+            shape = null;
             return false;
         }
-        RoomCollisionType collision = EscapeAnimalObjectDrawDefinitions.Collisions.TryGetValue(list, out RoomCollisionType cell)
-            ? cell
-            : throw new InvalidOperationException($"Undefined EscapeAnimalDraw {list}.");
-        draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
-        {
-            new(RoomObjectRunDirection.Vertical, Enumerable.Repeat(collision, EscapeAnimalObjectDrawDefinitions.WallHeight).ToArray(), new(0, 0)),
-        });
+        shape = EscapeAnimalObjectDrawDefinitions.Shapes.TryGetValue(wall, out RoomBlockShape? described)
+            ? described
+            : throw new InvalidOperationException($"Undefined EscapeAnimalDraw {wall}.");
         return true;
     }
 }

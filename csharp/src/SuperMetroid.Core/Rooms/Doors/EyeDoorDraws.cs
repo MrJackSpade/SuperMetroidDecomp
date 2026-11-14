@@ -1,14 +1,17 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, how their cells
-/// collide from <see cref="EyeDoorObjectDrawDefinitions"/>, and the installed picture each alias shows.
+/// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, the block shape each
+/// draws from <see cref="EyeDoorObjectDrawDefinitions"/> (#1862), and the installed picture each alias shows.
 /// </summary>
 internal static class EyeDoorDraws
 {
+    /// <summary>The block shape of each eye-door draw: its blocks down its column or along its row.</summary>
+    private static readonly Dictionary<Draw, RoomBlockShape> Shapes = EyeDoorObjectDrawDefinitions.Collisions
+        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
+
     /// <summary>The draw <paramref name="frame"/> shows for <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
     internal static RoomObjectDraw DrawList(EyeDoorOrientation orientation, EyeDoorComponent component, EyeDoorObjectFrame frame)
     {
@@ -61,17 +64,11 @@ internal static class EyeDoorDraws
     [IndependentFlag("which of the two mirrored eye doors a draw belongs to, a fact of the draw")]
     internal readonly record struct Draw(Component Part, [property: IntegerQuantity("eye animation frame index")] int Frame, bool Left)
     {
-        /// <summary>Whether the run writes cells vertically rather than horizontally.</summary>
+        /// <summary>Whether the draw's blocks stand in a column: the eye's and the clear's.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;
-        /// <summary>Gets the cell count for an eye, middle, bottom, or clear component.</summary>
-        internal int BlockCount => EyeDoorObjectDrawDefinitions.Collisions[this].Count;
-        /// <summary>How <paramref name="cell"/>, in run order, collides.</summary>
-        internal RoomCollisionType CollisionAt(int cell)
-        {
-            IReadOnlyList<RoomCollisionType> cells = EyeDoorObjectDrawDefinitions.Collisions[this];
-            if ((uint)cell >= (uint)cells.Count) throw new ArgumentOutOfRangeException(nameof(cell));
-            return cells[cell];
-        }
+
+        /// <summary>The draw's blocks from its first and how each collides.</summary>
+        internal RoomBlockShape Blocks => Shapes[this];
     }
 
     /// <summary>Maps the mirrored opening clear to its shared editable visual source.</summary>

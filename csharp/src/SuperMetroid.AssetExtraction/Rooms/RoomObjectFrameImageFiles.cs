@@ -44,14 +44,14 @@ internal static class RoomObjectFrameImageFiles
     /// <exception cref="InvalidDataException">A frame has no run, or its first run does not start at its origin.</exception>
     /// <exception cref="ArgumentException">Two frames are the same draw.</exception>
     internal static RoomObjectFrameFamily<RoomObjectDraw> DrawFamily(string fileName, string name,
-        IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> frames, Func<RoomObjectDraw, string> visualId)
+        IEnumerable<RoomObjectDrawLists.DrawList> frames, Func<RoomObjectDraw, string> visualId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Ensure.NotNull(visualId);
         var layouts = new Dictionary<RoomObjectDraw, RoomObjectFrameLayout>();
         var ids = new Dictionary<RoomObjectDraw, string>();
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList frame in Ensure.NotNull(frames))
+        foreach (RoomObjectDrawLists.DrawList frame in Ensure.NotNull(frames))
         {
             layouts.Add(frame.Draw, RoomObjectFrameLayout.Of(frame));
             ids.Add(frame.Draw, visualId(frame.Draw));
@@ -120,10 +120,10 @@ internal static class RoomObjectFrameImageFiles
         int pointer = RoomObjectDrawAddressCodec.Of(layout.Draw);
         var cells = new Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance>();
         int cursor = pointer;
-        ReadOnlySpan<RoomObjectShotBlockDrawDefinitions.Run> runs = layout.Runs.Span;
+        ReadOnlySpan<RoomObjectDrawLists.Run> runs = layout.Runs.Span;
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
-            RoomObjectShotBlockDrawDefinitions.Run run = runs[runIndex];
+            RoomObjectDrawLists.Run run = runs[runIndex];
             if (ReadWord(bus, cursor) != RoomObjectRunHeaderCodec.Encode(run.Direction, run.Count))
                 throw new InvalidDataException($"{family} frame {layout.Draw} differs in run {runIndex}'s shape.");
             for (int cell = 0; cell < run.Count; cell++)

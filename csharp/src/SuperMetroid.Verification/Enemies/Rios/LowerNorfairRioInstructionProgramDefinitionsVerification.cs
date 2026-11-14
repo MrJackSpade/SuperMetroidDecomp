@@ -30,8 +30,8 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Idle, 5, false, false, "idle"),
             new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.PrepareToSwoop, 10, false, true, "prepare to swoop"),
             new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Descending, 2, false, false, "descending"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.AscendingPart1, 4, false, true, "ascending part one"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.AscendingPart2, 4, true, false, "ascending part two"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.AscentOpening, 4, false, true, "ascending part one"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Ascending, 4, true, false, "ascending part two"),
             new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Cooldown, 10, true, true, "cooldown"),
             new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Flames, 4, false, false, "flames"),
         ];

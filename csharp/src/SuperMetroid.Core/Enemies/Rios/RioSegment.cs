@@ -10,10 +10,10 @@ internal enum RioSegment
     Idle,
     /// <summary>The post swoop idle animation.</summary>
     PostSwoopIdle,
-    /// <summary>The swooping part 1 animation.</summary>
-    SwoopingPart1,
-    /// <summary>The swooping part 2 animation.</summary>
-    SwoopingPart2,
+    /// <summary>The opening of the swoop, which holds its last pose until it finishes.</summary>
+    SwoopOpening,
+    /// <summary>The swoop's looping wing beat.</summary>
+    SwoopLoop,
     /// <summary>The swoop cooldown animation.</summary>
     SwoopCooldown,
 }

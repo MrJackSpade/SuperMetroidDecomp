@@ -14,7 +14,7 @@ internal static class MetroidDrainCountersVerification
     /// </summary>
     internal static void VerifyMetroidDrainCounters()
     {
-        var metroid = new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+        var metroid = new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
             Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
         };

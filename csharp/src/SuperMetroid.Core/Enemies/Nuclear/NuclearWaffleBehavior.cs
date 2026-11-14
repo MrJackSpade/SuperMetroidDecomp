@@ -52,8 +52,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SweepEndAngle = sweep.EndAngle;
         state.SegmentSpacing = sweep.SegmentSpacing;
         state.InterleavedSegmentOffset = sweep.InterleavedSegmentOffset;
-        state.SecondTurnThreshold = sweep.SecondTurnThreshold;
-        state.FirstTurnThreshold = sweep.FirstTurnThreshold;
+        state.RisingTurnThreshold = sweep.RisingTurnThreshold;
+        state.FallingTurnThreshold = sweep.FallingTurnThreshold;
 
         // A backward sweep turns at the placement's angular speed, negated.
         state.AngularSpeed = state.SweepsForward ? settings.AngularSpeed : SignedSixteenSixteen.Zero - settings.AngularSpeed;
@@ -266,16 +266,16 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.SweepsForward)
         {
-            if (angle >= state.FirstTurnThreshold)
+            if (angle >= state.FallingTurnThreshold)
                 return new NuclearWaffleOrientation(RotationDirection.Counterclockwise, NuclearWaffleTurnState.PastFallingThreshold);
-            if (angle >= state.SecondTurnThreshold)
+            if (angle >= state.RisingTurnThreshold)
                 return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.PastRisingThreshold);
             return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
         }
 
-        if (angle < state.FirstTurnThreshold)
+        if (angle < state.FallingTurnThreshold)
             return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.PastFallingThreshold);
-        if (angle < state.SecondTurnThreshold)
+        if (angle < state.RisingTurnThreshold)
             return new NuclearWaffleOrientation(RotationDirection.Counterclockwise, NuclearWaffleTurnState.PastRisingThreshold);
         return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
     }

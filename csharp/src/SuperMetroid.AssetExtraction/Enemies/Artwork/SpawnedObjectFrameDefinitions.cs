@@ -435,8 +435,8 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] MetroidSpriteObjects =
     [
-        RoomSpriteObjectKind.MetroidOuterBodyA,
-        RoomSpriteObjectKind.MetroidOuterBodyB,
+        RoomSpriteObjectKind.MetroidElectricity,
+        RoomSpriteObjectKind.MetroidShell,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Nuclear/NuclearWaffleBehavior.cs</c> spawns.</summary>
@@ -548,8 +548,8 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] YappingMawSpriteObjects =
     [
-        RoomSpriteObjectKind.YappingMawRootVariantOne,
-        RoomSpriteObjectKind.YappingMawRootVariantZero,
+        RoomSpriteObjectKind.YappingMawRootFacingUp,
+        RoomSpriteObjectKind.YappingMawRootFacingDown,
     ];
 
     /// <summary>The projectile frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4043,8 +4043,8 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly RoomSpriteObjectKind[] MetroidSharedSpriteObjects =
     [
         RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.MetroidOuterBodyA,
-        RoomSpriteObjectKind.MetroidOuterBodyB,
+        RoomSpriteObjectKind.MetroidElectricity,
+        RoomSpriteObjectKind.MetroidShell,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,
     ];

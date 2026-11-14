@@ -102,8 +102,8 @@ internal static class EnemySoundOrderVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
         slot.SetSpeciesState(new MetroidEnemyState(
-            new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SpriteGraphics.SharedStandard),
-            new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SpriteGraphics.SharedStandard))
+            new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
+            new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SpriteGraphics.SharedStandard))
         {
             Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),

@@ -18,8 +18,8 @@ internal static class RioNativeListAddresses
     [
         new NativeProgramEntry<RioSegment>(RioSegment.Idle, 0xbb4b),
         new NativeProgramEntry<RioSegment>(RioSegment.PostSwoopIdle, 0xbb53),
-        new NativeProgramEntry<RioSegment>(RioSegment.SwoopingPart1, 0xbb7f),
-        new NativeProgramEntry<RioSegment>(RioSegment.SwoopingPart2, 0xbb97),
+        new NativeProgramEntry<RioSegment>(RioSegment.SwoopOpening, 0xbb7f),
+        new NativeProgramEntry<RioSegment>(RioSegment.SwoopLoop, 0xbb97),
         new NativeProgramEntry<RioSegment>(RioSegment.SwoopCooldown, 0xbba3),
     ];
 

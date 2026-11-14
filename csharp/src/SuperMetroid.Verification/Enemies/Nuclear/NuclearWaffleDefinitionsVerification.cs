@@ -40,10 +40,10 @@ internal static class NuclearWaffleDefinitionsVerification
                 definition.InterleavedSegmentOffset,
                 $"Nuclear Waffle interleaved offset {direction}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset)),
-                definition.SecondTurnThreshold,
+                definition.RisingTurnThreshold,
                 $"Nuclear Waffle second turn threshold {direction}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset + 2)),
-                definition.FirstTurnThreshold,
+                definition.FallingTurnThreshold,
                 $"Nuclear Waffle first turn threshold {direction}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -66,9 +66,9 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production spacing {direction}");
             AssertEqual(definition.InterleavedSegmentOffset, state.InterleavedSegmentOffset,
                 $"Nuclear Waffle production interleaved offset {direction}");
-            AssertEqual(definition.SecondTurnThreshold, state.SecondTurnThreshold,
+            AssertEqual(definition.RisingTurnThreshold, state.RisingTurnThreshold,
                 $"Nuclear Waffle production second threshold {direction}");
-            AssertEqual(definition.FirstTurnThreshold, state.FirstTurnThreshold,
+            AssertEqual(definition.FallingTurnThreshold, state.FallingTurnThreshold,
                 $"Nuclear Waffle production first threshold {direction}");
             AssertEqual(new AnimationPlayback<NuclearWaffleSegment>(NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Nuclear Waffle production initial animation {direction}");

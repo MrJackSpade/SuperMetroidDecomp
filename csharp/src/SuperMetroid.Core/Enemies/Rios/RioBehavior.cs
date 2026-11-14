@@ -85,7 +85,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartRioAnimation(
                     slot,
                     state,
-                    RioSegment.SwoopingPart1);
+                    RioSegment.SwoopOpening);
                 state.Action = RioAction.Diving;
 
                 // The game's on-screen check returns zero for an on-screen origin. The
@@ -138,7 +138,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     StartRioAnimation(
                         slot,
                         state,
-                        RioSegment.SwoopingPart2);
+                        RioSegment.SwoopLoop);
                 }
                 return;
 

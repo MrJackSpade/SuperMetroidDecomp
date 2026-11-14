@@ -130,8 +130,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
             new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? RoomSpriteObjectKind.YappingMawRootVariantZero
-                : RoomSpriteObjectKind.YappingMawRootVariantOne,
+                ? RoomSpriteObjectKind.YappingMawRootFacingDown
+                : RoomSpriteObjectKind.YappingMawRootFacingUp,
             SpriteGraphics.SpawnedBy(slot));
     }
 

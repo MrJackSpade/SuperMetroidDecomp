@@ -301,21 +301,21 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
-        ShaktoolSegmentState center = RequireShaktoolState(group[3]);
+        RoomEnemySlot At(ShaktoolSegmentDefinition segment) => group[segment.OwnerSlotDistance];
+        ShaktoolSegmentState center = RequireShaktoolState(At(ShaktoolSegmentDefinitions.Head));
         center.OrientationReversed = !center.OrientationReversed;
 
-        SwapMirroredShaktoolAngles(group[6], group[1]);
-        SwapMirroredShaktoolAngles(group[5], group[2]);
-        SwapMirroredShaktoolAngles(group[4], group[3]);
+        // Each segment's orbit angle trades places with the one mirrored across the chain, the head's with the inner
+        // arm that trails it.
+        SwapMirroredShaktoolAngles(At(ShaktoolSegmentDefinitions.TrailingSaw), At(ShaktoolSegmentDefinitions.LeadingOuterArm));
+        SwapMirroredShaktoolAngles(At(ShaktoolSegmentDefinitions.TrailingOuterArm), At(ShaktoolSegmentDefinitions.LeadingInnerArm));
+        SwapMirroredShaktoolAngles(At(ShaktoolSegmentDefinitions.TrailingInnerArm), At(ShaktoolSegmentDefinitions.Head));
 
-        RoomEnemySlot head = group[0];
-        RoomEnemySlot tail = group[6];
-        {
-            var held0 = head.Position;
-            var held1 = tail.Position;
-            tail.Position = held0;
-            head.Position = held1;
-        }
+        RoomEnemySlot leadingSaw = At(ShaktoolSegmentDefinitions.LeadingSaw);
+        RoomEnemySlot trailingSaw = At(ShaktoolSegmentDefinitions.TrailingSaw);
+        FixedPosition<RoomPixels> leadingSawPosition = leadingSaw.Position;
+        leadingSaw.Position = trailingSaw.Position;
+        trailingSaw.Position = leadingSawPosition;
 
         for (int index = 1; index < ShaktoolSegmentCount - 1; index++)
         {

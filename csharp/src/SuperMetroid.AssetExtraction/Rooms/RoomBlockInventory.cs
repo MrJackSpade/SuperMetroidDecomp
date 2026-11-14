@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The blocks each tileset's rooms can show (#1636): every block some room state of the tileset places in its level data
 /// where the room shows it, and every block a writer (<see cref="RoomBlockWriters"/>) writes in a state whose installed data
 /// holds what starts that writer. A tileset's block sheet pictures these and no other, so tile graphics a room loads among
-/// its blocks only for another actor (Ridley's in the Ceres Ridley arena, shown on the sprites' artwork) are not pictured
+/// its blocks only for another actor (Ridley's in the Ceres Ridley arena, whose blocks show what the arena loads for his fight) are not pictured
 /// as blocks. Ceres's rooms load no common room elements and place no room objects, so nothing writes blocks there. The
 /// inventory is the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs
 /// it and nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.

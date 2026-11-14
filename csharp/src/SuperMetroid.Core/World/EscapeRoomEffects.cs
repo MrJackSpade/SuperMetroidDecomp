@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape;
@@ -52,7 +52,7 @@ internal sealed class EscapeRoomEffects
                 RoomSetupBehavior.SetupShaktoolRoomObject or
                 RoomSetupBehavior.KeepDraygonRoomDisplayAcrossPause or RoomSetupBehavior.SetCollectedMap or
                 RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
-                RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
+                RoomSetupBehavior.SpawnCeresRidleyArenaHaze => null,
             _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
         };
         if (shake is { } quake)

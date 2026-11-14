@@ -25,14 +25,13 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="BackgroundText">The text an escape shows over the background (Zebes's warning), or null (#1348, #1555).</param>
 /// <param name="Floor">The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</param>
 /// <param name="BossBody">The boss body shown while a boss shows one, as its pictures placed where they show, or null (#1352, #1466, #1514).</param>
-/// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
 /// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
 /// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the picture it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayArtwork? FxOverlay,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? ForegroundText = null, SkyPictures? Sky = null,
     RoomOverlayPictures? BackgroundText = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
-    RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
+    XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? BackgroundImage = null)
 {
     /// <summary>The room effect's artwork the frame shows on the effect overlay (#1403, #1514, #1706).</summary>

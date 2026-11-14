@@ -1207,7 +1207,7 @@ internal sealed class RoomLoader
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
         if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior))
             return RoomBlockPictureTable.NoneDrawn();
-        return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, RoomScope.BlockArtworkOf(_room.ActiveRoom),
+        return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks), []);
     }
 

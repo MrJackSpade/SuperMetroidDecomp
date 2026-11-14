@@ -68,7 +68,7 @@ internal static class RoomStateSetup
             case RoomSetupBehavior.SetMediumHorizontalRoomShaking:
             case RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze:
             case RoomSetupBehavior.SpawnCeresHaze:
-            case RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze:
+            case RoomSetupBehavior.SpawnCeresRidleyArenaHaze:
                 return;
             default:
                 throw new InvalidOperationException($"Undefined room setup {room.State.SetupBehavior}.");

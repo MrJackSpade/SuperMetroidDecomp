@@ -27,7 +27,7 @@ internal static class RoomBlockFixtures
     /// its blocks.
     /// </summary>
     internal static RoomBlockAppearances Appearances(int count) =>
-        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], null, Enumerable.Range(0, count));
+        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], Enumerable.Range(0, count));
 
     /// <summary>
     /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>

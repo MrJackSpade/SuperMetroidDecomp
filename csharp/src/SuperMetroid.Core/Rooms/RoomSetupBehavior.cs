@@ -48,6 +48,10 @@ public enum RoomSetupBehavior
     TurnCeresDoorToSolidBlocksAndSpawnHaze,
     /// <summary>Spawns the Ceres room haze during setup.</summary>
     SpawnCeresHaze,
-    /// <summary>Points the Ceres Ridley arena's backgrounds at the sprites' artwork and spawns haze.</summary>
-    ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze,
+    /// <summary>
+    /// Spawns the Ceres haze in Ceres Ridley's arena. The arena's walls show the artwork its room loads for his fight, the
+    /// Ceres doors' among it, since its tileset's own artwork is the turning floor of his getaway; the import pictures its
+    /// blocks so, and nothing the simulation does tells this setup from <see cref="SpawnCeresHaze"/> (#1791).
+    /// </summary>
+    SpawnCeresRidleyArenaHaze,
 }

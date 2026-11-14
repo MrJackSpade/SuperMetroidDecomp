@@ -2,9 +2,12 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -106,8 +109,8 @@ internal static class CeresRidleyArenaBlocksVerification
     private const int RowColours = 16;
 
     /// <summary>
-    /// Every block the arena's level places, in either layer, shows in its installed picture over the sprites' artwork
-    /// exactly its tiles, from the cartridge's tile table, drawn over the characters the cartridge's room load leaves from
+    /// Every block the arena's level places, in either layer, shows in its installed picture (#1791) exactly its tiles, from
+    /// the cartridge's tile table, drawn over the characters the cartridge's room load leaves from
     /// word $6000: each pixel the palette index its tile paints, in the part its tile's priority puts it in. No block depends
     /// on any appearance input there: nothing the arena copies while it shows lands on the characters its blocks read.
     /// </summary>
@@ -126,9 +129,9 @@ internal static class CeresRidleyArenaBlocksVerification
         {
             string where = $"{RoomBlockSheet.NameOf(tileset)} block {block:X3}";
             AssertTrue(sheet.Inputs.Shows(block), $"{where}: the installed sheet shows the block the arena's level places");
-            ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block, RoomBlockArtwork.Sprites);
+            ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block);
             AssertTrue(inputs.IsEmpty, $"{where} depends on {string.Join(", ", inputs.Select(input => input.Token))}, though nothing the arena copies lands on its characters");
-            LayeredPicture picture = sheet.BlockPicture(block, RoomBlockArtwork.Sprites, inputs, []);
+            LayeredPicture picture = sheet.BlockPicture(block, inputs, []);
             for (int tile = 0; tile < BlockTiles; tile++)
             {
                 int entry = (block * BlockTiles + tile) * sizeof(ushort);
@@ -153,9 +156,9 @@ internal static class CeresRidleyArenaBlocksVerification
     }
 
     /// <summary>
-    /// Neither of the arena's tilesets pictures a block over its own artwork: every state that loads them runs the setup that
-    /// points the blocks at the sprites' characters before the room's first frame, so no picture over the tileset's characters
-    /// is ever shown, and none is installed or recorded.
+    /// The import composes the blocks of exactly the arena's states over what the arena loads for its fight (#1791): both of
+    /// its states run the setup that points the blocks at the sprites' characters before the room's first frame, so the
+    /// import's decision holds for both, and for no state of any other room, whose blocks read their tileset's characters.
     /// </summary>
     internal static void VerifyArenaPicturesNoBlockOverItsTileset()
     {
@@ -166,20 +169,20 @@ internal static class CeresRidleyArenaBlocksVerification
         {
             AssertEqual(ArenaSetup, RomDataReader.ReadWordFixedBank(cartridge, state + StateSetupOffset),
                 $"arena state ${state:X6} runs the setup that points its blocks at the sprites' characters");
-            TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(cartridge.ReadCartridgeByte(state + StateTilesetOffset)));
-            RoomBlockSheet sheet = InstalledFixtures.RoomAssets.BlockSheets.Sheets[tileset];
-            string name = RoomBlockSheet.NameOf(tileset);
-            AssertTrue(!sheet.Inputs.ShowsOver(RoomBlockArtwork.Tileset), $"{name} records its blocks over the tileset's artwork, which its rooms never show");
-            AssertTrue(sheet.Inputs.ShowsOver(RoomBlockArtwork.Sprites), $"{name} records its blocks over the sprites' artwork, which its rooms show");
-            for (int block = 0; block < sheet.Inputs.Count; block++)
+        }
+        int arenaStates = 0;
+        foreach (RoomDefinition room in RetailRooms.All)
+        {
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {
-                if (!sheet.Inputs.Shows(block))
-                    continue;
-                string over = RoomBlockPictureNames.Of(block, RoomBlockArtwork.Tileset, [], []);
-                AssertTrue(!PictureParts.Holds(sheet.Sheet, over), $"{name} holds picture {over} of block {block:X3} over the tileset's characters, which no room shows");
+                bool arena = ReferenceEquals(room, RoomDefinitions.CeresRidley);
+                arenaStates += arena ? 1 : 0;
+                AssertEqual(arena, RoomBlockUploads.DrawsBlocksOverArenaCharacters(state),
+                    $"{room.Name}'s state {state.Name} draws its blocks over what the arena loads exactly when it is the arena's");
             }
         }
-        Console.WriteLine("  Ceres Ridley's arena: neither tileset pictures a block over its own characters.");
+        AssertEqual(2, arenaStates, "the import finds both of the arena's states");
+        Console.WriteLine("  Ceres Ridley's arena: the import draws exactly the arena's two states' blocks over what the arena loads.");
     }
 
     /// <summary>The retail cartridge.</summary>

@@ -169,7 +169,7 @@ internal static class XrayGameplayTests
                 ?? throw new InvalidOperationException("A seeded room shows a seeded effect atmosphere.");
             int bg3FirstRow = random.Next(FxOverlayPlaneConstants.Rows - bg3Rows + 1);
             // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
-            var bg3Across = new ScrollWave(Word(), random.Next(65536), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224);
+            var bg3Across = new ScrollWave(Word(), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(random.Next(65536)), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224);
             var bg3 = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(seededOverlay.Picture, bg3FirstRow, bg3Rows),
                     new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536))), 32,
                 BlendOperation.Add, bg3Across);

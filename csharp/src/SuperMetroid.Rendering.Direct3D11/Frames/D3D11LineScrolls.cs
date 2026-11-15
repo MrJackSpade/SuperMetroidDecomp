@@ -64,7 +64,7 @@ internal static class D3D11LineScrolls
             case ScrollWave wave:
                 record[0] = Kind(D3D11LineScrollKind.Wave, wave.BaseScroll);
                 record[1] = Band(wave.FirstLine, wave.EndLine);
-                record[2] = Scale(wave.Amplitude);
+                record[2] = Scale(wave.Amplitude.InTwoFiftySixths);
                 if (wave.Period > LongestPeriod)
                     throw new NotSupportedException($"A wave of {wave.Period} lines a cycle is longer than a line-scroll slot holds.");
                 record[3] = D3D11ConstantPacking.Halves(wave.Phase.RawValue, (ushort)wave.Period);

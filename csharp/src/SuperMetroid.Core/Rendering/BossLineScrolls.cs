@@ -17,7 +17,7 @@ public static class BossLineScrolls
     /// <param name="wave">The wave the boss published.</param>
     /// <param name="camera">The frame's camera, the room pixel at the screen's top-left.</param>
     public static ScrollWave Of(PhantoonWave wave, Position16<RoomPixels> camera) =>
-        new(CoordinateAxis.Wrap(camera.X - Ensure.NotNull(wave).BodyLeft), wave.Amplitude, wave.Phase, wave.Period, 0,
+        new(CoordinateAxis.Wrap(camera.X - Ensure.NotNull(wave).BodyLeft), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(wave.Amplitude), wave.Phase, wave.Period, 0,
             ScreenGeometry.ScreenHeightPixels);
 
     /// <summary>

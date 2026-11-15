@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The post-credits wave that ripples Samus sideways while the backdrop waits, and how it moves.</summary>
 internal static class EndingWavySamusDefinitions
 {
-    /// <summary>The wavy Samus effect: the wave's peak displacement, in 1/256ths of a pixel (64 pixels).</summary>
-    internal const int Amplitude = 16384;
+    /// <summary>The wavy Samus effect: the wave's peak displacement, 64 pixels.</summary>
+    internal static UnsignedSixteenSixteen Amplitude { get; } = new(64, 0);
     /// <summary>
     /// The wavy Samus effect: the sine steps the wave's angle advances each frame, so the ripple travels up
     /// the screen.

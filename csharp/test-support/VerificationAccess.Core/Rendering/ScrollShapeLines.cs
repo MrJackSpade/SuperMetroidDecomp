@@ -43,7 +43,7 @@ internal static class ScrollShapeLines
     {
         if (line < wave.FirstLine || line >= wave.EndLine) return 0;
         int sine = Trigonometry.SignedSine(new TrigonometryAngle(unchecked((byte)(wave.Phase.RawValue + line * AngleStepsPerTurn / wave.Period))));
-        int magnitude = TimesSixteenSixteen(Math.Abs(sine), wave.Amplitude);
+        int magnitude = TimesSixteenSixteen(Math.Abs(sine), wave.Amplitude.InTwoFiftySixths);
         return sine < 0 ? -magnitude : magnitude;
     }
 

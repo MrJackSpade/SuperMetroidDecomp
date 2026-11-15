@@ -15,20 +15,13 @@ namespace SuperMetroid.Core.Rendering;
 /// The horizontal scroll every line shows before its displacement, any whole number of pixels: the plane repeats across
 /// its width, so a scroll and the same scroll a whole number of plane widths on show the same lines.
 /// </param>
-/// <param name="Amplitude">The wave's peak displacement in 1/256ths of a pixel, zero or more.</param>
+/// <param name="Amplitude">The wave's peak displacement.</param>
 /// <param name="Phase">The wave's angle at screen line zero.</param>
 /// <param name="Period">The screen lines of one whole cycle of the wave, at least one.</param>
 /// <param name="FirstLine">The first screen line the wave displaces, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave displaces, <paramref name="FirstLine"/> through the screen's height.</param>
-public sealed record ScrollWave(int BaseScroll, int Amplitude, TrigonometryAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
+public sealed record ScrollWave(int BaseScroll, UnsignedSixteenSixteen Amplitude, TrigonometryAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
 {
-    /// <summary>The wave's peak displacement in 1/256ths of a pixel, zero or more.</summary>
-    public int Amplitude
-    {
-        get;
-        init => field = Ensure.AtLeastZero(value);
-    } = Ensure.AtLeastZero(Amplitude);
-
     /// <summary>The screen lines of one whole cycle of the wave, at least one.</summary>
     public int Period
     {

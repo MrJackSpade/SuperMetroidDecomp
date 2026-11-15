@@ -46,7 +46,7 @@ internal static class EndingWavySamusTests
             else
             {
                 ScrollWave wave = added.HorizontalWave ?? throw new InvalidDataException($"The wave shows from age 2, age {age}");
-                Require(wave.BaseScroll == 0 && wave.Amplitude == 0x4000 && wave.Period == 128, $"Wave base, amplitude and period, age {age}");
+                Require(wave.BaseScroll == 0 && wave.Amplitude == new UnsignedSixteenSixteen(64, 0) && wave.Period == 128, $"Wave base, amplitude and period, age {age}");
                 Require(wave.FirstLine == 0 && wave.EndLine == 224, $"Wave band, age {age}");
                 Require(wave.Phase.RawValue == (byte)((-2 + (age - 1) * 16) >> 1), $"Wave phase advances eight sine steps a frame, age {age}");
                 for (int line = 0; line < 224; line++)

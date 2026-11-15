@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Ending cinematic coroutine positions, from setup waits to the terminal result display.</summary>
+/// <summary>The ending's phases, from the setup's waits to the final see-you-next-mission screen.</summary>
 internal enum EndingCreditsPhase
 {
     /// <summary>Waits out the setup updates before loading the side-cloud escape.</summary>
@@ -19,13 +19,13 @@ internal enum EndingCreditsPhase
     TopAndBottomCloudEscape,
     /// <summary>Blanks the top-and-bottom-cloud escape before the explosion handoff.</summary>
     FadeOutTopAndBottomCloudEscape,
-    /// <summary>Reveals the explosion while object and background colors crossfade.</summary>
+    /// <summary>Reveals the explosion while the planet's and the sky's colours crossfade.</summary>
     FadeInZebesExplosion,
     /// <summary>Completes the explosion's colour crossfade after brightness reaches full.</summary>
     ZebesExplosionCrossfade,
     /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
-    /// <summary>Lets the explosion actor's private animation control the finale.</summary>
+    /// <summary>Lets the exploding planet's own animation run the finale.</summary>
     ZebesExplosionAnimation,
     /// <summary>Holds the explosion whiteout before queuing planet-escape music.</summary>
     WaitForPlanetEscapeMusic,
@@ -37,11 +37,11 @@ internal enum EndingCreditsPhase
     PlanetEscapeSlow,
     /// <summary>Accelerates the planet off screen before the gunship completion text.</summary>
     PlanetEscapeAccelerating,
-    /// <summary>Lets completion-text sprite cues trigger the credits transition.</summary>
+    /// <summary>Shows the completion text until its animation's cue starts the fade to the credits.</summary>
     OperationSuccessfulText,
     /// <summary>Blanks the planet and completion text before staff credits.</summary>
     FadeOutToCredits,
-    /// <summary>Scrolls the staff credits until their control animation finishes.</summary>
+    /// <summary>Scrolls the staff credits until the roll has scrolled past its end.</summary>
     Credits,
     /// <summary>Holds the first post-credits backdrop blank for sixty calls.</summary>
     PostCreditsBlank,
@@ -61,9 +61,9 @@ internal enum EndingCreditsPhase
     PostCreditsGesture,
     /// <summary>Runs the reward jump, which reveals the reward icon as Samus falls back, until the shot.</summary>
     PostCreditsJump,
-    /// <summary>Runs the post-shot colour and picture replacements before the white flash.</summary>
+    /// <summary>Runs the post-shot colour fades and picture changes before the white flash.</summary>
     PostCreditsShot,
-    /// <summary>Fades fixed white while switching to the two-screen final text map.</summary>
+    /// <summary>Fades the white flash out while the final text replaces the shot scene.</summary>
     PostCreditsWhiteFlash,
     /// <summary>Runs the final logo animation before the percentage text.</summary>
     PostCreditsLogo,

@@ -59,7 +59,7 @@ internal static class PauseMapAreaLabelsVerification
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();
             _ = pause.CaptureRenderSnapshot();
-            var oam = pause.screen.Objects;
+            var oam = pause.screen.Sprites;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
             byte[] emitted = oam.LowTable.Slice(start, labelBytes).ToArray();
@@ -77,13 +77,13 @@ internal static class PauseMapAreaLabelsVerification
             pause.BindFixtureArtwork(RetailPresentationFixture());
             AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "restoring preserves destination-label fade priority");
             pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
-            AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
+            AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.CaptureRenderSnapshot();
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
             _ = pause.CaptureRenderSnapshot();
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment page reached");
-            AssertTrue(pause.screen.Objects.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
+            AssertTrue(pause.screen.Sprites.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
             for (int frame = 0; pause.IsPageTransitionActive; frame++)
             {
@@ -94,10 +94,10 @@ internal static class PauseMapAreaLabelsVerification
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.CaptureRenderSnapshot();
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "map fade-in reached");
-            AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
+            AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)
             {
-                var actual = pause.screen.Objects;
+                var actual = pause.screen.Sprites;
                 AssertTrue(actual.LowTable.Slice(firstByte, labelBytes).SequenceEqual(native.LowTable[..labelBytes]), $"{area} {phase} native label order/coordinates");
                 for (int sprite = 0; sprite < labelBytes / 4; sprite++)
                 {

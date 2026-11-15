@@ -18,7 +18,7 @@ internal sealed class MenuScreen
     /// <param name="sheets">The installed sheets the screen's pictures come from.</param>
     public MenuScreen(RgbColor backdrop, InstalledSpriteSheets? sheets)
     {
-        Objects = new ScreenSprites();
+        Sprites = new ScreenSprites();
         Backdrop = backdrop;
         BindScreenPictures(sheets);
     }
@@ -67,12 +67,12 @@ internal sealed class MenuScreen
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
     public RgbColor Backdrop { get; set; }
 
-    /// <summary>The menu's sprite entries over the installed menu sprite page.</summary>
-    public ScreenSprites Objects { get; }
+    /// <summary>The sprites the menu shows over its pages this frame: its cursors, arrows and icons.</summary>
+    public ScreenSprites Sprites { get; }
 
     /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
     internal FramePaint Paint() => new(Backdrop);
 
-    /// <summary>The screen's sprite entries as one layer of sprites over its pages, each in the shading it names (#1512, #1514).</summary>
-    internal SpritesLayer Sprites() => new(Objects.Draws);
+    /// <summary>The screen's sprites as one layer over its pages, each in the shading it names (#1512, #1514).</summary>
+    internal SpritesLayer SpriteLayer() => new(Sprites.Draws);
 }

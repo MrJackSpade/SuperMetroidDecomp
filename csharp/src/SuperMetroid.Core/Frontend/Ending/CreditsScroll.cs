@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// top starting <see cref="StartDistance"/> pixels below the view's top, moved up by the distance scrolled; nothing wraps,
 /// and no line is held or replaced.
 /// </remarks>
-internal sealed class CreditsObjectState
+internal sealed class CreditsScroll
 {
     /// <summary>Pixels below the view's top the roll's top starts at, more than the screen's height, so each line comes up from below the view.</summary>
     internal const int StartDistance = 256;

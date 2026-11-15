@@ -19,7 +19,7 @@ internal sealed class PauseScreen
     public PauseScreen(AreaMapPresentation artwork, InstalledSpriteSheets? sheets)
     {
         Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
-        Objects = new ScreenSprites();
+        Sprites = new ScreenSprites();
         BindScreenPictures(sheets);
     }
 
@@ -128,15 +128,15 @@ internal sealed class PauseScreen
     /// <summary>The solid colour the pause screen shows where nothing is drawn (#1512).</summary>
     public RgbColor Backdrop { get; private set; }
 
-    /// <summary>The pause sprite entries over the installed menu sprite page.</summary>
-    public ScreenSprites Objects { get; }
+    /// <summary>The sprites the pause screen shows this frame: its selector, map markers, labels and reserve tanks.</summary>
+    public ScreenSprites Sprites { get; }
 
-    /// <summary>Rebinds the backdrop the installed artwork names, keeping the sprite entries.</summary>
+    /// <summary>Rebinds the backdrop the installed artwork names, keeping the sprites.</summary>
     public void BindArtwork(AreaMapPresentation artwork) => Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
 
     /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
     internal FramePaint Paint() => new(Backdrop);
 
-    /// <summary>The screen's sprite entries as one layer of sprites, each in the shading it names (#1512, #1514).</summary>
-    internal SpritesLayer Sprites() => new(Objects.Draws);
+    /// <summary>The screen's sprites as one layer, each in the shading it names (#1512, #1514).</summary>
+    internal SpritesLayer SpriteLayer() => new(Sprites.Draws);
 }

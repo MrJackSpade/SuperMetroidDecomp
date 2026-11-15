@@ -9,7 +9,7 @@ internal sealed class EndingZebesExplosion
 {
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
+    /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
@@ -50,7 +50,7 @@ internal sealed class EndingZebesExplosion
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionCrossfade;
 
-    /// <summary>Stops cloud colour effects and seeds the planet object's first fade step.</summary>
+    /// <summary>Stops cloud colour effects and seeds the planet's first fade step.</summary>
     private void BeginExplosionCrossfade()
     {
         // The cloud colour effects end before the crossfade begins; otherwise their next step would show over it.

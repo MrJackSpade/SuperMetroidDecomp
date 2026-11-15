@@ -37,8 +37,8 @@ internal static class BackgroundTransferPresentationContractChecks
                     blends.Inks((RoomEffectTint)200);
                     blends.Inks((RoomEffectTint)255);
                     blends.Inks(RoomEffectTint.Fog);
-                    ending.Fragment(EndingObjectFragmentId.Blank);
-                    ending.Fragment((EndingObjectFragmentId)4);
+                    ending.Fragment(EndingExplosionPicture.Blank);
+                    ending.Fragment((EndingExplosionPicture)4);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFifthTiles);
                     ship.Resolve(InstalledArtworkId.BeamPowerTiles);

@@ -71,7 +71,7 @@ internal static class EndingCreditsPresentation
             if (ending.Flyaway.FlyawayWhiteWash is { } backdropWhite) layers.Add(backdropWhite);
             // During the flyaway the exploding planet's afterglow and the starfields lie behind the departing gunship's
             // floor, which every one of them passes behind.
-            if (UsesFlyawayFloorPriority(ending) && EndingObjectsEnabled(ending)) layers.Add(Sprites(ending, tint: skyWhite));
+            if (UsesFlyawayFloorPriority(ending) && ShowsSprites(ending)) layers.Add(Sprites(ending, tint: skyWhite));
             if (ending.Floor() is { } floor)
                 {
                     layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
@@ -84,7 +84,7 @@ internal static class EndingCreditsPresentation
         // itself; every other scene draws its sprites in its sprite layers.
         if (ShowsAtmosphere(ending))
             paint = FloorGlowPaint(ending);
-        else if (EndingObjectsEnabled(ending) && !UsesFlyawayFloorPriority(ending))
+        else if (ShowsSprites(ending) && !UsesFlyawayFloorPriority(ending))
         {
             if (waiting)
                 layers.Add(Sprites(ending, EndingSpriteLayer.Actors));
@@ -115,8 +115,8 @@ internal static class EndingCreditsPresentation
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
     /// <summary>Whether the planet escape shows the gunship flying away, the planet's afterglow and the starfields behind it.</summary>
     private static bool UsesFlyawayFloorPriority(EndingCreditsState ending) => EndingCreditsPhaseGroups.PlanetEscape.Contains(ending.Stage.Phase);
-    /// <summary>Whether the current ending phase draws object actors at all.</summary>
-    private static bool EndingObjectsEnabled(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Stage.Phase is not
+    /// <summary>Whether the current ending phase draws its actors and stars at all.</summary>
+    private static bool ShowsSprites(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Stage.Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
     /// <summary>The floor point the floor turns about, shared by atmospheric scenes and changed for flyaway.</summary>
@@ -183,22 +183,22 @@ internal static class EndingCreditsPresentation
     /// </summary>
     internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
     {
-        var objects = new ScreenSprites();
-        objects.BeginFrame();
+        var sprites = new ScreenSprites();
+        sprites.BeginFrame();
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
             if (Shows(EndingSpriteLayer.Actors))
-                ending.InstalledArtwork.CurrentEndingLogo.Draw(objects, Family(CinematicSpriteFamily.EndingLogo));
+                ending.InstalledArtwork.CurrentEndingLogo.Draw(sprites, Family(CinematicSpriteFamily.EndingLogo));
         }
         else if (ending.CurrentRewardGesture is not null)
         {
             if (Shows(EndingSpriteLayer.Actors))
-                ending.CurrentRewardGesture.Draw(objects, Family(CinematicSpriteFamily.EndingReward));
+                ending.CurrentRewardGesture.Draw(sprites, Family(CinematicSpriteFamily.EndingReward));
         }
         else if (ending.CreditsRoll.CurrentRewardJump is not null)
         {
             if (Shows(EndingSpriteLayer.Actors))
-                ending.CreditsRoll.CurrentRewardJump.Draw(objects, Family(CinematicSpriteFamily.EndingReward),
+                ending.CreditsRoll.CurrentRewardJump.Draw(sprites, Family(CinematicSpriteFamily.EndingReward),
                     new CinematicSpriteSheet(Sheet(EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
         }
         else
@@ -216,14 +216,14 @@ internal static class EndingCreditsPresentation
                     EndingSpriteFamily.AnimalEscape => CinematicSpriteFamily.EndingAnimalEscape,
                     var undefined => throw new InvalidOperationException($"Undefined ending sprite family {undefined}."),
                 };
-                wrapper.Sprite.Draw(objects, installedArt: Family(family));
+                wrapper.Sprite.Draw(sprites, installedArt: Family(family));
             }
         }
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase) && Shows(EndingSpriteLayer.Stars))
-            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
+            ending.CreditsRoll.ShootingStars?.Draw(sprites, Sheet(EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
                 ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
-        objects.FinishFrame();
-        return objects;
+        sprites.FinishFrame();
+        return sprites;
 
         // Whether the sprites of `layer` are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;

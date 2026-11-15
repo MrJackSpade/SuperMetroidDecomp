@@ -9,4 +9,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <param name="Kind">The transfer.</param>
 /// <param name="Chunk">The post-shot part a <see cref="EndingTransferKind.PostShotPart"/> transfer makes; zero otherwise.</param>
 /// <param name="Fragment">The explosion map an <see cref="EndingTransferKind.ExplosionMap"/> transfer loads; null otherwise.</param>
-internal sealed record EndingTransfer(EndingTransferKind Kind, int Chunk = 0, EndingObjectFragmentId? Fragment = null);
+internal sealed record EndingTransfer(EndingTransferKind Kind, int Chunk = 0, EndingExplosionPicture? Fragment = null);

@@ -99,7 +99,7 @@ internal static class GameOptionsCursorPhasesVerification
         SpriteSheet sheet = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.GameOptions);
         SpriteSheetFrame[] cursorFrames = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
             .Select(frame => sheet.Frame(GameOptionsNames.CursorSpriteName(frame)))];
-        return menu.screen.Objects.Draws.OfType<ImageSpriteDraw>().Any(draw => cursorFrames.Contains(draw.Image));
+        return menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => cursorFrames.Contains(draw.Image));
     }
 
     /// <summary>Runs the native cursor-phase and rendered OAM check.</summary>

@@ -14,7 +14,7 @@ public static class TitleShades
 
     /// <summary>
     /// The copyright's glyph colours as the skip to the title screen restores them, laid over the copyright's drawn shade
-    /// once the title screen's objects are rebuilt.
+    /// once the title screen is rebuilt.
     /// </summary>
     public static PictureShade RestoredCopyright { get; } = new("TitleRestoredCopyright", 0);
 }

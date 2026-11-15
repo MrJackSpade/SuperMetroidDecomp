@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>The planet's explosion, shown over the stars from the explosion's start until the finale replaces it.</summary>
-    public const EndingObjectFragmentId PlanetExplosion = EndingObjectFragmentId.WideExplosion;
+    public const EndingExplosionPicture PlanetExplosion = EndingExplosionPicture.WideExplosion;
     /// <summary>The glow the burst adds over the planet's explosion and its debris.</summary>
-    public const EndingObjectFragmentId BurstGlow = EndingObjectFragmentId.Blank;
+    public const EndingExplosionPicture BurstGlow = EndingExplosionPicture.Blank;
     /// <summary>The explosion the finale shows over its glow.</summary>
-    public const EndingObjectFragmentId FinaleExplosion = EndingObjectFragmentId.ConcentricExplosion;
+    public const EndingExplosionPicture FinaleExplosion = EndingExplosionPicture.ConcentricExplosion;
     /// <summary>The finale's glow: pictured behind the finale's explosion and added over the whole screen.</summary>
-    public const EndingObjectFragmentId FinaleGlow = EndingObjectFragmentId.Eclipse;
+    public const EndingExplosionPicture FinaleGlow = EndingExplosionPicture.Eclipse;
 }

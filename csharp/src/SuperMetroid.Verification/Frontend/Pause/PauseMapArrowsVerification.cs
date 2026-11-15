@@ -69,7 +69,7 @@ internal static class PauseMapArrowsVerification
                     arrowAttributes.Add(LittleEndianBytes.Word(expected.LowTable[offset], expected.LowTable[offset + 1]));
             }
             LayeredScene shown = pause.CaptureRenderSnapshot();
-            var actual = pause.screen.Objects;
+            var actual = pause.screen.Sprites;
             AssertTrue(actual.LowTable[..expectedBytes].SequenceEqual(expected.LowTable[..expectedBytes]),
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;

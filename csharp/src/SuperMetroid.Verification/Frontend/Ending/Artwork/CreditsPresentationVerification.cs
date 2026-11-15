@@ -45,11 +45,11 @@ internal static class CreditsPresentationVerification
                 $"credits row {row} with text is covered by a line picture");
         }
 
-        // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
+        // Exercise actual runtime cadence through completion. CreditsScroll has no bus
         // dependency, so this also proves installed playback cannot fall back to ROM text. The native
         // row object takes a row every eight scrolled pixels and finishes on the boundary after its final
         // row; the roll finishes on the same update.
-        var runtime = new CreditsObjectState();
+        var runtime = new CreditsScroll();
         int nativeFinish = (nativeRows.Length + 1) * CreditsPresentationDefinitions.RowHeight;
         int updates = 0;
         while (!runtime.Finished)

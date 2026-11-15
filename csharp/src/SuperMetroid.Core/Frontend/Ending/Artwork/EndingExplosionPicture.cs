@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The four one-screen explosion pictures the ending's Zebes explosion shows.</summary>
-public enum EndingObjectFragmentId
+public enum EndingExplosionPicture
 {
-    /// <summary>The wide explosion map.</summary>
+    /// <summary>The wide explosion.</summary>
     WideExplosion,
-    /// <summary>The concentric wide explosion map.</summary>
+    /// <summary>The concentric wide explosion.</summary>
     ConcentricExplosion,
-    /// <summary>The eclipse map.</summary>
+    /// <summary>The eclipse.</summary>
     Eclipse,
-    /// <summary>The blank map.</summary>
+    /// <summary>The blank picture, which shows nothing.</summary>
     Blank,
 }

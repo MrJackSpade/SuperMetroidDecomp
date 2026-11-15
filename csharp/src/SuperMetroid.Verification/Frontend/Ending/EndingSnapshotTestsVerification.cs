@@ -133,10 +133,10 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
-                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Blank)),
+                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.Blank)),
                         "F2B7 selects burst BG2 map");
                     AssertTrue(ShowsOnly(legacy, (sub.GlowsOver ?? throw new InvalidOperationException("Verification requires sub.GlowsOver.")).Plane,
-                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.WideExplosion)),
+                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.WideExplosion)),
                         "the burst glows over the planet's map, not over the sky");
 
                     burstDisplayFrames++;
@@ -146,7 +146,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var finale = Live();
                     var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
-                    AssertTrue(backgrounds.Length == 2 && backgrounds.Zip(new[] { EndingObjectFragmentId.Eclipse, EndingObjectFragmentId.ConcentricExplosion })
+                    AssertTrue(backgrounds.Length == 2 && backgrounds.Zip(new[] { EndingExplosionPicture.Eclipse, EndingExplosionPicture.ConcentricExplosion })
                             .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(shown.Second))),
                         "the explosion finale shows its glow's map behind the planet's");
                     AssertTrue(finale.LayersOf<SpritesLayer>().All(layer => layer.Blend == SpriteBlend.Glows),

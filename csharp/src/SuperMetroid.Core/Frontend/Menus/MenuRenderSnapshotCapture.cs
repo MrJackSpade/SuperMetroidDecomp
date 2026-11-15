@@ -21,7 +21,7 @@ internal static class MenuRenderSnapshotCapture
         [
             new PicturedPlaneLayer(backdrop, Offset16<PlanePixels>.Zero),
             new PicturedPlaneLayer(page, new Offset16<PlanePixels>(0, pageVerticalScroll)),
-            screen.Sprites(),
+            screen.SpriteLayer(),
         ];
         return new(screen.Paint(), layers, brightness);
     }

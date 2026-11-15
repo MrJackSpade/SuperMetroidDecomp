@@ -104,7 +104,7 @@ public static class TitleSequenceDefinitions
 
         /// <summary>
         /// The colour group of each colouring whose colours a fade animates (#1714): a composition drawn in the colouring
-        /// shows the record the fade last showed over its drawn colours.
+        /// shows the shade the fade last showed over its drawn colours.
         /// </summary>
         public static IReadOnlyDictionary<TitleSpriteColouring, ColourEffectColours> FadedColours { get; } =
             new Dictionary<TitleSpriteColouring, ColourEffectColours>

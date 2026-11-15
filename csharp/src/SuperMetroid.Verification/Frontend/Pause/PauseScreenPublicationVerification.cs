@@ -74,8 +74,8 @@ internal static class PauseScreenPublicationVerification
                 .SequenceEqual(characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
         AssertEqual(artwork.Backdrops.Pause, memory.Backdrop, $"{page} shows its own backdrop");
-        AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(painted, screen.Objects.Draws),
-            $"{page} draws its own sprite entries ({PaintedSpriteEntries.FirstDifference(painted, screen.Objects.Draws)})");
+        AssertTrue(screen.Sprites.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(painted, screen.Sprites.Draws),
+            $"{page} draws its own sprite entries ({PaintedSpriteEntries.FirstDifference(painted, screen.Sprites.Draws)})");
     }
 
     /// <summary>

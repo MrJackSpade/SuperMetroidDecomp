@@ -225,7 +225,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
     private void PrepareRenderSprites()
     {
-        ScreenSprites sprites = screen.Objects;
+        ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
         bool mainPage = IsMainPagePhase;
         FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(

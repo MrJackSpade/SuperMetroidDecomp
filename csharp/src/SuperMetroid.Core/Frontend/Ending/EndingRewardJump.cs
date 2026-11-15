@@ -57,7 +57,7 @@ internal sealed class EndingRewardJump
     /// <summary>Advances head before body, including shared gravity and cue effects.</summary>
     public void Step()
     {
-        // Fixed slots put the head above the body in the descending step.
+        // The head steps before the body, as it runs ahead of it.
         // Both motions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {

@@ -43,7 +43,7 @@ internal static class EndingScreenMemory
         if (loads.ExplosionMaps)
         {
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionObjects), artwork);
-            foreach (EndingObjectFragmentId map in Enum.GetValues<EndingObjectFragmentId>())
+            foreach (EndingExplosionPicture map in Enum.GetValues<EndingExplosionPicture>())
                 EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: map), artwork);
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.EndingFont), artwork);
         }

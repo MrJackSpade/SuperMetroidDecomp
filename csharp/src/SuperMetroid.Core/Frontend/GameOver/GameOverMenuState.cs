@@ -229,14 +229,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         PrepareRenderSprites();
         // The page is one installed picture of the whole game-over page (#1467).
-        DisplayLayer[] layers = [new PicturedPlaneLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), Offset16<PlanePixels>.Zero), screen.Sprites()];
+        DisplayLayer[] layers = [new PicturedPlaneLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), Offset16<PlanePixels>.Zero), screen.SpriteLayer()];
         return new(screen.Paint(), layers, brightness);
     }
 
     /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>
     private void PrepareRenderSprites()
     {
-        ScreenSprites sprites = screen.Objects;
+        ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");

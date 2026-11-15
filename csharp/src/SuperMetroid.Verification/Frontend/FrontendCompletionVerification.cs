@@ -337,7 +337,7 @@ internal static void VerifyDoorOpeningTrajectories()
 /// </summary>
 internal static void VerifyCreditsObjectInterpreter()
 {
-    var credits = new CreditsObjectState();
+    var credits = new CreditsScroll();
     for (int frame = 0; frame < 16; frame++)
         credits.Step();
     AssertEqual(8, credits.ScrolledPixels, "the roll scrolls eight pixels in sixteen half-pixel updates");

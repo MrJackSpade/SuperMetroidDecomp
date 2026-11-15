@@ -35,7 +35,7 @@ internal static class EndingScreenImage
                 ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
                 break;
             case EndingTransferKind.ExplosionMap:
-                EndingObjectFragmentId fragment = transfer.Fragment ?? throw new InvalidOperationException("An explosion map transfer names its map.");
+                EndingExplosionPicture fragment = transfer.Fragment ?? throw new InvalidOperationException("An explosion map transfer names its map.");
                 ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
                 break;
             case EndingTransferKind.EndingFont:

@@ -46,7 +46,7 @@ internal static class EndingPictureSheetComposer
                 EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
             [EndingScenery.WaitingBackdrop, EndingScenery.LogoPicture, EndingScenery.PostCreditsText]),
         [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus], [EndingScenery.WavySamus]),
-        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingExplosionPicture>().Select(EndingPictureNames.ExplosionMap),
             [EndingScenery.ExplosionPictures]),
     };
 
@@ -236,7 +236,7 @@ internal static class EndingPictureSheetComposer
         ImportEndingObjectArtwork objects = sources.EndingObjects;
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(0, objects.Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
-        EndingObjectFragmentId[] maps = Enum.GetValues<EndingObjectFragmentId>();
+        EndingExplosionPicture[] maps = Enum.GetValues<EndingExplosionPicture>();
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(maps.Length * ScreenSize.Y))));
         RgbColor[] colours = Colours(sources, EndingPaletteId.Explosion);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);

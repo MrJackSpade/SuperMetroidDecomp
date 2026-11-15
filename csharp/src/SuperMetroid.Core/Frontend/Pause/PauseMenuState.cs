@@ -276,33 +276,33 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-square and
         // per-sprite-part priority tiers that once interleaved them are a presentation quirk the model does not keep.
-        DisplayLayer[] layers = [frame, page, screen.Sprites(), hud];
+        DisplayLayer[] layers = [frame, page, screen.SpriteLayer(), hud];
         return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? DisplayBrightness.Full : TransitionBrightness);
     }
 
     /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
     private void PrepareRenderSprites()
     {
-        screen.Objects.BeginFrame();
+        screen.Sprites.BeginFrame();
         if (ScreenMode == PauseScreenMode.Map)
         {
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(MapSheet);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
+            CurrentMapArrows?.DrawArrows(screen.Sprites, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
-            icons.DrawBossMarkers(screen.Objects, MapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
+            icons.DrawBossMarkers(screen.Sprites, MapScrollPosition);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
         }
         else
         {
             DrawEquipmentItemSelector();
             DrawReserveTanks();
         }
-        screen.Objects.FinishFrame();
+        screen.Sprites.FinishFrame();
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
@@ -480,7 +480,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         var selector = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
-        selector.Draw(screen.Objects, PauseSheet, SelectedControl, ItemSelectorAnimationFrame);
+        selector.Draw(screen.Sprites, PauseSheet, SelectedControl, ItemSelectorAnimationFrame);
     }
 
     /// <summary>
@@ -494,7 +494,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void DrawMapSprite(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
+        MapSpriteSheet.Draw(MapSheet, id, screen.Sprites, origin, MapSpriteScreen.Pause, colouring);
 
     /// <summary>Handles reserve input or moves and toggles equipment in the game's update order.</summary>
     private void HandleEquipmentInput(ControllerButton pressed, SamusBombProjectileSystem? bombs)
@@ -763,7 +763,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))
-                .PauseReserveTanks.Draw(screen.Objects, PauseSheet, map, index);
+                .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, map, index);
         }
     }
 

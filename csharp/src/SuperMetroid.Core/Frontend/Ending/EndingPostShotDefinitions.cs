@@ -7,8 +7,8 @@ internal static class EndingPostShotDefinitions
     public const int WhiteComponent = WhiteWash.Steps;
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
     public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
-    /// <summary>The post-shot step queues the shot at essential priority.</summary>
-    public static SoundRequestPriority ShotSoundLimit { get; } = SoundRequestPriority.Essential;
+    /// <summary>The priority the post-shot step queues the shot's sound at: essential, so it joins any sound queue that is not full.</summary>
+    public static SoundRequestPriority ShotSoundPriority { get; } = SoundRequestPriority.Essential;
     /// <summary>The post-credits turning floor's horizontal origin.</summary>
     public const int CenterX = 104;
     /// <summary>The post-credits turning floor's vertical origin.</summary>

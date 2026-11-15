@@ -83,7 +83,7 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(maps.Backdrops.FileSelect, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
         AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
             "file select's pictures show the colours the import pre-coloured them in");
-        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Objects.Draws), "file select draws its own sprite entries");
+        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: optionsSheets);
@@ -102,7 +102,7 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(maps.Backdrops.FileSelect, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),
             "options' sprites show the colours the import pre-coloured them in");
-        AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.SpriteDraws, options.screen.Objects.Draws), "options draws its own sprite entries");
+        AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.SpriteDraws, options.screen.Sprites.Draws), "options draws its own sprite entries");
 
         InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
         var gameOver = new GameOverMenuState(AudioQueues.Standalone(), maps, gameOverSheets);
@@ -117,7 +117,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(gameOverScene.SpriteDraws.OfType<ImageSpriteDraw>().Any(draw =>
             draw.Shading == PictureShading.Shaded(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverBabyShades.Colours(gameOver.BabyColours))),
             "game over draws the Baby in the colours its pose program names");
-        AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
+        AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.SpriteDraws, gameOver.screen.Sprites.Draws), "game over draws its own sprite entries");
         Console.WriteLine("  Menu screens: file select, options and game over publish their pages' pictures, backdrop and sprite entries.");
     }
 

@@ -76,9 +76,6 @@ public sealed class ManagedSnesDsp
     /// <summary>Current position in the eight-tap FIR history ring.</summary>
     private int firBufferIndex;
 
-    /// <summary>The PCM sources looked up since recording started, or null while lookups are not recorded.</summary>
-    private HashSet<int>? sampleSources;
-
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
     internal ManagedSnesDsp(SpcRam apuRam)
     {
@@ -324,7 +321,6 @@ public sealed class ManagedSnesDsp
             "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = 0;
         voice.ReleasedBrrCursor = null;
-        sampleSources?.Add(voice.SourceNumber);
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
@@ -489,7 +485,6 @@ public sealed class ManagedSnesDsp
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
             ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank.");
-            sampleSources?.Add(voice.SourceNumber);
             if (!bank.Samples.ContainsKey(voice.SourceNumber) &&
                 voice.AdsrState == EnvelopeState.Release && voice.Gain == 0)
             {
@@ -628,14 +623,6 @@ public sealed class ManagedSnesDsp
             echoBufferIndex = 0;
         }
     }
-
-    /// <summary>Starts recording every PCM source a key-on or loop looks up from now on (#1503).</summary>
-    internal void RecordSampleSources() => sampleSources = [];
-
-    /// <summary>The PCM sources looked up since <see cref="RecordSampleSources"/>.</summary>
-    /// <exception cref="InvalidOperationException">Lookups are not being recorded.</exception>
-    internal IReadOnlySet<int> RecordedSampleSources() =>
-        sampleSources ?? throw new InvalidOperationException("PCM source lookups are not being recorded.");
 
     /// <summary>The installed PCM sample bank key-ons resolve sources from.</summary>
     /// <exception cref="InvalidOperationException">No sample bank is installed.</exception>

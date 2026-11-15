@@ -75,13 +75,19 @@ internal static class FrozenMetroidShellVerification
             drawn.BeginFrame();
             enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);
             drawn.FinalizeFrame();
-            var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, enemies.SpriteObjects.DrawInstanceOf(shell));
+            // The shell's draw is the room sprite object showing the shell's picture at its place; the electrical overlay
+            // lies at the same place and shows its own pictures. A shell picture that shows nothing draws nothing.
+            Offset16<ScreenPixels> place = shell.Position.Whole.RelativeToCamera(Position16<RoomPixels>.Zero);
+            SpawnedObjectSheet sheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid), shell.Graphics.Owner);
+            string picture = EnemySheetDefinitions.SpriteObjectFrameName(shell.Frame.RequireEnemyFrame());
+            SpriteSheetFrame? shown = sheet.ShowsNothing(picture) ? null : sheet.Frame(picture);
             var oam = new OamBuffer();
             oam.BeginFrame();
             oam.AppendDrawn(frame =>
             {
                 foreach (SpriteDraw draw in drawn.Draws)
-                    if (draw.Source == source)
+                    if (draw is ImageSpriteDraw image && image.Source.Kind == SpriteSourceKind.RoomSpriteObject && image.Origin == place &&
+                        ReferenceEquals(image.Image, shown))
                         frame.Add(draw);
             });
             return oam;

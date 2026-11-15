@@ -58,17 +58,6 @@ internal static class RoomSpriteObjectAccess
         internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;
     }
 
-    /// <summary>Views of the room's sprite objects.</summary>
-    extension(RoomSpriteObjects self)
-    {
-        /// <summary>The instance <paramref name="spawned"/>'s draws carry: its position among the live objects.</summary>
-        internal int DrawInstanceOf(RoomSpriteObject spawned)
-        {
-            int instance = self.Live.ToList().IndexOf(spawned);
-            return instance >= 0 ? instance : throw new InvalidOperationException($"Sprite object {spawned.Kind} is not live.");
-        }
-    }
-
     /// <summary>Native views of the kind selection.</summary>
     extension(RoomSpriteObjectDefinitions)
     {

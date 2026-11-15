@@ -118,15 +118,14 @@ internal static class BossSpriteEntriesVerification
         sprites.BeginFrame();
         enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, slot, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
-        SpriteSource[] expected = [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => new SpriteSource(SpriteSourceKind.RidleyTail, segment)),
-            new SpriteSource(SpriteSourceKind.RidleyWings)];
-        // A frame drawn over uploaded characters publishes one draw per layer picture, all under its piece's source (#1406),
-        // so the order is each piece once.
-        SpriteSource[] published = [.. sprites.Draws.Select(draw => draw.Source)
-            .Where((source, index) => index == 0 || sprites.Draws[index - 1].Source != source)];
-        AssertTrue(published.SequenceEqual(expected),
+        // Each tail segment is told by its place: the tip, then segments five to the base, then the wings.
+        (SpriteSourceKind Kind, Offset16<ScreenPixels> Origin)[] expected =
+            [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => (SpriteSourceKind.RidleyTail, new Offset16<ScreenPixels>(80 + segment * 10, 120 + segment * 3)))];
+        (SpriteSourceKind Kind, Offset16<ScreenPixels> Origin)[] published = [.. sprites.Draws.Select(draw => (draw.Source.Kind, draw.Origin))];
+        AssertTrue(published.Take(expected.Length).SequenceEqual(expected) && published.Length == expected.Length + 1 &&
+            published[^1].Kind == SpriteSourceKind.RidleyWings,
             "Ridley publishes the tail tip, then segments five to the base, then the wings; published "
-            + string.Join(", ", published.Select(source => $"{source.Kind} {source.Instance}")));
+            + string.Join(", ", published.Select(draw => $"{draw.Kind} at ({draw.Origin.X}, {draw.Origin.Y})")));
         AssertEqual(new Offset16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
         int characters = CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 512, 512)

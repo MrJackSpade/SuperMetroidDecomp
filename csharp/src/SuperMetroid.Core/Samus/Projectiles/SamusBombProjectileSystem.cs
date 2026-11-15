@@ -320,7 +320,7 @@ public sealed class SamusBombProjectileSystem
             if (sheet.ShowsNothing(frame))
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb), image,
                 place, SpriteMirror.None));
         }
     }

@@ -94,8 +94,8 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);
-        DrawProjectile(pad, 0, sprites, presentation, camera);
-        DrawProjectile(platform, 1, sprites, presentation, camera);
+        DrawProjectile(pad, sprites, presentation, camera);
+        DrawProjectile(platform, sprites, presentation, camera);
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <see cref="CeresElevatorArrivalDefinitions.MovingPadYOffset"/> lower.</summary>
@@ -142,7 +142,6 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Draws an active projectile from the room's variant of its owner's pictures, wherever it lies; the display clips it (#1587).</summary>
     private static void DrawProjectile(
         CeresElevatorProjectile projectile,
-        int instance,
         SpriteFrameBuffer sprites,
         EnemyPresentation presentation,
         Position16<RoomPixels> camera)
@@ -150,7 +149,7 @@ public sealed class CeresElevatorArrivalState
         if (!projectile.Active || projectile.Pose is not { } pose)
             return;
 
-        presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
+        presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival),
             EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), projectile.Position.RelativeToCamera(camera),
             projectile.Graphics);
     }

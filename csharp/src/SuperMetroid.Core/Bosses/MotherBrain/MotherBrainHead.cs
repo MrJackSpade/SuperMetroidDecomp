@@ -147,7 +147,7 @@ internal sealed class MotherBrainHead
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldFrame(
                 sprites,
-                new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
+                new SpriteSource(SpriteSourceKind.MotherBrainNeck),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
                     state.Colours.OwnShading),
                 camera);

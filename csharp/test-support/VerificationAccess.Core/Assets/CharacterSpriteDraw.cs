@@ -56,7 +56,7 @@ internal sealed record CharacterSpriteDraw
 
     /// <summary>Names the draw for debugger watches: source, frame and signed origin.</summary>
     public override string ToString() =>
-        $"{Source.Kind}#{Source.Instance} {Frame.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";
+        $"{Source.Kind} {Frame.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";
 
     /// <summary>Places one part on the screen: applies the whole-frame flip and the draw's palette and priority.</summary>
     /// <param name="index">The part's index in the frame, frontmost first.</param>

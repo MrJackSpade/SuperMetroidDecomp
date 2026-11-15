@@ -180,7 +180,7 @@ public static class SamusGrappleBeamDrawing
             // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, RopePicture(grapple.RopeAnimationPhase, segment), mirror));
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope), image,
                 centre.Whole, SpriteMirror.None));
             centre += step;
         }

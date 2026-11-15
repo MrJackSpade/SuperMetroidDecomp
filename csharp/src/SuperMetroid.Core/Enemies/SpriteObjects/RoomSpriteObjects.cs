@@ -99,7 +99,6 @@ internal sealed class RoomSpriteObjects
     /// <param name="hitBursts">What a hit burst draws: Samus's projectile sheets and the beams she has equipped.</param>
     internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusHitBurstArtwork hitBursts)
     {
-        int instance = 0;
         foreach (RoomSpriteObject spawned in Live)
         {
             // Every placement is published wherever it lies; the display clips it to the view (#1520, #1541).
@@ -113,11 +112,11 @@ internal sealed class RoomSpriteObjects
             // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
             if (spawned.Frame.HitBurst is { } burst)
             {
-                hitBursts.Draw(sprites, instance++, burst, screen);
+                hitBursts.Draw(sprites, burst, screen);
                 continue;
             }
             EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
-            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, instance++),
+            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject),
                 EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, spawned.Graphics);
         }
     }

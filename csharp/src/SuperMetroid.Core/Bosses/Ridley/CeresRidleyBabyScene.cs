@@ -112,7 +112,7 @@ internal sealed class CeresRidleyBabyScene
                 tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction));
             DrawRidleyWorldFrame(
                 sprites,
-                new SpriteSource(SpriteSourceKind.RidleyTail, 6),
+                new SpriteSource(SpriteSourceKind.RidleyTail),
                 state.TailAndWingsShading,
                 tip,
                 tipFrame,
@@ -124,7 +124,7 @@ internal sealed class CeresRidleyBabyScene
             for (int index = 5; index >= 0; index--)
                 DrawRidleyWorldFrame(
                     sprites,
-                    new SpriteSource(SpriteSourceKind.RidleyTail, index),
+                    new SpriteSource(SpriteSourceKind.RidleyTail),
                     state.TailAndWingsShading,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.LinkFrames[index],

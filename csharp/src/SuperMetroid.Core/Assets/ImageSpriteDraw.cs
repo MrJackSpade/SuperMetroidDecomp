@@ -62,5 +62,5 @@ public sealed record ImageSpriteDraw : SpriteDraw
 
     /// <summary>Names the draw by its source, image and screen origin.</summary>
     public override string ToString() =>
-        $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({Origin.X}, {Origin.Y})";
+        $"{Source.Kind} {Image.Sheet.Name} at ({Origin.X}, {Origin.Y})";
 }

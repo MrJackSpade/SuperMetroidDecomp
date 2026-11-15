@@ -49,8 +49,8 @@ internal static class ProjectileTrailParticlesVerification
         sprites.FinalizeFrame();
         SpriteDraw[] drawn = [.. sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusProjectileTrail)];
         AssertTrue(drawn.Length >= TrailsLeft, "every trail's running sparkle is drawn");
-        AssertEqual(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, (TrailsLeft - 1) * 2), drawn[0].Source,
-            "the newest trail's left sparkle draws first, in front");
+        AssertEqual(system.LiveTrails[^1].Left.DisplayedPosition.RelativeToCamera(Position16<RoomPixels>.Zero), drawn[0].Origin,
+            "the newest trail's left sparkle draws first, in front, at its place");
 
         int advances = 1;
         while (system.LiveTrails.Count > 0)

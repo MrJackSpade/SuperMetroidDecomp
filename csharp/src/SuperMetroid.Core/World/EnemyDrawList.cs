@@ -136,7 +136,7 @@ internal sealed class EnemyDrawList
         foreach (PreparedEnemyDraw draw in prepared)
         {
             RoomEnemySlot slot = draw.Slot;
-            var source = new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex);
+            var source = new SpriteSource(SpriteSourceKind.Enemy);
             // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
             // and wings).
             if (slot.Entity is IEnemyDrawHooks drawHooks)

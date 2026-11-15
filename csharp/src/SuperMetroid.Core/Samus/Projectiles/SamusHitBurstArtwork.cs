@@ -15,14 +15,13 @@ public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Objects
 {
     /// <summary>Publishes the burst's composition <paramref name="picture"/> centred on <paramref name="origin"/>.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
-    /// <param name="instance">The burst's position among the room's live sprite objects, in spawn order.</param>
     /// <param name="picture">The burst composition its animation shows.</param>
     /// <param name="origin">Where its centre lies on screen: left of or above the screen is negative.</param>
     /// <exception cref="InvalidOperationException">No projectile sheets are installed.</exception>
-    internal void Draw(SpriteFrameBuffer sprites, int instance, ProjectileSpriteId picture, Offset16<ScreenPixels> origin)
+    internal void Draw(SpriteFrameBuffer sprites, ProjectileSpriteId picture, Offset16<ScreenPixels> origin)
     {
         Ensure.NotNull(sprites);
         SpriteSheetFrame image = Objects.SheetOf(EquippedBeams).Frame(ProjectileSheetFrames.HitBurstFrame(picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst, instance), image, origin, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst), image, origin, SpriteMirror.None));
     }
 }

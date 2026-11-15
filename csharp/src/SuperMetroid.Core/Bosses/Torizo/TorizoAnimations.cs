@@ -48,8 +48,6 @@ internal static class TorizoAnimations
         [A.FacelessTurningLeft] = new([new(A.FacelessTurningLeft, 0, 3, 1), new(A.FacelessTurningLeft, 3, 16, 1), new(A.FacelessTurningLeft, 19, 16, 1)], AnimationEnd.LoopsFrom(1)),
         [A.FacingLeftFacelessWalkingRightLegMoving] = new([new(A.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingRightLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
         [A.FacingLeftFacelessWalkingLeftLegMoving] = new([new(A.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingLeftLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [A.BombTorizoDormantFacingRight] = new([new(A.BombTorizoDormantFacingRight, 0, 3, 1)], AnimationEnd.Holds),
-        [A.BombTorizoAwakeningFacingRight] = new([new(A.BombTorizoAwakeningFacingRight, 0, 14, 1), new(A.BombTorizoAwakeningFacingRight, 14, 20, 1), new(A.BombTorizoAwakeningFacingRight, 34, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.TurningRight] = new([new(A.TurningRight, 0, 3, 1), new(A.TurningRight, 3, 21, 1), new(A.TurningRight, 24, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.FacingRightSpewingChozoOrbsLeftFootForward] = new([new(A.FacingRightSpewingChozoOrbsLeftFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
         [A.FacingRightSpewingChozoOrbsRightFootForward] = new([new(A.FacingRightSpewingChozoOrbsRightFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsRightFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
@@ -105,12 +103,12 @@ internal static class TorizoAnimations
 
     /// <summary>
     /// The animation each resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do; no other animation rests.
+    /// trigger do; no other animation rests. Bomb Torizo always sits facing left: the original's facing-right statue,
+    /// which no room starts, is not kept (#1941).
     /// </summary>
     private static readonly FrozenDictionary<A, A> ResumesAfterSleep = new Dictionary<A, A>
     {
         [A.BombTorizoDormant] = A.BombTorizoAwakening,
-        [A.BombTorizoDormantFacingRight] = A.BombTorizoAwakeningFacingRight,
         [A.GoldenTorizoDormant] = A.GoldenTorizoAwakening,
     }.ToFrozenDictionary();
 

@@ -311,14 +311,13 @@ internal sealed record PartFrameConfiguration(
         // Each Torizo starts dormant and wakes after its sleep; its AI, shot reactions and falls start the rest. Bomb
         // Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo turns, dodges and
         // catches Super Missiles; both fall and die. Every branch and choice an animation names is followed, so Golden
-        // Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's animations show. The facing-right
-        // dormant Bomb Torizo, which only its wake names, is Bomb Torizo's own.
+        // Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's animations show.
         new("BombTorizoBehavior", null, null, "TorizoAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["BombTorizo"] =
                 [
-                    "BombTorizoDormant", "BombTorizoAwakening", "BombTorizoDormantFacingRight", "BombTorizoAwakeningFacingRight",
+                    "BombTorizoDormant", "BombTorizoAwakening",
                     "BombTorizoGutBlowingUp", "BombTorizoFaceBlowingUp", "FacelessTurningLeft", "FacelessTurningRight",
                     "TurningLeft", "TurningRight", "FacingLeftFalling", "FacingRightFalling", "Dying",
                 ],

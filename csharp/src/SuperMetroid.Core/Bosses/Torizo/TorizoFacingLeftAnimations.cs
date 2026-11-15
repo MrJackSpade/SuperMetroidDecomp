@@ -279,30 +279,5 @@ internal static class TorizoFacingLeftAnimations
             .. S.FacingLeftFacelessLeftLegStep,
             .. S.FacingLeftFacelessRightLegStep,
         ],
-        [A.BombTorizoDormantFacingRight] =
-        [
-            Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
-            Show(EnemyFrameId.BombTorizoDormant, 1),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.WaitForHandTrigger)),
-        ],
-        [A.BombTorizoAwakeningFacingRight] =
-        [
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
-            Show(EnemyFrameId.TorizoFacingRightSeated, 32),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(9, 0))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpFirst, 16),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(6, -6))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpSecond, 8),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(7, -6))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpThird, 8),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-5, -7))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpFourth, 8),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(16, 0))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpFifth, 8),
-            Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(7, 0))),
-            Show(EnemyFrameId.TorizoFacingRightStandingUpSixth, 8),
-            .. S.FacingRightRightLegStep,
-            .. S.FacingRightLeftLegStep,
-        ],
     };
 }

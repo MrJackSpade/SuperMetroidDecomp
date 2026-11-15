@@ -501,38 +501,6 @@ public enum EnemyProjectileFrameId
     BombTorizoEighthStatueFragmentFirst,
     /// <summary><c>bomb_torizo_eighth_statue_fragment_second</c>, an installed animation frame.</summary>
     BombTorizoEighthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_ninth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoNinthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_ninth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoNinthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_tenth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoTenthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_tenth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoTenthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_eleventh_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoEleventhStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_eleventh_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoEleventhStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_twelfth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoTwelfthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_twelfth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoTwelfthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_thirteenth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoThirteenthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_thirteenth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoThirteenthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_fourteenth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoFourteenthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_fourteenth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoFourteenthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_fifteenth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoFifteenthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_fifteenth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoFifteenthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_sixteenth_statue_fragment_first</c>, an installed animation frame.</summary>
-    BombTorizoSixteenthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_sixteenth_statue_fragment_second</c>, an installed animation frame.</summary>
-    BombTorizoSixteenthStatueFragmentSecond,
     /// <summary><c>torizo_chozo_orb_moving_left</c>, an installed animation frame.</summary>
     TorizoChozoOrbMovingLeft,
     /// <summary><c>torizo_chozo_orb_moving_right</c>, an installed animation frame.</summary>

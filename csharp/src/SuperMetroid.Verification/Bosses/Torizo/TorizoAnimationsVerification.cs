@@ -440,7 +440,7 @@ internal static class TorizoAnimationsVerification
             AssertEqual(next, TorizoAnimations.AfterSleep(animation), $"Torizo {animation} resumes past its sleep into {next}");
             resumed++;
         }
-        AssertEqual(3, resumed, "Torizo resumes three sleeping animations");
+        AssertEqual(2, resumed, "Torizo resumes its two sleeping animations");
     }
 
     /// <summary>The native sleep that ends the list at <paramref name="entry"/>, if it ends in one.</summary>

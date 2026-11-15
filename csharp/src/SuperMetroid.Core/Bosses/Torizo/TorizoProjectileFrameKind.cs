@@ -18,7 +18,7 @@ internal enum TorizoProjectileFrameKind
     DroolSplash,
     /// <summary>An explosive swipe's five poses.</summary>
     ExplosiveSwipe,
-    /// <summary>The breaking statue hand's sixteen fragments' two poses each, at rest then falling, fragment by fragment.</summary>
+    /// <summary>The breaking statue hand's eight fragments' two poses each, at rest then falling, fragment by fragment.</summary>
     StatueFragment,
     /// <summary>A Chozo orb flying left.</summary>
     ChozoOrbMovingLeft,

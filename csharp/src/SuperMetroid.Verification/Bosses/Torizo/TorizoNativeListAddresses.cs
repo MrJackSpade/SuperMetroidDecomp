@@ -23,7 +23,8 @@ internal static class TorizoNativeListAddresses
 
     /// <summary>
     /// The entry of every native body list in bank $AA, in bank order: the lists the body animations play runs of, each
-    /// ending where the next begins.
+    /// ending where the next begins. The facing-right statue's dormant and waking lists ($BD90 and $BD9C), which no room
+    /// starts, are not reproduced (#1941): the list before them ends in a goto, and no list continues into them.
     /// </summary>
     internal static readonly ushort[] BodyLists =
     [
@@ -32,7 +33,7 @@ internal static class TorizoNativeListAddresses
         0xba88, 0xba90, 0xbaf2, 0xbafa, 0xbb5c, 0xbbde, 0xbc60, 0xbc70,
         0xbc78, 0xbc80, 0xbc88, 0xbc96, 0xbca6, 0xbcae, 0xbcb6, 0xbcbe,
         0xbcd2, 0xbce2, 0xbcea, 0xbcf2, 0xbcfa, 0xbd0e, 0xbd18, 0xbd52,
-        0xbd90, 0xbd9c, 0xbdd8, 0xbde2, 0xbe30, 0xbe7e, 0xbea0, 0xbec0,
+        0xbdd8, 0xbde2, 0xbe30, 0xbe7e, 0xbea0, 0xbec0,
         0xbee2, 0xbf02, 0xbf0a, 0xbf6c, 0xbf74, 0xbfd6, 0xc058, 0xc0da,
         0xc0ea, 0xc0f2, 0xc0fa, 0xc102, 0xc110, 0xc120, 0xc128, 0xc130,
         0xc138, 0xc14c, 0xc15c, 0xc164, 0xc16c, 0xc174, 0xc188, 0xc192,
@@ -72,8 +73,6 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.FacelessTurningLeft] = 0xbd0e,
         [TorizoAnimation.FacingLeftFacelessWalkingRightLegMoving] = 0xbd18,
         [TorizoAnimation.FacingLeftFacelessWalkingLeftLegMoving] = 0xbd52,
-        [TorizoAnimation.BombTorizoDormantFacingRight] = 0xbd90,
-        [TorizoAnimation.BombTorizoAwakeningFacingRight] = 0xbd9c,
         [TorizoAnimation.TurningRight] = 0xbdd8,
         [TorizoAnimation.FacingRightSpewingChozoOrbsLeftFootForward] = 0xbe7e,
         [TorizoAnimation.FacingRightSpewingChozoOrbsRightFootForward] = 0xbec0,
@@ -222,14 +221,14 @@ internal static class TorizoNativeListAddresses
 
     /// <summary>
     /// The entry of every native Torizo projectile list in bank $86, in bank order: the lists the projectile animations play
-    /// runs of, each ending where the next begins.
+    /// runs of, each ending where the next begins. The ninth to sixteenth statue fragments' lists ($A54B through $A5C2),
+    /// which the hand's crumble never spawns, are not reproduced (#1941): each fragment's list ends in its deletion.
     /// </summary>
     internal static readonly ushort[] ProjectileLists =
     [
         0xa3cb, 0xa3d5, 0xa3fa, 0xa408, 0xa431, 0xa435, 0xa46a, 0xa46e,
         0xa472, 0xa482, 0xa48a, 0xa48e, 0xa4aa, 0xa4c3, 0xa4d4, 0xa4e5,
-        0xa4f6, 0xa507, 0xa518, 0xa529, 0xa53a, 0xa54b, 0xa55c, 0xa56d,
-        0xa57e, 0xa58f, 0xa5a0, 0xa5b1, 0xa5c2, 0xab15, 0xab1d, 0xab25,
+        0xa4f6, 0xa507, 0xa518, 0xa529, 0xa53a, 0xab15, 0xab1d, 0xab25,
         0xab41, 0xab68, 0xadbf, 0xadca, 0xadd2, 0xaddd, 0xade5, 0xadf1,
         0xaf9d, 0xafb5, 0xb104, 0xb10a, 0xb11c, 0xb122, 0xb134, 0xb14b,
         0xb152, 0xb166, 0xb16d, 0xb190, 0xb1a8, 0xb293, 0xb29d, 0xb2c1,
@@ -256,14 +255,6 @@ internal static class TorizoNativeListAddresses
         [TorizoProjectileSegment.SixthStatueFragment] = 0xa518,
         [TorizoProjectileSegment.SeventhStatueFragment] = 0xa529,
         [TorizoProjectileSegment.EighthStatueFragment] = 0xa53a,
-        [TorizoProjectileSegment.NinthStatueFragment] = 0xa54b,
-        [TorizoProjectileSegment.TenthStatueFragment] = 0xa55c,
-        [TorizoProjectileSegment.EleventhStatueFragment] = 0xa56d,
-        [TorizoProjectileSegment.TwelfthStatueFragment] = 0xa57e,
-        [TorizoProjectileSegment.ThirteenthStatueFragment] = 0xa58f,
-        [TorizoProjectileSegment.FourteenthStatueFragment] = 0xa5a0,
-        [TorizoProjectileSegment.FifteenthStatueFragment] = 0xa5b1,
-        [TorizoProjectileSegment.SixteenthStatueFragment] = 0xa5c2,
         [TorizoProjectileSegment.ChozoOrbMovingLeft] = 0xab15,
         [TorizoProjectileSegment.ChozoOrbMovingRight] = 0xab1d,
         [TorizoProjectileSegment.ChozoOrbWallImpact] = 0xab25,

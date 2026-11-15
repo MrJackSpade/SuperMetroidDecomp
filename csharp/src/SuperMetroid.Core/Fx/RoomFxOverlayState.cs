@@ -213,7 +213,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public EarthquakeShake? SustainedEarthquake { get; private set; }
 
     /// <summary>Builds one room's effect-overlay FX from the effect the current door selects.</summary>
-    /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>

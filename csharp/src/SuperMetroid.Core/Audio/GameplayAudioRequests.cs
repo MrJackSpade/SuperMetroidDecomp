@@ -8,13 +8,14 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <remarks>
 /// The record holds only the current update's requests: <see cref="BeginUpdate"/> clears it when the next update begins,
-/// so an update that runs only some of its systems records only theirs and nothing is ever queued twice. A record reaches
-/// a session's queues once it is attached to them (<see cref="AttachTo"/>); until then, as for a system built on its own
-/// outside a runtime, it reaches no queue. Evidence for the run order: the game's main gameplay update runs the colour
-/// effects, Samus's input handling (which fires her weapons), the projectiles' hits on enemies, the enemies, Samus's
-/// movement and animation, the enemy projectiles, the room objects, the enemy projectiles' hits, the power bomb's hits,
-/// the drawing and the HUD in turn, and each of them calls the game's sound and music queues at the point it runs;
-/// none holds a request back for a later system.
+/// so an update that runs only some of its systems records only theirs and nothing is ever queued twice. A record always
+/// reaches queues (#2057): a runtime's reaches its session's, a cinematic's the frontend's, a check's queues of its own;
+/// every system that makes sounds takes the record it joins when it is built, so no request is ever made on a record that
+/// reaches no queue. Evidence for the run order: the game's main gameplay update runs the colour effects, Samus's input
+/// handling (which fires her weapons), the projectiles' hits on enemies, the enemies, Samus's movement and animation, the
+/// enemy projectiles, the room objects, the enemy projectiles' hits, the power bomb's hits, the drawing and the HUD in
+/// turn, and each of them calls the game's sound and music queues at the point it runs; none holds a request back for a
+/// later system.
 /// </remarks>
 /// <param name="queues">The queues every request goes on into as it is made.</param>
 internal sealed class GameplayAudioRequests(IGameplayAudioQueues queues)

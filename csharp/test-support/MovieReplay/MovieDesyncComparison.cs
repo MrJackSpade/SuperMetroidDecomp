@@ -22,6 +22,9 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class MovieDesyncComparison
 {
+    /// <summary>The X word the cartridge parks a hidden n00b-tube crack or shard at, off every screen.</summary>
+    private const int HiddenPieceNativeColumn = 0xee00;
+
     /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
     internal static void TraceMovieSamus(SuperMetroidGame game, NativeCheckpointMemory memory, int update, ConvertedMovieUpdate step)
     {
@@ -222,8 +225,11 @@ internal static class MovieDesyncComparison
             bool bubbleXUnwritten = projectile.Kind == SuperMetroid.Core.Enemies.RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
                 Word(memory, MovieDesyncMemory.EnemyProjectileX + offset) !=
                 Word(memory, MovieDesyncMemory.EnemyProjectileVar1 + offset);
+            // The cartridge hides a n00b-tube crack or shard by parking it at X $EE00; the port keeps its column and marks it
+            // hidden (#1839), so a hidden piece's native X is that parking column. Hidden pieces have no contact radius.
             if (!bubbleXUnwritten)
-                Check($"Enemy projectile {slot} X", projectile.Position.X.Whole, MovieDesyncMemory.EnemyProjectileX + offset);
+                Check($"Enemy projectile {slot} X", projectile.IsHidden ? HiddenPieceNativeColumn : projectile.Position.X.Whole,
+                    MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         foreach (var actor in runtime.Enemies.SlotTable.Slots)

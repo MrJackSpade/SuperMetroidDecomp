@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public enum CeresFloorAnimationFrame
 {
     /// <summary>The elevator landing platform's light frame.</summary>
-    ElevatorLight = 1,
+    ElevatorLight,
     /// <summary>The elevator landing platform's dark frame.</summary>
     ElevatorDark,
     /// <summary>The Baby in its capsule, squished vertically.</summary>

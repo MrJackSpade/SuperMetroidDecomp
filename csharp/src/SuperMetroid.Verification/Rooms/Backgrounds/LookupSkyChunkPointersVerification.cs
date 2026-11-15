@@ -68,7 +68,7 @@ internal static class LookupSkyChunkPointersVerification
         foreach (int chunk in new[] { int.MinValue, -1, ScrollingSkyChunks.ChunkCount, 255, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunks.PageOf(table, chunk),
                 "Sky rejects chunks outside its span");
-        foreach (int invalidTable in new[] { int.MinValue, 0, (int)ScrollingSkyChunkTable.Ocean + 1, int.MaxValue })
+        foreach (int invalidTable in new[] { int.MinValue, -1, (int)ScrollingSkyChunkTable.Ocean + 1, int.MaxValue })
         foreach (int chunk in new[] { -1, 0, ScrollingSkyChunks.ChunkCount - 1, ScrollingSkyChunks.ChunkCount })
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(

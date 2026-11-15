@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 public enum SpecialAirInsideReaction
 {
     /// <summary>Nothing happens.</summary>
-    Nothing = 1,
+    Nothing,
 
     /// <summary>Crateria's ice floor, which changes nothing while Samus is inside it.</summary>
     IcePhysics,

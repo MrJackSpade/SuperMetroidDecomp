@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal enum StationAnimationList
 {
     /// <summary>The map station's idle cycle.</summary>
-    MapIdle = 1,
+    MapIdle,
     /// <summary>The map station's cycle once its area map is held.</summary>
     MapAcquired,
     /// <summary>The energy station's idle and recharged cycle.</summary>

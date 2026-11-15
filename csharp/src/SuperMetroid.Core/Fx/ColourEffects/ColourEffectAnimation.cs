@@ -2,12 +2,13 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// The colour effects' animations (#1739): one for each <see cref="ColourEffectId"/>, named for it, and one for each
-/// suit Samus's heat shimmer can show. Each is its colours, its frames and how it loops (<see cref="ColourEffectAnimations"/>).
+/// suit Samus's heat shimmer can show. Each is its colours, its frames and how it loops (<see cref="ColourEffectAnimations"/>). Its
+/// values are arbitrary.
 /// </summary>
 public enum ColourEffectAnimation
 {
     /// <summary>The animation of <see cref="ColourEffectId.FadeInSuperMetroidTitleLogo"/>.</summary>
-    FadeInSuperMetroidTitleLogo = 1,
+    FadeInSuperMetroidTitleLogo,
     /// <summary>The animation of <see cref="ColourEffectId.FadeInNintendoCopyright"/>.</summary>
     FadeInNintendoCopyright,
     /// <summary>The animation of <see cref="ColourEffectId.TitleScreenBabyMetroidTubeLight"/>.</summary>

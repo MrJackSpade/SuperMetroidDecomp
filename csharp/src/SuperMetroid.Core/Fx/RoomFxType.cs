@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Fx;
 public enum RoomFxType
 {
     /// <summary>The room shows no effect of its own.</summary>
-    None = 0,
+    None,
     /// <summary>Animated damaging lava surface with the effect overlay's pictures, colour effects, and optional background distortion.</summary>
-    Lava = 1,
+    Lava,
     /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
     Acid,
     /// <summary>Animated water surface with submerged physics and optional per-row background displacement.</summary>

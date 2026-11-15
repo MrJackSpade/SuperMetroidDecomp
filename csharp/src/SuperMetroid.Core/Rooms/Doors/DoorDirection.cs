@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public enum DoorDirection
 {
     /// <summary>The destination lies to the right.</summary>
-    Right = 1,
+    Right,
     /// <summary>The destination lies to the left.</summary>
-    Left = 2,
+    Left,
     /// <summary>The destination lies below.</summary>
-    Down = 3,
+    Down,
     /// <summary>The destination lies above.</summary>
-    Up = 4,
+    Up,
 }

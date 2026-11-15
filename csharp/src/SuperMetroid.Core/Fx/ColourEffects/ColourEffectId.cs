@@ -2,12 +2,13 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// The colour effects, named by what each shows. Each names how it starts
-/// and an initial animation (<see cref="ColourEffectSelection"/>); a running <see cref="RoomColourEffect"/> shows one.
+/// and an initial animation (<see cref="ColourEffectSelection"/>); a running <see cref="RoomColourEffect"/> shows one. Its values
+/// are arbitrary.
 /// </summary>
 public enum ColourEffectId
 {
     /// <summary>The Super Metroid logo fading in on the title screen.</summary>
-    FadeInSuperMetroidTitleLogo = 1,
+    FadeInSuperMetroidTitleLogo,
     /// <summary>The Nintendo copyright line fading in on the title screen.</summary>
     FadeInNintendoCopyright,
     /// <summary>The light of the baby Metroid's tube on the title screen.</summary>

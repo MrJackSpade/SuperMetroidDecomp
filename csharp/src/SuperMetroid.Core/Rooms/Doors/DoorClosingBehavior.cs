@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public enum DoorClosingBehavior
 {
     /// <summary>Nothing closes.</summary>
-    None = 1,
+    None,
     /// <summary>The blue door-closing room object facing the direction spawns.</summary>
-    BlueDoorCloses = 2,
+    BlueDoorCloses,
     /// <summary>The gate that closes in the first escape room spawns.</summary>
-    EscapeGateCloses = 3,
+    EscapeGateCloses,
 }

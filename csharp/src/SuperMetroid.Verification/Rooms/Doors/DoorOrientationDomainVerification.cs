@@ -38,7 +38,7 @@ internal static class DoorOrientationDomainVerification
             "undefined direction is rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation(DoorDirection.Up, default),
             "undefined closing behavior is rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)0).IsVertical(), "undefined direction has no axis");
+        AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)99).IsVertical(), "undefined direction has no axis");
 
         // The pseudo-doors' overlapped bytes ($91/$93 at offset 3) are not orientations.
         foreach (ushort pseudo in new[] { DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer, DoorDefinitionsAccess.MaridiaTourianElevatorPseudoDoorPointer })

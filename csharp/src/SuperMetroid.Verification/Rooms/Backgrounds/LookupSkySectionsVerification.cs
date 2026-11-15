@@ -99,7 +99,7 @@ internal static class LookupSkySectionsVerification
         var words = new uint[cartridge.ScrollWords];
         for (int frame = 0; frame < 16; frame++)
         {
-            sky.ProcessFrame(0x0300, false);
+            sky.ProcessFrame(new Position16<RoomPixels>(0, 0x0300), false);
             cartridge.Advance(words);
         }
         var expected = new ushort[ushort.MaxValue + 1];
@@ -107,7 +107,7 @@ internal static class LookupSkySectionsVerification
             expected[row] = cartridge.ScrollWordAt(row) is { } word ? (ushort)SixteenSixteenWords.WholeOf(words[word]) : (ushort)0;
         for (int cameraY = 0; cameraY <= ushort.MaxValue; cameraY++)
         {
-            ScrollingSkyLayer layer = sky.Publish(cameraY)
+            ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, cameraY))
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
             ScrollBands bands = SkyBandScrolls.Of(layer, 0);
             for (int line = ScreenGeometry.GameplayHudHeightPixels; line < ScreenGeometry.ScreenHeightPixels; line++)
@@ -134,7 +134,7 @@ internal static class LookupSkySectionsVerification
         for (int frame = 0; moving < FullPeriodFrames; frame++)
         {
             bool frozen = frame % 4099 is >= 4096;
-            sky.ProcessFrame(0x0300, frozen);
+            sky.ProcessFrame(new Position16<RoomPixels>(0, 0x0300), frozen);
             if (frozen)
                 frozenFrames++;
             else
@@ -142,7 +142,7 @@ internal static class LookupSkySectionsVerification
                 cartridge.Advance(words);
                 moving++;
             }
-            ScrollingSkyLayer layer = sky.Publish(0x0300)
+            ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, 0x0300))
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
             if (layer.ShowsDrift == frozen)
                 AssertEqual(!frozen, layer.ShowsDrift, $"frame {frame} shows the drift only when time runs");

@@ -129,7 +129,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("The Landing Site installs its scrolling sky.");
-        sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
+        sky.ProcessFrame(new Position16<RoomPixels>(0, SkyLayer1Y), timeIsFrozen: false);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
             "sky bands are read live during display");
         AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y, "the sky's vertical scroll");

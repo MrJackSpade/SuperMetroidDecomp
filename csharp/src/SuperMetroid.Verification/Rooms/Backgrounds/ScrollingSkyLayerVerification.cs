@@ -22,14 +22,14 @@ internal static class ScrollingSkyLayerVerification
         {
             bool frozen = frame % 37 is >= 30 and < 34;
             ushort cameraY = (ushort)(frame * 3);
-            sky.ProcessFrame(cameraY, frozen);
+            sky.ProcessFrame(new Position16<RoomPixels>(0, cameraY), frozen);
             if (!frozen)
                 foreach (SkyDrift drift in ScrollingSkyBandDefinitions.Drifts)
                     expected[drift] = expected[drift].MovedBy(drift.Speed);
             else
                 frozenFrames++;
 
-            ScrollingSkyLayer layer = sky.Publish(cameraY)
+            ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, cameraY))
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
             AssertEqual((int)cameraY, layer.CameraRow, $"frame {frame} places the bands against the camera");
             AssertEqual(!frozen, layer.ShowsDrift, $"frame {frame} shows the drift only when time runs");

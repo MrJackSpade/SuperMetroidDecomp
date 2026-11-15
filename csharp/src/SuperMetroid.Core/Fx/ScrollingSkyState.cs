@@ -62,8 +62,8 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
             : throw new ArgumentOutOfRangeException(nameof(main), main, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The background scroll the sky publishes: the sky copies the camera Y, wrapping past row 65535, into Y.
-    /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
+    /// The background scroll the sky publishes: the background shows the sky from the camera's row down. X stays zero
+    /// because the sky never moves its whole background sideways; its bands shift each line instead.
     /// </summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
 
@@ -75,8 +75,10 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
     /// <exception cref="KeyNotFoundException"><paramref name="drift"/> is not one of the sky's drifts.</exception>
     public int OffsetOf(SkyDrift drift) => _phases[Ensure.NotNull(drift)].Whole;
 
-    /// <summary>Moves each drift by its speed and copies the camera Y into the background vertical scroll; a frozen frame moves nothing.</summary>
-    public void ProcessFrame(int cameraY, bool timeIsFrozen)
+    /// <summary>Moves each drift by its speed and scrolls the background down to <paramref name="camera"/>'s row; a frozen frame moves nothing.</summary>
+    /// <param name="camera">The camera, the room pixel at the screen's top-left.</param>
+    /// <param name="timeIsFrozen">Whether time is frozen this frame.</param>
+    public void ProcessFrame(Position16<RoomPixels> camera, bool timeIsFrozen)
     {
         if (timeIsFrozen)
         {
@@ -89,15 +91,15 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
         if (HasBands)
             foreach (SkyDrift drift in ScrollingSkyBandDefinitions.Drifts)
                 _phases[drift] = _phases[drift].MovedBy(drift.Speed);
-        BackgroundScroll = new Position16<BackgroundPixels>(0, cameraY);
+        BackgroundScroll = new Position16<BackgroundPixels>(0, camera.Y);
     }
 
     /// <summary>
-    /// The sky the frame shows, its bands placed against the camera at <paramref name="cameraY"/>; null when the sky's bands
-    /// do not drift, whose background is the room's own background.
+    /// The sky the frame shows, its bands placed against <paramref name="camera"/>; null when the sky's bands do not drift,
+    /// whose background is the room's own background.
     /// </summary>
-    /// <param name="cameraY">The camera's vertical position; a camera above the room's top reads as a negative room row.</param>
-    public ScrollingSkyLayer? Publish(int cameraY)
+    /// <param name="camera">The camera, the room pixel at the screen's top-left; a camera above the room's top lies at a negative room row.</param>
+    public ScrollingSkyLayer? Publish(Position16<RoomPixels> camera)
     {
         if (!HasBands)
             return null;
@@ -108,6 +110,6 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
             int endRow = index + 1 < bands.Length ? bands[index + 1].TopRow : ScrollingSkyBandDefinitions.EndRow;
             shown.Add(new ShownSkyBand(bands[index].TopRow, endRow, OffsetOf(bands[index].Drift)));
         }
-        return new ScrollingSkyLayer(CoordinateAxis.AsSigned(cameraY), shown.MoveToImmutable(), ShowsDrift);
+        return new ScrollingSkyLayer((camera - Position16<RoomPixels>.Zero).Y, shown.MoveToImmutable(), ShowsDrift);
     }
 }

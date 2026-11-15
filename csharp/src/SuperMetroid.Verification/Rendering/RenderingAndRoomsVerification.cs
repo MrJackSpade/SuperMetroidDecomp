@@ -1083,7 +1083,7 @@ internal static void VerifyScrollingSkyState()
         "a room main without a sky has no chunk table");
 
     var sky = new ScrollingSkyState(ScrollingSky.Land);
-    sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: false);
+    sky.ProcessFrame(camera: new Position16<RoomPixels>(0, 0x041f), timeIsFrozen: false);
     AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.BackgroundScroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
 
     // The land sky's five chunks repeat from its first: chunk five shows page zero.
@@ -1092,15 +1092,15 @@ internal static void VerifyScrollingSkyState()
     // The $02E0 band shows data slot eight, which receives both the $0238 row's +0.8000 and its
     // own +0.C000: the shared fastest drift, a pixel and a quarter a frame, reaches pixel 1 after one frame.
     AssertEqual(1, sky.OffsetOf(ScrollingSkyBandDefinitions.Fastest), "the bands at rows 568 and 736 share the fastest drift");
-    ScrollingSkyLayer layer = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, 0x02c0)) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "the first gameplay line shows row 736's shared fastest drift");
 
-    sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: true);
+    sky.ProcessFrame(camera: new Position16<RoomPixels>(0, 0x041f), timeIsFrozen: true);
     AssertEqual(false, sky.ShowsDrift, "a frozen frame shows the bands unshifted");
-    ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    ScrollingSkyLayer frozen = sky.Publish(new Position16<RoomPixels>(0, 0x02c0)) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertTrue(!frozen.ShowsDrift && ScrollShapeLines.GameplayScrolls(SkyBandScrolls.Of(frozen, 0)).All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
     AssertEqual<int?>(1, frozen.BandAt(0x02e0)?.Offset, "a frozen frame keeps the band offsets");
-    AssertTrue(new ScrollingSkyState(ScrollingSky.Land, hasBands: false).Publish(0) is null,
+    AssertTrue(new ScrollingSkyState(ScrollingSky.Land, hasBands: false).Publish(Position16<RoomPixels>.Zero) is null,
         "a sky main without drifting bands publishes no sky layer");
 
     Console.WriteLine("  Sky: drifting bands, chunk wrap and the published layer agree.");

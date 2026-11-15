@@ -17,7 +17,7 @@ public sealed class SlopeShape
     /// <summary>The pixel columns of a block, each with its own surface height.</summary>
     public const int Columns = 16;
 
-    /// <summary>The largest height a column holds: a surface below the block, which the game encodes as twenty.</summary>
+    /// <summary>The largest height a column holds: a surface below the block, twenty pixels down from its top.</summary>
     public const int BelowBlockHeight = 20;
 
     /// <summary>The whole of a move or a speed, in 256ths.</summary>

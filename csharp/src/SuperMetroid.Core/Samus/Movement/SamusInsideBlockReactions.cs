@@ -28,7 +28,7 @@ public static class SamusInsideBlockReactions
             // Admits only inside-block sample one (the center).
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
-            // an upper trigger, without changing room-object slot priority.
+            // an upper trigger, without changing the room-object update order.
             if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                 (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");

@@ -132,14 +132,14 @@ internal static class TourianAccessObjectProgramsVerification
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
-        for (int frame = 0; frame < 120 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 120 && roomObjects.Places.ActiveCount != 0; frame++)
         {
             roomObjects.Step(level);
             if (frame == 0 && !clear)
                 AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
                     level.GetCollisionBlockByIndex(12 * width + 6).Terrain,
                     "Tourian crumble first frame draws the native first breakup word");
-            if (roomObjects.SlotTable.ActiveCount == 0)
+            if (roomObjects.Places.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 1 : 96, deletionFrame,

@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Room graphics load a useful static palette, but many rooms immediately animate part of it with the effects the
-/// active FX record starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
+/// A room's pictures load in their standard colours, but many rooms immediately animate some of them with the effects the
+/// room's effect starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
 /// </para>
 /// <para>
 /// The effects take their turns in the order they started (<see cref="ColourEffectTurnOrder"/>), which Samus's heat
@@ -48,7 +48,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>
     /// The audio requests the colour effects' sounds join as they make them: the runtime's update's, once it points the
-    /// room's systems at it; the effects' own record otherwise, which a frontend screen's effects keep and reach no queue.
+    /// room's systems at it; the effects' own requests otherwise, which a frontend screen's effects keep and reach no queue.
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
 
@@ -59,7 +59,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);
 
     /// <summary>
-    /// Starts an effect outside the room's FX record: Samus's load appearance, a statue's grey-out, the escape's flashes or
+    /// Starts an effect outside the room's effect: Samus's load appearance, a statue's grey-out, the escape's flashes or
     /// a screen's effects. It must start: the start is rejected loudly when it does not.
     /// </summary>
     /// <exception cref="InvalidOperationException">The effect did not start: its start skips it.</exception>
@@ -101,11 +101,11 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Builds one room's colour effects: exactly the effects the matching FX record starts.
+    /// Builds one room's colour effects: exactly the colour effects the room's effect starts.
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
-    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="door">The entry door, which selects the room's effect.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     public static ColourEffectSystem ForRoom(
@@ -114,24 +114,24 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        ForRecord(session, fx, door, equippedItems, areaMiniBossDefeated, null);
+        ForEffect(session, fx, door, equippedItems, areaMiniBossDefeated, null);
 
-    /// <summary>Builds one room's colour effects from the effects the selected or supplied FX record starts.</summary>
+    /// <summary>Builds one room's colour effects from the colour effects the selected or supplied room effect starts.</summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
-    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="door">The entry door, which selects the room's effect.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
-    /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
-    internal static ColourEffectSystem ForRecord(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
+    /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
+    internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
-        RoomEffectDefinition? suppliedDefinition)
+        RoomEffectDefinition? suppliedEffect)
     {
         var system = new ColourEffectSystem(session);
-        if ((suppliedDefinition ?? fx?.Select(door)) is { } record)
+        if ((suppliedEffect ?? fx?.Select(door)) is { } roomEffect)
         {
-            // Colour effects and block animations have separate owners and lists; the record's effects start in its order.
-            foreach (ColourEffectId effect in record.PaletteEffects)
+            // Colour effects and block animations have separate owners and lists; the room effect's colour effects start in its order.
+            foreach (ColourEffectId effect in roomEffect.ColourEffects)
                 system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null);
         }
         return system;

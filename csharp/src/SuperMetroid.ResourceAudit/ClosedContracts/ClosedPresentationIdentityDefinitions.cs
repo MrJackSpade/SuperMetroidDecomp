@@ -95,7 +95,7 @@ internal static class ClosedPresentationIdentityDefinitions
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
         ("InstalledRoomArtwork", "Sky", "variant") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)
             .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
-            .Select(state => (int)ScrollingSkyState.VariantOf(state.MainBehavior)).Distinct().ToArray(),
+            .Select(state => (int)ScrollingSkyState.SkyOf(state.MainBehavior)).Distinct().ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

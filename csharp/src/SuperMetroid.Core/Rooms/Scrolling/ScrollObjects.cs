@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal sealed class ScrollObjects
 {
     /// <summary>The room's objects, in the update order, searched for the trigger at a block.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds the scroll triggers to the room's objects.</summary>
-    internal ScrollObjects(RoomObjectSlotTable slotTable)
+    internal ScrollObjects(RoomObjectPlaceList places)
     {
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>Every live room-authored scroll trigger, in place order.</summary>
-    public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _slotTable.FromLastPlace
-        .Where(slot => slot.Active && slot.Behaviour is ScrollTriggerObject)
-        .Select(slot => new ScrollObjectSnapshot(slot.Block))
+    public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _places.FromLastPlace
+        .Where(place => place.Active && place.Behaviour is ScrollTriggerObject)
+        .Select(place => new ScrollObjectSnapshot(place.Block))
         .ToArray();
 
     /// <summary>
@@ -33,9 +33,9 @@ internal sealed class ScrollObjects
     /// </remarks>
     public bool TryNotifyScrollTouch(Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!slot.Active || slot.Block != block || slot.Behaviour is not ScrollTriggerObject trigger)
+            if (!place.Active || place.Block != block || place.Behaviour is not ScrollTriggerObject trigger)
                 continue;
             trigger.Touch();
             return true;
@@ -44,29 +44,29 @@ internal sealed class ScrollObjects
     }
 
     /// <summary>Runs one scroll trigger's or extension's setup at the place the room population took for it.</summary>
-    internal static void SetupScrollSlot(RoomLevelData level, RoomObjectSlot slot,
+    internal static void SetupScroll(RoomLevelData level, RoomObjectPlace place,
         RoomObjectKind kind, IReadOnlyList<ScreenScrollChange>? animation, RoomScrollChange? compiledChange)
     {
         Ensure.NotNull(level);
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         if (kind != RoomObjectKind.ScrollTrigger)
         {
             (RoomCollisionType collisionType, int offset) = ScrollExtensionDefinitions.Extensions.TryGetValue(kind, out ScrollExtension extension)
                 ? extension
                 : throw new InvalidOperationException($"Room object {kind} is neither a scroll trigger nor a scroll extension.");
             level.SetTerrain(
-                slot.Block,
-                level.GetCollisionBlock(slot.Block).Terrain.WithCollision(collisionType));
-            level.SetBehavior(slot.Block, RoomBlockBehavior.Extending(offset));
+                place.Block,
+                level.GetCollisionBlock(place.Block).Terrain.WithCollision(collisionType));
+            level.SetBehavior(place.Block, RoomBlockBehavior.Extending(offset));
 
             // An extension's whole effect is its setup, which removes it at once: the following authored record takes
             // its place.
-            slot.Delete();
+            place.Delete();
             return;
         }
 
         var trigger = new ScrollTriggerObject(animation, compiledChange);
-        slot.Become(trigger);
-        trigger.Rest(level, slot.Block);
+        place.Become(trigger);
+        trigger.Rest(level, place.Block);
     }
 }

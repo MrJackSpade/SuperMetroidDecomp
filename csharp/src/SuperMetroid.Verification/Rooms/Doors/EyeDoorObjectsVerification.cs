@@ -143,13 +143,13 @@ internal static class EyeDoorObjectsVerification
         AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = effects.Add } }),
             $"{orientation} eye-door population record count");
 
-        AssertEqual(3, roomObjects.SlotTable.ActiveCount, $"{orientation} eye door retains three PLM slots");
-        RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
-        AssertEqual(0, slots[0].ProcessingPosition,
+        AssertEqual(3, roomObjects.Places.ActiveCount, $"{orientation} eye door retains three PLM slots");
+        RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
+        AssertEqual(0, places[0].UpdatePosition,
             $"{orientation} eye is processed first");
-        AssertEqual(1, slots[1].ProcessingPosition,
+        AssertEqual(1, places[1].UpdatePosition,
             $"{orientation} main door is processed second");
-        AssertEqual(2, slots[2].ProcessingPosition,
+        AssertEqual(2, places[2].UpdatePosition,
             $"{orientation} bottom is processed third");
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock).CollisionType,
@@ -205,9 +205,9 @@ internal static class EyeDoorObjectsVerification
 
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} accepted hit threshold persists door bit");
-        for (int frame = 0; frame < 256 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 256 && roomObjects.Places.ActiveCount != 0; frame++)
             StepEyeDoorObjects(roomObjects, level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             $"{orientation} eye and both passive components complete together");
         AssertEqual(2, effects.Count(effect => effect.Definition == EyeDoorProjectileDefinition.CenteredSmoke),
             $"{orientation} the destroyed eye puffs two centred smoke clouds");

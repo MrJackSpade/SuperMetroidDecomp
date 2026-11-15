@@ -16,7 +16,7 @@ public sealed class RoomObjectPopulation
     /// <summary>Validated placements in allocation order; scroll changes are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered decoded population and validates scroll changes before any room-object slots are allocated.</summary>
+    /// <summary>Copies an ordered decoded population and validates scroll changes before any room object takes a place.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
     /// <param name="placements">
     /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects
@@ -50,12 +50,12 @@ public sealed class RoomObjectPopulation
         if (compiledChange is not null)
         {
             if (placement.Kind != RoomObjectKind.ScrollTrigger)
-                throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
+                throw new InvalidDataException("Only a scroll trigger may apply a retail scroll change.");
         }
         else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {
             if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
-                throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");
+                throw new InvalidDataException("A decoded scroll room object needs a bounded list of scroll writes.");
             foreach (ScreenScrollChange write in animation)
             {
                 // A screen in column X and row Y lies, in a room of any width past its column, at least (X + 1) * (Y + 1) - 1

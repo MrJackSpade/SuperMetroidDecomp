@@ -59,7 +59,7 @@ internal static class WaveCeilingStraddleVerification
         RoomLevelData arena = arenaScan.Level;
         RoomObjectSystem arenaObjects = arenaScan.RoomObjects;
         var reacted = new Position16<RoomBlocks>(99, 1);
-        RoomObjectSlot[] active = [.. arenaObjects.SlotTable.InProcessingOrder.Where(slot => slot.Active)];
+        RoomObjectPlace[] active = [.. arenaObjects.Places.InUpdateOrder.Where(place => place.Active)];
         AssertEqual(1, active.Length, "the shot above the ceiling sets off one reaction in the room's right half");
         AssertEqual(reacted, active[0].Block, "the reaction spawns at the solid block the straddled read starts in");
         AssertEqual(RoomCollisionType.SolidBlock, active[0].RestoreTerrain?.Collision,
@@ -68,7 +68,7 @@ internal static class WaveCeilingStraddleVerification
         AssertEqual(tail, arena.GetCollisionBlock(new(100, 1)).Terrain, "the block after it is left as it was");
 
         RoomObjectSystem leftObjects = ScanAt(column: 63, solid, tail, straddled).RoomObjects;
-        AssertEqual(0, leftObjects.SlotTable.ActiveCount, "the same pair in the room's left half sets off nothing, as the walk reads whole blocks there");
+        AssertEqual(0, leftObjects.Places.ActiveCount, "the same pair in the room's left half sets off nothing, as the walk reads whole blocks there");
         Console.WriteLine("PASS a Wave shot above the ceiling breaks a respawning shot block over solid terrain where the cartridge's walk straddles it.");
     }
 

@@ -22,7 +22,7 @@ internal sealed class OldTourianWallObject(IRoomSamusAccess? samus, IOldTourianW
     internal OldTourianWallPhase Phase { get; private set; } = OldTourianWallPhase.Starting;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         switch (Phase)

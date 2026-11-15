@@ -15,7 +15,7 @@ internal static class ScrollingSkyLayerVerification
     /// </summary>
     internal static void VerifyPublishedSkyBands()
     {
-        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Ocean);
+        var sky = new ScrollingSkyState(ScrollingSky.Ocean);
         var expected = ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
         int frozenFrames = 0;
         for (int frame = 0; frame < 300; frame++)

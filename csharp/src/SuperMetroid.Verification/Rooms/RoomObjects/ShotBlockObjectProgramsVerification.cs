@@ -55,7 +55,7 @@ internal static class ShotBlockObjectProgramsVerification
             };
             AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).Terrain,
                 $"shot-block BTS {behavior} restores or permanently clears the native parent");
-            AssertEqual(0, fixture.RoomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, fixture.RoomObjects.Places.ActiveCount,
                 $"shot-block BTS {behavior} finishes its compiled program");
         }
         Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
@@ -176,7 +176,7 @@ internal static class ShotBlockObjectProgramsVerification
             {
                 stock.RoomObjects.Step(stock.Level);
                 compiled.RoomObjects.Step(compiled.Level);
-                AssertEqual(stock.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
+                AssertEqual(stock.RoomObjects.Places.ActiveCount, compiled.RoomObjects.Places.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
                 AssertEqual(stock.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"shot-block BTS {behavior} sound count at frame {frame}");
@@ -188,7 +188,7 @@ internal static class ShotBlockObjectProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"shot-block BTS {behavior} executes without control-byte ROM reads");
-            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.Places.ActiveCount,
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 

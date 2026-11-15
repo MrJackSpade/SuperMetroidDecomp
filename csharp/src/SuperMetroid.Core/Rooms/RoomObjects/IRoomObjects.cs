@@ -48,6 +48,6 @@ internal interface IRoomObjects
     /// <summary>Applies room-object-driven room scroll grid changes.</summary>
     ScrollObjects Scrolls { get; }
 
-    /// <summary>Releases the slot.</summary>
-    void DeleteObject(RoomObjectSlot slot);
+    /// <summary>Releases the place.</summary>
+    void DeleteObject(RoomObjectPlace place);
 }

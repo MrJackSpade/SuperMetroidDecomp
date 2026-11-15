@@ -49,7 +49,7 @@ internal static class GrappleDoorsVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             var result = SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X, roomObjects);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
-            AssertEqual(1, roomObjects.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
+            AssertEqual(1, roomObjects.Places.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
                 "blue-door setup changes origin before animation");
             bool heardOpening = false;

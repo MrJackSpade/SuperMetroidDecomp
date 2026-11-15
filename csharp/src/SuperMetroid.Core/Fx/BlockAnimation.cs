@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Fx;
 public enum BlockAnimation
 {
     /// <summary>No block animation is loaded.</summary>
-    None = 0,
+    None,
     /// <summary>The Phantoon statue in the Tourian statue room.</summary>
-    TourianStatuePhantoon = 1,
+    TourianStatuePhantoon,
     /// <summary>The Ridley statue in the Tourian statue room.</summary>
     TourianStatueRidley,
     /// <summary>The Kraid statue in the Tourian statue room.</summary>

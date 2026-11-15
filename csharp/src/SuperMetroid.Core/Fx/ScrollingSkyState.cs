@@ -12,25 +12,25 @@ namespace SuperMetroid.Core.Fx;
 /// scroll. The sky's rows are drawn from its installed picture
 /// (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>); the bands are published with <see cref="Publish"/>.
 /// </remarks>
-/// <param name="variant">The land or ocean chunk table the room main selects.</param>
+/// <param name="sky">The land or ocean sky the room main selects.</param>
 /// <param name="hasBands">Whether the sky's effect or setup made the sky's bands drift.</param>
 [RoomLifetime]
-public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBands = true)
+public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
 {
     /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main behaviour alone does not.</summary>
     public bool HasBands { get; } = hasBands;
 
-    /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
-    public ScrollingSkyChunkTable Variant { get; } = variant;
+    /// <summary>The land or ocean sky the rows show.</summary>
+    public ScrollingSky Sky { get; } = sky;
 
     /// <summary>How far each drift's bands have slid, in pixels and 65536ths, from where the room loaded them.</summary>
     private readonly Dictionary<SkyDrift, FixedCoordinate> _phases =
         ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 
     /// <summary>
-    /// Returns whether a room state's main behaviour dispatches to the land-sky
-    /// implementation. This is the same room-main dispatch decision the game makes;
-    /// callers must not infer it from a room number, area, door, or camera position.
+    /// Returns whether a room state's main behaviour runs the land sky. This is the
+    /// same choice of room-main behaviour the game makes; callers must not infer it
+    /// from a room number, area, door, or camera position.
     /// </summary>
     public static bool IsLandRoomMain(RoomMainBehavior main) =>
         main is RoomMainBehavior.ScrollingSkyLand or
@@ -55,10 +55,10 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupBehavior setup) =>
         selectedFx == RoomFxType.ScrollingSky || SetupSpawnsBands(setup);
 
-    /// <summary>The chunk table a scrolling-sky room main reads its rows through.</summary>
-    public static ScrollingSkyChunkTable VariantOf(RoomMainBehavior main) =>
-        IsLandRoomMain(main) ? ScrollingSkyChunkTable.Land
-            : main == RoomMainBehavior.ScrollingSkyOcean ? ScrollingSkyChunkTable.Ocean
+    /// <summary>The sky a scrolling-sky room main shows.</summary>
+    public static ScrollingSky SkyOf(RoomMainBehavior main) =>
+        IsLandRoomMain(main) ? ScrollingSky.Land
+            : main == RoomMainBehavior.ScrollingSkyOcean ? ScrollingSky.Ocean
             : throw new ArgumentOutOfRangeException(nameof(main), main, "The room main runs no scrolling sky.");
 
     /// <summary>

@@ -90,10 +90,10 @@ internal static void VerifyBreakableGrappleObjects()
         "DrawPLMBlock restores the complete saved grapple word");
     AssertEqual(1, RoomBlockBehaviorCodec.Encode(respawning.GetCollisionBlockByIndex(blockIndex).Behavior),
         "respawning instruction restores BTS one before terrain");
-    AssertEqual(1, respawningObjects.SlotTable.ActiveCount,
+    AssertEqual(1, respawningObjects.Places.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
     respawningObjects.Step(respawning);
-    AssertEqual(0, respawningObjects.SlotTable.ActiveCount,
+    AssertEqual(0, respawningObjects.Places.ActiveCount,
         "restored grapple PLM deletes on following handler pass");
 
     // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
@@ -112,7 +112,7 @@ internal static void VerifyBreakableGrappleObjects()
     AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning sequence ends on blank-air visual word");
     permanentObjects.Step(permanent);
-    AssertEqual(0, permanentObjects.SlotTable.ActiveCount,
+    AssertEqual(0, permanentObjects.Places.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
     AssertEqual(0, RoomBlockBehaviorCodec.Encode(permanent.GetCollisionBlockByIndex(blockIndex).Behavior),
         "nonrespawning sequence leaves cleared BTS");
@@ -155,10 +155,10 @@ internal static void VerifyBreakableGrappleObjects()
         "BTS-3 restores the type-5 horizontal extension");
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.VerticalExtension), respawning2x2.GetCollisionBlock(new(3, 4)).Terrain,
         "BTS-3 restores the type-D vertical extension row");
-    AssertEqual(1, respawning2x2Objects.SlotTable.ActiveCount,
+    AssertEqual(1, respawning2x2Objects.Places.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
     respawning2x2Objects.Step(respawning2x2);
-    AssertEqual(0, respawning2x2Objects.SlotTable.ActiveCount,
+    AssertEqual(0, respawning2x2Objects.Places.ActiveCount,
         "BTS-3 deletes on the handler pass after linked-block restoration");
 
     RoomLevelData permanent1x2 = CreateBombLevel(6);
@@ -177,7 +177,7 @@ internal static void VerifyBreakableGrappleObjects()
     AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 4)).Terrain,
         "permanent BTS-6 finishes on two vertical blank-air words");
     permanent1x2Objects.Step(permanent1x2);
-    AssertEqual(0, permanent1x2Objects.SlotTable.ActiveCount,
+    AssertEqual(0, permanent1x2Objects.Places.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");

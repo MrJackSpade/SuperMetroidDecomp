@@ -12,8 +12,8 @@ public static class ShotBlockReactions
     public static ShotBlockReaction? Of(ShootableReaction? reaction) =>
         reaction is { } read && Handled.TryGetValue(read, out ShotBlockReaction handled) ? handled : null;
 
-    /// <summary>Whether <paramref name="reaction"/> is one of the table's leading reactions every weapon's scan dispatches.</summary>
-    public static bool IsLeading(ShootableReaction? reaction) => reaction is { } read && LeadingReactions.Contains(read);
+    /// <summary>Whether <paramref name="reaction"/> is one of the reactions every weapon's scan hands to the shot-block response.</summary>
+    public static bool IsWeaponReaction(ShootableReaction? reaction) => reaction is { } read && WeaponReactions.Contains(read);
 
     /// <summary>What the shot-block response makes of a shootable reaction.</summary>
     extension(ShootableReaction reaction)

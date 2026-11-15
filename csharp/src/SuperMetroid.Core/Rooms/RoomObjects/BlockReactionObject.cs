@@ -20,7 +20,7 @@ internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehav
     private int _updatesBeforeNextStep = Ensure.BetweenInclusive(1, int.MaxValue, change.FirstFrameDelay);
 
     /// <inheritdoc/>
-    internal sealed override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal sealed override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         _updatesBeforeNextStep--;
@@ -52,5 +52,5 @@ internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehav
     /// <summary>Restores the block's saved terrain where an image asks for it.</summary>
     /// <param name="place">The reaction's place.</param>
     /// <param name="context">The update.</param>
-    private protected virtual void RestoreBlock(RoomObjectSlot place, RoomObjectStepContext context) => context.DrawRestoredBlock(place);
+    private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context) => context.DrawRestoredBlock(place);
 }

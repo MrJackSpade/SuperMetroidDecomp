@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -14,16 +15,20 @@ internal sealed class DoorObjects
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
+    /// <summary>Whether a blue cap a shot opened closes behind Samus.</summary>
+    private readonly ShotOpenedCapClosing<LockedDoor> _shotCapClosing;
 
-    /// <summary>Binds door room-object logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorObjects(SharedGameState? system, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    /// <summary>Binds door room-object logic to room persistence, the room's places, sound and the shot cap's closing rule.</summary>
+    internal DoorObjects(SharedGameState? system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds,
+        ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         _system = system;
-        _slotTable = slotTable;
+        _places = places;
         _sounds = sounds;
+        _shotCapClosing = Ensure.NotNull(shotCapClosing);
     }
     /// <summary>
     /// Closes the door Samus entered through behind her, after the destination room's objects and its door and setup
@@ -32,6 +37,8 @@ internal sealed class DoorObjects
     /// <remarks>
     /// The first object at the door's block, in the room's update order, closes unless it is a cap whose door has been
     /// opened for good: a coloured or grey cap, an eye door's eye or Mother Brain's escape gate closes from its next update.
+    /// A blue cap a shot opened has no closing of its own; the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule decides
+    /// whether it stays open (#1906).
     /// With no object there, the door's closing behaviour may place a blue cap closing toward the travel direction or the
     /// escape gate closing, in the first free place, like any other room object.
     /// </remarks>
@@ -49,7 +56,7 @@ internal sealed class DoorObjects
         Ensure.NotNull(system);
 
         Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
-        foreach (RoomObjectSlot resident in _slotTable.InProcessingOrder)
+        foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
             if (!resident.Active || resident.Block != block)
                 continue;
@@ -61,6 +68,8 @@ internal sealed class DoorObjects
             {
                 break;
             }
+            if (resident.Argument is ShotOpenedCapArgument && _shotCapClosing.StaysOpen(system.HasOpenedDoor))
+                break;
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
             (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
@@ -71,23 +80,23 @@ internal sealed class DoorObjects
         if (DoorClosingObjects.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(fallback.BlueCapFacing is { } facing
+        place.Block = block;
+        place.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
-        SetupDoorTransitionDeactivatedSlot(level, slot);
+        SetupPassableBlock(level, place);
         return true;
     }
 
     /// <summary>
-    /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
-    /// Despite its historical name, the setup does not delete or deactivate the room-object slot.
+    /// The setup that makes a room object's block passable: a solid block stays solid and any other block becomes air,
+    /// keeping its appearance. The room object keeps its place.
     /// </summary>
-    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectSlot slot) =>
-        level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
+    internal static void SetupPassableBlock(RoomLevelData level, RoomObjectPlace place) =>
+        level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
 
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
@@ -104,14 +113,14 @@ internal sealed class DoorObjects
     /// Sets up a coloured cap: installs its shootable collision and places the cap, which takes its first look on its
     /// first update.
     /// </summary>
-    internal static void SetupColoredDoorSlot(
+    internal static void SetupColoredDoor(
         RoomLevelData level,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         ColoredDoorColor color,
         ColoredDoorOrientation orientation)
     {
-        ApplyColoredDoorSetup(level, slot.Block);
-        slot.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
+        ApplyColoredDoorSetup(level, place.Block);
+        place.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
     }
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
@@ -124,14 +133,14 @@ internal sealed class DoorObjects
     /// <summary>
     /// Whether this cap's door has been opened for good before; a cap whose opening never persists never has.
     /// </summary>
-    internal bool IsDoorOpened(RoomObjectSlot slot) =>
-        slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
+    internal bool IsDoorOpened(RoomObjectPlace place) =>
+        place.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
 
     /// <summary>
     /// Records the door of the cap at <paramref name="place"/> opened for good, when its opening persists, and marks the
     /// cap spent: it then keeps only its own door.
     /// </summary>
-    internal void RecordDoorOpened(RoomObjectSlot place)
+    internal void RecordDoorOpened(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
         if (place.Argument is DoorBitArgument { Persists: true } cap)
@@ -188,15 +197,13 @@ internal sealed class DoorObjects
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = position;
-        slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
-        // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
-        // check reads: once that door has been opened for good, the spawned blue door never closes.
-        slot.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
-            DoorOpeningPersistence.Persistent);
+        place.Block = position;
+        place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
+        // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906).
+        place.Argument = ShotOpenedCapArgument.Instance;
 
         // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.

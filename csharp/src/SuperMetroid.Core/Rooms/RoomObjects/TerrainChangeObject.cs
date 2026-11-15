@@ -20,7 +20,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
     private int _updatesBeforeNextStep = Ensure.BetweenInclusive(1, int.MaxValue, change.FirstFrameDelay);
 
     /// <inheritdoc/>
-    internal sealed override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal sealed override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         _updatesBeforeNextStep--;

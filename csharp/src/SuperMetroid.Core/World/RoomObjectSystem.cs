@@ -36,14 +36,14 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
 
-    /// <summary>Applies boss encounter mutations to the active room's room-object slots.</summary>
+    /// <summary>Applies boss encounter mutations through the active room's room-object places.</summary>
     internal BossRoomMutationObjects BossRoomMutations { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     internal IGlobalEventFlags? Events { get; }
 
     /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
-    internal RoomObjectSlotTable SlotTable { get; }
+    internal RoomObjectPlaceList Places { get; }
 
     /// <summary>Queues sound requests emitted by room object cues.</summary>
     internal RoomObjectSoundQueue Sounds { get; }
@@ -57,7 +57,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Handles enemy-triggered changes to breakable room terrain.</summary>
     internal EnemyBreakableTerrainObjects BreakableTerrain { get; }
 
-    /// <summary>Runs quicksand room objects through the shared slot allocation.</summary>
+    /// <summary>Runs quicksand room objects, which take the room's room-object places.</summary>
     internal QuicksandObjects Quicksand { get; }
 
     /// <summary>Coordinates Shaktool's tunnel digging and block replacement room objects.</summary>
@@ -99,7 +99,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
     internal MotherBrainGlassObjects MotherBrainGlass { get; }
 
-    /// <summary>Builds a room's room-object population into the slot table, in spawn order.</summary>
+    /// <summary>Builds a room's room-object population into its places, in spawn order.</summary>
     internal RoomObjectPopulationLoader PopulationLoader { get; }
 
     /// <summary>Runs save, map, and refill station room interactions.</summary>
@@ -123,39 +123,40 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// its builder so each room starts at the first pair.
     /// </param>
     /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
+    /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places)
+        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Events = services.Events;
-        SlotTable = new RoomObjectSlotTable(places);
+        Places = new RoomObjectPlaceList(places);
         Sounds = new RoomObjectSoundQueue();
         Drawing = new RoomObjectBlockDrawing(visuals);
-        ProjectileTriggers = new ProjectileTriggerObjects(SlotTable);
-        BreakableTerrain = new EnemyBreakableTerrainObjects(SlotTable);
-        Quicksand = new QuicksandObjects(SlotTable);
-        Scrolls = new ScrollObjects(SlotTable);
-        WreckedShipTreadmill = new WreckedShipTreadmillObjects(SlotTable, Drawing);
-        Shaktool = new ShaktoolObjects(services.Samus, services.Events, SlotTable);
-        SamusEater = new SamusEaterObjects(services.Samus, SlotTable);
-        EscapeAnimals = new EscapeAnimalObjects(services.Events, SlotTable, Drawing);
+        ProjectileTriggers = new ProjectileTriggerObjects(Places);
+        BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
+        Quicksand = new QuicksandObjects(Places);
+        Scrolls = new ScrollObjects(Places);
+        WreckedShipTreadmill = new WreckedShipTreadmillObjects(Places, Drawing);
+        Shaktool = new ShaktoolObjects(services.Samus, services.Events, Places);
+        SamusEater = new SamusEaterObjects(services.Samus, Places);
+        EscapeAnimals = new EscapeAnimalObjects(services.Events, Places, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
-        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, SlotTable);
+        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
-        Gates = new GateObjects(services.Samus, SlotTable, Sounds);
+        Gates = new GateObjects(services.Samus, Places, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
-        Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
-        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, collectibleBlockPairs, Sounds);
+        Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
+        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
-        DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
+        DoorObjects = new DoorObjects(room.System, Places, Sounds, shotCapClosing);
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
-        Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, SlotTable);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
-        BlockReactions = new BlockReactionObjects(EscapeAnimals, SlotTable, Drawing);
-        BossRoomMutations = new BossRoomMutationObjects(SlotTable);
+        Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
+        BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
+        BossRoomMutations = new BossRoomMutationObjects(Places);
     }
 
     /// <summary>Door-object owner bound to this room's allocation and draw state.</summary>
@@ -177,22 +178,22 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         var context = new RoomObjectStepContext(this, level, frame);
         // Each typed room object advances by its own steps, at its place in the update order; a place that holds no
         // typed object (one whose setup did all its work) stays idle until it is freed.
-        foreach (RoomObjectSlot slot in SlotTable.InProcessingOrder)
+        foreach (RoomObjectPlace place in Places.InUpdateOrder)
         {
-            if (slot.Active && slot.Behaviour is { } behaviour)
-                behaviour.Update(slot, context);
+            if (place.Active && place.Behaviour is { } behaviour)
+                behaviour.Update(place, context);
         }
 
     }
 
     /// <summary>
-    /// The object at <paramref name="slot"/> leaves the room, freeing its place; Mother Brain's glass first keeps its hit
+    /// The object at <paramref name="place"/> leaves the room, freeing its place; Mother Brain's glass first keeps its hit
     /// count.
     /// </summary>
-    internal void DeleteObject(RoomObjectSlot slot)
+    internal void DeleteObject(RoomObjectPlace place)
     {
-        MotherBrainGlass.OnObjectDeleted(slot);
-        slot.Delete();
+        MotherBrainGlass.OnObjectDeleted(place);
+        place.Delete();
     }
 
     /// <inheritdoc/>
@@ -232,7 +233,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     ScrollObjects IRoomObjects.Scrolls => Scrolls;
 
     /// <inheritdoc/>
-    void IRoomObjects.DeleteObject(RoomObjectSlot slot) => DeleteObject(slot);
+    void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
 
     /// <inheritdoc/>
     ProjectileTriggerObjects ISamusRoomObjects.ProjectileTriggers => ProjectileTriggers;

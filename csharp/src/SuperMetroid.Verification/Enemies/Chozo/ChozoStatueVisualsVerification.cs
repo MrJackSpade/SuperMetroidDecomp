@@ -80,7 +80,7 @@ internal static class ChozoStatueVisualsVerification
                 new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand)),
                 "Wrecked Ship hand spawns");
             wreckedHandObjects.Step(wreckedHandLevel);
-            AssertTrue(wreckedHandObjects.PopulationSlots.Count == 0,
+            AssertTrue(wreckedHandObjects.PopulationPlaces.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "shared delete list did not reread its bank-$84 bytes");

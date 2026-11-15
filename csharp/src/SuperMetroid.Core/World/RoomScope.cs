@@ -45,7 +45,7 @@ internal sealed record RoomScope
     public required ArtworkFrameSelections ArtworkFrames { get; init; }
 
     /// <summary>
-    /// What gameplay has shown over the room's load (#1466): the collectibles its slots show and Kraid's backdrop. With the
+    /// What gameplay has shown over the room's load (#1466): the collectibles its room objects show and Kraid's backdrop. With the
     /// frames its animations selected, the display names its blocks', cells' and written cells' pictures by it.
     /// </summary>
     public required RoomAppearance Appearance { get; init; }

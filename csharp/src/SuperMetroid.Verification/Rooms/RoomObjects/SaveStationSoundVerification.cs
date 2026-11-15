@@ -31,8 +31,8 @@ internal static class SaveStationSoundVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave);
         _ = runtime.Room.LevelData ?? throw new InvalidOperationException("The save room has no level data.");
-        RoomObjectSlot station = runtime.Room.LoadedScope.RoomObjects.SlotTable.InProcessingOrder.Single(slot =>
-            slot.Active && slot.Behaviour is StationObject { Kind: StationKind.Save });
+        RoomObjectPlace station = runtime.Room.LoadedScope.RoomObjects.Places.InUpdateOrder.Single(place =>
+            place.Active && place.Behaviour is StationObject { Kind: StationKind.Save });
         int column = station.Block.X;
         int row = station.Block.Y;
         SamusState samus = runtime.Player.IntroducedSamus;

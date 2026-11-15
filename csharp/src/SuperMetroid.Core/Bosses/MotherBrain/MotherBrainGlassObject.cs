@@ -45,7 +45,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     internal void CountHeadShot() => Hits = WrappingCounter.IncrementCount(Hits);
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (HitCountArmed)
@@ -107,14 +107,14 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
             : MotherBrainGlassStageDefinitions.ShatteredImage;
 
     /// <summary>Shows stage <paramref name="stage"/> for one update and holds it.</summary>
-    private void ShowStage(RoomObjectSlot place, RoomObjectStepContext context, int stage)
+    private void ShowStage(RoomObjectPlace place, RoomObjectStepContext context, int stage)
     {
         Stage = stage;
         Show(place, context, MotherBrainGlassStageDefinitions.Stages[stage].Image, 1, MotherBrainGlassPhase.Holding);
     }
 
     /// <summary>Draws <paramref name="image"/> and holds it for <paramref name="updates"/> in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectSlot place, RoomObjectStepContext context, MotherBrainGlassDraw image, int updates, MotherBrainGlassPhase phase)
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, MotherBrainGlassDraw image, int updates, MotherBrainGlassPhase phase)
     {
         context.Draw(place, RoomObjectDraw.Of(image));
         _updatesBeforeNextStep = updates;

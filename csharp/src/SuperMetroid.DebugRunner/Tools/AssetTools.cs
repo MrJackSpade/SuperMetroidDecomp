@@ -17,7 +17,7 @@ internal static class AssetTools
             case ["--dump-instruction-layouts", var outputPath]:
                 InstructionLayoutDump.DumpInstructionLayouts(outputPath);
                 return 0;
-            case ["--generate-room-fx-records"]:
+            case ["--generate-room-effects"]:
                 RoomFxRecordGenerator.GenerateRoomFxRecordDefinitions();
                 return 0;
             case ["--generate-room-block-readings"]:

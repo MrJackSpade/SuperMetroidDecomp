@@ -30,8 +30,8 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     internal ColoredDoorPhase Phase { get; private set; } = ColoredDoorPhase.Waiting;
 
     /// <summary>
-    /// The hits counted toward the colour's count. It only counts up, by one a hit or to one short of any count on a
-    /// red cap's Super Missile, and the cap opens once it reaches the count.
+    /// The hits counted toward the colour's count. It only counts up, by one a hit or straight to the count on a Super
+    /// Missile, and the cap opens once it reaches the count.
     /// </summary>
     internal int HitCounter { get; private set; }
 
@@ -52,7 +52,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!React(place, context))
@@ -60,24 +60,22 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || place.ProjectileHit is not { Family: var family })
             return false;
         place.ProjectileHit = null;
-        if (Color == ColoredDoorColor.Red && family == SamusProjectileFamily.SuperMissile)
-            HitCounter = ColoredDoorDefinitions.RedSuperMissileHitCounter;
         if (!Accepts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();
             return false;
         }
-        CountHit(place, context);
+        CountHit(place, context, opensAtOnce: family == SamusProjectileFamily.SuperMissile);
         return true;
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         switch (Phase)
         {
@@ -115,7 +113,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// Looks at the cap's door: one opened for good turns into its blue cap; otherwise the cap starts taking shots and
     /// shows its closed image.
     /// </summary>
-    private void Look(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
@@ -128,11 +126,15 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
         Play(_sequences.Waiting, place, context);
     }
 
-    /// <summary>Counts a hit: short of the colour's count the cap flashes; at it, the door opens for good.</summary>
-    private void CountHit(RoomObjectSlot place, RoomObjectStepContext context)
+    /// <summary>
+    /// Counts a hit: short of the colour's count the cap flashes; at it, the door opens for good. A hit that
+    /// <paramref name="opensAtOnce"/> brings the count straight to the colour's.
+    /// </summary>
+    private void CountHit(RoomObjectPlace place, RoomObjectStepContext context, bool opensAtOnce)
     {
-        HitCounter++;
-        if (HitCounter < ColoredDoorDefinitions.HitThresholds[Color])
+        int threshold = ColoredDoorDefinitions.HitThresholds[Color];
+        HitCounter = opensAtOnce ? threshold : HitCounter + 1;
+        if (HitCounter < threshold)
         {
             Phase = ColoredDoorPhase.Flashing;
             Play(_sequences.Flash, place, context);

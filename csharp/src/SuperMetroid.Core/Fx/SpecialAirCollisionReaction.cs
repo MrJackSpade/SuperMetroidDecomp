@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 public enum SpecialAirCollisionReaction
 {
     /// <summary>Nothing happens: Samus passes on.</summary>
-    Nothing = 1,
+    Nothing,
 
     /// <summary>Samus passes through the block as through air.</summary>
     PassesThrough,

@@ -107,7 +107,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x8a8000 + 5 * 0x840, RoomFxLayer3TilemapSources.Page(RoomFxType.Fog).Value, "fog page source");
         AssertEqual(RoomFxLayer3TilemapSources.Page(RoomFxType.Water), RoomFxLayer3TilemapSources.Page(RoomFxType.TourianEntranceStatue),
             "the statue effect shows the water page");
-        AssertEqual(0x89aa02 + 0x62, RoomFxLayer3TilemapSources.PaletteBlend(RoomFxPaletteBlend.Fog).Value, "fog blend source");
+        AssertEqual(0x89aa02 + 0x62, RoomFxLayer3TilemapSources.PaletteBlend(RoomEffectTint.Fog).Value, "fog blend source");
         // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
         RoomEffectDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Effects[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
@@ -115,13 +115,13 @@ internal static class FxDefinitionMigrationVerification
         // Acid does not read the drift bit Climb's record sets, so its liquid has neither tide nor haze (#1695).
         AssertEqual(new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), climb.Liquid, "Climb liquid");
         AssertEqual("OldTourianRedFlashing, OldTourianBackgroundRailingsFlashYellow, OldTourianBackgroundPanelsFlashYellow",
-            string.Join(", ", climb.PaletteEffects), "Climb palette effects");
+            string.Join(", ", climb.ColourEffects), "Climb palette effects");
         AssertEqual(AreaId.Crateria, RoomFxSelectionAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
-        AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.PaletteEffects, AreaId.Crateria), "Climb palette-effect byte");
+        AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.ColourEffects, AreaId.Crateria), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
-        AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.PurpleMaridiaWater), "Maridia water D blend byte");
-        AssertEqual("purple-maridia-water", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.PurpleMaridiaWater), "installed blend key names its tint");
+        AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomEffectTint.PurpleMaridiaWater), "Maridia water D blend byte");
+        AssertEqual("purple-maridia-water", RoomFxPaletteBlendDocumentRules.Key(RoomEffectTint.PurpleMaridiaWater), "installed blend key names its tint");
         AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([ColourEffectId.BeaconFlashing], AreaId.Crateria),
             "Crateria's eighth palette effect");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");

@@ -950,7 +950,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(solidShotExploded,
         "type-C shootable block retains solid shot collision");
-    AssertTrue(solidShotObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(solidShotObjects.Places.ActiveCount > 0,
         "ordinary beam collision allocates bank-$84 shot-block PLM");
     int synthesizedSolidShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -991,7 +991,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "Wave remains alive after publishing type-four shot-block reaction");
     AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
         "Wave crosses the complete shootable-air column");
-    AssertTrue(waveShotObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(waveShotObjects.Places.ActiveCount > 0,
         "Wave scan allocates bank-$84 shot-block PLM");
     int synthesizedAirShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -1321,6 +1321,23 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, reopenedDoorObjects.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
 
+    // #1907: one Super Missile opens a red cap at once, though missiles take five hits.
+    var superMissileWords = new RoomTerrainBlock[16 * 16];
+    superMissileWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData superMissileDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(superMissileWords, new RoomBlockBehavior[superMissileWords.Length], new RoomBlockAppearance[superMissileWords.Length]), RoomLevelData.NothingBeyondGrid());
+    var superMissileDoorSystem = new SharedGameState(new SharedRandom());
+    var superMissileDoorObjects = RoomObjectFixtures.Unbound();
+    AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref superMissileDoorObjects, new RoomObjectRoom(superMissileDoorLevel, superMissileDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        "the red cap loads for the Super Missile hit");
+    superMissileDoorObjects.Step(superMissileDoorLevel);
+    AssertTrue(superMissileDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
+        "the red cap takes the Super Missile");
+    superMissileDoorObjects.Step(superMissileDoorLevel);
+    ColoredDoorObjectSnapshot superMissileOpened = superMissileDoorObjects.ColoredDoors.Single();
+    AssertEqual(ColoredDoorPhase.Opening, superMissileOpened.Phase, "one Super Missile opens the red cap");
+    AssertEqual(5, superMissileOpened.HitCounter, "the Super Missile brings the red cap's count straight to its five hits");
+    AssertTrue(superMissileDoorSystem.HasOpenedDoorBit(residentDoorArgument), "the Super Missile opens the red door for good");
+
     // Reproduce the generic grey-door graph with relocatable fixture pointers. This is
     // intentionally not a direct call to an event setter: the regression starts at a
     // bank-$8F population record, follows the header/list operands, publishes hits through
@@ -1429,7 +1446,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     contactDoorProjectiles.StepFrame(new SamusTerrain { Level = contactDoor, RoomObjects = contactDoorObjects }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), contactDoorBombs);
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
-    AssertEqual(1, contactDoorObjects.SlotTable.ActiveCount,
+    AssertEqual(1, contactDoorObjects.Places.ActiveCount,
         "contact-distance shot allocates the blue-door opening PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
@@ -1455,7 +1472,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(blueDoorExploded,
         "power beam collides through negative vertical door extension");
-    AssertEqual(1, blueDoorObjects.SlotTable.ActiveCount,
+    AssertEqual(1, blueDoorObjects.Places.ActiveCount,
         "BTS $41 collision allocates one right-facing blue-door PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
@@ -1638,7 +1655,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
-    AssertTrue(integratedSuperObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(integratedSuperObjects.Places.ActiveCount > 0,
         "live Super Missile publishes weapon-gated block PLM");
     int integratedSuperMutations = 0;
     for (int y = 0; y < height; y++)
@@ -1685,7 +1702,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.Type.Family,
         "the owner explodes on the column-seven wall");
-    AssertTrue(skippedObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(skippedObjects.Places.ActiveCount > 0,
         "the link still strikes the column-six Super Missile block before it is cleared");
     AssertTrue(!skippedLink.IsActive, "the link is cleared after its collision");
 

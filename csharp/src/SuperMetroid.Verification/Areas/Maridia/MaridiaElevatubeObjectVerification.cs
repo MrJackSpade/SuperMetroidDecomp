@@ -33,7 +33,7 @@ internal static class MaridiaElevatubeObjectVerification
         var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
         int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.RoomObjectBlock);
         int heardAtFrame = -1;
-        for (int frame = 0; frame < 24 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 24 && roomObjects.Places.ActiveCount != 0; frame++)
         {
             roomObjects.Step(level);
             if (frame == 0)
@@ -46,7 +46,7 @@ internal static class MaridiaElevatubeObjectVerification
         }
         AssertEqual(16, heardAtFrame,
             "elevatube sound follows the native sixteen-frame hold");
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "elevatube PLM deletes after the sound instruction");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "elevatube program and draw execute without their source ROM bytes");

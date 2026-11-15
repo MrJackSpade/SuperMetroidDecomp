@@ -32,7 +32,7 @@ internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviou
     internal void Trigger() => Triggered = true;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (WakeArmed && (Triggered || (Phase == DownwardGatePhase.RestingClosed && _owner.IsSamusInsideDownwardGateColumn(place))))
@@ -107,14 +107,14 @@ internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviou
     }
 
     /// <summary>Draws one image of the gate's movement and holds it for its updates.</summary>
-    private void ShowFrame(RoomObjectSlot place, RoomObjectStepContext context, TerrainChangeFrame frame)
+    private void ShowFrame(RoomObjectPlace place, RoomObjectStepContext context, TerrainChangeFrame frame)
     {
         context.Draw(place, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;
     }
 
     /// <summary>Draws <paramref name="image"/> and holds it for <paramref name="updates"/> in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectSlot place, RoomObjectStepContext context, RoomObjectDraw image, int updates, DownwardGatePhase phase)
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, RoomObjectDraw image, int updates, DownwardGatePhase phase)
     {
         context.Draw(place, image);
         _updatesBeforeNextStep = updates;

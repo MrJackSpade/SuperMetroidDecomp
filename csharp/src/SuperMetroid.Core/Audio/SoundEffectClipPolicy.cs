@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// How a library accepts and starts a sound-effect request (#1305): its effect on the library's priority and low-health
-/// mode, and which rejections it is exempt from. The voices it plays on are the sound driver's allocation, rendered into
-/// the clips and read by nothing in the game (#1749).
+/// mode, and which rejections it is exempt from. How its sound is layered was decided when the clips were rendered and is
+/// read by nothing in the game (#1749).
 /// </summary>
 /// <param name="Priority">The library priority after the effect starts.</param>
 /// <param name="LowHealthMode">The effect on the room library's low-health mode.</param>

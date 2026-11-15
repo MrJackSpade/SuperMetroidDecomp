@@ -15,7 +15,7 @@ internal sealed class MetroidRoomClearanceObject(StoryEvent? cleared) : RoomObje
     internal StoryEvent? Cleared { get; } = cleared;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (Cleared is not { } cleared || context.Frame.EnemyDeaths < context.Frame.EnemyDeathQuota)

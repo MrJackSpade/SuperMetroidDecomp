@@ -24,7 +24,7 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlo
     internal bool Watching { get; private set; }
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!Watching)

@@ -78,17 +78,17 @@ internal static class GreenHillGateGlitchVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenHillZone);
-        RoomObjectSlotSnapshot gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        RoomObjectPlaceSnapshot gate = runtime.RoomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         AssertEqual(runtime.Room.LoadedLevelData.BlockAt(0x1be4), gate.Block, "authored Green Hill gate block");
-        RoomObjectSlotSnapshot trigger = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.HoldsDownwardGateShotBlock);
+        RoomObjectPlaceSnapshot trigger = runtime.RoomObjects.PopulationPlaces.Single(place =>
+            place.HoldsDownwardGateShotBlock);
         AssertEqual((ushort)0, trigger.RoomArgument,
             "authored Green Hill trigger selects the blue-left gate table");
         runtime.StepFrame(0);
         runtime.StepFrame(0);
-        gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        gate = runtime.RoomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         EnemyProjectile gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
@@ -119,8 +119,8 @@ internal static class GreenHillGateGlitchVerification
             if (frame >= 1)
                 input |= ControllerButton.X;
             runtime.StepFrame(input);
-            gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-                slot.Behaviour is DownwardGateObject);
+            gate = runtime.RoomObjects.PopulationPlaces.Single(place =>
+                place.Behaviour is DownwardGateObject);
             if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
             openFrame = frame;

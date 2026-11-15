@@ -34,11 +34,11 @@ internal static class DoorOrientationDomainVerification
             AssertEqual(value, orientation.Encode(), $"orientation ${raw:X2} round-trips");
             AssertEqual((raw & 2) != 0, orientation.IsVertical, $"orientation ${raw:X2} axis matches native bit 1");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation(default, DoorClosingBehavior.None),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation((DoorDirection)99, DoorClosingBehavior.None),
             "undefined direction is rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation(DoorDirection.Up, default),
+        AssertThrows<ArgumentOutOfRangeException>(() => new DoorOrientation(DoorDirection.Up, (DoorClosingBehavior)99),
             "undefined closing behavior is rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)0).IsVertical(), "undefined direction has no axis");
+        AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)99).IsVertical(), "undefined direction has no axis");
 
         // The pseudo-doors' overlapped bytes ($91/$93 at offset 3) are not orientations.
         foreach (ushort pseudo in new[] { DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer, DoorDefinitionsAccess.MaridiaTourianElevatorPseudoDoorPointer })

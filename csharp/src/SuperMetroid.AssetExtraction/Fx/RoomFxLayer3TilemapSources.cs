@@ -24,7 +24,7 @@ internal static class RoomFxLayer3TilemapSources
 
     /// <summary>The first of <paramref name="id"/>'s three adjacent blend colours: the record's selector byte is an offset into the colour table.</summary>
     /// <exception cref="InvalidDataException"><paramref name="id"/> is not a retail blend.</exception>
-    internal static SnesAddress PaletteBlend(RoomFxPaletteBlend id)
+    internal static SnesAddress PaletteBlend(RoomEffectTint id)
     {
         if (!RoomFxPaletteBlendDocumentRules.Ids.Contains(id))
             throw new InvalidDataException($"Room-FX palette blend {id} is not a retail selector.");

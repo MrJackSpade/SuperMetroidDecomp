@@ -13,8 +13,8 @@ internal static class FxNativeWords
     /// <summary>A <see cref="RoomFxType"/> value naming no effect, standing for a dispatcher byte that names none.</summary>
     internal const RoomFxType UndefinedFxType = (RoomFxType)ushort.MaxValue;
 
-    /// <summary>A <see cref="RoomFxPaletteBlend"/> value naming no blend, standing for a selector byte that names none.</summary>
-    internal const RoomFxPaletteBlend UndefinedPaletteBlend = (RoomFxPaletteBlend)byte.MaxValue;
+    /// <summary>A <see cref="RoomEffectTint"/> value naming no blend, standing for a selector byte that names none.</summary>
+    internal const RoomEffectTint UndefinedPaletteBlend = (RoomEffectTint)byte.MaxValue;
 
     /// <summary>
     /// The effect a native record's dispatcher byte <paramref name="word"/> names, or <see cref="UndefinedFxType"/> when it
@@ -25,8 +25,8 @@ internal static class FxNativeWords
             ? type : UndefinedFxType;
 
     /// <summary>The palette blend native selector byte <paramref name="word"/> names, or <see cref="UndefinedPaletteBlend"/>.</summary>
-    internal static RoomFxPaletteBlend PaletteBlend(int word) =>
-        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.TryDecode((ushort)word, out RoomFxPaletteBlend blend)
+    internal static RoomEffectTint PaletteBlend(int word) =>
+        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.TryDecode((ushort)word, out RoomEffectTint blend)
             ? blend : UndefinedPaletteBlend;
 
     /// <summary>

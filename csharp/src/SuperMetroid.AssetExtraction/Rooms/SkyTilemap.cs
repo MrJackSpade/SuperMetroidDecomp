@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The scrolling sky's tile rows by vertical world position (#1347). The cartridge streams two pairs of rows a frame
-/// into a circular BG2 tilemap (<c>$88:AFA3</c>); each visible row holds the row its chunk table selects for that
+/// into a circular BG2 tilemap (<c>$88:AFA3</c>); each visible row holds the row its sky's chunk shows at that
 /// position, so the sky is drawn from the rows directly and nothing is streamed.
 /// </summary>
 public sealed class SkyTilemap
@@ -22,21 +22,21 @@ public sealed class SkyTilemap
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];
 
-    /// <summary>Reads each row from the page its chunk selects in <paramref name="variant"/>'s table.</summary>
+    /// <summary>Reads each row from the page its chunk shows in <paramref name="sky"/>.</summary>
     /// <param name="pages">The installed sky pages.</param>
-    /// <param name="variant">The land or ocean chunk table.</param>
-    public SkyTilemap(ReadOnlySpan<BackgroundTile> pages, ScrollingSkyChunkTable variant)
+    /// <param name="sky">The land or ocean sky.</param>
+    public SkyTilemap(ReadOnlySpan<BackgroundTile> pages, ScrollingSky sky)
     {
-        Variant = variant;
+        Sky = sky;
         for (int row = 0; row < Rows; row++)
         {
-            int page = ScrollingSkyChunks.PageOf(variant, row / RowsPerChunk);
+            int page = ScrollingSkyChunks.PageOf(sky, row / RowsPerChunk);
             RoomSkyTilemaps.Row(pages, page, row % RowsPerChunk).CopyTo(tiles.AsSpan(row * Columns, Columns));
         }
     }
 
-    /// <summary>The land or ocean chunk table the rows follow.</summary>
-    public ScrollingSkyChunkTable Variant { get; }
+    /// <summary>The land or ocean sky the rows show.</summary>
+    public ScrollingSky Sky { get; }
 
     /// <summary>The tiles of every row, row-major; every row holds a row of the page its chunk shows.</summary>
     public ReadOnlySpan<BackgroundTile> Tiles => tiles;

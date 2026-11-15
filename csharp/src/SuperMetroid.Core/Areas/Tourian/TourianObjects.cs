@@ -19,26 +19,26 @@ internal sealed class TourianObjects
     /// <summary>The room's liquid motion, which the escape acid trigger starts.</summary>
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>The room's room objects, which the fake wall, the acid trigger and the access floor's change join.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds Tourian room behaviours to the active room's services and room-object slots.</summary>
     internal TourianObjects(IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, IRoomFxMotion? roomFx,
-        RoomObjectSlotTable slotTable)
+        RoomObjectPlaceList places)
     {
         _samus = samus;
         _enemies = enemies;
         _roomFx = roomFx;
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>
     /// Sets up a Metroid room's clearance watch: its placement names the event it marks, or none for a watch that
     /// observes nothing, and it stays in the room for good.
     /// </summary>
-    internal static void SetupMetroidsClearedSlot(RoomObjectSlot slot)
+    internal static void SetupMetroidsClearedSlot(RoomObjectPlace place)
     {
-        Ensure.NotNull(slot);
-        slot.Become(new MetroidRoomClearanceObject((slot.Argument as MetroidRoomArgument
-            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.Block} was placed without its event.")).Cleared));
+        Ensure.NotNull(place);
+        place.Become(new MetroidRoomClearanceObject((place.Argument as MetroidRoomArgument
+            ?? throw new InvalidDataException($"Metroids-cleared room object at block {place.Block} was placed without its event.")).Cleared));
     }
 
     /// <summary>
@@ -51,12 +51,12 @@ internal sealed class TourianObjects
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(
             new(OldTourianEscapeShaftWallObjectDefinitions.BlockX, OldTourianEscapeShaftWallObjectDefinitions.BlockY));
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
-        slot.Become(new OldTourianWallObject(_samus, _enemies));
+        place.Block = block;
+        DoorObjects.SetupPassableBlock(level, place);
+        place.Become(new OldTourianWallObject(_samus, _enemies));
         return true;
     }
     /// <summary>
@@ -69,12 +69,12 @@ internal sealed class TourianObjects
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(
             new(EscapeAcidRiseObjectDefinitions.BlockX, EscapeAcidRiseObjectDefinitions.BlockY));
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
-        slot.Become(new EscapeAcidRiseObject(_samus, _roomFx));
+        place.Block = block;
+        DoorObjects.SetupPassableBlock(level, place);
+        place.Become(new EscapeAcidRiseObject(_samus, _roomFx));
         return true;
     }
     /// <summary>Spawns the clear or crumble of the access floor at block (6,12).</summary>
@@ -82,11 +82,11 @@ internal sealed class TourianObjects
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
         TerrainChange change = TourianAccessFloors.ForState(floor);
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = level.GridBlock(new(6, 12));
-        slot.Become(new TerrainChangeObject(change));
+        place.Block = level.GridBlock(new(6, 12));
+        place.Become(new TerrainChangeObject(change));
         return true;
     }
 }

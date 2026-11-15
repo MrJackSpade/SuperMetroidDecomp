@@ -111,8 +111,8 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Copies, freezes, or parallax-scales one background axis as the room state's scroll selects. The foreground
-    /// coordinate wraps past 65535 to 0 and so does the result: the parallax product keeps its own wrap.
+    /// Copies, freezes, or parallax-scales one background axis as the room state's scroll selects. A parallax factor is
+    /// under the foreground's own speed, so the scaled position stays within the foreground's coordinate range.
     /// </summary>
     private static bool TryCalculateBackgroundPosition(int foregroundPosition, BackgroundAxisScroll scroll, out int result)
     {
@@ -130,9 +130,9 @@ public sealed class BackgroundScrollState
                 throw new InvalidOperationException($"Undefined {nameof(BackgroundScrollKind)} {scroll.Kind}.");
         }
 
-        // The parallax position is floor(position * factor / 256), wrapped to the coordinate's sixteen bits.
+        // The parallax position is floor(position * factor / 256).
         uint factor = (uint)scroll.Factor;
-        result = CoordinateAxis.Wrap(EightEight.WholeOf(checked((uint)foregroundPosition) * factor));
+        result = checked((int)EightEight.WholeOf(checked((uint)foregroundPosition) * factor));
         return true;
     }
 

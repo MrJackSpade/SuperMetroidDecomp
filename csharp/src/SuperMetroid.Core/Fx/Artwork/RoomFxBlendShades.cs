@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours a tileset's effect overlay pictures in for each palette blend a room effect selects
+/// The shades the import pre-colours a tileset's effect overlay pictures in for each tint a room effect selects
 /// (#1512): the three blend colours its liquid, fog or rain shows, or the cleared third of the empty blend.
 /// </summary>
 public static class RoomFxBlendShades

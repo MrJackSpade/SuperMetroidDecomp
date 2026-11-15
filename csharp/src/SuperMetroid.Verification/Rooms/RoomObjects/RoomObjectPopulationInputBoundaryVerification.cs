@@ -47,7 +47,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
-        AssertTrue(roomObjects.PopulationSlots.Select(slot => slot.ProcessingPosition).SequenceEqual(ReusedPopulationSlots),
+        AssertTrue(roomObjects.PopulationPlaces.Select(place => place.UpdatePosition).SequenceEqual(ReusedPopulationSlots),
             "extension deletion lets the next record reuse the first slot in processing order, in authored order");
         AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger)), RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(3, 3)).Behavior),
             "typed trigger setup publishes its native collision behavior");

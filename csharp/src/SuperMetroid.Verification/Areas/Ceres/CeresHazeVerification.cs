@@ -100,7 +100,7 @@ internal static class CeresHazeVerification
         bool sawDestinationFade = false;
         for (int frame = 0; transition.IsActive && frame < 600; frame++)
         {
-            bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationPalette;
+            bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationRoom;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             if (runtime.Room.LoadedRoom.Definition == RoomDefinitions.CeresRidley)
                 AssertTrue(!runtime.CeresHaze.IsRed, "source room remains blue through actual door fade");

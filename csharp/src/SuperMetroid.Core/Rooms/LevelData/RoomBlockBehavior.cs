@@ -25,20 +25,20 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </remarks>
 public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
-    /// <summary>The farthest an extension reaches backward: 128 blocks (or rows).</summary>
-    public const int MostBackwardExtension = -128;
-
-    /// <summary>The farthest an extension reaches forward: 127 blocks (or rows).</summary>
-    public const int MostForwardExtension = 127;
-
-    /// <summary>The last entry of a room's door list a door block selects.</summary>
-    public const int LastDoorLink = 127;
-
     /// <summary>
     /// Every kept behaviour in the order the game numbers them, each one the areas resolve followed by its resolutions in the
     /// game's area order, so a write of a reading keeps the unresolved behaviour before any area's.
     /// </summary>
     private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
+
+    /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
+    public static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
+
+    /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
+    public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
+
+    /// <summary>The last entry of a room's door list a door block of any kept behaviour selects.</summary>
+    public static int LastDoorLink { get; } = Kept.Max(static readings => readings.DoorLink);
 
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
@@ -214,6 +214,28 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <param name="doorLink">The entry of the room's door list the door selects, 0 through <see cref="LastDoorLink"/>.</param>
     public static RoomBlockBehavior LinkingDoor(int doorLink) =>
         new(DoorWrites.Carrying(Ensure.BetweenInclusive(0, LastDoorLink, doorLink)));
+
+    /// <summary>The behaviour of a door block of <paramref name="room"/> that leads through <paramref name="door"/>.</summary>
+    /// <param name="room">The room the door block stands in.</param>
+    /// <param name="door">One of the room's doors.</param>
+    /// <exception cref="ArgumentException">The room's door list does not hold the door exactly once.</exception>
+    public static RoomBlockBehavior LinkingDoor(RoomDefinition room, DoorDefinition door)
+    {
+        IReadOnlyList<DoorListEntry> list = RoomDoorListDefinitions.ByRoom[Ensure.NotNull(room)];
+        DoorListEntry entry = DoorListEntry.Physical(door);
+        int link = -1;
+        for (int place = 0; place < list.Count; place++)
+        {
+            if (list[place] != entry)
+                continue;
+            if (link >= 0)
+                throw new ArgumentException($"{room.Name}'s door list holds {door.Name} twice.", nameof(door));
+            link = place;
+        }
+        return link >= 0
+            ? LinkingDoor(link)
+            : throw new ArgumentException($"{room.Name}'s door list does not hold {door.Name}.", nameof(door));
+    }
 
     /// <summary>
     /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air

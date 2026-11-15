@@ -47,7 +47,7 @@ internal static class RoomSkyTilemapsVerification
             "sky catalog rejects a page outside the sky");
         // Every row the land and ocean skies show is the native row of its chunk's page at that offset (#1611: every
         // chunk shows one of its own sky's pages).
-        foreach (ScrollingSkyChunkTable table in new[] { ScrollingSkyChunkTable.Land, ScrollingSkyChunkTable.Ocean })
+        foreach (ScrollingSky table in new[] { ScrollingSky.Land, ScrollingSky.Ocean })
         {
             SkyTilemap rows = stock.Tilemap(table);
             AssertTrue(ReferenceEquals(rows, stock.Tilemap(table)), $"{table} sky rows are built once per installed catalog");

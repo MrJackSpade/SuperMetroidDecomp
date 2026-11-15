@@ -5,8 +5,8 @@ using static SuperMetroid.Core.Bosses.Kraid.KraidRoomMutationDefinitions;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Spawns Kraid's ceiling, platform and spike room objects in the room's shared room-object slots.</summary>
-/// <param name="slotTable">The room's room-object slots, which Kraid's mutations contend for with every other room object.</param>
-internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
+/// <param name="places">The room's room-object slots, which Kraid's mutations contend for with every other room object.</param>
+internal sealed class KraidRoomObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns one of Kraid's room mutations at its block and runs its deactivating setup. The setup immediately
@@ -22,11 +22,11 @@ internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
-        if (slotTable.Spawn() is not { } slot)
+        if (places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new TerrainChangeObject(change));
+        place.Block = block;
+        place.Become(new TerrainChangeObject(change));
 
         // The deactivating setup keeps a solid block solid and turns every other block to air.
         level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.Deactivated());

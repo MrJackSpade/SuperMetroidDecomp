@@ -17,7 +17,7 @@ public readonly record struct DoorListEntry
     /// <summary>The physical door, or null for an elevator pseudo-door.</summary>
     public DoorDefinition? Door { get; }
 
-    /// <summary>True for an elevator pseudo-door (zero destination).</summary>
+    /// <summary>True for an elevator pseudo-door, which leads to no room.</summary>
     public bool IsElevatorPseudoDoor => Door is null;
 
     /// <summary>A physical door.</summary>

@@ -65,11 +65,11 @@ internal static class RoomObjectSystemAccess
         /// <summary>Every coloured door cap in the room.</summary>
         internal IReadOnlyList<ColoredDoorObjectSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door: slot.Behaviour as ColoredDoorObject))
+            .. ActivePlaces(self).Select(place => new ColoredDoorPlace(place, Door: place.Behaviour as ColoredDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
-                    entry.Slot.Block,
-                    entry.Slot.NativeRoomArgument,
+                    entry.Place.Block,
+                    entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.Door.Orientation,
                     entry.Door.Phase, checked((byte)entry.Door.HitCounter))),
@@ -78,11 +78,11 @@ internal static class RoomObjectSystemAccess
         /// <summary>Views of every grey door cap in the room.</summary>
         internal IReadOnlyList<GreyDoorObjectSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door: slot.Behaviour as GreyDoorObject))
+            .. ActivePlaces(self).Select(place => new GreyDoorPlace(place, Door: place.Behaviour as GreyDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
-                    entry.Slot.Block,
-                    entry.Slot.NativeRoomArgument,
+                    entry.Place.Block,
+                    entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
                     entry.Door.Condition,
                     entry.Door.Phase, checked((byte)entry.Door.HitCounter), entry.Door)),
@@ -91,15 +91,15 @@ internal static class RoomObjectSystemAccess
         /// <summary>Views of every eye-door eye, body and bottom in the room.</summary>
         internal IReadOnlyList<EyeDoorObjectSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door: slot.Behaviour as EyeDoorEyeObject, Part: slot.Behaviour as EyeDoorPartObject))
+            .. ActivePlaces(self).Select(place => new EyeDoorPlace(place, Door: place.Behaviour as EyeDoorEyeObject, Part: place.Behaviour as EyeDoorPartObject))
                 .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
-                    entry.Slot.Block,
-                    entry.Slot.NativeRoomArgument,
+                    entry.Place.Block,
+                    entry.Place.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
                         : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
                     checked((byte)(entry.Door?.HitCounter ?? 0)),
-                    entry.Slot.Behaviour,
+                    entry.Place.Behaviour,
                     entry.Door is { } eye
                         ? (eye.TakesShots ? DoorsNativeWords.EyeDoorMissileWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)
                         : entry.Part is { WaitsForOpenedDoor: true } ? DoorsNativeWords.EyeDoorOpenedDoorWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)),
@@ -113,9 +113,9 @@ internal static class RoomObjectSystemAccess
         {
             if (self.TryNotifyEyeDoorHit(block, projectileType))
                 return true;
-            foreach (var slot in ActiveSlots(self))
+            foreach (var place in ActivePlaces(self))
             {
-                bool? takesShots = slot.Block != block ? null : slot.Behaviour switch
+                bool? takesShots = place.Block != block ? null : place.Behaviour switch
                 {
                     ColoredDoorObject colored => colored.TakesShots,
                     GreyDoorObject grey => grey.Waits != GreyDoorWait.Nothing,
@@ -144,7 +144,7 @@ internal static class RoomObjectSystemAccess
         internal void DrawSoleObjectFrameForVerification(RoomLevelData level,
             RoomObjectDraw draw)
         {
-            RoomObjectSlot[] active = [.. ActiveSlots(self)];
+            RoomObjectPlace[] active = [.. ActivePlaces(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
             self.Drawing.Draw(level, active[0].Block, draw);
@@ -158,37 +158,37 @@ internal static class RoomObjectSystemAccess
             Position16<RoomBlocks> block,
             SamusProjectileType projectileType)
         {
-            foreach (var slot in ActiveSlots(self))
+            foreach (var place in ActivePlaces(self))
             {
-                if (slot.Block != block || slot.Behaviour is not EyeDoorEyeObject)
+                if (place.Block != block || place.Behaviour is not EyeDoorEyeObject)
                     continue;
 
                 // The pending hit is single. A later collision before the eye's update replaces it rather than
                 // accumulating a host-side queue.
-                slot.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
+                place.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
                 return true;
             }
             return false;
         }
 
         /// <summary>Every live elevator-platform PLM, in processing order.</summary>
-        internal IReadOnlyList<RoomObjectSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
+        internal IReadOnlyList<RoomObjectPlaceSnapshot> ElevatorPlatforms => self.PopulationPlaces
             .Where(snapshot => snapshot.Behaviour is ElevatorPlatformObject)
             .ToArray();
 
         /// <summary>Views of the occupied slots, in the table's processing order.</summary>
-        internal IReadOnlyList<RoomObjectSlotSnapshot> PopulationSlots =>
+        internal IReadOnlyList<RoomObjectPlaceSnapshot> PopulationPlaces =>
         [
-            .. self.SlotTable.InProcessingOrder
-                .Select((slot, position) => new IndexedObjectSlot(slot, position))
-                .Where(entry => entry.Slot.Active)
-                .Select(entry => new RoomObjectSlotSnapshot(
-                    ProcessingPosition: entry.Index,
-                    Block: entry.Slot.Block,
-                    RoomArgument: entry.Slot.NativeRoomArgument,
-                    ProjectileHit: entry.Slot.ProjectileHit,
-                    Behaviour: entry.Slot.Behaviour,
-                    SpentCap: entry.Slot.Argument is SpentDoorArgument)),
+            .. self.Places.InUpdateOrder
+                .Select((place, position) => new IndexedObjectPlace(place, position))
+                .Where(entry => entry.Place.Active)
+                .Select(entry => new RoomObjectPlaceSnapshot(
+                    UpdatePosition: entry.Index,
+                    Block: entry.Place.Block,
+                    RoomArgument: entry.Place.NativeRoomArgument,
+                    ProjectileHit: entry.Place.ProjectileHit,
+                    Behaviour: entry.Place.Behaviour,
+                    SpentCap: entry.Place.Argument is SpentDoorArgument)),
         ];
 
         /// <summary>
@@ -306,7 +306,7 @@ internal static class RoomObjectSystemAccess
                     nameof(bts),
                     "The shootable BTS gives a shootable block no reaction.");
             }
-            if (!areaDependent && !ShotBlockReactions.IsLeading(bts.Shootable))
+            if (!areaDependent && !ShotBlockReactions.IsWeaponReaction(bts.Shootable))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
@@ -321,17 +321,17 @@ internal static class RoomObjectSystemAccess
 
             // Spawn_PLM's descending free-slot search happens before any setup routine. A full
             // pool must therefore leave both level data and BTS completely untouched.
-            if (self.SlotTable.Spawn() is not { } slot)
+            if (self.Places.Spawn() is not { } place)
                 return false;
 
             RoomCollisionBlock block = level.GetCollisionBlock(position);
-            slot.Block = position;
+            place.Block = position;
 
             if (areaDependent)
             {
                 // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                 // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
             }
 
@@ -341,8 +341,8 @@ internal static class RoomObjectSystemAccess
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
                 RoomTerrainBlock restore = block.Terrain.WithAppearance(self.Drawing.SetupBlock(RoomObjectSetupBlock.ShotBlockParent));
-                slot.RestoreTerrain = restore;
-                slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(bts.Shootable)));
+                place.RestoreTerrain = restore;
+                place.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(bts.Shootable)));
                 level.SetTerrain(position, restore.Deactivated());
                 return true;
             }
@@ -352,7 +352,7 @@ internal static class RoomObjectSystemAccess
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
+                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
                 level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
             }
@@ -361,7 +361,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
+                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                 return true;
             }
 
@@ -369,11 +369,11 @@ internal static class RoomObjectSystemAccess
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
+                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                 return true;
             }
 
-            slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
             return true;
         }
 
@@ -452,8 +452,8 @@ internal static class RoomObjectSystemAccess
     }
 
     /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>
-    private static IEnumerable<RoomObjectSlot> ActiveSlots(RoomObjectSystem roomObjects) =>
-        roomObjects.SlotTable.FromLastPlace.Where(slot => slot.Active);
+    private static IEnumerable<RoomObjectPlace> ActivePlaces(RoomObjectSystem roomObjects) =>
+        roomObjects.Places.FromLastPlace.Where(place => place.Active);
 
     /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
     private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>

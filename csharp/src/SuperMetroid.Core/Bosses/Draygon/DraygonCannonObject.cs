@@ -60,7 +60,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (WakeArmed && PendingHit is { } hit && hit.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
@@ -113,7 +113,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     }
 
     /// <summary>Destroys the cannon: Draygon stops its firing, its terrain is destroyed, and its smoke starts.</summary>
-    private void Destroy(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Destroy(RoomObjectPlace place, RoomObjectStepContext context)
     {
         context.RoomObjects.Bosses().DraygonCannons.DisableCannon(Cannon);
         DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.Block);
@@ -122,7 +122,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     }
 
     /// <summary>Draws <paramref name="frame"/> and holds it for its updates in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectSlot place, RoomObjectStepContext context, TerrainChangeFrame frame, DraygonCannonPhase phase)
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, TerrainChangeFrame frame, DraygonCannonPhase phase)
     {
         context.Draw(place, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;

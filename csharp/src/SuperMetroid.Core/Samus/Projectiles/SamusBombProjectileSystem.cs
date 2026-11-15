@@ -990,7 +990,7 @@ public sealed class SamusBombProjectileSystem
                 return;
             if (block.Behavior.Shootable is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
                     ShootableReaction.CollisionProbe) &&
-                !ShotBlockReactions.IsLeading(block.Behavior.Shootable))
+                !ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable))
             {
                 throw new InvalidDataException(
                     $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +

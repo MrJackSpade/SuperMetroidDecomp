@@ -28,9 +28,9 @@ internal sealed class SpeedBoosterEscapeObjects
     /// Sets up the Speed Booster escape. Once the lavaquake has been outrun the escape is gone on later room loads;
     /// otherwise its lavaquake starts, before its first lava rise.
     /// </summary>
-    internal void SetupSpeedBoosterEscapeSlot(RoomObjectSlot slot)
+    internal void SetupSpeedBoosterEscape(RoomObjectPlace place)
     {
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         if (_events is null || _roomFx is null || _earthquake is null)
         {
             throw new InvalidOperationException(
@@ -38,9 +38,9 @@ internal sealed class SpeedBoosterEscapeObjects
         }
 
         if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
-            slot.Delete();
+            place.Delete();
         else
-            slot.Become(new SpeedBoosterEscapeObject(this));
+            place.Become(new SpeedBoosterEscapeObject(this));
     }
 
     /// <summary>

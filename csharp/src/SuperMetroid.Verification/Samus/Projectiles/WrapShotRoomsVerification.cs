@@ -53,7 +53,7 @@ internal static class WrapShotRoomsVerification
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
-                if (firstHit < 0 && runtime.RoomObjects.PopulationSlots.Any(slot => slot.Block == level.BlockAt(setup.Target) && slot.Behaviour is BlueDoorCapObject { Orientation: ColoredDoorOrientation.Right, Phase: BlueDoorCapPhase.Opening }))
+                if (firstHit < 0 && runtime.RoomObjects.PopulationPlaces.Any(place => place.Block == level.BlockAt(setup.Target) && place.Behaviour is BlueDoorCapObject { Orientation: ColoredDoorOrientation.Right, Phase: BlueDoorCapPhase.Opening }))
                     firstHit = frame;
                 runtime.RoomObjects.Step(level);
                 openingSound |= runtime.RoomObjects.Sounds.SoundRequests.Any(request => request == new SoundRequest(RoomSound.DoorOpened, SoundRequestPriority.Normal));

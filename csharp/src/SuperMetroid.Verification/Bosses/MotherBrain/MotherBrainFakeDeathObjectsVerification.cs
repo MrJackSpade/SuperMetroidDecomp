@@ -64,7 +64,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
         RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
-        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is TerrainChangeObject { Change: var started } && started == change,
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is TerrainChangeObject { Change: var started } && started == change,
             $"Mother Brain mutation {mutation} starts its terrain change");
         AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out var draw),
             $"Mother Brain mutation {mutation} has a physical draw");
@@ -73,14 +73,14 @@ internal static class MotherBrainFakeDeathObjectsVerification
             expected[(3 + cell.Key.Y) * width + 5 + cell.Key.X] = cell.Value;
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             $"Mother Brain mutation {mutation} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).Terrain,
                 $"Mother Brain mutation {mutation} level block {index}");
         roomObjects.Step(level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             $"Mother Brain mutation {mutation} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain mutation {mutation} reads no migrated source bytes");

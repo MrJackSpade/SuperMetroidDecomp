@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyBreakableTerrainObjects
 {
     /// <summary>The room's room objects, which an enemy's break joins.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Uses the room's room objects, so an enemy's break takes a place like every other room object.</summary>
-    internal EnemyBreakableTerrainObjects(RoomObjectSlotTable slotTable)
+    internal EnemyBreakableTerrainObjects(RoomObjectPlaceList places)
     {
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>
     /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its artwork until
@@ -23,11 +23,11 @@ internal sealed class EnemyBreakableTerrainObjects
         Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         // A full room skips the setup, and the block is reported as not broken.
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = position;
-        slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
+        place.Block = position;
+        place.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
         level.SetTerrain(position, block.Terrain.WithCollision(RoomCollisionType.Air));
         return true;
     }

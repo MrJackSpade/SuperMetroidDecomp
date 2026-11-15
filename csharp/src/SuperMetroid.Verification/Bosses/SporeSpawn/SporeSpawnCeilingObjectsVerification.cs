@@ -140,7 +140,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         var guarded = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         int soundFrame = -1;
-        for (int frame = 0; frame < 32 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 32 && roomObjects.Places.ActiveCount != 0; frame++)
         {
             roomObjects.Step(level);
             if (roomObjects.Sounds.SoundRequests.Any(request =>
@@ -162,7 +162,7 @@ internal static class SporeSpawnCeilingObjectsVerification
                         level.GetCollisionBlock(new Position16<RoomBlocks>(x, y)).Terrain,
                         $"Spore Spawn {(clear ? "clear" : "crumble")} frame {frame} ({x},{y})");
             }
-            if (roomObjects.SlotTable.ActiveCount == 0)
+            if (roomObjects.Places.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 4 : 16, deletionFrame,

@@ -74,8 +74,8 @@ public sealed class RoomBackgroundImage
     /// <summary>The cells whose pictures change with the room's appearance inputs; every other cell always shows the image.</summary>
     public IReadOnlyList<RoomBackgroundCell> Cells { get; }
 
-    /// <summary>The installed name of the sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
-    public static string SkyNameOf(ScrollingSkyChunkTable variant, TilesetDefinition tileset) => $"Sky{variant}.{RoomBlockSheet.NameOf(tileset)}";
+    /// <summary>The installed name of the sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
+    public static string SkyNameOf(ScrollingSky sky, TilesetDefinition tileset) => $"Sky{sky}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>
     /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a

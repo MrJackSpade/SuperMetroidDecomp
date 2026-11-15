@@ -9,28 +9,28 @@ public static partial class LibraryBackgroundProgramDefinitions
 {
     /// <summary>The ScrollingSkyLandingSite library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyLandingSite { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyLandingSite, [
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.GauntletEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.Parlor1),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, CrateriaDoorDefinitions.CrateriaPowerBombs0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.CrateriaTube0),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.GauntletEntranceToLandingSite),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.ParlorToLandingSite),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, CrateriaDoorDefinitions.CrateriaPowerBombsToLandingSite),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.CrateriaTubeToLandingSite),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.LandingSiteLandingCutscene),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, DoorDefinitions.LandingSiteDemoEntry),
     ]);
 
     /// <summary>The ScrollingSkyWreckedShipEntrance library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyWreckedShipEntrance { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyWreckedShipEntrance, [
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.BowlingAlleyPath0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.Moat1),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.BowlingAlley0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.WreckedShipEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.Attic2),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(3), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.GravitySuit0),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.MoatToWestOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.AtticToWestOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(3), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.GravitySuitToWestOcean),
     ]);
 
     /// <summary>The ScrollingSkyEastOcean library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyEastOcean { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyEastOcean, [
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.ForgottenHighwayKagos0),
-        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.ElectricDeath0),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.ForgottenHighwayKagosToEastOcean),
+        new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.ElectricDeathToEastOcean),
     ]);
 
     /// <summary>The ScrollingSkyBowlingAlley library-background program.</summary>

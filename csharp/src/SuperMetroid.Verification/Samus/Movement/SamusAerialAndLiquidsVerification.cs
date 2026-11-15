@@ -634,12 +634,12 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         roomObjects: screwBombObjects);
     AssertTrue(screwBombSamus.Position.Y.Whole != screwBombY,
         "Screw collision-bomb setup returns carry clear and preserves vertical travel");
-    AssertTrue(screwBombObjects.PopulationSlots.Any(slot => slot.Block == screwBombLevel.BlockAt(screwBombIndex)),
+    AssertTrue(screwBombObjects.PopulationPlaces.Any(place => place.Block == screwBombLevel.BlockAt(screwBombIndex)),
         "Screw vertical collision reacts at the exact BTS-4 block");
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.Air),
         screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).Terrain,
         "Screw setup installs CE83's replacement visual before the PLM handler");
-    AssertEqual(1, screwBombObjects.SlotTable.ActiveCount,
+    AssertEqual(1, screwBombObjects.Places.ActiveCount,
         "Screw pose installs the BTS-4 bank-$84 lifecycle in the room owner");
 
     // A fully charged beam makes ordinary/Space-Jump spin damaging only in dry physics.

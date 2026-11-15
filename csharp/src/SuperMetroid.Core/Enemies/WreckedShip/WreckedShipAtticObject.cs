@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 internal sealed class WreckedShipAtticObject : RoomObjectBehaviour
 {
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context) => Ensure.NotNull(place);
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context) => Ensure.NotNull(place);
 }

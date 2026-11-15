@@ -20,13 +20,13 @@ internal sealed class CollectibleObjects
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
-    /// <summary>Enumerates active item room objects by slot ordinal.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>The room's places, searched for the item room objects they hold.</summary>
+    private readonly RoomObjectPlaceList _places;
     /// <summary>
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
     /// show their own picture take in turn.
     /// </summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable,
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
         CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
         _sounds = Ensure.NotNull(sounds);
@@ -34,7 +34,7 @@ internal sealed class CollectibleObjects
         _samus = samus;
         _roomFx = roomFx;
         _drawing = drawing;
-        _slotTable = slotTable;
+        _places = places;
         _blockPairs = Ensure.NotNull(blockPairs);
     }
 
@@ -52,8 +52,8 @@ internal sealed class CollectibleObjects
     {
         get
         {
-            foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
-                if (slot.Active && (slot.Behaviour as CollectibleObject)?.Phase == CollectiblePhase.AwaitingMessage)
+            foreach (RoomObjectPlace place in _places.FromLastPlace)
+                if (place.Active && (place.Behaviour as CollectibleObject)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
         }
@@ -65,12 +65,12 @@ internal sealed class CollectibleObjects
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!slot.Active || slot.Behaviour is not CollectibleObject { Phase: CollectiblePhase.AwaitingMessage } item)
+            if (!place.Active || place.Behaviour is not CollectibleObject { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
             item.Phase = CollectiblePhase.ResumeAfterMessage;
-            item.FinishPickup(_drawing, level, slot);
+            item.FinishPickup(_drawing, level, place);
         }
         CompleteSpeedBoosterPickupContinuation();
     }
@@ -91,11 +91,11 @@ internal sealed class CollectibleObjects
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
         _collectiblePickupEvents;
 
-    /// <summary>Every currently allocated permanent-item room object, by slot ordinal.</summary>
-    public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.FromLastPlace
-        .Where(slot => slot.Active)
-        .SelectMany(slot => slot.Behaviour is CollectibleObject { } item
-            ? [new CollectibleObjectSnapshot(slot.Block, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
+    /// <summary>Every permanent-item room object the room holds, from the last place in update order back to the first.</summary>
+    public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _places.FromLastPlace
+        .Where(place => place.Active)
+        .SelectMany(place => place.Behaviour is CollectibleObject { } item
+            ? [new CollectibleObjectSnapshot(place.Block, (place.Argument as CollectedItemArgument)?.Location, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 
@@ -106,9 +106,9 @@ internal sealed class CollectibleObjects
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
+            if (!place.Active || place.Block != block || place.Behaviour is not CollectibleObject item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before the room-object update runs
@@ -134,9 +134,9 @@ internal sealed class CollectibleObjects
     public bool TryNotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
+            if (!place.Active || place.Block != block || place.Behaviour is not CollectibleObject item)
                 continue;
             if (item.Phase is not (
                     CollectiblePhase.ChozoOrb or
@@ -155,27 +155,27 @@ internal sealed class CollectibleObjects
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>
-    /// Runs one permanent-item setup on the slot selected by the shared room
+    /// Runs one permanent-item setup on the place selected by the shared room
     /// loader. The setup remains table-driven by the game's definition and presentation.
     /// </summary>
-    internal void SetupCollectibleSlot(
+    internal void SetupCollectible(
         RoomObjectRoom room,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation)
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
-        RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
-        bool collected = slot.Argument is CollectedItemArgument placedItem &&
+        RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
+        bool collected = place.Argument is CollectedItemArgument placedItem &&
             system.HasCollectedItem(placedItem.Location);
         CollectibleBlockPairs.Pair? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        level.SetTerrain(slot.Block, setup);
-        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
-        slot.RestoreTerrain = setup;
+        level.SetTerrain(place.Block, setup);
+        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
+        place.RestoreTerrain = setup;
 
         CollectiblePhase phase = collected
             ? presentation == CollectiblePresentation.ShotBlock
@@ -190,7 +190,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        slot.Become(new CollectibleObject(kind, presentation, blockPair, phase));
+        place.Become(new CollectibleObject(kind, presentation, blockPair, phase));
     }
 
     /// <summary>
@@ -216,20 +216,20 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// Collects <paramref name="item"/>, placed at <paramref name="slot"/>: sets persistence and inventory before publishing
+    /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before publishing
     /// the synchronous message and fanfare request.
     /// </summary>
-    internal void Acquire(CollectibleObject item, RoomObjectSlot slot)
+    internal void Acquire(CollectibleObject item, RoomObjectPlace place)
     {
         Ensure.NotNull(item);
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
         SharedGameState system = _system
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
-        if (slot.Argument is CollectedItemArgument collectedItem)
+        if (place.Argument is CollectedItemArgument collectedItem)
             system.CollectItem(collectedItem.Location);
         ApplyCollectibleEffect(samus, item.Kind);
 
@@ -245,7 +245,7 @@ internal sealed class CollectibleObjects
 
         // The item's script grants inventory before the message box opens, but its
         // following draw/delete steps cannot run until that synchronous call
-        // returns. Keep the existing block and slot throughout the fanfare.
+        // returns. Keep the existing block and place throughout the fanfare.
         item.Triggered = false;
         item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;

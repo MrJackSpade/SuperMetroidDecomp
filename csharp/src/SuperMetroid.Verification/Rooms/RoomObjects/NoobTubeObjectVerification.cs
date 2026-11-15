@@ -88,7 +88,7 @@ internal static class NoobTubeObjectVerification
         // First pass follows the event-not-set branch, publishes intact art, and sleeps
         // under the power-bomb detector with its link pointing at the input-wait stage.
         StepNoobTube(roomObjects, level);
-        RoomObjectSlotSnapshot intact = roomObjects.PopulationSlots.Single();
+        RoomObjectPlaceSnapshot intact = roomObjects.PopulationPlaces.Single();
         AssertTrue(intact.Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForPowerBomb },
             "intact tube waits for a power bomb");
 
@@ -148,7 +148,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), PendingTubeHit(roomObjects),
             "generic trigger publishes the Power Bomb hit");
         StepNoobTube(roomObjects, level);
-        RoomObjectSlotSnapshot armed = roomObjects.PopulationSlots.Single();
+        RoomObjectPlaceSnapshot armed = roomObjects.PopulationPlaces.Single();
         AssertTrue(armed.Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
             "power bomb wakes the tube to wait for input");
 
@@ -213,7 +213,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),
             "fully submerged Samus uses underwater movement after tube break");
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount, "completed n00b-tube PLM deletes itself");
+        AssertEqual(0, roomObjects.Places.ActiveCount, "completed n00b-tube PLM deletes itself");
 
         Suite(nameof(VerifyNoobTubeProjectileInitializers), () => VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -320,7 +320,7 @@ internal static class NoobTubeObjectVerification
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         StepNoobTube(roomObjects, level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount, "event-$0B n00b tube deletes on its first step");
+        AssertEqual(0, roomObjects.Places.ActiveCount, "event-$0B n00b tube deletes on its first step");
         AssertEqual(0, projectiles.Count, "event-$0B n00b tube spawns no break debris");
         AssertEqual(new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false),
             roomFx.Liquid,
@@ -355,7 +355,7 @@ internal static class NoobTubeObjectVerification
 
     /// <summary>The strike the live glass tube has not yet read, or null for none.</summary>
     private static ResidentObjectProjectileHit? PendingTubeHit(RoomObjectSystem roomObjects) =>
-        (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject
+        (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject
             ?? throw new InvalidOperationException("The glass tube is not a typed object.")).PendingHit;
 
     /// <summary>Advances one PLM tick with the requested new-input edge and a fixed camera.</summary>

@@ -98,7 +98,7 @@ internal static class BotwoonWallObjectsVerification
             RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 1), RoomScrollState.Closed);
         int deletionFrame = -1;
         int soundCount = 0;
-        for (int frame = 0; frame < 220 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 220 && roomObjects.Places.ActiveCount != 0; frame++)
         {
             roomObjects.Step(level, scrolls);
             soundCount += roomObjects.Sounds.SoundRequests.Count(request =>
@@ -133,7 +133,7 @@ internal static class BotwoonWallObjectsVerification
                         "Botwoon crumble opens second scroll cell");
                 }
             }
-            if (roomObjects.SlotTable.ActiveCount == 0)
+            if (roomObjects.Places.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 1 : 207, deletionFrame,

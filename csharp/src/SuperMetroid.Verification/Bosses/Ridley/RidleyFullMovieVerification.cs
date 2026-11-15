@@ -752,7 +752,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual(0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
-        AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
+        AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
@@ -767,7 +767,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.AnimationClock.Hold.RawValue, "fade installs the native visual duration");
         int fadeSteps = 0;
-        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette && fadeSteps++ < 32)
+        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourceRoom && fadeSteps++ < 32)
             game.Step(0);
         AssertEqual(DoorTransitionPhase.BeginDoorDisplay, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
         AssertEqual(0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");

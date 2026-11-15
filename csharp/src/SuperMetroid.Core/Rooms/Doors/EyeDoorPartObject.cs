@@ -45,7 +45,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!React(place, context))
@@ -53,7 +53,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <inheritdoc/>
-    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(place))
             return false;
@@ -63,7 +63,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorStep step, RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override int Show(EyeDoorStep step, RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (step.Before != EyeDoorAction.None)
             throw new InvalidOperationException($"An eye door's {Component} does nothing as it draws; got {step.Before}.");
@@ -72,7 +72,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (ClosesBehindSamus)
         {
@@ -101,7 +101,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     /// <summary>
     /// Looks for Samus: near, the part waits for its door to open and pulses; otherwise it stands still.
     /// </summary>
-    private void Look(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (IsSamusNear(place, context))
         {
@@ -115,6 +115,6 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     }
 
     /// <summary>Whether Samus stands near enough to make the part pulse.</summary>
-    private static bool IsSamusNear(RoomObjectSlot place, RoomObjectStepContext context) =>
+    private static bool IsSamusNear(RoomObjectPlace place, RoomObjectStepContext context) =>
         context.RoomObjects.EyeDoors.IsSamusNear(place, EyeDoorSequenceDefinitions.PulseReach);
 }

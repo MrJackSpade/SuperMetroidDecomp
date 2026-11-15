@@ -25,8 +25,8 @@ internal sealed record RoomObjectPopulationLoaderDependencies
     /// <summary>Mother brain glass.</summary>
     public required MotherBrainGlassObjects MotherBrainGlass { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required RoomObjectSlotTable SlotTable { get; init; }
+    /// <summary>The room's room-object places.</summary>
+    public required RoomObjectPlaceList Places { get; init; }
 
     /// <summary>Speed booster escape.</summary>
     public required SpeedBoosterEscapeObjects SpeedBoosterEscape { get; init; }

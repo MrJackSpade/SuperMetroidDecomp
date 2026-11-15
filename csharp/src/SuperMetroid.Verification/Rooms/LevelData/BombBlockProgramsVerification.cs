@@ -185,7 +185,7 @@ internal static class BombBlockProgramsVerification
             {
                 native.RoomObjects.Step(native.Level);
                 compiled.RoomObjects.Step(compiled.Level);
-                AssertEqual(native.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
+                AssertEqual(native.RoomObjects.Places.ActiveCount, compiled.RoomObjects.Places.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
                 AssertEqual(native.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
@@ -202,7 +202,7 @@ internal static class BombBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"bomb BTS {behavior}/{producer} never rereads compiled control bytes");
-            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.Places.ActiveCount,
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 

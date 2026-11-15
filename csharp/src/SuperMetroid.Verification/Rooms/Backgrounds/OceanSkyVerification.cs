@@ -33,11 +33,11 @@ internal static class OceanSkyVerification
         Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainBehavior}, sky={runtime.Room.ScrollingSky is not null}");
 
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Ocean main installs the scrolling sky.");
-        AssertEqual(ScrollingSkyChunkTable.Ocean, sky.Variant, "the ocean main reads the ocean chunk table, not the land table");
+        AssertEqual(ScrollingSky.Ocean, sky.Sky, "the ocean main reads the ocean chunk table, not the land table");
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null, "The ocean frame publishes its sky layer.");
         // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
         SkyTilemap shown = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
-            .Tilemap(sky.Variant);
+            .Tilemap(sky.Sky);
         AssertTrue(ordinary.Rooms.Sky is not null, "the ocean's BG2 shows the published sky rows");
         // Every row the camera can show, at each tile-row step down the room, is the ocean ROM chunk's row.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)

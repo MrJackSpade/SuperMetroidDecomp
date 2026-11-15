@@ -56,7 +56,7 @@ internal static class DoorAnimatedTilesVerification
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {
             if (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.StepDestinationBlockAnimations or
-                DoorTransitionPhase.DrawFirstDestinationFrame or DoorTransitionPhase.FadeInDestinationPalette)
+                DoorTransitionPhase.DrawFirstDestinationFrame or DoorTransitionPhase.FadeInDestinationRoom)
                 handlerFrames++;
             game.Step(0);
         }

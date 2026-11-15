@@ -36,7 +36,7 @@ internal static class EscapeAcidRiseVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.TourianEscape4);
-        bool TriggerPresent() => runtime.RoomObjects.PopulationSlots.Any(slot => slot.Behaviour is EscapeAcidRiseObject);
+        bool TriggerPresent() => runtime.RoomObjects.PopulationPlaces.Any(place => place.Behaviour is EscapeAcidRiseObject);
         AssertTrue(TriggerPresent(), "the room's setup places the acid trigger");
 
         RoomFxOverlayState acid = runtime.RoomFxOverlay;

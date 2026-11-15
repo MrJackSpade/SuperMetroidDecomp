@@ -155,12 +155,12 @@ internal static class LookupRoomFxFieldsVerification
     }
     /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
     private static void VerifyRoomFxPaletteFxBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
-        record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));
+        record => RoomFxRecordEncoding.PaletteEffectsByte(record.ColourEffects, record.HeaderArea));
     /// <summary>Checks the animated tiles, encoded through the header's area's list, against the bits at offset fourteen.</summary>
     private static void VerifyRoomFxBlockAnimationBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
         record => RoomFxRecordEncoding.AnimatedTilesByte(record.BlockAnimations, record.HeaderArea));
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
-    private static void VerifyRoomFxPaletteBlend(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.PaletteBlend));
+    private static void VerifyRoomFxPaletteBlend(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.Tint));
     /// <summary>
     /// Compares a compiled field and overlapping byte and word views with the original record. The typed fields are
     /// encoded back through the record codec (#1415), so each check asserts the import decodes the cartridge byte to the

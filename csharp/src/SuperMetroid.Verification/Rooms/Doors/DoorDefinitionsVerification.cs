@@ -38,6 +38,12 @@ internal static class DoorDefinitionsVerification
         AssertEqual(resolved, level.PendingDoorTransition,
             "compiled collision publishes the selected transition");
 
+        // #1896: a door block named by its door leads through that door: Mother Brain's escape door into the escape.
+        RoomBlockBehavior escape = RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.MotherBrainToTourianEscape1);
+        AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1, RoomDoorListDefinitions.ByRoom[RoomDefinitions.MotherBrain][escape.DoorLink].Door,
+            "a door block named by its door selects that door from its room's list");
+        AssertThrows<ArgumentException>(() => RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.RinkaShaftToMotherBrain),
+            "a door the room does not list leads nowhere from it");
     }
 
     /// <summary>

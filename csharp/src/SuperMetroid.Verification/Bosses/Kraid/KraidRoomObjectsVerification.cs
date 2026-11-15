@@ -69,7 +69,7 @@ internal static class KraidRoomObjectsVerification
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
-             roomObjects.SlotTable.ActiveCount != 0; frame++)
+             roomObjects.Places.ActiveCount != 0; frame++)
         {
             roomObjects.Step(level);
             if (frame == 0 && mutation is
@@ -80,7 +80,7 @@ internal static class KraidRoomObjectsVerification
                 AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
                     level.GetCollisionBlock(new Position16<RoomBlocks>(5, 5)).Terrain,
                     $"Kraid mutation {mutation} first crumble frame");
-            if (roomObjects.SlotTable.ActiveCount == 0)
+            if (roomObjects.Places.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(expectedDeletionFrame, deletionFrame,

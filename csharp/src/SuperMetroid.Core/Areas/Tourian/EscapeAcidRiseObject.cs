@@ -22,7 +22,7 @@ internal sealed class EscapeAcidRiseObject(IRoomSamusAccess? samus, IRoomFxMotio
     private bool _watching;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!_watching)

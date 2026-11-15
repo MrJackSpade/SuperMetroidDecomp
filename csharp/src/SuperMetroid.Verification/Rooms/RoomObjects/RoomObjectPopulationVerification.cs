@@ -144,8 +144,8 @@ internal static class RoomObjectPopulationVerification
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
                 continue;
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(expectedList, TypedDoorObjectOracle.StartListOf(slot.Behaviour),
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertEqual(expectedList, TypedDoorObjectOracle.StartListOf(place.Behaviour),
                 $"door-closing direction {direction} starts the closing of its compiled initial list");
         }
 
@@ -217,12 +217,12 @@ internal static class RoomObjectPopulationVerification
                 Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertTrue(TypedDoorObjectOracle.IsClosing(slot.Behaviour), $"resident door $84:{raw:X4} starts its closing");
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertTrue(TypedDoorObjectOracle.IsClosing(place.Behaviour), $"resident door $84:{raw:X4} starts its closing");
             if (eyeDoorBody)
             {
                 roomObjects.Step(level);
-                AssertEqual(0, roomObjects.SlotTable.ActiveCount, $"resident eye door body $84:{raw:X4} leaves on its next update");
+                AssertEqual(0, roomObjects.Places.ActiveCount, $"resident eye door body $84:{raw:X4} leaves on its next update");
             }
             definitionIndex++;
         }
@@ -244,6 +244,23 @@ internal static class RoomObjectPopulationVerification
         AssertThrows<InvalidDataException>(
             () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
             "a shot blue cap at the door is outside the resident closing domain");
+
+        // #1906: once the Landing Site's green door is open for good, a shot blue cap at the door stays open and the door's
+        // own blue closer is placed instead.
+        RoomLevelData openLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
+        var openObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+            "a shot blue cap stands at the door's block once more");
+        var landingSiteOpened = new SharedGameState(new SharedRandom());
+        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
+        AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor, landingSiteOpened),
+            "the door places its own closer beside the shot cap");
+        AssertEqual(2, openObjects.Places.ActiveCount, "the shot cap stays and the closer joins it");
+        AssertTrue(openObjects.Places.InUpdateOrder[0].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Opening },
+            "the shot cap keeps opening");
+        AssertTrue(openObjects.Places.InUpdateOrder[1].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing },
+            "the door's blue closer closes behind Samus");
     }
 
     /// <summary>Compares the three Speed Booster escape stages with retail control data and their runtime handoffs.</summary>
@@ -302,14 +319,14 @@ internal static class RoomObjectPopulationVerification
         int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(4, parsed, "single parser consumes every six-byte record once");
-        RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
-        AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
-        AssertEqual(0, slots[0].ProcessingPosition, "first record is processed first");
-        AssertTrue(slots[0].Behaviour is ScrollTriggerObject, "first resident holds its record's scroll trigger");
-        AssertEqual(1, slots[1].ProcessingPosition, "post-delete record reuses the next slot in processing order");
-        AssertTrue(slots[1].Behaviour is ElevatorPlatformObject, "elevator follows ROM order, not family order");
-        AssertEqual(2, slots[2].ProcessingPosition, "later station is processed after them");
-        AssertTrue(slots[2].Behaviour is StationObject { Kind: StationKind.Energy }, "the later record's energy station is resident");
+        RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
+        AssertEqual(3, places.Length, "extension setup deletes its preallocated actor");
+        AssertEqual(0, places[0].UpdatePosition, "first record is processed first");
+        AssertTrue(places[0].Behaviour is ScrollTriggerObject, "first resident holds its record's scroll trigger");
+        AssertEqual(1, places[1].UpdatePosition, "post-delete record reuses the next slot in processing order");
+        AssertTrue(places[1].Behaviour is ElevatorPlatformObject, "elevator follows ROM order, not family order");
+        AssertEqual(2, places[2].UpdatePosition, "later station is processed after them");
+        AssertTrue(places[2].Behaviour is StationObject { Kind: StationKind.Energy }, "the later record's energy station is resident");
         AssertEqual(1, roomObjects.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -403,7 +420,7 @@ internal static class RoomObjectPopulationVerification
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new DoorDefinition(
-            Name: nameof(CrateriaDoorDefinitions.Flyway1),
+            Name: nameof(CrateriaDoorDefinitions.FlywayToBombTorizo),
             DestinationRoom: RoomDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
@@ -428,7 +445,7 @@ internal static class RoomObjectPopulationVerification
             "the locked grey cap's first look stands for the cartridge first list");
         AssertEqual(RoomTerrainBlock.Of(0x0ae, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "re-entry draws the locked grey-door frame in the same handler pass");
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");
     }
 
@@ -508,7 +525,7 @@ internal static class RoomObjectPopulationVerification
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new DoorDefinition(
-            Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft1),
+            Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaftToBrinstarPreMap),
             DestinationRoom: RoomDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
@@ -527,9 +544,9 @@ internal static class RoomObjectPopulationVerification
             "fall-through at $BE70 returns to the resident grey-door owner");
         AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false)).Waiting,
             "the grey door's first look stands for the cartridge first list");
-        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is GreyDoorObject { Phase: GreyDoorPhase.Locked },
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is GreyDoorObject { Phase: GreyDoorPhase.Locked },
             "the closing runs into the grey door's own first look, which locks it");
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             "room $9B9D grey door remains resident after its entry-closing animation");
     }
 
@@ -569,16 +586,16 @@ internal static class RoomObjectPopulationVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.WreckedShip), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
-        RoomObjectSlotSnapshot loaded = roomObjects.PopulationSlots.Single();
-        AssertEqual(0, loaded.ProcessingPosition,
+        RoomObjectPlaceSnapshot loaded = roomObjects.PopulationPlaces.Single();
+        AssertEqual(0, loaded.UpdatePosition,
             "Wrecked Ship attic actor takes the first free slot in processing order");
         AssertTrue(loaded.Behaviour is WreckedShipAtticObject, "Wrecked Ship attic actor is its typed object");
 
         roomObjects.Step(level);
-        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is WreckedShipAtticObject,
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is WreckedShipAtticObject,
             "Wrecked Ship attic actor holds its place after its first update");
         roomObjects.Step(level);
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             "inert attic callback leaves its resident actor alive");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "inert attic callback leaves authored terrain unchanged");
@@ -644,7 +661,7 @@ internal static class RoomObjectPopulationVerification
             CreateFx(0x0300, 0x0100, 0, 5),
             completedLevel,
             () => { });
-        AssertEqual(0, completed.SlotTable.ActiveCount,
+        AssertEqual(0, completed.Places.ActiveCount,
             "event-$15 setup deletes B8AC synchronously");
 
         var unequippedSystem = new SharedGameState(new SharedRandom());
@@ -660,7 +677,7 @@ internal static class RoomObjectPopulationVerification
             () => earthquakeStopped = true);
         unequipped.Step(unequippedLevel);
         unequipped.Step(unequippedLevel);
-        AssertEqual(0, unequipped.SlotTable.ActiveCount,
+        AssertEqual(0, unequipped.Places.ActiveCount,
             "missing Speed Booster deletes the resident controller");
         AssertTrue(unequippedFx.TargetSurface is null,
             "missing Speed Booster removes the FX target");
@@ -685,7 +702,7 @@ internal static class RoomObjectPopulationVerification
             () => { });
         disabled.Step(disabledLevel);
         disabled.Step(disabledLevel);
-        AssertEqual(0, disabled.SlotTable.ActiveCount,
+        AssertEqual(0, disabled.Places.ActiveCount,
             "negative FX target deletes collected-Speed-Booster controller");
 
         var activeSystem = new SharedGameState(new SharedRandom());
@@ -736,7 +753,7 @@ internal static class RoomObjectPopulationVerification
         active.Step(activeLevel);
         AssertTrue(activeSystem.HasEvent(StoryEvent.OutranSpeedBoosterLavaquake),
             "passing the last rise marks the escape's event");
-        AssertEqual(1, active.SlotTable.ActiveCount,
+        AssertEqual(1, active.Places.ActiveCount,
             "the finished escape leaves B8AC resident until room reload");
     }
 
@@ -772,12 +789,12 @@ internal static class RoomObjectPopulationVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(2, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), decoded, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
-        RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
-        AssertEqual(0, slots[0].ProcessingPosition,
+        RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
+        AssertEqual(0, places[0].UpdatePosition,
             "off-room record is allocated before its setup callback");
-        AssertEqual(level.BlockAt(offRoomY * width + offRoomX), slots[0].Block,
+        AssertEqual(level.BlockAt(offRoomY * width + offRoomX), places[0].Block,
             "off-room record sits on the block its column reaches in the following rows");
-        AssertEqual(1, slots[1].ProcessingPosition,
+        AssertEqual(1, places[1].UpdatePosition,
             "following record is processed after it");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(width * height - 1).Terrain,
             "off-room setup cannot corrupt the final authored host block");
@@ -852,9 +869,9 @@ internal static class RoomObjectPopulationVerification
             "escape gate population record is accepted by the sequential loader");
         AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "C8CA setup clears collision class bits without deleting its resident slot");
-        AssertEqual(0, ordinary.PopulationSlots.Single().ProcessingPosition,
+        AssertEqual(0, ordinary.PopulationPlaces.Single().UpdatePosition,
             "escape gate takes the first slot in processing order");
-        AssertEqual(DoorObjectNativeListAddresses.EscapeGateShut, TypedDoorObjectOracle.StartListOf(ordinary.PopulationSlots.Single().Behaviour),
+        AssertEqual(DoorObjectNativeListAddresses.EscapeGateShut, TypedDoorObjectOracle.StartListOf(ordinary.PopulationPlaces.Single().Behaviour),
             "ordinary entry places C8CA's gate shut, as its first list");
         ordinary.Step(ordinaryLevel);
         AssertEqual(closedGateMiddleWord,
@@ -862,7 +879,7 @@ internal static class RoomObjectPopulationVerification
             "non-escape entry draws the cartridge's already-closed gate");
         for (int frame = 0; frame < 6; frame++)
             ordinary.Step(ordinaryLevel);
-        AssertEqual(0, ordinary.SlotTable.ActiveCount,
+        AssertEqual(0, ordinary.Places.ActiveCount,
             "non-escape closed-gate actor releases its slot after six authored frames");
 
         RoomLevelData escapeLevel = CreateRoom(new(width, height),
@@ -872,7 +889,7 @@ internal static class RoomObjectPopulationVerification
         var escape = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref escape, new RoomObjectRoom(escapeLevel, system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new DoorDefinition(
-            Name: nameof(TourianDoorDefinitions.MotherBrain1),
+            Name: nameof(TourianDoorDefinitions.MotherBrainToTourianEscape1),
             DestinationRoom: RoomDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             RoomObjectBlock: new(gateX, gateY),
@@ -881,11 +898,11 @@ internal static class RoomObjectPopulationVerification
             Setup: DoorSetupDefinitions.None);
         AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
-        AssertEqual(1, escape.SlotTable.ActiveCount,
+        AssertEqual(1, escape.Places.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
-        AssertEqual(0, escape.PopulationSlots.Single().ProcessingPosition,
+        AssertEqual(0, escape.PopulationPlaces.Single().UpdatePosition,
             "redirect preserves the room-population slot order");
-        AssertTrue(TypedDoorObjectOracle.IsClosing(escape.PopulationSlots.Single().Behaviour),
+        AssertTrue(TypedDoorObjectOracle.IsClosing(escape.PopulationPlaces.Single().Behaviour),
             "door transition closes C8CA's gate, as its second list");
 
         escape.Step(escapeLevel);
@@ -903,7 +920,7 @@ internal static class RoomObjectPopulationVerification
             "closing frame three installs the final solid gate collision");
         escape.Step(escapeLevel);
         escape.Step(escapeLevel);
-        AssertEqual(0, escape.SlotTable.ActiveCount,
+        AssertEqual(0, escape.Places.ActiveCount,
             "escape gate releases its slot after the final two-frame hold");
 
         RoomLevelData fallbackLevel = CreateRoom(new(width, height),
@@ -913,7 +930,7 @@ internal static class RoomObjectPopulationVerification
         var fallback = RoomObjectFixtures.Unbound();
         AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
-        AssertTrue(fallback.PopulationSlots.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
+        AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
                 && closing == MotherBrainEscapeGateDefinitions.Closing,
             "fallback actor is the escape gate closing behind Samus");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
@@ -923,7 +940,7 @@ internal static class RoomObjectPopulationVerification
         var nonClosing = RoomObjectFixtures.Unbound();
         AssertTrue(!nonClosing.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, nonClosingDoor, system),
             "directions zero through three retain the native no-closing-PLM branch");
-        AssertEqual(0, nonClosing.SlotTable.ActiveCount,
+        AssertEqual(0, nonClosing.Places.ActiveCount,
             "non-closing door does not consume a PLM slot");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Mother Brain escape gate never rereads compiled programs or physical draws");
@@ -1016,9 +1033,9 @@ internal static class RoomObjectPopulationVerification
             AssertTrue(system.HasEvent(eventNumber),
                 $"Metroids-cleared {eventNumber} is marked at quota");
         }
-        AssertEqual(5, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(5, roomObjects.Places.ActiveCount,
             "Metroids-cleared observers stay in the room after their quota is met");
-        AssertTrue(roomObjects.PopulationSlots.OrderBy(slot => slot.ProcessingPosition).Select(slot => slot.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : null).SequenceEqual(
+        AssertTrue(roomObjects.PopulationPlaces.OrderBy(place => place.UpdatePosition).Select(place => place.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : null).SequenceEqual(
                 [null, StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared, StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared]),
             "Metroids-cleared observers are typed watches, each marking its entry's event");
 
@@ -1086,7 +1103,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.LogicalCellCount], "Shaktool setup writes nothing past the room's screens");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
-        RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
+        RoomObjectPlaceSnapshot sleeping = roomObjects.PopulationPlaces.Single();
         AssertTrue(sleeping.Behaviour is ShaktoolRoomControllerObject { Watching: true },
             "after its first update the controller watches the room, as the native list's installed wait does");
 
@@ -1095,14 +1112,14 @@ internal static class RoomObjectPopulationVerification
             AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(screen),
                 $"Shaktool power bomb opens screen {screen}");
         AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.LogicalCellCount], "Shaktool power bomb writes nothing past the room's screens");
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 
         samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomDefinitions.ClearedPathXBoundary + 1));
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         AssertTrue(system.HasEvent(StoryEvent.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "Shaktool controller deletes itself when the path event is set");
     }
 

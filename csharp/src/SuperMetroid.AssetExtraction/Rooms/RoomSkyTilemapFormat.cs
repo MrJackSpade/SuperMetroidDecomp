@@ -7,7 +7,7 @@ public static class RoomSkyTilemapFormat
 {
     /// <summary>One native 32x32 page of 16-bit BG tile words.</summary>
     public const int PageByteCount = RoomBackgroundTilemapFormat.BytesPerPage;
-    /// <summary>The sky's pages, which the land and ocean chunk tables select among.</summary>
+    /// <summary>The sky's pages, which the land and ocean skies show in their own runs.</summary>
     public const int PageCount = 7;
 
     /// <summary>Rows in one 32-by-32 page.</summary>

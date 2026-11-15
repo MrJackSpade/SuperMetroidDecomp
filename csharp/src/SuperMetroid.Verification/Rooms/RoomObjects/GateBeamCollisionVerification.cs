@@ -48,7 +48,7 @@ internal static class GateBeamCollisionVerification
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual(0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
-        AssertTrue(roomObjects.PopulationSlots.Where(s => s.Behaviour is DownwardGateObject)
+        AssertTrue(roomObjects.PopulationPlaces.Where(s => s.Behaviour is DownwardGateObject)
             .All(s => s.Behaviour is DownwardGateObject { Triggered: false }), "Beam cannot wake the wrong-side switch through the gate body");
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }
@@ -81,7 +81,7 @@ internal static class GateBeamCollisionVerification
             else result = horizontal
                 ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects)
                 : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects);
-            AssertEqual(full ? 40 : 1, roomObjects.SlotTable.ActiveCount, "Gate setup terminates span after first allocation");
+            AssertEqual(full ? 40 : 1, roomObjects.Places.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlockByIndex(first).Terrain, "Gate scan does not mutate terrain");
         }

@@ -284,7 +284,7 @@ firingLevel, firingSamus, ControllerButton.X);
         breakableFiringObjects);
     AssertTrue(breakableConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "BTS-one grapple firing connects through PLM setup");
-    AssertEqual(1, breakableFiringObjects.SlotTable.ActiveCount,
+    AssertEqual(1, breakableFiringObjects.Places.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
     AssertEqual(0, RoomBlockBehaviorCodec.Encode(breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior),
         "BTS-one acquisition synchronously clears low BTS byte");
@@ -414,7 +414,7 @@ endpointLevel, endpointSamus, ControllerButton.X, endpointObjects);
             $"grapple endpoint {collisionKind} cancellation topology");
         AssertEqual(!expectedCancellation, endpointReaction.Fired,
             $"grapple endpoint {collisionKind} live-beam topology");
-        AssertEqual(expectedObjects, endpointObjects.SlotTable.ActiveCount,
+        AssertEqual(expectedObjects, endpointObjects.Places.ActiveCount,
             $"grapple endpoint {collisionKind} shared PLM side effect");
     }
 

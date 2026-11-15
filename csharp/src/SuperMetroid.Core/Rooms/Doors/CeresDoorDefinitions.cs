@@ -1,35 +1,34 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The Ceres rooms' doors, named by the room they lead from.</summary>
-[NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
+/// <summary>The Ceres rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class CeresDoorDefinitions
 {
-    /// <summary>The Ceres Elevator room's door 0.</summary>
-    public static DoorDefinition CeresElev0 { get; } = DoorDefinitions.Find(nameof(CeresElev0));
+    /// <summary>The door from the Ceres Elev room to the Falling Tile room.</summary>
+    public static DoorDefinition CeresElevToFallingTile { get; } = DoorDefinitions.Find(nameof(CeresElevToFallingTile));
 
-    /// <summary>The Falling Tile room's door 0.</summary>
-    public static DoorDefinition FallingTile0 { get; } = DoorDefinitions.Find(nameof(FallingTile0));
+    /// <summary>The door from the Falling Tile room to the Ceres Elev room.</summary>
+    public static DoorDefinition FallingTileToCeresElev { get; } = DoorDefinitions.Find(nameof(FallingTileToCeresElev));
 
-    /// <summary>The Falling Tile room's door 1.</summary>
-    public static DoorDefinition FallingTile1 { get; } = DoorDefinitions.Find(nameof(FallingTile1));
+    /// <summary>The door from the Falling Tile room to the Magnet Stairs room.</summary>
+    public static DoorDefinition FallingTileToMagnetStairs { get; } = DoorDefinitions.Find(nameof(FallingTileToMagnetStairs));
 
-    /// <summary>The Magnet Stairs room's door 0.</summary>
-    public static DoorDefinition MagnetStairs0 { get; } = DoorDefinitions.Find(nameof(MagnetStairs0));
+    /// <summary>The door from the Magnet Stairs room to the Falling Tile room.</summary>
+    public static DoorDefinition MagnetStairsToFallingTile { get; } = DoorDefinitions.Find(nameof(MagnetStairsToFallingTile));
 
-    /// <summary>The Magnet Stairs room's door 1.</summary>
-    public static DoorDefinition MagnetStairs1 { get; } = DoorDefinitions.Find(nameof(MagnetStairs1));
+    /// <summary>The door from the Magnet Stairs room to the Dead Scientist room.</summary>
+    public static DoorDefinition MagnetStairsToDeadScientist { get; } = DoorDefinitions.Find(nameof(MagnetStairsToDeadScientist));
 
-    /// <summary>The Dead Scientist room's door 0.</summary>
-    public static DoorDefinition DeadScientist0 { get; } = DoorDefinitions.Find(nameof(DeadScientist0));
+    /// <summary>The door from the Dead Scientist room to the Magnet Stairs room.</summary>
+    public static DoorDefinition DeadScientistToMagnetStairs { get; } = DoorDefinitions.Find(nameof(DeadScientistToMagnetStairs));
 
-    /// <summary>The Dead Scientist room's door 1.</summary>
-    public static DoorDefinition DeadScientist1 { get; } = DoorDefinitions.Find(nameof(DeadScientist1));
+    /// <summary>The door from the Dead Scientist room to the Ceres Ridley Hallway room.</summary>
+    public static DoorDefinition DeadScientistToCeresRidleyHallway { get; } = DoorDefinitions.Find(nameof(DeadScientistToCeresRidleyHallway));
 
-    /// <summary>The Ceres Ridley hallway's door 0.</summary>
-    public static DoorDefinition CeresRidleyHallway0 { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallway0));
+    /// <summary>The door from the Ceres Ridley Hallway room to the Dead Scientist room.</summary>
+    public static DoorDefinition CeresRidleyHallwayToDeadScientist { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallwayToDeadScientist));
 
-    /// <summary>The Ceres Ridley hallway's door 1.</summary>
-    public static DoorDefinition CeresRidleyHallway1 { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallway1));
+    /// <summary>The door from the Ceres Ridley Hallway room to the Ceres Ridley room.</summary>
+    public static DoorDefinition CeresRidleyHallwayToCeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallwayToCeresRidley));
 
     /// <summary>The Ceres Ridley room's door.</summary>
     public static DoorDefinition CeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidley));

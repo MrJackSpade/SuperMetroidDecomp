@@ -107,8 +107,8 @@ internal sealed class DoorTransitionState
         runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         runtime.Room.LoadedScope.CeresHaze.Step(Phase switch
         {
-            DoorTransitionPhase.FadeInDestinationPalette => CeresHazeRoomFade.FadeIn,
-            DoorTransitionPhase.FadeOutSourcePalette => CeresHazeRoomFade.FadeOut,
+            DoorTransitionPhase.FadeInDestinationRoom => CeresHazeRoomFade.FadeIn,
+            DoorTransitionPhase.FadeOutSourceRoom => CeresHazeRoomFade.FadeOut,
             DoorTransitionPhase.Inactive => CeresHazeRoomFade.None,
             DoorTransitionPhase.WaitForSoundQueues => CeresHazeRoomFade.None,
             DoorTransitionPhase.BeginDoorDisplay => CeresHazeRoomFade.None,
@@ -131,10 +131,10 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.WaitForSoundQueues:
                 runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope);
                 if (!audio.HasQueuedSounds)
-                    Phase = DoorTransitionPhase.FadeOutSourcePalette;
+                    Phase = DoorTransitionPhase.FadeOutSourceRoom;
                 break;
 
-            case DoorTransitionPhase.FadeOutSourcePalette:
+            case DoorTransitionPhase.FadeOutSourceRoom:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // Each palette step is one update, with its own effects and random draw.
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
@@ -299,14 +299,14 @@ internal sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.DrawFirstDestinationFrame:
-            case DoorTransitionPhase.FadeInDestinationPalette:
+            case DoorTransitionPhase.FadeInDestinationRoom:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
                 runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);
-                Phase = DoorTransitionPhase.FadeInDestinationPalette;
+                Phase = DoorTransitionPhase.FadeInDestinationRoom;
                 // The destination fades in toward the colours its owners show, which enemy scripts running
                 // during the fade change as their typed colour state changes (#1512).
                 if (FadeSteps.Step())

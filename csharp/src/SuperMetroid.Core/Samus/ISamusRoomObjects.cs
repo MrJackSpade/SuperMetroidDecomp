@@ -13,7 +13,7 @@ internal interface ISamusRoomObjects : IRoomObjects
     /// <summary>Spawns room objects for breakable blocks struck by projectile impacts.</summary>
     ProjectileTriggerObjects ProjectileTriggers { get; }
 
-    /// <summary>Runs quicksand room objects through the shared slot allocation.</summary>
+    /// <summary>Runs quicksand room objects, which take the room's room-object places.</summary>
     QuicksandObjects Quicksand { get; }
 
     /// <summary>The Chozo statue hand Samus's collision notifies.</summary>

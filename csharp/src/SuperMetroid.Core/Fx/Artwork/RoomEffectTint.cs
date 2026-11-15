@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The palette blend a room effect tints its overlay and the HUD with; <see cref="None"/> clears the blend. Each is named for
-/// what it tints, the four Maridia waters by their retail colour. Its values are arbitrary (#1415, #1740).
+/// The tint a room effect lays over its overlay and the HUD; <see cref="None"/> lays none. Each is named for what it
+/// tints, the four Maridia waters by their retail colour. Its values are arbitrary (#1415, #1740, #1898).
 /// </summary>
-public enum RoomFxPaletteBlend
+public enum RoomEffectTint
 {
-    /// <summary>Selection zero clears the effect overlay blend color instead of loading a resource.</summary>
-    None = 0,
-    /// <summary>The blend used primarily for lava/acid.</summary>
-    Lava = 1,
-    /// <summary>The blend used by Landing Site rain.</summary>
+    /// <summary>No tint: the overlay's third blend colour is cleared to black.</summary>
+    None,
+    /// <summary>The tint of lava and acid.</summary>
+    Lava,
+    /// <summary>The tint of the Landing Site's rain.</summary>
     LandingSiteRain,
     /// <summary>
     /// The deep indigo of the water around Plasma, Draygon, the Maridia elevator and the Forgotten Highway's entrance
     /// shafts, and of their dry rooms.
     /// </summary>
     IndigoMaridiaWater,
-    /// <summary>The blend used by Ceres and other water/acid rooms.</summary>
+    /// <summary>The tint of Ceres and of other water and acid rooms.</summary>
     WaterAndAcid,
-    /// <summary>The blend used by fog and nonliquid room states.</summary>
+    /// <summary>The tint of fog and of room states without a liquid.</summary>
     Fog,
     /// <summary>The teal of western Maridia's open water: Main Street, the glass tunnel, the crab rooms and the fish tank.</summary>
     TealMaridiaWater,

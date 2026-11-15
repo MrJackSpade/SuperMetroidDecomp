@@ -43,7 +43,7 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, haze));
         Suite(nameof(VerifyCeresDefaultTintStructure), () => VerifyCeresDefaultTintStructure(rom));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
-        foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDocumentRules.Ids)
+        foreach (RoomEffectTint id in RoomFxPaletteBlendDocumentRules.Ids)
         {
             IReadOnlyList<RgbColor> compiled = catalog.Inks(id);
             // The layer-3 pictures' shade of the blend holds its three colours over the blend inks (#1512).
@@ -53,16 +53,16 @@ internal static class RoomFxPaletteBlendsVerification
                 AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
 
             (RoomFxOverlayState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
-            AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} load names its blend");
+            AssertEqual<RoomEffectTint?>(id, state.Tint, $"room-FX blend {id} load names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} load does not read bank-$89");
 
             state.ApplyEntry(SelectCompiledBlendRecord(id));
-            AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} FX entry names its blend");
+            AssertEqual<RoomEffectTint?>(id, state.Tint, $"room-FX blend {id} FX entry names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }
-        (RoomFxOverlayState emptyState, CartridgeReadGuard emptyBus) = ConstructBlendLoad(RoomFxPaletteBlend.None);
-        AssertEqual<RoomFxPaletteBlend?>(RoomFxPaletteBlend.None, emptyState.PaletteBlend, "zero blend names the empty blend");
-        SheetShade empty = BlendShade(catalog, RoomFxPaletteBlend.None);
+        (RoomFxOverlayState emptyState, CartridgeReadGuard emptyBus) = ConstructBlendLoad(RoomEffectTint.None);
+        AssertEqual<RoomEffectTint?>(RoomEffectTint.None, emptyState.Tint, "zero blend names the empty blend");
+        SheetShade empty = BlendShade(catalog, RoomEffectTint.None);
         AssertTrue(empty.Inks.SequenceEqual([RoomFxNativeSources.PaletteBlendDestinationIndex + 2]) && empty.Colours.SequenceEqual([RgbColor.Black]),
             "zero blend's shade clears only the third blend ink");
         AssertEqual(0, emptyBus.ForbiddenReadAttempts, "zero blend does not read bank-$89");
@@ -109,7 +109,7 @@ internal static class RoomFxPaletteBlendsVerification
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
-        string key = RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.Lava);
+        string key = RoomFxPaletteBlendDocumentRules.Key(RoomEffectTint.Lava);
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document with
         {
             Blends = new Dictionary<string, PaletteRgb5[]>(document.Blends)
@@ -120,7 +120,7 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>Loads a selected compiled FX record through a bus that forbids bank-$89 reads.</summary>
-    private static ConstructBlendLoadResult ConstructBlendLoad(RoomFxPaletteBlend selection)
+    private static ConstructBlendLoadResult ConstructBlendLoad(RoomEffectTint selection)
     {
         RoomEffectDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
@@ -130,13 +130,13 @@ internal static class RoomFxPaletteBlendsVerification
     }
 
     /// <summary>The shade the import pre-colours the layer-3 pictures in for <paramref name="selection"/> from <paramref name="catalog"/>.</summary>
-    private static SheetShade BlendShade(RoomFxBlendInks catalog, RoomFxPaletteBlend selection) =>
+    private static SheetShade BlendShade(RoomFxBlendInks catalog, RoomEffectTint selection) =>
         RoomFxBlendSheetShades.Of(catalog).Single(shade => shade.Shade == RoomFxBlendShading.Of(selection));
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
-    private static RoomEffectDefinition SelectCompiledBlendRecord(RoomFxPaletteBlend selection) =>
+    private static RoomEffectDefinition SelectCompiledBlendRecord(RoomEffectTint selection) =>
         RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
-            candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
+            candidate.DoorPointer == 0 && candidate.Tint == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend {selection}.");
 
     /// <summary>Wraps fixture memory with a guard against installed palette-table reads from bank $89.</summary>

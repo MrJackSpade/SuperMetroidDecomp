@@ -135,7 +135,7 @@ internal sealed class DoorTransitionRunner
         }
 
         wreckedShipTreadmill.Start(direction);
-        // Both spawn helpers report when they have no free slot left, and
+        // Both spawn helpers report when the room is full, and
         // the door setup deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the room-object allocator's false result here.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
@@ -157,8 +157,8 @@ internal sealed class DoorTransitionRunner
         else
             maridiaElevatube.SetUpFromNorth(samus);
 
-        // The door setup ignores whether the spawn found a free slot when all forty are
-        // occupied. Retaining the bool-returning allocator preserves that edge.
+        // The door setup ignores whether the spawn found a free place when all forty are
+        // held. Retaining the bool-returning allocator preserves that edge.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>

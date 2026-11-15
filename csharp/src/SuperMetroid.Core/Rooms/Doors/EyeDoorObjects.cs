@@ -38,22 +38,22 @@ internal sealed class EyeDoorObjects
     /// its first update, and installs its closed collision blocks unless its door has been opened for good.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="placed"/> is not an eye-door part.</exception>
-    internal void SetupEyeDoorSlot(
+    internal void SetupEyeDoor(
         RoomLevelData level,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         RoomObjectKind placed)
     {
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)
             ? part
             : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
-        slot.Become(component == EyeDoorComponent.Eye
+        place.Become(component == EyeDoorComponent.Eye
             ? new EyeDoorEyeObject(orientation)
             : new EyeDoorPartObject(orientation, component));
 
         SharedGameState system = _system ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
-        if (slot.Argument is DoorBitArgument { Persists: true } openedEye &&
+        if (place.Argument is DoorBitArgument { Persists: true } openedEye &&
             system.HasOpenedDoor(openedEye.Door))
         {
             // Setup leaves an opened door's terrain untouched: the part's first look removes a body or bottom, and turns
@@ -63,13 +63,13 @@ internal sealed class EyeDoorObjects
 
         if (component == EyeDoorComponent.Eye)
         {
-            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block, EyeDoorDefinitions.EyeCollision,
+            RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.EyeCollision,
                 EyeDoorDefinitions.EyeBehavior);
-            WriteExtensionRows(level, slot.Block, EyeDoorDefinitions.EyeExtensionRows);
+            WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
             return;
         }
 
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, slot.Block, EyeDoorDefinitions.ClosedComponentCollision,
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block, EyeDoorDefinitions.ClosedComponentCollision,
             EyeDoorDefinitions.ClosedComponentBehavior);
     }
 
@@ -78,46 +78,46 @@ internal sealed class EyeDoorObjects
         _sounds.Queue(EyeDoorDefinitions.RejectedShotSound, Priority: SoundRequestPriority.Normal);
 
     /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the part.</summary>
-    internal bool IsSamusNear(RoomObjectSlot slot, Extent16<RoomBlocks> reach)
+    internal bool IsSamusNear(RoomObjectPlace place, Extent16<RoomBlocks> reach)
     {
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
-        int roomObjectX = slot.Block.X;
-        int roomObjectY = slot.Block.Y;
+        int roomObjectX = place.Block.X;
+        int roomObjectY = place.Block.Y;
         int deltaX = Math.Abs(RoomGridConversions.PixelToBlock(samus.Position.X.Whole) - roomObjectX);
         int deltaY = Math.Abs(RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - roomObjectY);
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
     /// <summary>The eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
-    internal void Shoot(RoomObjectSlot slot, EyeDoorOrientation facing)
+    internal void Shoot(RoomObjectPlace place, EyeDoorOrientation facing)
     {
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Projectile, facing);
         _sounds.Queue(
             EyeDoorDefinitions.ProjectileSound,
             Priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>The eye facing <paramref name="facing"/> sweats.</summary>
-    internal void SpawnSweat(RoomObjectSlot slot, EyeDoorOrientation facing) =>
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Sweat, facing);
+    internal void SpawnSweat(RoomObjectPlace place, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Sweat, facing);
 
     /// <summary>Two randomly placed smoke puffs.</summary>
-    internal void SpawnTwoSmoke(RoomObjectSlot slot, EyeDoorOrientation facing)
+    internal void SpawnTwoSmoke(RoomObjectPlace place, EyeDoorOrientation facing)
     {
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
     }
 
     /// <summary>One centred smoke puff.</summary>
-    internal void SpawnSmoke(RoomObjectSlot slot, EyeDoorOrientation facing) =>
-        SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.CenteredSmoke, facing);
+    internal void SpawnSmoke(RoomObjectPlace place, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
     /// <summary>
     /// Moves the eye up one block and writes the blue cap facing
     /// <paramref name="orientation"/> with its extension rows.
     /// </summary>
-    internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectSlot slot, EyeDoorOrientation orientation)
+    internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation)
     {
         RoomBlockBehavior facing = orientation switch
         {
@@ -125,13 +125,13 @@ internal sealed class EyeDoorObjects
             EyeDoorOrientation.Right => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
         };
-        slot.Block += new Offset16<RoomBlocks>(0, -1);
+        place.Block += new Offset16<RoomBlocks>(0, -1);
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(
             level,
-            slot.Block,
+            place.Block,
             RoomCollisionType.ShootableBlock,
             facing);
-        WriteExtensionRows(level, slot.Block, EyeDoorDefinitions.BlueDoorExtensionCount);
+        WriteExtensionRows(level, place.Block, EyeDoorDefinitions.BlueDoorExtensionCount);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ internal sealed class EyeDoorObjects
 
     /// <summary>Sends an eye-door projectile request with the eye's facing, source block and room argument to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         EyeDoorProjectileDefinition definition,
         EyeDoorOrientation facing)
     {
@@ -161,7 +161,7 @@ internal sealed class EyeDoorObjects
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
             facing,
-            slot.Block,
-            (slot.Argument as DoorBitArgument)?.Door));
+            place.Block,
+            (place.Argument as DoorBitArgument)?.Door));
     }
 }

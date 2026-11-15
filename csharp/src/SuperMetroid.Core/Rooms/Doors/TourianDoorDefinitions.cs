@@ -1,120 +1,119 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The Tourian rooms' doors, named by the room they lead from.</summary>
-[NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
+/// <summary>The Tourian rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class TourianDoorDefinitions
 {
-    /// <summary>The Tourian First room's door 0.</summary>
-    public static DoorDefinition TourianFirst0 { get; } = DoorDefinitions.Find(nameof(TourianFirst0));
+    /// <summary>The door from the Tourian First room to the Metroids 1 room.</summary>
+    public static DoorDefinition TourianFirstToMetroids1 { get; } = DoorDefinitions.Find(nameof(TourianFirstToMetroids1));
 
-    /// <summary>The Tourian First room's door 1.</summary>
-    public static DoorDefinition TourianFirst1 { get; } = DoorDefinitions.Find(nameof(TourianFirst1));
+    /// <summary>The door from the Tourian First room to the Statues room.</summary>
+    public static DoorDefinition TourianFirstToStatues { get; } = DoorDefinitions.Find(nameof(TourianFirstToStatues));
 
-    /// <summary>The Tourian First room's door 3.</summary>
-    public static DoorDefinition TourianFirst3 { get; } = DoorDefinitions.Find(nameof(TourianFirst3));
+    /// <summary>The door from the Tourian First room to the Upper Tourian Save room.</summary>
+    public static DoorDefinition TourianFirstToUpperTourianSave { get; } = DoorDefinitions.Find(nameof(TourianFirstToUpperTourianSave));
 
-    /// <summary>The Metroids 1 room's door 0.</summary>
-    public static DoorDefinition Metroids10 { get; } = DoorDefinitions.Find(nameof(Metroids10));
+    /// <summary>The door from the Metroids 1 room to the Tourian First room.</summary>
+    public static DoorDefinition Metroids1ToTourianFirst { get; } = DoorDefinitions.Find(nameof(Metroids1ToTourianFirst));
 
-    /// <summary>The Metroids 1 room's door 1.</summary>
-    public static DoorDefinition Metroids11 { get; } = DoorDefinitions.Find(nameof(Metroids11));
+    /// <summary>The door from the Metroids 1 room to the Metroids 2 room.</summary>
+    public static DoorDefinition Metroids1ToMetroids2 { get; } = DoorDefinitions.Find(nameof(Metroids1ToMetroids2));
 
-    /// <summary>The Metroids 2 room's door 0.</summary>
-    public static DoorDefinition Metroids20 { get; } = DoorDefinitions.Find(nameof(Metroids20));
+    /// <summary>The door from the Metroids 2 room to the Metroids 1 room.</summary>
+    public static DoorDefinition Metroids2ToMetroids1 { get; } = DoorDefinitions.Find(nameof(Metroids2ToMetroids1));
 
-    /// <summary>The Metroids 2 room's door 1.</summary>
-    public static DoorDefinition Metroids21 { get; } = DoorDefinitions.Find(nameof(Metroids21));
+    /// <summary>The door from the Metroids 2 room to the Metroids 3 room.</summary>
+    public static DoorDefinition Metroids2ToMetroids3 { get; } = DoorDefinitions.Find(nameof(Metroids2ToMetroids3));
 
-    /// <summary>The Metroids 3 room's door 0.</summary>
-    public static DoorDefinition Metroids30 { get; } = DoorDefinitions.Find(nameof(Metroids30));
+    /// <summary>The door from the Metroids 3 room to the Metroids 2 room.</summary>
+    public static DoorDefinition Metroids3ToMetroids2 { get; } = DoorDefinitions.Find(nameof(Metroids3ToMetroids2));
 
-    /// <summary>The Metroids 3 room's door 1.</summary>
-    public static DoorDefinition Metroids31 { get; } = DoorDefinitions.Find(nameof(Metroids31));
+    /// <summary>The door from the Metroids 3 room to the Metroids 4 room.</summary>
+    public static DoorDefinition Metroids3ToMetroids4 { get; } = DoorDefinitions.Find(nameof(Metroids3ToMetroids4));
 
-    /// <summary>The Metroids 4 room's door 0.</summary>
-    public static DoorDefinition Metroids40 { get; } = DoorDefinitions.Find(nameof(Metroids40));
+    /// <summary>The door from the Metroids 4 room to the Metroids 3 room.</summary>
+    public static DoorDefinition Metroids4ToMetroids3 { get; } = DoorDefinitions.Find(nameof(Metroids4ToMetroids3));
 
-    /// <summary>The Metroids 4 room's door 1.</summary>
-    public static DoorDefinition Metroids41 { get; } = DoorDefinitions.Find(nameof(Metroids41));
+    /// <summary>The door from the Metroids 4 room to the Blue Hopper room.</summary>
+    public static DoorDefinition Metroids4ToBlueHopper { get; } = DoorDefinitions.Find(nameof(Metroids4ToBlueHopper));
 
-    /// <summary>The Blue Hopper room's door 0.</summary>
-    public static DoorDefinition BlueHopper0 { get; } = DoorDefinitions.Find(nameof(BlueHopper0));
+    /// <summary>The door from the Blue Hopper room to the Metroids 4 room.</summary>
+    public static DoorDefinition BlueHopperToMetroids4 { get; } = DoorDefinitions.Find(nameof(BlueHopperToMetroids4));
 
-    /// <summary>The Blue Hopper room's door 1.</summary>
-    public static DoorDefinition BlueHopper1 { get; } = DoorDefinitions.Find(nameof(BlueHopper1));
+    /// <summary>The door from the Blue Hopper room to the Dust Torizo room.</summary>
+    public static DoorDefinition BlueHopperToDustTorizo { get; } = DoorDefinitions.Find(nameof(BlueHopperToDustTorizo));
 
-    /// <summary>The Dust Torizo room's door 0.</summary>
-    public static DoorDefinition DustTorizo0 { get; } = DoorDefinitions.Find(nameof(DustTorizo0));
+    /// <summary>The door from the Dust Torizo room to the Blue Hopper room.</summary>
+    public static DoorDefinition DustTorizoToBlueHopper { get; } = DoorDefinitions.Find(nameof(DustTorizoToBlueHopper));
 
-    /// <summary>The Dust Torizo room's door 1.</summary>
-    public static DoorDefinition DustTorizo1 { get; } = DoorDefinitions.Find(nameof(DustTorizo1));
+    /// <summary>The door from the Dust Torizo room to the Big Boy room.</summary>
+    public static DoorDefinition DustTorizoToBigBoy { get; } = DoorDefinitions.Find(nameof(DustTorizoToBigBoy));
 
-    /// <summary>The Big Boy room's door 0.</summary>
-    public static DoorDefinition BigBoy0 { get; } = DoorDefinitions.Find(nameof(BigBoy0));
+    /// <summary>The door from the Big Boy room to the Dust Torizo room.</summary>
+    public static DoorDefinition BigBoyToDustTorizo { get; } = DoorDefinitions.Find(nameof(BigBoyToDustTorizo));
 
-    /// <summary>The Big Boy room's door 1.</summary>
-    public static DoorDefinition BigBoy1 { get; } = DoorDefinitions.Find(nameof(BigBoy1));
+    /// <summary>The door from the Big Boy room to the Seaweed room.</summary>
+    public static DoorDefinition BigBoyToSeaweed { get; } = DoorDefinitions.Find(nameof(BigBoyToSeaweed));
 
-    /// <summary>The Seaweed room's door 0.</summary>
-    public static DoorDefinition Seaweed0 { get; } = DoorDefinitions.Find(nameof(Seaweed0));
+    /// <summary>The door from the Seaweed room to the Big Boy room.</summary>
+    public static DoorDefinition SeaweedToBigBoy { get; } = DoorDefinitions.Find(nameof(SeaweedToBigBoy));
 
-    /// <summary>The Seaweed room's door 1.</summary>
-    public static DoorDefinition Seaweed1 { get; } = DoorDefinitions.Find(nameof(Seaweed1));
+    /// <summary>The door from the Seaweed room to the Tourian Eye Door room.</summary>
+    public static DoorDefinition SeaweedToTourianEyeDoor { get; } = DoorDefinitions.Find(nameof(SeaweedToTourianEyeDoor));
 
-    /// <summary>The Seaweed room's door 2.</summary>
-    public static DoorDefinition Seaweed2 { get; } = DoorDefinitions.Find(nameof(Seaweed2));
+    /// <summary>The door from the Seaweed room to the Tourian Recharge room.</summary>
+    public static DoorDefinition SeaweedToTourianRecharge { get; } = DoorDefinitions.Find(nameof(SeaweedToTourianRecharge));
 
-    /// <summary>The Tourian Recharge room's door 0.</summary>
-    public static DoorDefinition TourianRecharge0 { get; } = DoorDefinitions.Find(nameof(TourianRecharge0));
+    /// <summary>The door from the Tourian Recharge room to the Seaweed room.</summary>
+    public static DoorDefinition TourianRechargeToSeaweed { get; } = DoorDefinitions.Find(nameof(TourianRechargeToSeaweed));
 
-    /// <summary>The Mother Brain room's door 0.</summary>
-    public static DoorDefinition MotherBrain0 { get; } = DoorDefinitions.Find(nameof(MotherBrain0));
+    /// <summary>The door from the Mother Brain room to the Rinka Shaft room.</summary>
+    public static DoorDefinition MotherBrainToRinkaShaft { get; } = DoorDefinitions.Find(nameof(MotherBrainToRinkaShaft));
 
-    /// <summary>The Mother Brain room's door 1.</summary>
-    public static DoorDefinition MotherBrain1 { get; } = DoorDefinitions.Find(nameof(MotherBrain1));
+    /// <summary>The door from the Mother Brain room to the Tourian Escape 1 room.</summary>
+    public static DoorDefinition MotherBrainToTourianEscape1 { get; } = DoorDefinitions.Find(nameof(MotherBrainToTourianEscape1));
 
-    /// <summary>The Tourian Eye Door room's door 0.</summary>
-    public static DoorDefinition TourianEyeDoor0 { get; } = DoorDefinitions.Find(nameof(TourianEyeDoor0));
+    /// <summary>The door from the Tourian Eye Door room to the Seaweed room.</summary>
+    public static DoorDefinition TourianEyeDoorToSeaweed { get; } = DoorDefinitions.Find(nameof(TourianEyeDoorToSeaweed));
 
-    /// <summary>The Tourian Eye Door room's door 1.</summary>
-    public static DoorDefinition TourianEyeDoor1 { get; } = DoorDefinitions.Find(nameof(TourianEyeDoor1));
+    /// <summary>The door from the Tourian Eye Door room to the Rinka Shaft room.</summary>
+    public static DoorDefinition TourianEyeDoorToRinkaShaft { get; } = DoorDefinitions.Find(nameof(TourianEyeDoorToRinkaShaft));
 
-    /// <summary>The Rinka Shaft room's door 0.</summary>
-    public static DoorDefinition RinkaShaft0 { get; } = DoorDefinitions.Find(nameof(RinkaShaft0));
+    /// <summary>The door from the Rinka Shaft room to the Tourian Eye Door room.</summary>
+    public static DoorDefinition RinkaShaftToTourianEyeDoor { get; } = DoorDefinitions.Find(nameof(RinkaShaftToTourianEyeDoor));
 
-    /// <summary>The Rinka Shaft room's door 1.</summary>
-    public static DoorDefinition RinkaShaft1 { get; } = DoorDefinitions.Find(nameof(RinkaShaft1));
+    /// <summary>The door from the Rinka Shaft room to the Mother Brain Save room.</summary>
+    public static DoorDefinition RinkaShaftToMotherBrainSave { get; } = DoorDefinitions.Find(nameof(RinkaShaftToMotherBrainSave));
 
-    /// <summary>The Rinka Shaft room's door 2.</summary>
-    public static DoorDefinition RinkaShaft2 { get; } = DoorDefinitions.Find(nameof(RinkaShaft2));
+    /// <summary>The door from the Rinka Shaft room to the Mother Brain room.</summary>
+    public static DoorDefinition RinkaShaftToMotherBrain { get; } = DoorDefinitions.Find(nameof(RinkaShaftToMotherBrain));
 
-    /// <summary>The Mother Brain Save room's door 0.</summary>
-    public static DoorDefinition MotherBrainSave0 { get; } = DoorDefinitions.Find(nameof(MotherBrainSave0));
+    /// <summary>The door from the Mother Brain Save room to the Rinka Shaft room.</summary>
+    public static DoorDefinition MotherBrainSaveToRinkaShaft { get; } = DoorDefinitions.Find(nameof(MotherBrainSaveToRinkaShaft));
 
-    /// <summary>The Tourian Escape 1 room's door 0.</summary>
-    public static DoorDefinition TourianEscape10 { get; } = DoorDefinitions.Find(nameof(TourianEscape10));
+    /// <summary>The door from the Tourian Escape 1 room to the Mother Brain room.</summary>
+    public static DoorDefinition TourianEscape1ToMotherBrain { get; } = DoorDefinitions.Find(nameof(TourianEscape1ToMotherBrain));
 
-    /// <summary>The Tourian Escape 1 room's door 1.</summary>
-    public static DoorDefinition TourianEscape11 { get; } = DoorDefinitions.Find(nameof(TourianEscape11));
+    /// <summary>The door from the Tourian Escape 1 room to the Tourian Escape 2 room.</summary>
+    public static DoorDefinition TourianEscape1ToTourianEscape2 { get; } = DoorDefinitions.Find(nameof(TourianEscape1ToTourianEscape2));
 
-    /// <summary>The Tourian Escape 2 room's door 0.</summary>
-    public static DoorDefinition TourianEscape20 { get; } = DoorDefinitions.Find(nameof(TourianEscape20));
+    /// <summary>The door from the Tourian Escape 2 room to the Tourian Escape 1 room.</summary>
+    public static DoorDefinition TourianEscape2ToTourianEscape1 { get; } = DoorDefinitions.Find(nameof(TourianEscape2ToTourianEscape1));
 
-    /// <summary>The Tourian Escape 2 room's door 1.</summary>
-    public static DoorDefinition TourianEscape21 { get; } = DoorDefinitions.Find(nameof(TourianEscape21));
+    /// <summary>The door from the Tourian Escape 2 room to the Tourian Escape 3 room.</summary>
+    public static DoorDefinition TourianEscape2ToTourianEscape3 { get; } = DoorDefinitions.Find(nameof(TourianEscape2ToTourianEscape3));
 
-    /// <summary>The Tourian Escape 3 room's door 0.</summary>
-    public static DoorDefinition TourianEscape30 { get; } = DoorDefinitions.Find(nameof(TourianEscape30));
+    /// <summary>The door from the Tourian Escape 3 room to the Tourian Escape 2 room.</summary>
+    public static DoorDefinition TourianEscape3ToTourianEscape2 { get; } = DoorDefinitions.Find(nameof(TourianEscape3ToTourianEscape2));
 
-    /// <summary>The Tourian Escape 3 room's door 1.</summary>
-    public static DoorDefinition TourianEscape31 { get; } = DoorDefinitions.Find(nameof(TourianEscape31));
+    /// <summary>The door from the Tourian Escape 3 room to the Tourian Escape 4 room.</summary>
+    public static DoorDefinition TourianEscape3ToTourianEscape4 { get; } = DoorDefinitions.Find(nameof(TourianEscape3ToTourianEscape4));
 
-    /// <summary>The Tourian Escape 4 room's door 0.</summary>
-    public static DoorDefinition TourianEscape40 { get; } = DoorDefinitions.Find(nameof(TourianEscape40));
+    /// <summary>The door from the Tourian Escape 4 room to the Tourian Escape 3 room.</summary>
+    public static DoorDefinition TourianEscape4ToTourianEscape3 { get; } = DoorDefinitions.Find(nameof(TourianEscape4ToTourianEscape3));
 
-    /// <summary>The Tourian Escape 4 room's door 1.</summary>
-    public static DoorDefinition TourianEscape41 { get; } = DoorDefinitions.Find(nameof(TourianEscape41));
+    /// <summary>The door from the Tourian Escape 4 room to the Climb room.</summary>
+    public static DoorDefinition TourianEscape4ToClimb { get; } = DoorDefinitions.Find(nameof(TourianEscape4ToClimb));
 
-    /// <summary>The Upper Tourian Save room's door 0.</summary>
-    public static DoorDefinition UpperTourianSave0 { get; } = DoorDefinitions.Find(nameof(UpperTourianSave0));
+    /// <summary>The door from the Upper Tourian Save room to the Tourian First room.</summary>
+    public static DoorDefinition UpperTourianSaveToTourianFirst { get; } = DoorDefinitions.Find(nameof(UpperTourianSaveToTourianFirst));
 }

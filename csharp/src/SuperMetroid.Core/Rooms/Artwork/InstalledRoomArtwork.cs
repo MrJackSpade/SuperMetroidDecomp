@@ -116,10 +116,10 @@ public sealed class InstalledRoomArtwork
     public RoomBackgroundImage Background(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
         Named(RoomBackgroundImage.NameOf(background, door, tileset));
 
-    /// <summary>The image of scrolling sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
+    /// <summary>The image of scrolling sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>
-    public RoomBackgroundImage Sky(ScrollingSkyChunkTable variant, TilesetDefinition tileset) =>
-        Named(RoomBackgroundImage.SkyNameOf(variant, tileset));
+    public RoomBackgroundImage Sky(ScrollingSky sky, TilesetDefinition tileset) =>
+        Named(RoomBackgroundImage.SkyNameOf(sky, tileset));
 
     /// <summary>The background image installed as <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>

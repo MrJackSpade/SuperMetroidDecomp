@@ -14,14 +14,14 @@ internal sealed class ShaktoolObjects
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
     /// <summary>The room's room objects, which the controller joins.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Connects Shaktool's room controller to the resident room-object slots and room owners.</summary>
-    internal ShaktoolObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomObjectSlotTable slotTable)
+    internal ShaktoolObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomObjectPlaceList places)
     {
         _samus = samus;
         _events = events;
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>
     /// Spawns the Shaktool room's controller and runs its scroll setup: the room's first screen open with the camera
@@ -31,11 +31,11 @@ internal sealed class ShaktoolObjects
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = Position16<RoomBlocks>.Zero;
-        slot.Become(new ShaktoolRoomControllerObject(_samus, _events));
+        place.Block = Position16<RoomBlocks>.Zero;
+        place.Become(new ShaktoolRoomControllerObject(_samus, _events));
         foreach (Position16<RoomScreens> screen in scrolls.Screens)
             scrolls.SetLogicalState(screen, screen == Position16<RoomScreens>.Zero ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
         return true;

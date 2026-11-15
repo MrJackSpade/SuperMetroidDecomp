@@ -10,7 +10,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks which Tourian access floor each native spawn starts, and the spawned object's place and change.</summary>
 internal static class TourianAccessObjectDefinitionsVerification
 {
-    /// <summary>Compares native spawn operands, then confirms both states allocate the highest free slot at the fixed access block.</summary>
+    /// <summary>Compares native spawn operands, then confirms both states allocate the highest free place at the fixed access block.</summary>
     internal static void VerifyTourianAccessObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom));
@@ -32,11 +32,11 @@ internal static class TourianAccessObjectDefinitionsVerification
             AssertTrue(
                 roomObjects.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
                 $"Tourian access {(clear ? "clear" : "crumble")} actor allocates");
-            AssertEqual(1, roomObjects.SlotTable.ActiveCount, "Tourian access spawn occupies one PLM slot");
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(0, slot.ProcessingPosition, "Tourian access takes the first free slot in processing order");
-            AssertEqual(new Position16<RoomBlocks>(6, 12), slot.Block, "Tourian access fixed block coordinate");
-            AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == expected,
+            AssertEqual(1, roomObjects.Places.ActiveCount, "Tourian access spawn occupies one PLM slot");
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertEqual(0, place.UpdatePosition, "Tourian access takes the first free slot in processing order");
+            AssertEqual(new Position16<RoomBlocks>(6, 12), place.Block, "Tourian access fixed block coordinate");
+            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expected,
                 "Tourian access starts its terrain change");
             AssertEqual(1, expected.FirstFrameDelay, "Tourian access draws on its first update");
         }

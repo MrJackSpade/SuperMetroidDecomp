@@ -7,7 +7,7 @@ internal static class PcmFrameResampler
     /// Linearly interpolates the mixed clip samples at the host-frame positions. The old
     /// nearest-neighbor path duplicated roughly one third of all 48-kHz samples when converting
     /// Super Metroid's 534-sample frame, producing content-dependent high-frequency imaging that
-    /// is especially exposed after pause cancels the foreground sound-effect voices.
+    /// is especially exposed after pause cancels the playing sound effects.
     /// </summary>
     public static void ResampleStereoLinear(
         ReadOnlySpan<short> source,

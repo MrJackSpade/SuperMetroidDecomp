@@ -5,8 +5,8 @@ using static SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingMutationDefini
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Spawns Spore Spawn's 2x2 ceiling room object in the room's shared room-object slots.</summary>
-/// <param name="slotTable">The room's room-object slots, which the ceiling contends for with every other room object.</param>
-internal sealed class SporeSpawnCeilingObjects(RoomObjectSlotTable slotTable)
+/// <param name="places">The room's room-object slots, which the ceiling contends for with every other room object.</param>
+internal sealed class SporeSpawnCeilingObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns the ceiling room object performing <paramref name="mutation"/> at the ceiling's block. The crumble animates three
@@ -21,11 +21,11 @@ internal sealed class SporeSpawnCeilingObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Changes, mutation);
 
         Position16<RoomBlocks> block = level.GridBlock(Block);
-        if (slotTable.Spawn() is not { } slot)
+        if (places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new TerrainChangeObject(change));
+        place.Block = block;
+        place.Become(new TerrainChangeObject(change));
         return true;
     }
 }

@@ -101,9 +101,9 @@ internal sealed class EnemyRoomEffects
                 "Botwoon published a wall room object without an active room level and scroll grid.");
         }
 
-        // A fixed room-object spawn silently does nothing when all slots are occupied. Preserve
-        // that allocator behavior; normal load begins from Reset's empty pool, while an
-        // artificial full-pool audit must not gain an invented exception or terrain edit.
+        // A fixed room-object spawn silently does nothing when every place is held. Preserve
+        // that behaviour; normal load begins with every place free, while an
+        // artificial full-room audit must not gain an invented exception or terrain edit.
         roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)
@@ -131,7 +131,7 @@ internal sealed class EnemyRoomEffects
                 "Spore Spawn published a ceiling room object without active room level data.");
         }
 
-        // A fixed room-object spawn silently drops the request if all forty slots are full.
+        // A fixed room-object spawn silently drops the request if all forty places are held.
         roomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(_room.LevelData, mutation);
     }
 
@@ -152,8 +152,8 @@ internal sealed class EnemyRoomEffects
 
         foreach (RoomObjectSpawnRequest<CrocomireArenaMutation> request in requests.CrocomireObjects)
         {
-            // A fixed room-object spawn silently loses a request when all forty slots are
-            // occupied. The arena spawner deliberately mirrors that result.
+            // A fixed room-object spawn silently loses a request when all forty places are
+            // held. The arena spawner deliberately mirrors that result.
             roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(_room.LevelData, request);
         }
     }
@@ -176,7 +176,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>
     /// Transfers Mother Brain's fixed room-object requests to the shared 
     /// owner. The enemy state publishes requests in call order; consuming them
-    /// here retains the descending-slot allocation and one-frame execution seam.
+    /// here keeps the places they take in update order and the one-frame execution seam.
     /// </summary>
     internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects)
     {

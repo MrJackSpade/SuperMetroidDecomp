@@ -868,7 +868,7 @@ internal sealed class RoomLoader
         RoomEffectDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
-            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainBehavior), skyHasBands)
+            ? new ScrollingSkyState(ScrollingSkyState.SkyOf(room.State.MainBehavior), skyHasBands)
             : null;
 
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
@@ -951,9 +951,11 @@ internal sealed class RoomLoader
             Enemies = roomObjectServices,
         };
         // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
-        // picture taking the first pair, and their own places, every one free.
+        // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
+        // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
-            new RoomObjectPlaces());
+            new RoomObjectPlaces(),
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft));
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindAudioRequests(_audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
@@ -973,8 +975,8 @@ internal sealed class RoomLoader
             // The door transition performs this handoff after destination room objects, door/room setup,
             // and FX construction but before enemy initialization. The C# room constructor
             // groups those owners differently, yet this point preserves the observable
-            // room-object-pool order: every room-authored actor exists before the closer requests
-            // the next highest free slot, and no enemy-authored room object has run yet.
+            // room-object update order: every room-authored actor exists before the closer takes
+            // the next free place, and no enemy-authored room object has run yet.
             roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
         }
 

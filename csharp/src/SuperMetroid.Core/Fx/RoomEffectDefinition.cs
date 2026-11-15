@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// One room effect a room shows (#1415, #1526, #1695, #1740): its kind, how its overlay blends, the visor's animation, the
 /// liquid it fills the room with and how that liquid's level moves, the colour effects and block animations it starts, and
-/// the palette blend that tints its overlay.
+/// the tint it lays over its overlay.
 /// </summary>
 /// <remarks>Its room's effect selection (<see cref="RoomFxSelection"/>) names the entry door that selects it, or holds it as its default (#1546).
 /// The liquid's levels are room lines from the room's top, so a rising liquid's level falls.</remarks>
@@ -19,9 +19,9 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="VisorAnimation">Whether the room animates Samus's visor.</param>
 /// <param name="EffectBlend">How the effect's overlay blends with the room, or null when the effect shows no overlay (#1545).</param>
 /// <param name="Liquid">The liquid the effect fills the room with, or null for an effect with none.</param>
-/// <param name="PaletteEffects">The colour effects the room effect starts, in the order they start.</param>
+/// <param name="ColourEffects">The colour effects the room effect starts, in the order they start.</param>
 /// <param name="BlockAnimations">The block animations the room effect starts, in the order they start.</param>
-/// <param name="PaletteBlend">The palette blend that tints the effect's overlay and the HUD.</param>
+/// <param name="Tint">The tint the effect lays over its overlay and the HUD.</param>
 public sealed record RoomEffectDefinition(
     int? LiquidStartLevel,
     int? LiquidTargetLevel,
@@ -31,9 +31,9 @@ public sealed record RoomEffectDefinition(
     RoomVisorAnimation VisorAnimation,
     RoomEffectBlend? EffectBlend,
     RoomLiquid? Liquid,
-    ImmutableArray<ColourEffectId> PaletteEffects,
+    ImmutableArray<ColourEffectId> ColourEffects,
     ImmutableArray<BlockAnimation> BlockAnimations,
-    RoomFxPaletteBlend PaletteBlend)
+    RoomEffectTint Tint)
 {
     /// <summary>
     /// The liquid the effect fills its room with: <see cref="RoomWater"/> for water and the statue effect,

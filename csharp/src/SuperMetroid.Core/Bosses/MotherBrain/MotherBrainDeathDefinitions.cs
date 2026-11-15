@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Earthquakes;
@@ -55,8 +57,9 @@ public static class MotherBrainDeathDefinitions
         new(24, 116),
     ];
 
-    /// <summary>The escape door's behaviour: it leads through door-list entry one.</summary>
-    public static readonly RoomBlockBehavior EscapeDoorBehavior = RoomBlockBehavior.LinkingDoor(1);
+    /// <summary>The escape door's behaviour: it leads from Mother Brain's room into the escape's first room.</summary>
+    public static readonly RoomBlockBehavior EscapeDoorBehavior =
+        RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.MotherBrainToTourianEscape1);
 
     /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>
     public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = RoomBlockBehavior.Extending(-1);

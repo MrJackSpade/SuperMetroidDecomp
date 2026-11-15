@@ -71,9 +71,9 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
 
             // Continue through every opening draw, the long air-cap hold and Delete.
-            for (int frame = 0; frame < 128 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 128 && roomObjects.Places.ActiveCount != 0; frame++)
                 roomObjects.Step(level);
-            AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, roomObjects.Places.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
             // The cap closing behind Samus, placed by the door transition, closes, is made shootable again and leaves.
@@ -95,11 +95,11 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, closingDoor, new SharedGameState(new SharedRandom())),
                 $"{orientation} places the blue cap closing behind Samus");
-            AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,
+            AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,
                 $"{orientation} closing cap faces the travel direction");
-            for (int frame = 0; frame < 20 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 20 && roomObjects.Places.ActiveCount != 0; frame++)
                 roomObjects.Step(level);
-            AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, roomObjects.Places.ActiveCount,
                 $"{orientation} closing cap reaches its deletion");
             AssertEqual(RoomBlockBehaviorCodec.Encode(behavior),
                 RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(origin).Behavior),

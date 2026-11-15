@@ -46,7 +46,7 @@ internal static class CeilingWrapRoomVerification
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ControllerButton.X | ControllerButton.Left | ControllerButton.R | (dash ? ControllerButton.B : 0)));
-            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{runtime.RoomObjects.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
+            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{runtime.RoomObjects.Places.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }
@@ -81,14 +81,14 @@ internal static class CeilingWrapRoomVerification
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             roomObjects.Step(level);
-            if (firstFull < 0 && roomObjects.SlotTable.ActiveCount == 40) firstFull = frame;
+            if (firstFull < 0 && roomObjects.Places.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");
         var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1) });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).Terrain, "Exhaustion bypass does not break the block");
-        AssertEqual(40, roomObjects.SlotTable.ActiveCount, "Contact cannot allocate a forty-first slot");
+        AssertEqual(40, roomObjects.Places.ActiveCount, "Contact cannot allocate a forty-first slot");
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
     }
 

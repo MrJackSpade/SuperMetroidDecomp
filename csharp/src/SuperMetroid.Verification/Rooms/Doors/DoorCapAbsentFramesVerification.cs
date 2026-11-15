@@ -28,8 +28,8 @@ internal static class DoorCapAbsentFramesVerification
     {
         foreach ((ColoredDoorOrientation facing, ushort alias, string aliasId, ushort cleared, string clearedId) in Facings)
         {
-            RoomObjectDraw aliasDraw = BlueDoorCaps.Alias(facing);
-            AssertTrue(BlueDoorCaps.TryDescribe(aliasDraw, out BlueDoorCaps.Draw blue) && blue.IsAlias && blue.Frame is null,
+            RoomObjectDraw aliasDraw = BlueDoorCaps.Closed(facing);
+            AssertTrue(BlueDoorCaps.TryDescribe(aliasDraw, out BlueDoorCaps.Draw blue) && blue.IsClosed && blue.Frame is null,
                 $"{facing} blue alias holds no opening frame");
             AssertEqual(alias, RoomObjectDrawAddressCodec.Of(aliasDraw), $"{facing} blue alias is the facing's first cartridge record");
             AssertEqual(aliasId, RoomObjectBlueDoorVisualFiles.VisualId(aliasDraw), $"{facing} blue alias shares frame zero's name");
@@ -38,7 +38,7 @@ internal static class DoorCapAbsentFramesVerification
             for (int frame = 0; frame < 4; frame++)
             {
                 RoomObjectDraw opening = RoomObjectDraw.Of(new BlueDoorCaps.Draw(facing, frame));
-                AssertTrue(BlueDoorCaps.TryDescribe(opening, out BlueDoorCaps.Draw shown) && !shown.IsAlias,
+                AssertTrue(BlueDoorCaps.TryDescribe(opening, out BlueDoorCaps.Draw shown) && !shown.IsClosed,
                     $"{facing} blue frame {frame} is an opening frame");
                 AssertEqual(alias + (1 + frame) * 12, (int)RoomObjectDrawAddressCodec.Of(opening),
                     $"{facing} blue frame {frame} follows the alias in the cartridge");

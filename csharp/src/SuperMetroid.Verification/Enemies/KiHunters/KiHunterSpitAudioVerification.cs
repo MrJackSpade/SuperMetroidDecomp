@@ -89,12 +89,12 @@ internal static class KiHunterSpitAudioVerification
         {
             if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForSoundQueues) waitFrames++;
             Step();
-            if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette) break;
+            if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourceRoom) break;
         }
         Console.WriteLine($"Door sound wait: {waitFrames} frames; phase={game.DoorTransitionPhaseForVerification}.");
         AssertEqual(1, requests, "one native spit opcode publishes exactly one request, including door-wait frames");
         AssertEqual(1, starts, "the SPC starts the acknowledged spit once");
-        AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "completed spit cannot refill the door sound wait");
+        AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "completed spit cannot refill the door sound wait");
         AssertTrue(waitFrames <= 1, "already-drained spit queue allows the first door sound-wait pass to finish");
     }
 

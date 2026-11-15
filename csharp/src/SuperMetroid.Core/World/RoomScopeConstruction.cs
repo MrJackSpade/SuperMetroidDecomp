@@ -128,7 +128,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
-            ? new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Variant, Assets.Tileset),
+            ? new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Sky, Assets.Tileset),
                 Assets.BlockSheet)
             : null,
         ScrollingSky = ScrollingSky,

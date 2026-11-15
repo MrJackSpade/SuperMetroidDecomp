@@ -60,7 +60,7 @@ internal static class CollectiblesVerification
             var unusedObjects = RoomObjectFixtures.Unbound();
             AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, SamusProjectileType.None, true),
                 "unused shootable entry allocates native nothing PLM");
-            AssertEqual(1, unusedObjects.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
+            AssertEqual(1, unusedObjects.Places.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
         }
 
@@ -142,7 +142,7 @@ internal static class CollectiblesVerification
         // inventory words that multiple tanks share.
         CollectibleFixture collected = LoadCollectible(bus, header: 0xeed7, roomArgument: 37, precollected: true);
         collected.RoomObjects.Step(collected.Level);
-        AssertEqual(0, collected.RoomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, collected.RoomObjects.Places.ActiveCount,
             "previously collected exposed item removes itself");
         AssertEqual(99, collected.Samus.MaxHealth,
             "previously collected exposed item does not grant twice");
@@ -257,7 +257,7 @@ internal static class CollectiblesVerification
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.RoomObjects.CollectiblePhases[0],
             "repeat contact preserves the pending delete");
         fixture.RoomObjects.Step(fixture.Level);
-        AssertEqual(0, fixture.RoomObjects.SlotTable.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
+        AssertEqual(0, fixture.RoomObjects.Places.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
         var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");

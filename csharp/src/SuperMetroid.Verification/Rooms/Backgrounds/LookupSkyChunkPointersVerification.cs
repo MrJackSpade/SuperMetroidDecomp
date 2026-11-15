@@ -35,20 +35,20 @@ internal static class LookupSkyChunkPointersVerification
 
     /// <summary>Checks the land sky table and the rows it selects.</summary>
     internal static void VerifyLandSkyChunkPointers(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSky.Land));
 
     /// <summary>Checks the ocean sky table and the rows it selects.</summary>
     internal static void VerifyOceanSkyChunkPointers(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSky.Ocean));
 
     /// <summary>
     /// Checks that every chunk down the sky's span shows the page its own table's entry names, repeating the table's
     /// entries from the first, then the row every vertical position shows.
     /// </summary>
-    private static void VerifySkyChunkPointers(CartridgeImportAddressSpace rom, ScrollingSkyChunkTable table)
+    private static void VerifySkyChunkPointers(CartridgeImportAddressSpace rom, ScrollingSky table)
     {
-        int tableAddress = table == ScrollingSkyChunkTable.Land ? LandTable : OceanTable;
-        int entries = table == ScrollingSkyChunkTable.Land ? LandEntries : OceanEntries;
+        int tableAddress = table == ScrollingSky.Land ? LandTable : OceanTable;
+        int entries = table == ScrollingSky.Land ? LandEntries : OceanEntries;
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | ((tableAddress + 2 * index) & 0xffff));
         int NativePage(int index)
         {
@@ -58,7 +58,7 @@ internal static class LookupSkyChunkPointersVerification
         // The table's own entries each name a page; the ocean table's next word, the code beside it, names none.
         for (int entry = 0; entry < entries; entry++)
             AssertTrue(NativePage(entry) >= 0, $"{table} sky table entry {entry} names a sky page");
-        if (table == ScrollingSkyChunkTable.Ocean)
+        if (table == ScrollingSky.Ocean)
             AssertEqual(-1, NativePage(entries), "The ocean sky table ends where the code beside it begins");
 
         // Every chunk shows its own table's entry, the entries repeating from the first; none reads beside the table.
@@ -68,12 +68,12 @@ internal static class LookupSkyChunkPointersVerification
         foreach (int chunk in new[] { int.MinValue, -1, ScrollingSkyChunks.ChunkCount, 255, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunks.PageOf(table, chunk),
                 "Sky rejects chunks outside its span");
-        foreach (int invalidTable in new[] { int.MinValue, 0, (int)ScrollingSkyChunkTable.Ocean + 1, int.MaxValue })
+        foreach (int invalidTable in new[] { int.MinValue, -1, (int)ScrollingSky.Ocean + 1, int.MaxValue })
         foreach (int chunk in new[] { -1, 0, ScrollingSkyChunks.ChunkCount - 1, ScrollingSkyChunks.ChunkCount })
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
-                () => ScrollingSkyChunks.PageOf((ScrollingSkyChunkTable)invalidTable, chunk), "Unknown sky table rejects first");
-            AssertEqual("table", exception.ParamName, "Table rejection precedes chunk handling");
+                () => ScrollingSkyChunks.PageOf((ScrollingSky)invalidTable, chunk), "Unknown sky table rejects first");
+            AssertEqual("sky", exception.ParamName, "Sky rejection precedes chunk handling");
         }
 
         // Each 8-pixel row reads its chunk's page at the row's offset (#1347), every row from its own table's entry.

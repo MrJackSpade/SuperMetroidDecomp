@@ -48,10 +48,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(OverlayEffect);
 
     /// <summary>
-    /// The palette blend the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
+    /// The tint the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
     /// has loaded one and the colours stay the tileset's.
     /// </summary>
-    public RoomFxPaletteBlend? PaletteBlend { get; private set; }
+    public RoomEffectTint? Tint { get; private set; }
     /// <summary>
     /// Rain, fog, and spores texture drift: one 1/256-pixel running sum per axis. Its signed whole
     /// pixels shift the effect overlay's scroll before the next velocity step.
@@ -65,7 +65,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
-    private const int LoadedSurfaceFraction = 1 << 15;
+    private const int LoadedSurfaceFraction = (FixedCoordinate.LastFraction + 1) / 2;
     /// <summary>
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
@@ -117,7 +117,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private LiquidRisePhase liquidRisePhase;
     /// <summary>
     /// The update's audio requests the effect's sounds join as it makes them: the runtime's, once it points the room's
-    /// systems at it; the effect's own record before that.
+    /// systems at it; the effect's own requests before that.
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
@@ -212,7 +212,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Selects the door's room effect and initializes the liquid and palette state shared by room effects and room objects.
+    /// Selects the door's room effect and initializes the liquid and tint state shared by room effects and room objects.
     /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
     /// effect without one (<see cref="FxOverlayPlane"/>).
     /// </summary>
@@ -233,7 +233,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
         blockAnimations.Load(Type);
-        PaletteBlend = definition.PaletteBlend;
+        Tint = definition.Tint;
 
         if (Type == RoomFxType.Fireflea)
             Fireflea.Initialize();
@@ -493,20 +493,20 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Liquid = definition.Liquid;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
-        PaletteBlend = definition.PaletteBlend;
+        Tint = definition.Tint;
     }
 
     /// <summary>
-    /// Lays the shade of the palette blend the last effect selected over the room effect's pictures and over the HUD's
+    /// Lays the shade of the tint the last effect selected over the room effect's pictures and over the HUD's
     /// (#1512), each group pre-coloured in it on its own sheet (#1731).
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        if (PaletteBlend is not { } blend)
+        if (Tint is not { } tint)
             return;
-        frame.Shade(GameplayPictures.FxOverlay, RoomFxBlendShading.Of(blend));
-        frame.Shade(GameplayPictures.Hud, RoomFxBlendShading.Of(blend));
+        frame.Shade(GameplayPictures.FxOverlay, RoomFxBlendShading.Of(tint));
+        frame.Shade(GameplayPictures.Hud, RoomFxBlendShading.Of(tint));
     }
 
     /// <summary>

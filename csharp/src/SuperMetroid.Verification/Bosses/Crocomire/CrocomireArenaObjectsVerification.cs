@@ -73,7 +73,7 @@ internal static class CrocomireArenaObjectsVerification
             $"Crocomire mutation {mutation} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(1, roomObjects.Places.ActiveCount,
             $"Crocomire mutation {mutation} persists for native draw frame");
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
@@ -81,7 +81,7 @@ internal static class CrocomireArenaObjectsVerification
                 level.GetCollisionBlock(new Position16<RoomBlocks>(5, 3) + new Offset16<RoomBlocks>(x, y)).Terrain,
                 $"Crocomire mutation {mutation} physical block ({x},{y})");
         roomObjects.Step(level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             $"Crocomire mutation {mutation} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Crocomire mutation {mutation} reads no migrated ROM records");

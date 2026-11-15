@@ -105,7 +105,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 continue;
             var definition = new RoomEffectDefinition(LiquidStartLevel: 0, LiquidTargetLevel: 0, LiquidLevelSpeed: default, LiquidMoveDelay: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
-                PaletteEffects: [effect], BlockAnimations: [], PaletteBlend: RoomFxPaletteBlend.None);
+                ColourEffects: [effect], BlockAnimations: [], Tint: RoomEffectTint.None);
             var systemSession = new ColourEffectSessionState();
             var system = ColourEffectSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);

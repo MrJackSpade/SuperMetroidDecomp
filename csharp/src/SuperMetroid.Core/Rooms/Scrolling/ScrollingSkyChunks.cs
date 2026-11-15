@@ -21,18 +21,18 @@ public static class ScrollingSkyChunks
     /// <summary>The page the ocean sky skips: its chunks from this one on show the page after.</summary>
     private const int OceanSkippedPage = 4;
 
-    /// <summary>The page, 0 through 6, chunk <paramref name="chunk"/> of <paramref name="table"/>'s sky shows.</summary>
-    /// <param name="table">The land or ocean sky.</param>
+    /// <summary>The page, 0 through 6, chunk <paramref name="chunk"/> of <paramref name="sky"/> shows.</summary>
+    /// <param name="sky">The land or ocean sky.</param>
     /// <param name="chunk">The chunk down the sky's span, 0 through <see cref="ChunkCount"/> less one.</param>
     /// <returns>The page's position among the seven sky pages.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The table is unknown or the chunk lies outside the sky's span.</exception>
-    public static int PageOf(ScrollingSkyChunkTable table, int chunk)
+    /// <exception cref="ArgumentOutOfRangeException">The sky is unknown or the chunk lies outside the sky's span.</exception>
+    public static int PageOf(ScrollingSky sky, int chunk)
     {
-        bool ocean = table switch
+        bool ocean = sky switch
         {
-            ScrollingSkyChunkTable.Land => false,
-            ScrollingSkyChunkTable.Ocean => true,
-            _ => throw new ArgumentOutOfRangeException(nameof(table), table, "Unknown scrolling-sky chunk table."),
+            ScrollingSky.Land => false,
+            ScrollingSky.Ocean => true,
+            _ => throw new ArgumentOutOfRangeException(nameof(sky), sky, "Unknown scrolling sky."),
         };
         if ((uint)chunk >= ChunkCount)
             throw new ArgumentOutOfRangeException(nameof(chunk), chunk, "The chunk lies outside the scrolling sky's span.");

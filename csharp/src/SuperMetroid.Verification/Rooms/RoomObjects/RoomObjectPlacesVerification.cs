@@ -18,21 +18,21 @@ internal static class RoomObjectPlacesVerification
     internal static void VerifyRoomObjectPlaces()
     {
         var places = new RoomObjectPlaces();
-        var table = new RoomObjectSlotTable(places);
-        AssertEqual(RoomObjectPlaces.PlaceCount, table.InProcessingOrder.Count, "the room lists every place, free ones included");
+        var table = new RoomObjectPlaceList(places);
+        AssertEqual(RoomObjectPlaces.PlaceCount, table.InUpdateOrder.Count, "the room lists every place, free ones included");
         for (int spawn = 0; spawn < RoomObjectPlaces.PlaceCount; spawn++)
         {
-            RoomObjectSlot slot = table.Spawn() ?? throw new InvalidOperationException($"Spawn {spawn} found a free place.");
-            AssertTrue(ReferenceEquals(table.InProcessingOrder[spawn], slot), $"spawn {spawn} takes the next place in update order");
-            AssertTrue(slot.Active, $"spawn {spawn}'s place holds its object");
-            slot.Block = new Position16<RoomBlocks>(spawn, 0);
-            slot.Argument = MetroidRoomArgument.ObservesNothing;
+            RoomObjectPlace place = table.Spawn() ?? throw new InvalidOperationException($"Spawn {spawn} found a free place.");
+            AssertTrue(ReferenceEquals(table.InUpdateOrder[spawn], place), $"spawn {spawn} takes the next place in update order");
+            AssertTrue(place.Active, $"spawn {spawn}'s place holds its object");
+            place.Block = new Position16<RoomBlocks>(spawn, 0);
+            place.Argument = MetroidRoomArgument.ObservesNothing;
         }
         AssertTrue(table.IsFull && places.IsFull, "forty spawns fill the room");
         AssertEqual(RoomObjectPlaces.PlaceCount, table.ActiveCount, "every place holds an object");
-        AssertEqual<RoomObjectSlot?>(null, table.Spawn(), "a spawn into a full room is lost");
+        AssertEqual<RoomObjectPlace?>(null, table.Spawn(), "a spawn into a full room is lost");
 
-        RoomObjectSlot removed = table.InProcessingOrder[11];
+        RoomObjectPlace removed = table.InUpdateOrder[11];
         removed.Delete();
         AssertTrue(!removed.Active && !table.IsFull, "an object that leaves frees its place");
         AssertEqual(default, removed.Block, "a freed place keeps no block");

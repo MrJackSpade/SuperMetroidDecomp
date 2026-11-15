@@ -54,7 +54,7 @@ internal static class GateJumpTraceVerification
                 if (releaseLeft && frame >= aimFrame) input &= ~ControllerButton.Left;
                 if (frame == shootFrame) input |= ControllerButton.X;
                 runtime.StepFrame(input);
-                var gate = runtime.RoomObjects.PopulationSlots.Single(s => s.Behaviour is DownwardGateObject);
+                var gate = runtime.RoomObjects.PopulationPlaces.Single(s => s.Behaviour is DownwardGateObject);
                 activated |= gate.Behaviour is DownwardGateObject { Triggered: true };
                 string actual = $"{frame},{ControllerWordCodec.ToJoypadWord(input):X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{(gate.Behaviour is DownwardGateObject { Triggered: true } ? 1 : 0)},{NativeGateInstruction(bus, gate):X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
@@ -70,7 +70,7 @@ internal static class GateJumpTraceVerification
     /// The native instruction the gate's typed state stands for (#1554): the trace's instruction column is compared as
     /// the gate's own phase and image, translated through the ROM oracle's walk of the gate's lists.
     /// </summary>
-    private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomObjectSlotSnapshot gate) =>
+    private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomObjectPlaceSnapshot gate) =>
         RoomObjectProgramsVerification.DownwardGateNativeInstruction(bus, gate.Behaviour as DownwardGateObject
             ?? throw new InvalidDataException($"Gate at block {gate.Block} is no typed gate."));
 

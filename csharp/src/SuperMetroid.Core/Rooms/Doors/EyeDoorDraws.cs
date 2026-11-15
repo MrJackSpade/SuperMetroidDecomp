@@ -29,17 +29,17 @@ internal static class EyeDoorDraws
         };
         return frame switch
         {
-            EyeDoorObjectFrame.Eye0 => RoomObjectDraw.Of(new Draw(Component.Eye, 0, left)),
-            EyeDoorObjectFrame.Eye1 => RoomObjectDraw.Of(new Draw(Component.Eye, 1, left)),
-            EyeDoorObjectFrame.Eye2 => RoomObjectDraw.Of(new Draw(Component.Eye, 2, left)),
-            EyeDoorObjectFrame.Eye3 => RoomObjectDraw.Of(new Draw(Component.Eye, 3, left)),
-            EyeDoorObjectFrame.Eye4 => RoomObjectDraw.Of(new Draw(Component.Eye, 4, left)),
+            EyeDoorObjectFrame.ClosedEye => RoomObjectDraw.Of(new Draw(Component.Eye, 0, left)),
+            EyeDoorObjectFrame.HalfOpenEye => RoomObjectDraw.Of(new Draw(Component.Eye, 1, left)),
+            EyeDoorObjectFrame.OpenEye => RoomObjectDraw.Of(new Draw(Component.Eye, 2, left)),
+            EyeDoorObjectFrame.FlinchingEye => RoomObjectDraw.Of(new Draw(Component.Eye, 3, left)),
+            EyeDoorObjectFrame.ScrewedShutEye => RoomObjectDraw.Of(new Draw(Component.Eye, 4, left)),
             EyeDoorObjectFrame.OpeningClear => RoomObjectDraw.Of(new Draw(Component.Clear, 0, left)),
             // The eye flashes to the closed blue cap of its facing.
-            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.Alias(left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right),
-            EyeDoorObjectFrame.Pose0 => RoomObjectDraw.Of(new Draw(part, 0, left)),
-            EyeDoorObjectFrame.Pose1 => RoomObjectDraw.Of(new Draw(part, 1, left)),
-            EyeDoorObjectFrame.Pose2 => RoomObjectDraw.Of(new Draw(part, 2, left)),
+            EyeDoorObjectFrame.BlueCap => BlueDoorCaps.Closed(left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right),
+            EyeDoorObjectFrame.PartResting => RoomObjectDraw.Of(new Draw(part, 0, left)),
+            EyeDoorObjectFrame.PartSwelling => RoomObjectDraw.Of(new Draw(part, 1, left)),
+            EyeDoorObjectFrame.PartSwollen => RoomObjectDraw.Of(new Draw(part, 2, left)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorObjectFrame)} {frame}."),
         };
     }

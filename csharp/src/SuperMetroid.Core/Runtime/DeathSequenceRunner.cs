@@ -41,7 +41,7 @@ internal sealed class DeathSequenceRunner
     /// Fatal-damage detection, blackout, and queued-music polling are deliberately not
     /// fabricated by this narrow runtime seam.
     /// </summary>
-    public SamusDeathSequenceStartResult BeginDeathSequenceAfterMusicWait()
+    public void BeginDeathSequenceAfterMusicWait()
     {
         if (_player.Samus is null || _room.Camera is null || !_player.GroundedSamusMovementEnabled)
         {
@@ -49,10 +49,9 @@ internal sealed class DeathSequenceRunner
                 "Death sequence requires initialized gameplay Samus and a room camera.");
         }
 
-        SamusDeathSequenceStartResult result = _player.Samus.DeathSequence.Begin(
+        _player.Samus.DeathSequence.Begin(
             _player.Samus,
             _room.Camera.PixelPosition);
-        return result;
     }
 
     /// <summary>

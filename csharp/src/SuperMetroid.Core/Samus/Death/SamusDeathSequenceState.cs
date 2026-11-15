@@ -77,7 +77,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// the death's first game state having observed an empty music queue; fatal-damage acquisition and
     /// the music wait are distinct producers and are not guessed here.
     /// </summary>
-    public SamusDeathSequenceStartResult Begin(
+    public void Begin(
         SamusState samus,
         Position16<RoomPixels> cameraPosition)
     {
@@ -122,8 +122,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         if (sourceMovementType == SamusMovementType.SpinJumping)
             samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal);
         Phase = SamusDeathSequencePhase.PreFlashing;
-
-        return new SamusDeathSequenceStartResult();
     }
 
     /// <summary>

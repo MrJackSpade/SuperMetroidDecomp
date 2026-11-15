@@ -30,8 +30,7 @@ public static class SamusHurtFlashPalette
     /// <param name="colours">Samus's colours, whose suit shade the flash may replace.</param>
     /// <param name="samus">Owner of the hurt counter, equipment palettes, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
     /// <param name="controllerInput">Current held buttons; X permits the deferred charging-beam sound request.</param>
-    /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
-    public static SamusHurtFlashPaletteStepResult Update(
+    public static void Update(
         SamusColours colours,
         SamusState samus,
         ControllerButton controllerInput)
@@ -42,7 +41,7 @@ public static class SamusHurtFlashPalette
         int counterBefore = samus.HurtFlash.Count;
         if (counterBefore == 0)
         {
-            return new SamusHurtFlashPaletteStepResult();
+            return;
         }
 
 
@@ -87,8 +86,6 @@ public static class SamusHurtFlashPalette
         {
             samus.HurtFlash.Clear();
         }
-
-        return new SamusHurtFlashPaletteStepResult();
     }
 
     /// <summary>
@@ -117,7 +114,7 @@ public static class SamusHurtFlashPalette
     /// At hurt counter forty, restores the movement sound selected by Samus's current
     /// spin or active grapple state; a charged flare instead defers beam audio.
     /// </summary>
-    private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
+    private static void RecoverInterruptedSound(
         SamusState samus,
         ControllerButton controllerInput)
     {
@@ -126,21 +123,16 @@ public static class SamusHurtFlashPalette
             if (SamusSpinSound.Select(samus) is { } sound)
             {
                 samus.LiquidPhysics.QueueMovementSound(sound, priority: SoundRequestPriority.High);
-                return sound == SamusSound.ScrewAttack
-                    ? SamusHurtFlashRecoveryAction.ScrewAttackSound
-                    : sound == SamusSound.SpaceJump
-                        ? SamusHurtFlashRecoveryAction.SpaceJumpSound
-                        : SamusHurtFlashRecoveryAction.SpinJumpSound;
+                return;
             }
 
             if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
                 (controllerInput & ControllerButton.X) != ControllerButton.None)
             {
                 samus.ResumeChargingBeamSoundPending = true;
-                return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;
             }
 
-            return SamusHurtFlashRecoveryAction.None;
+            return;
         }
 
         // The grapple-phase comparison accepts firing, swinging, locked,
@@ -152,11 +144,8 @@ public static class SamusHurtFlashPalette
             GrapplePhase.ConnectedLocked or
             GrapplePhase.WallGrab or
             GrapplePhase.WallGrabRelease;
-        if (!grappleSoundActive)
-            return SamusHurtFlashRecoveryAction.None;
-
-        samus.LiquidPhysics.QueueMovementSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
-        return SamusHurtFlashRecoveryAction.GrappleSound;
+        if (grappleSoundActive)
+            samus.LiquidPhysics.QueueMovementSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
     }
 
 }

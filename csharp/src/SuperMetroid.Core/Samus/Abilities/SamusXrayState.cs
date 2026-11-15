@@ -317,7 +317,7 @@ public sealed class SamusXrayState
     /// Runs X-ray's own pose input, including the exact
     /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
     /// </summary>
-    public XrayPoseInputResult HandlePoseInput(
+    public void HandlePoseInput(
         SamusState samus,
         ControllerButton controllerInput)
     {
@@ -332,7 +332,7 @@ public sealed class SamusXrayState
                 ? ControllerButton.Right
                 : ControllerButton.Left;
             if ((controllerInput & turnBinding) == ControllerButton.None)
-                return default;
+                return;
 
             // Mirroring through `256 - angle` turns right-space 0-127 into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
@@ -342,14 +342,14 @@ public sealed class SamusXrayState
                 ? crouching ? SamusPoseId.TurningLeftToRightCrouchingPose : SamusPoseId.TurningLeftToRightPose
                 : crouching ? SamusPoseId.TurningRightToLeftCrouchingPose : SamusPoseId.TurningRightToLeftPose;
             ApplyXrayPoseChange(samus, targetPose);
-            return new XrayPoseInputResult();
+            return;
         }
 
         // The game waits until the final visible turning frame has exactly one tick left.
         // Its movement does nothing for a grounded turn, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
         if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
-            return default;
+            return;
 
         bool nowFacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPoseId completedPose = nowFacingLeft
@@ -360,7 +360,6 @@ public sealed class SamusXrayState
                 ? SamusPoseId.XrayingStandingRightPose
                 : SamusPoseId.XrayingCrouchingRightPose;
         ApplyXrayPoseChange(samus, completedPose);
-        return new XrayPoseInputResult();
     }
 
     /// <summary>

@@ -56,7 +56,7 @@ public sealed class SamusCeresRidleyEjectionState
     }
 
     /// <summary>Runs one update of the shove.</summary>
-    public CeresRidleyEjectionResult Step(
+    public void Step(
 
         RoomLevelData level,
         SamusState samus,
@@ -98,7 +98,7 @@ public sealed class SamusCeresRidleyEjectionState
 
             // Initializes only the shove's state on this call. The shove does not
             // perform the first collision/movement pass until the following frame.
-            return new CeresRidleyEjectionResult();
+            return;
         }
 
         // The bomb jump's falling horizontal movement deliberately uses the current pose's movement
@@ -129,7 +129,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.AlignBottomAfterPoseChange(
                 SamusPoseMetadata.ReadPoseYRadius(samus.PoseHistory.PreviousPose),
                 SamusPoseMetadata.ReadPoseYRadius(samus.Pose));
-            return new CeresRidleyEjectionResult();
+            return;
         }
 
         // Accelerates only while the signed whole speed is below five. The
@@ -138,7 +138,5 @@ public sealed class SamusCeresRidleyEjectionState
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
-
-        return new CeresRidleyEjectionResult();
     }
 }

@@ -103,7 +103,7 @@ public sealed class SamusDraygonGrabbedState
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
     /// Samus who has just escaped, until it consumes the escape flag right after this placement.
     /// </summary>
-    public DraygonOwnerPlacement ApplyOwnerPosition(
+    public void ApplyOwnerPosition(
         SamusState samus,
         Position16<RoomPixels> ownerPosition,
         bool draygonFacingRight)
@@ -120,7 +120,6 @@ public sealed class SamusDraygonGrabbedState
         // The placement writes whole positions only. It does not clear subpositions,
         // so preserving the subpositions is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
-        return new DraygonOwnerPlacement();
     }
 
     /// <summary>

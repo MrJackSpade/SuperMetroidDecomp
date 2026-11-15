@@ -467,10 +467,12 @@ internal static class SamusBodyArtworkVerification
         installedSamus.BindArmCannonFixture(armCannon);
         for (int frame = 0; frame < 4; frame++)
         {
-            SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(nativeSamus);
-            SamusArmCannonUpdateResult installed = installedSamus.ArmCannon.Update(
-                installedSamus);
-            AssertEqual(native, installed, $"installed arm-cannon update frame {frame}");
+            nativeSamus.ArmCannon.Update(nativeSamus);
+            installedSamus.ArmCannon.Update(installedSamus);
+            AssertEqual(
+                (nativeSamus.ArmCannon.Frame, nativeSamus.ArmCannon.DrawOrder),
+                (installedSamus.ArmCannon.Frame, installedSamus.ArmCannon.DrawOrder),
+                $"installed arm-cannon update frame {frame}");
         }
         var nativeFrame = new SpriteFrameBuffer();
         var installedFrame = new SpriteFrameBuffer();

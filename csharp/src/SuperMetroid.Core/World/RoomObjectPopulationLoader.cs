@@ -69,7 +69,7 @@ internal sealed class RoomObjectPopulationLoader
                 throw new InvalidDataException(
                     $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must name the Draygon wall cannon it controls exactly when it is a Draygon cannon.");
             var placed = new PlacedRoomObject(
-                placementIndex, objectKind, placement.Block, placement.Argument);
+                objectKind, placement.Block, placement.Argument);
 
             Position16<RoomBlocks> block;
             try
@@ -176,7 +176,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.MotherBrainGlass)
         {
-            _motherBrainGlass.SetupMotherBrainGlassSlot(level, placed, place);
+            _motherBrainGlass.SetupMotherBrainGlassSlot(level, place);
             return true;
         }
 

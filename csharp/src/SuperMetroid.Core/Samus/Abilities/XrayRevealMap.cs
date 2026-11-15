@@ -115,13 +115,13 @@ public static class XrayRevealMap
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition) =>
         foregroundPosition.ToRoomBlock().ToRoomPixels();
 
-    /// <summary>How a copied block lays out its picture: mirrored as the room mirrors it.</summary>
-    private static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch
+    /// <summary>How a revealed block lays out its picture: mirrored as the room mirrors it.</summary>
+    internal static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch
     {
         BlockMirroring.None => RevealedBlockArrangement.AsDefined,
         BlockMirroring.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
         BlockMirroring.Vertical => RevealedBlockArrangement.MirroredVertically,
         BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
-        _ => throw new InvalidDataException($"A foreground block has undefined flips {flips}."),
+        _ => throw new InvalidDataException($"A revealed block has undefined flips {flips}."),
     };
 }

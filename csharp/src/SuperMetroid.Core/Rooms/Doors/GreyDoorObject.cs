@@ -35,10 +35,6 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// <summary>What the cap waits for on each update.</summary>
     internal GreyDoorWait Waits { get; private set; }
 
-    /// <summary>The hits counted toward the grey count; the shot that reaches it opens the cap.</summary>
-    internal int HitCounter { get; private set; }
-
-
     /// <summary>Whether the cap has yet to take its first look at its door.</summary>
     private bool _placed = true;
 
@@ -143,15 +139,11 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
         Play(GreyDoorDefinitions.Locked, place, context);
     }
 
-    /// <summary>Counts the opening shot, which records the door opened for good, and opens the cap.</summary>
+    /// <summary>Opens the cap at the opening shot, which records the door opened for good.</summary>
     private void Open(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        HitCounter++;
-        if (HitCounter >= GreyDoorDefinitions.HitThreshold)
-        {
-            context.RoomObjects.DoorObjects.RecordDoorOpened(place);
-            Waits = GreyDoorWait.Nothing;
-        }
+        context.RoomObjects.DoorObjects.RecordDoorOpened(place);
+        Waits = GreyDoorWait.Nothing;
         Phase = GreyDoorPhase.Opening;
         Play(GreyDoorDefinitions.Opening, place, context);
     }

@@ -407,16 +407,15 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.UpdatesDisabled = false;
     }
 
-    /// <summary>Switches an outer-body sprite to frozen art without resetting its retained frame timer.</summary>
+    /// <summary>Switches an outer-body sprite to frozen art, starting its frozen animation from its first frame.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObject outerBody,
         RoomSpriteObjectSegment frozenSegment)
     {
         outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
         outerBody.UpdatesDisabled = true;
-        // Drawing shows the selected frame even while animation is disabled.
-        // Show the frozen animation's first frame without resetting the retained timer.
-        outerBody.ShowFirstFrameKeepingTimer(frozenSegment);
+        // Drawing shows the first frame while animation is disabled.
+        outerBody.StartAnimation(frozenSegment);
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its movement changes.</summary>

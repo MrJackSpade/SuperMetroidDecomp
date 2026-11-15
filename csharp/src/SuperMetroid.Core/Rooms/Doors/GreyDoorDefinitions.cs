@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The grey caps' authored data (#1554): the hits a cap takes and its sequences. A grey cap shows its closed image, flashes
-/// while its condition holds and opens at the first shot after; Bomb Torizo's door stays open until Samus has Bombs.
+/// The grey caps' authored sequences (#1554). A grey cap shows its closed image, flashes while its condition holds and
+/// opens at the first shot after; Bomb Torizo's door stays open until Samus has Bombs.
 /// </summary>
 internal static class GreyDoorDefinitions
 {
-    /// <summary>The hits a grey cap takes before it opens.</summary>
-    internal const int HitThreshold = 1;
-
     /// <summary>A locked cap's closed image, for one update.</summary>
     internal static IReadOnlyList<DoorCapStep> Locked { get; } = [new(DoorCapFrame.Closed, 1)];
 

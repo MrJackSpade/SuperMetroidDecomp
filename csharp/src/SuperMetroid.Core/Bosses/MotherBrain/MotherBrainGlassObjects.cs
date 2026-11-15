@@ -38,19 +38,8 @@ internal sealed class MotherBrainGlassObjects
         _motherBrainGlassProjectileRequests;
 
     /// <summary>Runs the glass setup against the place room population gave it.</summary>
-    internal void SetupMotherBrainGlassSlot(
-        RoomLevelData level,
-        PlacedRoomObject placed,
-        RoomObjectPlace place)
+    internal void SetupMotherBrainGlassSlot(RoomLevelData level, RoomObjectPlace place)
     {
-        if (placed.PlacementIndex != 0 ||
-            placed.Block != new Position16<RoomBlocks>(9, 5))
-        {
-            throw new InvalidDataException(
-                $"Mother Brain glass population diverged: placement={placed.PlacementIndex}, " +
-                $"block=({placed.Block.X},{placed.Block.Y}), argument={placed.Argument}.");
-        }
-
         place.Become(new MotherBrainGlassObject(this));
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
         level.SetTerrain(place.Block, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));

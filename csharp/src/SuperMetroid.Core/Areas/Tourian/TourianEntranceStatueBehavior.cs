@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 
@@ -18,7 +17,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, slot, common);
 
-    /// <summary>Allocates the three fixed statue decoration actors in reverse-slot order.</summary>
+    /// <summary>Spawns the scene's three decorations.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy slots, whose statues show the scene's look.</summary>
     private readonly EnemySlotTable _slotTable;
@@ -125,17 +124,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 
-    /// <summary>Installs one of three animations and lets only the first statue spawn the fixed decorative actors.</summary>
+    /// <summary>
+    /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
+    /// shows the scene's entrance look.
+    /// </summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
-        TourianEntranceStatueSegment part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
-        statue.AnimationClock.Restart();
-        statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueSegment>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
-
-        // Only the first of the three statue enemies creates the fixed screen actors. The
-        // allocator searches from the last slot down, so this exact call order gives the
-        // decoration, Ridley, and Phantoon their authored draw ordering.
-        if (part == TourianEntranceStatueSegment.BaseDecoration)
+        // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
+        if (statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
@@ -220,17 +216,5 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             // This keeps the statue's sprite pictures attached to the descending background statue artwork.
             projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - statue.VerticalOffset);
         }
-    }
-
-    /// <summary>Advances TourianEntranceStatue's typed animation.</summary>
-    internal static void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
-    {
-        if (!slot.AnimationClock.Expire())
-            return;
-        TourianEntranceStatueState state = slot.RequireSpeciesState<TourianEntranceStatueState>();
-        AnimationPlayback<TourianEntranceStatueSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(slot, TourianEntranceStatueAnimations.Segments, ref playback, TourianEntranceStatueFrameDefinitions.ShownFrames.Of,
-            static cue => throw new InvalidOperationException($"A Tourian entrance statue animation raised {cue}, though its lists raise no events."));
-        state.Playback = playback;
     }
 }

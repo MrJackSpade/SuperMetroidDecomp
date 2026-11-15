@@ -2,6 +2,6 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>Which part of the Tourian entrance statue a placement draws (#1472).</summary>
-/// <param name="Statue">The statue part; the base decoration also spawns the statue's fixed screen pieces.</param>
-internal sealed record TourianEntranceStatueSpawnSettings(TourianEntranceStatueSegment Statue) : EnemySpawnSettings;
+/// <summary>What one of the Tourian entrance statue scene's three placements does as it initializes (#1472, #2014).</summary>
+/// <param name="Role">Whether the placement spawns the scene's decorations or nothing.</param>
+internal sealed record TourianEntranceStatueSpawnSettings(TourianEntranceStatueRole Role) : EnemySpawnSettings;

@@ -396,9 +396,9 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.Statues),
         [
             new(EnemyDefinitionId.Elevator, new(128, 432), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
-            new(EnemyDefinitionId.TourianStatue, new(120, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueSegment.BaseDecoration)),
-            new(EnemyDefinitionId.TourianStatue, new(142, 85), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueSegment.Ridley)),
-            new(EnemyDefinitionId.TourianStatue, new(132, 136), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueSegment.Phantoon)),
+            new(EnemyDefinitionId.TourianStatue, new(120, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.SpawnsDecorations)),
+            new(EnemyDefinitionId.TourianStatue, new(142, 85), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),
+            new(EnemyDefinitionId.TourianStatue, new(132, 136), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.StatuesHallway),
         [

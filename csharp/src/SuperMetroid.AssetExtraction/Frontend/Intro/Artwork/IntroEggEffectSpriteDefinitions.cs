@@ -17,9 +17,9 @@ internal static class IntroEggEffectSpriteDefinitions
         new("shell-right", CinematicSpritePose.EggShellRight, 1),
         new("shell-lower", CinematicSpritePose.EggShellLower, 1),
         new("slime-moving", CinematicSpritePose.SlimeMoving, 1),
-        new("slime-impact-0", CinematicSpritePose.SlimeImpact0, 1),
-        new("slime-impact-1", CinematicSpritePose.SlimeImpact1, 1),
-        new("slime-impact-2", CinematicSpritePose.SlimeImpact2, 1),
-        new("slime-impact-3", CinematicSpritePose.SlimeImpact3, 1),
+        new("slime-impact-0", CinematicSpritePose.SlimeSplashCrown, 1),
+        new("slime-impact-1", CinematicSpritePose.SlimeSplashPeak, 1),
+        new("slime-impact-2", CinematicSpritePose.SlimeSplashSinking, 1),
+        new("slime-impact-3", CinematicSpritePose.SlimePuddle, 1),
     ];
 }

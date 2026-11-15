@@ -47,9 +47,9 @@ internal static class CinematicPresentationContractChecks
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
                     caret.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)999, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
-                    motherBrain.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.MotherBrainFrame0, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
+                    motherBrain.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.MotherBrainPulseLow, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
                     motherBrain.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)998, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
-                    explosions.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.BigExplosion0, oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
+                    explosions.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.BigExplosionSpark, oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
                     explosions.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)997, oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
                     door.NormalColor(0);
                     door.EscapeColor(0);

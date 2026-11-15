@@ -12,11 +12,11 @@ internal static class IntroScientistSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("delivered-baby-1", CinematicSpritePose.DeliveredBaby1, 6),
-        new("delivered-baby-2", CinematicSpritePose.DeliveredBaby2, 6),
-        new("delivered-baby-3", CinematicSpritePose.DeliveredBaby3, 6),
-        new("examined-baby-1", CinematicSpritePose.ExaminedBaby1, 1),
-        new("examined-baby-2", CinematicSpritePose.ExaminedBaby2, 1),
-        new("examined-baby-3", CinematicSpritePose.ExaminedBaby3, 1),
+        new("delivered-baby-1", CinematicSpritePose.DeliveredBabyPulseLow, 6),
+        new("delivered-baby-2", CinematicSpritePose.DeliveredBabyPulseMiddle, 6),
+        new("delivered-baby-3", CinematicSpritePose.DeliveredBabyPulseHigh, 6),
+        new("examined-baby-1", CinematicSpritePose.ExaminedBabyWide, 1),
+        new("examined-baby-2", CinematicSpritePose.ExaminedBabyNarrowing, 1),
+        new("examined-baby-3", CinematicSpritePose.ExaminedBabyNarrow, 1),
     ];
 }

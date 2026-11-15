@@ -10,8 +10,8 @@ internal static class IntroNextPageArrowSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("next-page-arrow-1", CinematicSpritePose.NextPageArrow1, 2),
-        new("next-page-arrow-2", CinematicSpritePose.NextPageArrow2, 2),
-        new("next-page-arrow-3", CinematicSpritePose.NextPageArrow3, 2),
+        new("next-page-arrow-1", CinematicSpritePose.NextPageArrowBright, 2),
+        new("next-page-arrow-2", CinematicSpritePose.NextPageArrowFading, 2),
+        new("next-page-arrow-3", CinematicSpritePose.NextPageArrowFaint, 2),
     ];
 }

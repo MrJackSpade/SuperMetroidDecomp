@@ -29,7 +29,7 @@ internal static class EnemyInstructionRunner
     /// </summary>
     internal static string ShownFrames(RoomEnemySlot slot, int updates)
     {
-        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         var shown = new List<string>();
         for (int update = 0; update < updates; update++)
         {

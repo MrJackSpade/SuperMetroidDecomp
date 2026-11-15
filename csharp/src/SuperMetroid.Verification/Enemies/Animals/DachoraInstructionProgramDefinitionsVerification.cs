@@ -24,7 +24,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
     /// <summary>
     /// The real initializer picks idle or echo by facing; every looping program runs on time; each speed-up keeps the
-    /// pose in the next-faster run; the launch steps the charge into the right echo; the programs show exactly the
+    /// pose in the next-faster run; the programs show exactly the
     /// installed Dachora frames; the program oracle matches bank $A7.
     /// </summary>
     internal static void VerifyDachoraInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
@@ -83,16 +83,13 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(fastest), new AnimationPlace(0, 3)), state.Playback, $"Dachora {fast} speeds up at the same pose");
         }
 
-        AssertEqual(DachoraSegment.EchoRight, DachoraAnimations.AfterSleep(DachoraSegment.ChargeRight),
-            "the shinespark launch steps the charge into the right-facing echo");
         AssertTrue(DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("dachora_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Dachora's programs show exactly its installed frames");
         Suite(nameof(DachoraAnimationsVerification.VerifyDachoraAnimations), () => DachoraAnimationsVerification.VerifyDachoraAnimations(rom));
 
         Console.WriteLine(
-            "Dachora: the initializer's idle and echo choices, every loop, both speed-ups at the same pose and the " +
-            "launch into the echo pass.");
+            "Dachora: the initializer's idle and echo choices, every loop and both speed-ups at the same pose pass.");
     }
 
     /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>

@@ -227,8 +227,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.StepOnNextUpdate();
+        StartEtecoonAnimation(slot, state, EtecoonSegment.ContinueHoppingFacingLeft);
         state.Action = EtecoonAction.InitialJump;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
@@ -284,15 +283,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.StepOnNextUpdate();
         if (state.HeadingRight)
         {
+            StartEtecoonAnimation(slot, state, EtecoonSegment.BeginRunningRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
             state.Action = EtecoonAction.RunRightToWall;
         }
         else
         {
+            StartEtecoonAnimation(slot, state, EtecoonSegment.BeginRunningLeft);
             SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
             state.Action = EtecoonAction.RunLeftToWall;
         }
@@ -418,7 +417,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case EtecoonRoute.TeachAtOnce:
                 state.Action = EtecoonAction.TeachingJump;
-                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
+                // The landing hop faced away from the heading; the teaching hop continues it.
+                state.Playback = new(EtecoonAnimations.StartingWith(state.HeadingRight
+                    ? EtecoonSegment.ContinueHoppingFacingLeft
+                    : EtecoonSegment.ContinueHoppingFacingRight), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             default:
@@ -569,7 +571,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)
         {
             state.Action = EtecoonAction.TeachingJump;
-            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);
         }
         else
         {
@@ -602,7 +604,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
-            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);
             state.Action = EtecoonAction.TeachingJump;
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
@@ -744,10 +746,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(EtecoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
-
-    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a rest stays in it.</summary>
-    private static EtecoonSegment Playing(AnimationPlayback<EtecoonSegment> playback) =>
-        playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Advances Etecoon's typed animation.</summary>
     internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

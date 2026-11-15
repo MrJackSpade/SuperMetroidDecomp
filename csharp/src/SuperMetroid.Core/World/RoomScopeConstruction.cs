@@ -73,17 +73,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The Ceres haze, once the FX step has built it.</summary>
     public CeresHazeState? CeresHaze { get; set; }
 
-    /// <summary>The sand block animations, once the FX step has built them.</summary>
-    public RoomSandBlockAnimationsState? SandBlockAnimations { get; set; }
-
-    /// <summary>The spike block animations, once the FX step has built them.</summary>
-    public RoomSpikeBlockAnimationsState? SpikeBlockAnimations { get; set; }
-
-    /// <summary>The treadmill block animations, once the FX step has built them.</summary>
-    public RoomTreadmillBlockAnimationsState? TreadmillBlockAnimations { get; set; }
-
-    /// <summary>The Wrecked Ship treadmill block animations, once the definition step has built them.</summary>
-    public WreckedShipTreadmillBlockAnimationsState? WreckedShipTreadmill { get; set; }
+    /// <summary>The block animations, once the definition step has built them.</summary>
+    public RoomBlockAnimations? BlockAnimations { get; set; }
 
     /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>
     public TourianStatueSequence? TourianStatues { get; set; }
@@ -139,10 +130,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),
         ColourEffects = ColourEffects ?? throw Missing(nameof(ColourEffects)),
         CeresHaze = CeresHaze ?? throw Missing(nameof(CeresHaze)),
-        SandBlockAnimations = SandBlockAnimations ?? throw Missing(nameof(SandBlockAnimations)),
-        SpikeBlockAnimations = SpikeBlockAnimations ?? throw Missing(nameof(SpikeBlockAnimations)),
-        TreadmillBlockAnimations = TreadmillBlockAnimations ?? throw Missing(nameof(TreadmillBlockAnimations)),
-        WreckedShipTreadmill = WreckedShipTreadmill ?? throw Missing(nameof(WreckedShipTreadmill)),
+        BlockAnimations = BlockAnimations ?? throw Missing(nameof(BlockAnimations)),
         TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
         MaridiaElevatube = MaridiaElevatube ?? throw Missing(nameof(MaridiaElevatube)),
         CeresElevatorShaft = CeresElevatorShaft ?? throw Missing(nameof(CeresElevatorShaft)),

@@ -69,7 +69,6 @@ internal static class RoomLiquidMotionVerification
             {
                 Camera = Position16<RoomPixels>.Zero,
                 TimeIsFrozen = false,
-                EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None,
             });
             RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay()
                 ?? throw new InvalidOperationException("Verification requires the water's display snapshot.");
@@ -101,7 +100,7 @@ internal static class RoomLiquidMotionVerification
 
     /// <summary>Loads still water that waves on the effect overlay and the background, its surface and target as given.</summary>
     private static RoomFxOverlayState Water(int? startLevel, int? targetLevel) =>
-        RoomFxOverlayState.ForDefinition(new RoomFxSession(), new RoomEffectDefinition(LiquidStartLevel: startLevel,
+        RoomFxOverlayState.ForDefinition(new RoomEffectDefinition(LiquidStartLevel: startLevel,
             LiquidTargetLevel: targetLevel, LiquidLevelSpeed: default, LiquidMoveDelay: 0, Type: RoomFxType.Water,
             VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: RoomEffectBlendDefinitions.OverlayBrightens,
             Liquid: new RoomWater(LiquidTide.None, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false),

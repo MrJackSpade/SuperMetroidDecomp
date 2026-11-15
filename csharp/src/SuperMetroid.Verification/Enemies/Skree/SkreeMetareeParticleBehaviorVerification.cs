@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -50,7 +51,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 var native = new NativeEnemyProjectileListReader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
                 for (int update = 0; update < 40; update++)
                 {
-                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), Position16<RoomPixels>.Zero, shortCounter: 0);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");

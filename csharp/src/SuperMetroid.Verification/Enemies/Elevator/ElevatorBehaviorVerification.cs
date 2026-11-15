@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -44,7 +45,7 @@ internal static class ElevatorBehaviorVerification
         RoomEnemySlot elevator = enemies.SlotTable.Slots[3];
         elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();

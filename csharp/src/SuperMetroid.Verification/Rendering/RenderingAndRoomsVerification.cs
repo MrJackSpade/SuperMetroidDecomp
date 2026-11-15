@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
@@ -127,8 +128,8 @@ internal static void VerifyHudState()
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");
 
-    var damagedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 94, MaxHealth = 99 };
-    var hudAudio = new GameplayAudioRequests();
+    var damagedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 94, MaxHealth = 99 };
+    var hudAudio = GameplayAudioRequests.Standalone();
     hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.TileWords(hudArtwork)[0x8e / 2], "live HUD damage ones digit");

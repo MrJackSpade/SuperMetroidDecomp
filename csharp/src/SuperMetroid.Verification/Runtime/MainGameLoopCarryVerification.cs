@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Saves;
@@ -24,11 +25,9 @@ internal static class MainGameLoopCarryVerification
 
         foreach (PowerOnEarthquakeSoundDelay delay in new[] { PowerOnEarthquakeSoundDelay.OneFrame, PowerOnEarthquakeSoundDelay.None })
         {
-            var stateSession = new RoomFxSession();
-            var state = new RoomFxOverlayState(stateSession);
-            state.BindAudioRequests(new GameplayAudioRequests());
-            state.EarthquakeSoundTimer = WrappingCountdown.Start(0);
-            state.EarthquakeSoundRhythmPosition = 0;
+            var state = new RoomFxOverlayState();
+            state.BindAudioRequests(GameplayAudioRequests.Standalone());
+            // A new effect's quake sound is due on its next count and starts its rhythm from the first delay.
             // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2 when the carry is set.
             state.PublishStatueEarthquakeSound(0xac0c, delay);
             AssertEqual((ushort)(1 + delay.ExtraFrames), state.EarthquakeSoundTimer.RawValue,

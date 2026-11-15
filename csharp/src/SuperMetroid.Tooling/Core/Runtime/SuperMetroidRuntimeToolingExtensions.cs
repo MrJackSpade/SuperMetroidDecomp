@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -16,8 +17,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
     {
         /// <summary>
         /// Creates a bare frame-steppable runtime with its own frame clock and unauthored Speed Booster cadence, over the supplied
-        /// session's random-number word or, without one, a word of its own; the caller binds whatever catalogs it
-        /// exercises.
+        /// session's random-number word or, without one, a word of its own, and over the supplied session's sound and music
+        /// queues or, without them, queues of its own (#2057); the caller binds whatever catalogs it exercises.
         /// </summary>
         /// <param name="assists">The assists the runtime plays under; <see cref="SuperMetroid.Core.Gameplay.GameplayAssists.None"/> for the unassisted game.</param>
         /// <param name="artwork">
@@ -25,10 +26,12 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// and frame displays, which every runtime requires.
         /// </param>
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
+        /// <param name="audio">The session's sound and music queues, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.GameplayAssists assists,
             IGameplayArtwork artwork,
-            SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
+            SuperMetroid.Core.Compatibility.SharedRandom? random = null,
+            AudioQueues? audio = null) =>
             new(assists, artwork,
                 new GameplaySessionCarryover
                 {
@@ -49,6 +52,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                         // A tooling runtime is its session's first game, whose camera starts with no fractions, as power-on leaves them.
                         CameraFractions = new SuperMetroid.Core.Compatibility.CameraFractionsKeptAcrossGames(),
                     },
+                    Audio = audio ?? AudioQueues.Standalone(),
                 });
     }
 

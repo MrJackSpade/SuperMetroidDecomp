@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -53,8 +54,8 @@ internal static class ProjectileFrameBindingsVerification
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBomb(0)
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
-            var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone()) { FrameBindings = stock };
             AssertTrue(nativeShot.FrameHold.RawValue is > 0 and < 0x8000,
                 "native inventory contains timed records");
             AssertEqual(false, shots.Animation.AdvanceProjectileAnimation(installedShot),

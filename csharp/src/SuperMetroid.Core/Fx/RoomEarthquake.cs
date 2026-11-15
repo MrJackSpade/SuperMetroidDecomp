@@ -59,7 +59,7 @@ internal sealed class RoomEarthquake
     /// mutated camera state: the game adjusts its layer scroll copies after camera logic, without
     /// moving the world viewport.
     /// </summary>
-    public RoomShakeFrameResult LastRoomShake { get; internal set; }
+    public RoomShakeFrameResult LastRoomShake { get; private set; }
 
     /// <summary>
     /// Whether the room shakes with <paramref name="shake"/> and exactly <paramref name="framesLeft"/> frames left: an

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -62,7 +63,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Health = 287,
             MaxHealth = 499,
@@ -77,8 +78,8 @@ internal static class GameplayHudPresentationVerification
             ReserveEnergy = 25,
             ReserveTankMode = ReserveTankMode.Auto,
         };
-        var nativeAudio = new GameplayAudioRequests();
-        var installedAudio = new GameplayAudioRequests();
+        var nativeAudio = GameplayAudioRequests.Standalone();
+        var installedAudio = GameplayAudioRequests.Standalone();
         native.UpdateGameplayCounters(samus, nativeAudio);
         installed.UpdateGameplayCounters(samus, installedAudio);
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),

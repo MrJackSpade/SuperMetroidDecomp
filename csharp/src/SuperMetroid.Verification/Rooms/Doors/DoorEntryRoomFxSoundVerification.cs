@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -34,22 +35,22 @@ internal static class DoorEntryRoomFxSoundVerification
             .Where(door => door.DestinationRoom == RoomDefinitions.RisingTide)
             .First(door =>
             {
-                var candidate = LoadRisingTide(door, new SharedRandom());
+                var candidate = LoadRisingTide(door, new SharedRandom(), audio: null);
                 for (int frame = 0; frame < 4; frame++)
                     candidate.StepFrame(0);
                 return candidate.RoomFxOverlay.SustainedEarthquake.HasValue;
             });
         var random = new SharedRandom();
-        var runtime = LoadRisingTide(entry, random);
-        var samus = runtime.Player.IntroducedSamus;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        var runtime = LoadRisingTide(entry, random, game.AudioForVerification);
+        var samus = runtime.Player.IntroducedSamus;
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
-        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random)
+        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random, AudioQueues? audio)
         {
-            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: audio);
             loaded.HudSetup.InitializeHud(HudSnapshot.NewGame);
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();

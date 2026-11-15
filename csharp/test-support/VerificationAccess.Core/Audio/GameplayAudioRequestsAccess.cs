@@ -19,12 +19,14 @@ internal static class GameplayAudioRequestsAccess
     extension(GameplayAudioRequests)
     {
         /// <summary>A record whose requests go straight on into <paramref name="queues"/>, as a selected game's do.</summary>
-        internal static GameplayAudioRequests Reaching(AudioQueues queues)
-        {
-            var requests = new GameplayAudioRequests();
-            requests.AttachTo(new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance));
-            return requests;
-        }
+        internal static GameplayAudioRequests Reaching(AudioQueues queues) =>
+            new(new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance));
+
+        /// <summary>
+        /// A record of a check's own, whose requests go straight on into standalone queues (#2057): what a system a check
+        /// builds outside a runtime joins.
+        /// </summary>
+        internal static GameplayAudioRequests Standalone() => Reaching(AudioQueues.Standalone());
     }
 
     /// <summary>Reads the update's music requests by kind and counts its sounds.</summary>

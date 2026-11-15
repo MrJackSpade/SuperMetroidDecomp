@@ -1,19 +1,21 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The Fireflea room effect's state: the flash clock its setup initializes and its per-frame behaviour steps, and
-/// the darkness step the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>), which a Fireflea
-/// room's load restarts from its first flash. The game keeps these for the session;
-/// the room FX state owns them for the session, so a room load does not reset them.
+/// The Fireflea room effect's state: the flash clock its setup starts and its per-frame behaviour steps, the darkness step
+/// the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>). A Fireflea room's effect creates it as the
+/// room loads, from its first flash and an undarkened room, and it lives as long as that room (#2053).
 /// </summary>
+[RoomLifetime]
 public sealed class FirefleaFxState
 {
     /// <summary>
-    /// Frames until the next flash phase, held while time is frozen. A step
-    /// that reaches zero restarts it; one that starts from zero, before the FX initializes, wraps instead.
+    /// Frames until the next flash phase, held while time is frozen: a step that reaches zero starts the next phase and
+    /// restarts the count from <see cref="FirefleaFxDefinitions.FlashDuration"/>.
     /// </summary>
-    public WrappingCountdown Timer { get; private set; }
+    public int FramesUntilNextFlash { get; private set; } = FirefleaFxDefinitions.FlashDuration;
 
     /// <summary>
     /// The room's place in its flash cycle, 0 through 11: the shade brightens over the first six phases and dims over
@@ -33,15 +35,6 @@ public sealed class FirefleaFxState
     /// </summary>
     public RgbColor Tint { get; private set; } = Shade(0, 0);
 
-    /// <summary>Seeds the initial flash duration, the cycle's first phase, and the undarkened room, and shows its shade.</summary>
-    internal void Initialize()
-    {
-        Timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
-        FlashPhase = 0;
-        DarknessStep = 0;
-        Tint = Shade(FlashPhase, DarknessStep);
-    }
-
     /// <summary>
     /// Samples the enemies' darkness step, and unless frozen advances the flash clock and chooses the room's
     /// <see cref="Tint"/> from the flashing shade and the darkness step's level.
@@ -50,12 +43,10 @@ public sealed class FirefleaFxState
     {
         DarknessStep = darknessStep;
         if (frozen) return;
-        CountdownStep step = Timer.Decrement();
-        WrappingCountdown timer = step.Remaining;
         int phase = FlashPhase;
-        if (step.IsZero)
+        if (--FramesUntilNextFlash == 0)
         {
-            timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
+            FramesUntilNextFlash = FirefleaFxDefinitions.FlashDuration;
             if (darknessStep < FirefleaFxDefinitions.SteadyDarknessStep)
             {
                 phase++;
@@ -64,7 +55,6 @@ public sealed class FirefleaFxState
             else phase = FirefleaFxDefinitions.SteadyFlashPhase;
             FlashPhase = phase;
         }
-        Timer = timer;
 
         Tint = Shade(phase, darknessStep);
     }

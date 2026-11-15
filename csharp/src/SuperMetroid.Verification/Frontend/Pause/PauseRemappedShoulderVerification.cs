@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
@@ -25,7 +26,8 @@ internal static class PauseRemappedShoulderVerification
         foreach ((ControllerButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(ControllerButton.R, true), new VerifyPauseRemappedShoulderCase(ControllerButton.L, false) })
         {
             var random = new SharedRandom();
-            var runtime = CreateRetailRuntimeFixture(random: random);
+            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random) { GameState = SuperMetroidGameState.Paused };
+            var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -33,7 +35,6 @@ internal static class PauseRemappedShoulderVerification
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
-            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random) { GameState = SuperMetroidGameState.Paused };
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)

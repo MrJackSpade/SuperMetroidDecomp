@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Fx;
@@ -63,7 +64,7 @@ internal static class InstalledSporesTests
         {
             records++;
             var baselineFrames = new ArtworkFrameSelections();
-            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(new RoomFxSession(), definition, 0);
+            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.Blend == RoomEffectBlendDefinitions.SporesBrightenBehind,
@@ -78,7 +79,7 @@ internal static class InstalledSporesTests
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomFxOverlayRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
-                baseline.Step(baselineFrames, new RoomFxOverlayFrame { Camera = camera, TimeIsFrozen = frozen, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None });
+                baseline.Step(baselineFrames, new RoomFxOverlayFrame { Camera = camera, TimeIsFrozen = frozen });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
@@ -97,7 +98,8 @@ internal static class InstalledSporesTests
                 }
                 if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
-                    var liquid = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SuperMetroid.Core.Samus.Drawing.SamusParticles());
+                    var liquid = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SuperMetroid.Core.Samus.Drawing.SamusParticles(),
+                        GameplayAudioRequests.Standalone());
                     liquid.ConfigureFor(baseline);
                     Require(liquid.FxType == RoomFxType.Spores && liquid.WaterSurfaceY is null &&
                         liquid.LavaAcidSurfaceY is null, "Spore artwork activated liquid physics.");

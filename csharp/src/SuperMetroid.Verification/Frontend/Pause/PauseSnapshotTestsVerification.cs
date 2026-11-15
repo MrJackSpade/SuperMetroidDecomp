@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
@@ -24,7 +25,7 @@ internal static class PauseSnapshotTestsVerification
     /// <summary>Compares captured packets to direct retail-frame rendering and verifies snapshot ownership.</summary>
     internal static void VerifyPauseRenderSnapshots()
     {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),

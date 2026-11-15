@@ -16,6 +16,7 @@ public sealed class EnemySession
     /// <summary>
     /// Creates the enemy state a fresh power-on holds, bound to the compatibility services its enemies consult.
     /// </summary>
+    /// <param name="audioRequests">The update's audio requests of the runtime the enemies run in, which every room's enemies join (#2057).</param>
     /// <param name="overreads">The installation's services reproducing what enemies read past their authored data (#1500).</param>
     /// <param name="bossOverreads">
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data (#1500).
@@ -26,19 +27,24 @@ public sealed class EnemySession
     /// </param>
     /// <param name="sheets">The installed pre-coloured enemy sheets every room's enemies draw from.</param>
     /// <param name="frameDisplays">Every installed enemy frame's display, which drawing an enemy reads.</param>
-    public EnemySession(
+    internal EnemySession(
+        GameplayAudioRequests audioRequests,
         EnemyOverreadServices overreads,
         BossAndIntroOverreadServices bossOverreads,
         RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint,
         IEnemySheetSource sheets,
         EnemyFrameDisplays frameDisplays)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         Overreads = Ensure.NotNull(overreads);
         BossOverreads = Ensure.NotNull(bossOverreads);
         RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
         Sheets = Ensure.NotNull(sheets);
         FrameDisplays = Ensure.NotNull(frameDisplays);
     }
+
+    /// <summary>The update's audio requests of the runtime the enemies run in, which every room's enemies' sounds and music join.</summary>
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>The elevator journey state carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();

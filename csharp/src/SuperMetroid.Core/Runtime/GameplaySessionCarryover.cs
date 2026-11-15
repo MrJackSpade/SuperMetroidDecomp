@@ -17,8 +17,8 @@ internal sealed record GameplaySessionCarryover
     public required CompatibilityKeptAcrossGames Compatibility { get; init; }
 
     /// <summary>
-    /// The session's sound and music queues, which the runtime's gameplay requests go straight into as they are made; none
-    /// for a runtime outside a session, whose requests reach no queue.
+    /// The session's sound and music queues, which the runtime's gameplay requests go straight into as they are made; a
+    /// runtime outside a session has queues of its own (#2057).
     /// </summary>
-    public AudioQueues? Audio { get; init; }
+    public required AudioQueues Audio { get; init; }
 }

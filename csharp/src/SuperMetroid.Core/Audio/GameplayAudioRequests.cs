@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The sound and music requests gameplay makes in one update, in the order it makes them (#1620). Every gameplay system
-/// queues its request here the moment it makes it, and a session's requests go straight on into its sound and music queues,
-/// so the queues receive them in the update's run order across every system, as each of the game's systems queues its own
+/// queues its request here the moment it makes it, and the requests go straight on into the queues the record was made
+/// over, so the queues receive them in the update's run order across every system, as each of the game's systems queues its own
 /// directly while they run.
 /// </summary>
 /// <remarks>
@@ -16,29 +16,17 @@ namespace SuperMetroid.Core.Audio;
 /// the drawing and the HUD in turn, and each of them calls the game's sound and music queues at the point it runs;
 /// none holds a request back for a later system.
 /// </remarks>
-internal sealed class GameplayAudioRequests
+/// <param name="queues">The queues every request goes on into as it is made.</param>
+internal sealed class GameplayAudioRequests(IGameplayAudioQueues queues)
 {
-    /// <summary>The session's queues the requests go on into, or none before the record is attached to a session's.</summary>
-    private IGameplayAudioQueues? queues;
+    /// <summary>The queues the requests go on into.</summary>
+    private readonly IGameplayAudioQueues queues = Ensure.NotNull(queues);
 
     /// <summary>The update's sound requests, in request order.</summary>
     private readonly List<SoundRequest> soundRequests = [];
 
     /// <summary>The update's music requests, in request order.</summary>
     private readonly List<GameplayMusicRequest> musicRequests = [];
-
-    /// <summary>
-    /// Sends every later request straight on into <paramref name="sessionQueues"/>, the queues of the session running the
-    /// record's owner.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The record already reaches a session's queues.</exception>
-    internal void AttachTo(IGameplayAudioQueues sessionQueues)
-    {
-        Ensure.NotNull(sessionQueues);
-        if (queues is not null)
-            throw new InvalidOperationException("The audio requests already reach a session's queues.");
-        queues = sessionQueues;
-    }
 
     /// <summary>The update's sound requests, in the order the sound queues receive them.</summary>
     internal IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
@@ -55,18 +43,18 @@ internal sealed class GameplayAudioRequests
 
     /// <summary>
     /// Requests <paramref name="request"/>'s sound now, after the update's earlier sound requests, returning what its queue
-    /// did with it, or none when the record reaches no queue.
+    /// did with it.
     /// </summary>
-    internal SoundQueueAdmission? QueueSound(SoundRequest request)
+    internal SoundQueueAdmission QueueSound(SoundRequest request)
     {
         soundRequests.Add(request);
-        return queues?.QueueSound(request);
+        return queues.QueueSound(request);
     }
 
     /// <summary>Requests <paramref name="soundEffect"/> now (see <see cref="QueueSound(SoundRequest)"/>).</summary>
     /// <param name="soundEffect">The sound.</param>
     /// <param name="priority">How full its queue may be for the request to join it.</param>
-    internal SoundQueueAdmission? QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
+    internal SoundQueueAdmission QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
         QueueSound(new SoundRequest(soundEffect, priority));
 
     /// <summary>Schedules <paramref name="request"/> now, after the update's earlier music requests.</summary>
@@ -75,10 +63,10 @@ internal sealed class GameplayAudioRequests
     /// <summary>Starts the permanent-item fanfare's music sequence now, after the update's earlier music requests.</summary>
     internal void QueuePermanentItemFanfare() => QueueMusic(new GameplayMusicRequest.PermanentItemFanfare());
 
-    /// <summary>Records <paramref name="request"/> and puts it on the session's music queue.</summary>
+    /// <summary>Records <paramref name="request"/> and puts it on the music queue.</summary>
     private void QueueMusic(GameplayMusicRequest request)
     {
         musicRequests.Add(request);
-        queues?.QueueMusic(request);
+        queues.QueueMusic(request);
     }
 }

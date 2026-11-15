@@ -135,7 +135,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve, handed to the discovery scene.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
-    private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
+    private readonly SamusBombProjectileSystem flashbackBombProjectiles;
+    /// <summary>
+    /// The update's audio requests the flashbacks' Samus, shots and bombs join, which go straight on into the frontend's
+    /// queues (#2057): her missiles' firing sounds. The cinematic's own suppressions keep the rest away from the queues:
+    /// missile impacts in a cinematic frame and her landing, footstep and liquid sounds while a cinematic is active.
+    /// </summary>
+    private readonly GameplayAudioRequests flashbackAudioRequests;
     /// <summary>Persistent narration actor and caret walker for illustrated pages.</summary>
     internal IntroNarrationActors? CurrentNarration { get; private set; }
     /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
@@ -232,7 +238,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         Ensure.NotNull(overreads);
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
-        flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), samusOverreads,
+        flashbackAudioRequests = new GameplayAudioRequests(new CinematicAudioQueues(Ensure.NotNull(audio)));
+        flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests);
+        flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
@@ -594,8 +602,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded with the initial artwork; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
-        CurrentFlashbackSamus = new SamusState(samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge,
-            flashbackSamusArtwork)
+        CurrentFlashbackSamus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
+            SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
@@ -866,20 +874,16 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
+        // The update's requests, which the frontend's queues already hold, leave the flashbacks' record.
+        flashbackAudioRequests.BeginUpdate();
         FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
 
         // The HUD and projectile step calls the shared cooldown owner before
         // its ordinary-projectile half. Standing facing left cannot place bombs, but running
         // the real owner is still required for missile admission timing.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        // A missile's firing sound joins the frontend's queues as the shot fires.
         flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
-        if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
-        {
-            audio.QueueSound(
-                soundEffect,
-                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum
-                    ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
-        }
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -23,7 +24,8 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -33,7 +35,6 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.Paused;

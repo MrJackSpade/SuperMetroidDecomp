@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -74,7 +75,7 @@ internal static class EnemySoundOrderVerification
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
         shot.Damage = 1;
@@ -82,7 +83,7 @@ internal static class EnemySoundOrderVerification
         shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
 
         enemies.Audio.BeginFrame();
-        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem()),
+        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone())),
             "the indestructible link rejects the shot");
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Normal) }, enemies.Audio.SoundRequests,
             "the rejected shot queues the dud sound at once, at normal priority");

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The reactions of Mother Brain's own that its frames' hitboxes name (#1759). Only Mother Brain's handlers tell them apart; a
+/// The reactions of Mother Brain's own that its frames' hitboxes name (#1759). Only Mother Brain's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
 internal static class MotherBrainReactions

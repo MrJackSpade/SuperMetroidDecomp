@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Launches Fake Kraid's spit and body-spike projectiles.</summary>
 internal static class FakeKraidProjectiles
 {
-    /// <summary>Computes the signed8.8 near/far launches, mirrored by facing.</summary>
+    /// <summary>Computes the near and far spit launch velocities, in pixels and 256ths of a pixel, mirrored by facing.</summary>
     internal static EightEightVector<RoomPixels> SpitLaunch(bool movingRight, int projectile)
     {
         if ((uint)projectile >= FakeKraidProjectileDefinitions.SpitCount)

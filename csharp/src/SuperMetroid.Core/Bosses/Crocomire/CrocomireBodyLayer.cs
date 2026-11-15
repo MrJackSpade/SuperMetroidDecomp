@@ -39,7 +39,7 @@ internal sealed class CrocomireBodyLayer
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
     {
         RoomEnemySlot tongue = state.Tongue ??
-            throw new InvalidOperationException("Crocomire's tongue program started without a tongue.");
+            throw new InvalidOperationException("Crocomire's tongue animation started without a tongue.");
         state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
         tongue.AnimationClock.RestartAfter(updates);
     }

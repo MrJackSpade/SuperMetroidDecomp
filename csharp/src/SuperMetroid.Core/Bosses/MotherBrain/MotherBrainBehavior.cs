@@ -97,7 +97,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
 
-    /// <summary>Dispatches the active body phase while preserving the phase-specific timer and attack order.</summary>
+    /// <summary>Runs Mother Brain's current body phase, keeping that phase's own timer and attack order.</summary>
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
         SamusState? samus,

@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Compiled mechanics and dispatch metadata for Lower Norfair Ridley's
-/// twelve death-breakup actors. The selected animations remain authored data.
+/// How Lower Norfair Ridley's twelve death-breakup actors fly apart: their speeds, frames, order and lifetimes. The
+/// selected animations remain authored data.
 /// </summary>
 internal static class RidleyExplosionDefinitions
 {

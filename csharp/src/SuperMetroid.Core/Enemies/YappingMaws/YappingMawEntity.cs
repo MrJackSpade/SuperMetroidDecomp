@@ -40,7 +40,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemySlot
     /// <summary>Runs the Yapping Maw's frozen behaviour after the common thaw.</summary>
     public override void RunFrozen() => YappingMawBehavior.RunYappingMawFrozen(Slot, Slot.RequireSpeciesState<YappingMawEnemyState>());
 
-    /// <summary>The Yapping Maw's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The Yapping Maw's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

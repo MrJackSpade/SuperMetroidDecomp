@@ -27,7 +27,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>).</summary>
     public RotationAngle NeckTurnPerUpdate { get; internal set; }
 
-    /// <summary>Whether articulated neck angle dispatch runs on the brain's turn.</summary>
+    /// <summary>Whether the neck's two angles turn on the brain's turn.</summary>
     public bool NeckMovementEnabled { get; internal set; }
 
     /// <summary>The lower neck movement selected by the current actor phase.</summary>

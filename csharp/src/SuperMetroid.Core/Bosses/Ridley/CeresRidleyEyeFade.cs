@@ -10,9 +10,8 @@ internal static class CeresRidleyEyeFade
     /// fifteen down through zero; the remaining 48 steps hold shade zero before the fade completes.
     /// </summary>
     /// <remarks>
-    /// #625 / #651, as the Japanese and North American v1.0 release fades the eyes: step 0..15 shows shade
-    /// 15-step, steps 16..63 show shade zero, and step 64 completes the
-    /// fade. All 65 steps match the pinned release.
+    /// Steps 0 through 15 show shade fifteen minus the step, steps 16 through 63 show shade zero, and step 64 completes
+    /// the fade.
     /// No step follows the completing one, so a later step is refused.
     /// The eye-fade verification checks every shade and the completing
     /// step through the fade that consumes it.

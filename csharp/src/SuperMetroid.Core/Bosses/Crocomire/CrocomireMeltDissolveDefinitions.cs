@@ -9,8 +9,8 @@ internal static class CrocomireMeltDissolveDefinitions
     /// clears a different pixel than its column names; this silhouette is what the melt shows.
     /// </summary>
     /// <remarks>
-    /// Retained under #1165's arbitrary-sequence exception: these are the fixed shuffled visitation identities of all columns
-    /// 0..48, not samples of motion or geometry. Replacing this order with a new shuffle changes the dissolve.
+    /// The fixed shuffled order in which the dissolve visits all columns 0 through 48, not samples of motion or geometry.
+    /// Replacing this order with a new shuffle changes the dissolve.
     /// </remarks>
     internal static ReadOnlySpan<byte> ColumnOrder =>
     [

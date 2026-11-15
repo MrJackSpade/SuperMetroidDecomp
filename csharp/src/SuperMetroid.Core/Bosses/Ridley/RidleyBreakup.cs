@@ -27,7 +27,7 @@ internal static class RidleyBreakup
             return frame;
         if (parameter == RidleyExplosionPart.TailTip)
             return TailTipBreakupFrames.At(tailTipDirection);
-        throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments have no tail program.");
+        throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments show no tail frame.");
     }
 
     /// <summary>The body-relative position and pose a breakup fragment starts with, by the way Ridley faced.</summary>

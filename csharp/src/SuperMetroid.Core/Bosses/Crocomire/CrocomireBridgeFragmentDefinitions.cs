@@ -10,13 +10,12 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <remarks>
     /// The eleven equal-width floor columns are visited in this destruction choreography:
     /// 8,3,9,4,11,6,10,7,1,5,2. The falling sequence advances the cursor and passes
-    /// each selected X to the same producer. The fragment initializer fixes Y187, X velocity0 and
-    /// its graphics; independently, each fragment gets Y velocity(RNG &amp; 63)+64.
-    /// No RNG, actor direction or data-dependent choice selects the
+    /// each selected X to the same producer. Each fragment starts at Y 187 with no horizontal speed and its own picture,
+    /// and falls at a random speed of 64 through 127 256ths of a pixel per update.
+    /// No random number, actor direction or data-dependent choice selects the
     /// order. The permutation is the authored ordering of the visual destruction, not
-    /// sampled geometry. Retain only that order; coordinates calculate from the grid.
-    /// Issue1165 retains this order as the narrow nonsense exception: replacing the
-    /// chosen destruction choreography with an invented shuffle would change the effect.
+    /// sampled geometry. Retain only that order; coordinates calculate from the grid. Replacing the chosen destruction
+    /// choreography with an invented shuffle would change the effect.
     /// </remarks>
     private static ReadOnlySpan<int> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 

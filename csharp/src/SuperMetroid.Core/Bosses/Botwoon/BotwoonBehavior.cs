@@ -292,7 +292,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.RingIndex = BotwoonTrailRing.PlaceAt(state.RingIndex + 1);
     }
 
-    /// <summary>Dispatches movement toward a hole or through an authored path descriptor.</summary>
+    /// <summary>Moves Botwoon toward a hole or along one of his authored paths, as his movement says.</summary>
     internal static void RunBotwoonMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         switch (state.Movement)
@@ -490,7 +490,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.HoleLatch = false;
     }
 
-    /// <summary>Dispatches head animation, aim, spit-frame wait, immediate volley, or cooldown.</summary>
+    /// <summary>Runs Botwoon's head action: animating, aiming, waiting for the spit frame, an immediate volley or the cooldown.</summary>
     private void RunBotwoonHeadAction(
         RoomEnemySlot head,
         BotwoonEnemyState state,

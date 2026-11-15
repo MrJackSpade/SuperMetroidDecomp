@@ -48,9 +48,9 @@ internal static class RidleySamusInteractionDefinitions
         [SamusMovementType.DraygonHeld] = GrabPolicy.Immune,
     };
 
-    /// <summary>The release loads6 frames for morphed overflow.</summary>
+    /// <summary>How long Samus stays out of Ridley's reach after he releases her in ball form: six frames.</summary>
     internal const int MorphedReleaseIntangibilityFrames = 6;
 
-    /// <summary>The release otherwise loads10.</summary>
+    /// <summary>How long Samus stays out of Ridley's reach after he releases her in any other form: ten frames.</summary>
     internal const int OrdinaryReleaseIntangibilityFrames = 10;
 }

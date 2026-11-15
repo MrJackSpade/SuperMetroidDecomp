@@ -50,7 +50,7 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
         WalkingSpacePirateBehavior.SpacePirateBombReaction;
 
-    /// <summary>The Pirate shot reactions, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The Pirate shot reactions, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         SpacePirateHitboxes.OwnsShotReaction(reaction);

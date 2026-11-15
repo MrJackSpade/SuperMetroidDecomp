@@ -9,12 +9,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// central body it repeated at the same place could never be the first hitbox a probe met.
 /// Sprite and body-layer art are deliberately absent: installed visual overrides cannot
 /// alter the game's component offsets, rectangles, or reaction identities.
-/// Values are pinned to the project's Japanese and North American v1.0 retail release.
 /// Corpse-frame requests delegate to the separate corpse collision catalog.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165. Component placements (jaw, body bands) and list rectangles are fitted to the drawings and
-/// retained; Crocomire has no mirrored facing.
+/// Component placements (jaw, body bands) and list rectangles are fitted to the drawings and retained; Crocomire has no
+/// mirrored facing.
 /// </remarks>
 internal static class CrocomireBodyCollisionDefinitions
 {

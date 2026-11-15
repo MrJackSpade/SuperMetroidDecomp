@@ -49,7 +49,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     /// <summary>The dead Torizo's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadTorizoPowerBombReaction : base.PowerBombReaction;
 
-    /// <summary>The dead Torizo's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The dead Torizo's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

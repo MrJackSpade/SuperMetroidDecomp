@@ -158,7 +158,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
             ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes
             : Slot.DefinitionId == EnemyDefinitionId.Kraid ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The arm's shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The arm's shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId == EnemyDefinitionId.KraidArm && reaction == KraidReactions.ArmShot;

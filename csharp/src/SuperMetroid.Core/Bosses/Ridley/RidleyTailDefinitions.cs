@@ -64,7 +64,7 @@ internal static class RidleyTailDefinitions
 
     /// <summary>Tail initialization sets Ridley's ideal inter-segment tail angle to 16; the initial angles advance by that separation.</summary>
     internal const int IdealInterSegmentSpacing = 16;
-    /// <summary>The initial base separation: two pixels. The length is an authored scalar (see the residual scalar inputs review).</summary>
+    /// <summary>The initial base separation: two pixels. The length is an authored scalar.</summary>
     private static readonly SignedEightEight BaseRestDistance = SignedEightEight.FromParts(2, 0);
     /// <summary>The initial shaft separation and its shrink thresholds: eight pixels. The length is an authored scalar.</summary>
     private static readonly SignedEightEight ShaftRestDistance = SignedEightEight.FromParts(8, 0);

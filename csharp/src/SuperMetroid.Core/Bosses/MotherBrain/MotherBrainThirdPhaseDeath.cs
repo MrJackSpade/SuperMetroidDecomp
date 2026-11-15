@@ -479,8 +479,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death20 frame delay body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// Runs the pause that opens Mother Brain's third-phase death, counting its timer of twenty down past zero. True when
+    /// it moves to the next body phase and the game runs on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeath20FrameDelay()
     {

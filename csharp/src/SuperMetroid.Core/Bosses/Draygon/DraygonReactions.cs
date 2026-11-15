@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// The reactions of Draygon's own that its frames' hitboxes name (#1759). Only Draygon's handlers tell them apart; a
+/// The reactions of Draygon's own that its frames' hitboxes name (#1759). Only Draygon's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
 internal static class DraygonReactions

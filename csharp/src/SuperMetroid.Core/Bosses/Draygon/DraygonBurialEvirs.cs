@@ -24,8 +24,8 @@ internal static class DraygonBurialEvirs
 
     /// <summary>
     /// The burial subspeeds are the absolute unit-circle components scaled by <see cref="DraygonBurialEvirDefinitions.SubspeedScale"/>
-    /// and truncated, in 65536ths of a pixel; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
-    /// circle, floor to pixels, then wrap signed X into the coordinate range. The angle
+    /// and truncated, in 65536ths of a pixel; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on a circle of radius 508
+    /// pixels, floor to pixels, then wrap signed X into the coordinate range. The angle
     /// selects the movement signs. An Evir left of the circle's centre faces right, toward Draygon, and one right of it is
     /// drawn as the intro Evir, which faces left.
     /// </summary>

@@ -69,7 +69,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
-    /// <summary>Spore Spawn's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
+    /// <summary>Spore Spawn's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction == SporeSpawnReactions.Shot || reaction == EnemyReaction.DudShot;

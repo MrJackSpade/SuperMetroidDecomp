@@ -111,8 +111,8 @@ internal static class IntroNextPageArrowVerification
     private static NarrationPair Pair(IntroNarrationPresentation narration)
     {
         var subtitles = new IntroJapaneseSubtitles(enabled: true);
-        return new(new IntroCinematicObjectSystem(new IntroNarrationText(), subtitles, narrationPresentation: narration),
-            new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration),
+        return new(new IntroCinematicObjectSystem(new IntroNarrationText(), subtitles, AudioQueues.Standalone(), narrationPresentation: narration),
+            new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration),
             subtitles);
     }
 

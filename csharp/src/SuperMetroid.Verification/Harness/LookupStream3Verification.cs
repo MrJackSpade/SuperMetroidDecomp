@@ -139,7 +139,7 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false));
+            var objects = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {

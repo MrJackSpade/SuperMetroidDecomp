@@ -221,9 +221,9 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var native = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var native = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         var installed = new IntroCinematicObjectSystem(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
+            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         native.Step(0);
         installed.Step(0);
         AssertEqual(native.EyeFrame, installed.EyeFrame, "installed opening eye shows the native frame");
@@ -299,9 +299,9 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var nativeBlink = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         var installedBlink = new IntroCinematicObjectSystem(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
+            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();
         for (int frame = 0; frame < 20; frame++)

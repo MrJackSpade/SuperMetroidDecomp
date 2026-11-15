@@ -159,9 +159,8 @@ internal sealed class IntroMotherBrainSpriteState
         // The shake adds four on even cinematic frames and subtracts four on odd frames.
         // The inherited scroll of 8 therefore alternates 12/8; starting the scroll
         // at zero would produce 4/0 and shift the whole room down eight pixels.
-        // The scroll wraps at sixteen bits, as every room scroll does.
-        Background += IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
-            ? new Offset16<RoomPixels>(0, -4)
-            : new Offset16<RoomPixels>(0, 4);
+        // The shake keeps the scroll within four pixels of the inherited eight, so it never passes the room's top (#1974).
+        Background = Background.WithY(Background.Y +
+            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? -4 : 4));
     }
 }

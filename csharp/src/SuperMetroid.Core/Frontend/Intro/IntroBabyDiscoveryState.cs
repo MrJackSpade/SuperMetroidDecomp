@@ -136,7 +136,7 @@ internal sealed class IntroBabyDiscoveryState
         // The egg tests Samus's post-movement X during the later cinematic-sprite pass.
         // It permanently redirects the animation once X is below 169.
         if (eggBehavior == MetroidEggBehavior.WaitsForSamus &&
-            CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
+            Samus.Position.X.Whole < 169)
         {
             egg.Start(CinematicSpriteSegment.MetroidEggHatching);
             eggBehavior = MetroidEggBehavior.Hatches;
@@ -423,14 +423,15 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>
     /// Adjusts a 1/256-pixel velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
-    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range.
+    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range. The baby and its
+    /// targets lie on the screen near Samus, so their places compare directly (#1974).
     /// </summary>
     private static SignedEightEight AccelerateToward(
         int position,
         int target,
         SignedEightEight current,
         SignedEightEight limit) =>
-        CoordinateAxis.Difference(target, position) >= 0
+        target >= position
             ? SignedEightEight.Min(limit, current + BabyAcceleration)
             : SignedEightEight.Max(-limit, current - BabyAcceleration);
 

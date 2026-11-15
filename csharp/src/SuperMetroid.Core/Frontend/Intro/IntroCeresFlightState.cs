@@ -283,7 +283,7 @@ internal sealed class IntroCeresFlightState
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
             "The Ceres approach's rear view requires the installed actor placements.");
         RearViewActors = [.. CeresFlightActorDefinitions.RearViewSpawnOrder
-            .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Position)))];
+            .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Place)))];
 
         // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
         // white and takes one step off the wash per frame until black.
@@ -295,10 +295,10 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
-    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Position16<ScreenPixels> start)
+    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            start,
+            Position16<ScreenPixels>.Zero + start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
         {

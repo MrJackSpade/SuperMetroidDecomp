@@ -146,8 +146,8 @@ internal static class CeresColourEffectsVerification
         ushort Subtitle(int word) => cartridge.ReadCartridgeWord(SubtitleList + word * sizeof(ushort));
         AssertEqual(CinematicSpritemapSources.Of(SubtitlePose), Subtitle(1), "the subtitle's list shows the subtitle's pose");
         AssertEqual(DeleteInstruction, Subtitle(2), "the subtitle's list deletes the subtitle after its hold");
-        Position16<ScreenPixels> placed = InstalledFixtures.IntroArtwork.BoundCatalog.CeresDestruction
-            .RevealActors[ZebesRevealActorRole.JapaneseSubtitle].Position;
+        Position16<ScreenPixels> placed = Position16<ScreenPixels>.Zero + InstalledFixtures.IntroArtwork.BoundCatalog.CeresDestruction
+            .RevealActors[ZebesRevealActorRole.JapaneseSubtitle].Place;
         AssertEqual(Position16<ScreenPixels>.Wrapped(Byte(cartridge, SubtitleInit + 1) | Byte(cartridge, SubtitleInit + 2) << 8,
                 Byte(cartridge, SubtitleInit + 7) | Byte(cartridge, SubtitleInit + 8) << 8), placed,
             "the installed subtitle placement is its initializer's");

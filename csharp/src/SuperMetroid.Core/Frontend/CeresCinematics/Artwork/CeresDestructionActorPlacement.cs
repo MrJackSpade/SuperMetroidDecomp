@@ -6,7 +6,7 @@ public sealed record CeresDestructionActorPlacement
 {
     /// <summary>The validated spawn position as one screen-pixel value.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<ScreenPixels> Position => Position16<ScreenPixels>.Wrapped(X, Y);
+    public Offset16<ScreenPixels> Place => Offset16<ScreenPixels>.Of(X, Y);
 
     /// <summary>The actor the placement places, by what it shows (#1768): its installed key, not an editable behavior selector.</summary>
     [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<CeresDestructionActorRole>))]

@@ -66,7 +66,7 @@ internal sealed class EndingStage
     /// </summary>
     /// <returns>The actor added.</returns>
     internal EndingSprite SpawnSprite(
-        Position16<ScreenPixels> position,
+        Offset16<ScreenPixels> position,
         EndingSpriteColouring colouring,
         CinematicSpriteSegment segment,
         EndingSpriteRole role)
@@ -76,7 +76,7 @@ internal sealed class EndingStage
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
-        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), segment), role);
+        var added = new EndingSprite(new IntroDiscoverySprite(Position16<ScreenPixels>.Zero + position, EndingShades.Drawn(colouring), segment), role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
@@ -95,7 +95,7 @@ internal sealed class EndingStage
     /// <returns>The actor added.</returns>
     internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
-            Position16<ScreenPixels>.Zero + definition.Position,
+            definition.Position,
             definition.Colouring,
             definition.Animation,
             role);

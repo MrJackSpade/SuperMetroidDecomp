@@ -16,7 +16,7 @@ internal static class CeresFlightActorDefinitions
     public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Where the opening star field starts; the rear view's actors start at their installed placements.</summary>
-    public static readonly Position16<ScreenPixels> FrontStarsStart = new(112, 87);
+    public static readonly Offset16<ScreenPixels> FrontStarsStart = new(112, 87);
 
     /// <summary>
     /// The front star definition: opening star field and the speed its rush starts at, four

@@ -24,7 +24,7 @@ internal static class EndingShootingStarDefinitions
     /// </summary>
     internal const int FieldFarEdge = ScreenGeometry.ScreenWidthPixels - 1;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
-    internal static Offset16<ScreenPixels> SpriteCenter => new(CoordinateAxis.AsSigned(SpriteOffset), CoordinateAxis.AsSigned(SpriteOffset));
+    internal static Offset16<ScreenPixels> SpriteCenter => Offset16<ScreenPixels>.Of(SpriteOffset, SpriteOffset);
     /// <summary>The shooting stars: X/Y acceleration, animation period, initial delay.</summary>
     private static readonly EndingShootingStarDefinition[] stars = [
         new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16), 6, 8),

@@ -242,7 +242,7 @@ public sealed class SamusDrainedState
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special ||
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special ||
             samus.Kinematics.Radius.Y != 21)
             throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 

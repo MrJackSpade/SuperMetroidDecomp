@@ -378,7 +378,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SamusMovementType movement = SamusPoseMetadata.ReadMovementKind(samus);
+            SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
             if (movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
                 // Samus's release from the Yapping Maw selects her standing pose from the current direction,

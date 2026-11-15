@@ -197,7 +197,7 @@ internal sealed class SamusPresentation
             // While running with momentum the run's cadence, not the pose's own delays, times each frame. Releasing
             // Dash keeps the cadence: only a transition or collision that cancels momentum ends it.
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
-                SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
+                SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.AnimationFrame)
                     : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.AnimationFrame)
@@ -207,7 +207,7 @@ internal sealed class SamusPresentation
         }
 
         bool activeDashAnimation = samus.HorizontalSpeed.HasRunningMomentum &&
-            SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running &&
+            SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running &&
             (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {

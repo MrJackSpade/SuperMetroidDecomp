@@ -39,7 +39,7 @@ public static class SamusGrappleSwing
         // A fast swing selects the slow-scrolling camera branch.
         grapple.SlowScrolling = Math.Abs(grapple.AngularVelocity) >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
         // The swing calls the same position helper used by terrain probes. Besides scaling the
-        // signed table components, it applies the block-side 7/8 endpoint bias documented in
+        // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
@@ -103,8 +103,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>
-    /// The signed negative cosine of <paramref name="angle"/>'s whole step, the table's entry at that step: the sine a
-    /// quarter turn behind it.
+    /// The signed negative cosine of <paramref name="angle"/>'s whole step: the sine a quarter turn behind it.
     /// </summary>
     internal static int ReadSignedSine(RotationAngle angle) =>
         Trigonometry.SignedSine((angle - RotationAngle.QuarterTurn).ToTrigonometryAngle());
@@ -131,9 +130,9 @@ public static class SamusGrappleSwing
                 grapple.RopeLength = 64;
         }
 
-        // The branch accepts pumping only through the lower half of the circle:
-        // angle 16384..49151. At exactly 32768 a motionless pendulum gets the game's
-        // +/-256 kick before the normal +/-12 input acceleration is added.
+        // The branch accepts pumping only through the lower half of the circle, from a quarter turn up to three quarters.
+        // Hanging straight down, a motionless pendulum gets the +/-256 kick before the normal +/-12 input acceleration
+        // is added.
         bool inPumpArc = grapple.Angle >= RotationAngle.QuarterTurn &&
             grapple.Angle < RotationAngle.ThreeQuarterTurn;
         if (!inPumpArc)
@@ -256,7 +255,7 @@ public static class SamusGrappleSwing
         }
         else if (angle >= RotationAngle.HalfTurn)
         {
-            // The hang test compares only the whole step: every angle from 32768 through 33023 hangs straight down.
+            // The hang test compares only the whole step: every angle within the half turn's step hangs straight down.
             if (HangsStraightDown(grapple))
             {
                 grapple.GravityAcceleration = 0;
@@ -294,7 +293,7 @@ public static class SamusGrappleSwing
 
         // The swing adds the small correction when the velocity and the angle lean opposite ways: a negative velocity
         // with an angle in the first half-turn, or a non-negative one with an angle in the second, so the test turns
-        // over at the 0/65535 angle seam.
+        // over where the angle comes round to zero.
         if ((velocity < 0) != (grapple.Angle >= RotationAngle.HalfTurn))
             velocity += grapple.VelocityCorrection;
 

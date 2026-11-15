@@ -105,7 +105,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.NormalJumping)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.NormalJumping)
             throw new InvalidOperationException(
                 $"Normal-jump movement requires {nameof(SamusMovementType.NormalJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -173,7 +173,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.SpinJumping)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
                 $"Spin-jump movement requires {nameof(SamusMovementType.SpinJumping)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
@@ -286,7 +286,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.WallJumping ||
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.WallJumping ||
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
@@ -329,7 +329,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.DamageBoost ||
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.DamageBoost ||
             samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
@@ -436,7 +436,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Falling)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Falling)
             throw new InvalidOperationException(
                 $"Falling movement requires {nameof(SamusMovementType.Falling)}, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(

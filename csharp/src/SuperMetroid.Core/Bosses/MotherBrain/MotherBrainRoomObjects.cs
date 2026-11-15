@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomMutationDefinit
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Spawns Mother Brain's room-mutation objects in the room's shared room-object slots.</summary>
-/// <param name="places">The room's room-object slots, which her mutations contend for with every other room object.</param>
+/// <summary>Spawns Mother Brain's room-mutation objects in the room's shared room-object places.</summary>
+/// <param name="places">The room's room-object places, which her mutations contend for with every other room object.</param>
 internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
 {
     /// <summary>

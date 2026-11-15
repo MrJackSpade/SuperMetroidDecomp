@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.Kraid.KraidRoomMutationDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Spawns Kraid's ceiling, platform and spike room objects in the room's shared room-object slots.</summary>
-/// <param name="places">The room's room-object slots, which Kraid's mutations contend for with every other room object.</param>
+/// <summary>Spawns Kraid's ceiling, platform and spike room objects in the room's shared room-object places.</summary>
+/// <param name="places">The room's room-object places, which Kraid's mutations contend for with every other room object.</param>
 internal sealed class KraidRoomObjects(RoomObjectPlaceList places)
 {
     /// <summary>

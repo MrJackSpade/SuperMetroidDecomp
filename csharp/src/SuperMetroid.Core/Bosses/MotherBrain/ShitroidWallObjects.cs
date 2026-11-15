@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.MotherBrain.ShitroidWallMutationDefinition
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Spawns the Shitroid's invisible-wall room object in the room's shared room-object slots.</summary>
-/// <param name="places">The room's room-object slots, which the wall contends for with every other room object.</param>
+/// <summary>Spawns the Shitroid's invisible-wall room object in the room's shared room-object places.</summary>
+/// <param name="places">The room's room-object places, which the wall contends for with every other room object.</param>
 internal sealed class ShitroidWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>

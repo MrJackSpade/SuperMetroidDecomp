@@ -549,9 +549,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Movement = SporeSpawnMovement.Moving;
 
-            // Below 400 health the code doubles angular speed while preserving its
-            // current sign. At exactly 400 it leaves the existing delta untouched.
-            if (body.Health < 400)
+            // Low on health, a hit doubles his angle step while keeping its direction.
+            if (SporeSpawnHealthBands.SwingsFast(body.Health))
             {
                 state.AngleDelta = state.AngleDelta < 0 ? -2 : 2;
             }
@@ -565,17 +564,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.AnimationClock.StepOnNextUpdate();
 
-                int healthStage = body.Health >= 770
-                    ? 0
-                    : body.Health >= 410
-                        ? 1
-                        : body.Health >= 70
-                            ? 2
-                            : 3;
                 if (body.Health != state.PreviousHealth)
                 {
                     state.PreviousHealth = body.Health;
-                    ShowSporeSpawnHealthShade(healthStage);
+                    ShowSporeSpawnHealthShade(SporeSpawnHealthBands.Stage(body.Health));
                 }
             }
         }
@@ -807,8 +799,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         set => _encounter.SporeSpawn = value;
     }
 
-    /// <summary>Publishes Spore Spawn's pending target colour writes, if the boss is present.</summary>
-
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindSporeSpawnHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
@@ -817,9 +807,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnCollision.IsFrame(enemy.Frame)))
             return null;
 
-        // These twelve frames are selected by Spore Spawn. Old visual
-        // overrides may carry Draygon-prefixed keys, but every rectangle
-        // and reaction comes from the compiled gameplay catalog.
+        // Every rectangle and reaction of these twelve frames comes from Spore Spawn's collision catalog.
         foreach (EnemyCollisionComponent component in
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {

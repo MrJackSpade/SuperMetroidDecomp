@@ -163,8 +163,7 @@ internal sealed class MotherBrainCombat
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 
-        // The reaction step reads its eight-row reaction table at the family's row wrapped to eight
-        // rows, so missile explosions alias beams.
+        // A missile's explosion reacts as a beam does.
         MotherBrainProjectileType reactionProjectile = projectileType.Family switch
         {
             SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
@@ -190,7 +189,7 @@ internal sealed class MotherBrainCombat
             if (reaction.HyperBeamRecoil)
             {
                 throw new InvalidOperationException(
-                    "Mother Brain received a form-four beam without its phase-three state owner.");
+                    "Mother Brain took a third-phase Hyper Beam recoil without her third-phase sequence.");
             }
             state.WalkCounter = reaction.WalkCredit;
         }
@@ -232,12 +231,9 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Runs a normal bomb through the reaction of Mother Brain's brain.
-    /// The first form's eight-entry projectile-family table rejects bombs outright. Later
-    /// forms always run the recoil step: family five selects reaction zero, subtracting
-    /// 256 from the walk/recoil credit with a signed-zero clamp. Fake-death
-    /// form one then creates only a dud, while forms two and later enter common no-death
-    /// damage. The frame-hitbox caller already owns the bomb collision mark.
+    /// Runs a normal bomb through the reaction of Mother Brain's brain. In her glass form a bomb does nothing. In every
+    /// later form it spends one step's walk credit, an overdraw leaving none; her fake death then takes no damage, while
+    /// her later forms take the common no-death bomb damage. The frame-hitbox caller already owns the bomb collision mark.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemySlot head,
@@ -254,8 +250,7 @@ internal sealed class MotherBrainCombat
         if (state.Form == MotherBrainForm.Glass)
             return;
 
-        // A bomb is reaction type zero, which spends one step and empties the credit when the result is
-        // negative.
+        // A bomb spends one step's credit and empties the credit when it overdraws it.
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
         if (state.Form == MotherBrainForm.FakeDeath)
             return;

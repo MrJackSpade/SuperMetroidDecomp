@@ -138,19 +138,19 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         void VerifySwoopAngularMotion(bool swoopLeft)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterBodyState state, _) = CreatePair();
-            SignedSixteenSixteen acceleration = swoopLeft
+            SignedSixteenSixteen acceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel((swoopLeft
                 ? KiHunterMotionDefinitions.LeftSwoopAcceleration
-                : KiHunterMotionDefinitions.RightSwoopAcceleration;
+                : KiHunterMotionDefinitions.RightSwoopAcceleration).FractionsOfStep);
             ushort accelerationWhole = acceleration.UnsignedWholePixels;
             ushort accelerationFraction = acceleration.Fraction;
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
             state.Action = KiHunterAction.Swooping;
-            state.AngularVelocity = SignedSixteenSixteen.Zero;
-            state.AngularAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction);
-            state.MaximumAngularVelocity = unchecked((short)cap);
-            state.SwoopAngle = angle;
-            state.AnimationChangeAngle = swoopLeft ? 240 : 144;
+            state.AngularVelocity = AngularSpeed.Zero;
+            state.AngularAcceleration = AngularSpeed.FromFractionsOfStep(SignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction).InTwoFiftySixths);
+            state.MaximumAngularVelocity = AngularSpeed.FromSteps(unchecked((short)cap));
+            state.SwoopAngle = RotationAngle.FromSteps(angle);
+            state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
             state.SwoopAnimationChanged = false;
             state.SwoopTarget = body.Position.Whole;
             state.SwoopOrigin = body.Position.Whole;
@@ -184,9 +184,9 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
                 enemies.KiHunterBehavior.RunKiHunterMainAi(body, frame);
                 string side = swoopLeft ? "left" : "right";
-                AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
+                AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
-                AssertEqual(angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
+                AssertEqual(RotationAngle.WrappedSteps(angle), state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
                 AssertEqual(ended ? KiHunterAction.FlyingPatrol : KiHunterAction.Swooping, state.Action,
                     $"KiHunter {side} swoop update {update} ends only when the native angle test ends it");
             }

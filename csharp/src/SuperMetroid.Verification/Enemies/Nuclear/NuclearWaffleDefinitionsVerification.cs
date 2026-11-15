@@ -29,9 +29,9 @@ internal static class NuclearWaffleDefinitionsVerification
             int offset = direction * 4;
             var settings = (NuclearWaffleSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x2000 | direction));
             NuclearWaffleSweepDefinition definition = NuclearWaffleSweeps.Sweep(settings.Direction);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset)), definition.StartAngle,
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset))), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2)), definition.EndAngle,
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2))), definition.EndAngle,
                 $"Nuclear Waffle end angle {direction}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset))),
                 definition.SegmentSpacing,
@@ -39,10 +39,10 @@ internal static class NuclearWaffleDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset + 2))),
                 definition.InterleavedSegmentOffset,
                 $"Nuclear Waffle interleaved offset {direction}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset)),
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset))),
                 definition.RisingTurnThreshold,
                 $"Nuclear Waffle second turn threshold {direction}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset + 2)),
+            AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset + 2))),
                 definition.FallingTurnThreshold,
                 $"Nuclear Waffle first turn threshold {direction}");
 
@@ -113,18 +113,18 @@ internal static class NuclearWaffleDefinitionsVerification
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertTrue(state.SweepsForward, "Nuclear Waffle direction one sweeps forward");
-        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), state.AngularSpeed, "Nuclear Waffle speed record 24 is 1.5 units per update");
+        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
 
         enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
         AssertEqual(NuclearWaffleAction.Sweeping, state.Action, "Nuclear Waffle zero wait expires on the first update");
-        AssertEqual(SignedSixteenSixteen.FromParts(startAngle, 0), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
+        AssertEqual(NuclearWaffleSweepAngle.FromSteps(startAngle), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
 
         for (int update = 0; update <= finishingUpdate; update++)
         {
             if (update == 96)
                 enemies.Audio.BeginFrame();
             enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
-            AssertEqual(SixteenSixteenWords.ToDisplacement(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
+            AssertEqual(SixteenSixteenWords.ToDisplacement(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.SweepAngle.FractionsOfStep),
                 $"Nuclear Waffle sweep angle after sweep update {update}");
             AssertEqual(update == finishingUpdate ? NuclearWaffleAction.Waiting : NuclearWaffleAction.Sweeping, state.Action,
                 $"Nuclear Waffle sweep finishes only on update {finishingUpdate} (update {update})");
@@ -146,7 +146,7 @@ internal static class NuclearWaffleDefinitionsVerification
             }
         }
 
-        AssertEqual(486, state.CurrentAngle, "Nuclear Waffle angle advances once more on the finishing update");
+        AssertEqual(NuclearWaffleSweepAngle.FromSteps(486), state.CurrentAngle, "Nuclear Waffle angle advances once more on the finishing update");
         AssertEqual(state.Origin + EnemyMath.CircleOffset(new TrigonometryAngle(unchecked((byte)endAngle)), radius), slot.Position.Whole, "Nuclear Waffle head is clamped to the end angle");
         Console.WriteLine("  Nuclear Waffle sweep: the 16.16 angle carries, both turns latch with the rising sound only, and the last link ends the sweep.");
 

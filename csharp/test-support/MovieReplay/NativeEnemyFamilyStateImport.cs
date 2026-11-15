@@ -328,8 +328,8 @@ internal static class NativeEnemyFamilyStateImport
             kiHunterBodyRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
             kiHunterBodyRecord.SwoopTarget = new(words.B, 0);
             kiHunterBodyRecord.SwoopOrigin = new(0, words.C);
-            kiHunterBodyRecord.AnimationChangeAngle = words.E;
-            kiHunterBodyRecord.SwoopAngle = words.F;
+            kiHunterBodyRecord.AnimationChangeAngle = RotationAngle.FromSteps(words.E);
+            kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
         if (slot.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
         {

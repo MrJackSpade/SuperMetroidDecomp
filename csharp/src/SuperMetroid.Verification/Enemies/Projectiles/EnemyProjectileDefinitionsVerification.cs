@@ -37,8 +37,9 @@ internal static class EnemyProjectileDefinitionsVerification
             .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
             .ToArray();
-        // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion.
-        AssertEqual(122, kinds.Length, "compiled enemy-projectile definition count");
+        // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
+        // explosion no spawn starts.
+        AssertEqual(121, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));

@@ -3136,8 +3136,8 @@ public enum EnemyFrameId
     CrocomireBodyMeltingTwoTopFourRows,
     /// <summary>Bomb Torizo: dormant.</summary>
     BombTorizoDormant,
-    /// <summary>Golden Torizo: initial.</summary>
-    GoldenTorizoInitial,
+    /// <summary>Torizo: facing left standing up, third frame; both Torizos show it, Golden Torizo first as it sits dormant.</summary>
+    TorizoFacingLeftStandingUpThird,
     /// <summary>Kraid: arm normal, first frame.</summary>
     KraidArmNormalFirst,
     /// <summary>Kraid: arm normal, second frame.</summary>

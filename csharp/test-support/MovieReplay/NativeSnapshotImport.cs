@@ -113,7 +113,7 @@ internal static class NativeSnapshotImport
                 ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
-                ? runtime.Enemies.BombTorizoBehavior.Access.TorizoState
+                ? runtime.Enemies.TorizoBehavior.Access.TorizoState
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
             // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).

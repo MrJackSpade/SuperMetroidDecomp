@@ -47,7 +47,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
-            enemies.BombTorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
+            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
 
             AssertEqual<TorizoProjectileSegment?>(definition.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"{name} production program");
@@ -66,25 +66,25 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         {
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
-                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
                 facingRight,
                 TorizoRandomizedProjectiles.BombChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
-                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
                 facingRight,
                 TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
-                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
                 facingRight,
                 TorizoRandomizedProjectiles.GoldenEgg(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEyeBeam),
-                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo),
                 facingRight,
                 TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight),
                 velocityIsReplaced: true);
@@ -106,7 +106,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
+        enemies.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
 
         spawn(enemies, torizo);
 

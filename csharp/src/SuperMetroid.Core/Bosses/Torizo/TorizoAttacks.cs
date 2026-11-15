@@ -522,7 +522,7 @@ internal sealed class TorizoAttacks
             Egg,
             SpriteGraphics.SpawnedBy(torizo));
 
-        TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
+        TorizoEnemyState state = _access.RequireTorizoState(torizo);
         projectile.State = new GoldenTorizoEggState(facingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight));
         InitializeTorizoRandomizedProjectile(
             projectile,

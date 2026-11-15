@@ -625,11 +625,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.SporeSpawnOpenPulseThird,
     ];
 
-    /// <summary>The frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> shows for <c>BombTorizo</c>.</summary>
+    /// <summary>The frames <c>Bosses/Torizo/TorizoBehavior.cs</c> shows for <c>BombTorizo</c>.</summary>
     private static readonly EnemyFrameId[] BombTorizoFrames =
     [
         EnemyFrameId.BombTorizoDormant,
-        EnemyFrameId.GoldenTorizoInitial,
+        EnemyFrameId.TorizoFacingLeftStandingUpThird,
         EnemyFrameId.TorizoFacingLeftStandingUpSecond,
         EnemyFrameId.TorizoFacingLeftStandingUpFirst,
         EnemyFrameId.TorizoFacingLeftSeated,
@@ -736,10 +736,10 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.TorizoFacingRightStandingUpSixth,
     ];
 
-    /// <summary>The frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> shows for <c>GoldenTorizo</c>.</summary>
+    /// <summary>The frames <c>Bosses/Torizo/TorizoBehavior.cs</c> shows for <c>GoldenTorizo</c>.</summary>
     private static readonly EnemyFrameId[] GoldenTorizoFrames =
     [
-        EnemyFrameId.GoldenTorizoInitial,
+        EnemyFrameId.TorizoFacingLeftStandingUpThird,
         EnemyFrameId.TorizoFacingLeftStandingUpSecond,
         EnemyFrameId.TorizoFacingLeftStandingUpFirst,
         EnemyFrameId.TorizoFacingLeftSeated,

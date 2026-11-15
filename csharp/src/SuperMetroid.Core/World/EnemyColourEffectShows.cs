@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
 /// <param name="slots">The room's enemy places, whose destroyable shutters show the escape's shutter flash.</param>
 internal sealed class EnemyColourEffectShows(
-    BombTorizoBehavior bombTorizo,
+    TorizoBehavior bombTorizo,
     TourianEntranceStatueBehavior statue,
     EnemySlotTable slots) : IEnemyColourEffectShows
 {

@@ -149,7 +149,7 @@ internal sealed class TorizoChoices
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
+        if (samus is not null && FacesAwayFromSamus(torizo, samus) &&
             state.TurnTimer == 0)
         {
             state.TurnTimer = 16;
@@ -194,7 +194,7 @@ internal sealed class TorizoChoices
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
+        if (samus is not null && FacesAwayFromSamus(torizo, samus) &&
             state.TurnTimer == 0)
         {
             state.TurnTimer = 72;
@@ -212,7 +212,7 @@ internal sealed class TorizoChoices
     {
         if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 56)
             return null;
-        if (BombTorizoParameterMatchesSamusDelta(torizo, samus))
+        if (FacesAwayFromSamus(torizo, samus))
             return null;
         state.ReturnPlayback = continuation;
         return TorizoAnimations.ContinueWith(target);
@@ -241,17 +241,13 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>
-    /// Compares the facing bit with Samus-X minus enemy-X for walking branches; the
-    /// game's other facing helper deliberately uses the inverse subtraction.
+    /// Whether the Torizo faces away from Samus, as its walking steps and close-behind branch test it: facing right with
+    /// Samus to its left, or facing left with Samus to its right or level with it. It is not the negation of
+    /// <see cref="TorizoEncounterAccess.FacesSamus"/>: by the two tests, a Samus level with the Torizo is both in front of
+    /// and behind it while it faces left, and neither while it faces right.
     /// </summary>
-    private bool BombTorizoParameterMatchesSamusDelta(
+    private bool FacesAwayFromSamus(
         RoomEnemySlot torizo,
-        SamusState samus)
-    {
-        // The walking steps compare the facing bit against whether Samus's X minus the enemy's X is negative.
-        // Keep that subtraction direction explicit: the awakening facing check deliberately uses
-        // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
-        // reverses one family of the game's branches.
-        return _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
-    }
+        SamusState samus) =>
+        _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
 }

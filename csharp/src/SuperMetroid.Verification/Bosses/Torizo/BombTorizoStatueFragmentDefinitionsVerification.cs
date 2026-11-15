@@ -30,7 +30,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
                 BombTorizoStatueFragments.ForFragment(index);
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             EnemyProjectile projectile =
-                enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
+                enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
                     new BombTorizoStatueProjectileRequest(
                         index,
                         RoomObjectBlock: new(10, 20))) ??

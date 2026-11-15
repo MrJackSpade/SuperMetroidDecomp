@@ -47,7 +47,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             Offset16<RoomPixels> expected = swipes[index];
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
-            enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, expected);
+            enemies.TorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, expected);
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
             AssertTrue(projectile.IsActive,
@@ -67,7 +67,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                     BombTorizoAttacks.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
-                enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
+                enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
                 EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
                 AssertTrue(projectile.IsActive,
@@ -99,7 +99,7 @@ internal static class BombTorizoAttackDefinitionsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
+        enemies.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
         return new CreateBombTorizoAttackFixtureResult(enemies, torizo);
     }
 

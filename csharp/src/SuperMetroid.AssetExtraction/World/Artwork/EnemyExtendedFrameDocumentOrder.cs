@@ -332,7 +332,7 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.CrocomireBodyMeltingTwoTopThreeRows,
         EnemyFrameId.CrocomireBodyMeltingTwoTopFourRows,
         EnemyFrameId.BombTorizoDormant,
-        EnemyFrameId.GoldenTorizoInitial,
+        EnemyFrameId.TorizoFacingLeftStandingUpThird,
         EnemyFrameId.KraidArmNormalFirst,
         EnemyFrameId.KraidArmNormalSecond,
         EnemyFrameId.KraidArmNormalThird,

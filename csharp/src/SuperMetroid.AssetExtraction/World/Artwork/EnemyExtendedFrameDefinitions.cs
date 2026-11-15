@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
 /// Maridia's Oum snail, Crocomire's tongue, fight-body and skeleton composite frames,
-/// Bomb Torizo's dormant statue frame, Golden Torizo's initial, awakening and
+/// Bomb Torizo's dormant statue frame, the Torizos' third stand-up pose, Golden Torizo's awakening and
 /// walking, turning and jump-back poses, Kraid's independently animated arm and foot,
 /// Mother Brain's mixed body poses, and Phantoon/Draygon BG2-only poses.
 /// Their selectors come from compiled instruction catalogs;
@@ -43,8 +43,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
     /// <summary>Single dormant Bomb Torizo statue composition.</summary>
     internal const int BombTorizoDormantFrameCount = 1;
-    /// <summary>Single Golden Torizo pose preceding its awakening animation.</summary>
-    internal const int GoldenTorizoInitialFrameCount = 1;
+    /// <summary>The Torizos' third stand-up pose facing left, which Golden Torizo shows first, before its awakening.</summary>
+    internal const int TorizoFacingLeftStandingUpThirdFrameCount = 1;
     /// <summary>Kraid arm OAM frames used independently of body art.</summary>
     internal const int KraidArmFrameCount = 22;
     /// <summary>Golden Torizo awakening component poses.</summary>
@@ -76,7 +76,7 @@ internal static class EnemyExtendedFrameDefinitions
         BossSpriteFrameDefinitions.DraygonSpriteFrameCount + BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireSpriteFrameCount +
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
-        GoldenTorizoInitialFrameCount + KraidArmFrameCount +
+        TorizoFacingLeftStandingUpThirdFrameCount + KraidArmFrameCount +
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
@@ -103,7 +103,7 @@ internal static class EnemyExtendedFrameDefinitions
         new(EnemyExtendedFrameFamily.CrocomireTongue, CrocomireSpriteFrameCount),
         new(EnemyExtendedFrameFamily.CrocomireBody, CrocomireBodyFrameCount),
         new(EnemyExtendedFrameFamily.BombTorizo, BombTorizoDormantFrameCount),
-        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoInitialFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, TorizoFacingLeftStandingUpThirdFrameCount),
         new(EnemyExtendedFrameFamily.KraidArm, KraidArmFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount + GoldenTorizoRightwardFrameCount),
         new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackFrameCount),

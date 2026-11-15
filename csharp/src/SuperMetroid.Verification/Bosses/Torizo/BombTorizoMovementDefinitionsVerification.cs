@@ -35,7 +35,7 @@ internal static class BombTorizoMovementDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
-            BombTorizoBehavior.ApplyBombTorizoPosture(slot, displacement, sitDown ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
+            TorizoBehavior.ApplyTorizoPosture(slot, displacement, sitDown ? TorizoPostureMove.SitDown : TorizoPostureMove.StandUp);
             int sign = sitDown ? -1 : 1;
             AssertEqual(unchecked((ushort)(1000 + sign * displacement.X)), slot.Position.X.Whole, $"Torizo posture X {displacement} sit {sitDown}");
             AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), slot.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");
@@ -53,7 +53,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
-            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(slot, state, null, level,
+            var next = enemies.TorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(slot, state, null, level,
                 new TorizoWalkStep { Velocity = velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");
             AssertTrue(next is null, $"Bomb Torizo walk consumer runs on without a wall at velocity {velocity}");

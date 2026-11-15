@@ -110,7 +110,7 @@ internal static class TorizoCollisionDefinitions
         [EnemyFrameId.TorizoFacingLeftSeated] = SeatedBody,
         [EnemyFrameId.TorizoFacingLeftStandingUpFirst] = StandingUpFirstBody,
         [EnemyFrameId.TorizoFacingLeftStandingUpSecond] = StandingUpSecondBody,
-        [EnemyFrameId.GoldenTorizoInitial] = StandingUpThirdBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpThird] = StandingUpThirdBody,
         [EnemyFrameId.TorizoFacingLeftStandingUpFourth] = StandingUpFourthBody,
         [EnemyFrameId.TorizoFacingLeftStandingUpFifth] = StandingUpFifthBody,
         [EnemyFrameId.TorizoFacingLeftStandingUpSixth] = StandingUpSixthBody,

@@ -26,7 +26,7 @@ internal static class TorizoLandingLifetimeVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BombTorizo);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
-        var state= runtime.Enemies.BombTorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState.");
+        var state= runtime.Enemies.TorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.TorizoBehavior._torizoState.");
         state.Phase=TorizoPhase.Active;state.Motion=TorizoBodyMotion.Leaping;state.ReturnPlayback=TorizoAnimations.Start(TorizoAnimation.FacingLeftLanding);
         state.Velocity=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);state.JumpAcceleration=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.Behavior=0;

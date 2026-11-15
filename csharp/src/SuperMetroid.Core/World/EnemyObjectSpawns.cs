@@ -27,7 +27,7 @@ internal sealed class EnemyObjectSpawns(
     OldTourianEscapeShaftWallBehavior oldTourianWall,
     DraygonBehavior draygon,
     MotherBrainBehavior motherBrain,
-    BombTorizoBehavior bombTorizo,
+    TorizoBehavior bombTorizo,
     EscapeExplosionsBehavior escapeExplosions) : IEnemyObjectSpawns
 {
     /// <inheritdoc/>

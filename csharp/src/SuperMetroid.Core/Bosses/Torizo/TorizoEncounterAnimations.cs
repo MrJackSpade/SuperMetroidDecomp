@@ -105,7 +105,7 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-6, -6))),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSecond, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-7, -6))),
-            Show(EnemyFrameId.GoldenTorizoInitial, 8),
+            Show(EnemyFrameId.TorizoFacingLeftStandingUpThird, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(5, -7))),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpFourth, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-16, 0))),

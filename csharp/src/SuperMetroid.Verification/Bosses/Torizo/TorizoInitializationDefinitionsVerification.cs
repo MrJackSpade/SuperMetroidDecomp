@@ -28,7 +28,7 @@ internal static class TorizoInitializationDefinitionsVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            Action<RoomEnemySlot, SamusState?, ControllerButton> initializeWithInput = enemies.BombTorizoBehavior.Movement.InitializeBombTorizo;
+            Action<RoomEnemySlot, SamusState?, ControllerButton> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
@@ -53,7 +53,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = enemies.BombTorizoBehavior.Access.TorizoState
+                TorizoEnemyState started = enemies.TorizoBehavior.Access.TorizoState
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
                 AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
@@ -70,7 +70,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.AnimationClock.Hold.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.AnimationClock.Repeats.RawValue, "Initial actor timer");
-                var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Access.GoldenTorizo;
+                var state = variant == 0 ? enemies.BombTorizo : enemies.TorizoBehavior.Access.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
                 AssertTrue(!actor.Shading.IsStandard, "Initial colours: his starting look is a shade over his sheet");

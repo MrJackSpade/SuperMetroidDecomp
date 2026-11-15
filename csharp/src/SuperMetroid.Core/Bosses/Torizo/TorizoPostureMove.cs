@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which way a Bomb Torizo posture offset is applied.</summary>
-internal enum BombTorizoPostureMove
+/// <summary>Which way a Torizo posture offset is applied.</summary>
+internal enum TorizoPostureMove
 {
     /// <summary>The offset is added as the Torizo stands.</summary>
     StandUp,

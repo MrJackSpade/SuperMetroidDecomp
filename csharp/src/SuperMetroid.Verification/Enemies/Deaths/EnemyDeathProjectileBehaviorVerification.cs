@@ -35,10 +35,10 @@ internal static class EnemyDeathProjectileBehaviorVerification
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        const ushort enemyHeader = 36864;
+        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemySlotFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot killed = fixture.System.SlotTable.Slots[0];
-        killed.Bind((EnemyDefinitionId)enemyHeader, killed.Definition);
+        killed.Bind(EnemySlotFixtures.StandIn, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

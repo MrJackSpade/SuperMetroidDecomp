@@ -13,9 +13,9 @@ internal sealed class StationObjects
 {
 
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>Applies the station and access-arm draws to the room's blocks.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
@@ -24,7 +24,7 @@ internal sealed class StationObjects
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Connects station activation to room state, room-object drawing, the room-object places and sound requests.</summary>
-    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
+    internal StationObjects(SharedGameState system, IRoomSamusAccess samus, IRoomObjectDrawing drawing, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -92,7 +92,7 @@ internal sealed class StationObjects
             return false;
         }
 
-        IRoomSamus samus = _samus?.Current
+        IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         samus.Position = samus.Position.WithWrappedWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
         samus.FaceForward();
@@ -115,7 +115,7 @@ internal sealed class StationObjects
                 $"save-completed message while in {station.SavePhase}.");
         }
 
-        IRoomSamus samus = _samus?.Current
+        IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
         samus.Control.Unlock();
         station.SavePhase = SaveStationPhase.Idle;
@@ -358,7 +358,7 @@ internal sealed class StationObjects
                 // animation running to release her. Collision itself remains solid.
                 if (station.Kind is StationKind.Energy or StationKind.Missile)
                 {
-                    IRoomSamus samus = _samus?.Current
+                    IRoomSamus samus = _samus.Current
                         ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
                     if (station.Kind == StationKind.Energy
                         ? samus.Health == samus.MaxHealth
@@ -379,7 +379,7 @@ internal sealed class StationObjects
                 // resident sequence and does not run the line-up check at this setup seam.
                 if (station.Kind != StationKind.Save)
                 {
-                    IRoomSamus samus = _samus?.Current
+                    IRoomSamus samus = _samus.Current
                         ?? throw new InvalidOperationException(
                             $"{station.Kind} station setup has no live Samus owner.");
                     samus.Control.LockAtStation();
@@ -393,7 +393,7 @@ internal sealed class StationObjects
     /// <summary>Applies the game's wrapping coordinate test before queuing any save side effect.</summary>
     private bool IsSaveStationTriggerCentered(Position16<RoomBlocks> block)
     {
-        IRoomSamus samus = _samus?.Current
+        IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
         int probeX = CoordinateAxis.Wrap(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset);
         return RoomGridConversions.PixelToBlock(probeX) == block.X;
@@ -401,11 +401,10 @@ internal sealed class StationObjects
 
     /// <summary>Samus, whom <paramref name="owner"/> reads and changes.</summary>
     internal IRoomSamus RequireSamus(string owner) =>
-        _samus?.Current ?? throw new InvalidOperationException($"{owner} has no live Samus owner.");
+        _samus.Current ?? throw new InvalidOperationException($"{owner} has no live Samus owner.");
 
-    /// <summary>The game's progression, which <paramref name="owner"/> reads and changes.</summary>
-    internal SharedGameState RequireSystem(string owner) =>
-        _system ?? throw new InvalidOperationException($"{owner} has no shared game state owner.");
+    /// <summary>The game's progression, which the stations read and change.</summary>
+    internal SharedGameState System => _system;
 
     /// <summary>Publishes a station's message or frontend action for this update.</summary>
     internal void Publish(StationActivationEvent activation) => _stationActivationEvents.Add(activation);

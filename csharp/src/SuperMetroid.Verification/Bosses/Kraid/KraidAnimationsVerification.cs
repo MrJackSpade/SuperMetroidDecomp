@@ -224,7 +224,7 @@ internal static class KraidAnimationsVerification
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -246,7 +246,7 @@ internal static class KraidAnimationsVerification
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
                 native.Step(cartridge);
                 string at = $"Kraid rock {program} update {update}";
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");

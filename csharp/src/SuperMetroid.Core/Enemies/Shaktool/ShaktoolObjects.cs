@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal sealed class ShaktoolObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events;
+    private readonly IGlobalEventFlags _events;
     /// <summary>The room's room objects, which the controller joins.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Connects Shaktool's room controller to the resident room-object slots and room owners.</summary>
-    internal ShaktoolObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomObjectPlaceList places)
+    internal ShaktoolObjects(IRoomSamusAccess samus, IGlobalEventFlags events, RoomObjectPlaceList places)
     {
         _samus = samus;
         _events = events;

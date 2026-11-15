@@ -43,7 +43,7 @@ internal static class EnemySoundOrderVerification
 
         enemies.Audio.BeginFrame();
         foreach (RoomEnemySlot slot in new[] { firstMetroid, boyon, secondMetroid })
-            EnemyAnimationPlayer.AdvanceAnimation(slot, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
         SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,
@@ -67,7 +67,7 @@ internal static class EnemySoundOrderVerification
         bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
 
         EnemyProjectile link = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(enemies, link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);

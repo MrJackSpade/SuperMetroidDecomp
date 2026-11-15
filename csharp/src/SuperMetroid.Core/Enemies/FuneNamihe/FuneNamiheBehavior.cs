@@ -88,7 +88,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.Action)
         {
@@ -107,12 +107,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case FuneNamiheAction.NamiheWaitForSamus:
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Namihe proximity AI requires the active Samus actor.");
-                }
-
                 // The row-proximity test takes the modular absolute difference and
                 // uses a strict comparison. Equality at the configured distance stays idle.
                 if (!EnemyMath.IsWithinStrictModularDistance(

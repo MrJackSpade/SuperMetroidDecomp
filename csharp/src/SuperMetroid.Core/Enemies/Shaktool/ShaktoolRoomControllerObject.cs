@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="events">The game's event flags.</param>
-internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlobalEventFlags? events) : RoomObjectBehaviour
+internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IGlobalEventFlags events) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
-    private readonly IRoomSamusAccess? _samus = samus;
+    private readonly IRoomSamusAccess _samus = samus;
 
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events = events;
+    private readonly IGlobalEventFlags _events = events;
 
     /// <summary>Whether the controller has had its first update and now watches the room.</summary>
     internal bool Watching { get; private set; }
@@ -33,8 +33,8 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlo
             return;
         }
         RoomScrollGrid? scrolls = context.Frame.Scrolls;
-        if (scrolls is null || _samus?.Current is not { } current || _events is null)
-            throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
+        if (scrolls is null || _samus.Current is not { } current)
+            throw new InvalidOperationException("Shaktool room controller requires scroll and Samus owners.");
         if (context.Frame.PowerBombExplosionActive)
             foreach (Position16<RoomScreens> screen in scrolls.Screens)
                 scrolls.SetLogicalState(screen, RoomScrollState.OpenAlignedToTop);

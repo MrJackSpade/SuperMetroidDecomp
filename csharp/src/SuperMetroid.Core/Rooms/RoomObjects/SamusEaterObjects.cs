@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class SamusEaterObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The room's places, where the plant's room object takes the first free one in update order.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds the active room and its room-object places.</summary>
-    internal SamusEaterObjects(IRoomSamusAccess? samus, RoomObjectPlaceList places)
+    internal SamusEaterObjects(IRoomSamusAccess samus, RoomObjectPlaceList places)
     {
         _samus = samus;
         _places = places;
@@ -39,7 +39,7 @@ internal sealed class SamusEaterObjects
     }
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
-    internal IRoomSamus RequirePlantSamus() => _samus?.Current
+    internal IRoomSamus RequirePlantSamus() => _samus.Current
         ?? throw new InvalidOperationException("Samus Eater room object requires the live Samus owner.");
 
     /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and sustains her invincibility.</summary>

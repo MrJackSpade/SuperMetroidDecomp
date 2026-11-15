@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The loaded room's bindings that <see cref="RoomEnemySystem"/> shares with the owners it composes: the room's
-/// enemy definition source, the game-state services its AI calls (including the enemy random source), and the
-/// host-installed enemy frame displays.
+/// area, its enemy definition source and the game-state services its AI calls (including the enemy random source).
 /// </summary>
 internal sealed class EnemyRoomBinding
 {
@@ -14,8 +14,10 @@ internal sealed class EnemyRoomBinding
     /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
     /// <param name="definitions">The room's enemy definition source.</param>
     /// <param name="services">The game-state services the room's AI calls.</param>
-    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services)
+    /// <param name="area">The area the room is in.</param>
+    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area)
     {
+        Area = area;
         Session = Ensure.NotNull(session);
         Definitions = Ensure.NotNull(definitions);
         Services = Ensure.NotNull(services);
@@ -23,6 +25,11 @@ internal sealed class EnemyRoomBinding
 
     /// <summary>The enemy state and installed artwork that outlive each room.</summary>
     internal EnemySession Session { get; }
+
+    /// <summary>
+    /// The area the room is in, which decides how long a shot's freeze lasts and how much Ridley's fireballs hurt.
+    /// </summary>
+    internal AreaId Area { get; }
 
     /// <summary>The room's enemy definition source.</summary>
     internal IRoomEnemyDefinitionSource Definitions { get; }

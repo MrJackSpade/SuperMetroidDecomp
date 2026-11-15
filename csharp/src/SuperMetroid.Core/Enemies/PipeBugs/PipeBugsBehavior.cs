@@ -112,7 +112,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBrinstarPipeBug(
         RoomEnemySlot slot,
         BrinstarPipeBugState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         switch (state.Action)
@@ -125,11 +125,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = PipeBugAction.BrinstarWaitForSamus;
                 return;
             case PipeBugAction.BrinstarWaitForSamus:
-                RequirePipeBugSamus(samus);
                 RunBrinstarPipeBugWaiting(slot, state, samus);
                 return;
             case PipeBugAction.BrinstarEmerge:
-                RequirePipeBugSamus(samus);
                 RunBrinstarPipeBugEmergence(slot, state, samus);
                 return;
             case PipeBugAction.BrinstarFlyHorizontally:
@@ -167,7 +165,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunNorfairPipeBug(
         RoomEnemySlot slot,
         NorfairPipeBugState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         switch (state.Action)
@@ -177,12 +175,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugAction.NorfairWaitForSamus:
-                RequirePipeBugSamus(samus);
                 RunNorfairPipeBugSamusWait(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugAction.NorfairRise:
-                RequirePipeBugSamus(samus);
                 RunNorfairPipeBugRise(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
@@ -208,7 +204,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugAction.NorfairWaitForStagger:
-                RequirePipeBugSamus(samus);
                 RunNorfairPipeBugStaggerWait(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
@@ -242,24 +237,21 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunYellowPipeBug(
         RoomEnemySlot slot,
         YellowPipeBugState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         switch (state.Action)
         {
             case PipeBugAction.YellowWaitForSamus:
-                RequirePipeBugSamus(samus);
                 RunYellowPipeBugWaiting(slot, state, samus);
                 return;
             case PipeBugAction.YellowEmergenceDelay:
                 RunYellowPipeBugDelay(slot, state);
                 return;
             case PipeBugAction.YellowFlyLeft:
-                RequirePipeBugSamus(samus);
                 RunYellowPipeBugStraightFlight(slot, state, samus, camera, direction: HorizontalDirection.Left);
                 return;
             case PipeBugAction.YellowFlyRight:
-                RequirePipeBugSamus(samus);
                 RunYellowPipeBugStraightFlight(slot, state, samus, camera, direction: HorizontalDirection.Right);
                 return;
             case PipeBugAction.YellowArcLeft:
@@ -697,13 +689,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The playback of <paramref name="segment"/>'s animation restarted at timer one, its animation frame timer cleared.</summary>
     internal static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemySlot slot, PipeBugSegment segment) =>
         EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(segment));
-
-    /// <summary>Rejects a behavior that needs Samus but received no live player actor.</summary>
-    private static void RequirePipeBugSamus([NotNull] SamusState? samus)
-    {
-        if (samus is null)
-            throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
-    }
 
     /// <summary>Advances the Pipe Bug's typed animation, held in its family's state.</summary>
     internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)

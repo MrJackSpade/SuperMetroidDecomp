@@ -24,7 +24,7 @@ internal static class ElevatorBehaviorVerification
         slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
-        enemies.ElevatorBehavior.InitializeElevator(slot, null);
+        enemies.ElevatorBehavior.InitializeElevator(slot, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new AnimationPlayback<ElevatorSegment>(ElevatorAnimations.StartingWith(ElevatorSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
             "elevator initializer animation");
         slot.AnimationClock.StepOnNextUpdate();

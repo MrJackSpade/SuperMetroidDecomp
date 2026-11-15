@@ -54,7 +54,7 @@ internal static class RidleyAcidVerification
         state.PhaseTimer = 0;
         state.FadeStep = 0;
         for (int frame = 0; frame < 200 && state.Phase == RidleyPhase.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SharedProjectiles = runtime.BombProjectiles });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.LiquidLevelSpeed.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.LiquidMoveDelay.RawValue, "native reveal writes rise delay once");
@@ -63,7 +63,7 @@ internal static class RidleyAcidVerification
         AssertAcidVisible(true);
         state.Phase = RidleyPhase.NorfairDeathRoar;
         state.PhaseTimer = 0;
-        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SharedProjectiles = runtime.BombProjectiles });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.LiquidLevelSpeed.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.LiquidMoveDelay.RawValue, "native death writes drain delay once");

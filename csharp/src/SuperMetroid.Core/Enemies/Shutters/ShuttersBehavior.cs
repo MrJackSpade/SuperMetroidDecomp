@@ -108,7 +108,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunGrowingShutterMain(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         switch (state.Action)
@@ -124,15 +124,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case GrowingShutterAction.WaitToGrowDownForProximity:
-                if (samus is null)
-                    throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Down, camera);
                 return;
 
             case GrowingShutterAction.WaitToGrowUpForProximity:
-                if (samus is null)
-                    throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Up, camera);
                 return;
@@ -142,8 +138,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case GrowingShutterAction.GrowUp:
-                if (samus is null)
-                    throw new InvalidOperationException("Upward growing-shutter carry requires Samus state.");
                 GrowShutterUp(slot, state, samus);
                 return;
 
@@ -484,7 +478,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunVerticalShutterMain(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         // The initial action calls through its parameter table during this very AI
@@ -503,8 +497,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case VerticalShutterAction.WaitForHorizontalProximity:
-                if (samus is null)
-                    throw new InvalidOperationException("Vertical-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(
                     slot,
                     samus,
@@ -522,14 +514,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case VerticalShutterAction.MovingUp:
-                if (samus is null)
-                    throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutter(slot, state, samus, direction: VerticalDirection.Up);
                 break;
 
             case VerticalShutterAction.MovingDown:
-                if (samus is null)
-                    throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutter(slot, state, samus, direction: VerticalDirection.Down);
                 break;
 

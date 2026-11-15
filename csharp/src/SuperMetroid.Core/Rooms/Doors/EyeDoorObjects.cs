@@ -13,16 +13,16 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class EyeDoorObjects
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
-    private readonly IRoomObjectEnemyEffects? _enemies;
+    private readonly IRoomObjectEnemyEffects _enemies;
     /// <summary>Queues rejected-shot and launched-projectile sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the eye doors to room services and sound requests.</summary>
-    internal EyeDoorObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, RoomObjectSoundQueue sounds)
+    internal EyeDoorObjects(SharedGameState system, IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -51,8 +51,7 @@ internal sealed class EyeDoorObjects
             ? new EyeDoorEyeObject(orientation)
             : new EyeDoorPartObject(orientation, component));
 
-        SharedGameState system = _system ??
-            throw new InvalidOperationException("Eye-door setup has no persistence owner.");
+        SharedGameState system = _system;
         if (place.Argument is DoorBitArgument { Persists: true } openedEye &&
             system.HasOpenedDoor(openedEye.Door))
         {
@@ -80,7 +79,7 @@ internal sealed class EyeDoorObjects
     /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the part.</summary>
     internal bool IsSamusNear(RoomObjectPlace place, Extent16<RoomBlocks> reach)
     {
-        IRoomSamus samus = _samus?.Current
+        IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
         int roomObjectX = place.Block.X;
         int roomObjectY = place.Block.Y;
@@ -156,9 +155,7 @@ internal sealed class EyeDoorObjects
         EyeDoorProjectileDefinition definition,
         EyeDoorOrientation facing)
     {
-        IEyeDoorProjectileSpawner enemies = _enemies ??
-            throw new InvalidOperationException("Eye-door program has no enemy-projectile spawner.");
-        enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
+        _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
             facing,
             place.Block,

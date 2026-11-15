@@ -33,7 +33,7 @@ internal static class MetroidBombPlacementVerification
         var assets = LoadFixtureRoomAssets(room);
         var random = new SharedGameState(new SharedRandom());
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber });
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
@@ -42,7 +42,7 @@ internal static class MetroidBombPlacementVerification
         var target = enemies.SlotTable.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        enemies.Collision.ResolveOrdinarySamusContact(samus, 0);
+        enemies.Collision.ResolveOrdinarySamusContact(samus, 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         var state = enemies.MetroidStates[0];
         AssertEqual(MetroidMovement.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();

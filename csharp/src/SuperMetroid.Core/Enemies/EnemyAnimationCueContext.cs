@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct EnemyAnimationCueContext
 {
     /// <summary>Samus.</summary>
-    public required SamusState? Samus { get; init; }
+    public required SamusState Samus { get; init; }
 
     /// <summary>Level.</summary>
-    public required RoomLevelData? Level { get; init; }
+    public required RoomLevelData Level { get; init; }
 
     /// <summary>Camera.</summary>
     public required Position16<RoomPixels> Camera { get; init; }

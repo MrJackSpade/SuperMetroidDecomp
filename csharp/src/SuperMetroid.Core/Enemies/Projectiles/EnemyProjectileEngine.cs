@@ -174,17 +174,17 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>One projectile pass: every live projectile's motion, then its animation.</summary>
     /// <param name="level">The room's blocks, which moving projectiles collide with.</param>
-    /// <param name="samus">Samus, for behaviours and cues that act on her; null in fixtures without her.</param>
+    /// <param name="samus">Samus, for behaviours and cues that act on her.</param>
     /// <param name="camera">The camera, for behaviours and cues that test the screen.</param>
     /// <param name="shortCounter">The game's short frame counter for this pass, 0 through 255, which cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, for behaviours that react to them.</param>
     /// <param name="frameCounter">The game's long frame counter for this pass, 0 through 65535, which cadences sample.</param>
     internal void RunPass(
         RoomLevelData level,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
         int shortCounter,
-        SamusBombProjectileSystem? samusBombs,
+        SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
         Ensure.NotNull(level);
@@ -211,14 +211,15 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
-    public void ResolveEnemyProjectileSamusHits(SamusState? samus)
+    public void ResolveEnemyProjectileSamusHits(SamusState samus)
     {
         // Gameplay runs every projectile's update first, then enters the
         // separate Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
         // not abort the remaining descending scan of the places. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
-        if (samus is null || !samus.InvincibilityTimer.IsZero ||
+        Ensure.NotNull(samus);
+        if (!samus.InvincibilityTimer.IsZero ||
             samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             return;
 
@@ -638,12 +639,12 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Advances a projectile's typed animation one projectile pass.</summary>
     /// <param name="projectile">The projectile whose animation advances.</param>
-    /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
+    /// <param name="samus">Samus, for cues that act on her.</param>
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
     /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
     internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
         int shortCounter)
     {

@@ -54,9 +54,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunGRipperMain(
         RoomEnemySlot slot,
         RipperEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        RequireRipperTerrain(level, "GRipper");
         SignedSixteenSixteen displacement = state.XVelocity;
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
@@ -92,9 +91,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ripper II's main AI.</summary>
-    private void RunRipperIIMain(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
+    private void RunRipperIIMain(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData level)
     {
-        RequireRipperTerrain(level, "Ripper II");
         SignedSixteenSixteen displacement = state.XVelocity;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
@@ -121,10 +119,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ripper's main AI.</summary>
-    private void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunRipperMain(RoomEnemySlot slot, RoomLevelData level)
     {
-        RequireRipperTerrain(level, "Ripper");
-
         // The horizontal mover consumes the signed 1/65536-pixel velocity as a displacement. On collision the
         // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
@@ -165,16 +161,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new RipperEnemyState();
         slot.SetSpeciesState(state);
         return state;
-    }
-
-    /// <summary>Rejects movement outside a loaded collision allocation.</summary>
-    private static void RequireRipperTerrain([NotNull] RoomLevelData? level, string species)
-    {
-        if (level is null)
-        {
-            throw new InvalidOperationException(
-                $"{species} movement requires the active room collision allocation.");
-        }
     }
 
     /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding loop.</summary>

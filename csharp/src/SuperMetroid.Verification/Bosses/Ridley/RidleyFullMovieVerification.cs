@@ -424,23 +424,29 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        int slotIndex = 17;
         foreach (var sample in new[] { new VerifyRidleyFireballDamageCase(AreaId.Ceres, 3), new VerifyRidleyFireballDamageCase(AreaId.Norfair, 60), new VerifyRidleyFireballDamageCase(AreaId.Tourian, 80) })
+            AssertEqual(sample.Second, (ushort)RidleyProjectileDamage.ForArea(sample.First), $"{sample.First}'s fireball damage row");
+
+        // The fireballs take the loaded room's row, as the original reads the area of the room it loaded; the room Samus's
+        // own record names does not change it (#2015).
+        const ushort norfairDamage = 60;
+        int slotIndex = 17;
+        foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(sample.First);
+            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(samusArea);
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
-            AssertEqual(sample.Second, fireball.Damage, "native area initializer overrides fireball damage");
+            AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");
             runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(3584, 0));
-            AssertEqual(sample.Second, runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
+            AssertEqual(norfairDamage, runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--].Damage, "directional afterburn takes the same room row");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision(fireball, samus);
-            AssertEqual((ushort)(700 - sample.Second / 4), samus.Health, "area damage passes through native Gravity reduction");
+            AssertEqual((ushort)(700 - norfairDamage / 4), samus.Health, "room damage passes through native Gravity reduction");
         }
-        Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
+        Console.WriteLine("Ridley fireball damage: the area rows, the loaded room's row for fireball and afterburn, and suit reduction pass.");
     }
 
     /// <summary>Checks the tail's impact response against the recorded contact geometry.</summary>

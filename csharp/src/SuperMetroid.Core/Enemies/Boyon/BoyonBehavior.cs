@@ -71,11 +71,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>
-    internal static void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState? samus)
+    internal static void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Boyon proximity AI requires the active Samus actor.");
-
         // The game spends Boyon's first active AI frame deriving the arc's baseline and
         // returns without moving or testing proximity. Preserving that frame is important:
         // animation and main AI otherwise become one frame early immediately after a load.

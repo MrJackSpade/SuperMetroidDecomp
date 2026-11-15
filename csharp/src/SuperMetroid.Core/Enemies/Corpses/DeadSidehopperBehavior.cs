@@ -123,8 +123,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the dead Sidehopper's main AI.</summary>
     private void RunDeadSidehopperMain(
         RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         Position16<RoomPixels> camera) =>
         RunDeadSidehopperState(slot, RequireDeadSidehopperState(slot), samus, level, camera);
 
@@ -132,8 +132,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void RunDeadSidehopperState(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         Position16<RoomPixels> camera)
     {
         switch (state.Action)
@@ -214,7 +214,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private bool MoveDeadSidehopper(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         bool beforeTerrainBoundary = CoordinateAxis.Difference(slot.Position.X.Whole, 544) < 0;
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
@@ -272,7 +272,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Rejects terrain-driven movement when no room level was supplied.</summary>
-    private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData? level) =>
+    private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData level) =>
         level ?? throw new InvalidDataException(
             "Dead sidehopper crossed into terrain-driven movement without room level data.");
 

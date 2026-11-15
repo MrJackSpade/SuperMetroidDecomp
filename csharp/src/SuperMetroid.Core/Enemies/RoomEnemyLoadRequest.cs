@@ -26,7 +26,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public RoomAppearance Appearance { get; }
 
     /// <inheritdoc />
-    public RoomLevelData? Level { get; init; }
+    public required RoomLevelData Level { get; init; }
 
     /// <inheritdoc />
     public SamusState? Samus { get; init; }

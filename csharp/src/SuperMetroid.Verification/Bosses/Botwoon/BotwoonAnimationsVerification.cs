@@ -156,7 +156,7 @@ internal static class BotwoonAnimationsVerification
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
@@ -257,7 +257,7 @@ internal static class BotwoonAnimationsVerification
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
-            EnemyAnimationPlayer.AdvanceAnimation(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(head, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             AssertEqual(native.Timer, head.AnimationClock.Hold.RawValue, $"{at}: timer");

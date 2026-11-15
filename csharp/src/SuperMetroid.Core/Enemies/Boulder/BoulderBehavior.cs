@@ -115,13 +115,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
-    private void RunBoulderMain(RoomEnemySlot slot, BoulderEnemyState state, SamusState? samus, RoomLevelData? level)
+    private void RunBoulderMain(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Boulder AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Boulder AI requires active room collision data.");
-
         switch (state.Action)
         {
             case BoulderAction.WaitingForSamus:

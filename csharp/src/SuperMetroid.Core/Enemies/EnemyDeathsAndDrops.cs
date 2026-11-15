@@ -404,7 +404,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
     internal void RunEnemyPickupFrameBehavior(
         EnemyProjectile projectile,
-        SamusState? samus)
+        SamusState samus)
     {
         // The lifetime is decremented first; the pickup expires on the update it reaches zero.
         EnemyPickupState pickup = projectile.StateOf<EnemyPickupState>();
@@ -415,8 +415,6 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-        if (samus is null)
-            return;
 
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.

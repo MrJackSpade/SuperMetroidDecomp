@@ -145,12 +145,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
-    private void RunYardMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
+    private void RunYardMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Yard AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Yard movement requires room collision data.");
         YardEnemyState state = slot.RequireSpeciesState<YardEnemyState>();
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one

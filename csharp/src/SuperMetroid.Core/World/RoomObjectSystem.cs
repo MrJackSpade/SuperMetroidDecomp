@@ -40,7 +40,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     internal BossRoomMutationObjects BossRoomMutations { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
-    internal IGlobalEventFlags? Events { get; }
+    internal IGlobalEventFlags Events { get; }
 
     /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
     internal RoomObjectPlaceList Places { get; }
@@ -142,7 +142,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         SamusEater = new SamusEaterObjects(services.Samus, Places);
         EscapeAnimals = new EscapeAnimalObjects(services.Events, Places, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
-        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, Places);
+        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.Enemies, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
@@ -200,7 +200,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     BlockReactionObjects IRoomObjects.BlockReactions => BlockReactions;
 
     /// <inheritdoc/>
-    IGlobalEventFlags? IRoomObjects.Events => Events;
+    IGlobalEventFlags IRoomObjects.Events => Events;
 
     /// <inheritdoc/>
     RoomObjectSoundQueue IRoomObjects.Sounds => Sounds;

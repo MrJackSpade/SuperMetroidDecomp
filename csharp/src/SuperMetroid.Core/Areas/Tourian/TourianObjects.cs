@@ -13,16 +13,16 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class TourianObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
-    private readonly IRoomObjectEnemyEffects? _enemies;
+    private readonly IRoomObjectEnemyEffects _enemies;
     /// <summary>The room's liquid motion, which the escape acid trigger starts.</summary>
-    private readonly IRoomFxMotion? _roomFx;
+    private readonly IRoomFxMotion _roomFx;
     /// <summary>The room's room objects, which the fake wall, the acid trigger and the access floor's change join.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds Tourian room behaviours to the active room's services and room-object slots.</summary>
-    internal TourianObjects(IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, IRoomFxMotion? roomFx,
+    internal TourianObjects(IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, IRoomFxMotion roomFx,
         RoomObjectPlaceList places)
     {
         _samus = samus;

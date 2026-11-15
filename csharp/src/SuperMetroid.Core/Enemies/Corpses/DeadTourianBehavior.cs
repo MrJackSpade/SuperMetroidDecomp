@@ -69,7 +69,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
-    private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState? samus)
+    private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState samus)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         switch (state.Phase)

@@ -91,7 +91,7 @@ internal static class EnemyDropsVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+        enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
             Touch = EnemyReaction.NormalEnemyTouch,
@@ -372,10 +372,10 @@ internal static class EnemyDropsVerification
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
 
-        const ushort enemyHeader = 0x9000;
+        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemySlotFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
-        enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
+        enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Contact = EnemyContact.None;
@@ -393,7 +393,7 @@ internal static class EnemyDropsVerification
         EnemyProjectile explosion = fixture.System.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual((EnemyDefinitionId)enemyHeader, explosion.DropDefinitionId,
+        AssertEqual(EnemySlotFixtures.StandIn, explosion.DropDefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");
@@ -474,7 +474,7 @@ internal static class EnemyDropsVerification
     /// </summary>
     internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader)
     {
-        WriteTestWord(bus, 0xa00000 | enemyHeader | 58, SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
+        WriteTestWord(bus, 0xa00000 | (enemyHeader + 58), SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
         NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
         bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);

@@ -146,43 +146,38 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunKiHunterMain(
         RoomEnemySlot actor,
         KiHunterBodyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         switch (state.Action)
         {
             case KiHunterAction.FlyingPatrol:
-                RequireKiHunterWorld(actor, samus, level);
+                RequireKiHunterBody(actor);
                 RunKiHunterFlyingPatrol(actor, state, samus, level);
                 return;
             case KiHunterAction.Swooping:
-                RequireKiHunterWorld(actor, samus, level);
+                RequireKiHunterBody(actor);
                 RunKiHunterSwoop(actor, state, level);
                 return;
             case KiHunterAction.RecoveringFromSwoop:
-                RequireKiHunterWorld(actor, samus, level);
+                RequireKiHunterBody(actor);
                 RunKiHunterSwoopRecovery(actor, state, level);
                 return;
             case KiHunterAction.FallingAfterWingLoss:
-                RequireKiHunterLevel(level);
                 RunKiHunterFalling(actor, state, level);
                 return;
             case KiHunterAction.StartGroundJump:
-                RequireKiHunterSamus(samus);
                 StartKiHunterGroundJump(actor, state, samus);
                 return;
             case KiHunterAction.AnimatingOnGround:
                 return;
             case KiHunterAction.GroundJump:
-                RequireKiHunterLevel(level);
                 RunKiHunterGroundJump(actor, state, level);
                 return;
             case KiHunterAction.GroundWait:
-                RequireKiHunterSamus(samus);
                 RunKiHunterGroundWait(actor, state, samus);
                 return;
             case KiHunterAction.SelectAcidSpit:
-                RequireKiHunterSamus(samus);
                 SelectKiHunterAcidSpit(actor, state, samus);
                 return;
             case KiHunterAction.FollowBody:
@@ -194,7 +189,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Dispatches the wings' main behaviours: following the body, or flying off once detached.</summary>
-    private void RunKiHunterWingMain(RoomEnemySlot wings, KiHunterWingState state, RoomLevelData? level)
+    private void RunKiHunterWingMain(RoomEnemySlot wings, KiHunterWingState state, RoomLevelData level)
     {
         switch (state.Action)
         {
@@ -202,7 +197,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 FollowKiHunterBody(wings);
                 return;
             case KiHunterAction.DetachedWing:
-                RequireKiHunterLevel(level);
                 RunDetachedKiHunterWing(wings, state, level);
                 return;
             case KiHunterAction.FlyingPatrol:
@@ -828,30 +822,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
     internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
 
-    /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
-    private static void RequireKiHunterWorld(
-        RoomEnemySlot actor,
-        [NotNull] SamusState? samus,
-        [NotNull] RoomLevelData? level)
+    /// <summary>Requires a body definition before body-only movement AI.</summary>
+    private static void RequireKiHunterBody(RoomEnemySlot actor)
     {
-        RequireKiHunterSamus(samus);
-        RequireKiHunterLevel(level);
         if (!IsKiHunterBodyDefinition(actor.DefinitionId))
             throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
-    }
-
-    /// <summary>Rejects a missing Samus actor for target-dependent Ki-Hunter movement.</summary>
-    private static void RequireKiHunterSamus([NotNull] SamusState? samus)
-    {
-        if (samus is null)
-            throw new InvalidOperationException("Ki-Hunter AI requires the active Samus actor.");
-    }
-
-    /// <summary>Rejects missing room collision data for flight and ground movement.</summary>
-    private static void RequireKiHunterLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Ki-Hunter movement requires room collision data.");
     }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>

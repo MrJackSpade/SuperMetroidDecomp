@@ -40,11 +40,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>
-    private void RunFlyMain(RoomEnemySlot slot, SamusState? samus)
+    private void RunFlyMain(RoomEnemySlot slot, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Fly AI requires the active Samus actor.");
-
         // The flies advance the global RNG even though this family does not consume the
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();

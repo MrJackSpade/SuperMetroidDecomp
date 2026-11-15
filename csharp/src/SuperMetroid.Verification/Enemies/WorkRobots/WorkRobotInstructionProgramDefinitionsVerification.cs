@@ -37,7 +37,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.AnimationClock.StepOnNextUpdate();
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
-                EnemyAnimationPlayer.AdvanceAnimation(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
+                EnemyAnimationPlayer.AdvanceAnimation(robot, RoomEnemyFrameFixtures.StandaloneSamus(), level, new Position16<RoomPixels>(384, 192), 0);
             }
         }
 

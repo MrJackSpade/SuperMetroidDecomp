@@ -54,7 +54,7 @@ internal static class FuneNamiheCooldownVerification
             CooldownTimer = count,
         };
         slot.SetSpeciesState(state);
-        FuneNamiheBehavior.RunFuneNamiheMain(slot, state, null);
+        FuneNamiheBehavior.RunFuneNamiheMain(slot, state, RoomEnemyFrameFixtures.StandaloneSamus());
         return state;
     }
 

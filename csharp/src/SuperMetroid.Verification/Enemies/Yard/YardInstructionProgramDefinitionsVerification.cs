@@ -59,7 +59,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         for (int update = 0; update < updates; update++)
         {
             yard.AnimationClock.StepOnNextUpdate();
-            EnemyAnimationPlayer.AdvanceAnimation(yard, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(yard, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
         }
     }
 

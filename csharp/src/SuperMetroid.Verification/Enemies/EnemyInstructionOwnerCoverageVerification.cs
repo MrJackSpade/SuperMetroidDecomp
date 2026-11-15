@@ -61,6 +61,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
+        var withoutSpecies = new List<EnemyDefinitionId>();
         var unresolved = new List<string>();
         for (int index = 0; index < definitions.Length; index++)
         {
@@ -69,6 +70,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 translated.Add(definitions[index]);
             if (outcome.Owned)
                 owned.Add(definitions[index]);
+            if (outcome.WithoutSpecies)
+                withoutSpecies.Add(definitions[index]);
             unresolved.AddRange(outcome.Unresolved);
         }
 
@@ -88,16 +91,22 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "every translated instruction-processing enemy runs a typed animation; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
+        // A definition the game reads but never places in a slot has no species (#2010): Spore Spawn's stalk and the Torizo
+        // orbs only lend the drops of a spore impact and a broken orb their chances.
+        AssertEqual("SporeSpawnStalk, BombTorizoOrb, GoldenTorizoOrb", string.Join(", ", withoutSpecies),
+            "only the definitions the game never places have no species");
+
         var unknownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
-        unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
-        unknown.Bind(unknown.DefinitionId, default(RoomEnemyDefinition));
-        InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)]),
-            "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
+        // A definition no species owns has no entity to become (#2010): binding it fails, naming the definition, instead
+        // of creating a placeholder that runs nothing.
+        const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
+        InvalidOperationException unknownException = AssertThrows<InvalidOperationException>(
+            () => unknown.Bind(unowned, unknown.Definition),
+            "binding a definition no species owns fails");
         AssertTrue(
-            unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),
-            "the failure identifies the missing typed animation");
+            unknownException.Message.Contains($"No enemy species owns definition {unowned}", StringComparison.Ordinal),
+            "the failure names the unowned definition");
 
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
@@ -110,7 +119,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
     /// <param name="Translated">Whether a record's initialization ran translated code.</param>
     /// <param name="Owned">Whether a record processes instructions and one that does runs a typed animation.</param>
     /// <param name="Unresolved">Each instruction-processing record with no typed animation, in record order.</param>
-    private sealed record DefinitionOutcome(bool Translated, bool Owned, IReadOnlyList<string> Unresolved);
+    /// <param name="WithoutSpecies">Whether no species owns the definition, so no slot can hold it.</param>
+    private sealed record DefinitionOutcome(bool Translated, bool Owned, IReadOnlyList<string> Unresolved, bool WithoutSpecies = false);
 
     /// <summary>Initializes <paramref name="definitionPointer"/> from each population record placing it, each in an enemy system of its own.</summary>
     private static DefinitionOutcome AuditDefinition(EnemyDefinitionId definitionPointer, RoomEnemyDefinition definition,
@@ -137,7 +147,16 @@ internal static class EnemyInstructionOwnerCoverageVerification
             // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
             // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
             slot.SetSpawnSettings(population.SpawnSettings);
-            slot.Bind(definitionPointer, slot.Definition);
+            try
+            {
+                slot.Bind(definitionPointer, slot.Definition);
+            }
+            catch (InvalidOperationException exception) when (
+                exception.Message.StartsWith("No enemy species owns definition", StringComparison.Ordinal))
+            {
+                // The registry refuses a definition no species owns; the audit records it and the caller asserts which.
+                return new DefinitionOutcome(false, false, [], WithoutSpecies: true);
+            }
             slot.Bind(slot.DefinitionId, definition);
             slot.Radius = new(definition.Radius.X, definition.Radius.Y);
             slot.Health = definition.Health;

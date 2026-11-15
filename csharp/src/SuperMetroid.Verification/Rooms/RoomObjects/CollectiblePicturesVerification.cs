@@ -66,7 +66,7 @@ internal static class CollectiblePicturesVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria),
             RoomObjectPopulationImporter.Read(bus, population),
-            new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(Kinds.Length, loaded, "five-item room population load count");
 
         roomObjects.Step(level);

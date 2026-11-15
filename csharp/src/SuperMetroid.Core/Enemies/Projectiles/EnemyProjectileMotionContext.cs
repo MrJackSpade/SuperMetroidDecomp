@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>Everything a projectile's motion receives for one projectile in one projectile pass.</summary>
 /// <param name="Projectile">The projectile whose motion runs.</param>
 /// <param name="Level">The room's blocks, which a moving projectile collides with.</param>
-/// <param name="Samus">Samus, for behaviours that act on her; null in fixtures without her.</param>
+/// <param name="Samus">Samus, for behaviours that act on her.</param>
 /// <param name="Camera">The camera of the pass, for behaviours that test the screen.</param>
 /// <param name="ShortCounter">The game's short frame counter for the pass, 0 through 255, which cadences sample.</param>
 /// <param name="FrameCounter">The game's long frame counter for the pass, 0 through 65535, which cadences sample.</param>
@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal readonly record struct EnemyProjectileMotionContext(
     EnemyProjectile Projectile,
     RoomLevelData Level,
-    SamusState? Samus,
+    SamusState Samus,
     Position16<RoomPixels> Camera,
     int ShortCounter,
     int FrameCounter,
-    SamusBombProjectileSystem? SamusBombs);
+    SamusBombProjectileSystem SamusBombs);

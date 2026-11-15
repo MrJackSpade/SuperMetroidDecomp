@@ -13,16 +13,16 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class GreyDoorObjects
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>The Tourian statue sequence's progress.</summary>
-    private readonly ITourianStatueProgress? _tourianStatue;
+    private readonly ITourianStatueProgress _tourianStatue;
     /// <summary>Queues the dud sound for shots rejected while the door is locked.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the grey caps' conditions to the room's progression and its sound requests.</summary>
-    internal GreyDoorObjects(SharedGameState? system, AreaId area, ITourianStatueProgress? tourianStatue, RoomObjectSoundQueue sounds)
+    internal GreyDoorObjects(SharedGameState system, AreaId area, ITourianStatueProgress tourianStatue, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _area = area;
@@ -39,7 +39,7 @@ internal sealed class GreyDoorObjects
     /// <summary>Whether <paramref name="condition"/> holds on this update; a cap that never unlocks never holds.</summary>
     internal bool IsUnlocked(GreyDoorCondition condition, RoomObjectFrameInputs frame)
     {
-        SharedGameState system = RequireSystem();
+        SharedGameState system = _system;
         return condition switch
         {
             GreyDoorCondition.AreaBossDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),
@@ -47,7 +47,7 @@ internal sealed class GreyDoorObjects
             GreyDoorCondition.AreaTorizoDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaTorizo),
             GreyDoorCondition.EnemyDeathQuota => frame.EnemyDeaths >= frame.EnemyDeathQuota,
             GreyDoorCondition.Never => false,
-            GreyDoorCondition.TourianStatueFinished => _tourianStatue?.IsFinished == true,
+            GreyDoorCondition.TourianStatueFinished => _tourianStatue.IsFinished,
             GreyDoorCondition.CrittersEscaped => system.HasEvent(StoryEvent.CrittersEscaped),
             _ => throw new InvalidOperationException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
         };
@@ -57,12 +57,8 @@ internal sealed class GreyDoorObjects
     internal void RecordUnlocked(GreyDoorCondition condition)
     {
         if (condition == GreyDoorCondition.EnemyDeathQuota)
-            RequireSystem().SetEvent(StoryEvent.ZebesAwake);
+            _system.SetEvent(StoryEvent.ZebesAwake);
     }
-
-    /// <summary>The room's progression owner.</summary>
-    private SharedGameState RequireSystem() =>
-        _system ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)

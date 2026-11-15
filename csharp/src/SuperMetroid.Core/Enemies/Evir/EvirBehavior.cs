@@ -70,7 +70,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RegenerationStartDistance = 8;
 
     /// <summary>Initializes the Evir.</summary>
-    internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
+    internal void InitializeEvir(RoomEnemySlot slot, SamusState samus)
     {
         bool isArms = slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms;
         // The room lists each Evir's arms right after its body and its spit right after the arms.
@@ -176,7 +176,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
-    private void RunEvirMain(RoomEnemySlot slot, EvirEnemyState state, SamusState? samus)
+    private void RunEvirMain(RoomEnemySlot slot, EvirEnemyState state, SamusState samus)
     {
         if (state.Action != EvirAction.HandleBodyOrArms)
         {
@@ -217,7 +217,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         if (slot.FrozenTimer == 0)
@@ -264,7 +264,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetEvirBodyFacing(
         RoomEnemySlot body,
         EvirEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir facing AI requires the active Samus actor.");
@@ -307,7 +307,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private void TryLaunchEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir projectile aiming requires the active Samus actor.");
@@ -541,7 +541,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Evir's initialization AI.</summary>
     internal void RunEvirInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeEvir(slot, surroundings.Samus);
+        InitializeEvir(slot, surroundings.IntroducedSamus);
     }
 
     /// <summary>Runs Evir's main AI.</summary>

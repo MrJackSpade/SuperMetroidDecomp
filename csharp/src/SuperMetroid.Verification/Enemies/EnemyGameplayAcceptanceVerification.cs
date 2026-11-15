@@ -98,7 +98,7 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1), installedBosses: artwork.Bosses);
             var vram = new SnesVram();
-            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, BgArtworkFixtures.For(vram)));
+            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
             // The room's enemy tile set as the import composes its pictures over it: each member's tiles where its load lands them.
             var characters = new byte[SpriteArtworkPlacements.TableByteCount];
             foreach (SuperMetroid.AssetExtraction.Enemies.GraphicsSetMemberCharacters entry in enemies.GraphicsSet.Entries)

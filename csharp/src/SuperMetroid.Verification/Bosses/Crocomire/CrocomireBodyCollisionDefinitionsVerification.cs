@@ -32,7 +32,6 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
-        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.Crocomire, compiledSlot.Definition);
         compiledSlot.Position = compiledSlot.Position.WithWholeX(0x1000);
         nativeSlot.Position = nativeSlot.Position.WithWholeX(0x1000);

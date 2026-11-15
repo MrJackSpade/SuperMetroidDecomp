@@ -90,7 +90,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 sawLeftFireball |= unchecked((short)projectile.Velocity.X.RawValue) < 0;
                 sawRightFireball |= unchecked((short)projectile.Velocity.X.RawValue) > 0;
             }
-            enemies.StepEnemyProjectiles(assets.LevelData, samus: null, camera: Position16<RoomPixels>.Zero);
+            enemies.StepEnemyProjectiles(assets.LevelData, samus: RoomEnemyFrameFixtures.StandaloneSamus(), camera: Position16<RoomPixels>.Zero);
         }
 
         AssertTrue(sawLeftFireball && sawRightFireball,

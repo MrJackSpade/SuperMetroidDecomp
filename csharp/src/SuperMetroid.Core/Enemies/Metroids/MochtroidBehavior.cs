@@ -62,14 +62,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its state before dispatch.</summary>
     private void RunMochtroidMain(
         RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Mochtroid AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Mochtroid movement requires room level data.");
-
         MochtroidEnemyState state = slot.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;

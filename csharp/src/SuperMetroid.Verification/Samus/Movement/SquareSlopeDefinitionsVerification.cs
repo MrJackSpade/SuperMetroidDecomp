@@ -61,7 +61,7 @@ internal static class SquareSlopeDefinitionsVerification
         {
             int shape = raw & 31;
             if (shape >= 5) continue;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [RoomBlockBehaviorCodec.Decode(raw)], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid());
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [RoomBlockBehaviorCodec.Decode(raw)], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid(), []);
             var block = level.GetCollisionBlock(new(0, 0));
             for (ushort x = 0; x < 16; x++)
             for (ushort y = 0; y < 16; y++)

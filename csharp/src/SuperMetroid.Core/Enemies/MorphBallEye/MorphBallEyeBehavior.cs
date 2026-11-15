@@ -106,11 +106,11 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMorphBallEyeMain(
         RoomEnemySlot slot,
         MorphBallEyeEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         // The game tests the collected items, not the equipped items. This
         // matters after the player disables Morph Ball in the equipment menu.
-        if (samus is null || !samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
+        if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
 
         switch (state.Action)

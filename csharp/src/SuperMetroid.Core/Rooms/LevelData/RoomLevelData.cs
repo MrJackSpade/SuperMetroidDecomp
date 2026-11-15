@@ -49,7 +49,7 @@ public sealed class RoomLevelData
     /// The terrain past the grid, built for this room's lifetime: from its installed level for a room load, or
     /// <see cref="NothingBeyondGrid"/> for a room whose level space ends at its grid.
     /// </param>
-    /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a door block.</param>
+    /// <param name="doors">The entries the room's door blocks select by index; a room without doors has none.</param>
     /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A plane has the wrong size.</exception>
@@ -58,7 +58,7 @@ public sealed class RoomLevelData
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
         TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> beyondRoom,
-        IReadOnlyList<DoorListEntry>? doors = null,
+        IReadOnlyList<DoorListEntry> doors,
         RoomLevelArtwork? visualLayout = null)
     {
         if (size.X <= 0)
@@ -75,7 +75,7 @@ public sealed class RoomLevelData
             throw new ArgumentException("The background must hold exactly one appearance per room block.", nameof(planes));
 
         Size = size;
-        Doors = doors;
+        Doors = Ensure.NotNull(doors);
         Terrain = planes.Foreground.ToArray();
         Behaviors = planes.Behavior.ToArray();
         BeyondRoom = Ensure.NotNull(beyondRoom);
@@ -106,11 +106,8 @@ public sealed class RoomLevelData
     /// </summary>
     public Extent16<RoomBlocks> Size { get; }
 
-    /// <summary>
-    /// The entries this room's door blocks select by index. Synthetic collision fixtures deliberately leave it null;
-    /// room loading always supplies it.
-    /// </summary>
-    public IReadOnlyList<DoorListEntry>? Doors { get; }
+    /// <summary>The entries this room's door blocks select by index.</summary>
+    public IReadOnlyList<DoorListEntry> Doors { get; }
 
     /// <summary>The door definition selected by the most recent door-block collision, until the transition consumes it.</summary>
     public DoorDefinition? PendingDoorTransition { get; internal set; }
@@ -297,15 +294,7 @@ public sealed class RoomLevelData
         SamusCollisionPose samusPose,
         bool publishDoorSideEffects = true)
     {
-        if (Doors is not { } doors)
-        {
-            // Every installed room supplies its door list. Its nullable form exists only so focused synthetic collision
-            // fixtures need not fabricate door metadata when they contain no door blocks. Reaching a door in such a
-            // fixture is therefore an invalid host composition, not missing door behavior.
-            throw new InvalidOperationException(
-                "Door collision requires the room's door list; this level has none.");
-        }
-
+        IReadOnlyList<DoorListEntry> doors = Doors;
         // Elevator and special-door behaviours share the door list lookup before the destination
         // decides whether collision is solid or starts the door transition.
         int index = behavior.DoorLink;

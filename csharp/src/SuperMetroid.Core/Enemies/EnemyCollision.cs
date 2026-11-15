@@ -80,7 +80,7 @@ internal sealed class EnemyCollision
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         GameplayAction controllerInput,
-        RoomLevelData? level = null,
+        RoomLevelData level,
         RoomEnemySlot? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
@@ -173,14 +173,14 @@ internal sealed class EnemyCollision
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="roomArea">The area of the room the enemies are in, which decides how long a shot's freeze lasts.</param>
-    /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
+    /// <param name="samus">Live player state for enemy-specific shot reactions.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public int ResolveOrdinaryProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         AreaId roomArea,
-        SamusState? samus = null,
+        SamusState samus,
         RoomEnemySlot? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
@@ -447,13 +447,13 @@ internal sealed class EnemyCollision
     /// </remarks>
     /// <param name="bombs">The bomb slots whose exploding bombs may hit.</param>
     /// <param name="ordinaryProjectiles">Samus's beam and missile slots, which reactions read.</param>
-    /// <param name="samus">Samus, when the pass has one.</param>
+    /// <param name="samus">Samus.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public int ResolveOrdinaryBombHits(
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
-        SamusState? samus = null,
+        SamusState samus,
         RoomEnemySlot? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
@@ -664,13 +664,13 @@ internal sealed class EnemyCollision
     /// <param name="explosionRadius">The explosion's horizontal radius in whole pixels; zero reaches nothing.</param>
     /// <param name="level">The room's terrain this update, which a species reaction that runs its main behaviour reads.</param>
     /// <param name="camera">The camera's position as the pass runs, which a species reaction that runs its main behaviour reads.</param>
-    /// <param name="samus">Samus, when the update has one.</param>
+    /// <param name="samus">Samus.</param>
     public int ResolveOrdinaryPowerBombHits(
         Position16<RoomPixels> explosionCenter,
         int explosionRadius,
         RoomLevelData level,
         Position16<RoomPixels> camera,
-        SamusState? samus = null)
+        SamusState samus)
     {
         if (explosionRadius == 0)
             return 0;

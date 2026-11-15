@@ -48,9 +48,9 @@ internal static class DeadTorizoCollisionVerification
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot);
                     // The wait handler reads which enemies Samus met.
                     enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, samus);
-                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
+                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, RoomEnemyFrameFixtures.StandaloneSamus());
                     Require(IsInteractive(), "The native 16-frame pre-rot delay must retain collision.");
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, RoomEnemyFrameFixtures.StandaloneSamus());
                     break;
             }
             Require(slot.Contact.HasAny(EnemyContact.IgnoresSamus),

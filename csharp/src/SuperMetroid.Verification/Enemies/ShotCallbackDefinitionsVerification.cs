@@ -138,7 +138,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
-            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0),
+            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64))),
                 $"literal touch no-op ${callback:X6} is admitted by production collision");
             AssertEqual(99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");
@@ -169,7 +169,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,
-                    new SamusBombProjectileSystem(), SuperMetroid.Core.Progression.AreaId.Crateria),
+                    new SamusBombProjectileSystem(), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");
@@ -181,7 +181,7 @@ internal static class ShotCallbackDefinitionsVerification
             var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy);
-            enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
+            enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

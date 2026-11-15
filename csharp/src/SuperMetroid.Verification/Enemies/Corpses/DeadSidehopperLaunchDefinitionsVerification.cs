@@ -17,7 +17,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     internal static void VerifyDeadSidehopperLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
+        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         for (ushort phase = 0; phase < 4; phase++)
@@ -37,7 +37,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 slot.AnimationClock.HoldFor(9);
-                dispatch(slot, state, null, null, default);
+                dispatch(slot, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
                 int timer = raw - 1;
                 bool expired = timer < 0;
                 bool launch = expired && drainStage == 0;

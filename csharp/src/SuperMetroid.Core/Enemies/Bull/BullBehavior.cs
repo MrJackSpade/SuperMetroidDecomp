@@ -50,7 +50,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Bull's per-frame behaviour through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState? samus)
+    internal static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState samus)
     {
         state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;
         if (state.ShotReactionDisableTimer.IsZero)
@@ -72,8 +72,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.TargetSamus:
-                if (samus is null)
-                    throw new InvalidOperationException("Bull targeting requires the active Samus actor.");
                 state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
                 state.Angle = state.AngleToSamus.ToTrigonometryAngle();
                 state.Action = BullAction.Accelerating;
@@ -81,8 +79,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.Accelerating:
-                if (samus is null)
-                    throw new InvalidOperationException("Bull steering requires the active Samus actor.");
                 if (state.IsBelowMaximumSpeed)
                     AccelerateBull(state);
                 MoveBull(slot, state);

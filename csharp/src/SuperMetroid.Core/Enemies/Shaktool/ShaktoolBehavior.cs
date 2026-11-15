@@ -100,7 +100,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunShaktoolMain(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         switch (state.FrameBehavior)
         {
@@ -116,11 +116,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ShaktoolFrameBehavior.DriveTailAndReverseAtWalls:
-                if (level is null)
-                {
-                    throw new InvalidOperationException(
-                        "Shaktool tail collision requires the active room level.");
-                }
                 DriveShaktoolTail(slot, state, level);
                 return;
 

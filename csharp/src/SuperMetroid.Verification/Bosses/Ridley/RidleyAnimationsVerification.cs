@@ -58,7 +58,7 @@ internal static class RidleyAnimationsVerification
     private static void Pass(RoomEnemySlot body, SamusState? samus)
     {
         body.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(body, samus ?? RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>

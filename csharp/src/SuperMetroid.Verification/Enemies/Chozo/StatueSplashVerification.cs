@@ -26,7 +26,7 @@ internal static class StatueSplashVerification
         for (ushort random = 0; random < 64; random++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random));
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianUnlockBehavior.TourianStatueWaterSurface = new(0, 216);
             enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(SuperMetroid.Core.Areas.Tourian.TourianStatueNativeWords.Eye(0));
@@ -34,7 +34,7 @@ internal static class StatueSplashVerification
             EnemyProjectile? particle = null;
             for (int frame = 0; frame < 200 && particle is null; frame++)
             {
-                enemies.StepEnemyProjectiles(assets.LevelData, null);
+                enemies.StepEnemyProjectiles(assets.LevelData, RoomEnemyFrameFixtures.StandaloneSamus());
                 particle = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             }
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
@@ -55,7 +55,7 @@ internal static class StatueSplashVerification
                 x = unchecked(x + SixteenSixteen.FromEightEight(unchecked((short)nativeX)));
                 y = unchecked(y + SixteenSixteen.FromEightEight(vy));
                 bool crosses = (((216 - previousY) ^ (216 - unchecked((ushort)SixteenSixteen.WholeOf(y)))) & 0x8000) != 0;
-                enemies.StepEnemyProjectiles(assets.LevelData, null);
+                enemies.StepEnemyProjectiles(assets.LevelData, RoomEnemyFrameFixtures.StandaloneSamus());
                 if (crosses)
                 {
                     var splash = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
@@ -81,7 +81,7 @@ internal static class StatueSplashVerification
                         actualOam.FinalizeFrame();
                         AssertTrue(actualOam.ImageEquals(expectedOam), "splash OAM stays attached to native surface after camera subtraction");
                         if (actualOam.LastFinalizedSpriteCount != 0) visibleFrames++;
-                        enemies.StepEnemyProjectiles(assets.LevelData, null);
+                        enemies.StepEnemyProjectiles(assets.LevelData, RoomEnemyFrameFixtures.StandaloneSamus());
                     }
                     AssertTrue(visibleFrames > 0 && !splash.IsActive, "splash displays and expires through retail animation");
                     crossed = true;

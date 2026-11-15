@@ -85,7 +85,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void RunWallSpacePirateMain(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.Action)
         {
@@ -199,16 +199,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateSegment? MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        RoomLevelData? level,
+        RoomLevelData level,
         int downwardPixels,
         HorizontalDirection wall)
     {
-        if (level is null)
-        {
-            throw new InvalidOperationException(
-                "Wall Space Pirate climbing requires room collision data.");
-        }
-
         SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(downwardPixels);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return null;
@@ -282,7 +276,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
     /// animations; every other cue runs on.
     /// </summary>
-    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
+    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData level)
     {
         WallSpacePirateEnemyState state = slot.RequireSpeciesState<WallSpacePirateEnemyState>();
         switch (cue)

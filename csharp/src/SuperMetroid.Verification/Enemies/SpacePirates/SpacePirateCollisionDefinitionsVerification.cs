@@ -233,7 +233,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 !walkingFramePointers.Contains(pointer);
             slot.Bind(compiledPirate switch
             {
-                false => (EnemyDefinitionId)0xffff,
+                false => EnemyDefinitionId.None,
                 true when ninjaFramePointers.Contains(pointer) =>
                     EnemyDefinitionId.PirateSilverNinja,
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
@@ -253,7 +253,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         {
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, default(GameplayAction)];
-            bool native = slot.DefinitionId == (EnemyDefinitionId)0xffff;
+            bool native = slot.DefinitionId == EnemyDefinitionId.None;
             bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(arguments);

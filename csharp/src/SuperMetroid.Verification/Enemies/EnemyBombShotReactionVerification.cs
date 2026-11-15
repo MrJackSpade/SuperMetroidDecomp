@@ -49,7 +49,7 @@ internal static class EnemyBombShotReactionVerification
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot),
                 $"{kind}: the exploding bomb hits the Mellow");
 
             bool immune = kind == "immune";
@@ -103,7 +103,7 @@ internal static class EnemyBombShotReactionVerification
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
-            AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot),
+            AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot),
                 $"{kind}: the bomb's hits");
             AssertEqual(hit, bomb.IsSpent, $"{kind}: the hit marks the bomb");
             AssertEqual(hit ? 1000 - 30 : 1000, slot.Health, $"{kind}: the Mellow's health after the bomb");
@@ -121,7 +121,7 @@ internal static class EnemyBombShotReactionVerification
         bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mellow, definition);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(Place);

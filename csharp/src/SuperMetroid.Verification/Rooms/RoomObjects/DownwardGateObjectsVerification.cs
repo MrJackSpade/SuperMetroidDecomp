@@ -149,8 +149,8 @@ internal static class DownwardGateObjectsVerification
             "gate actor is tied to its gate's PLM block");
         AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");
-        enemies.StepEnemyProjectiles(level, samus: null);
-        enemies.StepEnemyProjectiles(level, samus: null);
+        enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertTrue(actor.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Closed },
             "closed gate actor holds its closed program's sleep before a shot can wake it");
 
@@ -188,7 +188,7 @@ internal static class DownwardGateObjectsVerification
         for (int frame = 0; frame < 96; frame++)
         {
             StepDownwardGateObject(roomObjects, level);
-            enemies.StepEnemyProjectiles(level, samus: null);
+            enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
@@ -217,7 +217,7 @@ internal static class DownwardGateObjectsVerification
             close.Kind, "close request spawns the moving gate projectile");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close);
         for (int frame = 0; frame < 80; frame++)
-            enemies.StepEnemyProjectiles(level, samus: null);
+            enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         EnemyProjectile closedActor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual((ushort)96, closedActor.Position.Y.Whole,
             "moving gate travels four tiles down and remains parked closed");
@@ -284,7 +284,7 @@ internal static class DownwardGateObjectsVerification
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return new CreateDownwardGateFixtureResult(bus, level, roomObjects, gateY * roomWidth + gateX);
     }

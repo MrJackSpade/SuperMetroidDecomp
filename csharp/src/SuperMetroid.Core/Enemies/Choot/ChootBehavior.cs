@@ -48,7 +48,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunChootMain(
         RoomEnemySlot slot,
         ChootEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.Action)
         {
@@ -74,11 +74,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void WaitForChootActivation(
         RoomEnemySlot slot,
         ChootEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Choot proximity AI requires the active Samus actor.");
-
         // The distance is the magnitude of the wrapped signed difference, up to 32768, and the farthest one reads as
         // negative in the game's signed comparison with the activation distance.
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);

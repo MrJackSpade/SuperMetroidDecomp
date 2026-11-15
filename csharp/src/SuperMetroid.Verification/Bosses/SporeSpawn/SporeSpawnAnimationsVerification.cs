@@ -192,7 +192,7 @@ internal static class SporeSpawnAnimationsVerification
 
         for (int frame = 0; frame < frames; frame++)
         {
-            EnemyAnimationPlayer.AdvanceAnimation(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(body, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);

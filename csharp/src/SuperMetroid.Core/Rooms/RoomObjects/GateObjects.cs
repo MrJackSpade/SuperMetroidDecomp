@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class GateObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>Fixed room-object pool used for temporary shot triggers and resident gates.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>Sound queue receiving accepted gate wake and rejected-shot effects.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the gate room-object owner to the active room, its room-object places, and the sound queue.</summary>
-    internal GateObjects(IRoomSamusAccess? samus, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
+    internal GateObjects(IRoomSamusAccess samus, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
     {
         _samus = samus;
         _places = places;
@@ -154,7 +154,7 @@ internal sealed class GateObjects
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     internal bool IsSamusInsideDownwardGateColumn(RoomObjectPlace place)
     {
-        IRoomSamus? samus = _samus?.Current;
+        IRoomSamus? samus = _samus.Current;
         if (samus is null)
             return false;
         int gateX = place.Block.X;

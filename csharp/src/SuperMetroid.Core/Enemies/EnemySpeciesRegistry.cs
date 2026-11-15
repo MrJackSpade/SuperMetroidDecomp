@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Inert;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -48,17 +46,14 @@ internal sealed class EnemySpeciesRegistry
         return registry;
     }
 
-    /// <summary>
-    /// Creates the entity for the occupant <paramref name="slot"/> now holds. A definition outside the retail placements
-    /// (constructed test data) has no species: it runs only the shared participation, and any AI it names beyond the
-    /// shared no-op fails at dispatch.
-    /// </summary>
+    /// <summary>Creates the entity for the occupant <paramref name="slot"/> now holds, through its species' factory.</summary>
     /// <param name="slot">The slot, already holding its new identity.</param>
+    /// <exception cref="InvalidOperationException">No species owns the slot's definition.</exception>
     internal IEnemyEntity Create(RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);
-        if (_factories.TryGetValue(slot.DefinitionId, out IEnemyEntityFactory? factory))
-            return factory.Create(slot, _common);
-        return new InertEnemyEntity(slot, _common);
+        if (!_factories.TryGetValue(slot.DefinitionId, out IEnemyEntityFactory? factory))
+            throw new InvalidOperationException($"No enemy species owns definition {slot.DefinitionId}.");
+        return factory.Create(slot, _common);
     }
 }

@@ -28,7 +28,7 @@ internal static class SamusEaterObjectDefinitionsVerification
             int blockCount = width * height;
             var levelWords = new RoomTerrainBlock[blockCount];
             levelWords[5] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]), RoomLevelData.NothingBeyondGrid());
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(24, definition.Ceiling ? (ushort)16 : (ushort)0));
@@ -67,14 +67,14 @@ internal static class SamusEaterObjectDefinitionsVerification
             var plantBlock = new Position16<RoomBlocks>(3, 3);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(size, size),
                 new RoomLevelPlanes(new RoomTerrainBlock[size * size], new RoomBlockBehavior[size * size], new RoomBlockAppearance[size * size]),
-                RoomLevelData.NothingBeyondGrid());
+                RoomLevelData.NothingBeyondGrid(), []);
             level.SetTerrain(plantBlock, RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock));
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(56, definition.Ceiling ? (ushort)16 : (ushort)0));
             samus.Kinematics.Radius = new(8, 16);
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
                 new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar),
-                new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags() },
+                RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags() },
                 RoomObjectFixtures.Unbound());
             roomObjects.SamusEater.TrySpawnSamusEater(level, level.GetCollisionBlock(plantBlock), definition, samus.RoomView);
 

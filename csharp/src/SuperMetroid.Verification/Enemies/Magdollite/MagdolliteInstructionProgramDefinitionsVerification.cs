@@ -129,7 +129,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             MagdollitePart selectedPart)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+            Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[index];
@@ -138,7 +138,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
-                initialize(member, null);
+                initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
 
             // Each placement spawned as the part its parameter names; the selected part is the one whose state says so.

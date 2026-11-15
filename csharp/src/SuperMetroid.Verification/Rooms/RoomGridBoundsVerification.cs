@@ -20,11 +20,11 @@ internal static class RoomGridBoundsVerification
             .Select(index => RoomTerrainBlock.Of(index % RoomBlockAppearance.LastBlock, BlockMirroring.None, RoomCollisionType.Air))];
         var wide = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(foreground, new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]),
-            RoomLevelData.NothingBeyondGrid());
+            RoomLevelData.NothingBeyondGrid(), []);
         AssertEqual(foreground[width - 1], wide.GetCollisionBlock(new(width - 1, 0)).Terrain, "a room keeps its 300th column");
         AssertEqual(foreground[width], wide.GetCollisionBlock(new(0, 1)).Terrain, "a 300-block row strides to the next row's first block");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomLevelData(new Extent16<RoomBlocks>(0, 1),
-            new RoomLevelPlanes([], [], []), RoomLevelData.NothingBeyondGrid()), "a room is at least one block wide");
+            new RoomLevelPlanes([], [], []), RoomLevelData.NothingBeyondGrid(), []), "a room is at least one block wide");
 
         AssertEqual(1, new RoomBlockCells(new Extent16<RoomBlocks>(1, 1), [new RoomBlockCell(RoomCellPicture.OfBlock(0), BlockMirroring.None)]).Cells.Length,
             "a room plane of one block");

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Enemy">The enemy whose selected shot reaction runs.</param>
 /// <param name="Bomb">The exploding bomb slot, already marked with its hit direction.</param>
 /// <param name="OrdinaryProjectiles">Samus's beam/missile slots (reactions read the first shot's aim).</param>
-/// <param name="Samus">Samus, when the pass has one.</param>
+/// <param name="Samus">Samus.</param>
 /// <param name="SelectedShot">The named reaction of the selected hitbox (the definition's on the radius path), if named.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="Camera">The camera's position as the bomb pass runs.</param>
@@ -18,7 +18,7 @@ internal readonly record struct EnemyBombContext(
     RoomEnemySlot Enemy,
     SamusBomb Bomb,
     SamusProjectileSystem OrdinaryProjectiles,
-    SamusState? Samus,
+    SamusState Samus,
     EnemyReaction? SelectedShot,
     bool UsesFrameHitboxes,
     Position16<RoomPixels> Camera,

@@ -23,7 +23,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
         slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         slot.Position = slot.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
+        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, RoomEnemyFrameFixtures.StandaloneSamus());
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())

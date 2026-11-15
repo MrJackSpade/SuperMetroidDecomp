@@ -46,7 +46,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             AssertTrue(!slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} stays in the room until its first animation step");
 
-            EnemyAnimationPlayer.AdvanceAnimation(slot, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} leaves the room at its first animation step");
         }

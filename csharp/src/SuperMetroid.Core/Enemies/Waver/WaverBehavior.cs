@@ -70,11 +70,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunWaverMain(
         RoomEnemySlot slot,
         WaverEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Waver AI requires active room collision data.");
-
         SignedSixteenSixteen horizontalDisplacement = state.XVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

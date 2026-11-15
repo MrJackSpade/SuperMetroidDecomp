@@ -29,7 +29,7 @@ internal static class BullShotReactionGuardVerification
             ShotReactionDisabled = true,
         });
 
-        BullBehavior.RunBullMain(slot, state, samus: null);
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(ushort.MaxValue, state.ShotReactionDisableTimer.RawValue, "a zero guard timer wraps to the largest count");
         AssertTrue(state.ShotReactionDisabled, "the wrapped guard stays set");
         BullEnemyState successor = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
@@ -38,7 +38,7 @@ internal static class BullShotReactionGuardVerification
         AssertTrue(successor.ShotReactionDisabled, "the next Bull set up in the same slot inherits the set guard");
 
         state.ShotReactionDisableTimer = WrappingCountdown.Start(1);
-        BullBehavior.RunBullMain(slot, state, samus: null);
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(1, state.ShotReactionDisableTimer.RawValue, "a guard timer reaching zero pins at one");
         AssertTrue(!state.ShotReactionDisabled, "the expired guard clears");
         Console.WriteLine("Bull shot-reaction guard: a zero timer wraps to the largest count, the slot's next Bull inherits it, and an expiring one pins at one.");

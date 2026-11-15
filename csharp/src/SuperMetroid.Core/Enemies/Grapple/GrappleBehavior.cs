@@ -119,10 +119,10 @@ internal sealed class GrappleBehavior : IGrappleTargets
                     return true;
                 }
 
-                // This common wrapper is Powamp's crucial distinction: it invokes the
-                // enemy's normal main behaviour while the grappled state remains observable, then
-                // clears that state after the actor has moved its grapple anchor.
-                _lifecycle.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
+                // This common wrapper is Powamp's crucial distinction: it invokes the enemy's normal main behaviour, with
+                // the whole frame it would otherwise see, while the grappled state remains observable, then clears that
+                // state after the actor has moved its grapple anchor.
+                _lifecycle.RunMainAi(enemy, frame);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
@@ -137,33 +137,5 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 throw new InvalidDataException(
                     $"Enemy {enemy.DefinitionId} has no response to grapple response {enemy.Definition.GrappleResponse}.");
         }
-    }
-
-    /// <summary>
-    /// The frame the common grapple wrapper hands to main AI: the enemy's own camera, Samus,
-    /// input and room, but no Samus projectiles, turning-floor transform, shared bombs or artwork changes,
-    /// exactly as the wrapper's main-AI call has always received them (#633).
-    /// </summary>
-    internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
-    {
-        /// <summary>Camera inherited from the current enemy update.</summary>
-        public Position16<RoomPixels> Camera => frame.Camera;
-        /// <summary>Samus state visible to the wrapped main AI.</summary>
-        public SamusState? Samus => frame.Samus;
-        /// <summary>New input edges inherited from the current update.</summary>
-        public GameplayAction NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
-        /// <summary>Held actions inherited from the current update.</summary>
-        public GameplayAction ControllerInput => frame.ControllerInput;
-        /// <summary>Current room collision data visible to wrapped main AI.</summary>
-        public RoomLevelData Level => frame.Level;
-        /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
-        public SamusProjectileSystem? SamusProjectiles => null;
-        /// <summary>Unavailable turning-floor transform in the common grapple wrapper.</summary>
-        public TurningFloorTransform? TurningFloor => null;
-        /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
-        public SamusBombProjectileSystem? SharedProjectiles => null;
-
-        /// <inheritdoc/>
-        public FrameCounters Clock => frame.Clock;
     }
 }

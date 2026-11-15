@@ -81,14 +81,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunPlatformMain(
         RoomEnemySlot slot,
         PlatformEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Platform AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Platform AI requires active room collision data.");
-
         // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.

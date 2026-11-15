@@ -59,12 +59,9 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunZoaMain(
         RoomEnemySlot slot,
         ZoaEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Zoa AI requires the active Samus actor.");
-
         switch (state.Action)
         {
             case ZoaAction.WaitForSamus:

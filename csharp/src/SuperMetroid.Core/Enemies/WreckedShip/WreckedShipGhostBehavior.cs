@@ -61,7 +61,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static void RunWreckedShipGhostMain(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Wrecked Ship ghost AI requires the active Samus actor.");

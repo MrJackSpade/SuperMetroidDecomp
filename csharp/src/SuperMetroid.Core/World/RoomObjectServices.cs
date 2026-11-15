@@ -5,10 +5,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room services resident room objects use after load (#633). Samus and the area's boss flags are
-/// required. Every other service is an explicit optional capability: the room-object family that uses it
-/// checks for it where it previously checked its delegate, and a family whose steps need a missing
-/// service fails loudly.
+/// The room services resident room objects use after load (#633). Every room has each of them; a room without liquid
+/// still has its room FX, whose liquid motion reports the absence (<see cref="IRoomFxMotion.BaseY"/> and
+/// <see cref="IRoomFxMotion.TargetSurface"/>).
 /// </summary>
 [RoomLifetime]
 public sealed record RoomObjectServices
@@ -20,17 +19,17 @@ public sealed record RoomObjectServices
     public required IAreaBossFlagReader Bosses { get; init; }
 
     /// <summary>Global event bits room objects read and set.</summary>
-    public IGlobalEventFlags? Events { get; init; }
+    public required IGlobalEventFlags Events { get; init; }
 
     /// <summary>Tourian entrance statue progress for grey-door conditions.</summary>
-    public ITourianStatueProgress? TourianStatue { get; init; }
+    public required ITourianStatueProgress TourianStatue { get; init; }
 
-    /// <summary>Effect overlay FX the Speed Booster escape and N00b tube drive.</summary>
-    public IRoomObjectFx? RoomFx { get; init; }
+    /// <summary>The room FX the Speed Booster escape, the n00b tube, collectibles and Tourian's acid trigger drive.</summary>
+    public required IRoomObjectFx RoomFx { get; init; }
 
     /// <summary>Room-shake writes.</summary>
-    public IRoomEarthquakeWriter? Earthquake { get; init; }
+    public required IRoomEarthquakeWriter Earthquake { get; init; }
 
     /// <summary>Enemy-side effects.</summary>
-    public IRoomObjectEnemyEffects? Enemies { get; init; }
+    public required IRoomObjectEnemyEffects Enemies { get; init; }
 }

@@ -185,7 +185,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
         if (!_slotTable.IsFilled(Pieces(top).EntrancePad))
@@ -290,11 +290,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Carries Samus and all ship parts downward, slowing below Y=768 before the landing clamp.</summary>
-    private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
+    private void DescendPostCeresGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Post-Ceres gunship descent lost Samus.");
-
         // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
         // 4.5 pixels per call; below that threshold it slows to 2.5 and clamps the
         // top hull to 1119 before beginning the game's seventeen-entry bounce table.
@@ -314,11 +311,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
-    internal void BouncePostCeresGunship(RoomEnemySlot top, SamusState? samus)
+    internal void BouncePostCeresGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
-
         int yDelta = GunshipMotion.LandingBrakeYDelta(Part(top).LandingBrakeStep);
         samus.Position += new Offset16<RoomPixels>(0, yDelta);
         foreach (RoomEnemySlot slot in Pieces(top).All)
@@ -344,11 +338,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
-    private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
+    private void RaisePostCeresSamus(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
-
         samus.Position -= new Offset16<RoomPixels>(0, 1);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
             return;
@@ -405,11 +396,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     /// <summary>Accepts a new Down press inside the standing entrance box and opens the pad.</summary>
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
         GameplayAction newlyPressed = newlyPressedControllerInput;
-        if (samus is null || !newlyPressed.HasAny(GameplayAction.Down))
+        if (!newlyPressed.HasAny(GameplayAction.Down))
             return;
 
         bool insideEntrance =
@@ -445,10 +436,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>
-    private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState? samus)
+    private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Gunship entry lost its Samus actor.");
         samus.Position += new Offset16<RoomPixels>(0, 2);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY + 18) < 0)
             return;
@@ -461,11 +450,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Refills Samus in two-unit steps or skips directly to escape takeoff after Mother Brain.</summary>
-    private void RestoreSamusInGunship(RoomEnemySlot top, SamusState? samus)
+    private void RestoreSamusInGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Gunship restoration lost its Samus actor.");
-
         // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
         // and save-prompt branch here, starts showing the takeoff artwork, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
@@ -496,10 +482,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Raises Samus two pixels per frame, then closes the pad and emits the exit event.</summary>
-    private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
+    private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Gunship exit lost its Samus actor.");
         samus.Position -= new Offset16<RoomPixels>(0, 2);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
             return;
@@ -534,10 +518,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Runs the 128-frame engine-rumble phase.</summary>
-    private void FireUpGunshipEngines(RoomEnemySlot top, SamusState? samus)
+    private void FireUpGunshipEngines(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Gunship takeoff lost Samus.");
         RoomEnemySlot bottom = Pieces(top).Bottom;
         int rumbleFrame = Part(bottom).RumbleFrame;
         bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
@@ -564,10 +546,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Runs constant two-pixel liftoff.</summary>
-    private void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState? samus)
+    private void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Gunship liftoff lost Samus.");
         MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - GunshipTakeoffDefinitions.SteadyLiftoffRise));
         if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.AcceleratingLiftoffY) < 0)
         {
@@ -577,7 +557,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Runs the accelerating takeoff phase.</summary>
-    private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
+    private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState samus)
     {
         MoveEscapingGunship(top, samus);
         if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.TakeoffCompleteY) < 0)
@@ -588,10 +568,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     }
 
     /// <summary>Runs the shared 1/256-pixel velocity integrator.</summary>
-    private void MoveEscapingGunship(RoomEnemySlot top, SamusState? samus)
+    private void MoveEscapingGunship(RoomEnemySlot top, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Escaping gunship lost Samus.");
         RoomEnemySlot bottom = Pieces(top).Bottom;
         GunshipPartState bottomPart = Part(bottom);
         bottomPart.AccelerateEscape();

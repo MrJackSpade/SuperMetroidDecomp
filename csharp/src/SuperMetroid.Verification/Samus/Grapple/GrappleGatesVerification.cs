@@ -36,8 +36,8 @@ internal static class GrappleGatesVerification
             // its set with its own population (an empty population would keep the session's standard sprites).
             enemies.Load(new RoomEnemyLoadRequest(RoomEnemyPopulationDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single());
-            enemies.StepEnemyProjectiles(level, null);
-            enemies.StepEnemyProjectiles(level, null);
+            enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
             var oam = new OamBuffer();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             AssertTrue(oam.NextByteOffset > 0, "closed gate has visible OAM before grapple impact");
@@ -60,7 +60,7 @@ internal static class GrappleGatesVerification
                 }
                 StepDownwardGateObject(roomObjects, level);
                 AssertEqual(0, roomObjects.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
-                enemies.StepEnemyProjectiles(level, null);
+                enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
                 AssertTrue(oam.LowTable[..oam.NextByteOffset].SequenceEqual(expected),
                     $"green gate OAM remains visible and identical on {trigger} frame {frame}");

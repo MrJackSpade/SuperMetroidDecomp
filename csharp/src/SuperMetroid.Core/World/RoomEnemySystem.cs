@@ -613,17 +613,18 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </param>
     /// <param name="definitions">The room's enemy definition source.</param>
     /// <param name="services">The game-state services the room's AI calls.</param>
+    /// <param name="area">The area the room is in.</param>
     /// <param name="bossArtwork">The session's installed boss artwork.</param>
     /// <param name="breakableTerrain">
     /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
     /// </param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
-        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services,
+        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area,
         BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain)
     {
         Ensure.NotNull(compatibility);
         BossArtworkBinding = Ensure.NotNull(bossArtwork);
-        Room = new EnemyRoomBinding(session, definitions, services);
+        Room = new EnemyRoomBinding(session, definitions, services, area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
@@ -649,7 +650,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
-        RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
+        RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
@@ -925,14 +926,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
-            if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.Samus is not null)
+            if (!frame.TimeIsFrozen && !invincibleAtEntry)
             {
                 // Extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
-                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, frame.RoomArea,
+                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
                     frame.Samus, slot, frame.Camera);
                 // The input phase already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.
@@ -978,8 +979,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // and frozen AI coexist.
                     slot.FlashTimer = 0;
                     bool thaw = slot.FrozenTimer == 0 ||
-                        (frame.Samus is not null &&
-                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None);
+                        (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None;
                     if (!thaw)
                         slot.FrozenTimer--;
                     else
@@ -1075,9 +1075,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// Shakes the solid or frozen enemy Samus's latest wall jump launched from, as the enemy pass does before any enemy
     /// updates. While no enemy place is filled the request waits.
     /// </summary>
-    internal void ShakeWallJumpLaunchEnemy(SamusState? samus)
+    internal void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
-        if (SlotTable.EnemyCount == 0 || samus?.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
+        if (SlotTable.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
             return;
         launchedFrom.ShakeFromWallJumpLaunch();
     }
@@ -1098,10 +1098,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Advances enemy-projectile actors after Samus movement and before room objects.</summary>
     public void AdvanceEnemyProjectileAnimations(
         RoomLevelData level,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
         int shortFrameCounter,
-        SamusBombProjectileSystem? samusBombs,
+        SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
         DeathsAndDrops.BindSamus(samus);

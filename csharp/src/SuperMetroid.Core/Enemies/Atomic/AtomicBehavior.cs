@@ -34,11 +34,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunAtomicMain(
         RoomEnemySlot slot,
         AtomicEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Atomic movement requires the active Samus actor.");
-
         // Being level with Samus counts as her being below or to the right, so it moves down or right. The comparison is
         // by whether the coordinate difference across the room's wrap is negative, so an Atomic and Samus on either side
         // of the wrap still chase the short way.

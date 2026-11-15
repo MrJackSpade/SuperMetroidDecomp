@@ -29,8 +29,8 @@ internal static class RidleyBreakupProgramsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
-        var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
+        var process = new Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         enemies.RidleyEncounter.Parts.AttachBody(body, "Lower Norfair Ridley");
@@ -51,7 +51,7 @@ internal static class RidleyBreakupProgramsVerification
         {
             AssertEqual(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap, fragment.SpritemapPointer,
                 "native breakup spawn installs empty frame before instruction processing");
-            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
+            process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(!CommonEnemyEmptyFrames.DrawsNothing(fragment.Frame), "first breakup instruction replaces empty frame");
         }
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,9 +66,9 @@ internal static class RidleyBreakupProgramsVerification
             RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(frame), AnimationPlace.StartOfAnimation);
             fragment.AnimationClock.StepOnNextUpdate();
-            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
+            process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
-            process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
+            process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual((ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 4), RidleyNativeProgramOracle.BreakupPointer(fragmentState.Playback), "breakup sleeps after its one frame");
             var actual = new OamBuffer();
             stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<ScreenPixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });

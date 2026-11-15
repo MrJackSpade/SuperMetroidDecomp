@@ -20,7 +20,7 @@ internal readonly record struct EnemyTouchContext(
     RoomEnemySlot Slot,
     SamusState Samus,
     GameplayAction ControllerInput,
-    RoomLevelData? Level,
+    RoomLevelData Level,
     bool UsesFrameHitboxes,
     EnemyReaction? HitboxTouch,
     SamusBodyAttack BodyAttack,

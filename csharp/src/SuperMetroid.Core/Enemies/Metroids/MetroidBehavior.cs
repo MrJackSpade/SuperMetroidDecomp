@@ -97,13 +97,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
-    private void RunMetroidMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
+    private void RunMetroidMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Metroid AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Metroid movement requires room level data.");
-
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
         switch (state.Movement)
@@ -309,7 +304,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileType collisionProjectileType,
         int collisionProjectileDamage,
         Position16<RoomPixels> recoilOrigin,
-        SamusState? samus)
+        SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         SamusProjectileFamily family = collisionProjectileType.Family;
@@ -353,7 +348,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void DetachMetroidWithPowerBomb(
         RoomEnemySlot slot,
         MetroidEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         state.EscapeTimer = MetroidEscapeDuration;
         state.Movement = MetroidMovement.PowerBombEscape;
@@ -363,7 +358,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    internal static void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
+    internal static void FinishMetroidDeath(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         state.Velocity = state.Velocity.WithWholeX(0);

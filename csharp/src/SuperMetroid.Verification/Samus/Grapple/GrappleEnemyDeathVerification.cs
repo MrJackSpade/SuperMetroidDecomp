@@ -31,10 +31,10 @@ internal static class GrappleEnemyDeathVerification
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
-        const ushort header = 0x9000;
+        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemySlotFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.Bind((EnemyDefinitionId)header, enemy.Definition);
+        enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
             GrappleResponse = EnemyGrappleResponse.Kill,
@@ -54,7 +54,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual((EnemyDefinitionId)header, explosion.DropDefinitionId, "death actor retains drop-table identity");
+        AssertEqual(EnemySlotFixtures.StandIn, explosion.DropDefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -114,7 +114,7 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.SlotTable.Slots[0];
-            enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+            enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 GrappleResponse = EnemyGrappleResponse.Kill,

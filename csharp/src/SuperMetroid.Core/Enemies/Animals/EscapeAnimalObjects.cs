@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events;
+    private readonly IGlobalEventFlags _events;
     /// <summary>The room's room objects, which the escape passage and the rescue wall's reaction join.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
     /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared slot table and the installed pictures.</summary>
-    internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
+    internal EscapeAnimalObjects(IGlobalEventFlags events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _events = events;
         _places = places;
@@ -48,11 +48,9 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         Ensure.NotNull(level);
-        IGlobalEventFlags events = _events ?? throw new InvalidOperationException(
-            "Crateria mainstreet escape passage requires the room event owner.");
         if (_places.IsFull)
             return false;
-        if (!events.Has(StoryEvent.CrittersEscaped))
+        if (!_events.Has(StoryEvent.CrittersEscaped))
             return false;
         if (_places.Spawn() is not { } place)
             return false;

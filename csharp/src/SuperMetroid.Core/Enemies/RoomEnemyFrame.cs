@@ -19,8 +19,8 @@ internal sealed record RoomEnemyFrame
     /// <summary>Whether time is frozen, which stops the enemies' AI and animations; it does not stop every timer, the room-wide glows, or frame publication.</summary>
     public required bool TimeIsFrozen { get; init; }
 
-    /// <summary>Samus, or null while the running scenario has not introduced her.</summary>
-    public required SamusState? Samus { get; init; }
+    /// <summary>Samus.</summary>
+    public required SamusState Samus { get; init; }
 
     /// <summary>The actions newly pressed this update, distinct from the held actions.</summary>
     public GameplayAction NewlyPressedControllerInput { get; init; } = 0;
@@ -45,9 +45,6 @@ internal sealed record RoomEnemyFrame
 
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SharedProjectiles { get; init; }
-
-    /// <summary>The area of the room the enemies are in, which decides how long a shot's freeze lasts.</summary>
-    public required AreaId RoomArea { get; init; }
 
     /// <summary>The game's frame counter.</summary>
     public required int FrameCounter { get; init; }

@@ -117,11 +117,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
-        enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
+        enemies.SkreeBehavior.RunSkreeMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
 
         state.AttackReady = true;
-        enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
+        enemies.SkreeBehavior.RunSkreeMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
     }
 

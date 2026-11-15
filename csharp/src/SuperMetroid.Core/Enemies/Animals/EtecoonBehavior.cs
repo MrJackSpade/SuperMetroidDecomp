@@ -103,8 +103,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunEtecoonMain(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         // An earthquake suspends the Etecoon for 128 updates; its route is kept.
         if (state.QuakePauseFrames != 0)

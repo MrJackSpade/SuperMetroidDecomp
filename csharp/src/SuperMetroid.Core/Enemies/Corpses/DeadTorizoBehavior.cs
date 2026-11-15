@@ -240,9 +240,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 continue;
 
             // The heap is published wherever it lies; the display clips it to the view (#1541).
-            int screenY = CoordinateAxis.Wrap(187 - camera.Y);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoSandHeap), DeadTorizoArtworkDefinitions.SandHeapFrame,
-                new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), PictureShading.Standard, rows: ShownSand(state));
+                DeadTorizoArtworkDefinitions.SandHeapPlace.RelativeToCamera(camera), PictureShading.Standard, rows: ShownSand(state));
         }
     }
 

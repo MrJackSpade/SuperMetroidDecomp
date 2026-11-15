@@ -273,12 +273,6 @@ internal sealed class TorizoAttacks
         }
     }
 
-    /// <summary>The segment a Torizo projectile's typed animation stands in.</summary>
-    private static TorizoProjectileSegment RunningTorizoProjectileAnimation(EnemyProjectile projectile) =>
-        projectile.Animation is TorizoProjectileAnimation animation
-            ? animation.PlayingSegment
-            : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
-
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
@@ -729,8 +723,10 @@ internal sealed class TorizoAttacks
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
         if (--egg.HatchTimer < 0)
         {
-            // The hatch timer steps the resting animation past its rest.
-            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileAnimation(projectile))));
+            // The rolling egg holds its picture until it hatches, showing the side it was laid facing.
+            projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacingRight
+                ? TorizoProjectileSegment.EggHatchingRight
+                : TorizoProjectileSegment.EggHatchingLeft));
             projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.FacingRight ? 1 : -1));
             return;
         }

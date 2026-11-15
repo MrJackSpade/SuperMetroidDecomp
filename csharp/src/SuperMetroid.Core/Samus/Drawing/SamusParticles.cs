@@ -80,7 +80,7 @@ public sealed class SamusParticles
                 continue;
             if (particle.Kind == SamusParticleKind.DivingSplash)
                 particle.HoldOnLine(waterSurfaceLine);
-            sprites.Add(Draw(particle, index, camera, sheets));
+            sprites.Add(Draw(particle, camera, sheets));
         }
     }
 
@@ -88,7 +88,7 @@ public sealed class SamusParticles
     /// The draw of a shown particle wherever it lies; the display clips it (#1541). Splashes, spray and dust are eight-pixel
     /// pictures centred on the particle; the diving splash and bubbles are placed from it.
     /// </summary>
-    private static ImageSpriteDraw Draw(SamusParticle particle, int index, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
+    private static ImageSpriteDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
         int step = particle.AnimationStep;
         string frame = particle.Kind switch
@@ -103,7 +103,7 @@ public sealed class SamusParticles
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);
         SpriteSheetFrame picture = sheets.Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
-        return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, index), picture,
+        return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere), picture,
             place, SpriteMirror.None);
     }
 }

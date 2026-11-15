@@ -33,15 +33,6 @@ public static class ChargeFlarePictures
             ? composition
             : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
 
-    /// <summary>The sprite source instance that tells the flare's three components' draws apart.</summary>
-    internal static int SourceInstance(ChargeFlareComponent component) => component switch
-    {
-        ChargeFlareComponent.MainFlare => 0,
-        ChargeFlareComponent.SlowSparks => 1,
-        ChargeFlareComponent.FastSparks => 2,
-        _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    };
-
     /// <summary>The family of <paramref name="component"/>'s compositions for the facing.</summary>
     private static ProjectileSpriteGroup FamilyOf(ChargeFlareComponent component, bool facingLeft) => component switch
     {

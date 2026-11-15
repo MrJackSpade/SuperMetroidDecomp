@@ -85,7 +85,7 @@ internal sealed class CrocomireFight
         }
 
         state.DeathPhase = CrocomireDeathPhase.Fighting;
-        state.Phase = CrocomirePhase.Sleeping;
+        state.Phase = CrocomirePhase.Dormant;
         // On the living branch only.
         _cameraDistance.Request(CameraDistanceMode.BossTracking);
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
@@ -327,7 +327,7 @@ internal sealed class CrocomireFight
             case null:
                 throw new InvalidOperationException("Crocomire's fight cue fired with no fight under way.");
 
-            case CrocomirePhase.Sleeping:
+            case CrocomirePhase.Dormant:
                 if (samus is not null && CoordinateAxis.Distance(
                         state.Body.Position.X.Whole, samus.Position.X.Whole) < 224)
                 {

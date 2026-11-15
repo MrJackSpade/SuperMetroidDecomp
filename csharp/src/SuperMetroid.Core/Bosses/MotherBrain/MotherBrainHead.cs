@@ -147,7 +147,7 @@ internal sealed class MotherBrainHead
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldFrame(
                 sprites,
-                new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
+                new SpriteSource(SpriteSourceKind.MotherBrainNeck),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
                     state.Colours.OwnShading),
                 camera);
@@ -162,7 +162,7 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> camera)
     {
         // The frame is published wherever it lies, above the screen included; the display clips it (#1587).
-        Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
+        Offset16<ScreenPixels> screen = frame.World.RelativeToCamera(camera);
 
         // The head's sheet pictures each frame as the encounter's artwork changes leave it (#1392); her corpse's frame is drawn
         // whole through her corpse's own rows as its rot leaves them (#1539).
@@ -489,7 +489,7 @@ internal sealed class MotherBrainHead
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        _projectileAttacks.Projectile.RunMotherBrainAttachedDroolFrameBehavior(drool);
+        _projectileAttacks.Projectile.HoldMotherBrainDroolAtMouth(drool);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
@@ -542,6 +542,6 @@ internal sealed class MotherBrainHead
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = EightEightVector<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        _projectileAttacks.Projectile.RunMotherBrainRainbowChargingFrameBehavior(projectile);
+        _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile);
     }
 }

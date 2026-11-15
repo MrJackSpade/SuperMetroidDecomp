@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>One frame an enemy draws from the sheet of the variant its room's population places it in (#1392, #1599).</summary>
 /// <param name="Enemy">The enemy whose sheet is drawn.</param>
 /// <param name="Frame">The sheet frame's name.</param>
-/// <param name="Origin">The frame origin on screen.</param>
-internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Position16<ScreenPixels> Origin)
+/// <param name="Origin">The frame origin on screen, negative left of or above the view.</param>
+internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Offset16<ScreenPixels> Origin)
 {
     /// <summary>
     /// The shades and colour effects the draw shows its picture in (#1512), such as a hit flash or a glow's frame; null

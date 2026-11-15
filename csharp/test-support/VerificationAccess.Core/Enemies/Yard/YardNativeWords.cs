@@ -11,7 +11,7 @@ internal static class YardNativeWords
     /// <summary>The routine word naming each <see cref="YardMovement"/>.</summary>
     internal static readonly NativeWordIdentities<YardMovement> YardMovements = new(new Dictionary<YardMovement, ushort>
     {
-        [YardMovement.AwaitingAnimationCue] = 0xcf5f,
+        [YardMovement.HoldingStill] = 0xcf5f,
         [YardMovement.Hiding] = 0xcf60,
         [YardMovement.CrawlingUpsideUpMovingLeft] = 0xcfa6,
         [YardMovement.CrawlingUpsideLeftMovingDown] = 0xcfb7,

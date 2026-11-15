@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public enum CrocomirePhase
 {
     /// <summary>Lies dormant until Samus comes within 224 pixels, then waits for his first hit.</summary>
-    Sleeping,
+    Dormant,
     /// <summary>Steps forward, stepping back on a hit that queued steps, and charges once he is near the spike wall.</summary>
     SteppingForward,
     /// <summary>Spits a volley of shots, one at each fight cue, then steps forward; a hit steps him back.</summary>

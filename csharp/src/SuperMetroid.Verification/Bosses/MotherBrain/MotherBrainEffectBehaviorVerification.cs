@@ -226,7 +226,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 $"{expectedKind} release frame holds at its program's sleep");
 
             drool.Position = drool.Position.WithWholeY(215);
-            MotherBrainProjectiles.RunMotherBrainFallingDroolFrameBehavior(drool);
+            MotherBrainProjectiles.DropMotherBrainDrool(drool);
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.DroolHitFloor },
                 $"{expectedKind} floor impact starts the splash program");
             AssertLifetime(droolEnemies, drool, 40, $"{expectedKind} splash survives all four ten-frame stages");

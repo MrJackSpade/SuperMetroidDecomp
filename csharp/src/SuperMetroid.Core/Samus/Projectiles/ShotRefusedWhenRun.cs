@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// What a Spazer and Plasma beam's shot runs when it runs data rather than the game's code only once its update runs
-/// (#1923, <see cref="SamusBeamFrameBehaviorDefinitions"/>): the shot is fired as the game fires it, and refused when its
+/// (#1923, <see cref="SamusBeamShotBehaviorDefinitions"/>): the shot is fired as the game fires it, and refused when its
 /// update would run it, since reproducing that needs full memory and processor emulation, which is outside the emulation
 /// scope limit (#1500). A shot with no animation, such as the safe left-facing Murder Beam, is never updated and never
 /// runs it.

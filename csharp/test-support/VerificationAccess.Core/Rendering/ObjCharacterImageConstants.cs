@@ -85,7 +85,7 @@ internal static class ObjCharacterImageConstants
                 frame = Picture(composition, part, cells, size, left, top, corner, index, sizes);
                 records.Frames.Add(shape, frame);
             }
-            draws.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), frame,
+            draws.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendScreen), frame,
                 Offset16<ScreenPixels>.Wrapped(left, top), SpriteMirror.None));
             part += cells;
         }
@@ -178,6 +178,6 @@ internal static class ObjCharacterImageConstants
             }
         }
         var frame = new SpriteFrame($"frontend OAM, {oam.LastFinalizedSpriteCount} records", parts.ToImmutable());
-        return new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects), frame, page, default, 0, 0, 0);
+        return new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendScreen), frame, page, default, 0, 0, 0);
     }
 }

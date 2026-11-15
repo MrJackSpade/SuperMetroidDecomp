@@ -530,11 +530,16 @@ internal static class TorizoAnimationsVerification
     }
 
     /// <summary>
-    /// The AI resumes a sleeping list by stepping its pointer past the sleep; <see cref="TorizoAnimations.AfterSleep"/>
-    /// must name the animation that starts there.
+    /// The cartridge's AI resumes a sleeping list by stepping its pointer past the sleep; the animation each wake starts by
+    /// name, the awakening of the dormant statue, must be the one that starts there.
     /// </summary>
     private static void VerifyResumedSleeps(IImportCartridgeSource cartridge, Dictionary<ushort, BodyList> lists)
     {
+        var wakes = new Dictionary<TorizoAnimation, TorizoAnimation>
+        {
+            [TorizoAnimation.BombTorizoDormant] = TorizoAnimation.BombTorizoAwakening,
+            [TorizoAnimation.GoldenTorizoDormant] = TorizoAnimation.GoldenTorizoAwakening,
+        };
         int resumed = 0;
         foreach ((TorizoAnimation animation, ushort entry) in AnimationEntries)
         {
@@ -543,7 +548,7 @@ internal static class TorizoAnimationsVerification
             ushort? sleep = SleepAddress(cartridge, entry);
             if (sleep is not { } address || AnimationAt(unchecked((ushort)(address + 2))) is not { } next)
                 continue;
-            AssertEqual(next, TorizoAnimations.AfterSleep(animation), $"Torizo {animation} resumes past its sleep into {next}");
+            AssertEqual(next, wakes[animation], $"Torizo {animation} resumes past its sleep into {next}");
             resumed++;
         }
         AssertEqual(2, resumed, "Torizo resumes its two sleeping animations");

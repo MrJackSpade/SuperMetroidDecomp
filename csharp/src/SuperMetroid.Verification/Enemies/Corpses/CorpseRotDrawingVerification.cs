@@ -169,7 +169,7 @@ internal static class CorpseRotDrawingVerification
     {
         if (placement is null)
             throw new InvalidOperationException($"{context}: the sheet does not say where the corpse lies in its picture.");
-        var plain = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), image, Origin - Position16<ScreenPixels>.Zero, SpriteMirror.None) { Shading = PictureShading.Standard };
+        var plain = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), image, Origin - Position16<ScreenPixels>.Zero, SpriteMirror.None) { Shading = PictureShading.Standard };
         ImageSpriteDraw draw = plain with { CorpseRot = CorpseRotDrawing.Picture(placement, rows, image.Size) };
         for (ushort y = 0; y < image.Size.Y; y++)
         {

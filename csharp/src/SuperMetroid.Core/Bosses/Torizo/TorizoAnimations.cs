@@ -103,21 +103,6 @@ internal static class TorizoAnimations
         [A.GoldenWalkingRightLeftLegMoving] = new([new(A.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(A.GoldenWalkingRightLeftLegMoving, 20, 21, 1)], AnimationEnd.LoopsFrom(0)),
     }.ToFrozenDictionary();
 
-    /// <summary>Each animation's identity, by the animation itself.</summary>
-    private static readonly FrozenDictionary<Animation<TorizoAnimation>, TorizoAnimation> Identities =
-        StartingAt.ToFrozenDictionary<KeyValuePair<A, Animation<A>>, Animation<A>, A>(pair => pair.Value, pair => pair.Key, ReferenceEqualityComparer.Instance);
-
-    /// <summary>
-    /// The animation each resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do; no other animation rests. Bomb Torizo always sits facing left: the original's facing-right statue,
-    /// which no room starts, is not kept (#1941).
-    /// </summary>
-    private static readonly FrozenDictionary<A, A> ResumesAfterSleep = new Dictionary<A, A>
-    {
-        [A.BombTorizoDormant] = A.BombTorizoAwakening,
-        [A.GoldenTorizoDormant] = A.GoldenTorizoAwakening,
-    }.ToFrozenDictionary();
-
     /// <summary>How <paramref name="animation"/> plays.</summary>
     internal static Animation<TorizoAnimation> StartingWith(TorizoAnimation animation) => StartingAt[animation];
 
@@ -137,17 +122,4 @@ internal static class TorizoAnimations
     /// </summary>
     internal static AnimationContinuation<TorizoAnimation> ReplayPhase(AnimationPlayback<TorizoAnimation> continuation) =>
         new(Ensure.NotNull(continuation.Animation), AnimationPlace.Before(continuation.Place.Phase));
-
-    /// <summary>The animation <paramref name="playback"/> plays.</summary>
-    internal static TorizoAnimation Playing(AnimationPlayback<TorizoAnimation> playback) => Identities[Ensure.NotNull(playback.Animation)];
-
-    /// <summary>
-    /// The animation a resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>
-    internal static TorizoAnimation AfterSleep(TorizoAnimation animation) =>
-        ResumesAfterSleep.TryGetValue(animation, out A resumed)
-            ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation never rests.");
 }

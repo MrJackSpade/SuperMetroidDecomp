@@ -1014,6 +1014,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRefillStationLock), () => VerifyRefillStationLock()),
         new(nameof(VerifyMagdolliteApexThreshold), () => VerifyMagdolliteApexThreshold()),
         new(nameof(VerifyGoldenTorizoAttackChoice), () => VerifyGoldenTorizoAttackChoice()),
+        new(nameof(SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoEggHatchVerification.VerifyGoldenTorizoEggHatchesOnItsLaidSide), () => SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoEggHatchVerification.VerifyGoldenTorizoEggHatchesOnItsLaidSide()),
         .. SuperMetroid.Verification.Audio.AudioBankTransitionVerification.AudioBankTransitionSuites(),
         new(nameof(VerifyWallProbeBombBlock), () => VerifyWallProbeBombBlock()),
         new(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition()),

@@ -288,7 +288,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Mini-Kraid's spit per frame.</summary>
-    internal static void RunFakeKraidSpitFrameBehavior(
+    internal static void FlyFakeKraidSpit(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -308,7 +308,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>
-    internal static void RunFakeKraidSpikeFrameBehavior(
+    internal static void FlyFakeKraidSpike(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -388,10 +388,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (motion)
             {
                 case FakeKraidProjectileMotion.SpitFlying:
-                    RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
+                    FlyFakeKraidSpit(context.Projectile, context.Level);
                     break;
                 case FakeKraidProjectileMotion.SpikeFlying:
-                    RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
+                    FlyFakeKraidSpike(context.Projectile, context.Level);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(FakeKraidProjectileMotion)} {motion}.");

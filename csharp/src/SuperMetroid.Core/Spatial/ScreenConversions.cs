@@ -15,10 +15,4 @@ public static class ScreenConversions
         return new Offset16<ScreenPixels>(delta.X, delta.Y);
     }
 
-    /// <summary>
-    /// The screen position of <paramref name="room"/> under the camera: the game's
-    /// position less camera subtraction kept as wrapped unsigned coordinates.
-    /// </summary>
-    public static Position16<ScreenPixels> ToScreen(this Position16<RoomPixels> room, Position16<RoomPixels> camera) =>
-        new(unchecked((ushort)(room.X - camera.X)), unchecked((ushort)(room.Y - camera.Y)));
 }

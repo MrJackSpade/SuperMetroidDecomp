@@ -539,7 +539,7 @@ public sealed class SamusProjectileSystem
             // cull by world X. The sprite is published wherever it lies and the display clips it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (shot.Sprite is not null)
-                ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, shot.Place),
+                ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                     shot, cameraPosition, artwork);
         }
     }
@@ -581,7 +581,7 @@ public sealed class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, shot.Place),
+            ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                 shot, cameraPosition, artwork);
         }
     }

@@ -309,11 +309,11 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
-            Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
+            Offset16<ScreenPixels> screen = (projectile.Position.Whole + shake).RelativeToCamera(camera);
 
             // The blank frame, and the animation frames showing the empty picture, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
-                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, place),
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
         }
     }

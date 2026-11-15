@@ -352,15 +352,39 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void CopyToEnemyRecord() { } }", $"'CopyToEnemyRecord' {tablePosition} ('EnemyRecord')");
         // The words alone or apart are the game's own: a menu, a table, an index, an enemy, a record.
         Expect("class P { int MenuStep; int SpeedTable; int WingIndex; int EnemyIndex; int TableRow; int IndexTable; void RecordEnemy() { } int MenuCursorIndex; }");
+        // The animation interpreter's sleep (#2021), in each kind of declaration the removed wakes used it in: a lookup
+        // method, a table, a helper, a local, an enum member and a file.
+        const string sleep = "names the animation interpreter's sleep";
+        Expect("static class Animations { static int AfterSleep(int animation) => animation; }", $"'AfterSleep' {sleep} ('Sleep')");
+        Expect("static class Animations { static readonly int[] ResumesAfterSleep = []; }", $"'ResumesAfterSleep' {sleep} ('Sleep')");
+        Expect("static class Animations { static int Sleeps(int segment) => segment; }", $"'Sleeps' {sleep} ('Sleep')");
+        Expect("class P { void Wake() { int sleeping = 0; _ = sleeping; } }", $"'sleeping' {sleep} ('Sleep')");
+        Expect("enum CrocomirePhase { Sleeping }", $"'Sleeping' {sleep} ('Sleep')");
+        ExpectFile("class SleepTable { }", "SleepTable.cs", $"'SleepTable' {sleep} ('Sleep')", $"'SleepTable' {sleep} ('Sleep')");
+        // A creature asleep or dormant in the game, and words that only share the letters, are the game's own.
+        Expect("enum Action { Asleep, Dormant } class P { bool Asleep; int Sleeper; int Sleepy; void Wake() { } }");
+        // The original's per-frame routine pointer (#2022), in each kind of declaration the renamed projectile motions and
+        // beam tables used it in: a method, a type and its file, a property, a parameter and a local; a delegate keeps no
+        // allowance.
+        const string frameBehavior = "names the original's per-frame routine";
+        Expect("class P { static void RunKraidRockFrameBehavior(int rock) { } }", $"'RunKraidRockFrameBehavior' {frameBehavior} ('FrameBehavior')");
+        ExpectFile("sealed class UnauthoredBeamFrameBehaviors { }", "UnauthoredBeamFrameBehaviors.cs",
+            $"'UnauthoredBeamFrameBehaviors' {frameBehavior} ('FrameBehavior')", $"'UnauthoredBeamFrameBehaviors' {frameBehavior} ('FrameBehavior')");
+        Expect("class P { int FrameBehavior { get; set; } }", $"'FrameBehavior' {frameBehavior} ('FrameBehavior')");
+        Expect("class P { void Run(int frameBehaviour) { } }", $"'frameBehaviour' {frameBehavior} ('FrameBehaviour')");
+        Expect("class P { void Run() { System.Action frameBehaviors = () => { }; frameBehaviors(); } }",
+            $"'frameBehaviors' {frameBehavior} ('FrameBehavior')");
+        // The words alone, apart or in another order are the game's own: a frame, a behaviour, a shot behaviour.
+        Expect("class P { int Frame; int Behavior; int ShotBehavior; int BehaviorFrame; int FrameCountBehavior; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");
         Expect("interface ICartridgeSource { }", "'ICartridgeSource' names the hardware ('Cartridge')");
         Expect("class Mode7Floor { }", "'Mode7Floor' names the hardware ('Mode7')");
         // #1481: routine labels name the CPU's return and jump instructions, and an address spelled into a name is the hardware.
-        Expect("enum FrameBehavior { RTS_86A3B0 }", "'RTS_86A3B0' names the hardware ('86A3B0')");
-        Expect("enum FrameBehavior { Return_86A3B0 }", "'Return_86A3B0' names the hardware ('86A3B0')");
-        Expect("enum FrameBehavior { Rts }", "'Rts' names the hardware ('Rts')");
+        Expect("enum Routine { RTS_86A3B0 }", "'RTS_86A3B0' names the hardware ('86A3B0')");
+        Expect("enum Routine { Return_86A3B0 }", "'Return_86A3B0' names the hardware ('86A3B0')");
+        Expect("enum Routine { Rts }", "'Rts' names the hardware ('Rts')");
         Expect("class P { void JslTarget() { } }", "'JslTarget' names the hardware ('Jsl')");
         Expect("class P { int Instr_A0B3; }", "'Instr_A0B3' names the hardware ('A0B3')");
         // Hexadecimal-looking words without a digit, and short or long digit runs, are ordinary words and numbers.

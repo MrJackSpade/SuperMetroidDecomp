@@ -61,24 +61,24 @@ internal static class RidleyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
-        [P.Initial] = Sleeps(P.Initial),
-        [P.InitialFacingRight] = Sleeps(P.InitialFacingRight),
-        [P.CeresLunge] = Sleeps(P.CeresLunge),
-        [P.CeresLungeFacingRight] = Sleeps(P.CeresLungeFacingRight),
-        [P.RetrieveBabyMetroid] = Sleeps(P.RetrieveBabyMetroid),
-        [P.RetrieveBabyMetroidFacingRight] = Sleeps(P.RetrieveBabyMetroidFacingRight),
-        [P.OpeningRoar] = Sleeps(P.OpeningRoar),
-        [P.OpeningRoarFacingRight] = Sleeps(P.OpeningRoarFacingRight),
-        [P.DeathRoar] = Sleeps(P.DeathRoar),
-        [P.DeathRoarFacingRight] = Sleeps(P.DeathRoarFacingRight),
-        [P.TurnFromLeftToRight] = Sleeps(P.TurnFromLeftToRight),
-        [P.TurnFromRightToLeft] = Sleeps(P.TurnFromRightToLeft),
+        [P.Initial] = PlaysOnceAndHolds(P.Initial),
+        [P.InitialFacingRight] = PlaysOnceAndHolds(P.InitialFacingRight),
+        [P.CeresLunge] = PlaysOnceAndHolds(P.CeresLunge),
+        [P.CeresLungeFacingRight] = PlaysOnceAndHolds(P.CeresLungeFacingRight),
+        [P.RetrieveBabyMetroid] = PlaysOnceAndHolds(P.RetrieveBabyMetroid),
+        [P.RetrieveBabyMetroidFacingRight] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingRight),
+        [P.OpeningRoar] = PlaysOnceAndHolds(P.OpeningRoar),
+        [P.OpeningRoarFacingRight] = PlaysOnceAndHolds(P.OpeningRoarFacingRight),
+        [P.DeathRoar] = PlaysOnceAndHolds(P.DeathRoar),
+        [P.DeathRoarFacingRight] = PlaysOnceAndHolds(P.DeathRoarFacingRight),
+        [P.TurnFromLeftToRight] = PlaysOnceAndHolds(P.TurnFromLeftToRight),
+        [P.TurnFromRightToLeft] = PlaysOnceAndHolds(P.TurnFromRightToLeft),
         [P.Fireballing] = new([Whole(P.Fireballing), Whole(P.FireballingEnd)], AnimationEnd.Holds),
-        [P.FireballingEnd] = Sleeps(P.FireballingEnd),
+        [P.FireballingEnd] = PlaysOnceAndHolds(P.FireballingEnd),
         [P.FireballingFacingRight] = new([Whole(P.FireballingFacingRight), Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
-        [P.FireballingEndFacingRight] = Sleeps(P.FireballingEndFacingRight),
-        [P.TransitionToFlying] = Sleeps(P.TransitionToFlying),
-        [P.TransitionToFlyingFacingRight] = Sleeps(P.TransitionToFlyingFacingRight),
+        [P.FireballingEndFacingRight] = PlaysOnceAndHolds(P.FireballingEndFacingRight),
+        [P.TransitionToFlying] = PlaysOnceAndHolds(P.TransitionToFlying),
+        [P.TransitionToFlyingFacingRight] = PlaysOnceAndHolds(P.TransitionToFlyingFacingRight),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -88,7 +88,7 @@ internal static class RidleyAnimations
     private static AnimationPhase<RidleyBodySegment> Whole(RidleyBodySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that plays <paramref name="segment"/> once and rests on its last frame.</summary>
-    private static Animation<RidleyBodySegment> Sleeps(RidleyBodySegment segment) => new([Whole(segment)], AnimationEnd.Holds);
+    private static Animation<RidleyBodySegment> PlaysOnceAndHolds(RidleyBodySegment segment) => new([Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>The poses of one facing.</summary>
     private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)

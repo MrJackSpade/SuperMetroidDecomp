@@ -79,18 +79,18 @@ internal static class EnemyFormatDrawEntriesVerification
         SpriteDraw[] draws = [.. sprites.Draws];
 
         SpriteSheet beetomSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Beetom);
-        AssertImage(draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
+        AssertImage(draws[0], new SpriteSource(SpriteSourceKind.Enemy), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), PictureShading.Standard, "Ordinary enemy");
 
         // The extended frame's pieces are one whole picture, drawn once at the enemy's origin (#1513).
         SpriteSheet pirateSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.PirateGreenWalking);
-        AssertImage(draws[1], new SpriteSource(SpriteSourceKind.Enemy, 1),
+        AssertImage(draws[1], new SpriteSource(SpriteSourceKind.Enemy),
             pirateSheet.Frame(EnemySheetDefinitions.FrameName(extendedFrame)), new(120, 110), PictureShading.Standard,
             "Extended enemy");
         int entry = 2;
 
         SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
-        AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
+        AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile),
             projectileSheet.Frame(EnemySheetDefinitions.ProjectileFrameName(projectileFrame)), new(30, 40),
             EnemyShades.InProjectileLook, "Enemy projectile");
         AssertEqual(draws.Length, entry, "No other entries are published");
@@ -101,7 +101,7 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
-        AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
+        AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), EnemyShades.FrozenLook, "Ordinary enemy in another look");
         ordinary.Shading = PictureShading.Standard;
 
@@ -118,12 +118,31 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer, "A drawn frame consumes the same shake tick");
         AssertEqual(new Offset16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
-        Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display.");
+
+        // An enemy left of and above the view draws at a negative place, and a shake that carries an enemy at the view's
+        // left edge past it draws it one pixel left of the view (#2037): its place is its signed offset from the camera.
+        var camera = new Position16<RoomPixels>(36, 24);
+        ordinary.ShakeTimer = 0;
+        ordinary.Position = ordinary.Position.WithWhole(new(20, 10));
+        sprites.BeginFrame();
+        enemies.Drawing.Advance(camera);
+        enemies.Drawing.Draw(sprites, camera);
+        sprites.FinalizeFrame();
+        AssertEqual(new Offset16<ScreenPixels>(-16, -14), sprites.Draws[0].Origin, "An enemy left of and above the view draws at a negative place");
+        ordinary.Position = ordinary.Position.WithWhole(camera);
+        ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn);
+        ordinary.ShakeTimer = 1;
+        sprites.BeginFrame();
+        enemies.Drawing.Advance(camera);
+        enemies.Drawing.Draw(sprites, camera);
+        sprites.FinalizeFrame();
+        AssertEqual(new Offset16<ScreenPixels>(-1, 0), sprites.Draws[0].Origin, "A shake left at the view's edge draws the enemy one pixel left of the view");
+        Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display; places left of and above the view are negative.");
 
         static void AssertImage(SpriteDraw draw, SpriteSource source, SpriteSheetFrame frame, Position16<ScreenPixels> origin, PictureShading shading, string subject)
         {
             var image = draw as ImageSpriteDraw ?? throw new InvalidOperationException($"{subject} is a {draw.GetType().Name}, not a sheet frame.");
-            AssertEqual(source, image.Source, $"{subject} names its slot");
+            AssertEqual(source, image.Source, $"{subject} names its kind");
             AssertTrue(ReferenceEquals(frame, image.Image), $"{subject} shows its sheet's frame");
             AssertEqual(origin - Position16<ScreenPixels>.Zero, image.Origin, $"{subject} is placed at its screen origin");
             AssertEqual(shading, image.Shading, $"{subject} shows its frame under the shading it is drawn in");

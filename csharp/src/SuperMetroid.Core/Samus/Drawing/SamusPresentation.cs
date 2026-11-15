@@ -425,7 +425,7 @@ internal sealed class SamusPresentation
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    cameraPosition, instance: 1);
+                    cameraPosition);
             }
 
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
@@ -435,7 +435,7 @@ internal sealed class SamusPresentation
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    cameraPosition, instance: 0);
+                    cameraPosition);
             }
 
             samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
@@ -450,11 +450,11 @@ internal sealed class SamusPresentation
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            cameraPosition, instance: 1);
+            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            cameraPosition, instance: 0);
+            cameraPosition);
     }
 
     /// <summary>
@@ -477,11 +477,11 @@ internal sealed class SamusPresentation
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.Shinespark.SecondOrbitingCopy,
-            cameraPosition, instance: 1);
+            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.Shinespark.FirstOrbitingCopy,
-            cameraPosition, instance: 0);
+            cameraPosition);
     }
 
     /// <summary>
@@ -499,9 +499,9 @@ internal sealed class SamusPresentation
 
         // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.
         DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition, instance: 3);
+            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition, instance: 2);
+            sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition);
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
@@ -514,8 +514,7 @@ internal sealed class SamusPresentation
     private void DrawActiveSpeedBoosterEcho(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels>? stored,
-        Position16<RoomPixels> cameraPosition,
-        int instance)
+        Position16<RoomPixels> cameraPosition)
     {
         if (stored is not { } echo)
             return;
@@ -524,6 +523,6 @@ internal sealed class SamusPresentation
         Offset16<ScreenPixels> origin = (echo - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
         // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
-            sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, instance));
+            sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho));
     }
 }

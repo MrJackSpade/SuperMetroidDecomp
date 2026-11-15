@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Which actor or display element a sprite draw shows.</summary>
-/// <param name="Kind">The source family.</param>
-/// <param name="Instance">Distinguishes several sources of one kind (an enemy slot, a projectile slot); zero for single sources.</param>
-public readonly record struct SpriteSource(SpriteSourceKind Kind, int Instance = 0);
+/// <summary>
+/// Which kind of actor or display element a sprite draw shows. Several draws of one kind in a frame are told apart by
+/// what they show, where and in which order they are drawn.
+/// </summary>
+/// <param name="Kind">The kind of actor or display element.</param>
+public readonly record struct SpriteSource(SpriteSourceKind Kind);

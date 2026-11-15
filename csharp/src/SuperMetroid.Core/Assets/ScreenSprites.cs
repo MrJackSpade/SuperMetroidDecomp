@@ -13,10 +13,10 @@ namespace SuperMetroid.Core.Assets;
 public sealed class ScreenSprites
 {
     /// <summary>The frames placed since <see cref="BeginFrame"/>, in emission order.</summary>
-    private readonly List<ScreenObject> placed = [];
+    private readonly List<PlacedPicture> placed = [];
 
     /// <summary>The frames of the most recently finished frame, in emission order.</summary>
-    private ScreenObject[] finished = [];
+    private PlacedPicture[] finished = [];
 
     /// <summary>The draws of the finished frame, until the frame changes.</summary>
     private SpriteDraw[]? draws;
@@ -53,7 +53,7 @@ public sealed class ScreenSprites
         Ensure.NotNull(shading);
         if (frame.IsEmpty)
             return;
-        placed.Add(new ScreenObject(place, frame, shading));
+        placed.Add(new PlacedPicture(place, frame, shading));
     }
 
     /// <summary>The finished frame's placed frames as draws.</summary>
@@ -61,15 +61,15 @@ public sealed class ScreenSprites
     {
         var result = new SpriteDraw[finished.Length];
         for (int index = 0; index < finished.Length; index++)
-            result[index] = Draw(finished[index], index);
+            result[index] = Draw(finished[index]);
         return result;
     }
 
-    /// <summary>The draw of <paramref name="placedObject"/>'s frame at its place, the draw's screen origin.</summary>
-    private static ImageSpriteDraw Draw(ScreenObject placedObject, int index) =>
-        new(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image, placedObject.Place, SpriteMirror.None)
-            { Shading = placedObject.Shading };
+    /// <summary>The draw of <paramref name="placed"/>'s frame at its place, the draw's screen origin.</summary>
+    private static ImageSpriteDraw Draw(PlacedPicture placed) =>
+        new(new SpriteSource(SpriteSourceKind.FrontendScreen), placed.Image, placed.Place, SpriteMirror.None)
+            { Shading = placed.Shading };
 
     /// <summary>One placed frame at its place, with the shading the screen shows it in (#1512).</summary>
-    private readonly record struct ScreenObject(Offset16<ScreenPixels> Place, SpriteSheetFrame Image, PictureShading Shading);
+    private readonly record struct PlacedPicture(Offset16<ScreenPixels> Place, SpriteSheetFrame Image, PictureShading Shading);
 }

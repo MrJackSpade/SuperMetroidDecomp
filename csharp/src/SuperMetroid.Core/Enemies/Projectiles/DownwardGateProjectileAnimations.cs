@@ -85,21 +85,24 @@ internal static class DownwardGateProjectileAnimations
     internal static Animation<DownwardGateProjectileSegment> StartingWith(DownwardGateProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The animation the gate plays at its next place once it has travelled a block, or once a closed gate is woken, keyed
-    /// by the animation it rests in.
+    /// The gate's travel, stage by stage, each named by the animation that starts it: the moving gate slides down three
+    /// blocks and stops closed; once woken, the closed gate rises three blocks and vanishes. Each block the gate passes,
+    /// and the wake, takes it on to the next stage.
     /// </summary>
-    internal static IReadOnlyDictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment> Resumption { get; } = new Dictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment>
-    {
-        [P.Moving] = P.MovedOneBlock,
-        [P.MovedOneBlock] = P.MovedTwoBlocks,
-        [P.MovedTwoBlocks] = P.MovedThreeBlocks,
-        [P.MovedThreeBlocks] = P.Stopping,
-        [P.Closed] = P.Rising,
-        [P.Rising] = P.RisenOneBlock,
-        [P.RisenOneBlock] = P.RisenTwoBlocks,
-        [P.RisenTwoBlocks] = P.RisenThreeBlocks,
-        [P.RisenThreeBlocks] = P.Vanishing,
-    };
+    internal static IReadOnlyList<DownwardGateProjectileSegment> Travel { get; } =
+    [
+        P.Moving, P.MovedOneBlock, P.MovedTwoBlocks, P.MovedThreeBlocks, P.Stopping,
+        P.Rising, P.RisenOneBlock, P.RisenTwoBlocks, P.RisenThreeBlocks, P.Vanishing,
+    ];
+
+    /// <summary>The stage of <see cref="Travel"/> a moving gate starts at, sliding down.</summary>
+    internal const int SlidingDownStage = 0;
+
+    /// <summary>
+    /// The stage of <see cref="Travel"/> a gate stands at closed: where a moving gate stops, and where a gate spawned closed
+    /// starts, showing itself closed.
+    /// </summary>
+    internal const int ClosedStage = 4;
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Frame(frame, duration);

@@ -171,8 +171,7 @@ internal static class EnemyHitBurstVerification
         drawn.FinalizeFrame();
         AssertTrue(!enemies.PuyoCeilingTurn.TurnsBack, "the burst's draw inside the view leaves a strike not turning back");
         ImageSpriteDraw draw = drawn.Draws.OfType<ImageSpriteDraw>().Single(candidate => candidate.Source.Kind == SpriteSourceKind.SamusHitBurst);
-        AssertEqual(new SpriteSource(SpriteSourceKind.SamusHitBurst, 0), draw.Source, "the burst is the first live sprite object drawn");
-        AssertEqual(Place.ToScreen(camera) - Position16<ScreenPixels>.Zero, draw.Origin, "the burst draws centred on the enemy's position");
+                AssertEqual(Place.RelativeToCamera(camera), draw.Origin, "the burst draws centred on the enemy's position");
         SpriteSheetFrame installed = ProjectileSheets.Gameplay(InstalledFixtures.SpriteSheets).For(SamusBeamCombination.Power)
             .Frame(ProjectileSheetFrames.HitBurstFrame(HitBurstSpriteDefinitions.All[0]));
         AssertEqual(installed, draw.Image, "the burst draws its first installed picture from the sheet of Samus's equipped beams");

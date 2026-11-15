@@ -396,13 +396,6 @@ internal static class TorizoProjectileAnimations
         [P.EyeBeam] = new([new(P.EyeBeam, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The animation each resting egg resumes into when its hatch timer wakes it; no other animation rests.</summary>
-    private static readonly FrozenDictionary<P, P> ResumesAfterSleep = new Dictionary<P, P>
-    {
-        [P.EggBouncingLeft] = P.EggHatchingLeft,
-        [P.EggBouncingRight] = P.EggHatchingRight,
-    }.ToFrozenDictionary();
-
     /// <summary>How <paramref name="animation"/> plays.</summary>
     internal static Animation<TorizoProjectileSegment> StartingWith(TorizoProjectileSegment animation) => StartingAt[animation];
 
@@ -417,13 +410,6 @@ internal static class TorizoProjectileAnimations
     /// </summary>
     internal static AnimationContinuation<TorizoProjectileSegment> ReplayPhase(AnimationPlayback<TorizoProjectileSegment> pastCue) =>
         new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
-
-    /// <summary>The animation a resting egg resumes into when its hatch timer wakes it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>
-    internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment animation) =>
-        ResumesAfterSleep.TryGetValue(animation, out P resumed)
-            ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation never rests.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>

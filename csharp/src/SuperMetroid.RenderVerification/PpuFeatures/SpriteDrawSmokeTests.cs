@@ -57,9 +57,9 @@ internal static class SpriteDrawSmokeTests
             ImmutableArray<SpriteDraw> draws =
             [
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(0), new(10, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 1), Frame(2), new(14, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 2), Frame(1), new(12, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(2), new(14, 10), SpriteMirror.None),
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(1), new(12, 10), SpriteMirror.None),
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
             var memory = FramePaint.FromNative(palette, draws);
             RgbaPixel[] pixels = Check(memory, [], "ordering and flip");
@@ -112,7 +112,7 @@ internal static class SpriteDrawSmokeTests
                 var corner = new Position16<ImagePixels>((ushort)random.Next(0, 64 - size.X + 1), (ushort)random.Next(0, 48 - size.Y + 1));
                 var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)));
                 var origin = new Offset16<ScreenPixels>(random.Next(-60, 300), random.Next(-60, 270));
-                draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
+                draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), image, origin,
                     (SpriteMirror)random.Next(4)));
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());

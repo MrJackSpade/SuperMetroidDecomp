@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// What one of Samus's shots does on its update, before its animation advances (#1923): a beam's flight, the Wave Beam's
 /// with its trail interval, the Hyper Beam's, a missile's or Super Missile's and its link's, a special attack particle's,
-/// a shinespark echo's, or what a Spazer and Plasma beam's shot runs (<see cref="SamusBeamFrameBehaviorDefinitions"/>).
+/// a shinespark echo's, or what a Spazer and Plasma beam's shot runs (<see cref="SamusBeamShotBehaviorDefinitions"/>).
 /// Firing, a special attack, an echo's release, a reflection or a particle's change of phase installs it on the shot
 /// (<see cref="SamusProjectile.Behavior"/>); the shot update runs it without naming any of them. Each behaviour is one
 /// shared instance (<see cref="SamusShotBehaviors"/>) and keeps no state: what changes from update to update is the

@@ -233,7 +233,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             bool wasNormalBomb = bomb.Type.Family == SamusProjectileFamily.Bomb;
-            bool bombExplosionStarted = RunBombFrameBehavior(
+            bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
                 bomb,
                 blockReactions,
@@ -320,7 +320,7 @@ public sealed class SamusBombProjectileSystem
             if (sheet.ShowsNothing(frame))
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb), image,
                 place, SpriteMirror.None));
         }
     }
@@ -595,7 +595,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
-    private bool RunBombFrameBehavior(
+    private bool AdvanceBomb(
         RoomLevelData level,
         SamusBomb bomb,
         List<BombBlockReaction> blockReactions,

@@ -3,11 +3,11 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which behaviour each beam shot runs.</summary>
-internal static class SamusBeamFrameBehaviors
+internal static class SamusBeamShotBehaviors
 {
     /// <summary>
     /// The behaviour a shot of <paramref name="combination"/> runs, charged when <paramref name="charged"/>. A Spazer and
-    /// Plasma combination runs what follows the authored behaviours (<see cref="SamusBeamFrameBehaviorDefinitions.Unauthored"/>).
+    /// Plasma combination runs what follows the authored behaviours (<see cref="SamusBeamShotBehaviorDefinitions.Unauthored"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination is not one Samus's beams can make.</exception>
     public static SamusShotBehavior Resolve(bool charged, SamusBeamCombination combination) => combination switch
@@ -23,7 +23,7 @@ internal static class SamusBeamFrameBehaviors
             SamusShotBehaviors.WaveBeamFourUpdateTrail,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
             SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-            SamusBeamFrameBehaviorDefinitions.Unauthored.FrameBehavior(combination, charged),
+            SamusBeamShotBehaviorDefinitions.Unauthored.ShotBehavior(combination, charged),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 }

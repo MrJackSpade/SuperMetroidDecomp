@@ -621,7 +621,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
         DrawnEntries(frame => bombs.Draw(frame, cameraPosition: new(0, 0), bombArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusBomb, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(bombs.Bombs[0].SpritemapPointer)), SamusBeamCombinations.Of(bombProjectileSamus.EquippedBeams),
+        new SpriteSource(SpriteSourceKind.SamusBomb), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(bombs.Bombs[0].SpritemapPointer)), SamusBeamCombinations.Of(bombProjectileSamus.EquippedBeams),
         new Position16<ScreenPixels>(bombs.Bombs[0].Position.X.Whole, bombs.Bombs[0].Position.Y.Whole), "Bomb");
     AssertEqual(4, bombs.Bombs[0].Radius.X, "first instruction publishes ROM X radius");
     AssertEqual(4, bombs.Bombs[0].Radius.Y, "first instruction publishes ROM Y radius");

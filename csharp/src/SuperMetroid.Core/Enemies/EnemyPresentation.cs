@@ -90,7 +90,7 @@ internal sealed class EnemyPresentation
     /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, shading and the corpse's rows.</param>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
-        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin) = draw;
+        (EnemyDefinitionId enemy, string frame, Offset16<ScreenPixels> origin) = draw;
         PictureShading shading = draw.Shading ?? PictureShading.Standard;
         EnemyArtworkVariant<SpriteSheet> variant = Artwork.Enemy(enemy);
         SpriteSheet sheet = variant.Sheet;
@@ -99,7 +99,7 @@ internal sealed class EnemyPresentation
         if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
-        sprites.Add(new ImageSpriteDraw(source, image, origin - Position16<ScreenPixels>.Zero, SpriteMirror.None)
+        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), draw.RotRows, image),
@@ -120,7 +120,7 @@ internal sealed class EnemyPresentation
     /// <exception cref="InvalidDataException">
     /// The room draws no pictures for that owner, or none of its variant's sheets holds the picture.
     /// </exception>
-    internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
+    internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Offset16<ScreenPixels> origin,
         SpriteGraphics graphics, CorpseRotRows? rows = null)
     {
         EnemyArtworkVariant<SpawnedObjectSheet> variant = Artwork.Spawned(graphics.Owner);
@@ -130,7 +130,7 @@ internal sealed class EnemyPresentation
         if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
-        sprites.Add(new ImageSpriteDraw(source, image, origin - Position16<ScreenPixels>.Zero, SpriteMirror.None)
+        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = graphics.Shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),
@@ -164,7 +164,7 @@ internal sealed class EnemyPresentation
     /// <param name="shading">The shades and colour effects the frame shows.</param>
     /// <param name="rows">The rows of the rotting corpse the frame shows, as its rot has left them; none for one that shows none.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
-        Position16<ScreenPixels> origin, PictureShading shading, CorpseRotRows? rows = null) =>
+        Offset16<ScreenPixels> origin, PictureShading shading, CorpseRotRows? rows = null) =>
         PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rows);
 
     /// <summary>

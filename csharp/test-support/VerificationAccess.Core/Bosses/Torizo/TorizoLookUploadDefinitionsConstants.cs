@@ -12,22 +12,23 @@ internal static class TorizoLookUploadDefinitionsConstants
 
     /// <summary>
     /// The cartridge site of each Torizo look's copy, in the bank's order, with the Torizo whose instruction lists make it
-    /// and the look it gives: the cartridge oracle finds each descriptor by its instruction.
+    /// and the look it is part of: the cartridge oracle finds each descriptor by its instruction. A look's copies are its
+    /// sites in order (#1942).
     /// </summary>
     internal static readonly TransferSite[] Sites =
     [
-        new(0xb0f1, EncounterArtwork.BombTorizo, L.GutBlowingUp1),
-        new(0xb0fa, EncounterArtwork.BombTorizo, L.GutBlowingUp2),
-        new(0xb103, EncounterArtwork.BombTorizo, L.GutBlowingUp3),
+        new(0xb0f1, EncounterArtwork.BombTorizo, L.GutBlownUp),
+        new(0xb0fa, EncounterArtwork.BombTorizo, L.GutBlownUp),
+        new(0xb103, EncounterArtwork.BombTorizo, L.GutBlownUp),
         new(0xb10c, EncounterArtwork.BombTorizo, L.GutBlownUp),
-        new(0xb161, EncounterArtwork.BombTorizo, L.FaceBlowingUp1),
-        new(0xb16a, EncounterArtwork.BombTorizo, L.FaceBlowingUp2),
-        new(0xb173, EncounterArtwork.BombTorizo, L.FaceBlowingUp3),
-        new(0xb17c, EncounterArtwork.BombTorizo, L.FaceBlowingUp4),
-        new(0xb189, EncounterArtwork.BombTorizo, L.FaceBlowingUp5),
-        new(0xb192, EncounterArtwork.BombTorizo, L.FaceBlowingUp6),
-        new(0xb19b, EncounterArtwork.BombTorizo, L.FaceBlowingUp7),
-        new(0xb1a4, EncounterArtwork.BombTorizo, L.FaceBlowingUp8),
+        new(0xb161, EncounterArtwork.BombTorizo, L.FaceHalfBlownAway),
+        new(0xb16a, EncounterArtwork.BombTorizo, L.FaceHalfBlownAway),
+        new(0xb173, EncounterArtwork.BombTorizo, L.FaceHalfBlownAway),
+        new(0xb17c, EncounterArtwork.BombTorizo, L.FaceHalfBlownAway),
+        new(0xb189, EncounterArtwork.BombTorizo, L.FaceBlownUp),
+        new(0xb192, EncounterArtwork.BombTorizo, L.FaceBlownUp),
+        new(0xb19b, EncounterArtwork.BombTorizo, L.FaceBlownUp),
+        new(0xb1a4, EncounterArtwork.BombTorizo, L.FaceBlownUp),
         new(0xb1ad, EncounterArtwork.BombTorizo, L.FaceBlownUp),
         new(0xb88f, EncounterArtwork.BombTorizo, L.EyesLightingUp1),
         new(0xb89c, EncounterArtwork.BombTorizo, L.EyesLightingUp2),
@@ -46,19 +47,19 @@ internal static class TorizoLookUploadDefinitionsConstants
         new(0xca59, EncounterArtwork.GoldenTorizo, L.EyesLightingAgain2),
         new(0xca66, EncounterArtwork.GoldenTorizo, L.EyesLightingAgain3),
         new(0xca73, EncounterArtwork.GoldenTorizo, L.EyesLightingAgain4),
-        new(0xd035, EncounterArtwork.GoldenTorizo, L.ChestOpening1Top),
+        new(0xd035, EncounterArtwork.GoldenTorizo, L.ChestOpening1),
         new(0xd03e, EncounterArtwork.GoldenTorizo, L.ChestOpening1),
-        new(0xd04b, EncounterArtwork.GoldenTorizo, L.ChestOpening2Top),
+        new(0xd04b, EncounterArtwork.GoldenTorizo, L.ChestOpening2),
         new(0xd054, EncounterArtwork.GoldenTorizo, L.ChestOpening2),
-        new(0xd061, EncounterArtwork.GoldenTorizo, L.ChestOpenTop),
+        new(0xd061, EncounterArtwork.GoldenTorizo, L.ChestOpen),
         new(0xd06a, EncounterArtwork.GoldenTorizo, L.ChestOpen),
-        new(0xd08f, EncounterArtwork.GoldenTorizo, L.ChestHeldOpenTop),
+        new(0xd08f, EncounterArtwork.GoldenTorizo, L.ChestHeldOpen),
         new(0xd098, EncounterArtwork.GoldenTorizo, L.ChestHeldOpen),
-        new(0xd0a5, EncounterArtwork.GoldenTorizo, L.ChestClosing1Top),
+        new(0xd0a5, EncounterArtwork.GoldenTorizo, L.ChestClosing1),
         new(0xd0ae, EncounterArtwork.GoldenTorizo, L.ChestClosing1),
-        new(0xd0bb, EncounterArtwork.GoldenTorizo, L.ChestClosing2Top),
+        new(0xd0bb, EncounterArtwork.GoldenTorizo, L.ChestClosing2),
         new(0xd0c4, EncounterArtwork.GoldenTorizo, L.ChestClosing2),
-        new(0xd0d1, EncounterArtwork.GoldenTorizo, L.ChestClosedTop),
+        new(0xd0d1, EncounterArtwork.GoldenTorizo, L.ChestClosed),
         new(0xd0da, EncounterArtwork.GoldenTorizo, L.ChestClosed),
         new(0xd137, EncounterArtwork.GoldenTorizo, L.EyeBeamGlow1),
         new(0xd144, EncounterArtwork.GoldenTorizo, L.EyeBeamGlow2),
@@ -73,7 +74,7 @@ internal static class TorizoLookUploadDefinitionsConstants
     /// <summary>Where one look's copy sits in the cartridge: its <c>$814B</c> instruction in bank $AA.</summary>
     /// <param name="Instruction">The bank-$AA address of the copy's <c>$814B</c> instruction.</param>
     /// <param name="Torizo">The Torizo whose instruction lists make the copy.</param>
-    /// <param name="Look">The look the copy gives it.</param>
+    /// <param name="Look">The look the copy is part of.</param>
     internal readonly record struct TransferSite(ushort Instruction, EncounterArtwork Torizo, TorizoArtworkLook Look);
 
     /// <summary>Provides the bank and sites of Torizo instruction VRAM transfer records.</summary>

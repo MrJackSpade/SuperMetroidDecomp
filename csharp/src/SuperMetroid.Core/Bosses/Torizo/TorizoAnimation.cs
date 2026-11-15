@@ -57,10 +57,6 @@ internal enum TorizoAnimation
     FacingLeftFacelessWalkingRightLegMoving,
     /// <summary>Faceless Bomb Torizo walks left, left leg first.</summary>
     FacingLeftFacelessWalkingLeftLegMoving,
-    /// <summary>A dormant Bomb Torizo facing right, which no room starts; its AI would wake it into <see cref="BombTorizoAwakeningFacingRight"/>.</summary>
-    BombTorizoDormantFacingRight,
-    /// <summary>Bomb Torizo waking facing right, which no room starts: it stands and walks right.</summary>
-    BombTorizoAwakeningFacingRight,
     /// <summary>Bomb Torizo turns to face right, then walks right, left leg first.</summary>
     TurningRight,
     /// <summary>Bomb Torizo, facing right with its left foot forward, spews Chozo orbs, then returns to the landing that called it.</summary>

@@ -137,8 +137,8 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] SporeSpawnSpriteObjects = [];
 
-    /// <summary>The projectile frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> spawns.</summary>
-    private static readonly EnemyProjectileFrameId[] BombTorizoProjectiles =
+    /// <summary>The projectile frames <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns.</summary>
+    private static readonly EnemyProjectileFrameId[] TorizoProjectiles =
     [
         EnemyProjectileFrameId.TorizoDroolNoDelay,
         EnemyProjectileFrameId.TorizoDroolFallingLoop,
@@ -242,8 +242,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalFifth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Torizo/BombTorizoBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] BombTorizoSpriteObjects = [];
+    /// <summary>The room sprite objects <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns.</summary>
+    private static readonly RoomSpriteObjectKind[] TorizoSpriteObjects = [];
 
     /// <summary>The projectile frames <c>Enemies/Alcoon/AlcoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] AlcoonProjectiles =
@@ -2593,8 +2593,8 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.SporeSpawnDyingExplosion,
     ];
 
-    /// <summary>The projectile frames <c>Bosses/Torizo/BombTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] BombTorizoSharedProjectiles =
+    /// <summary>The projectile frames <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] TorizoSharedProjectiles =
     [
         EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopFirst,
         EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopSecond,
@@ -2632,22 +2632,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.BombTorizoSeventhStatueFragmentSecond,
         EnemyProjectileFrameId.BombTorizoEighthStatueFragmentFirst,
         EnemyProjectileFrameId.BombTorizoEighthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoNinthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoNinthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoTenthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoTenthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoEleventhStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoEleventhStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoTwelfthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoTwelfthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoThirteenthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoThirteenthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoFourteenthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoFourteenthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoFifteenthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoFifteenthStatueFragmentSecond,
-        EnemyProjectileFrameId.BombTorizoSixteenthStatueFragmentFirst,
-        EnemyProjectileFrameId.BombTorizoSixteenthStatueFragmentSecond,
         EnemyProjectileFrameId.TorizoLandingDustRightFootFirst,
         EnemyProjectileFrameId.TorizoLandingDustRightFootSecond,
         EnemyProjectileFrameId.TorizoLandingDustRightFootThird,
@@ -2702,8 +2686,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Torizo/BombTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] BombTorizoSharedSpriteObjects =
+    /// <summary>The room sprite objects <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomSpriteObjectKind[] TorizoSharedSpriteObjects =
     [
         RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.EnemyProjectileDud,
@@ -5123,8 +5107,8 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonSpriteObjects),
             [EnemyDefinitionId.PhantoonTentacles] = new(PhantoonProjectiles, PhantoonSpriteObjects),
             [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnProjectiles, SporeSpawnSpriteObjects),
-            [EnemyDefinitionId.BombTorizo] = new(BombTorizoProjectiles, BombTorizoSpriteObjects),
-            [EnemyDefinitionId.GoldenTorizo] = new(BombTorizoProjectiles, BombTorizoSpriteObjects),
+            [EnemyDefinitionId.BombTorizo] = new(TorizoProjectiles, TorizoSpriteObjects),
+            [EnemyDefinitionId.GoldenTorizo] = new(TorizoProjectiles, TorizoSpriteObjects),
             [EnemyDefinitionId.Alcoon] = new(AlcoonProjectiles, AlcoonSpriteObjects),
             [EnemyDefinitionId.Cacatac] = new(CacatacProjectiles, CacatacSpriteObjects),
             [EnemyDefinitionId.Dragon] = new(DragonProjectiles, DragonSpriteObjects),
@@ -5188,8 +5172,8 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.RidleyCeres] = new(RidleyEntitySharedProjectiles, RidleyEntitySharedSpriteObjects),
             [EnemyDefinitionId.RidleyExplosion] = new(RidleyEntitySharedProjectiles, RidleyEntitySharedSpriteObjects),
             [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnSharedProjectiles, SporeSpawnSharedSpriteObjects),
-            [EnemyDefinitionId.BombTorizo] = new(BombTorizoSharedProjectiles, BombTorizoSharedSpriteObjects),
-            [EnemyDefinitionId.GoldenTorizo] = new(BombTorizoSharedProjectiles, BombTorizoSharedSpriteObjects),
+            [EnemyDefinitionId.BombTorizo] = new(TorizoSharedProjectiles, TorizoSharedSpriteObjects),
+            [EnemyDefinitionId.GoldenTorizo] = new(TorizoSharedProjectiles, TorizoSharedSpriteObjects),
             [EnemyDefinitionId.Beetom] = new(BeetomSharedProjectiles, BeetomSharedSpriteObjects),
             [EnemyDefinitionId.Boulder] = new(BoulderSharedProjectiles, BoulderSharedSpriteObjects),
             [EnemyDefinitionId.Chozo] = new(ChozoStatueSharedProjectiles, ChozoStatueSharedSpriteObjects),

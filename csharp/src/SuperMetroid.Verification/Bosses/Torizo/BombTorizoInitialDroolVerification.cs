@@ -30,7 +30,7 @@ internal static class BombTorizoInitialDroolVerification
         int spawns = 0;
         foreach ((int posture, string name) in new[] { (0x0000, "facing left"), (0x8000, "facing right"), (0x4000, "turning") })
         {
-            enemies.BombTorizoBehavior.BindFixtureState(torizo, posture);
+            enemies.TorizoBehavior.BindFixtureState(torizo, posture);
             for (int y = HalfHeight; y <= RoomExtent - HalfHeight; y += 3)
             for (int x = HalfWidth; x <= RoomExtent - HalfWidth; x += 79)
             for (int sample = 0; sample < 32; sample += 4)
@@ -40,7 +40,7 @@ internal static class BombTorizoInitialDroolVerification
                 randoms.Enqueue(first);
                 randoms.Enqueue(second);
                 torizo.Position = torizo.Position.WithWhole(new(x, y));
-                enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
+                enemies.TorizoBehavior.Attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
                 EnemyProjectile drool = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
                 int lifted = Add((first & 3) + y, 0xfffb, 0, out int liftCarry);

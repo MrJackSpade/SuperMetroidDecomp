@@ -344,7 +344,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>
-            self.BombTorizoBehavior.Access.TorizoState is { IsGolden: false } ? self.BombTorizoBehavior.Access.TorizoState : null;
+            self.TorizoBehavior.Access.TorizoState is { IsGolden: false } ? self.TorizoBehavior.Access.TorizoState : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>

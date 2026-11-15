@@ -63,7 +63,7 @@ internal static class TorizoAnimationsVerification
         Frame,
         /// <summary>A wait on the shown frame.</summary>
         Wait,
-        /// <summary>A common tile transfer: an artwork look.</summary>
+        /// <summary>A run of common tile transfers with nothing between them: one artwork look (#1942).</summary>
         TileTransfer,
         /// <summary>A Torizo instruction: a cue.</summary>
         Instruction,
@@ -75,7 +75,8 @@ internal static class TorizoAnimationsVerification
     /// <param name="Address">The beat's native address; a callback's sleep stands at the instruction after the callback.</param>
     /// <param name="Kind">What the beat is.</param>
     /// <param name="SleepUpdates">For a callback's sleep, its length.</param>
-    private sealed record BodyBeat(ushort Address, BodyBeatKind Kind, int SleepUpdates = 0);
+    /// <param name="Transfers">For a run of tile transfers, how many it holds.</param>
+    private sealed record BodyBeat(ushort Address, BodyBeatKind Kind, int SleepUpdates = 0, int Transfers = 1);
 
     /// <summary>One control instruction of a native body list.</summary>
     /// <param name="Kind">What it does.</param>
@@ -159,12 +160,20 @@ internal static class TorizoAnimationsVerification
         {
             case BodyBeatKind.TileTransfer:
             {
+                // The transfers of one run land in one update: they are one look's copies, in order (#1942).
                 var copy = AssertIs<TorizoCue.ShowArtwork>(AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(step, $"{at}: tile transfer").Raised, $"{at}: artwork look cue");
-                TorizoLookUpload transfer = TorizoLookUploadDefinitions.Uploads[copy.Look];
-                AssertTrue(TorizoLookUploadDefinitions.Sites.ToArray().Any(site => site.Instruction == beat.Address && site.Look == copy.Look), $"{at}: tile transfer descriptor");
-                AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
-                AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
-                AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");
+                TorizoLookUpload[] transfers = TorizoLookUploadDefinitions.Uploads[copy.Look];
+                AssertEqual(beat.Transfers, transfers.Length, $"{at}: the look's copies");
+                for (int index = 0; index < transfers.Length; index++)
+                {
+                    int transferAddress = address + index * TileTransferBytes;
+                    ushort instruction = unchecked((ushort)(beat.Address + index * TileTransferBytes));
+                    TorizoLookUpload transfer = transfers[index];
+                    AssertTrue(TorizoLookUploadDefinitions.Sites.ToArray().Any(site => site.Instruction == instruction && site.Look == copy.Look), $"{at}: tile transfer {index} descriptor");
+                    AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(transferAddress + 2), $"{at}: tile transfer {index} size");
+                    AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(transferAddress + 4), $"{at}: tile transfer {index} source");
+                    AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), cartridge.ReadCartridgeWord(transferAddress + 7), $"{at}: tile transfer {index} destination");
+                }
                 return;
             }
             case BodyBeatKind.Frame:
@@ -300,7 +309,13 @@ internal static class TorizoAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if (ClassifyBodyWord(word) == BodyWordKind.TileTransfer)
             {
-                beats.Add(new(cursor, BodyBeatKind.TileTransfer));
+                // A transfer straight after another, with no beat or control between, joins its run: one look (#1942).
+                if (beats.Count > 0 && beats[^1] is { Kind: BodyBeatKind.TileTransfer } run &&
+                    unchecked((ushort)(run.Address + run.Transfers * TileTransferBytes)) == cursor &&
+                    (controls.Count == 0 || controls[^1].AfterBeat < beats.Count))
+                    beats[^1] = run with { Transfers = run.Transfers + 1 };
+                else
+                    beats.Add(new(cursor, BodyBeatKind.TileTransfer));
                 cursor = unchecked((ushort)(cursor + TileTransferBytes));
                 continue;
             }
@@ -440,7 +455,7 @@ internal static class TorizoAnimationsVerification
             AssertEqual(next, TorizoAnimations.AfterSleep(animation), $"Torizo {animation} resumes past its sleep into {next}");
             resumed++;
         }
-        AssertEqual(3, resumed, "Torizo resumes three sleeping animations");
+        AssertEqual(2, resumed, "Torizo resumes its two sleeping animations");
     }
 
     /// <summary>The native sleep that ends the list at <paramref name="entry"/>, if it ends in one.</summary>

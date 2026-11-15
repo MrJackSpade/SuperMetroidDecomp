@@ -5,9 +5,9 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The collaborators a <see cref="BombTorizoBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+/// <summary>The collaborators a <see cref="TorizoBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]
-internal sealed record BombTorizoBehaviorDependencies
+internal sealed record TorizoBehaviorDependencies
 {
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

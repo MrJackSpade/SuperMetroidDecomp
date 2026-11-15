@@ -114,15 +114,15 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.KagoBug => enemies.KagoBehavior.Bug,
         RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit => enemies.BotwoonBehavior.BodyAndSpit,
         RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb =>
-            enemies.BombTorizoBehavior.Attacks.ChozoOrb,
-        RoomEnemyProjectileKind.GoldenTorizoEgg => enemies.BombTorizoBehavior.Attacks.Egg,
-        RoomEnemyProjectileKind.GoldenTorizoSuperMissile => enemies.BombTorizoBehavior.Attacks.SuperMissile,
+            enemies.TorizoBehavior.Attacks.ChozoOrb,
+        RoomEnemyProjectileKind.GoldenTorizoEgg => enemies.TorizoBehavior.Attacks.Egg,
+        RoomEnemyProjectileKind.GoldenTorizoSuperMissile => enemies.TorizoBehavior.Attacks.SuperMissile,
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.BombTorizoInitialDrool or
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
             RoomEnemyProjectileKind.BombTorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
             RoomEnemyProjectileKind.BombTorizoSonicBoom or RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
             RoomEnemyProjectileKind.BombTorizoRightFootDust or RoomEnemyProjectileKind.BombTorizoLeftFootDust or
-            RoomEnemyProjectileKind.GoldenTorizoEyeBeam => enemies.BombTorizoBehavior.Attacks.TorizoProjectiles,
+            RoomEnemyProjectileKind.GoldenTorizoEyeBeam => enemies.TorizoBehavior.Attacks.TorizoProjectiles,
         RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueEyeGlow or
             RoomEnemyProjectileKind.TourianStatueParticle or RoomEnemyProjectileKind.TourianStatueTail or
             RoomEnemyProjectileKind.TourianStatueSoul or RoomEnemyProjectileKind.TourianStatueDescentDust =>

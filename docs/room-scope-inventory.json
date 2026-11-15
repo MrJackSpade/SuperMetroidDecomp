@@ -626,9 +626,9 @@
    "evidence": "an actor state cleared when its slot is released; slots are room-lifetime through their table"
   },
   {
-   "file": "Bosses/Torizo/BombTorizoBehavior.cs",
+   "file": "Bosses/Torizo/TorizoBehavior.cs",
    "line": 647,
-   "owner": "BombTorizoBehavior",
+   "owner": "TorizoBehavior",
    "method": "ClearBehavior",
    "classification": "gameplay",
    "evidence": "an in-game action of the species behavior, not a lifetime reset"

@@ -1579,7 +1579,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.CrocomireBodyMeltingTwoTopThreeRows] = new(0xa4, 0xcaba),
         [EnemyFrameId.CrocomireBodyMeltingTwoTopFourRows] = new(0xa4, 0xcac4),
         [EnemyFrameId.BombTorizoDormant] = new(0xaa, 0x87d0),
-        [EnemyFrameId.GoldenTorizoInitial] = new(0xaa, 0xaa30),
+        [EnemyFrameId.TorizoFacingLeftStandingUpThird] = new(0xaa, 0xaa30),
         [EnemyFrameId.KraidArmNormalFirst] = new(0xa7, 0x8f59),
         [EnemyFrameId.KraidArmNormalSecond] = new(0xa7, 0x8f83),
         [EnemyFrameId.KraidArmNormalThird] = new(0xa7, 0x8fad),

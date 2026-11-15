@@ -128,14 +128,6 @@ internal static class TorizoProjectileAnimations
         [P.SixthStatueFragment] = [Show(F.StatueFragment, 10, 88), .. StatueFragmentCracking, Show(F.StatueFragment, 11, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
         [P.SeventhStatueFragment] = [Show(F.StatueFragment, 12, 80), .. StatueFragmentCracking, Show(F.StatueFragment, 13, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
         [P.EighthStatueFragment] = [Show(F.StatueFragment, 14, 72), .. StatueFragmentCracking, Show(F.StatueFragment, 15, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.NinthStatueFragment] = [Show(F.StatueFragment, 16, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 17, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.TenthStatueFragment] = [Show(F.StatueFragment, 18, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 19, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.EleventhStatueFragment] = [Show(F.StatueFragment, 20, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 21, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.TwelfthStatueFragment] = [Show(F.StatueFragment, 22, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 23, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.ThirteenthStatueFragment] = [Show(F.StatueFragment, 24, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 25, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FourteenthStatueFragment] = [Show(F.StatueFragment, 26, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 27, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FifteenthStatueFragment] = [Show(F.StatueFragment, 28, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 29, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SixteenthStatueFragment] = [Show(F.StatueFragment, 30, 64), .. StatueFragmentCracking, Show(F.StatueFragment, 31, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
         [P.ChozoOrbMovingLeft] = [Show(F.ChozoOrbMovingLeft, 0, 85)],
         [P.ChozoOrbMovingRight] = [Show(F.ChozoOrbMovingRight, 0, 85)],
         [P.ChozoOrbWallImpact] =
@@ -380,14 +372,6 @@ internal static class TorizoProjectileAnimations
         [P.SixthStatueFragment] = new([new(P.SixthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
         [P.SeventhStatueFragment] = new([new(P.SeventhStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
         [P.EighthStatueFragment] = new([new(P.EighthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.NinthStatueFragment] = new([new(P.NinthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.TenthStatueFragment] = new([new(P.TenthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.EleventhStatueFragment] = new([new(P.EleventhStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.TwelfthStatueFragment] = new([new(P.TwelfthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.ThirteenthStatueFragment] = new([new(P.ThirteenthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.FourteenthStatueFragment] = new([new(P.FourteenthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.FifteenthStatueFragment] = new([new(P.FifteenthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.SixteenthStatueFragment] = new([new(P.SixteenthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
         [P.ChozoOrbMovingLeft] = new([new(P.ChozoOrbMovingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ChozoOrbMovingRight] = new([new(P.ChozoOrbMovingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ChozoOrbWallImpact] = new([new(P.ChozoOrbWallImpact, 0, 8, 1)], AnimationEnd.Holds),
@@ -414,13 +398,11 @@ internal static class TorizoProjectileAnimations
         [P.EyeBeam] = new([new(P.EyeBeam, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The sixteen statue fragments' animations, indexed by fragment.</summary>
+    /// <summary>The eight statue fragments' animations, indexed by fragment.</summary>
     private static readonly TorizoProjectileSegment[] StatueFragments =
     [
         P.FirstStatueFragment, P.SecondStatueFragment, P.ThirdStatueFragment, P.FourthStatueFragment,
         P.FifthStatueFragment, P.SixthStatueFragment, P.SeventhStatueFragment, P.EighthStatueFragment,
-        P.NinthStatueFragment, P.TenthStatueFragment, P.EleventhStatueFragment, P.TwelfthStatueFragment,
-        P.ThirteenthStatueFragment, P.FourteenthStatueFragment, P.FifteenthStatueFragment, P.SixteenthStatueFragment,
     ];
 
     /// <summary>The animation each resting egg resumes into when its hatch timer wakes it; no other animation rests.</summary>
@@ -445,10 +427,10 @@ internal static class TorizoProjectileAnimations
     internal static AnimationContinuation<TorizoProjectileSegment> ReplayPhase(AnimationPlayback<TorizoProjectileSegment> pastCue) =>
         new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
 
-    /// <summary>The animation of statue fragment <paramref name="index"/>, of the sixteen the breaking statue hand emits.</summary>
+    /// <summary>The animation of statue fragment <paramref name="index"/>, of the eight the breaking statue hand emits.</summary>
     internal static TorizoProjectileSegment StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
         ? StatueFragments[index]
-        : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments.");
+        : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits eight fragments.");
 
     /// <summary>The animation a resting egg resumes into when its hatch timer wakes it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>

@@ -23,11 +23,14 @@ internal static class TorizoSwapArtworkVerification
         ISnesAddressSpace rom, ImportEnemyArtwork stock)
     {
         TorizoLookUploadDefinitionsConstants.TransferSite[] sites = TorizoLookUploadDefinitions.Sites.ToArray();
-        AssertEqual(TorizoLookUploadDefinitions.BombSequence.Length + TorizoLookUploadDefinitions.GoldenSequence.Length, sites.Length,
+        AssertEqual(TorizoLookUploadDefinitions.BombSequence.Sum(look => TorizoLookUploadDefinitions.Uploads[look].Length)
+                + TorizoLookUploadDefinitions.GoldenSequence.Sum(look => TorizoLookUploadDefinitions.Uploads[look].Length), sites.Length,
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
-        AssertTrue(sites.Where(site => site.Torizo == EncounterArtwork.BombTorizo).Select(site => site.Look).Order().SequenceEqual(TorizoLookUploadDefinitions.BombSequence.Order())
-            && sites.Where(site => site.Torizo == EncounterArtwork.GoldenTorizo).Select(site => site.Look).Order().SequenceEqual(TorizoLookUploadDefinitions.GoldenSequence.Order()),
+        AssertTrue(sites.Where(site => site.Torizo == EncounterArtwork.BombTorizo).Select(site => site.Look).Distinct().Order().SequenceEqual(TorizoLookUploadDefinitions.BombSequence.Order())
+            && sites.Where(site => site.Torizo == EncounterArtwork.GoldenTorizo).Select(site => site.Look).Distinct().Order().SequenceEqual(TorizoLookUploadDefinitions.GoldenSequence.Order()),
             "each Torizo's sequence holds the looks its instruction lists copy");
+        // A look's copies are its sites in bank order (#1942): count each Torizo's copies of each look as they come.
+        var copiesSeen = new Dictionary<(EncounterArtwork Torizo, TorizoArtworkLook Look), int>();
         AssertTrue(stock.Bosses.TorizoSwaps is not null,
             "installed Torizo instruction tile pages exist");
         var installedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
@@ -39,7 +42,9 @@ internal static class TorizoSwapArtworkVerification
         var authoredOpcodes = new HashSet<ushort>();
         foreach (TorizoLookUploadDefinitionsConstants.TransferSite site in sites)
         {
-            TorizoLookUpload transfer = TorizoLookUploadDefinitions.Uploads[site.Look];
+            int copy = copiesSeen.GetValueOrDefault((site.Torizo, site.Look));
+            copiesSeen[(site.Torizo, site.Look)] = copy + 1;
+            TorizoLookUpload transfer = TorizoLookUploadDefinitions.Uploads[site.Look][copy];
             ushort instruction = site.Instruction;
             AssertTrue(instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");
@@ -55,7 +60,7 @@ internal static class TorizoSwapArtworkVerification
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
             EncounterLook look = site.Look.Of(site.Torizo);
-            EncounterArtworkUpload upload = UploadOf(look, stock);
+            EncounterArtworkUpload upload = UploadsOf(look, stock)[copy];
             AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
@@ -105,14 +110,14 @@ internal static class TorizoSwapArtworkVerification
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkLook goldenAwakening = TorizoAnimations.Segments.Beats(TorizoAnimation.GoldenTorizoDormant)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Look;
-        AssertEqual(golden.SourceAddress, TorizoLookUploadDefinitions.Uploads[goldenAwakening].SourceAddress,
+        AssertEqual(golden.SourceAddress, TorizoLookUploadDefinitions.Uploads[goldenAwakening].Single().SourceAddress,
             "Golden Torizo's initial look shows its awakening sheet");
         ShowTorizoArtwork(goldenEnemies, goldenSlot, EncounterArtwork.GoldenTorizo, goldenAwakening);
         EncounterLook goldenLook = goldenAwakening.Of(EncounterArtwork.GoldenTorizo);
         AssertTrue(goldenEnemies.Room.Session.Looks.Shows(goldenLook), "Golden Torizo's first look is its awakening");
         AssertEqual(1, EncounterLookUploads.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook.Name),
             "Golden Torizo's awakening is the first look after its room's load");
-        EncounterArtworkUpload awakening = UploadOf(goldenLook, stock);
+        EncounterArtworkUpload awakening = UploadsOf(goldenLook, stock).Single();
         AssertEqual((0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2, awakening.FirstByte,
             "Golden Torizo's awakening sheet lands where the cartridge copies it");
         AssertTrue(awakening.Characters.Span.SequenceEqual(stockBytes.Span),
@@ -123,16 +128,16 @@ internal static class TorizoSwapArtworkVerification
             "byte parity and the awakening sheet's upload pass.");
     }
 
-    /// <summary>The one copy Torizo look <paramref name="look"/> makes, resolved against <paramref name="stock"/>.</summary>
-    private static EncounterArtworkUpload UploadOf(EncounterLook look, ImportEnemyArtwork stock)
+    /// <summary>The copies Torizo look <paramref name="look"/> makes, in order, resolved against <paramref name="stock"/>.</summary>
+    private static IReadOnlyList<EncounterArtworkUpload> UploadsOf(EncounterLook look, ImportEnemyArtwork stock)
     {
         ComposedEncounter torizo = look.Encounter == EncounterArtwork.GoldenTorizo ? ComposedEncounter.GoldenTorizo : ComposedEncounter.BombTorizo;
-        return EncounterLookUploads.Uploads(torizo, EncounterLookUploads.IndexOf(torizo, look.Name), new EnemyTileTransfers(stock)).Single();
+        return EncounterLookUploads.Uploads(torizo, EncounterLookUploads.IndexOf(torizo, look.Name), new EnemyTileTransfers(stock));
     }
 
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, EncounterArtwork torizo, TorizoArtworkLook look) =>
-        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot,
+        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(slot,
                 new TorizoEnemyState(slot, isGolden: torizo == EncounterArtwork.GoldenTorizo),
                 new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),

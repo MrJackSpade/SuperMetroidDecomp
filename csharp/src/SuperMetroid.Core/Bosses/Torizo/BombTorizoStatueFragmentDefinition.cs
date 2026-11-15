@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal readonly record struct BombTorizoStatueFragmentDefinition(
     TorizoProjectileSegment Animation,
     Offset16<RoomPixels> Offset,
-    int YVelocity,
+    SignedEightEight InitialFallSpeed,
     SignedEightEight Acceleration);

@@ -40,7 +40,7 @@ internal sealed class TorizoCombat
         if (!isBombTorizo && !isGoldenTorizo)
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
-        TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
+        TorizoEnemyState state = _access.RequireTorizoState(torizo);
         if (selectedShot == TorizoReactions.StandUpSitDownShot)
         {
             // The transitional reaction is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
@@ -52,7 +52,7 @@ internal sealed class TorizoCombat
 
             _collision.ApplyNormalBombDamage(torizo, bomb);
             if (torizo.Health == 0)
-                BeginBombTorizoDeath(torizo, state);
+                BeginTorizoDeath(torizo, state);
             return;
         }
 
@@ -80,7 +80,7 @@ internal sealed class TorizoCombat
 
         _collision.ApplyNormalBombDamage(torizo, bomb);
         if (torizo.Health == 0)
-            BeginBombTorizoDeath(torizo, state);
+            BeginTorizoDeath(torizo, state);
     }
 
     /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
@@ -98,10 +98,10 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Runs Bomb Torizo's custom hurt behaviour.</summary>
-    internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
+    internal void ApplyTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-        TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
+        TorizoEnemyState state = _access.RequireTorizoState(torizo);
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
@@ -116,7 +116,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
-    internal void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
+    internal void BeginTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
             return;
@@ -131,14 +131,14 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Latches <paramref name="flags"/>.</summary>
-    internal void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => _access.RequireBombTorizoState(torizo).Behavior |= flags;
+    internal void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => _access.RequireTorizoState(torizo).Behavior |= flags;
 
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox reaction.</summary>
     internal void ReactToTorizoBomb(EnemyBombContext c) =>
         ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShot);
 
     /// <summary>Validates extended hitbox reactions, handles catches, and defers death to Torizo's own sequence.</summary>
-    internal EnemyShotReaction BombTorizoShotReaction => field ??= new()
+    internal EnemyShotReaction TorizoShotReaction => field ??= new()
     {
         // Golden's definition installs its own shot reaction, but its ordinary extended body hitboxes call the shared
         // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional reaction instead. That
@@ -160,12 +160,12 @@ internal sealed class TorizoCombat
         AfterCommon = c =>
         {
             if (c.Enemy.Health == 0)
-                BeginBombTorizoDeath(c.Enemy, _access.RequireBombTorizoState(c.Enemy));
+                BeginTorizoDeath(c.Enemy, _access.RequireTorizoState(c.Enemy));
         },
     };
 
     /// <summary>Runs extended body touch damage without invoking the generic death animation.</summary>
-    internal void ReactToBombTorizoTouch(EnemyTouchContext context)
+    internal void ReactToTorizoTouch(EnemyTouchContext context)
     {
         if (!context.UsesFrameHitboxes || context.HitboxTouch != TorizoReactions.Touch)
         {
@@ -174,7 +174,7 @@ internal sealed class TorizoCombat
         }
         _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
         if (context.Slot.Health == 0)
-            BeginBombTorizoDeath(context.Slot, _access.RequireBombTorizoState(context.Slot));
+            BeginTorizoDeath(context.Slot, _access.RequireTorizoState(context.Slot));
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ internal sealed class TorizoCombat
         RoomEnemySlot enemy = c.Enemy;
         bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = !isBombTorizo;
-        TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
+        TorizoEnemyState torizoState = _access.RequireTorizoState(enemy);
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot)
         {
             // The transitional reaction returns immediately in Crateria. In every other area it calls a guarded path, which admits common
@@ -224,7 +224,7 @@ internal sealed class TorizoCombat
                 c.Projectile.IsSpent = false;
                 torizoState.Phase = TorizoPhase.Idle;
                 enemy.AnimationClock.StepOnNextUpdate();
-                _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
+                _access.RequireTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
                     ? TorizoAnimation.GoldenDodgeTurningRight
                     : TorizoAnimation.GoldenDodgeTurningLeft);
                 return true;
@@ -239,7 +239,7 @@ internal sealed class TorizoCombat
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
-                    _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
+                    _access.RequireTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
                         ? _access.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
@@ -266,23 +266,17 @@ internal sealed class TorizoCombat
         if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return null;
 
-        foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollision.ComponentsAt(enemy.Frame))
+        // The body's rectangles lie about Torizo's origin; the probe compares coordinates by their difference, so a
+        // rectangle edge computed past either end of the room compares as the wrapped coordinate would.
+        Position16<RoomPixels> origin = enemy.Position.Whole;
+        IReadOnlyList<EnemyCollisionHitbox> rectangles = TorizoCollision.HitboxesAt(enemy.Frame).Rectangles;
+        for (int index = 0; index < rectangles.Count; index++)
         {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<EnemyCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
-            for (int index = 0; index < rectangles.Count; index++)
-            {
-                EnemyCollisionHitbox hitbox = rectangles[index];
-                if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
-                    continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
-            }
+            EnemyCollisionHitbox hitbox = rectangles[index];
+            if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
+                continue;
+            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
+            return true;
         }
         return false;
     }

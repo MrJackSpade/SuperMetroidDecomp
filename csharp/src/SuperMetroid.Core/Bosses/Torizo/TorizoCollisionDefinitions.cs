@@ -3,269 +3,171 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Ordered physical components and touch/shot rectangles for all 106 Torizo frames selected
-/// by the compiled animations. Sprite composition and pixels are not stored here.
-/// The blank frame has an empty hitbox list, rather than invented collision.
+/// The body hitboxes of all 106 Torizo frames the animations show: each frame names its body's list of touch and shot
+/// rectangles, placed at Torizo's origin (#1943). Sprite composition and pixels are not stored here. The blank and turning
+/// frames have the empty list rather than invented collision.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165; the single owner of the Torizo collision space. Frames' collision
-/// is contiguous within four runs (the blank frame, turning plus 42 left-facing frames,
-/// seven awakening frames, right-facing frames), so every frame derives from its
-/// run start and the preceding frames' sizes (a count plus one entry per component).
-/// The first 49 right-facing frames are the exact X mirrors, in order, of the 49 left-facing
-/// frames: X negates and each hitbox list is replaced by its separately fitted right-facing
-/// counterpart (<see cref="TorizoHitboxList.RightFacing"/>); every list without collision is
-/// <see cref="Empty"/>. Retained as authored: the left-facing placements (torso/leg choreography of each
-/// drawing), the six jump-back frames (their two facings are drawn differently), and the list
-/// rectangles, which are fitted per facing to the drawings and are not mirrors of each other.
+/// Reviewed for #1165; the single owner of the Torizo collision space. The original game listed each frame's sprite-part
+/// components, of which only the body's held rectangles; the others named the empty list and could never be the first
+/// hitbox a probe met, so a frame names its body alone. Right-facing frames name lists fitted separately to their
+/// drawings, not mirrors of the left-facing ones; the jump-back frames of the two facings are drawn differently.
 /// </remarks>
 internal static class TorizoCollisionDefinitions
 {
-    /// <summary>The list of every component without collision; it is its own right-facing counterpart.</summary>
+    /// <summary>The list of a frame without collision.</summary>
     internal static readonly TorizoHitboxList Empty = new([]);
 
-    /// <summary>
-    /// The seven right-facing awakening bodies, indexed by awakening step, each fitted separately from its left-facing
-    /// counterpart: narrower on the left at first, growing upward to Y -32 and then -35 through 39, shifting the upper reach
-    /// toward positive X, and finally expanding to X 22.
-    /// </summary>
-    private static readonly TorizoHitboxList[] AwakeningStepsRight =
-    [
-        new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-        new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]),
-    ];
+    /// <summary>The seated right-facing body, narrower on the left than the left-facing one.</summary>
+    private static readonly TorizoHitboxList SeatedBodyRight = new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the first stand-up stage.</summary>
+    private static readonly TorizoHitboxList StandingUpFirstBodyRight = new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the second stand-up stage, growing upward to Y -32.</summary>
+    private static readonly TorizoHitboxList StandingUpSecondBodyRight = new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the third stand-up stage, reaching Y -35 and down to 39.</summary>
+    private static readonly TorizoHitboxList StandingUpThirdBodyRight = new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the fourth stand-up stage, its upper reach shifted toward positive X.</summary>
+    private static readonly TorizoHitboxList StandingUpFourthBodyRight = new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the fifth stand-up stage.</summary>
+    private static readonly TorizoHitboxList StandingUpFifthBodyRight = new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body at the last stand-up stage, expanding to X 22.</summary>
+    private static readonly TorizoHitboxList StandingUpSixthBodyRight = new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Right-facing active body.</summary>
     private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Right-facing standing body, extending farther down and right than the right-facing jump-back body.</summary>
     private static readonly TorizoHitboxList StandingBodyRight = new([new(-9, -40, 16, 25, TorizoReactions.Touch, TorizoReactions.Shot)]);
-    /// <summary>Compact right-facing jump-back body, fitted separately from its left counterpart; the right-facing jump-back frames use it directly.</summary>
+    /// <summary>Compact right-facing jump-back body, fitted separately from its left counterpart.</summary>
     private static readonly TorizoHitboxList JumpBackBodyRight = new([new(-8, -37, 15, 14, TorizoReactions.Touch, TorizoReactions.Shot)]);
 
-    /// <summary>
-    /// The seven awakening bodies with the stand-up/sit-down shot reaction, indexed by awakening step: a 32-by-54 body,
-    /// narrowed on the left, taller, centered and extending farther vertically, its upper reach shifted left, shortened
-    /// below the center, and finally narrowing below under the tall upper reach.
-    /// </summary>
-    private static readonly TorizoHitboxList[] AwakeningSteps =
-    [
-        new([new(-16, -27, 16, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[0]),
-        new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[1]),
-        new([new(-13, -34, 9, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[2]),
-        new([new(-11, -38, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[3]),
-        new([new(-15, -44, 8, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[4]),
-        new([new(-18, -43, 3, 24, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[5]),
-        new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)], AwakeningStepsRight[6]),
-    ];
+    /// <summary>The seated body, 32 by 54, with the stand-up/sit-down shot reaction.</summary>
+    private static readonly TorizoHitboxList SeatedBody = new([new(-16, -27, 16, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the first stand-up stage, narrowed on the left.</summary>
+    private static readonly TorizoHitboxList StandingUpFirstBody = new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the second stand-up stage, taller.</summary>
+    private static readonly TorizoHitboxList StandingUpSecondBody = new([new(-13, -34, 9, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the third stand-up stage, centred and extending farther vertically.</summary>
+    private static readonly TorizoHitboxList StandingUpThirdBody = new([new(-11, -38, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the fourth stand-up stage, its upper reach shifted left.</summary>
+    private static readonly TorizoHitboxList StandingUpFourthBody = new([new(-15, -44, 8, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the fifth stand-up stage, shortened below the centre.</summary>
+    private static readonly TorizoHitboxList StandingUpFifthBody = new([new(-18, -43, 3, 24, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body at the last stand-up stage, narrowing below under the tall upper reach.</summary>
+    private static readonly TorizoHitboxList StandingUpSixthBody = new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Left-facing active body, with the ordinary body shot reaction.</summary>
-    private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoReactions.Touch, TorizoReactions.Shot)], ActiveBodyRight);
+    private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Compact left-facing jump-back body with its lower edge at Y 9.</summary>
-    private static readonly TorizoHitboxList JumpBackBody = new([new(-18, -38, 7, 9, TorizoReactions.Touch, TorizoReactions.Shot)], JumpBackBodyRight);
+    private static readonly TorizoHitboxList JumpBackBody = new([new(-18, -38, 7, 9, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Left-facing standing body, extending to Y 18.</summary>
-    private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, TorizoReactions.Touch, TorizoReactions.Shot)], StandingBodyRight);
+    private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, TorizoReactions.Touch, TorizoReactions.Shot)]);
 
-    /// <summary>Single origin component used by the blank and shared turning frames.</summary>
-    private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), Empty)];
-
-    /// <summary>The 42 left-facing frames, in authored order.</summary>
-    internal static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
-    [
-        [new(new(-15, -30), Empty), new(new(-5, -24), Empty), new(new(0, 0), StandingBody), new(new(-5, -24), Empty)],
-        [new(new(-15, -30), Empty), new(new(-5, -25), Empty), new(new(0, 0), ActiveBody), new(new(-5, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-5, -26), Empty), new(new(0, 0), ActiveBody), new(new(-5, -26), Empty)],
-        [new(new(-15, -32), Empty), new(new(-5, -25), Empty), new(new(0, 0), ActiveBody), new(new(-5, -25), Empty)],
-        [new(new(-15, -32), Empty), new(new(-5, -24), Empty), new(new(0, 0), ActiveBody), new(new(-5, -24), Empty)],
-        [new(new(-15, -30), Empty), new(new(-5, -24), Empty), new(new(0, 0), StandingBody), new(new(-5, -24), Empty)],
-        [new(new(-15, -31), Empty), new(new(-5, -25), Empty), new(new(0, 0), ActiveBody), new(new(-5, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-5, -26), Empty), new(new(0, 0), ActiveBody), new(new(-5, -26), Empty)],
-        [new(new(-15, -32), Empty), new(new(-5, -25), Empty), new(new(0, 0), ActiveBody), new(new(-5, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-5, -24), Empty), new(new(0, 0), ActiveBody), new(new(-5, -24), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-9, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-9, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-9, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-9, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-9, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-15, -31), Empty), new(new(-4, -25), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-        [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
-    ];
-
-    /// <summary>The seven awakening frames, in authored order.</summary>
-    internal static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
-    [
-        [new(new(0, 0), AwakeningSteps[0])],
-        [new(new(0, 0), AwakeningSteps[1])],
-        [new(new(0, 0), AwakeningSteps[2])],
-        [new(new(0, 0), AwakeningSteps[3])],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[4])],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[5])],
-        [new(new(-5, -24), Empty), new(new(0, 0), AwakeningSteps[6])],
-    ];
-
-    /// <summary>The six jump-back frames ending the right-facing run (three per facing).</summary>
-    internal static readonly GoldenTorizoCollisionComponent[][] JumpBackFrames =
-    [
-        [new(new(-16, -29), Empty), new(new(-4, -22), Empty), new(new(0, 0), JumpBackBody)],
-        [new(new(-16, -30), Empty), new(new(-4, -24), Empty), new(new(0, 0), JumpBackBody)],
-        [new(new(-16, -30), Empty), new(new(-3, -24), Empty), new(new(0, 0), JumpBackBody)],
-        [new(new(15, -28), Empty), new(new(4, -22), Empty), new(new(0, 0), JumpBackBodyRight)],
-        [new(new(15, -29), Empty), new(new(4, -24), Empty), new(new(0, 0), JumpBackBodyRight)],
-        [new(new(15, -29), Empty), new(new(3, -24), Empty), new(new(0, 0), JumpBackBodyRight)],
-    ];
-
-    /// <summary>Number of left and awakening frames whose right-facing counterparts derive by reflection.</summary>
-    internal static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
-
-    /// <summary>The left-facing frames in mirror order: the left frames, then the awakening frames.</summary>
-    internal static readonly GoldenTorizoCollisionComponent[][] LeftFacingFrames = [.. LeftFrames, .. AwakeningFrames];
-
-    /// <summary>
-    /// The right-facing counterparts of the left and awakening frames, in mirror order: each component's X reflected and
-    /// each hitbox list replaced by its right-facing counterpart.
-    /// </summary>
-    private static readonly GoldenTorizoCollisionComponent[][] MirroredFrames =
-        [.. Enumerable.Range(0, MirroredCount).Select(index => LeftFacingFrames[index]
-            .Select(part => part with { Offset = part.Offset.MirroredX(), Hitboxes = part.Hitboxes.RightFacing }).ToArray())];
-
-    /// <summary>
-    /// Each Torizo frame's components: the blank and turning frames carry one empty component; left-facing, awakening
-    /// and jump-back frames their own components; right-facing frames the precomputed mirror images.
-    /// </summary>
-    internal static readonly Dictionary<EnemyFrameId, GoldenTorizoCollisionComponent[]> FrameComponents = new()
+    /// <summary>Each Torizo frame's body hitboxes.</summary>
+    internal static readonly Dictionary<EnemyFrameId, TorizoHitboxList> FrameHitboxes = new()
     {
-        [EnemyFrameId.BombTorizoDormant] = SingleEmpty,
-        [EnemyFrameId.TorizoFacingLeftTurningLeft] = SingleEmpty,
-        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFirst] = LeftFrames[0],
-        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingSecond] = LeftFrames[1],
-        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingThird] = LeftFrames[2],
-        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFourth] = LeftFrames[3],
-        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFifth] = LeftFrames[4],
-        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFirst] = LeftFrames[5],
-        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingSecond] = LeftFrames[6],
-        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingThird] = LeftFrames[7],
-        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFourth] = LeftFrames[8],
-        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFifth] = LeftFrames[9],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst] = LeftFrames[10],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond] = LeftFrames[11],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird] = LeftFrames[12],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFourth] = LeftFrames[13],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFifth] = LeftFrames[14],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSixth] = LeftFrames[15],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst] = LeftFrames[16],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond] = LeftFrames[17],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird] = LeftFrames[18],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFourth] = LeftFrames[19],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFifth] = LeftFrames[20],
-        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSixth] = LeftFrames[21],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSecond] = LeftFrames[22],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardThird] = LeftFrames[23],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardFourth] = LeftFrames[24],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardFifth] = LeftFrames[25],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSixth] = LeftFrames[26],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSeventh] = LeftFrames[27],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardEighth] = LeftFrames[28],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardNinth] = LeftFrames[29],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardTenth] = LeftFrames[30],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardEleventh] = LeftFrames[31],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSecond] = LeftFrames[32],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardThird] = LeftFrames[33],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardFourth] = LeftFrames[34],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardFifth] = LeftFrames[35],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSixth] = LeftFrames[36],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSeventh] = LeftFrames[37],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardEighth] = LeftFrames[38],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardNinth] = LeftFrames[39],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardTenth] = LeftFrames[40],
-        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardEleventh] = LeftFrames[41],
-        [EnemyFrameId.TorizoFacingLeftSeated] = AwakeningFrames[0],
-        [EnemyFrameId.TorizoFacingLeftStandingUpFirst] = AwakeningFrames[1],
-        [EnemyFrameId.TorizoFacingLeftStandingUpSecond] = AwakeningFrames[2],
-        [EnemyFrameId.GoldenTorizoInitial] = AwakeningFrames[3],
-        [EnemyFrameId.TorizoFacingLeftStandingUpFourth] = AwakeningFrames[4],
-        [EnemyFrameId.TorizoFacingLeftStandingUpFifth] = AwakeningFrames[5],
-        [EnemyFrameId.TorizoFacingLeftStandingUpSixth] = AwakeningFrames[6],
-        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFirst] = MirroredFrames[0],
-        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingSecond] = MirroredFrames[1],
-        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingThird] = MirroredFrames[2],
-        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFourth] = MirroredFrames[3],
-        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFifth] = MirroredFrames[4],
-        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFirst] = MirroredFrames[5],
-        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingSecond] = MirroredFrames[6],
-        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingThird] = MirroredFrames[7],
-        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFourth] = MirroredFrames[8],
-        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFifth] = MirroredFrames[9],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst] = MirroredFrames[10],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond] = MirroredFrames[11],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird] = MirroredFrames[12],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFourth] = MirroredFrames[13],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFifth] = MirroredFrames[14],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSixth] = MirroredFrames[15],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst] = MirroredFrames[16],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond] = MirroredFrames[17],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardThird] = MirroredFrames[18],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFourth] = MirroredFrames[19],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFifth] = MirroredFrames[20],
-        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSixth] = MirroredFrames[21],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSecond] = MirroredFrames[22],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardThird] = MirroredFrames[23],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardFourth] = MirroredFrames[24],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardFifth] = MirroredFrames[25],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSixth] = MirroredFrames[26],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSeventh] = MirroredFrames[27],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardEighth] = MirroredFrames[28],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardNinth] = MirroredFrames[29],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardTenth] = MirroredFrames[30],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardEleventh] = MirroredFrames[31],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSecond] = MirroredFrames[32],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardThird] = MirroredFrames[33],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardFourth] = MirroredFrames[34],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardFifth] = MirroredFrames[35],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSixth] = MirroredFrames[36],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSeventh] = MirroredFrames[37],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardEighth] = MirroredFrames[38],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardNinth] = MirroredFrames[39],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardTenth] = MirroredFrames[40],
-        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardEleventh] = MirroredFrames[41],
-        [EnemyFrameId.TorizoFacingRightSeated] = MirroredFrames[42],
-        [EnemyFrameId.TorizoFacingRightStandingUpFirst] = MirroredFrames[43],
-        [EnemyFrameId.TorizoFacingRightStandingUpSecond] = MirroredFrames[44],
-        [EnemyFrameId.TorizoFacingRightStandingUpThird] = MirroredFrames[45],
-        [EnemyFrameId.TorizoFacingRightStandingUpFourth] = MirroredFrames[46],
-        [EnemyFrameId.TorizoFacingRightStandingUpFifth] = MirroredFrames[47],
-        [EnemyFrameId.TorizoFacingRightStandingUpSixth] = MirroredFrames[48],
-        [EnemyFrameId.TorizoFacingLeftJumpingForwardsFirst] = JumpBackFrames[0],
-        [EnemyFrameId.TorizoFallingLeft] = JumpBackFrames[1],
-        [EnemyFrameId.TorizoFacingLeftJumpingForwardsThird] = JumpBackFrames[2],
-        [EnemyFrameId.TorizoFacingRightJumpingForwardsFirst] = JumpBackFrames[3],
-        [EnemyFrameId.TorizoFacingRightJumpingForwardsSecond] = JumpBackFrames[4],
-        [EnemyFrameId.TorizoFacingRightJumpingForwardsThird] = JumpBackFrames[5],
+        [EnemyFrameId.BombTorizoDormant] = Empty,
+        [EnemyFrameId.TorizoFacingLeftTurningLeft] = Empty,
+        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFirst] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingSecond] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingThird] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFourth] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFifth] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFirst] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingSecond] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingThird] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFourth] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFifth] = ActiveBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFourth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFifth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSixth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFourth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFifth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSixth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSecond] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardThird] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardFourth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardFifth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSixth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSeventh] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardEighth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardNinth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardTenth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardEleventh] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSecond] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardThird] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardFourth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardFifth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSixth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSeventh] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardEighth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardNinth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardTenth] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardEleventh] = StandingBody,
+        [EnemyFrameId.TorizoFacingLeftSeated] = SeatedBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpFirst] = StandingUpFirstBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpSecond] = StandingUpSecondBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpThird] = StandingUpThirdBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpFourth] = StandingUpFourthBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpFifth] = StandingUpFifthBody,
+        [EnemyFrameId.TorizoFacingLeftStandingUpSixth] = StandingUpSixthBody,
+        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFirst] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingSecond] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingThird] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFourth] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFifth] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFirst] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingSecond] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingThird] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFourth] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFifth] = ActiveBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFourth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFifth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSixth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardThird] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFourth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFifth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSixth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSecond] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardThird] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardFourth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardFifth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSixth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSeventh] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardEighth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardNinth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardTenth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardEleventh] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSecond] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardThird] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardFourth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardFifth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSixth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSeventh] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardEighth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardNinth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardTenth] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardEleventh] = StandingBodyRight,
+        [EnemyFrameId.TorizoFacingRightSeated] = SeatedBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpFirst] = StandingUpFirstBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpSecond] = StandingUpSecondBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpThird] = StandingUpThirdBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpFourth] = StandingUpFourthBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpFifth] = StandingUpFifthBodyRight,
+        [EnemyFrameId.TorizoFacingRightStandingUpSixth] = StandingUpSixthBodyRight,
+        [EnemyFrameId.TorizoFacingLeftJumpingForwardsFirst] = JumpBackBody,
+        [EnemyFrameId.TorizoFallingLeft] = JumpBackBody,
+        [EnemyFrameId.TorizoFacingLeftJumpingForwardsThird] = JumpBackBody,
+        [EnemyFrameId.TorizoFacingRightJumpingForwardsFirst] = JumpBackBodyRight,
+        [EnemyFrameId.TorizoFacingRightJumpingForwardsSecond] = JumpBackBodyRight,
+        [EnemyFrameId.TorizoFacingRightJumpingForwardsThird] = JumpBackBodyRight,
     };
 }

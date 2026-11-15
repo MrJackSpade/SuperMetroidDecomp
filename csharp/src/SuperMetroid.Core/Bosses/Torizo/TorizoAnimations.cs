@@ -23,8 +23,8 @@ internal static class TorizoAnimations
     /// <summary>How each animation plays its own steps.</summary>
     internal static IReadOnlyDictionary<TorizoAnimation, Animation<TorizoAnimation>> StartingAt { get; } = new Dictionary<TorizoAnimation, Animation<TorizoAnimation>>
     {
-        [A.BombTorizoGutBlowingUp] = new([new(A.BombTorizoGutBlowingUp, 0, 12, 1)], AnimationEnd.Holds),
-        [A.BombTorizoFaceBlowingUp] = new([new(A.BombTorizoFaceBlowingUp, 0, 18, 1)], AnimationEnd.Holds),
+        [A.BombTorizoGutBlowingUp] = new([new(A.BombTorizoGutBlowingUp, 0, 9, 1)], AnimationEnd.Holds),
+        [A.BombTorizoFaceBlowingUp] = new([new(A.BombTorizoFaceBlowingUp, 0, 11, 1)], AnimationEnd.Holds),
         [A.Dying] = new([new(A.Dying, 0, 2, 1), new(A.Dying, 2, 3, 8), new(A.Dying, 5, 1, 1), new(A.Dying, 6, 21, 14), new(A.Dying, 27, 2, 1)], AnimationEnd.Stops),
         [A.BombTorizoDormant] = new([new(A.BombTorizoDormant, 0, 4, 1)], AnimationEnd.Holds),
         [A.BombTorizoAwakening] = new([new(A.BombTorizoAwakening, 0, 10, 1), new(A.BombTorizoAwakening, 10, 8, 2), new(A.BombTorizoAwakening, 18, 13, 1), new(A.BombTorizoAwakening, 31, 2, 16), new(A.BombTorizoAwakening, 33, 3, 1), new(A.BombTorizoAwakening, 36, 20, 1), new(A.BombTorizoAwakening, 56, 20, 1)], AnimationEnd.LoopsFrom(5)),
@@ -48,8 +48,6 @@ internal static class TorizoAnimations
         [A.FacelessTurningLeft] = new([new(A.FacelessTurningLeft, 0, 3, 1), new(A.FacelessTurningLeft, 3, 16, 1), new(A.FacelessTurningLeft, 19, 16, 1)], AnimationEnd.LoopsFrom(1)),
         [A.FacingLeftFacelessWalkingRightLegMoving] = new([new(A.FacingLeftFacelessWalkingRightLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingRightLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
         [A.FacingLeftFacelessWalkingLeftLegMoving] = new([new(A.FacingLeftFacelessWalkingLeftLegMoving, 0, 16, 1), new(A.FacingLeftFacelessWalkingLeftLegMoving, 16, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [A.BombTorizoDormantFacingRight] = new([new(A.BombTorizoDormantFacingRight, 0, 3, 1)], AnimationEnd.Holds),
-        [A.BombTorizoAwakeningFacingRight] = new([new(A.BombTorizoAwakeningFacingRight, 0, 14, 1), new(A.BombTorizoAwakeningFacingRight, 14, 20, 1), new(A.BombTorizoAwakeningFacingRight, 34, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.TurningRight] = new([new(A.TurningRight, 0, 3, 1), new(A.TurningRight, 3, 21, 1), new(A.TurningRight, 24, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.FacingRightSpewingChozoOrbsLeftFootForward] = new([new(A.FacingRightSpewingChozoOrbsLeftFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsLeftFootForward, 10, 6, 1)], AnimationEnd.Holds),
         [A.FacingRightSpewingChozoOrbsRightFootForward] = new([new(A.FacingRightSpewingChozoOrbsRightFootForward, 0, 8, 1), new(A.FacingRightSpewingChozoOrbsRightFootForward, 8, 2, 3), new(A.FacingRightSpewingChozoOrbsRightFootForward, 10, 6, 1)], AnimationEnd.Holds),
@@ -89,7 +87,7 @@ internal static class TorizoAnimations
         [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] = new([new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 0, 23, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 23, 21, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 44, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenFacingLeftSittingDownAttack] = new([new(A.GoldenFacingLeftSittingDownAttack, 0, 26, 1), new(A.GoldenFacingLeftSittingDownAttack, 26, 21, 1), new(A.GoldenFacingLeftSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenFacingRightSittingDownAttack] = new([new(A.GoldenFacingRightSittingDownAttack, 0, 26, 1), new(A.GoldenFacingRightSittingDownAttack, 26, 21, 1), new(A.GoldenFacingRightSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenReleasingEggs] = new([new(A.GoldenReleasingEggs, 0, 10, 1), new(A.GoldenReleasingEggs, 10, 3, 6), new(A.GoldenReleasingEggs, 13, 15, 1)], AnimationEnd.Holds),
+        [A.GoldenReleasingEggs] = new([new(A.GoldenReleasingEggs, 0, 7, 1), new(A.GoldenReleasingEggs, 7, 3, 6), new(A.GoldenReleasingEggs, 10, 11, 1)], AnimationEnd.Holds),
         [A.GoldenEyeBeamAttack] = new([new(A.GoldenEyeBeamAttack, 0, 4, 1), new(A.GoldenEyeBeamAttack, 4, 1, 1), new(A.GoldenEyeBeamAttack, 5, 2, 4), new(A.GoldenEyeBeamAttack, 7, 1, 1), new(A.GoldenEyeBeamAttack, 8, 8, 2), new(A.GoldenEyeBeamAttack, 16, 6, 1)], AnimationEnd.Holds),
         [A.GoldenDodgeTurningLeft] = new([new(A.GoldenDodgeTurningLeft, 0, 5, 1), new(A.GoldenDodgeTurningLeft, 5, 20, 1), new(A.GoldenDodgeTurningLeft, 25, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenTurningLeft] = new([new(A.GoldenTurningLeft, 0, 3, 1), new(A.GoldenTurningLeft, 3, 20, 1), new(A.GoldenTurningLeft, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),
@@ -105,12 +103,12 @@ internal static class TorizoAnimations
 
     /// <summary>
     /// The animation each resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do; no other animation rests.
+    /// trigger do; no other animation rests. Bomb Torizo always sits facing left: the original's facing-right statue,
+    /// which no room starts, is not kept (#1941).
     /// </summary>
     private static readonly FrozenDictionary<A, A> ResumesAfterSleep = new Dictionary<A, A>
     {
         [A.BombTorizoDormant] = A.BombTorizoAwakening,
-        [A.BombTorizoDormantFacingRight] = A.BombTorizoAwakeningFacingRight,
         [A.GoldenTorizoDormant] = A.GoldenTorizoAwakening,
     }.ToFrozenDictionary();
 

@@ -33,7 +33,7 @@ internal sealed class TorizoBody
     /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
     internal void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)
     {
-        if (torizo.Health is 0 or >= BombTorizoBehavior.BombTorizoHeadExplosionHealth)
+        if (torizo.Health is 0 or >= TorizoDecisionDefinitions.GutBlowUpHealth)
             return;
         if (_room.Random.Read() is int random &&
             TorizoRandomDefinitions.LowHealthDrool.IsTakenBy(random))
@@ -43,7 +43,7 @@ internal sealed class TorizoBody
     }
 
     /// <summary>Whether Torizo has latched <paramref name="flag"/>.</summary>
-    internal bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => _access.RequireBombTorizoState(torizo).Behavior.HasFlag(flag);
+    internal bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => _access.RequireTorizoState(torizo).Behavior.HasFlag(flag);
 
     /// <summary>Requests the awakening drool variant whose position and speed use wrap-sensitive jitter.</summary>
     internal void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>

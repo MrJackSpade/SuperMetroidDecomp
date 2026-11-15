@@ -19,9 +19,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// Which frames each encounter draws in which of its looks (#1513, #1538). A sheet holds a frame's finished picture of each
 /// look it is drawn in, and a frame drawn alike in every look it is drawn in has one picture. A frame no entry lists for
-/// an encounter shows only its room's load under it. A look whose copies land in the same update as a later look's is
-/// never seen and is listed for no frame. Ceres Ridley's escape warning shows through his room's backgrounds alone, so no
-/// frame is listed for it.
+/// an encounter shows only its room's load under it. Ceres Ridley's escape warning shows through his room's backgrounds
+/// alone, so no frame is listed for it.
 /// </summary>
 internal static class EncounterArtworkDrawingDefinitions
 {
@@ -74,27 +73,27 @@ internal static class EncounterArtworkDrawingDefinitions
         };
 
     /// <summary>
-    /// Bomb Torizo's body: drawn as a statue and as its eyes light up and flicker back on; its gut's looks land in one update,
-    /// seen blown up; its face's looks land in two updates, seen half blown away and blown away.
+    /// Bomb Torizo's body: drawn as a statue and as its eyes light up and flicker back on, then with its gut blown up, its
+    /// face half blown away and its face blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
         new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
-            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4, L.GutBlownUp, L.FaceBlowingUp4, L.FaceBlownUp)])
+            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
-        new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesLightingAgain4, L.GutBlownUp, L.FaceBlowingUp4, L.FaceBlownUp)])
+        new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesLightingAgain4, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
     /// <summary>
     /// Golden Torizo's body and projectiles: its awakening is its first program's first cue, before any frame shows; it is
-    /// drawn as its eyes light up and flicker back on, its chest's looks land two to an update, each seen once both its
-    /// halves have, and its eye beam's glow and its eyes lighting up after a stun are seen at every look.
+    /// drawn as its eyes light up and flicker back on, at each stage of its chest's opening and closing, and at every look of
+    /// its eye beam's glow and its eyes lighting up after a stun.
     /// </summary>
     private static readonly EncounterArtworkDrawing GoldenTorizo =
         new(ComposedEncounter.GoldenTorizo, [.. Golden(L.Awakening, L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,

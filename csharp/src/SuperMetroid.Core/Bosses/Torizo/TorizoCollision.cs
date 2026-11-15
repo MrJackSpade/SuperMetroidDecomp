@@ -2,13 +2,13 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Finds the collision components of the Torizo frame shown, from <see cref="TorizoCollisionDefinitions"/>.</summary>
+/// <summary>Finds the body hitboxes of the Torizo frame shown, from <see cref="TorizoCollisionDefinitions"/>.</summary>
 internal static class TorizoCollision
 {
-    /// <summary>The collision components of Torizo frame <paramref name="frame"/>.</summary>
+    /// <summary>The body hitboxes of Torizo frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Torizo's frames.</exception>
-    internal static ReadOnlySpan<GoldenTorizoCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && TorizoCollisionDefinitions.FrameComponents.TryGetValue(shown, out GoldenTorizoCollisionComponent[]? components)
-            ? components
+    internal static TorizoHitboxList HitboxesAt(EnemyFrameId? frame) =>
+        frame is { } shown && TorizoCollisionDefinitions.FrameHitboxes.TryGetValue(shown, out TorizoHitboxList? hitboxes)
+            ? hitboxes
             : throw new InvalidDataException($"Torizo frame {frame} is not compiled.");
 }

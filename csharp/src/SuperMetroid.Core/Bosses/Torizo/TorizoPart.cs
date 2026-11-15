@@ -2,8 +2,8 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which BombTorizo occupant a slot holds, one per definition the species installs.</summary>
-internal enum BombTorizoPart
+/// <summary>Which Torizo occupant a slot holds, one per definition the species installs.</summary>
+internal enum TorizoPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.BombTorizo"/> occupant.</summary>
     BombTorizo,

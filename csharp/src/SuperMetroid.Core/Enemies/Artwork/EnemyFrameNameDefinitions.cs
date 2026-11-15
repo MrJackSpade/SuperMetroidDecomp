@@ -1576,7 +1576,7 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.CrocomireBodyMeltingTwoTopThreeRows] = "crocomire_body_melting_two_top_three_rows",
         [EnemyFrameId.CrocomireBodyMeltingTwoTopFourRows] = "crocomire_body_melting_two_top_four_rows",
         [EnemyFrameId.BombTorizoDormant] = "bomb_torizo_dormant",
-        [EnemyFrameId.GoldenTorizoInitial] = "golden_torizo_initial",
+        [EnemyFrameId.TorizoFacingLeftStandingUpThird] = "torizo_facing_left_standing_up_third",
         [EnemyFrameId.KraidArmNormalFirst] = "kraid_arm_normal_first",
         [EnemyFrameId.KraidArmNormalSecond] = "kraid_arm_normal_second",
         [EnemyFrameId.KraidArmNormalThird] = "kraid_arm_normal_third",

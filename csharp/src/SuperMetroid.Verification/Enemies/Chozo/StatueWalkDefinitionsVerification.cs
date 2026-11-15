@@ -11,30 +11,34 @@ using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
-/// <summary>Checks compiled Golden Torizo walking and Chozo statue carry motion against native tables.</summary>
+/// <summary>Checks Golden Torizo's walking movement and Chozo statue carry motion against native tables.</summary>
 internal static class StatueWalkDefinitionsVerification
 {
-    /// <summary>Compares Torizo walking steps and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
+    /// <summary>Golden Torizo's walking velocity table: one signed word per step, which each walking cue carries (#1970).</summary>
+    private const int GoldenWalkTable = 0xaad59a;
+
+    /// <summary>The words of Golden Torizo's walking velocity table.</summary>
+    private const int GoldenWalkSteps = 20;
+
+    /// <summary>Moves Golden Torizo by each native walking step and compares Chozo carry words, checking production movement and Samus offsets without a bus.</summary>
     internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
-        // The cartridge's walking table holds one signed word per step; every walking cue reads a whole entry.
-        for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
+        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.TorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
         Action<RoomEnemySlot, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-        for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
+        for (int step = 0; step < GoldenWalkSteps; step++)
         {
             int offset = step * 2;
+            short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset));
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            AnimationContinuation<TorizoAnimation>? next = walk(slot, torizo, null, level, GoldenTorizoWalk.Velocity(step));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
-            AssertEqual(unchecked((ushort)(256 + (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
+            AnimationContinuation<TorizoAnimation>? next = walk(slot, torizo, null, level, velocity);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
+            AssertEqual(unchecked((ushort)(256 + velocity)), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
             AssertTrue(next is null, "Torizo walking step runs on without a wall");
         }
@@ -65,9 +69,7 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(GoldenTorizoWalk.StepCount), "Torizo step past the walk");
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(-1), "Torizo negative walking step");
         AssertEqual(24, carrySteps, "both facings' four holding poses and twice-walked four-step strides");
-        Console.WriteLine($"Statue walking: 20 Torizo walking steps, {carrySteps * 3} Chozo words and {GoldenTorizoWalk.StepCount + carrySteps} real movement/carry calls match without a bus.");
+        Console.WriteLine($"Statue walking: 20 Torizo walking steps, {carrySteps * 3} Chozo words and {GoldenWalkSteps + carrySteps} real movement/carry calls match without a bus.");
     }
 }

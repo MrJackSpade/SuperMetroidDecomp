@@ -21,17 +21,17 @@ internal sealed class TorizoEncounterAccess
     internal TorizoEnemyState? GoldenTorizo => TorizoState is { IsGolden: true } ? TorizoState : null;
 
     /// <summary>Torizo's posture.</summary>
-    internal TorizoPostureFlags Posture(RoomEnemySlot torizo) => RequireBombTorizoState(torizo).Posture;
+    internal TorizoPostureFlags Posture(RoomEnemySlot torizo) => RequireTorizoState(torizo).Posture;
 
     /// <summary>Whether Torizo faces right.</summary>
     internal bool FacesRight(RoomEnemySlot torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
 
     /// <summary>Rejects a slot unless it is the statue currently bound to this room owner.</summary>
-    internal TorizoEnemyState RequireBombTorizoState(RoomEnemySlot torizo) =>
+    internal TorizoEnemyState RequireTorizoState(RoomEnemySlot torizo) =>
         TorizoState is not null && ReferenceEquals(TorizoState.Slot, torizo)
             ? TorizoState
             : throw new InvalidOperationException(
-                $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
+                $"Enemy slot {torizo.SlotIndex} has no initialized Torizo state.");
 
     /// <summary>Tests whether Torizo faces the side Samus is on, as its attack branches do.</summary>
     internal bool FacesSamus(

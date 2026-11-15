@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.ColourEffects;
 
@@ -57,8 +58,10 @@ public sealed class TorizoEnemyState : ILitTorizo
     public bool AnimationLocked { get; internal set; }
 
     /// <summary>
-    /// Stepping cues counted since a decision last reset it, from zero to
-    /// <see cref="LargestCount"/>. Golden Torizo's repeated-jump branch fires once it reaches eight.
+    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump branch fires once it reaches
+    /// <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that branch follows every one of its
+    /// stepping cues; Bomb Torizo never reads it. It never nears the 65536 counts at which the original game's count wrapped
+    /// (#1945), so it counts on.
     /// </summary>
     public int DecisionCounter { get; internal set; }
 
@@ -66,16 +69,36 @@ public sealed class TorizoEnemyState : ILitTorizo
     public bool EyeBeamExplosionsEnabled { get; internal set; }
 
     /// <summary>
-    /// Consecutive frames Samus has space-jumped, from zero to <see cref="LargestCount"/>.
-    /// Past 360 it lets Golden Torizo's forward leap fire without its input and random gates.
+    /// Consecutive frames Samus has space-jumped, 0 through 65535 (<see cref="WrappingCounter"/>). Past
+    /// <see cref="TorizoDecisionDefinitions.SpaceJumpLeapFrames"/> it lets Golden Torizo's forward leap fire without its
+    /// input and random gates. The wrap is gameplay (#1945): after 65536 consecutive space-jumping frames the count starts
+    /// again from zero, and the leap waits for its gates again for the next 361 frames.
     /// </summary>
     public int SamusSpaceJumpFrames { get; internal set; }
 
     /// <summary>
     /// Signed 1/256-pixel velocity of the Torizo's jumps and falls. A walking step moves the Torizo by its own whole pixels and
-    /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>.
+    /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>. Any change to its vertical speed ends the
+    /// resting fall (<see cref="FallsAtRestingSpeed"/>).
     /// </summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public EightEightVector<RoomPixels> Velocity
+    {
+        get;
+        internal set
+        {
+            if (value.Y != field.Y)
+                FallsAtRestingSpeed = false;
+            field = value;
+        }
+    }
+
+    /// <summary>
+    /// Whether the Torizo falls at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>, as its setup, a landing and a
+    /// walk off a ledge leave it, its vertical speed unchanged since (#1945): a Torizo that meets the ground falling so
+    /// lands without a quake. The original game marked this by the speed alone; no other fall reaches it exactly, since
+    /// gravity and the leaps add forty 256ths an update to a rest or to a leap's rise, neither of which comes back to it.
+    /// </summary>
+    internal bool FallsAtRestingSpeed { get; private set; }
 
     /// <summary>
     /// Signed 1/256-pixel acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
@@ -96,18 +119,16 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// <summary>Latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }
 
-    /// <summary>
-    /// The largest value <see cref="DecisionCounter"/> and <see cref="SamusSpaceJumpFrames"/> reach: counting one more
-    /// wraps either to zero, as the game's counters do.
-    /// </summary>
-    internal const int LargestCount = 65535;
+    /// <summary>Counts one stepping cue.</summary>
+    internal void CountDecisionStep() => DecisionCounter++;
 
-    /// <summary>Counts one stepping cue, wrapping from <see cref="LargestCount"/> to zero.</summary>
-    internal void CountDecisionStep() => DecisionCounter = NextCount(DecisionCounter);
+    /// <summary>Counts one more consecutive space-jumping frame, wrapping from 65535 to zero.</summary>
+    internal void CountSamusSpaceJumpFrame() => SamusSpaceJumpFrames = WrappingCounter.IncrementCount(SamusSpaceJumpFrames);
 
-    /// <summary>Counts one more consecutive space-jumping frame, wrapping from <see cref="LargestCount"/> to zero.</summary>
-    internal void CountSamusSpaceJumpFrame() => SamusSpaceJumpFrames = NextCount(SamusSpaceJumpFrames);
-
-    /// <summary>The count after <paramref name="count"/>, wrapping from <see cref="LargestCount"/> to zero.</summary>
-    private static int NextCount(int count) => count == LargestCount ? 0 : count + 1;
+    /// <summary>Sets the Torizo falling at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>: it rests until its vertical speed next changes.</summary>
+    internal void FallAtRestingSpeed()
+    {
+        Velocity = Velocity.WithY(TorizoMotionDefinitions.RestingFallSpeed);
+        FallsAtRestingSpeed = true;
+    }
 }

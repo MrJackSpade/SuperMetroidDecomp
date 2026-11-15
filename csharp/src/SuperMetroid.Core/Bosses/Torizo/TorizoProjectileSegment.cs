@@ -41,22 +41,6 @@ internal enum TorizoProjectileSegment
     SeventhStatueFragment,
     /// <summary>The eighth fragment: it rests 72 updates, cracks and falls, then is deleted.</summary>
     EighthStatueFragment,
-    /// <summary>The ninth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    NinthStatueFragment,
-    /// <summary>The tenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    TenthStatueFragment,
-    /// <summary>The eleventh fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    EleventhStatueFragment,
-    /// <summary>The twelfth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    TwelfthStatueFragment,
-    /// <summary>The thirteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    ThirteenthStatueFragment,
-    /// <summary>The fourteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    FourteenthStatueFragment,
-    /// <summary>The fifteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    FifteenthStatueFragment,
-    /// <summary>The sixteenth fragment: it rests 64 updates, cracks and falls, then is deleted.</summary>
-    SixteenthStatueFragment,
     /// <summary>A Chozo orb flying left, for good.</summary>
     ChozoOrbMovingLeft,
     /// <summary>A Chozo orb flying right, for good.</summary>

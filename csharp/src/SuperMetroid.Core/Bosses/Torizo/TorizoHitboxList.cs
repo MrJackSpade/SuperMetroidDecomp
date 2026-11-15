@@ -1,29 +1,17 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// One ordered list of Torizo touch/shot rectangles, shared by every frame component that names it. A
-/// left-facing list carries its right-facing counterpart, which is fitted separately to the mirrored
-/// drawing rather than reflected; a list without one (the empty list, and lists only right-facing or
-/// jump-back frames use directly) is its own counterpart.
+/// One ordered list of a Torizo body's touch and shot rectangles, shared by every frame that names it
+/// (<see cref="TorizoCollisionDefinitions"/>).
 /// </summary>
 internal sealed class TorizoHitboxList
 {
-    /// <summary>Creates a list of rectangles with an optional separately fitted right-facing counterpart.</summary>
+    /// <summary>Creates a list of rectangles.</summary>
     /// <param name="rectangles">Rectangles in test order; the first one a probe overlaps decides the reaction.</param>
-    /// <param name="rightFacing">The list a mirrored, right-facing frame uses in place of this one.</param>
-    internal TorizoHitboxList(EnemyCollisionHitbox[] rectangles, TorizoHitboxList? rightFacing = null)
-    {
-        Rectangles = Ensure.NotNull(rectangles);
-        RightFacing = rightFacing;
-    }
+    internal TorizoHitboxList(EnemyCollisionHitbox[] rectangles) => Rectangles = Ensure.NotNull(rectangles);
 
-    /// <summary>Rectangles in test order; empty for a component without collision.</summary>
+    /// <summary>Rectangles in test order, about Torizo's origin; empty for a frame without collision.</summary>
     internal IReadOnlyList<EnemyCollisionHitbox> Rectangles { get; }
-
-    /// <summary>The list a mirrored, right-facing copy of a component holding this list uses.</summary>
-    [AllowNull]
-    internal TorizoHitboxList RightFacing => field ?? this;
 }

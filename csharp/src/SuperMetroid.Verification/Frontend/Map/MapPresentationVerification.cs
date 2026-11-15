@@ -637,10 +637,10 @@ internal static class MapPresentationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var room = runtime.Room.LoadedRoom;
-        // The minimap's centre shows the map cell of the room screen Samus stands in, one row below the room's map row.
+        // The minimap's centre shows the map cell of the room screen Samus stands in.
         Position16<MapTiles> samusCell = room.MapPosition + new Offset16<MapTiles>(
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.X.Whole),
-            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole) + 1);
+            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole));
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

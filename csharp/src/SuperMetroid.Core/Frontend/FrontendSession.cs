@@ -62,6 +62,8 @@ internal sealed class FrontendSession
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
     internal readonly SaveChoiceInputCadence saveChoiceInput = new();
+    /// <summary>The updates gameplay stays paused before a message box opens and after it closes; every runtime's message box consults it.</summary>
+    internal readonly MessageBoxPauses messageBoxPauses = new();
     /// <summary>The live and stored explored maps the game keeps from power-on across every game and demo of the session.</summary>
     internal readonly StoredExploredMaps<AreaId> storedExploredMaps = StoredExploredMapLoads.PowerOn();
     /// <summary>The assists a selected game plays under; attract demos always play unassisted.</summary>
@@ -314,6 +316,7 @@ internal sealed class FrontendSession
                 {
                     UnauthoredBoostCadence = unauthoredBoostCadence,
                     SaveChoiceInput = saveChoiceInput,
+                    MessageBoxPauses = messageBoxPauses,
                     CameraFractions = cameraFractions,
                 },
                 Audio = audio,

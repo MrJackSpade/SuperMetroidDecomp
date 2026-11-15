@@ -371,6 +371,7 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerificati
 using static SuperMetroid.Verification.Samus.Abilities.XrayScopeDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.SandAnimatedTilesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SaveConfirmationCadenceVerification;
+using static SuperMetroid.Verification.Hud.MessageBoxPausesVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerification;
@@ -1085,6 +1086,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
+        new(nameof(VerifyMessageBoxPauses), () => VerifyMessageBoxPauses()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),
         new(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles()),
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),

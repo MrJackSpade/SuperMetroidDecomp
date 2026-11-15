@@ -1047,7 +1047,7 @@ internal sealed class RoomLoader
             // Only Norfair's Ridley marks his arena explored.
             if (enemies.RoomStatus.Boss == AreaBoss.Ridley)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
-                    _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row + 1));
+                    _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row));
         }
         _escapeEffects.SetupEscapeRoomEffects(room.State.SetupBehavior, enemies, scope.EscapeDiagonalQuake);
         // Gate setup runs while the room-object population is constructed, but Enemies.Load

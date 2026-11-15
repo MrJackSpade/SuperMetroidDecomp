@@ -1384,7 +1384,7 @@ internal static class RoomObjectPopulationVerification
         SeedSaveConfirmationMessageCartridge(bus);
 
         var messages = new GameplayMessageArtwork(null, notices: presentation);
-        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
         message.Begin(GameplayMessageId.SaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;

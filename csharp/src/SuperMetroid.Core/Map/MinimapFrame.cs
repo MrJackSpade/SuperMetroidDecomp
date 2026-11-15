@@ -8,7 +8,7 @@ public sealed record MinimapFrame
     /// <summary>The area the minimap shows.</summary>
     public required AreaId Area { get; init; }
 
-    /// <summary>Room map.</summary>
+    /// <summary>The area-map cell of the room's top-left screen.</summary>
     public required Position16<MapTiles> RoomMap { get; init; }
 
     /// <summary>Room size.</summary>

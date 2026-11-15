@@ -38,7 +38,7 @@ internal static class PauseSnapshotTestsVerification
         var gameplayHud = new HudState();
         gameplayHud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.NewGame);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayHud = gameplayHud.Shown() });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Maridia, RoomMapPosition = new(28, 2), GameplayHud = gameplayHud.Shown() });
         var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)

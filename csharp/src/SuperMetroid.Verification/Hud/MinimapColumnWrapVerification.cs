@@ -27,7 +27,7 @@ internal static class MinimapColumnWrapVerification
         var hud = new HudState();
         hud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
         hud.Initialize(HudSnapshot.NewGame);
-        hud.UpdateMinimap(system, Frame(roomColumn: 63, roomRow: 5));
+        hud.UpdateMinimap(system, Frame(roomColumn: 63, roomRow: 6));
         AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new Position16<MapTiles>(0, 6)),
             "the second screen of a room at the last column explores the left edge's column");
         AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new Position16<MapTiles>(63, 6)),
@@ -35,7 +35,7 @@ internal static class MinimapColumnWrapVerification
 
         // The same room one row below the map's bottom explores nothing.
         var below = new SharedGameState(new SharedRandom());
-        hud.UpdateMinimap(below, Frame(roomColumn: 63, roomRow: 31));
+        hud.UpdateMinimap(below, Frame(roomColumn: 63, roomRow: 32));
         AssertTrue(!below.Progress.ExploredCells(AreaId.Crateria).Any(), "a screen below the map explores nothing");
 
         Console.WriteLine("Minimap column wrap: the wrapped column is explored at the map's left edge; rows do not wrap.");

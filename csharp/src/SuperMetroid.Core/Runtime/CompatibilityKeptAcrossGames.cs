@@ -12,6 +12,9 @@ internal sealed record CompatibilityKeptAcrossGames
     /// <summary>When an open save confirmation reads the controller; the runtime's message box consults it.</summary>
     public required SaveChoiceInputCadence SaveChoiceInput { get; init; }
 
+    /// <summary>The updates gameplay stays paused around a message box and what each runs; the runtime's message box consults it.</summary>
+    public required MessageBoxPauses MessageBoxPauses { get; init; }
+
     /// <summary>The camera fractions the previous game left, which the runtime's first room's camera starts from and its release keeps.</summary>
     public required CameraFractionsKeptAcrossGames CameraFractions { get; init; }
 }

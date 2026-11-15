@@ -27,7 +27,7 @@ internal static class PauseHudPlaneVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry
         {
             Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria,
-            RoomMapPosition = new(28, 1), GameplayHud = entered,
+            RoomMapPosition = new(28, 2), GameplayHud = entered,
         });
         AssertTrue(HudWords(pause).SequenceEqual(HudWords(entered)), "pause entry keeps the HUD's four rows");
 

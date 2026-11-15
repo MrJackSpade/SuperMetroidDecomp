@@ -118,7 +118,7 @@ public static class GameplayDisplayCapture
         // sky's rows down the screen.
         var view = new GameplaySceneView(GameplaySceneView.LayerPixelAtScreenTop(foregroundScroll),
             GameplaySceneView.LayerPixelAtScreenTop(bodyOrigin is null && sky is { } latchedSky
-                ? backgroundScroll.WithY(Add(latchedSky.BackgroundScroll.Y, shake.Background.Y)) : backgroundScroll),
+                ? backgroundScroll.WithY(Add(latchedSky.CameraRow, shake.Background.Y)) : backgroundScroll),
             live.DoorTransitionShownLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites

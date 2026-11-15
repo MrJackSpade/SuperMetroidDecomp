@@ -61,8 +61,9 @@ internal static class RoomDefinitionsVerification
     private static void VerifyRoomDefinitionArea(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 1, header => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(header.Area));
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>
     private static void VerifyRoomDefinitionMapX(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 2, header => header.MapPosition.X);
-    /// <summary>Checks each room's vertical map coordinate against header byte three.</summary>
-    private static void VerifyRoomDefinitionMapY(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 3, header => header.MapPosition.Y);
+    /// <summary>Checks each room's area-map row against header byte three, which names the row one above the room's top screen.</summary>
+    private static void VerifyRoomDefinitionMapY(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 3,
+        header => header.MapPosition.Y - SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.HeaderMapRowOffset);
     /// <summary>Checks room width in screen units against header byte four.</summary>
     private static void VerifyRoomDefinitionWidthInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 4, header => header.Size.X);
     /// <summary>Checks room height in screen units against header byte five.</summary>

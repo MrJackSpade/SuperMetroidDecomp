@@ -30,15 +30,15 @@ public sealed class HudState
     /// What the minimap shows around Samus's cell as its last update read it; none before the minimap has been updated
     /// since the HUD was set up, while the template's starter picture shows.
     /// </summary>
-    internal MinimapGrid? Minimap { get; set; }
+    internal MinimapGrid? Minimap { get; private set; }
 
     /// <summary>Previous item selection used to detect a change of selection and its sound.</summary>
-    internal HudItem PreviousSelectedItem { get; set; }
+    internal HudItem PreviousSelectedItem { get; private set; }
     /// <summary>The installed HUD layout the values are placed by.</summary>
     internal GameplayHudPresentation? Presentation { get; private set; }
 
     /// <summary>Suppresses minimap updates once a boss has set up its fight.</summary>
-    public bool MinimapDisabled { get; internal set; }
+    public bool MinimapDisabled { get; private set; }
 
     /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>
     internal void DisableMinimapForBoss()
@@ -124,12 +124,10 @@ public sealed class HudState
         if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
-        // One area-map tile represents one 256x256 room screen. The Y formula has
-        // an intentional +1 because the HUD map convention places the room definition's Y one
-        // row above the screen containing Samus.
+        // One area-map cell shows one 256x256 room screen: Samus's cell is the room's cell moved by the screen she is in.
         // A room running past the map's right edge wraps to its left edge (AreaMapSize.WrapColumn).
         int centerX = AreaMapSize.WrapColumn(frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X));
-        int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y) + 1;
+        int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y);
         if (!AreaMapSize.ContainsRow(centerY))
             return;
 

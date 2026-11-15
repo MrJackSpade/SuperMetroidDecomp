@@ -199,7 +199,7 @@ internal sealed class SuperMetroidRuntime
         UnauthoredBoostCadence = Ensure.NotNull(session.Compatibility.UnauthoredBoostCadence);
         CameraFractions = Ensure.NotNull(session.Compatibility.CameraFractions);
         FadeOut = new GameplayFadeOut(FadeStepCount);
-        MessageBox = new GameplayMessageBoxState(session.Compatibility.SaveChoiceInput);
+        MessageBox = new GameplayMessageBoxState(session.Compatibility.SaveChoiceInput, session.Compatibility.MessageBoxPauses);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
         System = new SharedGameState(session.GameState.Random, session.GameState.EarthquakeSoundDelay, session.GameState.StoredExploredMaps);
@@ -1147,7 +1147,7 @@ internal sealed class SuperMetroidRuntime
         MessageBox.Step(playerInput);
         if (MessageBox.LastFrameAudio.AdvancesLiquidWaveAndStatueDescent)
         {
-            // The message box's restoring update advances the liquid wave and the statues too.
+            // One update of the box's pause after closing advances the liquid wave and the statues too.
             if (Room.Camera is not null)
                 LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
             if (Player.Samus is { } samus)

@@ -152,7 +152,7 @@ internal static class NativeSnapshotImport
         // Each recorded scroll byte becomes the kept cell the camera reads it as.
         runtime.Room.LoadedCamera.Scrolls.KeptCells.LoadAll(
             RoomScrollStates.FromStorageBytes(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.KeptCellCount)));
-        runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
+        runtime.Hud.ImportMinimapDisabled(W(NativeSnapshotMemory.MinimapDisabled) != 0);
         // The current area's exploration lives in its live plane; every other area's in the saved planes.
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         {

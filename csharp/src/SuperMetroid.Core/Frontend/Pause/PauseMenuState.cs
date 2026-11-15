@@ -411,15 +411,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 map.IsRevealedByMapStation(cell),
                 map.IsDiscoverable(cell),
                 mapRevealMode));
-        // The player's map cell: the room's map origin plus Samus's room screen, with the map convention's one-row
-        // downward offset.
+        // The player's map cell: the room's map cell plus Samus's room screen.
         CurrentMapScroll = MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
     }
 
-    /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
+    /// <summary>The area-map cell of Samus's current room screen.</summary>
     private Position16<MapTiles> SamusMapCell() =>
         roomMapPosition + new Offset16<MapTiles>(RoomGridConversions.PixelToScreen(samus.Position.X.Whole),
-            RoomGridConversions.PixelToScreen(samus.Position.Y.Whole) + 1);
+            RoomGridConversions.PixelToScreen(samus.Position.Y.Whole));
 
     /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()

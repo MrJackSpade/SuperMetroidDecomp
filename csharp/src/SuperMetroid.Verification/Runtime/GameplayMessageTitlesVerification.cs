@@ -30,7 +30,7 @@ internal static class GameplayMessageTitlesVerification
         int width = SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
             installed.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.

@@ -15,8 +15,8 @@ public enum GameplayMessageBoxPhase
     Closing,
     /// <summary>The gunship's saving-sound wait before SAVE COMPLETED.</summary>
     GunshipSavingSound,
-    /// <summary>Gameplay pauses while the screen, the box and its window are prepared, before the window opens.</summary>
-    Preparing,
-    /// <summary>Gameplay stays paused while the closed box is cleared and the screen restored.</summary>
-    Restoring,
+    /// <summary>Gameplay stays paused before the window opens, with nothing of the box showing yet (<see cref="MessageBoxPauses"/>).</summary>
+    PausedBeforeOpening,
+    /// <summary>Gameplay stays paused after the window has closed, before it resumes (<see cref="MessageBoxPauses"/>).</summary>
+    PausedAfterClosing,
 }

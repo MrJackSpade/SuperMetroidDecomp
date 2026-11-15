@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The opening cinematic's scene pictures (#1467): each scene page, Samus's portrait and each eye frame drawn over it,
-/// which the import composes once under the cinematic's palette. The cinematic places the pictures its scene state shows
+/// which the import composes once in the cinematic's colours. The cinematic places the pictures its scene state shows
 /// on a plane the size of the cinematic's pictures.
 /// </summary>
 public static class IntroScenePictures

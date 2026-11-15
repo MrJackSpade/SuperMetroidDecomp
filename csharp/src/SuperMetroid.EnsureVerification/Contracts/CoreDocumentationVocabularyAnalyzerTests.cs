@@ -517,7 +517,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // with nine-bit X wrap\n }", "('nine-bit')");
         // A position no part is placed by, a palette or a part alone, a word ending in h and a hardware owner are English.
         Expect("class P { /// <summary>Starts the goop path at X=-80, Y=384; the ship parts slow below Y=768.</summary>\nint F => 0; }");
-        Expect("class P { // the palette and its part; each part's picture; the depth of 8 high; the 256th; the height\n }");
+        Expect("class P { // the shade and its part; each part's picture; the depth of 8 high; the 256th; the height\n }");
         Expect(EncodingOwner + "[EncodingOwner(\"sprite parts\")] static class Parts { /// <summary>One part, at X=508, in palette0800.</summary>\nstatic int N => 0; }");
         // The machine's display transfers and staging outside hardware owners (#1797).
         Expect("class P { /// <summary>Publishes the frame transfers before the latch.</summary>\nint F => 0; }", "('frame transfers')");
@@ -600,5 +600,24 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect(CompatibilityService + "/// <summary>Evidence: movement type 6 reads collision result one.</summary>\n[CompatibilityService(\"type\")] class Type { }");
         // A number that counts the noun after it, and a mode, type, result or status alone, are English.
         Expect("class P { /// <summary>A mode two frames long; the movement type; one result; the elevator's status; status one or more.</summary>\nint F => 0; }");
+        // The palette outside hardware owners (#1892), in any word form, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>Restores the eye palette after its glow.</summary>\nint F => 0; }", "('palette')");
+        Expect("class P { // steps the palette-cycle glow\n }", "('palette')");
+        Expect("class P { /* both palettes fade */ }", "('palettes')");
+        Expect("class P { string Name => \"Palette's colours are not installed.\"; }", "('Palette')");
+        // A type named for a palette cited by markup, a run-on symbol and a hardware owner are not this rule's.
+        Expect("class P { /// <summary>Shows <see cref=\"Palettes\"/> and <see cref=\"SamusPalette\"/>.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the routine copies the palette.</summary>\n[CompatibilityService(\"copy\")] class Copy { }");
+        // The animation interpreter's sleep, stream and bytecode outside hardware owners (#1893).
+        Expect("class P { /// <summary>Held as the script's sleep holds it.</summary>\nint F => 0; }", "('sleep')");
+        Expect("class P { // the sleeping animation resumes\n }", "('sleeping')");
+        Expect("class P { string Name => \"The animation does not sleep.\"; }", "('sleep')");
+        Expect("class P { /// <summary>Bomb Torizo is asleep.</summary>\nint F => 0; }", "('asleep')");
+        Expect("class P { string Name => \"Mother Brain body bytecode ran without its state.\"; }", "('bytecode')");
+        Expect("class P { /// <summary>Runs the open-mouth head stream.</summary>\nint F => 0; }", "('stream')");
+        Expect("class P { // advances the death pose's delay streams\n }", "('streams')");
+        // An event, audio or level stream, the verb streaming in, into or through, and a hardware owner are English.
+        Expect("class P { /// <summary>Identical event streams; the installed level stream; the room streams in through a door; nothing streams into it.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the script's sleep keeps the stream.</summary>\n[CompatibilityService(\"sleep\")] class Sleep { }");
     }
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
 /// The Ceres cinematics' background pictures (#1467): each SPACE COLONY caption letter, the katakana caption and the Zebes
-/// planet, which the import composes once under the flight's palette. The scenes place the pictures their state shows on
+/// planet, which the import composes once in the flight's colours. The scenes place the pictures their state shows on
 /// a plane, each at its cell.
 /// </summary>
 public static class CeresCinematicPictures

@@ -63,7 +63,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         var state = new BlueBrinstarFaceBlockEnemyState();
         slot.SetSpeciesState(state);
 
-        // The neutral animation is a one-frame neutral map followed by the common sleep. All
+        // The neutral animation is a one-frame neutral map followed by the common rest. All
         // authored directional animations use the same neutral map as their first frame.
         state.Playback = EnemyAnimationPlayback.Start(slot, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial));
 
@@ -118,7 +118,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         _glowStepCountdown = GlowFrameUpdates;
     }
 
-    /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to sleep.</summary>
+    /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);

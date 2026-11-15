@@ -9,7 +9,7 @@ internal enum CinematicSpriteCueKind
     EndZebesExplosion,
     /// <summary>Starts the explosion finale.</summary>
     ExplosionFinale,
-    /// <summary>Fades the exploding planet's palette.</summary>
+    /// <summary>Fades the exploding planet's colours.</summary>
     FadeExplosionColours,
     /// <summary>Fades the PLANET ZEBES title in.</summary>
     FadeInZebesText,

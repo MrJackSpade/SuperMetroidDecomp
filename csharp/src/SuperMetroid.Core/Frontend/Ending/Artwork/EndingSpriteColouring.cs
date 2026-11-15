@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The colours an ending actor's palette-inheriting parts draw in (#1512), named for what the ending shows in them.
+/// The colours an ending actor's recolourable parts draw in (#1512), named for what the ending shows in them.
 /// Which of the ending's colours each one is, the import alone knows.
 /// </summary>
 public enum EndingSpriteColouring

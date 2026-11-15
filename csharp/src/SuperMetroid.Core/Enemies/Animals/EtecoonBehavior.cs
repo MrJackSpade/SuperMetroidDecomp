@@ -745,7 +745,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>
+    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a rest stays in it.</summary>
     private static EtecoonSegment Playing(AnimationPlayback<EtecoonSegment> playback) =>
         playback.Animation.Phases[playback.Place.Phase].Segment;
 

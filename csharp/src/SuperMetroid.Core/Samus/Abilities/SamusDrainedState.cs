@@ -21,8 +21,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusDrainedState
 {
     /// <summary>
-    /// Latches the immediate suit-palette restore from letting drained Samus fall or the rainbow stop
-    /// until the same frame's palette pass runs.
+    /// Latches the immediate suit-colour restore from letting drained Samus fall or the rainbow stop
+    /// until the same frame's colour pass runs.
     /// </summary>
     private bool _suitPaletteRestoreRequested;
 
@@ -36,20 +36,20 @@ public sealed class SamusDrainedState
     public HyperBeamColourEffectState HyperBeamColourEffect { get; } = new();
 
     /// <summary>
-    /// The super-special-palette flag, set by the rainbow start and cleared
+    /// The super-special-colouring flag, set by the rainbow start and cleared
     /// by the rainbow stop during the Baby Metroid death sequence.
     /// </summary>
-    public bool RainbowPaletteEnabled { get; private set; }
+    public bool RainbowColouringEnabled { get; private set; }
 
     /// <summary>
-    /// Calls each Hyper Beam palette is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
+    /// Calls each Hyper Beam colouring is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
     /// ten: the rainbow start sets it to one, the Baby raises it one at a time and never past its maximum,
-    /// and the rainbow stop clears it. Each palette advance reloads the common palette timer from it.
+    /// and the rainbow stop clears it. Each colouring advance reloads the common colour timer from it.
     /// </summary>
-    public int SpecialPaletteFrame { get; private set; }
+    public int SpecialColouringFrame { get; private set; }
 
-    /// <summary>Common palette timer initialized to one by the rainbow start.</summary>
-    public int CommonPaletteTimer { get; private set; }
+    /// <summary>Common colour timer initialized to one by the rainbow start.</summary>
+    public int CommonColourTimer { get; private set; }
 
     /// <summary>
     /// The step of the Hyper Beam glow the rainbow cycle shows, 0 through the glow's step count minus one: cleared by
@@ -115,7 +115,7 @@ public sealed class SamusDrainedState
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
 
             // The able branch ends its get-up after the first accepted Up
-            // edge. Further presses cannot restart the stand-up stream.
+            // edge. Further presses cannot restart the stand-up.
             GetUpCheck = DrainedGetUpCheck.Inactive;
             return true;
         }
@@ -146,9 +146,9 @@ public sealed class SamusDrainedState
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowPaletteEnabled = true;
-        SpecialPaletteFrame = 1;
-        CommonPaletteTimer = 1;
+        RainbowColouringEnabled = true;
+        SpecialColouringFrame = 1;
+        CommonColourTimer = 1;
         HyperBeamGlowStep = 0;
         _suitPaletteRestoreRequested = false;
     }
@@ -161,34 +161,34 @@ public sealed class SamusDrainedState
     public void HoldRainbowGlowLonger(int longestHold)
     {
         // The hold never exceeds the caller's small maximum, so lengthening it cannot reach a wrap.
-        int lengthened = SpecialPaletteFrame + 1;
-        SpecialPaletteFrame = lengthened < longestHold ? lengthened : longestHold;
+        int lengthened = SpecialColouringFrame + 1;
+        SpecialColouringFrame = lengthened < longestHold ? lengthened : longestHold;
     }
 
     /// <summary>
-    /// Stops Samus's rainbow colouring: clear every rainbow/charge palette
+    /// Stops Samus's rainbow colouring: clear every rainbow/charge colouring
     /// value and begin the standing portion of the drained animation at frame thirteen.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowPaletteEnabled = false;
-        SpecialPaletteFrame = 0;
-        CommonPaletteTimer = 0;
+        RainbowColouringEnabled = false;
+        SpecialColouringFrame = 0;
+        CommonColourTimer = 0;
         HyperBeamGlowStep = 0;
         _suitPaletteRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
     }
 
     /// <summary>
-    /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow palette is enabled.
+    /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow colouring is enabled.
     /// </summary>
     /// <remarks>
-    /// While the rainbow palette is enabled, this colouring has absolute priority over
-    /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
+    /// While the rainbow colouring is enabled, this colouring has absolute priority over
+    /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray colourings. It loads one
     /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
     /// (#1512). The Baby
-    /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
+    /// independently raises <see cref="SpecialColouringFrame"/> from one through ten; that
     /// value becomes the delay between steps through the glow's ten shades.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus colours.</returns>
@@ -198,23 +198,23 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // The drained palette and the rainbow stop choose Gravity before Varia, then Power, as every
-            // other Samus palette restoration path does.
+            // The drained colouring and the rainbow stop choose Gravity before Varia, then Power, as every
+            // other Samus colour restoration path does.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
             return true;
         }
 
-        if (!RainbowPaletteEnabled)
+        if (!RainbowColouringEnabled)
             return false;
 
         // The colouring shows the glow's current step before counting down the shared timer.
         colours.ShowSuit(SamusShades.HyperBeamSuit(HyperBeamGlowStep));
 
-        if (--CommonPaletteTimer > 0)
+        if (--CommonColourTimer > 0)
             return true;
 
-        CommonPaletteTimer = SpecialPaletteFrame;
+        CommonColourTimer = SpecialColouringFrame;
         HyperBeamGlowStep++;
         if (HyperBeamGlowStep >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
             HyperBeamGlowStep = 0;
@@ -271,7 +271,7 @@ public sealed class SamusDrainedState
 
         // The cue gives the drain Samus's movement for her fall. It therefore takes it from
         // either special owner: an ordinary uncrashed spark retains its boost state as Blue Suit,
-        // while Crystal Flash retains its independent palette/input state as Shinespark Suit.
+        // while Crystal Flash retains its independent colour/input state as Shinespark Suit.
         // Neither old movement behaviour may resume.
         SamusMovementHandOver.To(samus, SamusMovementOwner.Drained);
         Phase = DrainedSamusPhase.Falling;
@@ -365,7 +365,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Equips the Hyper Beam: Charge, Wave and Plasma, the rainbow palette effect, and no charging sound left to resume.
+    /// Equips the Hyper Beam: Charge, Wave and Plasma, the rainbow colour effect, and no charging sound left to resume.
     /// The enemy pass that runs this loads the equipped beams' artwork, as the game does here (#1561).
     /// </summary>
     public void EnableHyperBeam(SamusState samus)

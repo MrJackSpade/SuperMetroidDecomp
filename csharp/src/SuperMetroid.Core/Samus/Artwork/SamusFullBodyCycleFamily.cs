@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Identifies one of the four full-body palette animation families.</summary>
+/// <summary>Identifies one of the four full-body colour animation families.</summary>
 public enum SamusFullBodyCycleFamily
 {
-    /// <summary>Running Speed Booster glow palettes.</summary>
+    /// <summary>Running Speed Booster glow colourings.</summary>
     SpeedBooster,
-    /// <summary>Screw Attack rotation palettes.</summary>
+    /// <summary>Screw Attack rotation colourings.</summary>
     ScrewAttack,
-    /// <summary>Stored-shinespark glow palettes.</summary>
+    /// <summary>Stored-shinespark glow colourings.</summary>
     StoredShine,
-    /// <summary>Active-shinespark flight palettes.</summary>
+    /// <summary>Active-shinespark flight colourings.</summary>
     ActiveShinespark,
 }

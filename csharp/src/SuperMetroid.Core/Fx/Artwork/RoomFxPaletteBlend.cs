@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The palette blend a room effect tints its overlay and the HUD with; <see cref="None"/> clears the blend. Each is named for
+/// The colour blend a room effect tints its overlay and the HUD with; <see cref="None"/> clears the blend. Each is named for
 /// what it tints, the four Maridia waters by their retail colour. Its values are arbitrary (#1415, #1740).
 /// </summary>
 public enum RoomFxPaletteBlend

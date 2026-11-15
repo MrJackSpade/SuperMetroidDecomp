@@ -45,7 +45,7 @@ internal static class ProjectileTrailAnimationDefinitions
         new ProjectileTrailStep.End(),
     ];
 
-    /// <summary>The right ice sparkle, the left sparkle's poses falling on the right stream.</summary>
+    /// <summary>The right ice sparkle, the left sparkle's poses falling on the right side.</summary>
     private static readonly ProjectileTrailStep[] RightIce =
     [
         new ProjectileTrailStep.Pose(1, ProjectileTrailFrame.RightIce0),

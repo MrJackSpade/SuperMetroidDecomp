@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
-/// The caller must first run any nonzero super-special palette flag, just as the
+/// The caller must first run any nonzero super-special colouring flag, just as the
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
-/// colouring to return before this step. All remaining special palettes run earlier and
+/// colouring to return before this step. All remaining special colourings run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
 /// Crystal Flash, and X-ray colors during its first six calls.
 /// </remarks>
@@ -28,9 +28,9 @@ public static class SamusHurtFlashPalette
     /// (#1512) and publishing the exact recovery sound side effects.
     /// </summary>
     /// <param name="colours">Samus's colours, whose suit shade the flash may replace.</param>
-    /// <param name="samus">Owner of the hurt counter, equipment palettes, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
+    /// <param name="samus">Owner of the hurt counter, equipment colours, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
     /// <param name="controllerInput">Current held buttons; X permits the deferred charging-beam sound request.</param>
-    /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
+    /// <returns>An empty step marker; counter, colour, and audio outcomes are applied directly to the supplied state.</returns>
     public static SamusHurtFlashPaletteStepResult Update(
         SamusColours colours,
         SamusState samus,
@@ -57,8 +57,8 @@ public static class SamusHurtFlashPalette
             samus.LiquidPhysics.QueueMovementSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
         }
 
-        // Only calls one through six write colors. Odd calls select the fixed hurt palette;
-        // even calls restore either the intro palette or the equipment-selected suit. Once
+        // Only calls one through six write colors. Odd calls select the fixed hurt colours;
+        // even calls restore either the intro colours or the equipment-selected suit. Once
         // counter seven is reached the existing colours deliberately remain untouched.
         if (counterBefore < 7)
         {

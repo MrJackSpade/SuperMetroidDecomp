@@ -164,7 +164,7 @@ internal sealed class EndingRewardJump
 
     /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-    /// <summary>Creates a jump actor from its catalogued initial position, palette, and animations.</summary>
+    /// <summary>Creates a jump actor from its catalogued initial position, colours, and animations.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);

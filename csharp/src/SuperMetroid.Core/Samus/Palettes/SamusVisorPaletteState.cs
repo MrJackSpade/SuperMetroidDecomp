@@ -35,7 +35,7 @@ public sealed class SamusVisorPaletteState
     /// Advances one update and optionally shows the next shade on Samus's visor.
     /// </summary>
     /// <param name="colours">Samus's shown colours.</param>
-    /// <param name="specialSamusPaletteType">The special palette that owns Samus's colours, if any.</param>
+    /// <param name="specialSamusPaletteType">The special colouring that owns Samus's colours, if any.</param>
     /// <param name="roomVisorAnimation">Whether the room animates the visor (<see cref="RoomFxOverlayState.VisorAnimation"/>).</param>
     public void Update(
         SamusColours colours,

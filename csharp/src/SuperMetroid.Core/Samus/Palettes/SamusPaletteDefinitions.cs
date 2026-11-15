@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Immutable game data shared by Samus palettes.</summary>
+/// <summary>Immutable game data shared by Samus's colourings.</summary>
 /// <remarks>
-/// Palette state machines retain their mutable timers and phase transitions. This catalog
+/// Colouring state machines retain their mutable timers and phase transitions. This catalog
 /// names the colour tables, colour-animation steps, colour ranges, and fixed-color endpoints those
 /// machines consume, so no raw number masquerades as gameplay behavior.
 /// </remarks>
@@ -20,10 +20,10 @@ public static class SamusPaletteDefinitions
         public const int CycleEndShade = 6;
     }
 
-    /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle palettes from.</summary>
+    /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle colourings from.</summary>
     public static class FullBodyCycles
     {
-        /// <summary>Number of full-body Hyper Beam palettes.</summary>
+        /// <summary>Number of full-body Hyper Beam colourings.</summary>
         public const int HyperBeamPaletteCount = 10;
         /// <summary>The steps in each suit's Screw Attack cycle list; the cycle wraps to its first step after the last.</summary>
         public const int ScrewAttackSteps = 6;
@@ -48,10 +48,10 @@ public static class SamusPaletteDefinitions
         public const ColourEffectStart Start = ColourEffectStart.Plain;
     }
 
-    /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>
+    /// <summary>Colour tables consumed by the fatal-damage sequence.</summary>
     public static class Death
     {
-        /// <summary>Number of suited and suitless explosion palette variants.</summary>
+        /// <summary>Number of suited and suitless explosion colourings.</summary>
         public const int PaletteCount = 10;
         /// <summary>Number of shades in the inclusive whiteout ramp.</summary>
         public const int WhiteoutShadeCount = 22;
@@ -68,7 +68,7 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Number of Crystal Flash body steps.</summary>
         public const int BodyStepCount = 10;
-        /// <summary>Number of bubble palettes.</summary>
+        /// <summary>Number of bubble colourings.</summary>
         public const int BubblePaletteCount = 6;
     }
 

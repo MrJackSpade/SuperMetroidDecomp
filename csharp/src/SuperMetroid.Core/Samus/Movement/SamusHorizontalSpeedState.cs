@@ -46,7 +46,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Whether the boost is at its full stage: Speed Booster blocks, boost contact damage, the echoes, the full-boost
-    /// palette and lava cancellation test it.
+    /// colouring and lava cancellation test it.
     /// </summary>
     public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsAtFullStage;
 
@@ -75,7 +75,7 @@ public sealed class SamusHorizontalSpeedState
     public SamusContactDamageIndex ContactDamageIndex { get; set; }
 
     /// <summary>
-    /// Publication of the immediate suit-palette copy performed by
+    /// Publication of the immediate suit-colour copy performed by
     /// cancelling a speed boost. Movement owns the cancellation,
     /// while the runtime owns the colours, so this flag preserves the same-frame handoff
     /// without passing a renderer through every collision and pose step.
@@ -201,7 +201,7 @@ public sealed class SamusHorizontalSpeedState
             if (!HasRunningMomentum)
             {
                 // Starts the running momentum and the boost's colour timer and step.
-                // Palette writes themselves remain renderer work, but their
+                // Colour writes themselves remain renderer work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = 1;
@@ -322,10 +322,10 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Runs the dry-room Speed Booster branch of the Screw Attack and
-    /// speed-boosting palette.
+    /// speed-boosting colouring.
     /// </summary>
-    /// <returns>True when this call copied an authored palette into Samus's colours.</returns>
-    /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
+    /// <returns>True when this call copied authored colours into Samus's colours.</returns>
+    /// <param name="colours">Samus's colours, which the copied colours replace.</param>
     /// <param name="frame">What this update's suit colouring reads of Samus.</param>
     internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame)
     {
@@ -340,10 +340,10 @@ public sealed class SamusHorizontalSpeedState
         if (frame.SuppressActiveSpeedBoosterPalette)
             return paletteCopied;
 
-        // Tests the suit-palette Gravity bit before it asks whether
+        // Tests the suit-colour Gravity bit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
         // return at once when submerged: the current colours, common
-        // timer, and palette-list offset all remain untouched. Gravity Suit bypasses this
+        // timer, and colour-list offset all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
         // though the raw room-FX comparison still says the body is underwater. The caller
         // supplies the raw boundary result so this state owner does not invent a second,
@@ -358,7 +358,7 @@ public sealed class SamusHorizontalSpeedState
             if (frame.AnimationFrame == 0)
             {
                 // Restarts only the colour cycle's step. Frame zero retains
-                // the already loaded normal suit colors; it does not emit a Screw palette.
+                // the already loaded normal suit colors; it does not emit a Screw colouring.
                 CyclePaletteStep = 0;
                 return paletteCopied;
             }
@@ -420,7 +420,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Publishes the immediate suit copies requested by momentum cancellation and
-    /// pose initialization. These precede charge and special-palette handling, which may
+    /// pose initialization. These precede charge and special-colouring handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
@@ -435,7 +435,7 @@ public sealed class SamusHorizontalSpeedState
         return true;
     }
 
-    /// <summary>Copies one of the six authored Screw Attack palettes and wraps its offset.</summary>
+    /// <summary>Copies one of the six authored Screw Attack colourings and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
         SamusSuit suit)
@@ -444,7 +444,7 @@ public sealed class SamusHorizontalSpeedState
             suit, CyclePaletteStep)));
 
         // Steps 0 through 5 form the six-frame cycle. The comparison uses the current
-        // step, so the last wraps to zero only after its palette has been copied.
+        // step, so the last wraps to zero only after its colours have been copied.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
             : CyclePaletteStep + 1;

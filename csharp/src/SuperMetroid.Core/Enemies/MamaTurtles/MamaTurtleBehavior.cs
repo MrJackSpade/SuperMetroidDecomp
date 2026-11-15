@@ -233,7 +233,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Asleep;
     }
 
-    /// <summary>Runs the sleeping shell's height and carry step.</summary>
+    /// <summary>Runs the dormant shell's height and carry step.</summary>
     internal static void RunMamaTurtleAsleep(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -253,7 +253,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The first 24 contour entries describe Samus to the left; the second 24 describe
-        // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
+        // Samus to the right. This asymmetry is visible around the dormant shell's lip.
         int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
@@ -579,7 +579,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.Y));
     }
 
-    /// <summary>Animation cue: crawl across the sleeping parent contour.</summary>
+    /// <summary>Animation cue: crawl across the dormant parent contour.</summary>
     private void ProcessBabyTurtleCrawlAnimation(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,

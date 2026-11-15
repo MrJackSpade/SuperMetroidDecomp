@@ -47,7 +47,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// timer, sprite or state handler. #1853 adds, outside hardware owners, the original's trigonometry tables: an angle
 /// counted in table units, angles or steps, and a sine, cosine or trigonometry table. #1855 widens the routine handlers,
 /// read in every type, to a handler named by the word before it, a handler pair and a dispatch point. #1856 adds, outside
-/// hardware owners, the original's numbering of Samus's movement types, modes, collision results and statuses.
+/// hardware owners, the original's numbering of Samus's movement types, modes, collision results and statuses. #1892
+/// adds, outside hardware owners, the palette in any word form. #1893 adds, outside hardware owners, the original's
+/// animation interpreter's sleep, stream and bytecode.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -560,6 +562,29 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b" + NumberWordsOnly + @"-records?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The palette in prose (#1892), outside hardware owners, in any word form and outside markup: a palette, palettes, a
+    /// palette's colours, a palette-cycle glow. The original coloured its pictures from palette rows and animated colours by
+    /// rewriting them; Core shows pictures in their shades, owns colours and colour effects, and fades or steps them. A type
+    /// named for a palette is cited by <c>see cref</c>, whose markup is not read, and a run-on symbol
+    /// (<c>palette_change_num</c>) or stored value (<c>palette0800</c>) is another rule's.
+    /// </summary>
+    private static readonly Regex PaletteProse = new(@"\bpalettes?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's animation interpreter in prose (#1893), outside hardware owners and outside markup: its sleep in any
+    /// word form (a script's sleep, a sleeping animation, sleeps on its frame, asleep, slept), its bytecode, and its
+    /// streams (the head stream, a cue stream, a delay stream, the authored stream of ovals). Core's animations hold their
+    /// last frame, rest or are hidden, and its cues and frames say what they do. English stays legal: an event, audio,
+    /// sound, file, data, level, random, input, output or memory stream, and the verb of streaming in, into, through,
+    /// from or out.
+    /// </summary>
+    private static readonly Regex InterpreterRestProse = new(
+        @"\b(?:a?sleep\w*|slept)\b|\bbyte-?codes?\b" +
+        @"|(?<!\b(?:event|audio|sound|file|data|level|random|input|output|memory)[-\s]+)\bstream(?:s|'s)?\b" +
+        @"(?!\s+(?:in|into|through|from|out)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>The numbers a game state, station or queue is cited by: digits, or a word from zero through ninety.</summary>
     private const string NumberWord = @"(?:[0-9]+|" + NumberWordsOnly + ")";
 
@@ -741,6 +766,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : MachineTableProse.Match(text) is { Success: true } machineTable ? machineTable.Value
             : MachineEntryProse.Match(text) is { Success: true } machineEntry ? machineEntry.Value
             : MovementNumberProse.Match(text) is { Success: true } movementNumber ? movementNumber.Value
+            : PaletteProse.Match(Markup.Replace(text, " ")) is { Success: true } palette ? palette.Value
+            : InterpreterRestProse.Match(Markup.Replace(text, " ")) is { Success: true } rest ? rest.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

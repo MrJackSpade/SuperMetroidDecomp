@@ -3,7 +3,7 @@
 /// <summary>The save-pod coroutine's handshake between resident room-object animation and frontend messages.</summary>
 public enum SaveStationPhase
 {
-    /// <summary>The initial pod draw sleeps until an eligible floor collision; a room-entry lockout can still prevent another request.</summary>
+    /// <summary>The initial pod draw rests until an eligible floor collision; a room-entry lockout can still prevent another request.</summary>
     Idle,
     /// <summary>A floor trigger has published the YES/NO request and waits for the frontend's confirmation result.</summary>
     AwaitingConfirmation,

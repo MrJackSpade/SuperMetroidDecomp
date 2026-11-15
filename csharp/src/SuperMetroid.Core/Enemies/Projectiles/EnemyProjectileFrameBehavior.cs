@@ -81,7 +81,7 @@ internal enum EnemyProjectileFrameBehavior
     /// <summary>Flies Draygon's goop, sticks it to Samus when she is near, and removes it outside the room.</summary>
     DraygonGoopFlight,
 
-    /// <summary>Drifts a spore along its authored movement stream.</summary>
+    /// <summary>Drifts a spore along its authored path.</summary>
     SporeDrift,
 
     /// <summary>Releases spores from the ceiling spawner on a random cadence while Spore Spawn is closed.</summary>

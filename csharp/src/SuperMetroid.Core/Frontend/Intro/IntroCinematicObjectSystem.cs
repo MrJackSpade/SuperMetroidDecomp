@@ -31,7 +31,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The bound narration page's characters.</summary>
     private IntroNarrationCharacter[] NarrationAnimation => narrationAnimation ??
         throw new InvalidOperationException("No narration page is bound.");
-    /// <summary>Page whose glyph stream and Japanese subtitle markers are active.</summary>
+    /// <summary>Page whose glyphs and Japanese subtitle markers are active.</summary>
     private IntroNarrationPageId? narrationPage;
     /// <summary>Next semantic glyph in the active narration page.</summary>
     private int narrationCharacterIndex;
@@ -117,8 +117,8 @@ internal sealed class IntroCinematicObjectSystem
     public void PlaceCaretOffScreen() => caretHidden = true;
 
     /// <summary>
-    /// Starts the letter-by-letter narration stream. The eye-blink
-    /// stream and the portrait-border sprite are already active at page setup.
+    /// Starts the letter-by-letter narration. The eye-blink
+    /// animation and the portrait-border sprite are already active at page setup.
     /// </summary>
     public void StartEnglishPageOne()
     {

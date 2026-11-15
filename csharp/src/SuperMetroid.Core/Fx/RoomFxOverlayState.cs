@@ -48,7 +48,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(OverlayEffect);
 
     /// <summary>
-    /// The palette blend the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
+    /// The colour blend the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
     /// has loaded one and the colours stay the tileset's.
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
@@ -212,7 +212,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Selects the door's room effect and initializes the liquid and palette state shared by room effects and room objects.
+    /// Selects the door's room effect and initializes the liquid and colour state shared by room effects and room objects.
     /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
     /// effect without one (<see cref="FxOverlayPlane"/>).
     /// </summary>
@@ -497,7 +497,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Lays the shade of the palette blend the last effect selected over the room effect's pictures and over the HUD's
+    /// Lays the shade of the colour blend the last effect selected over the room effect's pictures and over the HUD's
     /// (#1512), each group pre-coloured in it on its own sheet (#1731).
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)

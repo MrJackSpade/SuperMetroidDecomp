@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
-/// The colours a Ceres cinematic actor's palette-inheriting parts draw in (#1512), named for what the Ceres flight and the
+/// The colours a Ceres cinematic actor's recolourable parts draw in (#1512), named for what the Ceres flight and the
 /// Ceres destruction show in them. Which of the flight's colours each one is, the import alone knows.
 /// </summary>
 public enum CeresSpriteColouring

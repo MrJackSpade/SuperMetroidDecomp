@@ -9,8 +9,8 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss palettes, room-FX
-/// palette blends and Samus palette inputs. The frontend's complete presentation catalog supplies it.
+/// The installed presentation content that gameplay reads: area maps, HUD and escape artwork, boss colours, room-FX
+/// colour blends and Samus colour inputs. The frontend's complete presentation catalog supplies it.
 /// </summary>
 public interface IGameplayPresentationContent : IAreaMapSource
 {
@@ -32,7 +32,7 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>The Ceres haze's installed tints.</summary>
     CeresHazeTints CeresHaze { get; }
 
-    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>
+    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus colors.</summary>
     InstalledPowerBombGlowColors PowerBombGlowColors { get; }
 
 }

@@ -173,7 +173,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // The mouth actor owns the final point. The four projectiles own root, quarter, half,
         // and three-quarter points of the tongue. The game writes coordinates even
         // though their frame behaviours are empty; the projectile pass advances only their one-frame
-        // map selection and permanent sleep step.
+        // map selection and permanent rest step.
         PositionYappingMawBodyProjectile(state, 0, state.Origin);
         PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
         PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));

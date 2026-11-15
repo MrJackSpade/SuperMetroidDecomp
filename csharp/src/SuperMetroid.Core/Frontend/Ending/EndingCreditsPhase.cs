@@ -13,7 +13,7 @@ internal enum EndingCreditsPhase
     SideCloudEscape,
     /// <summary>Blanks the side-cloud escape before loading the top-and-bottom-cloud escape.</summary>
     FadeOutSideCloudEscape,
-    /// <summary>Reveals the top-and-bottom-cloud escape and its grey-cloud palette effect.</summary>
+    /// <summary>Reveals the top-and-bottom-cloud escape and its grey-cloud colour effect.</summary>
     FadeInTopAndBottomCloudEscape,
     /// <summary>Continues the top-and-bottom-cloud escape's zoom toward the planet explosion.</summary>
     TopAndBottomCloudEscape,
@@ -21,7 +21,7 @@ internal enum EndingCreditsPhase
     FadeOutTopAndBottomCloudEscape,
     /// <summary>Reveals the explosion while object and background colors crossfade.</summary>
     FadeInZebesExplosion,
-    /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>
+    /// <summary>Completes the explosion colour interpolation after brightness reaches full.</summary>
     ZebesExplosionCrossfade,
     /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
@@ -47,13 +47,13 @@ internal enum EndingCreditsPhase
     PostCreditsBlank,
     /// <summary>Reveals the waiting scene at the slower four-call brightness cadence.</summary>
     PostCreditsFadeIn,
-    /// <summary>Fades the shooting-star backdrop toward the waiting palette.</summary>
+    /// <summary>Fades the shooting-star backdrop toward the waiting colours.</summary>
     PostCreditsShootingStars,
     /// <summary>Holds the waiting backdrop before installing the result panel.</summary>
     PostCreditsWaitingBackdrop,
     /// <summary>Displays the result panel before revealing the chosen Samus reward.</summary>
     PostCreditsWaitingSamus,
-    /// <summary>Advances the reward palette and sprite reveal in two timed halves.</summary>
+    /// <summary>Advances the reward colours and sprite reveal in two timed halves.</summary>
     PostCreditsReward,
     /// <summary>Shows the copyright panel while hidden reward sprites continue stepping.</summary>
     PostCreditsCopyright,
@@ -61,7 +61,7 @@ internal enum EndingCreditsPhase
     PostCreditsGesture,
     /// <summary>Runs the reward jump, which reveals the reward icon as Samus falls back, until the shot.</summary>
     PostCreditsJump,
-    /// <summary>Runs the post-shot palette and picture replacements before the white flash.</summary>
+    /// <summary>Runs the post-shot colour and picture replacements before the white flash.</summary>
     PostCreditsShot,
     /// <summary>Fades fixed white while switching to the two-screen final text map.</summary>
     PostCreditsWhiteFlash,

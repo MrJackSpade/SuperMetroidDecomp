@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Names the shade of each palette blend a room effect selects (#1512).</summary>
+/// <summary>Names the shade of each colour blend a room effect selects (#1512).</summary>
 public static class RoomFxBlendShading
 {
     /// <summary>The shade the effect overlay pictures show under <paramref name="blend"/>.</summary>
@@ -18,6 +18,6 @@ public static class RoomFxBlendShading
         RoomFxPaletteBlend.TealMaridiaWater => RoomFxBlendShades.TealMaridiaWater,
         RoomFxPaletteBlend.GreenMaridiaWater => RoomFxBlendShades.GreenMaridiaWater,
         RoomFxPaletteBlend.PurpleMaridiaWater => RoomFxBlendShades.PurpleMaridiaWater,
-        _ => throw new ArgumentOutOfRangeException(nameof(blend), blend, "Undefined room-FX palette blend."),
+        _ => throw new ArgumentOutOfRangeException(nameof(blend), blend, "Undefined room-FX colour blend."),
     };
 }

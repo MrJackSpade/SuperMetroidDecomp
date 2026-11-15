@@ -770,7 +770,7 @@ internal sealed class SamusPoseTransitionPhase
                           SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) ||
                      SamusPoseMetadata.IsLandingToNormalJumpTransition(source, target):
                 // All the landing poses expose the same
-                // standing input table while their brief streams are active.
+                // standing input table while their brief transitions are active.
                 // A fresh Jump edge can therefore preserve any authored
                 // normal-jump aim target, even from the firing landings
                 // before the turn-transition fallback.

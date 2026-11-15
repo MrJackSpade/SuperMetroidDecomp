@@ -7,7 +7,7 @@ public enum DoorTransitionPhase
     Inactive,
     /// <summary>Wait for all three sound-effect queues to drain.</summary>
     WaitForSoundQueues,
-    /// <summary>Fade the source-room palette while retaining required HUD colors.</summary>
+    /// <summary>Fade the source-room colours while retaining required HUD colors.</summary>
     FadeOutSourcePalette,
     /// <summary>Stop the room's per-line effects and give the screen to the door transition's display.</summary>
     BeginDoorDisplay,
@@ -33,7 +33,7 @@ public enum DoorTransitionPhase
     FinishDoorOpeningScroll,
     /// <summary>Build the first destination actor frame before applying a fade step.</summary>
     DrawFirstDestinationFrame,
-    /// <summary>Run destination actors while fading the loaded room palette in.</summary>
+    /// <summary>Run destination actors while fading the loaded room colours in.</summary>
     FadeInDestinationPalette,
     /// <summary>The transition is finished and ordinary gameplay may resume.</summary>
     Complete,

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class SamusProjectileOverreads
 {
     /// <summary>Keeps every decoded service the projectiles consult.</summary>
-    /// <param name="spaceTimeOverwrite">What Spacetime's palette copy overwrites in saved progression.</param>
+    /// <param name="spaceTimeOverwrite">What Spacetime's colour copy overwrites in saved progression.</param>
     /// <param name="chainsawFuseShift">Where the Chainsaw beam's animation lands when its fuse speeds up.</param>
     /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
     /// <param name="unauthoredBeamFiring">The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</param>
@@ -31,7 +31,7 @@ public sealed class SamusProjectileOverreads
         DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
     }
 
-    /// <summary>What Spacetime's palette copy overwrites in saved progression.</summary>
+    /// <summary>What Spacetime's colour copy overwrites in saved progression.</summary>
     internal SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> SpaceTimeOverwrite { get; }
 
     /// <summary>Where the Chainsaw beam's animation lands when its borrowed Power Bomb fuse speeds up.</summary>

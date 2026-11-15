@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Room graphics load a useful static palette, but many rooms immediately animate part of it with the effects the
+/// Room graphics load useful static colours, but many rooms immediately animate some of them with the effects the
 /// active FX record starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
 /// </para>
 /// <para>

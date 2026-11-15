@@ -37,7 +37,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombRadius RadiusSpeed { get; private set; }
 
-    /// <summary>The next authored window shape a shape phase consumes, or null when no shape stream is active.</summary>
+    /// <summary>The next authored window shape a shape phase consumes, or null when no run of shapes is active.</summary>
     public PowerBombShapeCursor? Shape { get; private set; }
 
     /// <summary>
@@ -45,7 +45,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombShapeCursor? RenderedShape { get; private set; }
 
-    /// <summary>Current semantic phase of the explosion's sleeping animation.</summary>
+    /// <summary>Current semantic phase of the explosion's resting animation.</summary>
     public PowerBombExplosionPhase Phase { get; private set; }
 
     /// <summary>
@@ -158,7 +158,7 @@ public sealed class SamusPowerBombExplosionState
             return false;
 
         // Every frame behaviour first builds this frame's window and only then
-        // mutates its radius/shape position or advances the sleeping animation. Record
+        // mutates its radius/shape position or advances the resting animation. Record
         // that input phase here so post-logic desktop composition sees the generated
         // frame rather than the state prepared for the following one.
         RenderedPhase = Phase;
@@ -254,13 +254,13 @@ public sealed class SamusPowerBombExplosionState
 
     /// <summary>
     /// Consumes the cursor's shape: returns the shape this frame's window is built from and moves the cursor to the
-    /// next shape of its stream.
+    /// next shape of its run.
     /// </summary>
-    /// <param name="finishedShapes">Whether the consumed shape was the stream's last.</param>
+    /// <param name="finishedShapes">Whether the consumed shape was its run's last.</param>
     private PowerBombShapeCursor ConsumeShape(out bool finishedShapes)
     {
         PowerBombShapeCursor shape = Shape ?? throw new InvalidOperationException(
-            $"Power Bomb phase {Phase} consumes a window shape with no shape stream active.");
+            $"Power Bomb phase {Phase} consumes a window shape with no run of shapes active.");
         PowerBombShapeCursor next = shape with { Index = shape.Index + 1 };
         finishedShapes = next.Index == PowerBombShapeCursor.CountOf(shape.Stream);
         Shape = next;
@@ -332,7 +332,7 @@ public sealed class SamusPowerBombExplosionState
         }
 
         // The next step selects the first of seventeen expanding
-        // white shape tables, then installs the white explosion and sleeps.
+        // white shape tables, then installs the white explosion and rests.
         Shape = new PowerBombShapeCursor(PowerBombShapeStream.White, 0);
         RenderedShape = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;

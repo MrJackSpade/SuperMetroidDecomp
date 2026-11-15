@@ -7,7 +7,7 @@ internal static class EndingExplosionFadeDefinitions
     public const int InitialCountdown = 63;
     /// <summary>The explosion widens the turning floor's zoom by four 256ths of a floor pixel per screen pixel each call.</summary>
     public const int ZoomStep = 4;
-    /// <summary>There are thirty-two palette steps over sixty-four calls.</summary>
+    /// <summary>There are thirty-two colour steps over sixty-four calls.</summary>
     public const int Steps = 32;
     /// <summary>
     /// The updates the explosion holds after its crossfade, with the escape backdrop off, before its finale begins; the

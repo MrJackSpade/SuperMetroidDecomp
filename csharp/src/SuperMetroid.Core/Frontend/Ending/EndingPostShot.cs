@@ -17,7 +17,7 @@ internal sealed class EndingPostShot
     /// <summary>Signals the caller to hand control to the white-flash phase after the hold expires.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
-    /// <summary>Advances the rotation, both palette fades and the white-flash handoff by one update.</summary>
+    /// <summary>Advances the rotation, both colour fades and the white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);

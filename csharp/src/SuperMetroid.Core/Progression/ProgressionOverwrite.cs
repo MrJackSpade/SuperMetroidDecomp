@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// What the Spacetime Beam's runaway palette copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
+/// What the Spacetime Beam's runaway colour copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
 /// Zebetite count (#1527), which area bosses, item locations, doors, used stations and acquired area maps it turns on or off, and the loading
 /// state it leaves the game to resume in. The copy runs through progress in a fixed order (events, bosses, orbs, items,
 /// doors, stations, maps, loading state), so it decides everything before the point where it stops and nothing after.

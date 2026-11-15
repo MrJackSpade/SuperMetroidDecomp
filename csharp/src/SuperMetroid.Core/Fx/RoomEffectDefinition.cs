@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// One room effect a room shows (#1415, #1526, #1695, #1740): its kind, how its overlay blends, the visor's animation, the
 /// liquid it fills the room with and how that liquid's level moves, the colour effects and block animations it starts, and
-/// the palette blend that tints its overlay.
+/// the colour blend that tints its overlay.
 /// </summary>
 /// <remarks>Its room's effect selection (<see cref="RoomFxSelection"/>) names the entry door that selects it, or holds it as its default (#1546).
 /// The liquid's levels are room lines from the room's top, so a rising liquid's level falls.</remarks>
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="Liquid">The liquid the effect fills the room with, or null for an effect with none.</param>
 /// <param name="PaletteEffects">The colour effects the room effect starts, in the order they start.</param>
 /// <param name="BlockAnimations">The block animations the room effect starts, in the order they start.</param>
-/// <param name="PaletteBlend">The palette blend that tints the effect's overlay and the HUD.</param>
+/// <param name="PaletteBlend">The colour blend that tints the effect's overlay and the HUD.</param>
 public sealed record RoomEffectDefinition(
     int? LiquidStartLevel,
     int? LiquidTargetLevel,

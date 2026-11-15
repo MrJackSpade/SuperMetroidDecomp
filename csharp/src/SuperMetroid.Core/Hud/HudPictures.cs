@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
-/// The installed pictures of the HUD's images under one palette (#1466): the frames of one sheet the import pictured the
+/// The installed pictures of the HUD's images in one colouring (#1466): the frames of one sheet the import pictured the
 /// HUD's images in, looked up by each image's name once.
 /// </summary>
 /// <param name="sheet">The sheet picturing the HUD's images.</param>
@@ -25,7 +25,7 @@ public sealed class HudPictures(SpriteSheet sheet)
         return picture;
     }
 
-    /// <summary><paramref name="hud"/> as the backend draws it under this sheet's palette (#1466).</summary>
+    /// <summary><paramref name="hud"/> as the backend draws it in this sheet's colouring (#1466).</summary>
     /// <param name="hud">The HUD shown.</param>
     /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null for gameplay's HUD, which shows its frame's HUD shading.</param>
     public PicturedHud Pictured(ShownHud hud, PictureShading? shading = null) => Ensure.NotNull(hud).Pictured(PictureOf, shading);

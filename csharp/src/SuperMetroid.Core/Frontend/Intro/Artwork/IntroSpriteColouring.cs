@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The colours an opening actor's palette-inheriting parts draw in (#1512), named for what the opening shows in them.
+/// The colours an opening actor's recolourable parts draw in (#1512), named for what the opening shows in them.
 /// Which of the opening's colours each one is, the import alone knows.
 /// </summary>
 public enum IntroSpriteColouring

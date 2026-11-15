@@ -97,7 +97,7 @@ internal static class SamusAerialPoseTransitions
         if (!beganShinespark)
             InitializeOrdinaryAerialAcceleration(samus);
 
-        // The pose-metadata refresh reloads the ordinary suit palette whenever the previous movement
+        // The pose-metadata refresh reloads the ordinary suit colours whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
@@ -303,8 +303,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
-        // immediately reloads the normal suit palette before the wall jump starts. The desktop
-        // runtime performs palette writes later in the frame, so preserve that phase split.
+        // immediately reloads the normal suit colours before the wall jump starts. The desktop
+        // runtime performs colour writes later in the frame, so preserve that phase split.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
@@ -759,7 +759,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
     /// first pressed; it waits until the animation's pose-transition cue installs the neutral,
     /// aimed-up or diagonally-up normal jump.
-    /// That delay is visible both to animation and to the 180-frame palette countdown.
+    /// That delay is visible both to animation and to the 180-frame colouring countdown.
     /// </remarks>
     internal static bool TryBeginShinesparkWindup(SamusState samus, 
         SamusPoseId targetPose,
@@ -813,7 +813,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// Applies the verified ordinary-input jump transitions selected from the game's
     /// table, including the jump transition's jump start. Only explicitly verified
     /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
-    /// interrupting any same-facing landing stream with a fresh Jump edge.
+    /// interrupting any same-facing landing with a fresh Jump edge.
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(SamusState samus, 
         SamusPoseId targetPose,

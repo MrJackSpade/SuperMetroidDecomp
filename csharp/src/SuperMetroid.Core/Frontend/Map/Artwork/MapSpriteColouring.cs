@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
-/// The colours a map sprite's palette-inheriting parts draw in on the pause and file-select maps (#1512): what the map
+/// The colours a map sprite's recolourable parts draw in on the pause and file-select maps (#1512): what the map
 /// shows each sprite as. Which of the screen's colours each one is, the import alone knows.
 /// </summary>
 public enum MapSpriteColouring

@@ -98,13 +98,13 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     /// sheets by the import.
     /// </summary>
     public RgbColor TitleBackdrop { get; }
-    /// <summary>Title-screen gradient presentation, separate from its static palette and pictures.</summary>
+    /// <summary>Title-screen gradient presentation, separate from its static colours and pictures.</summary>
     public TitleGradientPresentation TitleGradient { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowBeamColours MotherBrainRainbowBeamColours { get; }
     /// <summary>The Ceres haze's installed tints.</summary>
     public CeresHazeTints CeresHaze { get; }
-    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>
+    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus colors.</summary>
     public InstalledPowerBombGlowColors PowerBombGlowColors { get; }
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>

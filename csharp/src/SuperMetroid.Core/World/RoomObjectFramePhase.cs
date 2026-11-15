@@ -112,7 +112,7 @@ internal sealed class RoomObjectFramePhase
             // Item room objects publish acquisition only after their trigger and
             // step. Apply their colour consequences at that same seam:
             // beam pickups show the newly equipped combination's colours, and
-            // suit changes defer their visible palette reveal until stage
+            // suit changes defer their visible colour reveal until stage
             // three after the message. Resource tanks and other equipment bits are
             // consumed directly by the HUD/movement owners.
             foreach (CollectiblePickupEvent pickup in roomObjects.CollectibleObjects.CollectiblePickupEvents)

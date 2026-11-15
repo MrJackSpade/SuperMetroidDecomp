@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// Definitions shared by the Norfair palette animator and Samus-in-heat owner.
+/// Definitions shared by the Norfair colour animator and Samus-in-heat owner.
 /// </summary>
 public static class ColourEffectHeatData
 {

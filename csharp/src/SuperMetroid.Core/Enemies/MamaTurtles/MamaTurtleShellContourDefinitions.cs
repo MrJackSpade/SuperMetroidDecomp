@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// Compiled physical contour of Mama Turtle's sleeping shell. The first half describes
+/// Compiled physical contour of Mama Turtle's dormant shell. The first half describes
 /// actors left of the parent origin; the second half describes actors to its right.
 /// </summary>
 internal static class MamaTurtleShellContourDefinitions

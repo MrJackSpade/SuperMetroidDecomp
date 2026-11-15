@@ -69,7 +69,7 @@ internal sealed class StationObjects
     public void LockSaveStationForCurrentRoomEntry() => SaveStationLockedOut = true;
 
     /// <summary>
-    /// Resumes the sleeping save-station room object after the save message returns its YES/NO result.
+    /// Resumes the resting save-station room object after the save message returns its YES/NO result.
     /// The accepted route centres Samus, queues the saving sound and draws the first
     /// animation frame within the same room-object pass. The declined route still installs the
     /// once-per-room-entry lockout. Returns whether the station is saving.

@@ -44,7 +44,7 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>The drawn shade of the colouring the current pose's palette-inheriting parts draw in (#1512).</summary>
+    /// <summary>The drawn shade of the colouring the current pose's recolourable parts draw in (#1512).</summary>
     public PictureShade Colouring { get; private set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>

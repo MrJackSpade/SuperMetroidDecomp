@@ -66,7 +66,7 @@ internal sealed class DoorTransitionState
         Phase is DoorTransitionPhase.LoadDestinationRoom or DoorTransitionPhase.WaitForDoorOpeningScroll;
 
     /// <summary>Captures the pending door and starts the ordinary-room transition sequence.</summary>
-    /// <param name="runtime">The runtime whose pending door, player, palette, and enemy state are prepared.</param>
+    /// <param name="runtime">The runtime whose pending door, player, colour, and enemy state are prepared.</param>
     public void Begin(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
@@ -136,7 +136,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.FadeOutSourcePalette:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                // Each palette step is one update, with its own effects and random draw.
+                // Each colour step is one update, with its own effects and random draw.
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
                 if (FadeSteps.Step())
                 {
@@ -212,7 +212,7 @@ internal sealed class DoorTransitionState
                 runtime.DoorFade.WriteSamusColours(runtime.Player.Colours.Beams);
                 runtime.EffectPhaseOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
-                // elevator AI stays frozen through the final palette fade. The destination stays dark until its fade in
+                // elevator AI stays frozen through the final colour fade. The destination stays dark until its fade in
                 // takes its first step.
                 runtime.RoomLoader.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("The transition's door was not captured."),
@@ -275,7 +275,7 @@ internal sealed class DoorTransitionState
                 {
                     Phase = DoorTransitionPhase.FinishDoorOpeningScroll;
                     // The destination's music track is selected here, before the final
-                    // Samus nudge and palette fade, not during room creation.
+                    // Samus nudge and colour fade, not during room creation.
                     if (!runtime.AttractDemo.IsAttractDemo)
                     {
                         RoomStateSettings state = runtime.Room.ActiveRoom?.State

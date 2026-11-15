@@ -85,7 +85,7 @@ public sealed class SamusDraygonGrabbedState
         IsActive = true;
         MovementTakenOver = false;
         _escapePresses.ClearEscapePresses();
-        // The grab takes Samus's movement and keeps her still, but leaves the Flash palette and its shared
+        // The grab takes Samus's movement and keeps her still, but leaves the Flash colouring and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
         PreviousDpadInput = 0;
@@ -186,7 +186,7 @@ public sealed class SamusDraygonGrabbedState
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Returning her movement to her
-        // pose interrupts a spark without resetting its independent boost/palette.
+        // pose interrupts a spark without resetting its independent boost/colouring.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.DraygonHold);
 
         // Release clears pending input transitions, so commit here rather than

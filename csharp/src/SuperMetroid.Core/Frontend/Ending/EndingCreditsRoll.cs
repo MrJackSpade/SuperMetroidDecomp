@@ -15,9 +15,9 @@ internal sealed class EndingCreditsRoll
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -75,13 +75,13 @@ internal sealed class EndingCreditsRoll
         _stage.Phase = EndingCreditsPhase.PostCreditsCopyright;
     }
 
-    /// <summary>Fades the post-credits waiting backdrop toward its authored palette.</summary>
+    /// <summary>Fades the post-credits waiting backdrop toward its authored colours.</summary>
     internal void FadeWaitingBackdrop(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
     /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
     private int rewardFadeStep;
 
-    /// <summary>Crossfades waiting colors into the selected non-armored reward palette.</summary>
+    /// <summary>Crossfades waiting colors into the selected non-armored reward colours.</summary>
     internal void ShowRewardFade()
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
@@ -101,7 +101,7 @@ internal sealed class EndingCreditsRoll
     internal EndingLogo EndingLogo => _artwork.CurrentEndingLogo ??
         throw new InvalidOperationException("The ending logo is not running.");
 
-    /// <summary>Restores the shooting palette, clears the copyright, puts the text back at the top and begins the white transition.</summary>
+    /// <summary>Restores the shooting colours, clears the copyright, puts the text back at the top and begins the white transition.</summary>
     internal void BeginPostCreditsWhiteFlash()
     {
         CurrentPostShot = null;
@@ -144,9 +144,9 @@ internal sealed class EndingCreditsRoll
     /// <summary>Whether the reward copyright is showing.</summary>
     internal bool RewardCopyrightShown { get; private set; }
 
-    /// <summary>Starts the reward palette from its first step.</summary>
+    /// <summary>Starts the reward colours from its first step.</summary>
     internal void ResetRewardFade() => rewardFadeStep = 0;
 
-    /// <summary>Moves the reward palette to its next step.</summary>
+    /// <summary>Moves the reward colours to its next step.</summary>
     internal void AdvanceRewardFade() => rewardFadeStep++;
 }

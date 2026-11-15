@@ -129,7 +129,7 @@ internal sealed class SamusFramePhases
         else if (_player.LastGrappleMovement is { Phase: GrapplePhase.Inactive })
         {
             // Cancellation, drop, wall-jump and swing-release tails all
-            // reload the equipped beam palette before returning to inactive.
+            // reload the equipped beam colours before returning to inactive.
             _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
@@ -742,7 +742,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The special movement type also has a normal movement-table entry.
         // It only clears the momentum-transition selector. This path is reachable
         // when the hit's expiry ends a freshly started shinespark
-        // while retaining its shinespark windup body and palette (Shinespark Suit).
+        // while retaining its shinespark windup body and colouring (Shinespark Suit).
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Special)
             return;
         RunPoseMovement(samus, room.RoomObjects, room);
@@ -1374,7 +1374,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// Advances the saved-game appearance owner. The ordinary Samus
-    /// animation and palette steps have already run earlier in this frame;
+    /// animation and colour steps have already run earlier in this frame;
     /// this tail owns only the exact 360-call fanfare lifetime and the restoration of her normal control.
     /// </summary>
     internal void StepSamusLoadAppearance(RoomScope room)

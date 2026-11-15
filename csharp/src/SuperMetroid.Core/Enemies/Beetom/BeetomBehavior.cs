@@ -83,7 +83,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousController1Input = controllerInput;
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
-        // a room. This is observable game behavior, not a per-actor random stream.
+        // a room. This is observable game behavior, not a per-actor random sequence.
         Action<int> setRandomNumber = _room.Random.Seed;
         setRandomNumber(23);
 

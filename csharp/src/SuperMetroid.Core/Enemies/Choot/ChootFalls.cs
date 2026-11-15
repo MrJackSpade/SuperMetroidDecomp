@@ -28,13 +28,13 @@ internal static class ChootFalls
         if ((uint)sourceFrame > (uint)path.Length)
         {
             throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} exceeds stream {fallingPath}.");
+                $"Choot falling-pattern frame {frameIndex} lies past falling path {fallingPath}.");
         }
 
         return path[sourceFrame];
     }
 
-    /// <summary>Maps a slow-path physical frame back to the normal stream, repeating the two authored plateau samples.</summary>
+    /// <summary>Maps a slow-path physical frame back to the normal path, repeating the two authored plateau samples.</summary>
     private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)
     {
         if (frameIndex < 0)

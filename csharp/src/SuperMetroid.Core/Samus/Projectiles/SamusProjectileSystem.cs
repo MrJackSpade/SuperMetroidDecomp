@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 public sealed class SamusProjectileSystem
 {
-    /// <summary>Tracks held charge, flare components, and charge palette state across room transitions.</summary>
+    /// <summary>Tracks held charge, flare components, and charge colour state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
 
     /// <summary>Holds the five ordinary projectile places and the shot count.</summary>
@@ -92,7 +92,7 @@ public sealed class SamusProjectileSystem
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 
     /// <summary>Creates one room's five projectile places, its trails and the owners that run them.</summary>
-    /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
+    /// <param name="charge">The held beam charge, flare and charge colouring, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
     /// <param name="muzzleCarry">
     /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
@@ -179,7 +179,7 @@ public sealed class SamusProjectileSystem
                 colours.ShowBeams(SamusShades.Beam(selection));
                 break;
             case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no translated palette.");
+                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no colouring.");
             default:
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
         }
@@ -187,7 +187,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Runs the beam charge colours against the
-    /// modeled Samus palette.
+    /// modeled Samus colours.
     /// </summary>
     /// <remarks>
     /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes
@@ -211,7 +211,7 @@ public sealed class SamusProjectileSystem
         ChargedShotGlow glow = Charge.ChargedShotGlow;
         if (glow.Kind == ChargedShotGlowKind.None)
         {
-            // The charge palette admits the continuously cycling charge palette only while
+            // The charge colouring admits the continuously cycling charge colours only while
             // grapple is inactive and the charge, a count that never passes its 120-update clamp or the Hyper Beam's
             // flare, has reached 60.
             bool chargePaletteActive =
@@ -223,7 +223,7 @@ public sealed class SamusProjectileSystem
                 // Each suit's list holds a shade for each of the bounded charge steps.
                 if (!SamusChargePalettes.IsCompiledChargeStep(Charge.ChargePaletteStep))
                     throw new InvalidDataException(
-                        $"Charge palette step {Charge.ChargePaletteStep} is not compiled.");
+                        $"Charge colour step {Charge.ChargePaletteStep} is not compiled.");
                 colours.ShowSuit(SamusShades.Charge(new SamusChargePalette(
                     pseudoScrew ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
                     samus.EquippedItems.ShownSuit(), Charge.ChargePaletteStep)));
@@ -238,7 +238,7 @@ public sealed class SamusProjectileSystem
                 return LastBeamChargePaletteStep;
             }
 
-            // The charge palette resets the sequence whenever charge is below threshold or grapple
+            // The charge colouring resets the sequence whenever charge is below threshold or grapple
             // beam is in use. This guarantees the next eligible call starts at
             // the first charge colour step rather than resuming a partially completed cycle.
             Charge.ChargePaletteStep = 0;
@@ -255,7 +255,7 @@ public sealed class SamusProjectileSystem
         {
             // The flash counts its step down before its zero test. Starting at four therefore produces
             // white on steps 3, 2, and 1. Step 1 -> 0 takes the restore branch, causing
-            // the outer colour step to restore the complete suit palette on the fourth call.
+            // the outer colour step to restore the complete suit colours on the fourth call.
             glow = glow.Stepped();
             if (glow.RemainingSteps == 0)
             {
@@ -706,7 +706,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Clears projectile storage without the flare
-    /// counter, flare animation state or charge palette state, which <see cref="Reset"/> clears after it.
+    /// counter, flare animation state or charge colour state, which <see cref="Reset"/> clears after it.
     /// </summary>
     private void ClearProjectileData(SamusState? samus)
     {

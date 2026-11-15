@@ -100,7 +100,7 @@ internal static class EndingColourOwnerDefinitions
     /// <summary>What the logo crossfade is authored for.</summary>
     internal static readonly EndingEffectOwners LogoCrossfade = new([EndingSpriteColouring.Logo], [EndingScenery.LogoPicture]);
 
-    /// <summary>What each palette effect's colours the ending shows are authored for.</summary>
+    /// <summary>What each colour effect's colours the ending shows are authored for.</summary>
     internal static readonly FrozenDictionary<ColourEffectColours, EndingEffectOwners> ColourEffects =
         new Dictionary<ColourEffectColours, EndingEffectOwners>
         {

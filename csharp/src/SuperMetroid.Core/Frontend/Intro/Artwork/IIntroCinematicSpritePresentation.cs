@@ -12,6 +12,6 @@ public interface IIntroCinematicSpritePresentation
     /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">This frame's destination sprite entries.</param>
     /// <param name="origin">Screen origin in pixels, each coordinate read as signed.</param>
-    /// <param name="drawn">The drawn shade of the colouring the palette-inheriting parts draw in (#1512), which the screen shows with its own fades.</param>
+    /// <param name="drawn">The drawn shade of the colouring the recolourable parts draw in (#1512), which the screen shows with its own fades.</param>
     void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn);
 }

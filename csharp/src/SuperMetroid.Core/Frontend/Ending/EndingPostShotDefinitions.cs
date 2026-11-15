@@ -27,7 +27,7 @@ internal static class EndingPostShotDefinitions
     public const int AngleStep = 8;
     /// <summary>The post-shot step delays the Samus fade by sixteen calls.</summary>
     public const int SamusFadeDelay = 16;
-    /// <summary>Shared cinematic palette fades run thirty-two component steps.</summary>
+    /// <summary>Shared cinematic colour fades run thirty-two component steps.</summary>
     public const int FadeFrames = 32;
     /// <summary>The hold waits 180 calls before switching to the white-flash display.</summary>
     public const int HoldFrames = 180;

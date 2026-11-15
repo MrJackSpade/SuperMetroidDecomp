@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
 /// The saved-game area and room maps' definitions (#1416): the entry and return windows' geometry and timing, the room
-/// view's frame offset and the markers' draw palettes.
+/// view's frame offset and the markers' draw colours.
 /// </summary>
 public static class FileSelectMapDefinitions
 {

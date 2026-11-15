@@ -1039,7 +1039,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 Drawing.Enqueue(slot, reached);
 
             // The enemy pass performs this after the enemy has been admitted to its draw queue.
-            // Keeping it here also makes the boss's latched draw palettes describe the
+            // Keeping it here also makes the boss's latched draw colours describe the
             // frame just processed rather than the already-decremented following frame.
             if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
             {

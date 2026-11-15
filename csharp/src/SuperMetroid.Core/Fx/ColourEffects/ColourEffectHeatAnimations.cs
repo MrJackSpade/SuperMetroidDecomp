@@ -29,7 +29,7 @@ public static class ColourEffectHeatAnimations
     internal static AnimationPlace Phase(ColourEffectHeatSuit suit, HeatPhase phase) =>
         ColourEffectAnimations.Steps.PlaceOfFrame(Shimmer(suit), Start(suit), phase.Index);
 
-    /// <summary>The suit whose heat palette <paramref name="equippedItems"/> selects: Gravity before Varia.</summary>
+    /// <summary>The suit whose heat colours <paramref name="equippedItems"/> selects: Gravity before Varia.</summary>
     public static ColourEffectHeatSuit SuitFor(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
         equippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? ColourEffectHeatSuit.Gravity
         : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? ColourEffectHeatSuit.Varia

@@ -5,7 +5,7 @@ internal enum EndingSpriteFamily
 {
     /// <summary>Cloud animations advance with zoom-relative motion.</summary>
     Cloud,
-    /// <summary>Planet explosion animations can spawn actors and palette effects.</summary>
+    /// <summary>Planet explosion animations can spawn actors and colour effects.</summary>
     Explosion,
     /// <summary>Completion-text animations publish clear-time digits and credits transition.</summary>
     CompletionText,

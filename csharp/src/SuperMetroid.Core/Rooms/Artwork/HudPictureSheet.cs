@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured pictures of gameplay's HUD in one tileset's rooms (#1466, #1731): each of the HUD's images as
 /// its own frame, named by the image's frame name, coloured with the tileset's standard colours and pre-coloured in the
-/// shades the HUD shows there, a door's fades and the room effects' palette blends. The HUD draws from this sheet alone;
+/// shades the HUD shows there, a door's fades and the room effects' colour blends. The HUD draws from this sheet alone;
 /// the room effect's pictures are a sheet of their own.
 /// </summary>
 public sealed class HudPictureSheet

@@ -37,7 +37,7 @@ public static class TitleSequenceDefinitions
         public const MusicTrack ImmediateTitleTrack = MusicTrack.TitleScreen;
     }
 
-    /// <summary>The four title cards: where each draws and with which sprite palette.</summary>
+    /// <summary>The four title cards: where each draws and in which sprite colours.</summary>
     public static class TextSequences
     {
         /// <summary>The year card.</summary>
@@ -90,7 +90,7 @@ public static class TitleSequenceDefinitions
         public static Offset16<FloorPixels> FloorCentre => new(128, 128);
     }
 
-    /// <summary>Where the logo and copyright draw and with which sprite palettes.</summary>
+    /// <summary>Where the logo and copyright draw and in which sprite colours.</summary>
     public static class Sprites
     {
         /// <summary>The title logo's origin in screen pixels.</summary>

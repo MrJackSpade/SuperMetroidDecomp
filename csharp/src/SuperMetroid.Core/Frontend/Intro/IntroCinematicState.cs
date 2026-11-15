@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <remarks>
 /// Construction runs the complete graphics setup. The visible state machine
 /// continues through the first narration card, the complete first illustrated/typewriter
-/// page, and the palette transition into the Mother Brain gameplay flashback.
+/// page, and the colour transition into the Mother Brain gameplay flashback.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own flashback level, Samus projectiles and colour effects for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class IntroCinematicState : IFrontendScreen
@@ -186,7 +186,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
     internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
         throw new InvalidOperationException("The Ceres flight is not running.");
-    /// <summary>Scripted controller stream for the Mother Brain gameplay demonstration.</summary>
+    /// <summary>Scripted controller input for the Mother Brain gameplay demonstration.</summary>
     internal DemoInputState? CurrentFlashbackDemoInput { get; private set; }
     /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
     internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
@@ -196,7 +196,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
     internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
-    /// <summary>Cinematic-phase countdown for the active palette transition.</summary>
+    /// <summary>Cinematic-phase countdown for the active colour transition.</summary>
     private WrappingCountdown crossfadeCounter;
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
     private WrappingCountdown introCrossfadeCounter;
@@ -246,7 +246,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // the portrait are installed pictures (#1467).
         objectSprites = new ScreenSprites();
 
-        // The game's setup loads the ordinary beam palette before the full intro palette replaces it, so the flashback
+        // The game's setup loads the ordinary beam colours before the full intro colours replace them, so the flashback
         // Samus shows the opening's colours from the start (her intro shades); the flashback projectile pages bind the
         // beam's pictures.
 
@@ -585,7 +585,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
     }
 
-    /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay palette.</summary>
+    /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>
     internal void SetupMotherBrainFlashback()
     {
         // The shared scene setup places the persistent narration caret off screen.
@@ -606,7 +606,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             MaxMissiles = 900,
         };
         // Samus's shared frame phases read the active cinematic phase to select
-        // intro palette restoration and suppress gameplay-only sound/landing effects.
+        // intro colour restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
         CurrentFlashbackSamus.Presentation.BindSheets(spriteSheets);
@@ -673,7 +673,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageTwoCrossfade()
     {
         // Page two spawns its narration object, selects the reverse gameplay-to-
-        // text palette step, and restores the already allocated caret object.
+        // text colour step, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
         // The crossfade recolours every colour from the opening's own, so the fight lights' last record no longer shows.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
@@ -682,7 +682,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
-    /// <summary>Completes the Mother Brain-to-page-two palette transition.</summary>
+    /// <summary>Completes the Mother Brain-to-page-two colour transition.</summary>
     private void StepPageTwoCrossfade()
     {
         // The reverse crossfade is the exact inverse of the earlier transition: text/portrait ranges
@@ -711,7 +711,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
-        // text-to-gameplay palette crossfade as the Mother Brain scene.
+        // text-to-gameplay colour crossfade as the Mother Brain scene.
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
 
@@ -754,7 +754,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageThreeCrossfade()
     {
         // The egg's page-three step selects page three. On the next cinematic-phase call page three
-        // spawns its narration object and enters the same gameplay-to-text palette
+        // spawns its narration object and enters the same gameplay-to-text colour
         // step used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
@@ -780,7 +780,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
         // seeds the intro crossfade counter, and spawns the delivered baby before configuring the
-        // scientist palette transition. Its picture is already in the intro's artwork.
+        // scientist colour transition. Its picture is already in the intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         CurrentBabyDiscovery = null;
 
@@ -793,15 +793,15 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
-    /// <summary>Fades page-three text and portrait ranges into the delivery laboratory palette.</summary>
+    /// <summary>Fades page-three text and portrait ranges into the delivery laboratory colours.</summary>
     internal void StepBabyMetroidDeliveryCrossfade()
     {
         // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory background and sprite
-        // palettes. Only the cinematic phase's counter is decremented on this direction.
+        // colours. Only the cinematic phase's counter is decremented on this direction.
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
 
-    /// <summary>Advances the text-to-laboratory palette spans using the cinematic-phase countdown.</summary>
+    /// <summary>Advances the text-to-laboratory colour spans using the cinematic-phase countdown.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
         if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
@@ -820,7 +820,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts page four and the alternate-timer fade back from the delivery laboratory.</summary>
     private void SetupPageFourCrossfade()
     {
-        // The baby's page-four step selects page four. Page four starts its text stream and seeds the
+        // The baby's page-four step selects page four. Page four starts its text and seeds the
         // cinematic-phase counter, while the reverse step deliberately consumes the
         // still-127 intro crossfade counter set by the delivery scene.
         Objects.StartEnglishPageFour();
@@ -837,7 +837,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
     }
 
-    /// <summary>Advances the laboratory-to-text palette ranges using the retained intro countdown.</summary>
+    /// <summary>Advances the laboratory-to-text colour ranges using the retained intro countdown.</summary>
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
         if (introCrossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
@@ -869,7 +869,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepBabyMetroidExaminationCrossfade() =>
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
 
-    /// <summary>Starts page five after the baby examination scene and selects the reverse palette transition.</summary>
+    /// <summary>Starts page five after the baby examination scene and selects the reverse colour transition.</summary>
     private void SetupPageFiveCrossfade()
     {
         Objects.StartEnglishPageFive();
@@ -896,17 +896,17 @@ public sealed class IntroCinematicState : IFrontendScreen
             StartPageSix();
     }
 
-    /// <summary>Replaces the text stream, caret, and eye animation without a palette transition.</summary>
+    /// <summary>Replaces the text, caret, and eye animation without a colour transition.</summary>
     private void StartPageSix()
     {
-        // Page six has no palette transition. Only the English text region, caret, eye
-        // stream, and final page object are replaced.
+        // Page six has no colour transition. Only the English text region, caret, eye
+        // animation, and final page object are replaced.
         Objects.StartEnglishPageSix();
         CurrentScientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;
     }
 
-    /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and palette updates for the Mother Brain flashback.</summary>
+    /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
         FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
@@ -932,7 +932,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Runs the movement/animation/interruption/palette slice of the intro demo's
+    /// Runs the movement/animation/interruption/colour slice of the intro demo's
     /// movement phase, followed by the timer owner.
     /// </summary>
     private void StepMotherBrainFlashbackSamus()
@@ -1038,7 +1038,7 @@ level, samus, frameCounter);
             samus.CommitPoseHistory();
 
         // The intro demo runs Samus's ordinary colouring even in intro-demo state.
-        // This supplies the alternating hurt colors and eventual suit-palette restoration;
+        // This supplies the alternating hurt colors and eventual suit-colour restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
         SamusHurtFlashPalette.Update(flashbackSamusColours, samus, demoInput);
 

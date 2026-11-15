@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </summary>
 /// <remarks>
 /// This runs the visible title state chain. Installed sessions
-/// supply extracted graphics, palette, and gradient presentation. No original
+/// supply extracted graphics, colours, and gradient presentation. No original
 /// image is mapped during the title sequence.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
@@ -112,7 +112,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
     }
 
-    /// <summary>Builds the initial title artwork and palette state, optionally queuing opening music for a new session.</summary>
+    /// <summary>Builds the initial title artwork and colour state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
         AudioQueues? audio,
         TitleOpeningMusic openingMusic,
@@ -135,13 +135,13 @@ public sealed class TitleSequenceState : IFrontendScreen
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
-        // Title setup expands the four artwork streams; the title binds that
+        // Title setup expands the four artwork sets; the title binds that
         // artwork and its capture places the turning floor, the sprites and the Baby's pose.
         objects = new ScreenSprites();
         RestartColourEffects();
 
         // The Year object's frame behaviour forces full brightness on the first
-        // processing frame; its position and palette come from its definition.
+        // processing frame; its position and colours come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
@@ -223,7 +223,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
         colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        // The skip's rebuild follows the palette effects for this frame. Restart
+        // The skip's rebuild follows the colour effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuiltTitleObjects)
             RestartColourEffects();
@@ -408,7 +408,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 : null);
     }
 
-    /// <summary>The colour the title shows behind its floor and objects: the installed title palette's backdrop (#1512).</summary>
+    /// <summary>The colour the title shows behind its floor and objects: the installed title colours' backdrop (#1512).</summary>
     private RgbColor Backdrop => titleBackdrop ?? throw new InvalidOperationException(
         "Title rendering requires the installed title backdrop.");
 

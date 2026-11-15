@@ -39,7 +39,7 @@ public sealed class SamusSuitPickupState
     /// Effect updates left before the light beam's stage step is installed.
     /// The step runs an object's frame behaviour before its animation; the animation's
     /// first call ends on a one-frame table entry and its second installs the
-    /// frame behaviour and sleeps, so the first stage runs on the third.
+    /// frame behaviour and rests, so the first stage runs on the third.
     /// </summary>
     private int _frameBehaviorInstallCallsRemaining;
 
@@ -110,7 +110,7 @@ public sealed class SamusSuitPickupState
 
         // The suit pickup cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the departing-echo
-        // side effect and publishes the immediate palette restore only when boost was live.
+        // side effect and publishes the immediate colour restore only when boost was live.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -301,7 +301,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Installs the equipment bit, suited front pose, and palette at the third-stage handoff.</summary>
+    /// <summary>Installs the equipment bit, suited front pose, and colours at the third-stage handoff.</summary>
     private void RevealSuit(SamusState samus, SamusColours colours)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia

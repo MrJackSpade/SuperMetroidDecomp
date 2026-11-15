@@ -36,7 +36,7 @@ internal abstract class EnemyProjectileAnimation
                 projectile.Frame = held.Frame;
                 return;
             case EnemyProjectileFrameStep.Rest:
-                // A held timeline is the sleep: the timer stays zero and wraps, never expiring again.
+                // A held timeline rests: the timer stays zero and wraps, never expiring again.
                 projectile.FrameHold = WrappingCountdown.Start(0);
                 return;
             default:

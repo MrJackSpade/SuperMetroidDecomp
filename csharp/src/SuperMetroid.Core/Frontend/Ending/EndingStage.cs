@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingStage
 {
@@ -30,7 +30,7 @@ internal sealed class EndingStage
     /// <summary>Countdown read by the current cinematic phase.</summary>
     internal int PhaseTimer { get; set; }
 
-    /// <summary>Shared fade progression through scene and palette handoffs.</summary>
+    /// <summary>Shared fade progression through scene and colour handoffs.</summary>
     private int fadeCounter;
 
     /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
@@ -101,7 +101,7 @@ internal sealed class EndingStage
             role);
 
     /// <summary>
-    /// Scene boundaries clear the palette effects' slots (#1544): the records they showed stop showing, as the effects
+    /// Scene boundaries clear the colour effects' slots (#1544): the records they showed stop showing, as the effects
     /// that showed them have ended.
     /// </summary>
     internal void ResetColourEffects() => screen.Colours.ResetColourEffects();
@@ -239,7 +239,7 @@ internal sealed class EndingStage
         }
     }
 
-    /// <summary>The palette effects the ending runs, which its colours own (#1597).</summary>
+    /// <summary>The colour effects the ending runs, which its colours own (#1597).</summary>
     internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>

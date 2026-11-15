@@ -5,6 +5,6 @@ public enum DownwardGateProjectileOperation
 {
     /// <summary>Or closed-gate setup: allocates the selected gate actor and associates it with the room-object block; a full pool leaves no new actor.</summary>
     Spawn,
-    /// <summary>Finds the associated actor, moves its script past its sleep, and has its next step run on the next frame, without allocating another actor.</summary>
+    /// <summary>Finds the associated actor, moves its animation past its rest, and has its next step run on the next frame, without allocating another actor.</summary>
     Wake,
 }

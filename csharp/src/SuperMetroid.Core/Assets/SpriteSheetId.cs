@@ -81,11 +81,11 @@ public enum SpriteSheetId
     ProjectilesSpazerPlasmaWave,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the spazer, plasma, ice beam equipped.</summary>
     ProjectilesSpazerPlasmaIce,
-    /// <summary>The menus' pictures under the file-select palette: each menu page and the pictures placed over it (#1467).</summary>
+    /// <summary>The menus' pictures in the file-select colours: each menu page and the pictures placed over it (#1467).</summary>
     MenuPictures,
-    /// <summary>The room maps' pictures under the file-select palette: each map cell picture and each area's room frame (#1467).</summary>
+    /// <summary>The room maps' pictures in the file-select colours: each map cell picture and each area's room frame (#1467).</summary>
     RoomMapPictures,
-    /// <summary>The pause screen's pictures under the pause palette: each map cell picture, each area's backdrop, the button rows and labels, and the equipment page's parts (#1467).</summary>
+    /// <summary>The pause screen's pictures in the pause colours: each map cell picture, each area's backdrop, the button rows and labels, and the equipment page's parts (#1467).</summary>
     PausePictures,
     /// <summary>The file-select world map's foreground picture in Crateria's world-map colours (#1392).</summary>
     AreaMapForegroundCrateria,
@@ -111,7 +111,7 @@ public enum SpriteSheetId
     AreaMapBackgroundMaridia,
     /// <summary>The file-select world map's background picture in Tourian's world-map colours (#1392).</summary>
     AreaMapBackgroundTourian,
-    /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, under the pause palette (#1392, #1466).</summary>
+    /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, in the pause colours (#1392, #1466).</summary>
     PauseHud,
     /// <summary>The opening cinematic's scene pictures: its scene pages, Samus's portrait and the portrait's eye frames (#1467).</summary>
     IntroScenePictures,
@@ -119,26 +119,26 @@ public enum SpriteSheetId
     IntroNarrationPictures,
     /// <summary>The Ceres cinematics' background pictures: the caption's letters, the katakana caption and the Zebes planet (#1467).</summary>
     CeresCinematicPictures,
-    /// <summary>The credits roll's staff line pictures under the credits palette (#1467).</summary>
+    /// <summary>The credits roll's staff line pictures in the credits colours (#1467).</summary>
     EndingCreditsRows,
-    /// <summary>The post-credits pictures under the post-credits palette: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>
+    /// <summary>The post-credits pictures in the post-credits colours: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>
     EndingPostCreditsPictures,
-    /// <summary>The wavy Samus transformation's picture under the post-credits palette (#1467).</summary>
+    /// <summary>The wavy Samus transformation's picture in the post-credits colours (#1467).</summary>
     EndingWavySamusPicture,
-    /// <summary>The Zebes explosion's four maps' pictures under the explosion palette (#1467).</summary>
+    /// <summary>The Zebes explosion's four maps' pictures in the explosion colours (#1467).</summary>
     EndingExplosionPictures,
-    /// <summary>The title's turning floor with each Baby Metroid page shown, under its palette (#1392, #1467).</summary>
+    /// <summary>The title's turning floor with each Baby Metroid page shown, in its colours (#1392, #1467).</summary>
     TitleFloor,
-    /// <summary>The Ceres flight's and destruction's turning floor in each of their shots, under the flight's palette (#1392, #1467).</summary>
+    /// <summary>The Ceres flight's and destruction's turning floor in each of their shots, in the flight's colours (#1392, #1467).</summary>
     CeresFloor,
-    /// <summary>The ending's side-cloud escape's turning floor under the escape palette (#1392, #1467).</summary>
+    /// <summary>The ending's side-cloud escape's turning floor in the escape colours (#1392, #1467).</summary>
     EndingSideCloudEscapeFloor,
-    /// <summary>The ending's top-and-bottom-cloud escape's turning floor under the escape palette (#1392, #1467).</summary>
+    /// <summary>The ending's top-and-bottom-cloud escape's turning floor in the escape colours (#1392, #1467).</summary>
     EndingTopAndBottomCloudEscapeFloor,
-    /// <summary>The ending's planet explosion's turning floor under the explosion palette (#1392, #1467).</summary>
+    /// <summary>The ending's planet explosion's turning floor in the explosion colours (#1392, #1467).</summary>
     EndingPlanetExplosionFloor,
-    /// <summary>The flyaway gunship's turning floor under the escape palette (#1392, #1467).</summary>
+    /// <summary>The flyaway gunship's turning floor in the escape colours (#1392, #1467).</summary>
     EndingFlyawayFloor,
-    /// <summary>The reward icon's turning floor under the post-credits palette (#1392, #1467).</summary>
+    /// <summary>The reward icon's turning floor in the post-credits colours (#1392, #1467).</summary>
     EndingRewardIconFloor,
 }

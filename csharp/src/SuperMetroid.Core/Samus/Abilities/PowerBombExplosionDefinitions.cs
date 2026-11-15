@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Power Bomb/Crystal Flash blast radii, the ovals their shape streams walk, and phase boundaries.</summary>
+/// <summary>Power Bomb/Crystal Flash blast radii, the runs of ovals their shapes walk, and phase boundaries.</summary>
 public static class PowerBombExplosionDefinitions
 {
     /// <summary>Initial radius: four pixels.</summary>

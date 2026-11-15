@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 public static class SamusChargePalettes
 {
     /// <summary>
-    /// Whether the charged-beam lists and the pseudo-screw lists hold a palette for the step: each suit's
+    /// Whether the charged-beam lists and the pseudo-screw lists hold a colouring for the step: each suit's
     /// list holds six.
     /// </summary>
     /// <param name="step">The charge cycle step.</param>

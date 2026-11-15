@@ -7,7 +7,7 @@ internal static class MenuRenderSnapshotCapture
 {
     /// <summary>
     /// Captures a menu screen showing pictures (#1467): its backdrop page, its page scrolled over it, then its sprites, with
-    /// the screen's palette, sprite entries and brightness. The page scrolls by an offset in screen pixels and does not
+    /// the screen's colours, sprite entries and brightness. The page scrolls by an offset in screen pixels and does not
     /// repeat (#1555).
     /// </summary>
     /// <param name="screen">The menu screen captured.</param>

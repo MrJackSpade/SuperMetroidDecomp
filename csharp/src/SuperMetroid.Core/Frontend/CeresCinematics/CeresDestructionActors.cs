@@ -50,7 +50,7 @@ internal static class CeresDestructionActors
     /// <summary>Selects the definition of the Zebes reveal actor that shows <paramref name="role"/>.</summary>
     /// <remarks>
     /// #1165: the reveal's spawns select the planet, the four star quarters and the title; the title spawns the
-    /// Japanese subtitle. The star initializers give all four quarters the same palette and acceleration; where each
+    /// Japanese subtitle. The star initializers give all four quarters the same colours and acceleration; where each
     /// starts is installed (#1615). Only the lower-right quarter installs the completion behaviour. Planet and title are
     /// separate named roles with their own initializer values and animations, not curve exceptions.
     /// One metadata proof against the authored data checks every field. Animations have their existing separate proofs.

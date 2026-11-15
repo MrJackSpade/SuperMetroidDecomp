@@ -35,6 +35,6 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapArrowSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScrollControls.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectMapScroll.cs")]),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/MapScroll.cs")]),
     ];
 }

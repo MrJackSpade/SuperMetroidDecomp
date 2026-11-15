@@ -51,7 +51,7 @@ internal static class MapArrowDurationsVerification
                 timer = rom.ReadCartridgeByte(0x82c137 + offset);
             }
             actual.StepArrows(_ => visible);
-            foreach (var arrow in arrows)
+            foreach (var arrow in arrows.Values)
             {
                 AssertEqual(offset / 3, arrow.Frame, "actual arrow phase");
                 AssertEqual(timer, arrow.Timer, "actual arrow delay and hidden pause");

@@ -19,7 +19,7 @@ internal static class MapScrollControlsVerification
     /// <summary>Compares every direction combination, scroll trajectory, sound boundary, and installed menu under a guarded bus.</summary>
     internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
-        var buttons = new ControllerButton[MapScrollControls.DirectionCount];
+        var buttons = new ControllerButton[MapScrollControls.Directions.Length];
         for (int index = 0; index < buttons.Length; index++)
         {
             int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
@@ -37,8 +37,8 @@ internal static class MapScrollControlsVerification
             ControllerButton held = 0;
             for (int index = 0; index < buttons.Length; index++)
                 if ((combination & (1 << index)) != 0) held |= buttons[index];
-            var native = new FileSelectMapScroll(map, system, new(240, 128));
-            var compiled = new FileSelectMapScroll(map, system, new(240, 128));
+            var native = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
+            var compiled = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             // Sustained direction runs include reaching native boundaries, opposing
             // input precedence, then releasing while an eight-tick step is pending.
             for (int tick = 0; tick < 280; tick++)
@@ -52,7 +52,7 @@ internal static class MapScrollControlsVerification
         foreach (ControllerButton input in Enum.GetValues<ControllerButton>())
         {
             if (input == ControllerButton.None || buttons.Contains(input)) continue;
-            var scroll = new FileSelectMapScroll(map, system, new(240, 128));
+            var scroll = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             AssertTrue(!scroll.Step(input), "unrelated controller button does not queue map sound");
             AssertEqual(MapScrollDirection.None, scroll.Direction, "unrelated controller button cannot start map scrolling");
         }
@@ -63,7 +63,7 @@ internal static class MapScrollControlsVerification
     /// <summary>Forbids runtime reads of controller binding and direction operands in native arrow records.</summary>
     private static CartridgeReadGuard NewMapScrollControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
-            address => (uint)(address - MapSourceDefinitions.FileSelectMap.ScrollArrows) < MapScrollControls.DirectionCount * 10 &&
+            address => (uint)(address - MapSourceDefinitions.FileSelectMap.ScrollArrows) < MapScrollControls.Directions.Length * 10 &&
                 (address - MapSourceDefinitions.FileSelectMap.ScrollArrows) % 10 >= 6,
             _ => "Map navigation read controller bindings from the visual arrow ROM records.");
 }

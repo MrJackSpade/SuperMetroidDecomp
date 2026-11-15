@@ -21,7 +21,7 @@ public static class MapArrowExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var arrows = new Dictionary<string, MapArrowEntry>();
-        for (int index = 0; index < MapArrowDefinitions.Count; index++)
+        for (int index = 0; index < ArrowDirections.Length; index++)
         {
             MapScrollDirection direction = ArrowDirections[index];
             int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * MapSourceDefinitions.FileSelectMap.ScrollArrowRecordBytes;

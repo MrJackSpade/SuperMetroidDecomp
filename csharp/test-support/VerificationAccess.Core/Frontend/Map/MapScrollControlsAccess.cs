@@ -9,6 +9,6 @@ internal static class MapScrollControlsAccess
     {
         /// <summary>Controller buttons corresponding to all defined map scroll directions.</summary>
         internal static ControllerButton[] Buttons =>
-            [.. Enumerable.Range(1, MapScrollControls.DirectionCount).Select(direction => MapScrollControls.ButtonFor((MapScrollDirection)direction))];
+            [.. MapScrollControls.Directions.Select(MapScrollControls.ButtonFor)];
     }
 }

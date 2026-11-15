@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Assets;
@@ -33,7 +34,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
     internal readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    internal FileSelectMapScroll Scroll { get; private set; }
+    internal MapScroll Scroll { get; private set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
@@ -114,12 +115,13 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
-    private FileSelectMapScroll CreateScrollForCurrentContent()
+    private MapScroll CreateScrollForCurrentContent()
     {
         AreaMapPresentation catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(station);
-        return new FileSelectMapScroll(catalog.Get(area), roomGraphics.MapSystem, anchor);
+        return MapScroll.Centred(MapFramingDefinitions.FileSelect,
+            MapScrollLimits.OfRevealedPlane(catalog.Get(area), roomGraphics.MapSystem), anchor);
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon and colour animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>

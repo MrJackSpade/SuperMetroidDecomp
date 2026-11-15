@@ -86,15 +86,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal int TransitionBrightness { get; private set; } = 15;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
-    /// <summary>Current map scroll in map pixels.</summary>
-    private Position16<MapPixels> mapScrollPosition;
-    /// <summary>The map screen's scroll position.</summary>
-    internal Position16<MapPixels> MapScrollPosition { get => mapScrollPosition; set => mapScrollPosition = value; }
-    /// <summary>Bounded map-scroll controller initialized from visible area cells.</summary>
-    internal PauseMapScroll? CurrentMapScrollBounds { get; set; }
-    /// <summary>The map-scroll bounds, which exist once the map page is set up.</summary>
-    internal PauseMapScroll MapScrollBounds => CurrentMapScrollBounds ??
+    /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
+    internal MapScroll? CurrentMapScroll { get; set; }
+    /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
+    internal MapScroll ActiveMapScroll => CurrentMapScroll ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");
+    /// <summary>The map screen's scroll position.</summary>
+    internal Position16<MapPixels> MapScrollPosition { get => ActiveMapScroll.Scroll; set => ActiveMapScroll.Scroll = value; }
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations? CurrentMapArrows { get; set; }
     /// <summary>The map arrows, which exist once the map page is set up.</summary>
@@ -173,7 +171,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(frameCycle);
         if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
-            MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, MapScrollPosition));
+            MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
         if (Transition != PauseMenuTransition.None)
@@ -196,7 +194,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller buttons, not the delayed chrome
             // input. An accepted pulse keeps running after release, as in the game.
-            if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
+            if (ActiveMapScroll.Step(heldInput ?? delayedHeldInput))
                 audio?.QueueSound(SamusSound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
@@ -292,7 +290,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, mapHighlight.Shading, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
+            CurrentMapArrows?.DrawArrows(screen.Objects, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
@@ -395,105 +393,27 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Installed backdrops already contain their authored area lettering.
     }
 
-    /// <summary>Derives map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
+    /// <summary>Frames the map page from the visible cells' reach and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
-        // The map's scroll limits come from scanning either the downloaded map
-        // or the persistent explored plane. Expressing the scan in coordinates is exactly
-        // equivalent to the game's cell-by-cell scan and makes the two-page 64x32 layout explicit.
+        // The map's scroll limits come from either the downloaded map or the persistent explored plane, never their
+        // union, unlike the map's drawing, which also displays explored secrets: unioning the planes would move the map's
+        // centre after a secret is explored even though the downloaded limits are unchanged. A reveal assist frames the
+        // cells it shows.
         bool hasAreaMap = system.HasAreaMap(area);
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.")).Get(area);
-        bool IsVisible(int x, int y)
-        {
-            bool explored = system.IsMapTileExplored(area, new(x, y));
-            // The game's scroll bounds select one bit plane, unlike the map's drawing, which
-            // also displays explored secrets. Unioning the planes moves the map's center
-            // after a secret is explored even though the downloaded bounds are unchanged.
-            if (mapRevealMode == MapRevealMode.None)
-                return hasAreaMap ? map.IsRevealedByMapStation(new(x, y)) : explored;
-            return AreaMapVisibility.IsVisible(
-                explored,
+        MapScrollLimits limits = mapRevealMode == MapRevealMode.None
+            ? MapScrollLimits.OfRevealedPlane(map, system)
+            : MapScrollLimits.Scan(area, cell => AreaMapVisibility.IsVisible(
+                system.IsMapTileExplored(area, cell),
                 hasAreaMap,
-                map.IsRevealedByMapStation(new(x, y)),
-                map.IsDiscoverable(new(x, y)),
-                mapRevealMode);
-        }
-
-        int left = 26;
-        int right = 28;
-        int top = 1;
-        int bottom = 11;
-        for (int x = 0; x < 64; x++)
-        {
-            if (!Enumerable.Range(0, 32).Any(y => IsVisible(x, y)))
-                continue;
-            left = x;
-            break;
-        }
-        for (int x = 63; x >= 0; x--)
-        {
-            if (!Enumerable.Range(0, 32).Any(y => IsVisible(x, y)))
-                continue;
-            right = x;
-            break;
-        }
-        // The game's vertical scans return their defaults before checking the final row
-        // in either direction. Match those boundary cases for sparse explored maps.
-        for (int y = 0; y < 31; y++)
-        {
-            if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
-                continue;
-            top = y;
-            break;
-        }
-        for (int y = 31; y > 0; y--)
-        {
-            if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
-                continue;
-            bottom = y;
-            break;
-        }
-
-        // Every value below is a map pixel or a difference of two, within a few hundred pixels of the 512 by 256 map:
-        // the scans keep the left column at or before the right and the top row at or above the bottom, so the
-        // halved spans are never negative and no value comes near the coordinate range. Only a negative result (Maridia's
-        // margin left of the first column, a scroll above the map) is stored as its wrapped coordinate.
-        int minimumX = left * 8 - (area == AreaId.Maridia ? 24 : 0);
-        int maximumX = right * 8;
-        int minimumY = top * 8;
-        int maximumY = bottom * 8;
-        CurrentMapScrollBounds = new PauseMapScroll(Position16<MapPixels>.Wrapped(minimumX, minimumY), Position16<MapPixels>.Wrapped(maximumX, maximumY));
-
-        // The player's map cell: the room's map origin plus Samus's room screen, with the
-        // map convention's one-row downward offset.
-        Position16<MapPixels> player = SamusMapCell().ToMapPixels();
-        int horizontal = minimumX + (maximumX - minimumX) / 2 - 128;
-        int horizontalScreenPosition = player.X - horizontal;
-        int distanceFromRightClamp = 224 - horizontalScreenPosition;
-        if (distanceFromRightClamp >= 0)
-        {
-            int distanceFromLeftClamp = 32 - horizontalScreenPosition;
-            if (distanceFromLeftClamp >= 0)
-                horizontal -= distanceFromLeftClamp;
-        }
-        else
-        {
-            horizontal -= distanceFromRightClamp;
-        }
-
-        int verticalMiddle = minimumY + (maximumY - minimumY) / 2 + 16;
-        // The centring offset is rounded down to whole eight-pixel map rows.
-        int verticalCenterOffset = MapScreenConversions.RoundDownToMapTile(128 - verticalMiddle);
-        int vertical = -verticalCenterOffset;
-        int distanceFromTopClamp = 64 - (player.Y + verticalCenterOffset);
-        if (distanceFromTopClamp >= 0)
-        {
-            vertical -= distanceFromTopClamp;
-            if (vertical + 40 < 0)
-                vertical = -40;
-        }
-        MapScrollPosition = Position16<MapPixels>.Wrapped(horizontal, vertical);
+                map.IsRevealedByMapStation(cell),
+                map.IsDiscoverable(cell),
+                mapRevealMode));
+        // The player's map cell: the room's map origin plus Samus's room screen, with the map convention's one-row
+        // downward offset.
+        CurrentMapScroll = MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>

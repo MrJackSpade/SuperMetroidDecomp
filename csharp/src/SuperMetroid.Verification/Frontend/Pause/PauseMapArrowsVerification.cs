@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -24,7 +25,7 @@ internal static class PauseMapArrowsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 10) });
-        pause.CurrentMapScrollBounds = new PauseMapScroll(new(0, 0), new(512, 256));
+        pause.CurrentMapScroll = new MapScroll(MapFramingDefinitions.Pause, new MapScrollLimits(0, 512, 0, 256), Position16<MapPixels>.Zero);
         pause.CurrentMapArrows = null;
         pause.BindFixtureArtwork(RetailPresentationFixture());
         var nativeArrowColors = new RgbColor[16];

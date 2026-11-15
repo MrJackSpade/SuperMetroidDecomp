@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>Map arrow animations and the highlight cycle, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
-    /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow.</summary>
-    internal readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
+    /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow, by the direction it scrolls.</summary>
+    internal readonly Dictionary<MapScrollDirection, Arrow> arrows = [];
     /// <summary>The highlight cycle, advanced separately from arrow timing.</summary>
     private readonly MapHighlightAnimation highlight = new();
     /// <summary>The installed arrow phases.</summary>
@@ -26,20 +26,19 @@ public sealed class FileSelectMapAnimations
     /// <summary>Binds the installed arrow phases when the game is bound to its installed content, without resetting visible-arrow timing.</summary>
     internal void BindPresentation(MapArrowPresentation? content)
     {
-        for (int index = 0; index < arrows.Length; index++)
+        foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow? previous = arrows[index];
+            Arrow? previous = arrows.GetValueOrDefault(direction);
             Arrow replacement;
             int phaseCount;
             MapArrowPresentation installed = content ?? throw new InvalidOperationException(
                 "Map arrows require installed animation definitions.");
-            var direction = MapScrollControls.ArrowAt(index);
             MapArrowVisual visual = installed.Get(direction);
             replacement = new Arrow(visual.Position, MapArrowSprites.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
                 replacement.ContinueFrom(previous, phaseCount);
-            arrows[index] = replacement;
+            arrows[direction] = replacement;
         }
         presentation = content;
     }
@@ -61,12 +60,12 @@ public sealed class FileSelectMapAnimations
     /// <remarks>One call consumes one menu tick for visible arrows; phase durations are menu-tick counts, with the loop terminator wrapping to phase zero.</remarks>
     public void StepArrows(Func<MapScrollDirection, bool> available)
     {
-        for (int index = 0; index < arrows.Length; index++)
+        foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow arrow = arrows[index];
-            if (!arrow.Admit(available(MapScrollControls.ArrowAt(index)))) continue;
+            Arrow arrow = arrows[direction];
+            if (!arrow.Admit(available(direction))) continue;
             arrow.Step((presentation ?? throw new InvalidOperationException(
-                "Map arrows require installed animation definitions.")).Get(MapScrollControls.ArrowAt(index)));
+                "Map arrows require installed animation definitions.")).Get(direction));
         }
     }
 
@@ -79,8 +78,9 @@ public sealed class FileSelectMapAnimations
     public void DrawArrows(ScreenSprites entries, PictureShading highlight, SpriteSheet? sheet = null, int verticalOffset = 0)
     {
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("Map arrows require the installed map sprite sheet.");
-        foreach (Arrow arrow in arrows)
+        foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
+            Arrow arrow = arrows[direction];
             if (!arrow.Visible) continue;
             MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, verticalOffset),
                 highlight);

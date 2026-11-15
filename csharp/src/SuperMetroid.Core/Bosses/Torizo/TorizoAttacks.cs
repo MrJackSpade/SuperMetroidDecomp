@@ -48,7 +48,7 @@ internal sealed class TorizoAttacks
     internal EnemyProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, _access, () => new TorizoProjectileAnimation(TorizoProjectileSegment.SuperMissileImpact));
 
     /// <summary>
-    /// One of the Torizos' projectiles: every frame behaviour of the statue fragments, orbs, sonic booms, drool, eggs,
+    /// One of the Torizos' projectiles: every motion of the statue fragments, orbs, sonic booms, drool, eggs,
     /// super missiles and eye beam, and the Torizo projectile animations' cues, which may continue an animation elsewhere.
     /// </summary>
     /// <param name="room">The loaded room, whose definitions name the orbs' drops.</param>
@@ -93,22 +93,22 @@ internal sealed class TorizoAttacks
             switch (motion)
             {
                 case TorizoProjectileMotion.StatueFragmentFalling:
-                    RunBombTorizoStatueBreakingFrameBehavior(projectile, context.Level);
+                    DropStatueFragment(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.BombOrbFalling:
-                    RunBombTorizoChozoOrbFrameBehavior(projectile, context.Level);
+                    DropBombOrb(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.GoldenOrbBouncing:
-                    RunGoldenTorizoChozoOrbFrameBehavior(projectile, context.Level);
+                    BounceGoldenOrb(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.SonicBoomFlying:
-                    RunBombTorizoSonicBoomFrameBehavior(projectile, context.Level);
+                    FlySonicBoom(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.DroolFalling:
-                    RunBombTorizoDroolFrameBehavior(projectile, context.Level);
+                    DropDrool(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.EggBouncing:
-                    RunGoldenTorizoEggFrameBehavior(projectile, context.Level);
+                    BounceEgg(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.EggCharging:
                     RunGoldenTorizoEggHorizontalCharge(projectile, context.Level);
@@ -117,13 +117,13 @@ internal sealed class TorizoAttacks
                     RunGoldenTorizoEggFall(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.SuperMissileHeld:
-                    RunGoldenTorizoSuperMissileFrameBehavior(projectile);
+                    HoldSuperMissile(projectile);
                     break;
                 case TorizoProjectileMotion.SuperMissileThrown:
                     RunGoldenTorizoSuperMissileFlight(projectile, context.Level);
                     break;
                 case TorizoProjectileMotion.EyeBeamFlying:
-                    RunGoldenTorizoEyeBeamFrameBehavior(projectile, context.Level);
+                    FlyEyeBeam(projectile, context.Level);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileMotion)} {motion}.");
@@ -222,7 +222,7 @@ internal sealed class TorizoAttacks
         }
 
         /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
-        private void RunGoldenTorizoSuperMissileFrameBehavior(EnemyProjectile projectile)
+        private void HoldSuperMissile(EnemyProjectile projectile)
         {
             TorizoEnemyState? state = access.GoldenTorizo;
             if (state is null)
@@ -261,10 +261,10 @@ internal sealed class TorizoAttacks
         }
 
         /// <summary>
-        /// Runs the statue fragment's frame behaviour: a rising or still-airborne piece accelerates by
+        /// Drops the statue fragment: a rising or still-airborne piece accelerates by
         /// <see cref="FirstSlotFallAcceleration"/>.
         /// </summary>
-        private void RunBombTorizoStatueBreakingFrameBehavior(
+        private void DropStatueFragment(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
@@ -611,7 +611,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
-    internal static void RunBombTorizoChozoOrbFrameBehavior(
+    internal static void DropBombOrb(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -638,7 +638,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact animation.</summary>
-    internal static void RunBombTorizoSonicBoomFrameBehavior(
+    internal static void FlySonicBoom(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -658,11 +658,11 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Runs the drool's frame behaviour, shared by Bomb Torizo's six gut-break droplets and its
-    /// low-health initial drool. The peculiar positive-three clamp is authentic: both the
+    /// Drops the drool: Bomb Torizo's six gut-break droplets and its
+    /// low-health initial drool alike. The peculiar positive-three clamp is authentic: both the
     /// negative and nonnegative drag branches load three when they cross zero.
     /// </summary>
-    internal static void RunBombTorizoDroolFrameBehavior(
+    internal static void DropDrool(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -695,7 +695,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Bounces Golden Torizo's orb off walls and the floor, slowing horizontal motion until floor impact.</summary>
-    internal static void RunGoldenTorizoChozoOrbFrameBehavior(
+    internal static void BounceGoldenOrb(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -725,7 +725,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
-    internal static void RunGoldenTorizoEggFrameBehavior(
+    internal static void BounceEgg(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -832,7 +832,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
-    internal static void RunGoldenTorizoEyeBeamFrameBehavior(
+    internal static void FlyEyeBeam(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

@@ -28,7 +28,7 @@ internal static class CeresElevatorArrivalDefinitions
     internal static SpriteGraphics StartingGraphics { get; } =
         SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
 
-    /// <summary>The initializer seeds the moving pad's frame-behaviour delay to sixty frames.</summary>
+    /// <summary>The updates the moving pad waits before it moves, which its initializer seeds.</summary>
     internal const int MovingPadWaitFrames = 60;
 
     /// <summary>The initializer places the moving pad twenty-eight pixels below Samus.</summary>

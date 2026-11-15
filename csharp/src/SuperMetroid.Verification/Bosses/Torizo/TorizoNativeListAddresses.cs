@@ -129,8 +129,8 @@ internal static class TorizoNativeListAddresses
     /// </summary>
     internal static readonly Dictionary<ushort, TorizoNativeListAddressesBodyInstruction> BodyInstructions = new()
     {
-        [0x806b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetFrameBehavior>(""), [TorizoOperand.FrameBehavior]),
-        [0x8074] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ClearFrameBehavior)), []),
+        [0x806b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Signal>("", "a body-motion signal", cue => cue.Kind is TorizoCueKind.StartWalking or TorizoCueKind.StartStanding or TorizoCueKind.StartLeaping or TorizoCueKind.StopMoving), [TorizoOperand.Motion]),
+        [0x8074] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.StopMoving)), []),
         [0xb09c] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetPhase>(""), [TorizoOperand.Function]),
         [0xb11d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.BlowUpGut)), []),
         [0xb1be] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.MarkFaceBlownUp)), []),

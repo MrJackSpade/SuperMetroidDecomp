@@ -19,9 +19,9 @@ internal static class PhantoonFlameMotionDefinitions
     internal static readonly TrigonometryAngle StartingTurnPerUpdate = new(1);
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>
     internal const int IntroCircleRadius = 48;
-    /// <summary>Enraged frame behaviour: radius increase per frame.</summary>
+    /// <summary>The pixels an enraged flame's orbit widens by each update.</summary>
     internal const int RageRadiusStep = 4;
-    /// <summary>Spiral frame behaviour: radius increase per frame.</summary>
+    /// <summary>The pixels a spiral flame's orbit widens by each update.</summary>
     internal const int SpiralRadiusStep = 2;
     /// <summary>The turn a spiral flame makes clockwise round the body each update: two steps.</summary>
     internal static readonly TrigonometryAngle SpiralTurnPerUpdate = new(2);

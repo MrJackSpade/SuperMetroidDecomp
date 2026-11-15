@@ -127,7 +127,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs Mini-Kraid's per-frame behaviour.</summary>
+    /// <summary>Runs Mini-Kraid's main AI for one update.</summary>
     private void RunFakeKraidMain(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,

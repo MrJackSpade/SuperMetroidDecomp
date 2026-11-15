@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <remarks>
 /// These are not invented cutscene sprites. Construction consumes compiled copies of
 /// the authored definitions; frame stepping executes their
-/// animations and frame behaviours. Keeping this tiny
+/// animations and motions. Keeping this tiny
 /// pair separate avoids pretending that the larger general enemy-projectile engine has
 /// already been modelled.
 /// </remarks>

@@ -3,24 +3,27 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>The main phase a Bomb or Golden Torizo runs (#1413: the values are arbitrary).</summary>
 public enum TorizoPhase
 {
-    /// <summary>Dormant.</summary>
+    /// <summary>Dormant: nothing runs.</summary>
     Idle,
 
-    /// <summary>Torizo behaviour: simple movement.</summary>
+    /// <summary>
+    /// Settles under gravity while it wakes, turns or sits, dropping drool once its health is low; both statues fall
+    /// alike (#1931).
+    /// </summary>
     Falling,
 
-    /// <summary>Torizo behaviour: wake when Bomb Torizo Chozo finishes crumbling.</summary>
+    /// <summary>Bomb Torizo stays a solid statue until its Chozo statue's hand crumbles, then wakes.</summary>
     WaitForHandTrigger,
 
-    /// <summary>Torizo behaviour: normal movement.</summary>
+    /// <summary>
+    /// Bomb Torizo fights: its gut and then its face blow up as its health falls past their thresholds, and otherwise
+    /// its body moves by its motion.
+    /// </summary>
     Active,
 
-    /// <summary>Golden Torizo behaviour: wake if Samus is below and right of target pos.</summary>
+    /// <summary>Golden Torizo stays seated until Samus comes below and to the right of it, then wakes.</summary>
     GoldenWaitForSamus,
 
-    /// <summary>Golden Torizo behaviour: simple movement.</summary>
-    GoldenGravity,
-
-    /// <summary>Golden Torizo behaviour: normal movement.</summary>
-    GoldenFrameBehavior,
+    /// <summary>Golden Torizo fights: its body moves by its motion, dropping drool once its health is low (#1931).</summary>
+    GoldenActive,
 }

@@ -119,7 +119,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private const int RestoredHealth = 32767;
 
-    /// <summary>Runs the Shitroid's per-frame behaviour.</summary>
+    /// <summary>Runs the Shitroid's main AI for one update.</summary>
     /// <param name="slot">The Shitroid's place.</param>
     /// <param name="samus">Samus, when the update has one.</param>
     /// <param name="camera">

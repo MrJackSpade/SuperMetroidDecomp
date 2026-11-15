@@ -7,8 +7,8 @@ internal enum TorizoOperand
     Value,
     /// <summary>A main-AI function.</summary>
     Function,
-    /// <summary>A pre-instruction.</summary>
-    FrameBehavior,
+    /// <summary>A body-motion routine: the motion the cue starts, or none (#1931).</summary>
+    Motion,
     /// <summary>A list pointer: the cue's target program.</summary>
     Target,
     /// <summary>A second list pointer: the cue's alternate program.</summary>

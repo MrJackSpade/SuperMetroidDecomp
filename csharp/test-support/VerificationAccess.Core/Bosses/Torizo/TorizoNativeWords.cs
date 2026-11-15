@@ -8,26 +8,32 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="TorizoPhase"/>.</summary>
-    internal static readonly NativeWordIdentities<TorizoPhase> Phases = new(new Dictionary<TorizoPhase, ushort>
+    /// <summary>
+    /// The routine word naming each <see cref="TorizoPhase"/>. Bomb Torizo's and Golden Torizo's falling routines do the
+    /// same thing, so both name <see cref="TorizoPhase.Falling"/> (#1931).
+    /// </summary>
+    internal static readonly NativeWordIdentities<TorizoPhase> Phases = new(new Dictionary<ushort, TorizoPhase>
     {
-        [TorizoPhase.Idle] = 0xc6ab,
-        [TorizoPhase.Falling] = 0xc6bf,
-        [TorizoPhase.WaitForHandTrigger] = 0xc6c6,
-        [TorizoPhase.Active] = 0xc6ff,
-        [TorizoPhase.GoldenWaitForSamus] = 0xd5c2,
-        [TorizoPhase.GoldenGravity] = 0xd5df,
-        [TorizoPhase.GoldenFrameBehavior] = 0xd5e6,
+        [0xc6ab] = TorizoPhase.Idle,
+        [0xc6bf] = TorizoPhase.Falling,
+        [0xc6c6] = TorizoPhase.WaitForHandTrigger,
+        [0xc6ff] = TorizoPhase.Active,
+        [0xd5c2] = TorizoPhase.GoldenWaitForSamus,
+        [0xd5df] = TorizoPhase.Falling,
+        [0xd5e6] = TorizoPhase.GoldenActive,
     });
 
-    /// <summary>The routine word naming each <see cref="TorizoFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<TorizoFrameBehavior> FrameBehaviors = new(new Dictionary<TorizoFrameBehavior, ushort>
+    /// <summary>
+    /// The body-motion signal each routine word an animation installs before its frames stands for (#1931): the empty
+    /// routine stops the body, and Bomb Torizo's and Golden Torizo's walking and standing routines start the same motions.
+    /// </summary>
+    internal static readonly NativeWordIdentities<TorizoCueKind> MotionCues = new(new Dictionary<ushort, TorizoCueKind>
     {
-        [TorizoFrameBehavior.Idle] = 0xc95e,
-        [TorizoFrameBehavior.AirTransition] = 0xc752,
-        [TorizoFrameBehavior.Gravity] = 0xc828,
-        [TorizoFrameBehavior.Jump] = 0xc82c,
-        [TorizoFrameBehavior.GoldenAirTransition] = 0xd5f1,
-        [TorizoFrameBehavior.GoldenGravity] = 0xd5ed,
+        [0xc95e] = TorizoCueKind.StopMoving,
+        [0xc752] = TorizoCueKind.StartWalking,
+        [0xd5f1] = TorizoCueKind.StartWalking,
+        [0xc828] = TorizoCueKind.StartStanding,
+        [0xd5ed] = TorizoCueKind.StartStanding,
+        [0xc82c] = TorizoCueKind.StartLeaping,
     });
 }

@@ -289,10 +289,10 @@ public sealed class AudioQueues
         if (PendingMusic is PendingMusicDispatch pending)
         {
             // A fetched request waits at least the shortest delay, so the wait reaches zero on its last pass and never wraps.
-            int callsUntilSent = Ensure.AtLeastZero(pending.CallsUntilSent - 1);
-            if (callsUntilSent != 0)
+            int passesUntilSent = Ensure.AtLeastZero(pending.MusicQueuePassesUntilSent - 1);
+            if (passesUntilSent != 0)
             {
-                PendingMusic = pending with { CallsUntilSent = callsUntilSent };
+                PendingMusic = pending with { MusicQueuePassesUntilSent = passesUntilSent };
                 return;
             }
             PendingMusic = null;

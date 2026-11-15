@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Fx;
 public static class RoomFxTypes
 {
     /// <summary>
-    /// Water and the statue effect show the same water; the statue effect installs ordinary effect overlay
-    /// water motion for the statue effect. Samus dispatches both through the low
-    /// selection, while statue background motion remains independently owned.
+    /// Water and the statue effect show the same water; the statue effect starts the ordinary effect overlay
+    /// water motion. Samus treats both as water, while the statue's background motion remains independently owned.
     /// </summary>
     public static bool UsesWater(RoomFxType type) =>
         type is RoomFxType.Water or RoomFxType.TourianEntranceStatue;

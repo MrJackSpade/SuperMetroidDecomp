@@ -28,9 +28,9 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 
     /// <summary>
-    /// Returns whether a room state's main behaviour dispatches to the land-sky
-    /// implementation. This is the same room-main dispatch decision the game makes;
-    /// callers must not infer it from a room number, area, door, or camera position.
+    /// Returns whether a room state's main behaviour runs the land sky. This is the
+    /// same choice of room-main behaviour the game makes; callers must not infer it
+    /// from a room number, area, door, or camera position.
     /// </summary>
     public static bool IsLandRoomMain(RoomMainBehavior main) =>
         main is RoomMainBehavior.ScrollingSkyLand or

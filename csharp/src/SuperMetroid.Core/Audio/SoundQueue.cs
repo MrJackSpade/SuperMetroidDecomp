@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One sound library's requests waiting for its handler, in the order they were queued (#1604). The handler asks its
-/// library for the oldest waiting request when its handshake is ready (<see cref="TakeOldest"/>).
+/// One sound library's requests waiting for the library's queue pass, in the order they were queued (#1604). The pass takes
+/// the oldest waiting request when the library is ready for one (<see cref="TakeOldest"/>).
 /// </summary>
 /// <remarks>
 /// A queue never holds more than <see cref="SoundQueueAdmission.MaximumOccupancy"/> requests: every request is admitted

@@ -25,7 +25,7 @@ internal sealed class SamusFramePhases
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies elapsed gameplay frames to the shinespark while it moves Samus.</summary>
@@ -48,7 +48,7 @@ internal sealed class SamusFramePhases
     {
         _artwork = dependencies.Artwork;
         _attractDemo = dependencies.AttractDemo;
-        _controller1 = dependencies.Controller1;
+        _playerActions = dependencies.PlayerActions;
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
         _clock = dependencies.Clock;
@@ -56,7 +56,7 @@ internal sealed class SamusFramePhases
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
-        _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { Controller1 = dependencies.Controller1, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Room = dependencies.Room });
+        _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { PlayerActions = dependencies.PlayerActions, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Room = dependencies.Room });
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ internal sealed class SamusFramePhases
 
                 _room.LevelData,
                 _player.Samus,
-                _controller1.Current,
+                _playerActions.Current,
                 roomObjects,
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint,
                 connectionPoseChange: GrapplePoseChange.Deferred);
@@ -109,15 +109,15 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, poseChange: GrapplePoseChange.Deferred);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _playerActions.Current, _playerActions.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, poseChange: GrapplePoseChange.Deferred);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
                  SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.PostureAdmission) &&
-                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & GameplayAction.Shoot) != GameplayAction.None)
+                 ((_playerActions.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & GameplayAction.Shoot) != GameplayAction.None)
         {
             // Selecting the grapple on the HUD fires it once the pose's movement type admits it.
-            SamusGrappleMovement.BeginFiring(_player.Samus, _controller1.Current);
+            SamusGrappleMovement.BeginFiring(_player.Samus, _playerActions.Current);
             _player.LastGrappleMovement = new GrappleMovementResult(
                 _player.Samus.Grapple.Phase,
                 Fired: _player.Samus.Grapple.Phase == GrapplePhase.Firing,
@@ -191,12 +191,12 @@ internal sealed class SamusFramePhases
                 break;
             case SamusMovementType.SpinJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-level, _player.IntroducedSamus, _controller1.Current, _clock.Counter,
-                    _controller1.NewlyPressed, roomObjects);
+level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter,
+                    _playerActions.NewlyPressed, roomObjects);
                 break;
             case SamusMovementType.NormalJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObjects);
+level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusMovementType.Standing:
             case SamusMovementType.Running:
@@ -325,7 +325,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // Each clears the charge and restores suit colors, except grapple's
             // while a grapple is already active, which changes nothing.
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                SamusHudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemSelectionTookEffect &&
+                SamusHudSelection.HandleHudSelection(samus, _playerActions.Current, _playerActions.NewlyPressed).ItemSelectionTookEffect &&
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
@@ -338,7 +338,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                (_controller1.Current & GameplayAction.Dash) != GameplayAction.None &&
+                (_playerActions.Current & GameplayAction.Dash) != GameplayAction.None &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();
@@ -350,7 +350,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // and colour effects while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD item's step runs the shared cooldown, then the morph ball's producer.
-            if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
+            if (room.BombProjectiles.RunHudProducer(samus, _playerActions.Current, _playerActions.NewlyPressed))
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
@@ -368,7 +368,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // its exact off-screen deletion window. The Spacetime beam's malformed frame-behaviour entry writes straight into
             // Samus's progression owners during this pass, so later consumers this frame, and saves, observe them.
             var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects, Progression = _system };
-            room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
+            room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
             _ = room.BombProjectiles.HandleBombs(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, overlap: BombJumpOverlapPublication.Deferred);
             room.Projectiles.HandleShots(shotTerrain, samus, camera.PixelPosition, room.BombProjectiles);
 
@@ -460,7 +460,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
                 _room.LevelData,
                 samus,
-                _controller1.Current,
+                _playerActions.Current,
                 _clock.Counter,
                 room.RoomObjects);
             frame.SampleGrappleOwnership(true);
@@ -767,27 +767,27 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.StandingAimUpRightPose:
             case SamusPoseId.StandingAimDiagonalUpRightPose:
             case SamusPoseId.StandingAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _controller1.Current, roomObjects);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
                 break;
             case SamusPoseId.MovingRightNormalPose:
             case SamusPoseId.MovingRightGunExtendedPose:
             case SamusPoseId.RunningAimUpRightPose:
             case SamusPoseId.RunningAimDiagonalUpRightPose:
             case SamusPoseId.RunningAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _controller1.Current, roomObjects);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
                 break;
             case SamusPoseId.FacingLeftNormalPose:
             case SamusPoseId.StandingAimUpLeftPose:
             case SamusPoseId.StandingAimDiagonalUpLeftPose:
             case SamusPoseId.StandingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _controller1.Current, roomObjects);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
                 break;
             case SamusPoseId.MovingLeftNormalPose:
             case SamusPoseId.MovingLeftGunExtendedPose:
             case SamusPoseId.RunningAimUpLeftPose:
             case SamusPoseId.RunningAimDiagonalUpLeftPose:
             case SamusPoseId.RunningAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _controller1.Current, roomObjects);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
                 break;
             case SamusPoseId.MoonwalkFacingLeftPose:
             case SamusPoseId.MoonwalkFacingRightPose:
@@ -857,11 +857,11 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.MorphBallFallingLeftPose:
             case SamusPoseId.SpringBallFallingRightPose:
             case SamusPoseId.SpringBallFallingLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepFalling(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepFalling(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.SpringBallJumpRightPose:
             case SamusPoseId.SpringBallJumpLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.NeutralJumpTransitionRightPose:
             case SamusPoseId.NeutralJumpTransitionLeftPose:
@@ -885,7 +885,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.NormalJumpAimDiagonalDownLeftPose:
             case SamusPoseId.NormalJumpAimDownRightPose:
             case SamusPoseId.NormalJumpAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.SpinJumpRightPose:
             case SamusPoseId.SpinJumpLeftPose:
@@ -893,15 +893,15 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.SpaceJumpLeftPose:
             case SamusPoseId.ScrewAttackRightPose:
             case SamusPoseId.ScrewAttackLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, _controller1.NewlyPressed, roomObjects);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, _playerActions.NewlyPressed, roomObjects);
                 break;
             case SamusPoseId.WallJumpRightPose:
             case SamusPoseId.WallJumpLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepWallJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepWallJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.DamageBoostRightPose:
             case SamusPoseId.DamageBoostLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.TurningRightToLeftJumpPose:
             case SamusPoseId.TurningLeftToRightJumpPose:
@@ -933,7 +933,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.FallingAimDiagonalDownLeftPose:
             case SamusPoseId.FallingAimDownRightPose:
             case SamusPoseId.FallingAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepFalling(_room.LevelData, samus, _controller1.Current, _clock.Counter, roomObjects);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepFalling(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusPoseId.CrouchingRightPose:
             case SamusPoseId.CrouchingLeftPose:
@@ -1174,7 +1174,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             _player.LastXrayBeamStep = samus.Xray.StepBeam(
                 samus,
-                _controller1.Current);
+                _playerActions.Current);
         }
 
         // Preserve movement on either side of the frame boundary. A new camera uses
@@ -1225,7 +1225,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             samus.Xray.HandlePoseInput(
                 samus,
-                _controller1.Current);
+                _playerActions.Current);
         }
 
         // The posture-transition movement type's input step is empty. Transition
@@ -1239,8 +1239,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             ? default
             : SamusPoseTransitionTable.Lookup(
                 samus.Pose,
-                _controller1.Current,
-                _attractDemo.IsAttractDemo ? _controller1.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_controller1.NewlyPressed));
+                _playerActions.Current,
+                _attractDemo.IsAttractDemo ? _playerActions.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_playerActions.NewlyPressed));
         _player.ProspectiveSamusPose = poseLookup.Transition;
         // The retail table matcher clears a pending/active bomb direction as
         // soon as it selects a DIFFERENT pose, before collision and movement.
@@ -1309,7 +1309,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Mother Brain's two drain setups choose its Up-edge branches; the
         // method is a cheap no-op for every ordinary gameplay state.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
-            samus.Drained.RunGetUpCheck(samus, _controller1.NewlyPressed);
+            samus.Drained.RunGetUpCheck(samus, _playerActions.NewlyPressed);
 
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && samus.DraygonGrabbed.IsActive)
         {
@@ -1319,7 +1319,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // the ordinary facing-normal poses and zeroing the documented velocities.
             _player.LastDraygonEscape = samus.DraygonGrabbed.CheckDraygonEscape(
                 samus,
-                _controller1.NewlyPressed,
+                _playerActions.NewlyPressed,
                 samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
             if (_player.LastDraygonEscape.Value.SuppressProspectivePose ||
                 _player.LastDraygonEscape.Value.Released)
@@ -1344,7 +1344,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _controller1.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance(room);
         }
 

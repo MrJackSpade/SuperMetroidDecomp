@@ -400,7 +400,7 @@ internal static class NativeSnapshotImport
         runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.MapPresentation ?? throw new InvalidDataException(
             "The native checkpoint requires the installed HUD artwork.")).GameplayHud);
         samus.PreviousHealthForHurtCheck = samus.Health;
-        runtime.Controller1.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
+        runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

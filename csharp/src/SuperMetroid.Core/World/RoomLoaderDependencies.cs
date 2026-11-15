@@ -28,8 +28,8 @@ internal sealed record RoomLoaderDependencies
 
 
 
-    /// <summary>Controller1.</summary>
-    public required GameplayActionInput Controller1 { get; init; }
+    /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
+    public required GameplayActionInput PlayerActions { get; init; }
 
     /// <summary>The runtime's audio requests, which every room system and every Samus built here queue theirs into.</summary>
     public required GameplayAudioRequests AudioRequests { get; init; }

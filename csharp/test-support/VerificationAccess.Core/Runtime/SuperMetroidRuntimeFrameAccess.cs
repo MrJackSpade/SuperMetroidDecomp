@@ -8,7 +8,7 @@ internal static class SuperMetroidRuntimeFrameAccess
     extension(SuperMetroid.Core.Runtime.SuperMetroidRuntime self)
     {
         /// <summary>One ordinary state-eight frame: departure allowed, game time advancing, deferred audio (#633).</summary>
-        internal void StepFrame(ControllerButton controller1Input) =>
-            self.StepFrame(controller1Input, new SuperMetroid.Core.Runtime.RuntimeFrameRequest());
+        internal void StepFrame(ControllerButton playerInput) =>
+            self.StepFrame(playerInput, new SuperMetroid.Core.Runtime.RuntimeFrameRequest());
     }
 }

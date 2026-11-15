@@ -154,9 +154,9 @@ internal static class DoorAlignmentVerification
                 transition.Phase == DoorTransitionPhase.FadeInDestinationRoom)
             {
                 observedDestinationBuild = true;
-                AssertEqual(GameplayActions.HorizontalDirections, runtime.Controller1.Current,
+                AssertEqual(GameplayActions.HorizontalDirections, runtime.PlayerActions.Current,
                     "destination OAM handoff retains the live Left+Right sample");
-                AssertEqual(GameplayAction.None, runtime.Controller1.NewlyPressed,
+                AssertEqual(GameplayAction.None, runtime.PlayerActions.NewlyPressed,
                     "destination OAM handoff does not synthesize a release or fresh edge");
             }
         }

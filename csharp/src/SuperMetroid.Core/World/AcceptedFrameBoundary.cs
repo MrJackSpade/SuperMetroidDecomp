@@ -85,11 +85,11 @@ internal sealed class AcceptedFrameBoundary
     /// Runs the frame boundary: publication, the controller latch, then the frame counters. Every update shows exactly
     /// one frame.
     /// </summary>
-    /// <param name="controller1Input">The host's controller buttons.</param>
-    public void BeginAcceptedFrame(ControllerButton controller1Input)
+    /// <param name="playerInput">The host's controller buttons.</param>
+    public void BeginAcceptedFrame(ControllerButton playerInput)
     {
         PublishAcceptedFrame();
-        _input.Latch(controller1Input);
+        _input.Latch(playerInput);
     }
 
     /// <summary>

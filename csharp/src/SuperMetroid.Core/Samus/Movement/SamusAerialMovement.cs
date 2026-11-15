@@ -82,9 +82,6 @@ public static class SamusAerialMovement
     /// <summary>The steps of a speed's fraction of a pixel; a fraction sum past them keeps only its remainder.</summary>
     private const int PixelFractionSteps = 65536;
 
-    /// <summary>The whole pixels the space-jump window reads within a cycle of 256; the speed's higher pixels drop out.</summary>
-    private const int SpaceJumpWindowWholeCycle = 256;
-
     /// <summary>
     /// Chooses Samus's vertical acceleration. The three adjacent
     /// accelerations are indexed by the exact bottom-boundary medium.
@@ -787,18 +784,19 @@ public static class SamusAerialMovement
             return false;
         }
 
-        // The window reads the falling speed as a 1/256-pixel velocity without rounding, its whole pixels taken within
-        // their 256-pixel cycle.
-        int fallingVelocity8_8 = EightEight.FromSixteenSixteen(
-            samus.Kinematics.YSpeed.Whole % SpaceJumpWindowWholeCycle, samus.Kinematics.YSpeed.Fraction);
+        // The window compares the falling speed in 256ths of a pixel, so its bounds, each a whole number of 256ths, hold
+        // exactly for the full speed. The game read only the speed's low 256 whole pixels, but a falling speed never
+        // reaches 256: gravity adds under a pixel per update, so it would take over two thousand updates of falling,
+        // past any room's height, to get there.
+        UnsignedSixteenSixteen fallingSpeed = samus.Kinematics.YSpeed;
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
-        int minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
-            SamusLiquidMedium.Air
-                ? 128
-                : 640;
-        if (fallingVelocity8_8 < minimumVelocity || fallingVelocity8_8 >= 1280 ||
+        UnsignedSixteenSixteen minimumSpeed = samus.LiquidPhysics.LiquidPhysicsType != SamusLiquidMedium.Air
+            ? SamusVerticalMotionDefinitions.SpaceJumpLiquidMinimumFallingSpeed
+            : SamusVerticalMotionDefinitions.SpaceJumpAirMinimumFallingSpeed;
+        if (fallingSpeed.IsSlowerThan(minimumSpeed) ||
+            !fallingSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.SpaceJumpFallingSpeedLimit) ||
             (controllerNewInput & ControllerButton.A) == ControllerButton.None)
         {
             return false;

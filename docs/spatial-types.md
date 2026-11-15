@@ -33,8 +33,7 @@ different types; moving between spaces is always a named conversion.
 | Space | Meaning |
 |---|---|
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
-| `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
-| `SpritePixels` | Sprite placement coordinates relative to the screen: every spritemap draw origin and every authored sprite anchor. |
+| `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, the on-screen places of cinematic and menu objects, every sprite draw origin and every authored sprite anchor. There is one screen (#2020). |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `PlanePixels` | Pixels of a pictured plane, as the plane pixel shown at the screen's top-left selects. |
 | `RoomBlocks` | The sixteen-pixel collision/level-data grid. |
@@ -54,9 +53,12 @@ stick is `SuperMetroid.Desktop.Input.GamepadStick`.
 Add a space only when values in it must not mix with an existing space; document it here and give it its own
 `csharp/src/SuperMetroid.Core/Spatial/<Space>.cs` file beside the others.
 
-Sprite drawing: asset compositions draw at a `Position16<SpritePixels>` origin and authored sprite
-anchors are sprite placement coordinates. Game and cinematic state keeps on-screen object positions in
-`ScreenPixels` and converts at the draw call with `ScreenConversions.ToSpritePosition`.
+Sprite drawing: a sprite draw and a frontend sprite list take a signed screen place, an
+`Offset16<ScreenPixels>` from the screen's top-left corner, negative left of or above the screen (#2000). The
+place is computed signed where it comes from: a room position by `ScreenConversions.RelativeToCamera`, a map-plane
+pixel by `MapScreenConversions.RelativeToScroll`, an authored anchor installed as a signed place, and a moving
+on-screen object kept as a signed fixed-point place (`FixedVector<ScreenPixels>`). No draw converts a wrapped unsigned
+position (#2020).
 
 ## Shapes
 
@@ -114,9 +116,9 @@ left unwrapped fails where it is stored instead of being truncated there.
 - Conversions between spaces are named methods/extensions in `SuperMetroid.Core.Spatial` next to
   the spaces they join:
   - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
-    `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
-    native code stores (Samus's death-sequence screen position);
-    `ScreenConversions.ToSpritePosition`: an on-screen position as the sprite draw origin;
+    `ScreenConversions.ToScreen`: the same subtraction kept as wrapped unsigned words, which the enemy and boss
+    draws still read (#2020 leaves them to their own tickets);
+    `MapScreenConversions.RelativeToScroll`: a map-plane pixel minus the map's scroll, as a signed screen offset;
     `ScreenConversions.WholePixels`: an unsigned 8.8 screen position's high bytes as screen pixels.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
     `ToRoomPixels`: a scroll-zone screen, or a block (`ASL ×4`), to its top-left room pixel;

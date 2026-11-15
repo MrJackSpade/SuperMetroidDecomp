@@ -131,7 +131,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
-                samus.Presentation.DrawOrigin.X, samus.Presentation.DrawOrigin.Y);
+                unchecked((ushort)samus.Presentation.DrawOrigin.X), unchecked((ushort)samus.Presentation.DrawOrigin.Y));
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
         {
@@ -220,12 +220,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     Check("Samus top spritemap", SpritemapIndex(Drawn()?.Top), NativeSnapshotMemory.SamusTopSpritemap);
                     Check("Samus bottom spritemap", SpritemapIndex(Drawn()?.Bottom), NativeSnapshotMemory.SamusBottomSpritemap);
-                    Check("Samus sprite X", samus.Presentation.DrawOrigin.X, NativeSnapshotMemory.SamusSpriteX);
+                    Check("Samus sprite X", CoordinateAxis.Wrap(samus.Presentation.DrawOrigin.X), NativeSnapshotMemory.SamusSpriteX);
                     // A landing frame's native position word carries the table byte after its own, which the drawn origin
                     // never shows (#1500); the oracle gives the row the cartridge draws at.
                     ushort nativeSpriteY = frame == 0 ? W(NativeSnapshotMemory.SamusSpriteY) : RidleyNativeBodyRecord(bus, memory).DrawnY;
-                    if (samus.Presentation.DrawOrigin.Y != nativeSpriteY)
-                        mismatches.Add($"Samus sprite Y: native={nativeSpriteY:X4} port={samus.Presentation.DrawOrigin.Y:X4}");
+                    int portSpriteY = CoordinateAxis.Wrap(samus.Presentation.DrawOrigin.Y);
+                    if (portSpriteY != nativeSpriteY)
+                        mismatches.Add($"Samus sprite Y: native={nativeSpriteY:X4} port={portSpriteY:X4}");
                 }
                 if (frame != 0)
                 {
@@ -814,7 +815,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
                     ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), expectedOam, nativeMap, new(128, 96), 0, true);
-                    actualOam.AddEnemySpritemap(parts.Span, new Position16<SpritePixels>(128, 96), 0, 0,
+                    actualOam.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
                         !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||

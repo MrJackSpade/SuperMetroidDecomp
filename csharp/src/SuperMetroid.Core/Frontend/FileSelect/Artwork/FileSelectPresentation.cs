@@ -32,7 +32,7 @@ public sealed class FileSelectPresentation
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
-    internal Position16<SpritePixels> CursorPosition(FileSelectCursorPage page, int selected) =>
+    internal Offset16<ScreenPixels> CursorPosition(FileSelectCursorPage page, int selected) =>
         Point(page switch
         {
             FileSelectCursorPage.Main => placements.MainCursorAnchors,
@@ -43,19 +43,19 @@ public sealed class FileSelectPresentation
 
     /// <summary>Draws the page's border frame of the file-select sheet at its authored screen anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border] - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border], shading: PictureShading.Standard);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
-    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
+    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> anchor) =>
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor, shading: PictureShading.Standard);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, SaveSlot slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
-            Ensure.Listed(placements.HelmetAnchors, slot) - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
+            Ensure.Listed(placements.HelmetAnchors, slot), shading: PictureShading.Standard);
 
     /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
-    private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>
+    private static Offset16<ScreenPixels> Point(Offset16<ScreenPixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
 }

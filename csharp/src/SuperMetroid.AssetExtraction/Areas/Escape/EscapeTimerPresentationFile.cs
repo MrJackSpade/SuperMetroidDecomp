@@ -33,10 +33,10 @@ public static class EscapeTimerPresentationFile
             EscapeTimerLayoutDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerLayoutNames.AnchorName(anchor))))
             throw new InvalidDataException("Escape timer presentation requires Label, Minutes, Seconds and Centiseconds anchors exactly once.");
 
-        var anchors = new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>();
+        var anchors = new Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>>();
         foreach (EscapeTimerAnchor anchor in EscapeTimerLayoutDefinitions.Anchors)
         {
-            Offset16<SpritePixels> point = document.Anchors[EscapeTimerLayoutNames.AnchorName(anchor)];
+            Offset16<ScreenPixels> point = document.Anchors[EscapeTimerLayoutNames.AnchorName(anchor)];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {anchor} is outside the supported screen-relative range.");
             anchors.Add(anchor, point);

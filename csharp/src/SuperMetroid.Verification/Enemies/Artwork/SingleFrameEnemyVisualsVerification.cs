@@ -36,7 +36,7 @@ internal static class SingleFrameEnemyVisualsVerification
                 definition.Name + " is installed");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");
             var actual = new OamBuffer();
-            stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<ScreenPixels>(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
             CompareOam(expected, actual, definition.Name);
@@ -46,7 +46,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var projectileStock = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(projectileBytes));
         var rockParts = projectileStock.GetProgramFrame(EnemyProjectileFrameId.PolypRockInitial);
         var rockActual = new OamBuffer();
-        rockActual.AddEnemySpritemap(rockParts.Span, new Position16<SpritePixels>(128, 112), 0x0c00, 0x20);
+        rockActual.AddEnemySpritemap(rockParts.Span, new Position16<ScreenPixels>(128, 112), 0x0c00, 0x20);
         ushort rockPointer = PolypRockFrameToolingDefinitions.Spritemap(EnemyProjectileFrameId.PolypRockInitial);
         var rockExpected = new OamBuffer();
         ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = rockPointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>Conversions from room pixels to the viewport the camera selects, and from the viewport to sprite placement.</summary>
+/// <summary>Conversions from room pixels to the viewport the camera selects.</summary>
 [EncodingOwner("screen and sprite coordinates")]
 public static class ScreenConversions
 {
@@ -21,10 +21,4 @@ public static class ScreenConversions
     /// </summary>
     public static Position16<ScreenPixels> ToScreen(this Position16<RoomPixels> room, Position16<RoomPixels> camera) =>
         new(unchecked((ushort)(room.X - camera.X)), unchecked((ushort)(room.Y - camera.Y)));
-
-    /// <summary>
-    /// The sprite placement of a screen position: sprite coordinates are screen pixels, so the coordinates are
-    /// unchanged and the sprite list applies its placement range rules.
-    /// </summary>
-    public static Position16<SpritePixels> ToSpritePosition(this Position16<ScreenPixels> screen) => new(screen.X, screen.Y);
 }

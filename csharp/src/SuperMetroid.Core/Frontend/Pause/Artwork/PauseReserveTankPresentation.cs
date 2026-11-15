@@ -10,12 +10,12 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseReserveTankPresentation
 {
     /// <summary>The installed anchor of each strip position, tanks then the trailing cap.</summary>
-    internal readonly Position16<SpritePixels>[] anchors;
+    internal readonly Offset16<ScreenPixels>[] anchors;
 
     /// <summary>Keeps the complete installed anchors.</summary>
     /// <param name="anchors">The six strip anchors, in strip order.</param>
     /// <exception cref="InvalidDataException">The strip does not hold exactly six anchors.</exception>
-    internal PauseReserveTankPresentation(Position16<SpritePixels>[] anchors)
+    internal PauseReserveTankPresentation(Offset16<ScreenPixels>[] anchors)
     {
         Ensure.NotNull(anchors);
         if (anchors.Length != PauseReserveTankDefinitions.AnchorCount)
@@ -27,7 +27,7 @@ public sealed class PauseReserveTankPresentation
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
     /// <returns>The installed screen-pixel anchor for that strip position.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The position is outside the six-entry strip.</exception>
-    public Position16<SpritePixels> Anchor(int index) =>
+    public Offset16<ScreenPixels> Anchor(int index) =>
         (uint)index < (uint)anchors.Length ? anchors[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>
@@ -42,9 +42,9 @@ public sealed class PauseReserveTankPresentation
     public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index)
     {
         // The strip position is checked before the visual.
-        Position16<SpritePixels> anchor = Anchor(index);
+        Offset16<ScreenPixels> anchor = Anchor(index);
         string name = PauseReserveTankParts.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
             .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor - Position16<SpritePixels>.Zero, PictureShading.Standard);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor, PictureShading.Standard);
     }
 }

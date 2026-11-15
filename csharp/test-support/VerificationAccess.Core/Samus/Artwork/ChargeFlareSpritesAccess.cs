@@ -10,7 +10,7 @@ internal static class ChargeFlareSpritesAccess
     extension(ChargeFlareSprites self)
     {
         /// <summary>Draws the composition an entry of the original selector table stands for, without consulting ROM.</summary>
-        public void Draw(ushort selector, OamBuffer oam, Position16<SpritePixels> origin)
+        public void Draw(ushort selector, OamBuffer oam, Position16<ScreenPixels> origin)
         {
             if (selector >= ChargeFlareSpriteNative.NativeSelectorCount)
                 throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");

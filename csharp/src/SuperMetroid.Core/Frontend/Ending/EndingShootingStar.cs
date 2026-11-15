@@ -9,8 +9,11 @@ internal struct EndingShootingStar
     internal int AnimationFrame;
     /// <summary>Current delay or animation countdown.</summary>
     internal int Timer;
-    /// <summary>Fixed-point screen position before centering the sprite.</summary>
-    internal FixedPosition<ScreenPixels> Position;
+    /// <summary>
+    /// Fixed-point signed screen place before centering the sprite: left of or above the screen is negative, so a star
+    /// leaving by the top or left edge is tested against <see cref="EndingShootingStarDefinitions.SpriteOffset"/> as it is.
+    /// </summary>
+    internal FixedVector<ScreenPixels> Position;
     /// <summary>Current signed 1/256-pixel motion accumulated by the star's acceleration.</summary>
     internal EightEightVector<ScreenPixels> Velocity;
 }

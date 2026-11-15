@@ -83,9 +83,9 @@ internal static class PauseSelectorAnchorsVerification
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {
-            var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
+            var anchors = new Dictionary<string, Offset16<ScreenPixels>>(document.Anchors);
             var first = anchors["Reserve.Mode"];
-            anchors["Reserve.Mode"] = horizontal ? new(unchecked((ushort)invalid), first.Y) : new(first.X, unchecked((ushort)invalid));
+            anchors["Reserve.Mode"] = horizontal ? new(invalid, first.Y) : new(first.X, invalid);
             AssertThrows<InvalidDataException>(() =>
             {
                 using var written = new MemoryStream();

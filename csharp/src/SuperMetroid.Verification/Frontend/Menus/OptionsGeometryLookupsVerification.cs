@@ -29,7 +29,7 @@ internal static class OptionsGeometryLookupsVerification
     private static void VerifyOptionsCursorRows(ISnesAddressSpace rom, int address, int count, GameOptionsPage page, string name)
     {
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(GameOptionsPresentationExtractor.Extract(rom), ArtworkJson.Options);
-        Position16<SpritePixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+        Offset16<ScreenPixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
         AssertEqual(count, anchors.Length, $"{name} row count");
         for (int index = 0; index < count; index++)
             AssertEqual((int)ReadVerificationWord(rom, address + 4 * index), anchors[index].Y, $"{name} native word {index}");

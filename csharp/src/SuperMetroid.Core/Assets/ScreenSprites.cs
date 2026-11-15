@@ -47,7 +47,7 @@ public sealed class ScreenSprites
     /// The shades and colour effects the screen shows the frame in (#1512); <see cref="PictureShading.Standard"/> where
     /// the screen shows no effect on it.
     /// </param>
-    public void AddImage(SpriteSheetFrame frame, Offset16<SpritePixels> place, PictureShading shading)
+    public void AddImage(SpriteSheetFrame frame, Offset16<ScreenPixels> place, PictureShading shading)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(shading);
@@ -65,15 +65,11 @@ public sealed class ScreenSprites
         return result;
     }
 
-    /// <summary>
-    /// The draw of <paramref name="placedObject"/>'s frame at its place: a sprite placement is counted in the screen's own
-    /// pixels, so the place is the draw's screen origin unchanged.
-    /// </summary>
+    /// <summary>The draw of <paramref name="placedObject"/>'s frame at its place, the draw's screen origin.</summary>
     private static ImageSpriteDraw Draw(ScreenObject placedObject, int index) =>
-        new(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
-            new Offset16<ScreenPixels>(placedObject.Place.X, placedObject.Place.Y), SpriteMirror.None)
+        new(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image, placedObject.Place, SpriteMirror.None)
             { Shading = placedObject.Shading };
 
     /// <summary>One placed frame at its place, with the shading the screen shows it in (#1512).</summary>
-    private readonly record struct ScreenObject(Offset16<SpritePixels> Place, SpriteSheetFrame Image, PictureShading Shading);
+    private readonly record struct ScreenObject(Offset16<ScreenPixels> Place, SpriteSheetFrame Image, PictureShading Shading);
 }

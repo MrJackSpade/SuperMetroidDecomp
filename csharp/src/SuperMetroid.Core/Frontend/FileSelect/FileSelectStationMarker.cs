@@ -57,7 +57,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
     public void Draw(ScreenSprites entries, Position16<MapPixels> scroll, SpriteSheet? sheet = null)
     {
-        Position16<ScreenPixels> origin = MapPosition.ToScreen(scroll);
+        Offset16<ScreenPixels> origin = MapPosition.RelativeToScroll(scroll);
         // The backing is drawn behind the station marker on even animation loops.
         if (ShowBacking) Add(MapSpriteId.IndicatorBacking);
         Add(SpriteId);
@@ -65,7 +65,7 @@ public sealed class FileSelectStationMarker
         void Add(MapSpriteId id)
         {
             MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Save marker requires the installed map sprite sheet."),
-                id, entries, origin.ToSpritePosition(), MapSpriteScreen.FileSelect, MapSpriteColouring.Markers);
+                id, entries, origin, MapSpriteScreen.FileSelect, MapSpriteColouring.Markers);
         }
     }
 }

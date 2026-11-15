@@ -134,7 +134,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(1, body.Length, "Samus pose 1 publishes one full-body frame");
     AssertTrue(ShowsBodyFrame(samus, body[0], poseOne), "the body draw shows its whole-picture sheet frame");
     AssertEqual(new SpriteSource(SpriteSourceKind.Samus), body[0].Source, "body draw source");
-    AssertEqual(samus.Presentation.DrawOrigin - Position16<ScreenPixels>.Zero, body[0].Origin, "body draw sits at the spritemap origin");
+    AssertEqual(samus.Presentation.DrawOrigin, body[0].Origin, "body draw sits at the spritemap origin");
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
     OamEntry firstTop = oam.GetEntry(0);

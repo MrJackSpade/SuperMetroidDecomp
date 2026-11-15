@@ -192,11 +192,10 @@ internal sealed class ProjectileTrails
             return;
 
         // The trail is published wherever it lies; the display clips it to the view (#1541).
-        int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - cameraPosition.Y);
+        Offset16<ScreenPixels> place = side.DisplayedPosition.RelativeToCamera(cameraPosition);
 
         SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, trailIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
-            image, Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+            image, place, SpriteMirror.None));
     }
 }

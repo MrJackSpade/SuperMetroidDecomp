@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseSelectorPresentation
 {
     /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
-    internal readonly Dictionary<string, Position16<SpritePixels>> anchors;
+    internal readonly Dictionary<string, Offset16<ScreenPixels>> anchors;
     /// <summary>The frame each animation phase shows for a category, in phase order.</summary>
     internal readonly string[] reserve, beam, equipment;
     /// <summary>The installed dwell of each animation phase, in ticks.</summary>
@@ -26,7 +26,7 @@ public sealed class PauseSelectorPresentation
     internal PauseSelectorPresentation(PauseSelectorParts parts)
     {
         Ensure.NotNull(parts);
-        anchors = new Dictionary<string, Position16<SpritePixels>>(parts.Anchors, StringComparer.Ordinal);
+        anchors = new Dictionary<string, Offset16<ScreenPixels>>(parts.Anchors, StringComparer.Ordinal);
         durations = [.. parts.Durations];
         reserve = PhaseFrames(parts.Reserve, nameof(parts.Reserve));
         beam = PhaseFrames(parts.Beam, nameof(parts.Beam));
@@ -39,10 +39,10 @@ public sealed class PauseSelectorPresentation
         : throw new InvalidDataException($"The installed pause selector's {category} sequence names {frames.Count} frames for {durations.Length} phases.");
     /// <summary>The installed screen-pixel anchor of <paramref name="control"/>.</summary>
     /// <exception cref="InvalidDataException">The installation has no anchor for the control.</exception>
-    public Position16<SpritePixels> Anchor(PauseEquipmentControl control)
+    public Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
     {
         string name = Ensure.NotNull(control).Anchor;
-        return anchors.TryGetValue(name, out Position16<SpritePixels> anchor) ? anchor
+        return anchors.TryGetValue(name, out Offset16<ScreenPixels> anchor) ? anchor
             : throw new InvalidDataException($"The installed pause selector has no anchor {name}.");
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
@@ -65,14 +65,14 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         })[normalized];
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point - Position16<SpritePixels>.Zero, PictureShading.Standard);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point, PictureShading.Standard);
     }
 
     /// <summary>Validated selector parts passed into the installed representation.</summary>
     internal sealed record PauseSelectorParts
     {
         /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
-        public required IReadOnlyDictionary<string, Position16<SpritePixels>> Anchors { get; init; }
+        public required IReadOnlyDictionary<string, Offset16<ScreenPixels>> Anchors { get; init; }
 
         /// <summary>The reserve category's frame for each phase, in phase order.</summary>
         public required IReadOnlyList<string> Reserve { get; init; }

@@ -13,7 +13,7 @@ public sealed record PauseSelectorLayoutDocument
     /// <summary>Gets the initial selector dwell time in update ticks.</summary>
     public required int InitialDurationTicks { get; init; }
     /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
-    public required Dictionary<string, Position16<SpritePixels>> Anchors { get; init; }
+    public required Dictionary<string, Offset16<ScreenPixels>> Anchors { get; init; }
     /// <summary>Gets the ordered cyclic animation phases.</summary>
     public required PauseSelectorPhase[] Animation { get; init; }
 }

@@ -8,7 +8,7 @@ public sealed record MapArrowEntry
 {
     /// <summary>The authored screen-pixel anchor.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<SpritePixels> Position => new(X, Y);
+    public Offset16<ScreenPixels> Position => new(X, Y);
     /// <summary>Gets the horizontal screen-pixel anchor from zero through 255.</summary>
     public required int X { get; init; }
     /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>

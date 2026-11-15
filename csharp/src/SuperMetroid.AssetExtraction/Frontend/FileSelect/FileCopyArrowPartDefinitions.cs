@@ -18,8 +18,8 @@ internal static class FileCopyArrowPartDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Undefined file-copy arrow shape."),
     };
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>
-    private static CompiledSpritePart Part(Offset16<SpritePixels> offset, int tile, PictureFlip flip) => new(
-        SpritePart.Create(Offset16<ScreenPixels>.Of(offset.X, offset.Y), false,
+    private static CompiledSpritePart Part(Offset16<ScreenPixels> offset, int tile, PictureFlip flip) => new(
+        SpritePart.Create(offset, false,
         tile, 1, 3, flip), true);
 
     /// <summary>The short downward arrow's native sprite order, interleaving shaft and arrowhead tiles.</summary>

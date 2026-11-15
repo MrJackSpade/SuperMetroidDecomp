@@ -25,7 +25,7 @@ internal static class MapWindowMotionDefinitionsVerification
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
             var stock = FileSelectMapWindowMotions.StockOrigin(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
-            Position16<SpritePixels> installed = labels.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
+            Offset16<ScreenPixels> installed = labels.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.StockOrigin(SuperMetroid.Core.Progression.AreaId.Ceres),

@@ -128,7 +128,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
                 new(originX, originY), graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
-                new Position16<SpritePixels>(originX, originY),
+                new Position16<ScreenPixels>(originX, originY),
                 unchecked((ushort)(LittleEndianBytes.HighByteInPlace(graphicsIndex))),
                 unchecked((byte)graphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: onScreen);
@@ -425,7 +425,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         new(originX, originY), FixtureGraphicsIndex, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
                         installed.GetProgramFrame(frame.OperandAddress).Span,
-                        new Position16<SpritePixels>(originX, originY), 0x0a00, 4,
+                        new Position16<ScreenPixels>(originX, originY), 0x0a00, 4,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertTrue(nativeOam.NextByteOffset == installedOam.NextByteOffset &&
                         nativeOam.ImageEquals(installedOam),

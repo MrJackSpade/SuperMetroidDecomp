@@ -47,13 +47,13 @@ public static class PauseSelectorLayoutFile
     /// each phase's frames among those <paramref name="isFrame"/> accepts.
     /// </summary>
     /// <exception cref="InvalidDataException">An anchor, a phase or a duration is invalid.</exception>
-    internal static PauseSelectorPresentation Presentation(int initialDuration, Dictionary<string, Position16<SpritePixels>>? anchors,
+    internal static PauseSelectorPresentation Presentation(int initialDuration, Dictionary<string, Offset16<ScreenPixels>>? anchors,
         PauseSelectorPhase[]? animation, Func<string, bool> isFrame)
     {
         if (initialDuration is < 1 or > PauseSelectorFormat.MaximumDuration || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
             animation is null || animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
-        var named = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal);
+        var named = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
         foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {
             string name = control.Anchor;

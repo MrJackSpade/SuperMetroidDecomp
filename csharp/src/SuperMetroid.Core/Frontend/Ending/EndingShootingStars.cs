@@ -40,10 +40,10 @@ internal sealed class EndingShootingStars
             {
                 int multiplier = star.AnimationFrame >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
                 star.Velocity += definition.Acceleration * multiplier;
-                star.Position = star.Position.Advance(star.Velocity.ToSixteenSixteen());
+                star.Position += star.Velocity.ToSixteenSixteen();
             }
 
-            Position16<ScreenPixels> whole = star.Position.Whole;
+            Offset16<ScreenPixels> whole = star.Position.Whole;
             if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge ||
                 whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge)
             {
@@ -68,15 +68,16 @@ internal sealed class EndingShootingStars
         foreach (var star in stars)
         {
             if (star.Delayed || star.AnimationFrame == 0) continue;
-            Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            sprites.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.AnimationFrame)), origin.ToSpritePosition() - Position16<SpritePixels>.Zero, shading);
+            Offset16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
+            sprites.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.AnimationFrame)), origin, shading);
         }
     }
 
     /// <summary>Returns a star to the shared origin, undelayed, at the start of its animation lead-in.</summary>
     private static void Reset(ref EndingShootingStar star) => star = new()
     {
-        Position = new(new(EndingShootingStarDefinitions.Origin, 0), new(EndingShootingStarDefinitions.Origin, 0)),
+        Position = FixedVector<ScreenPixels>.FromWholePixels(
+            Offset16<ScreenPixels>.Of(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin)),
         Timer = EndingShootingStarDefinitions.InitialTimer
     };
 }

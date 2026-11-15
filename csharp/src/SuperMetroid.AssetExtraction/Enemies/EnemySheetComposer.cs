@@ -508,7 +508,7 @@ internal static class EnemySheetComposer
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
-                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), (EnemyExtendedDrawComponent[])[new EnemyExtendedDrawComponent(Offset16<SpritePixels>.Zero, parts)]);
+                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), (EnemyExtendedDrawComponent[])[new EnemyExtendedDrawComponent(Offset16<ScreenPixels>.Zero, parts)]);
             else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && !components.IsEmpty)
                 yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), components);
         }
@@ -528,7 +528,7 @@ internal static class EnemySheetComposer
         internal SpriteFrame Picture(int tileBase)
         {
             ReadOnlySpan<EnemyExtendedDrawComponent> pieces = Pieces.Span;
-            if (pieces.Length == 1 && pieces[0].Offset == Offset16<SpritePixels>.Zero)
+            if (pieces.Length == 1 && pieces[0].Offset == Offset16<ScreenPixels>.Zero)
                 return EnemySpriteFrames.Frame(pieces[0].Parts, tileBase, 0);
             var parts = new List<SpriteFramePart>();
             foreach (EnemyExtendedDrawComponent piece in pieces)

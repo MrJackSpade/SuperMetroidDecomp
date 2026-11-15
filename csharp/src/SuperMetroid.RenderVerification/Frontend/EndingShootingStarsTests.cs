@@ -47,11 +47,11 @@ internal static class EndingShootingStarsTests
                 // Closed-form sums: native star 1 accelerates once until frame 38,
                 // then twice. This independently checks fixed-point integration.
                 int sum = frame * (frame + 1) / 2 + Math.Max(0, frame - 38) * Math.Max(0, frame - 37) / 2;
-                Require(FixedCoordinate.Of(star.Position.X.Whole, star.Position.X.Fraction) == SixteenSixteenWords.ToCoordinate((128u << 16) + (uint)(12 * sum * 256)), "Star X trajectory");
-                Require(FixedCoordinate.Of(star.Position.Y.Whole, star.Position.Y.Fraction) == SixteenSixteenWords.ToCoordinate((128u << 16) - (uint)(sum * 256)), "Star Y trajectory");
+                Require(star.Position.X == SignedSixteenSixteen.FromParts(128, 0) + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(12 * sum), "Star X trajectory");
+                Require(star.Position.Y == SignedSixteenSixteen.FromParts(128, 0) - SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sum), "Star Y trajectory");
             }
             if (frame == 9)
-                Require(stars.Stars[0].Position.X.Whole == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer == 31,
+                Require(stars.Stars[0].Position.X.WholePixels == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer == 31,
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
@@ -60,7 +60,7 @@ internal static class EndingShootingStarsTests
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }
         }
-        Require(stars.Stars[1].Position.Whole == new Position16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
+        Require(stars.Stars[1].Position.Whole == new Offset16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
             !stars.Stars[1].Delayed && stars.Stars[1].AnimationFrame == 0 && stars.Stars[1].Timer == 32, "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {

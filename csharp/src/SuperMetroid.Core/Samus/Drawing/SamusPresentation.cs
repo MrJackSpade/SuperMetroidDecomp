@@ -17,8 +17,11 @@ internal sealed class SamusPresentation
     /// </summary>
     public SamusBodyFrame? DrawnFrame { get; internal set; }
 
-    /// <summary>The screen point Samus's body picture was last drawn at, from her world position and the foreground scroll.</summary>
-    public Position16<ScreenPixels> DrawOrigin { get; internal set; }
+    /// <summary>
+    /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
+    /// left of or above the screen is negative.
+    /// </summary>
+    public Offset16<ScreenPixels> DrawOrigin { get; internal set; }
 
     /// <summary>Currently bound body placements and presentation catalogs; never part of save state.</summary>
     public InstalledSamusBodyArtwork? Artwork { get; private set; }
@@ -379,15 +382,11 @@ internal sealed class SamusPresentation
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(position)
             : position;
-        int renderX = renderPoint.X;
-        int renderY = renderPoint.Y;
 
         InstalledSamusBodyArtwork artwork = Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
-        int originX = CoordinateAxis.Wrap(renderX - cameraPosition.X);
-        int originY = CoordinateAxis.Wrap(
-            renderY - artwork.OriginRise(samus.Pose, pictureFrame) - cameraPosition.Y);
-        DrawOrigin = Position16<ScreenPixels>.Of(originX, originY);
+        DrawOrigin = (renderPoint - Offset16<RoomPixels>.Of(0, artwork.OriginRise(samus.Pose, pictureFrame)))
+            .RelativeToCamera(cameraPosition);
 
         // The body is one whole picture of her pose at its picture frame, drawn at the origin (#1513, #1585).
         var body = new SamusBodyFrame(samus.Pose, pictureFrame);
@@ -521,9 +520,7 @@ internal sealed class SamusPresentation
             return;
 
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int screenX = CoordinateAxis.Wrap(echo.X - cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(echo.Y - graphicsYOffset - cameraPosition.Y);
-        var origin = Position16<ScreenPixels>.Of(screenX, screenY);
+        Offset16<ScreenPixels> origin = (echo - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
         // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
             sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, instance));

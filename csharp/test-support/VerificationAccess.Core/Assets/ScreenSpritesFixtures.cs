@@ -39,7 +39,7 @@ internal static class ScreenSpritesFixtures
         {
             CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
             ScreenObjectSizes sizes = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.ObjectSizes(draw);
-            var origin = new Position16<SpritePixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
+            var origin = new Position16<ScreenPixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
             bool onScreenLoader = (short)character.Origin.Y is >= 0 and < OnScreenLoaderBand;
             foreach (SpriteFramePart part in character.Frame.Parts)
             {

@@ -62,8 +62,7 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareAnimationTimer.IsNegative)
             ShowFlare(grapple, ChargeFlareAnimations.NextMainFlare(grapple.FlarePlace));
 
-        int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
+        Offset16<ScreenPixels> place = grapple.BeamStart.RelativeToCamera(cameraPosition);
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
@@ -73,8 +72,7 @@ public static class SamusGrappleBeamDrawing
             ?? throw new InvalidOperationException($"The grapple flare's place {grapple.FlarePlace} shows no main flare.");
         SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
-            Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place, SpriteMirror.None));
         return true;
     }
 
@@ -175,8 +173,7 @@ public static class SamusGrappleBeamDrawing
 
         // Each rope picture is placed by its centre, the first at the muzzle and each after it one segment's spacing on
         // toward the anchor. A positive rope shorter than one spacing still shows its first picture.
-        FixedPosition<ScreenPixels> centre = FixedPosition<ScreenPixels>.FromWhole(new Position16<ScreenPixels>(
-            CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X), CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y)));
+        FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(grapple.BeamStart.RelativeToCamera(cameraPosition));
         int segmentCount = Math.Max(1, grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing);
         for (int segment = 0; segment < segmentCount; segment++)
         {
@@ -184,15 +181,14 @@ public static class SamusGrappleBeamDrawing
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, RopePicture(grapple.RopeAnimationPhase, segment), mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
-                centre.Whole - Position16<ScreenPixels>.Zero, SpriteMirror.None));
-            centre = centre.Advance(step);
+                centre.Whole, SpriteMirror.None));
+            centre += step;
         }
 
         // The endpoint is placed by its centre at the anchor.
         SpriteSheetFrame endpoint = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.EndpointFrame(grapple.PointAnimationFrame));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), endpoint,
-            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - cameraPosition.X), CoordinateAxis.Wrap(grapple.Anchor.Y - cameraPosition.Y)) - Position16<ScreenPixels>.Zero,
-            SpriteMirror.None));
+            grapple.Anchor.RelativeToCamera(cameraPosition), SpriteMirror.None));
     }
 
 

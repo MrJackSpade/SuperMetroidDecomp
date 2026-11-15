@@ -46,8 +46,8 @@ public static class GameOptionsLayoutFile
 
     /// <summary>The presentation the anchors and duration name, once each is checked.</summary>
     /// <exception cref="InvalidDataException">A menu's anchors are missing or off screen, or the duration is below one update.</exception>
-    internal static GameOptionsPresentation Presentation(Dictionary<string, Position16<SpritePixels>>? headingAnchors,
-        Dictionary<string, Position16<SpritePixels>[]>? cursorAnchors, int cursorFrameDuration)
+    internal static GameOptionsPresentation Presentation(Dictionary<string, Offset16<ScreenPixels>>? headingAnchors,
+        Dictionary<string, Offset16<ScreenPixels>[]>? cursorAnchors, int cursorFrameDuration)
     {
         string[] menuNames = [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsPresentationFormat.MenuName)];
         RequireExactKeys(headingAnchors, menuNames, "options heading anchors");
@@ -59,10 +59,10 @@ public static class GameOptionsLayoutFile
             string name = GameOptionsPresentationFormat.MenuName(page);
             ValidatePoint(headingAnchors[name], $"{name} heading", byte.MaxValue);
             int expected = GameOptionsNames.CursorCount(page);
-            Position16<SpritePixels>[]? points = cursorAnchors[name];
+            Offset16<ScreenPixels>[]? points = cursorAnchors[name];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
-            foreach (Position16<SpritePixels> point in points)
+            foreach (Offset16<ScreenPixels> point in points)
                 ValidatePoint(point, $"{name} cursor", byte.MaxValue);
         }
         return new GameOptionsPresentation(new GameOptionsPlacements
@@ -88,7 +88,7 @@ public static class GameOptionsLayoutFile
 
     /// <summary>Requires a screen origin within X=0..<paramref name="maximumX"/> and Y=0..255.</summary>
     /// <exception cref="InvalidDataException">The origin is outside that range.</exception>
-    private static void ValidatePoint(Position16<SpritePixels> point, string owner, int maximumX)
+    private static void ValidatePoint(Offset16<ScreenPixels> point, string owner, int maximumX)
     {
         if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)
             throw new InvalidDataException($"Options {owner} requires X=0..{maximumX} and Y=0..255.");

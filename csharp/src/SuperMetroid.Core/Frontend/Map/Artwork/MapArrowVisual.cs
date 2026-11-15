@@ -10,7 +10,7 @@ public sealed class MapArrowVisual
     /// <param name="position">The arrow's screen-pixel anchor.</param>
     /// <param name="durations">Each phase's dwell in ticks, in phase order; the cycle has at least one phase.</param>
     /// <exception cref="InvalidDataException">The cycle has no phase.</exception>
-    internal MapArrowVisual(Position16<SpritePixels> position, int[] durations)
+    internal MapArrowVisual(Offset16<ScreenPixels> position, int[] durations)
     {
         Position = position;
         this.durations = [.. Ensure.NotNull(durations)];
@@ -19,7 +19,7 @@ public sealed class MapArrowVisual
     }
 
     /// <summary>Screen-pixel anchor used when composing this direction's sprite.</summary>
-    public Position16<SpritePixels> Position { get; }
+    public Offset16<ScreenPixels> Position { get; }
 
     /// <summary>Bounds the cyclic phase index supplied to <see cref="Duration"/>.</summary>
     public int PhaseCount => durations.Length;

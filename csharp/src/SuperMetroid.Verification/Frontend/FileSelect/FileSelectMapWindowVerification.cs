@@ -24,7 +24,7 @@ using SuperMetroid.Core.Rendering;
 internal static class FileSelectMapWindowVerification
 {
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
-    private static WorldMapLabelPositions CreateWindowLabelFixture(Position16<SpritePixels> label)
+    private static WorldMapLabelPositions CreateWindowLabelFixture(Offset16<ScreenPixels> label)
     {
         var points = SuperMetroid.Core.Progression.AreaIds.Zebes.ToDictionary(area => area.ToString(),
             _ => label);

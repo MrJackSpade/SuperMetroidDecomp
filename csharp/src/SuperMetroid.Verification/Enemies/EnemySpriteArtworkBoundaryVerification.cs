@@ -41,7 +41,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (LittleEndianBytes.HighByteInPlace(y)) == 0 });
-            artwork.Enemies.Spritemaps.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<SpritePixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (LittleEndianBytes.HighByteInPlace(y)) == 0 });
+            artwork.Enemies.Spritemaps.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<ScreenPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (LittleEndianBytes.HighByteInPlace(y)) == 0 });
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
@@ -62,7 +62,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(5), BaseTileIndex = 0x04, ClipVerticalWrap = false,
             });
-            actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.Frame).Span, new Position16<SpritePixels>(x, y),
+            actual.AddEnemySpritemap(projectileArtwork.GetProgramFrame(frame.Frame).Span, new Position16<ScreenPixels>(x, y),
                 NativeSpriteGraphicsWords.PaletteBits(5), 0x04);
             Equal(expected, actual, $"room projectile {frame.Name} at {x},{y}");
 
@@ -74,7 +74,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             ushort pointer = EnemyProjectileFrames.Composition(composition);
             var actual = new OamBuffer(); var expected = new OamBuffer();
-            actual.AddEnemySpritemap(projectileArtwork.Get(pointer).Span, new Position16<SpritePixels>(128, 96), 0x0a00, 0x04,
+            actual.AddEnemySpritemap(projectileArtwork.Get(pointer).Span, new Position16<ScreenPixels>(128, 96), 0x0a00, 0x04,
                 clipVerticalWrap: true, originYIsOnScreen: true);
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(128, 96), 0x0a04, true);
             Equal(expected, actual, $"direct projectile {composition}");
@@ -89,7 +89,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var position = actor.Position;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,
-                position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics, actor.Graphics.FixedPaletteRow), (LittleEndianBytes.HighByteInPlace(position.Y)) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero), NativeSpriteGraphicsWords.GraphicsWord(actor.Graphics, actor.Graphics.FixedPaletteRow), (LittleEndianBytes.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

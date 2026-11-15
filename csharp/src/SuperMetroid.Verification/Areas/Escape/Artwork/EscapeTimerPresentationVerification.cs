@@ -133,7 +133,7 @@ internal static class EscapeTimerPresentationVerification
         {
             int fullAddress = address <= ushort.MaxValue ? 0x800000 | address : address;
             DrawImportedSpritemap(bus, oam, fullAddress,
-                new(unchecked((ushort)(timer.PixelPosition.X + offset)), timer.PixelPosition.Y), palette);
+                Position16<ScreenPixels>.Wrapped(timer.ScreenPlace.X + offset, timer.ScreenPlace.Y), palette);
         }
     }
 

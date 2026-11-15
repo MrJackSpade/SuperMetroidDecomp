@@ -103,7 +103,7 @@ internal static class ProjectileTrailArtworkVerification
             if (coordinate < 256)
             {
                 var native = new OamBuffer();
-                native.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)coordinate, (byte)coordinate), attributes);
+                native.AddProjectileTrailSprite(new Position16<ScreenPixels>((byte)coordinate, (byte)coordinate), attributes);
                 AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), $"Trail pose {pose} draws its native sprite");
                 AssertEqual(native.NextByteOffset / 4, authored.LastFinalizedSpriteCount, "Trail sheet retains its sprite count");
             }
@@ -176,7 +176,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (side.FrameHold == 0) continue;
             }
             if (side.Position.X < 256 && side.Position.Y < 256 && words.TryGetValue(side, out ushort word))
-                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), word);
+                oam.AddProjectileTrailSprite(new Position16<ScreenPixels>((byte)side.Position.X, (byte)side.Position.Y), word);
         }
     }
     /// <summary>Runs the cartridge-backed trail art and mechanics comparison from its command-line switch.</summary>

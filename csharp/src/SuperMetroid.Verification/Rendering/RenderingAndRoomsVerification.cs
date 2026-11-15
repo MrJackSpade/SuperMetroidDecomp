@@ -90,8 +90,8 @@ internal static void VerifyObjRendering()
     // screen coordinate.
     cgram.SetColor(128 + 3 * 16 + 1, RgbColor.FromWord(0x03e0));
     oam.BeginFrame();
-    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
-    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
     RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
     AssertEqual(

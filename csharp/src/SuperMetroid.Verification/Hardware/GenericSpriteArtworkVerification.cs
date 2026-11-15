@@ -80,7 +80,7 @@ internal static class GenericSpriteArtworkVerification
                 // palette bits; the sheet pictures each composition only as it is drawn (#1513).
                 int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
                 show();
-                title.ActiveOrigin = new(x, y);
+                title.ActiveOrigin = Offset16<ScreenPixels>.Wrapped(x, y);
                 title.ActiveColouring = colouring;
                 title.PrepareRenderSprites();
                 expected = new OamBuffer(); expected.BeginFrame();
@@ -126,7 +126,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            (Position16<ScreenPixels>.Zero + caret.Caret).ToSpritePosition(), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
+            Position16<ScreenPixels>.Zero + caret.Caret, SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
@@ -181,10 +181,10 @@ internal static class GenericSpriteArtworkVerification
             loader.BeginFrame();
             if (onScreen)
                 loader.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
-                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
+                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<ScreenPixels>(12, (ushort)origin));
             else
                 loader.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
-                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
+                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<ScreenPixels>(12, (ushort)origin));
             loader.FinalizeFrame();
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;

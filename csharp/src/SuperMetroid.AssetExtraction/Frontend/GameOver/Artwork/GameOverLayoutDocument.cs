@@ -19,7 +19,7 @@ public record GameOverLayoutDocument
     public required Dictionary<string, ushort[]> BabyPalettes { get; init; }
     /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
     [JsonPropertyOrder(5)]
-    public required Position16<SpritePixels> BabyAnchor { get; init; }
+    public required Offset16<ScreenPixels> BabyAnchor { get; init; }
     /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
     [JsonPropertyOrder(6)]
     public required int CursorX { get; init; }

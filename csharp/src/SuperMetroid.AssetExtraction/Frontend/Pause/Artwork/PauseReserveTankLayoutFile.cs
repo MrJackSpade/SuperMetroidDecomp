@@ -40,7 +40,7 @@ public static class PauseReserveTankLayoutFile
 
     /// <summary>The six strip anchors <paramref name="anchors"/> names, each a screen pixel.</summary>
     /// <exception cref="InvalidDataException">There are not six anchors, or one is off screen.</exception>
-    internal static Position16<SpritePixels>[] Anchors(Position16<SpritePixels>[]? anchors)
+    internal static Offset16<ScreenPixels>[] Anchors(Offset16<ScreenPixels>[]? anchors)
     {
         if (anchors is null || anchors.Length != PauseReserveTankDefinitions.AnchorCount)
             throw new InvalidDataException("Reserve tanks require six anchors.");

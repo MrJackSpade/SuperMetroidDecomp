@@ -648,7 +648,7 @@ internal static class LookupStream5Verification
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? DefeatedBosses.AreaBoss : DefeatedBosses.None, system.BossesDefeatedIn(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
-            void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x - 7)), unchecked((ushort)(y - 9))), MapSpriteScreen.FileSelect, colouring);
+            void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");

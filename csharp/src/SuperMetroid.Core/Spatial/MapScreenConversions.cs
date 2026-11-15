@@ -18,9 +18,13 @@ public static class MapScreenConversions
         mapPixels - (mapPixels % PixelsPerMapTile + PixelsPerMapTile) % PixelsPerMapTile;
 
     /// <summary>
-    /// The screen position of a map-plane pixel under the map's scroll (<c>position - scroll</c>),
-    /// wrapping each axis at sixteen bits exactly as the game's sprite origins do.
+    /// Where a map-plane pixel lands on the screen under the map's scroll (<c>position - scroll</c>): each axis is the
+    /// difference wrapped around the map plane's 65536-pixel coordinates and read as signed, so a pixel left of or above
+    /// the screen is negative.
     /// </summary>
-    public static Position16<ScreenPixels> ToScreen(this Position16<MapPixels> position, Position16<MapPixels> scroll) =>
-        Position16<ScreenPixels>.Wrapped(position.X - scroll.X, position.Y - scroll.Y);
+    public static Offset16<ScreenPixels> RelativeToScroll(this Position16<MapPixels> position, Position16<MapPixels> scroll)
+    {
+        Offset16<MapPixels> delta = position - scroll;
+        return new Offset16<ScreenPixels>(delta.X, delta.Y);
+    }
 }

@@ -98,16 +98,12 @@ public sealed class SamusParticles
             SamusParticleKind.Bubbles => SamusAtmosphereSheetDefinitions.BubblesFrame(step),
             _ => throw new InvalidDataException($"Undefined particle kind {particle.Kind}."),
         };
-        int screenX = particle.Position.X - camera.X;
-        int screenY = particle.Position.Y - camera.Y;
+        Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
-        {
-            screenX = CoordinateAxis.Difference(screenX, SmallParticleHalfWidth);
-            screenY = CoordinateAxis.Difference(screenY, SmallParticleHalfWidth);
-        }
+            place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);
         SpriteSheetFrame picture = (sheets ?? throw new InvalidOperationException(
             "Samus's particles require the installed sprite sheets.")).Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, index), picture,
-            Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)) - Position16<ScreenPixels>.Zero, SpriteMirror.None);
+            place, SpriteMirror.None);
     }
 }

@@ -614,7 +614,7 @@ internal static class LookupStream1Verification
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
             // A frame outside the crouch's own pictures is placed as the picture it draws (#1513).
             int picture = shown.PictureFrame(SamusPoseId.DrainedCrouchingLeftPose, frame);
-            AssertEqual(unchecked((ushort)(128 + native[picture])), samus.Presentation.DrawOrigin.Y,
+            AssertEqual(128 + native[picture], (int)samus.Presentation.DrawOrigin.Y,
                 "Actual drained drawing uses the exact signed native correction of the picture it draws");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
@@ -644,7 +644,7 @@ internal static class LookupStream1Verification
                 var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.BindBodyFixture(stockArt);
                 samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
-                AssertEqual(unchecked((ushort)(128 + native[(SamusPoseNumbers.Number(pose) - 0x35) * 2 + frame])), samus.Presentation.DrawOrigin.Y,
+                AssertEqual(128 + native[(SamusPoseNumbers.Number(pose) - 0x35) * 2 + frame], (int)samus.Presentation.DrawOrigin.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
@@ -691,7 +691,7 @@ internal static class LookupStream1Verification
             samus.Presentation.BindBodyFixture(stock);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), cameraPosition: new(0, 0));
             // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
-            AssertEqual(unchecked((ushort)(128 - landing[index])), samus.Presentation.DrawOrigin.Y, "Actual rendering places every landing frame by its own byte");
+            AssertEqual(128 - landing[index], (int)samus.Presentation.DrawOrigin.Y, "Actual rendering places every landing frame by its own byte");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         Console.WriteLine("Body facing offsets:16 landing and 24 posture native placements, landing draws and bounds pass.");
@@ -881,7 +881,7 @@ internal static class LookupStream1Verification
         var stock = EscapeTimerPresentationFile.Load(new MemoryStream(json));
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
         foreach (EscapeTimerAnchor anchor in EscapeTimerLayoutDefinitions.Anchors)
-            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), stock.anchors[anchor], "Installed timer anchor matches native renderer immediate");
+            AssertEqual(new Offset16<ScreenPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), stock.anchors[anchor], "Installed timer anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;

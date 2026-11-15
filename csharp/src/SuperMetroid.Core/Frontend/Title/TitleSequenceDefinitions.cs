@@ -94,9 +94,9 @@ public static class TitleSequenceDefinitions
     public static class Sprites
     {
         /// <summary>The title logo's origin in screen pixels.</summary>
-        public static Position16<ScreenPixels> LogoOrigin => new(128, 48);
+        public static Offset16<ScreenPixels> LogoOrigin => new(128, 48);
         /// <summary>The Nintendo copyright's origin in screen pixels, below the logo.</summary>
-        public static Position16<ScreenPixels> CopyrightOrigin => new(128, 196);
+        public static Offset16<ScreenPixels> CopyrightOrigin => new(128, 196);
         /// <summary>The colouring the logo draws in, as the final zoom and the skip show it.</summary>
         public const TitleSpriteColouring LogoColouring = TitleSpriteColouring.Logo;
         /// <summary>The colouring the copyright draws in.</summary>

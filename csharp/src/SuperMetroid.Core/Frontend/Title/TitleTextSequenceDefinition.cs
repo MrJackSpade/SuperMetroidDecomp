@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <param name="Colouring">What the title shows the card's compositions as (#1512).</param>
 public readonly record struct TitleTextSequenceDefinition(
     TitleSequencePhase Phase,
-    Position16<ScreenPixels> Origin,
+    Offset16<ScreenPixels> Origin,
     TitleSpriteColouring Colouring);

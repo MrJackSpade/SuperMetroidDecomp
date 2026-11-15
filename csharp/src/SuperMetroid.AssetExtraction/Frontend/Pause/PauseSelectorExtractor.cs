@@ -33,7 +33,7 @@ public static class PauseSelectorExtractor
         for (int table = 0; table < columns.Length; table++)
             if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases.AddWithinBank(table * 2)) != PauseMenuSourceDefinitions.SelectorSpritemaps[columns[table][0].Category])
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
-        var anchors = new Dictionary<string, Position16<SpritePixels>>();
+        var anchors = new Dictionary<string, Offset16<ScreenPixels>>();
         for (int table = 0; table < columns.Length; table++)
         {
             var position = new SnesAddress(PauseMenuSourceDefinitions.PauseSelectorBank.Bank, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPositionPointers.AddWithinBank(table * 2)));

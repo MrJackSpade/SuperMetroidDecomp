@@ -24,19 +24,19 @@ public sealed record FileSelectLayoutDocument
     public required FileSelectSlotFieldDocument[] DataSlots { get; init; }
     /// <summary>Main, copy, and clear border origins in screen pixels, with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(9)]
-    public required Dictionary<string, Position16<SpritePixels>> BorderAnchors { get; init; }
+    public required Dictionary<string, Offset16<ScreenPixels>> BorderAnchors { get; init; }
     /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(10)]
-    public required Position16<SpritePixels>[] MainCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] MainCursorAnchors { get; init; }
     /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(11)]
-    public required Position16<SpritePixels>[] DataCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] DataCursorAnchors { get; init; }
     /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(12)]
-    public required Position16<SpritePixels>[] ConfirmationCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] ConfirmationCursorAnchors { get; init; }
     /// <summary>Three helmet origins in save-slot order, in screen pixels with X=0-511 and Y=0-255.</summary>
     [JsonPropertyOrder(13)]
-    public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] HelmetAnchors { get; init; }
     /// <summary>Exactly the four named copy/clear slot-letter anchors, each the page pixel its letter is shown at.</summary>
     [JsonPropertyOrder(14)]
     public required Dictionary<string, Position16<PlanePixels>> DynamicAnchors { get; init; }

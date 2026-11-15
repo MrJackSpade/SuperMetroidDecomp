@@ -11,10 +11,11 @@ namespace SuperMetroid.Core.Fx;
 /// Game-owned room effect the room's effect selection shows for the door Samus entered by.
 /// </summary>
 /// <remarks>
-/// Every room effect shares the liquid's level and target, its signed 1/256-pixel level speed, and
-/// the delay before it moves, which the room effect's load sets. This owner retains those values for every effect, including those that show nothing
-/// on the effect overlay (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
-/// writes into one representation of the room effect's state.
+/// The room's liquid has a level, a target level it moves toward, a speed and a wait before it moves. The room effect's
+/// load gives them, and a room with no effect has neither level nor target. Room objects and enemies then move the liquid
+/// with its own operations (<see cref="SetLiquidLevel"/>, <see cref="SetLiquidSpeed"/>, <see cref="MoveLiquidAfter"/>,
+/// <see cref="MoveLiquidTo"/>, <see cref="EndLiquidWaitNextUpdate"/>, <see cref="HaltLiquid"/>), whatever the effect
+/// shows on its overlay; the liquid's motion acts on them on its next pass.
 /// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
@@ -58,10 +59,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private Offset16<OverlaySubpixels> drift;
     /// <summary>
-    /// Rain's horizontal texture drift per frame in 1/256 pixels, chosen from the random number when the room loads;
-    /// only X is set. The fall is <see cref="RainFallVelocity"/>.
+    /// Rain's sideways texture drift each frame, the wind chosen from the random number when the room loads; it only
+    /// blows across. The fall is <see cref="RainFall"/>.
     /// </summary>
-    private Offset16<OverlaySubpixels> rainWindVelocity;
+    private Offset16<OverlaySubpixels> rainWind;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
@@ -78,17 +79,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// texture. Only X moves.
     /// </summary>
     private Offset16<OverlaySubpixels> waterDrift;
-    /// <summary>Countdown before advancing the water effect overlay waveform.</summary>
-    private int waterOverlayWaveTimer;
-    /// <summary>Countdown for the optional water background horizontal wave.</summary>
-    private int waterBackgroundWaveTimer;
-    /// <summary>Selected effect overlay water displacement frame.</summary>
-    private int waterOverlayWavePhase;
-    /// <summary>Selected background water displacement frame.</summary>
-    private int waterBackgroundWavePhase;
+    /// <summary>Where water's surface wave on the effect overlay stands in its cycle.</summary>
+    private WaveCycle waterOverlayWave;
+    /// <summary>Where water's optional sideways background wave stands in its cycle.</summary>
+    private WaveCycle waterBackgroundWave;
     /// <summary>
-    /// Liquid surface relative to the camera, used to clip the effect plane: the signed value of the wrapped difference, or
-    /// null while the liquid has no surface or none has been placed on the screen yet.
+    /// The screen line of the liquid's surface below the camera's top, negative for a surface above the screen, used to
+    /// clip the effect plane; null while the liquid has no surface or none has been placed on the screen yet.
     /// </summary>
     private int? waterSurfaceScreenY;
     /// <summary>
@@ -101,10 +98,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
     private int lavaAcidBackgroundWavePhase;
     /// <summary>
-    /// Set by the liquid's first motion pass, which only starts its motion. Each later pass moves the lava, acid or
-    /// water before the main loop's random number, until the next room load.
+    /// Whether the liquid's motion has begun (<see cref="LiquidMotionStart"/>): a room's liquid begins moving on its
+    /// second motion pass after the room loads, and each pass from then moves the lava, acid or water before the main
+    /// loop's random number, until the next room load.
     /// </summary>
-    internal bool LiquidMotionStarted { get; set; }
+    internal LiquidMotionStart MotionStart { get; set; }
     /// <summary>
     /// Records an enemy ending the liquid's scrolling motion directly, which stops
     /// its per-frame updates until the next room load.
@@ -120,32 +118,53 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// systems at it; the effect's own requests before that.
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
-    /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
+    /// <summary>
+    /// Countdown to the next quake sound while rising lava or acid or the Tourian statues rumble: the sound plays on the
+    /// update the countdown runs past zero.
+    /// </summary>
     internal WrappingCountdown EarthquakeSoundTimer { get; set; }
-    /// <summary>Position in the room earthquake sound sequence.</summary>
-    internal int EarthquakeSoundSequenceIndex { get; set; }
+
+    /// <summary>
+    /// Where the quake sounds stand in their rhythm (<see cref="RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays"/>):
+    /// the delay the next sound waits after it plays, returning to the first after the last.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The position lies outside the rhythm.</exception>
+    internal int EarthquakeSoundRhythmPosition
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays.Count - 1, value);
+    }
+
+    /// <summary>
+    /// Whether the room's quakes are silent (<see cref="RoomEarthquakeDefinitions.SoundSuppressedRooms"/>): rising lava or
+    /// acid and the Tourian statues shake such a room without their quake sound.
+    /// </summary>
+    internal bool QuakeSoundsSilenced { get; private set; }
 
     /// <summary>The kind of effect the room shows.</summary>
     public RoomFxType Type { get; internal set; }
 
     /// <summary>
-    /// The liquid surface before tide displacement, a room Y with subpixels from 0 through
-    /// <see cref="CoordinateAxis.LastNonNegative"/>: the room effect's starting
-    /// level in whole pixels (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
-    /// <see cref="LiquidLevelSpeed"/>; null when the effect names no surface (#1546).
+    /// The liquid surface before tide displacement, a room line at or below the room's top with its fraction: the room
+    /// effect's starting level (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
+    /// <see cref="LiquidLevelSpeed"/>; null when the effect names no surface or the room has no effect (#1546).
     /// </summary>
     public FixedCoordinate? BaseY { get; internal set; }
 
     /// <summary>
-    /// The room line from 0 through <see cref="CoordinateAxis.LastNonNegative"/> a rising or falling liquid stops at, or null when nothing names one and the
-    /// liquid never moves (#1546).
+    /// The room line, at or below the room's top, a rising or falling liquid stops at, or null when nothing names one and
+    /// the liquid never moves (#1546).
     /// </summary>
     public int? TargetSurface { get; private set; }
 
     /// <summary>The liquid's signed 1/256-pixel level speed in room pixels per update while it moves toward its target: negative rises.</summary>
     public SignedEightEight LiquidLevelSpeed { get; private set; }
 
-    /// <summary>The updates, 0 through 255, the liquid waits before it moves toward its target, as the room effect or a room object sets it.</summary>
+    /// <summary>
+    /// The updates the liquid waits, once its level has somewhere to go, before it moves toward its target, as the room
+    /// effect or a room object gives it. The wait counts down one update at a time and ends on reaching zero, so a wait of
+    /// zero runs past zero and lasts a whole round of the countdown (<see cref="WrappingCountdown"/>).
+    /// </summary>
     public WrappingCountdown LiquidMoveDelay { get; private set; }
 
     /// <summary>How the effect's overlay blends with the room (#1545), as the room effect describes it, or null when it shows no overlay.</summary>
@@ -218,8 +237,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void SelectEffect(RoomFxLoadSource source)
     {
-        if (source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room))
-            EarthquakeSoundTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
+        QuakeSoundsSilenced = source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
@@ -245,10 +263,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            // Both water motions, the surface wave and the background wave, run their phase initializer on the first
-            // liquid step. A one-frame timer reproduces that first-call rotation.
-            waterOverlayWaveTimer = 1;
-            waterBackgroundWaveTimer = 1;
+            // Both water waves, the surface's and the background's, start at their first phase.
+            waterOverlayWave = WaveCycle.StartingAt(WaterWaveDefinitions.FirstPhase);
+            waterBackgroundWave = WaveCycle.StartingAt(WaterWaveDefinitions.FirstPhase);
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -260,8 +277,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type == RoomFxType.Rain)
         {
-            rainWindVelocity = new Offset16<OverlaySubpixels>(
-                AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)), 0);
+            rainWind = DriftOf(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)),
+                SignedEightEight.Zero);
         }
     }
 
@@ -287,20 +304,29 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         (BaseY ?? new FixedCoordinate(0, LoadedSurfaceFraction)).WithWhole(SurfaceLine(line));
 
     /// <summary>
-    /// Accepts a named surface or target line: a line from the room's top that the liquid's readers find within the room.
-    /// The tide's surface line, the rise's test for passing the room's top and the overlay's test for no surface read the
-    /// line signed, so it stays within <see cref="CoordinateAxis.LastNonNegative"/>; a line past it would read as above the
-    /// room's top (#1627).
+    /// Accepts a named surface or target line: a room line at or below the room's top, no deeper than the deepest room line
+    /// (<see cref="CoordinateAxis.LastNonNegative"/>). The tide's surface line, the rise's test for passing the room's top
+    /// and the overlay's test for no surface read a surface's room line, on which a liquid above the room's top lies at a
+    /// negative line; a named line deeper than the deepest would read there (#1627).
     /// </summary>
     private static int SurfaceLine(int line) => Ensure.BetweenInclusive(0, CoordinateAxis.LastNonNegative, line);
 
     /// <summary>The base surface's whole line, or null without a surface.</summary>
-    private int? BaseLine => BaseY is { } baseY ? baseY.Whole : null;
+    private int? BaseLine => BaseY is { } baseY ? RoomLineOf(baseY) : null;
+
+    /// <summary>
+    /// The room line a liquid level lies on: its whole pixels from the room's top, negative for a level above the room's
+    /// top.
+    /// </summary>
+    private static int RoomLineOf(FixedCoordinate level) => (level - RoomTop).WholePixels;
+
+    /// <summary>The room's top line, from which a liquid level's room line is measured.</summary>
+    private static readonly FixedCoordinate RoomTop = default;
 
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
-    /// main-loop random-number generation. The liquid's first motion pass only starts its
-    /// motion (<see cref="LiquidMotionStarted"/>); lava/acid's motion then swaps the shared random state on
+    /// main-loop random-number generation. The liquid's first motion pass after the room loads only begins its
+    /// motion (<see cref="LiquidMotionStart"/>); lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -312,10 +338,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         SustainedEarthquake = null;
-        if (!LiquidMotionStarted)
+        if (!MotionStart.HasBegun)
         {
-            LiquidMotionStarted = true;
-            // The pass that starts lava's or acid's motion also starts its ambient sound clock.
+            MotionStart = LiquidMotionStart.Begun;
+            // The pass that begins lava's or acid's motion also starts its ambient sound clock.
             if (lavaOrAcid)
                 lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
             return;
@@ -387,7 +413,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.WholePixels();
-            drift += rainWindVelocity + RainFallVelocity;
+            drift += rainWind + RainFall;
             previousCamera = frame.Camera;
             return;
         }
@@ -397,14 +423,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
-            drift = Offset16<OverlaySubpixels>.Wrapped(drift.X, drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity);
+            drift += SporesRise;
             return;
         }
 
-        // Fog anchors to the foreground and moves its texture by +80 X and -64 Y in 1/256 pixels.
+        // Fog anchors to the foreground; its texture drifts right as it rises.
         Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
-        drift = Offset16<OverlaySubpixels>.Wrapped(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity,
-            drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity);
+        drift += FogDrift;
     }
 
     /// <summary>
@@ -420,9 +445,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
     }
 
-    /// <summary>The surface's screen line below <paramref name="camera"/>'s top, or null without a surface.</summary>
+    /// <summary>
+    /// The surface's screen line below <paramref name="camera"/>'s top, negative for a surface above the screen, or null
+    /// without a surface.
+    /// </summary>
     private int? SurfaceScreenLine(Position16<RoomPixels> camera) =>
-        Surface is int line ? CoordinateAxis.Difference(CoordinateAxis.Wrap(line), camera.Y) : null;
+        Surface is int line ? (Position16<RoomPixels>.Zero + new Offset16<RoomPixels>(0, line)).RelativeToCamera(camera).Y : null;
 
     /// <summary>
     /// Places the liquid on the screen below <paramref name="camera"/> (#1706): its surface's screen line, which the effect
@@ -444,8 +472,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             Scroll,
             Surface,
             Liquid,
-            waterOverlayWavePhase,
-            waterBackgroundWavePhase,
+            waterOverlayWave.Phase,
+            waterBackgroundWave.Phase,
             waterSurfaceScreenY)
         {
             LavaAcidBackgroundWavePhase = lavaAcidBackgroundWavePhase,
@@ -455,30 +483,56 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
 
     /// <summary>
-    /// Applies shared liquid writes made by room objects and enemy scripts. These are
-    /// intentionally not a rendering shortcut: room objects write the same fields the
-    /// room-FX loader sets. The liquid's step consumes those shared values
-    /// on its next ordinary effect pass, just as the game does.
+    /// Moves the liquid's surface to room line <paramref name="line"/>, keeping its fraction, as the Chozo statue's lowered
+    /// acid and the Speed Booster escape's lava stages do. The liquid's motion carries on from there on its next pass.
     /// </summary>
-    internal void SetLiquidMotion(
-        int? liquidLevel = null,
-        int? targetLevel = null,
-        SignedEightEight? levelSpeed = null,
-        int? moveDelay = null)
+    /// <param name="line">The room line, at or below the room's top and no deeper than the deepest room line.</param>
+    internal void SetLiquidLevel(int line) => BaseY = SurfaceAt(line);
+
+    /// <summary>Changes the speed the liquid moves toward its target at, leaving its target and its wait.</summary>
+    /// <param name="speed">The level speed in room pixels an update: negative rises.</param>
+    internal void SetLiquidSpeed(SignedEightEight speed) => LiquidLevelSpeed = speed;
+
+    /// <summary>
+    /// Sets the liquid moving toward its target at <paramref name="speed"/> once it has waited <paramref name="delay"/>
+    /// updates, as the Chozo statue lowers the acid and the escape's trigger raises it.
+    /// </summary>
+    /// <param name="delay">The updates the liquid waits once its level has somewhere to go (<see cref="LiquidMoveDelay"/>).</param>
+    /// <param name="speed">The level speed in room pixels an update: negative rises.</param>
+    internal void MoveLiquidAfter(int delay, SignedEightEight speed)
     {
-        // Each value is a line or cell the writer copies; the checks reject anything outside a room's lines or wider.
-        if (liquidLevel is int baseY)
-            BaseY = SurfaceAt(baseY);
-        if (targetLevel is int targetY)
-            TargetSurface = SurfaceLine(targetY);
-        if (levelSpeed is { } velocity)
-            LiquidLevelSpeed = velocity;
-        if (moveDelay is int newDelay)
-            LiquidMoveDelay = WrappingCountdown.Start(newDelay);
+        LiquidLevelSpeed = speed;
+        LiquidMoveDelay = WrappingCountdown.Start(delay);
     }
 
-    /// <summary>Removes the liquid's target, as the Speed Booster escape does when Samus has no Speed Booster: the liquid stops.</summary>
-    internal void RemoveLiquidTarget() => TargetSurface = null;
+    /// <summary>
+    /// Gives the liquid a new target, <paramref name="target"/>, and sets it moving there at <paramref name="speed"/> once it
+    /// has waited <paramref name="delay"/> updates, as Ridley's fight raises and drains its room's lava.
+    /// </summary>
+    /// <param name="target">The room line, at or below the room's top and no deeper than the deepest room line.</param>
+    /// <param name="speed">The level speed in room pixels an update: negative rises.</param>
+    /// <param name="delay">The updates the liquid waits once its level has somewhere to go (<see cref="LiquidMoveDelay"/>).</param>
+    internal void MoveLiquidTo(int target, SignedEightEight speed, int delay)
+    {
+        TargetSurface = SurfaceLine(target);
+        MoveLiquidAfter(delay, speed);
+    }
+
+    /// <summary>
+    /// Cuts the liquid's wait to its next update, as the Speed Booster escape does once Samus has run far enough: a liquid
+    /// already waiting starts moving on its next pass.
+    /// </summary>
+    internal void EndLiquidWaitNextUpdate() => LiquidMoveDelay = WrappingCountdown.Start(1);
+
+    /// <summary>
+    /// Halts the liquid where it stands, as the Speed Booster escape does when Samus has no Speed Booster: it loses its
+    /// target and its speed, and its wait is cleared.
+    /// </summary>
+    internal void HaltLiquid()
+    {
+        TargetSurface = null;
+        MoveLiquidAfter(0, SignedEightEight.Zero);
+    }
 
     /// <summary>
     /// Reapplying a room effect restores motion, blending and three colors, but does not restart
@@ -512,7 +566,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Lets the room's water surface affect Samus, as the enable-water-physics room object does. It changes only that
     /// fact of the water, so this change lives on the room-FX owner that republishes the water to Samus; changing only
-    /// Samus's projected copy would be undone by the next FX frame (see <see cref="SetLiquidMotion"/>).
+    /// Samus's projected copy would be undone by the next FX frame.
     /// </summary>
     /// <exception cref="InvalidOperationException">The room's effect has no water.</exception>
     internal void EnableWaterPhysics() =>
@@ -535,26 +589,18 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         PlaceLiquid(camera, waterDrift.WholePixels());
 
-        if (--waterOverlayWaveTimer == 0)
-        {
-            waterOverlayWaveTimer = WaterWaveDefinitions.OverlayWavePhaseDuration;
-            waterOverlayWavePhase =
-                (waterOverlayWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
-        }
+        waterOverlayWave = waterOverlayWave.Advanced(WaterWaveDefinitions.OverlayWavePhaseDuration,
+            WaterWaveDefinitions.WaveDisplacementCount);
 
         if (Liquid is RoomWater { SurfaceDrift: true })
-            waterDrift += WaterDriftVelocity;
+            waterDrift += WaterSurfaceDrift;
 
         // The Tourian entrance statue's FX starts only the water surface's motion. Its second motion moves
         // the statue vertically instead of installing the ordinary background X wave.
         if (Type != RoomFxType.Water || Liquid is not RoomWater { BackgroundWave: true })
             return;
-        if (--waterBackgroundWaveTimer == 0)
-        {
-            waterBackgroundWaveTimer = WaterWaveDefinitions.BackgroundWavePhaseDuration;
-            waterBackgroundWavePhase =
-                (waterBackgroundWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
-        }
+        waterBackgroundWave = waterBackgroundWave.Advanced(WaterWaveDefinitions.BackgroundWavePhaseDuration,
+            WaterWaveDefinitions.WaveDisplacementCount);
     }
 
     /// <summary>Advances rise and tide state before publishing the current liquid surface.</summary>
@@ -662,9 +708,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the signed timer and the earthquake sound's loop of eight delays. Every one of the eight plays the
-    /// earthquake sound; after the eighth the loop starts again from the first. The independently retained rhythm
-    /// supplies only the delays.
+    /// Counts down to the next quake sound and plays it on the update the countdown runs past zero, then waits the next
+    /// delay of the sound's rhythm; after the rhythm's last delay it starts again from the first. A room whose quakes are
+    /// silent (<see cref="QuakeSoundsSilenced"/>) plays none and leaves the countdown and the rhythm where they stand.
     /// </summary>
     /// <param name="randomNumber">The current random number, sampled without advancing it; the number modulo 4 adds zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
@@ -674,21 +720,19 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        if (EarthquakeSoundTimer.IsNegative)
+        if (QuakeSoundsSilenced)
             return;
 
-        EarthquakeSoundTimer = EarthquakeSoundTimer.Decrement().Remaining;
-        if (!EarthquakeSoundTimer.IsNegative)
+        CountdownStep step = EarthquakeSoundTimer.Decrement();
+        EarthquakeSoundTimer = step.Remaining;
+        if (!step.IsNegative)
             return;
 
         IReadOnlyList<int> baseDelays = RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays;
-        if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseDelays.Count)
-            EarthquakeSoundSequenceIndex = 0;
-
         AudioRequests.QueueSound(EnemySound.Lavaquake, SoundRequestPriority.Normal);
-        EarthquakeSoundTimer = WrappingCountdown.Start(baseDelays[EarthquakeSoundSequenceIndex])
+        EarthquakeSoundTimer = WrappingCountdown.Start(baseDelays[EarthquakeSoundRhythmPosition])
             .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
-        EarthquakeSoundSequenceIndex++;
+        EarthquakeSoundRhythmPosition = (EarthquakeSoundRhythmPosition + 1) % baseDelays.Count;
     }
 
     /// <summary>The statue descent's steps call the same earthquake sound owner.</summary>
@@ -707,13 +751,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         FixedCoordinate moved = (BaseY ?? new FixedCoordinate(AbsentLiquidSurfaceDepth.Of(null), LoadedSurfaceFraction))
             .MovedBy(LiquidLevelSpeed.ToSixteenSixteenDelta());
-        int candidate = moved.Whole;
+        int line = RoomLineOf(moved);
 
-        // Moving down, the surface reaches the target once it passes it, or passes the deepest line a surface can hold;
-        // moving up, once it reaches it or rises past the room's top.
+        // Moving down, the surface reaches the target once it passes it, or once it passes the deepest room line and so
+        // lies above the room's top, where a surface the room effect does not name also starts. Moving up, it reaches the
+        // target once it is no deeper, which a surface risen past the room's top is not, as every target lies within the
+        // room.
         bool reached = !LiquidLevelSpeed.IsNegative
-            ? candidate > target
-            : CoordinateAxis.AsSigned(candidate) < 0 || candidate <= target;
+            ? line > target || line < 0
+            : line <= target;
         if (!reached)
         {
             BaseY = moved;
@@ -762,14 +808,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private void AdvanceTidePhase(RotationAngle delta) => TidePhase += delta;
 
     /// <summary>
-    /// Adds signed fixed-point tide displacement to the base liquid surface, giving its signed line; a liquid with no
-    /// surface has none, and no retail room effect gives one a tide.
+    /// Adds the tide's displacement to the base liquid surface, giving the surface's room line, negative once the tide
+    /// carries it above the room's top; a liquid with no surface has none, and no retail room effect gives one a tide.
     /// </summary>
     /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
     private int? ComputeTidalYPosition()
     {
         if (BaseY is { } baseY)
-            return CoordinateAxis.AsSigned(baseY.MovedBy(TideOffset).Whole);
+            return RoomLineOf(baseY.MovedBy(TideOffset));
         return TideOffset.IsZero
             ? null
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
@@ -781,34 +827,34 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         _session = Ensure.NotNull(session);
         Type = RoomFxType.None;
-        TargetSurface = 0;
+        TargetSurface = null;
         LiquidLevelSpeed = default;
         LiquidMoveDelay = WrappingCountdown.Start(0);
         Blend = null;
         Scroll = Position16<OverlayPixels>.Zero;
         drift = Offset16<OverlaySubpixels>.Zero;
-        rainWindVelocity = Offset16<OverlaySubpixels>.Zero;
+        rainWind = Offset16<OverlaySubpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
-        BaseY = new FixedCoordinate(0, LoadedSurfaceFraction);
+        BaseY = null;
         TidePhase = RotationAngle.Zero;
         TideOffset = SignedSixteenSixteen.Zero;
         Surface = null;
         Liquid = null;
         waterDrift = Offset16<OverlaySubpixels>.Zero;
-        waterBackgroundWaveTimer = 0;
-        waterOverlayWaveTimer = 0;
-        waterOverlayWavePhase = waterBackgroundWavePhase = 0;
+        waterOverlayWave = default;
+        waterBackgroundWave = default;
         waterSurfaceScreenY = null;
         liquidSurfaceLine = null;
         lavaAcidBackgroundWaveTimer = 0;
         lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
-        LiquidMotionStarted = false;
+        MotionStart = LiquidMotionStart.AfterRoomLoad;
         LiquidMotionStopped = false;
         lavaSoundTimer = 0;
         SustainedEarthquake = null;
         EarthquakeSoundTimer = WrappingCountdown.Start(0);
-        EarthquakeSoundSequenceIndex = 0;
+        EarthquakeSoundRhythmPosition = 0;
+        QuakeSoundsSilenced = false;
     }
 
     /// <summary>
@@ -818,13 +864,28 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 
-    /// <summary>Rain's texture fall each frame, in 1/256 pixels.</summary>
-    private static readonly Offset16<OverlaySubpixels> RainFallVelocity =
-        new(0, unchecked(-AtmosphereDriftDefinitions.RainVerticalVelocity));
+    /// <summary>Rain's texture fall each frame (<see cref="AtmosphereDriftDefinitions.RainFallSpeed"/>).</summary>
+    private static readonly Offset16<OverlaySubpixels> RainFall =
+        DriftOf(SignedEightEight.Zero, -AtmosphereDriftDefinitions.RainFallSpeed);
+
+    /// <summary>The spores' texture rise each frame (<see cref="AtmosphereDriftDefinitions.SporesRiseSpeed"/>).</summary>
+    private static readonly Offset16<OverlaySubpixels> SporesRise =
+        DriftOf(SignedEightEight.Zero, -AtmosphereDriftDefinitions.SporesRiseSpeed);
+
+    /// <summary>
+    /// The fog's texture drift each frame: right by <see cref="AtmosphereDriftDefinitions.FogDriftSpeed"/> as it rises by
+    /// <see cref="AtmosphereDriftDefinitions.FogRiseSpeed"/>.
+    /// </summary>
+    private static readonly Offset16<OverlaySubpixels> FogDrift =
+        DriftOf(AtmosphereDriftDefinitions.FogDriftSpeed, -AtmosphereDriftDefinitions.FogRiseSpeed);
 
     /// <summary>Water's surface drift each frame while its water's <see cref="RoomWater.SurfaceDrift"/> is set.</summary>
-    private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
-        new(WaterWaveDefinitions.HorizontalSubscrollVelocity, 0);
+    private static readonly Offset16<OverlaySubpixels> WaterSurfaceDrift =
+        DriftOf(WaterWaveDefinitions.SurfaceDriftSpeed, SignedEightEight.Zero);
+
+    /// <summary>The overlay texture's drift in a frame that moves it <paramref name="across"/> and <paramref name="down"/>.</summary>
+    private static Offset16<OverlaySubpixels> DriftOf(SignedEightEight across, SignedEightEight down) =>
+        new(across.InTwoHundredFiftySixthsOfPixel, down.InTwoHundredFiftySixthsOfPixel);
 
     /// <summary>The mutually exclusive phases of the liquid's rise.</summary>
     private enum LiquidRisePhase

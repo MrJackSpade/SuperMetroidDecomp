@@ -959,7 +959,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Landing Site's room main advances the sky bands after ordinary gameplay logic.
         if (Room.ScrollingSky is not null && Room.Camera is not null)
-            Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition.Y, timeIsFrozen: Freeze.TimeIsFrozen);
+            Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition, timeIsFrozen: Freeze.TimeIsFrozen);
 
         RoomMains.RunBlockAnimations(Room.LoadedScope);
         EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope);
@@ -1050,7 +1050,7 @@ internal sealed class SuperMetroidRuntime
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
-            sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
+            sky?.Publish(Room.Camera?.PixelPosition ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
             crocomireDeath is { MeltingScrollActive: true } melting ? melting.MeltDistortion : null,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,

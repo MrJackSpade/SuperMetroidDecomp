@@ -17,13 +17,13 @@ public static class AtmosphereDrift
         _ => RainWind.GentleRight,
     };
 
-    /// <summary>The rain's horizontal velocity under <paramref name="wind"/>, in 1/256 pixel a frame.</summary>
-    public static int RainHorizontalVelocity(RainWind wind) => wind switch
+    /// <summary>The rain's sideways velocity a frame under <paramref name="wind"/>: negative blows it left.</summary>
+    public static SignedEightEight RainHorizontalVelocity(RainWind wind) => wind switch
     {
-        RainWind.StrongLeft => -EightEight.FromWhole(6),
-        RainWind.StrongRight => EightEight.FromWhole(6),
-        RainWind.GentleLeft => -EightEight.FromWhole(4),
-        RainWind.GentleRight => EightEight.FromWhole(4),
+        RainWind.StrongLeft => SignedEightEight.FromPixels(-6),
+        RainWind.StrongRight => SignedEightEight.FromPixels(6),
+        RainWind.GentleLeft => SignedEightEight.FromPixels(-4),
+        RainWind.GentleRight => SignedEightEight.FromPixels(4),
         _ => throw new ArgumentOutOfRangeException(nameof(wind), wind, "Undefined rain wind."),
     };
 }

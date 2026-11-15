@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>How rain, spores and fog drift across the screen, in 1/256 pixel a frame (#1415).</summary>
+/// <summary>How fast rain, spores and fog drift across the screen each frame (#1415).</summary>
 public static class AtmosphereDriftDefinitions
 {
     /// <summary>Rain falls six pixels a frame.</summary>
-    public const int RainVerticalVelocity = 1536;
+    public static SignedEightEight RainFallSpeed { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>Spores rise a quarter pixel a frame.</summary>
-    public const int SporesVerticalVelocity = 64;
+    public static SignedEightEight SporesRiseSpeed { get; } = SignedEightEight.FromParts(0, 64);
 
     /// <summary>Fog rises a quarter pixel a frame.</summary>
-    public const int FogVerticalVelocity = 64;
+    public static SignedEightEight FogRiseSpeed { get; } = SignedEightEight.FromParts(0, 64);
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
-    public const int FogHorizontalVelocity = 80;
+    public static SignedEightEight FogDriftSpeed { get; } = SignedEightEight.FromParts(0, 80);
 
     /// <summary>The random selection a rainy room's load reads to choose the rain's wind: one of four winds.</summary>
     internal static readonly RandomSampleField RainWindChoice = new(2, 2);

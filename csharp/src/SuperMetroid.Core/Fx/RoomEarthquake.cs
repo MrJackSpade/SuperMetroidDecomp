@@ -16,17 +16,23 @@ namespace SuperMetroid.Core.Fx;
 internal sealed class RoomEarthquake
 {
     /// <summary>
-    /// The frames the earthquake has left, decremented by <see cref="Advance"/> while it shakes and time is not frozen.
-    /// A continuous earthquake keeps counting below zero through the countdown's wrap: the side it shows follows the
-    /// count, so the alternation runs on unbroken.
+    /// The frames the earthquake has left, decremented by <see cref="Advance"/> while it shakes for a length and time is
+    /// not frozen; the side it shows follows the count.
     /// </summary>
     private WrappingCountdown _remaining;
 
     /// <summary>
-    /// Whether the room shakes continuously (<see cref="KeepShaking"/>): it shakes whatever frames are left, until a
-    /// producer gives it a new length.
+    /// Where a continuous shake (<see cref="KeepShaking"/>) stands in its alternation between the two sides, from zero
+    /// through one less than <see cref="AlternationFrames"/>, counting down one each frame it shakes; null while the
+    /// earthquake shakes for a length. It shakes until a producer gives it a new length.
     /// </summary>
-    private bool _continuous;
+    private int? _continuousAlternation;
+
+    /// <summary>The frames of one whole alternation: the shake's frames on one side, then on the other.</summary>
+    private const int AlternationFrames = 2 * RoomEarthquakeDefinitions.StepsPerShakeSide;
+
+    /// <summary>Whether the room shakes continuously (<see cref="KeepShaking"/>).</summary>
+    private bool IsContinuous => _continuousAlternation is not null;
 
     /// <summary>
     /// The shake the earthquake shows while it runs: the one its last producer gave it, or
@@ -36,14 +42,14 @@ internal sealed class RoomEarthquake
     public EarthquakeShake Shake { get; private set; } = RoomEarthquakeDefinitions.UnshakenRoomShake;
 
     /// <summary>Whether the room is shaking: it has frames left or shakes continuously.</summary>
-    public bool IsShaking => _continuous || !_remaining.IsZero;
+    public bool IsShaking => IsContinuous || !_remaining.IsZero;
 
     /// <summary>
     /// The frames the earthquake has left, read where an owner moves with the room's shake: Mother Brain's brain, the
     /// door Ridley's Ceres scene draws, and the rocks Kraid's rise throws up.
     /// </summary>
     /// <exception cref="InvalidOperationException">The room shakes continuously and has no length to read.</exception>
-    public int RemainingFrames => _continuous
+    public int RemainingFrames => IsContinuous
         ? throw new InvalidOperationException("A continuously shaking room has no frames left to read.")
         : _remaining.RemainingFrames;
 
@@ -59,7 +65,7 @@ internal sealed class RoomEarthquake
     /// earthquake a producer started for that long and that has not yet shaken a frame of it.
     /// </summary>
     internal bool IsShakingWith(EarthquakeShake shake, int framesLeft) =>
-        !_continuous && Shake == shake && _remaining.IsAt(framesLeft);
+        !IsContinuous && Shake == shake && _remaining.IsAt(framesLeft);
 
     /// <summary>Starts the earthquake: <paramref name="shake"/> for <paramref name="frames"/> frames, replacing what ran.</summary>
     /// <param name="shake">The shake to show.</param>
@@ -78,7 +84,7 @@ internal sealed class RoomEarthquake
     internal void RunFor(int frames)
     {
         _remaining = WrappingCountdown.Start(frames);
-        _continuous = false;
+        _continuousAlternation = null;
     }
 
     /// <summary>Stops the earthquake; its shake stays for a producer that runs it on.</summary>
@@ -100,16 +106,19 @@ internal sealed class RoomEarthquake
 
     /// <summary>
     /// Keeps the room shaking without re-arming its length every frame (#1415): the Zebes escape's outdoor rooms do this
-    /// on every update. The earthquake then shakes until a producer gives it a new length.
+    /// on every update. The earthquake then shakes until a producer gives it a new length, its sides alternating on from
+    /// where the frames it had left put them.
     /// </summary>
-    internal void KeepShaking() => _continuous = true;
+    internal void KeepShaking() => _continuousAlternation ??= _remaining.CyclePhase(1, AlternationFrames);
 
     /// <summary>
     /// Whether the shake shows the side of the origin opposite its displacement: the sides alternate every
     /// <see cref="RoomEarthquakeDefinitions.StepsPerShakeSide"/> frames as the earthquake runs down, starting from the far
     /// side.
     /// </summary>
-    private bool ShowsOppositeSide => _remaining.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
+    private bool ShowsOppositeSide => _continuousAlternation is int alternation
+        ? alternation / RoomEarthquakeDefinitions.StepsPerShakeSide != 0
+        : _remaining.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
 
     /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before the earthquake's frame step.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
@@ -146,7 +155,10 @@ internal sealed class RoomEarthquake
             background = -background;
         }
 
-        _remaining = _remaining.Decrement().Remaining;
+        if (_continuousAlternation is int alternation)
+            _continuousAlternation = (alternation + AlternationFrames - 1) % AlternationFrames;
+        else
+            _remaining = _remaining.Decrement().Remaining;
         LastRoomShake = new RoomShakeFrameResult(foreground, background);
         return shake.ShakesEnemies;
     }

@@ -174,5 +174,5 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() =>
         (_chozoRoomFx ?? throw new InvalidOperationException("The Chozo statue's room objects have no FX owner."))
-            .SetLiquidMotion(liquidLevel: ChozoStatueRoomDefinitions.LoweredAcidY);
+            .SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
 }

@@ -52,10 +52,7 @@ internal sealed class SpeedBoosterEscapeObjects
         IRoomFxMotion fx = RoomFx();
         if (!LiveSamus().CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
-            fx.RemoveLiquidTarget();
-            fx.SetLiquidMotion(
-                levelSpeed: SignedEightEight.Zero,
-                moveDelay: 0);
+            fx.HaltLiquid();
             (_earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape room object lost its earthquake owner.")).Stop();
             return false;
@@ -65,8 +62,7 @@ internal sealed class SpeedBoosterEscapeObjects
         if (fx.TargetSurface is null)
             return false;
 
-        fx.SetLiquidMotion(
-            levelSpeed: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity);
+        fx.SetLiquidSpeed(SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity);
         return true;
     }
 
@@ -76,7 +72,7 @@ internal sealed class SpeedBoosterEscapeObjects
         IRoomFxMotion fx = RoomFx();
         if (LiveSamus().Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
             return false;
-        fx.SetLiquidMotion(moveDelay: 1);
+        fx.EndLiquidWaitNextUpdate();
         return true;
     }
 
@@ -89,11 +85,9 @@ internal sealed class SpeedBoosterEscapeObjects
             return false;
 
         // A lava with no surface lies below every line, so the rise gives it its highest line.
-        fx.SetLiquidMotion(
-            liquidLevel: rise.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole)
-                ? rise.MaximumFxY
-                : null,
-            levelSpeed: rise.YVelocity);
+        if (rise.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole))
+            fx.SetLiquidLevel(rise.MaximumFxY);
+        fx.SetLiquidSpeed(rise.YVelocity);
         return true;
     }
 

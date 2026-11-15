@@ -24,7 +24,7 @@ internal static class RoomFxTextureDriftVerification
         {
             water.Step(new ArtworkFrameSelections(), Frame());
             AssertEqual(WholePixels(expectedWater), water.Scroll.X, $"water drift frame {frame}");
-            expectedWater = unchecked((ushort)(expectedWater + WaterWaveDefinitions.HorizontalSubscrollVelocity));
+            expectedWater = unchecked((ushort)(expectedWater + WaterWaveDefinitions.SurfaceDriftSpeed.InTwoHundredFiftySixthsOfPixel));
         }
 
         RoomFxOverlayState stillWater = Load(RoomFxType.Water, RoomEffectBlendDefinitions.OverlayBrightens,
@@ -47,8 +47,8 @@ internal static class RoomFxTextureDriftVerification
                 rain.Step(new ArtworkFrameSelections(), Frame());
                 AssertEqual(new Position16<OverlayPixels>(WholePixels(expectedX), WholePixels(expectedY)), rain.Scroll,
                     $"rain wind {selection} frame {frame}");
-                expectedX = unchecked((ushort)(expectedX + AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(selection * 4))));
-                expectedY = unchecked((ushort)(expectedY - AtmosphereDriftDefinitions.RainVerticalVelocity));
+                expectedX = unchecked((ushort)(expectedX + AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(selection * 4)).InTwoHundredFiftySixthsOfPixel));
+                expectedY = unchecked((ushort)(expectedY - AtmosphereDriftDefinitions.RainFallSpeed.InTwoHundredFiftySixthsOfPixel));
             }
         }
 

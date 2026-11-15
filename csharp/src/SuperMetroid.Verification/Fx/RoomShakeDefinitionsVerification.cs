@@ -79,15 +79,16 @@ internal static class RoomShakeDefinitionsVerification
         enemies.Earthquake.Sustain(RoomEarthquakeDefinitions.RisingLiquidShake);
         AssertEqual(33, enemies.Earthquake.RemainingFrames, "a sustain leaves an earthquake already in its sustained half");
 
-        // A continuous shake never stops and keeps alternating its sides through the countdown's wrap.
+        // A continuous shake never stops and keeps alternating its sides on from where its frames left put them, through
+        // the point its length would have run out; the Zebes escape keeps it shaking on every update (#1986).
         enemies.Earthquake.Start(light, 3);
-        enemies.Earthquake.KeepShaking();
         RoomShakeDefinition lightDefinition = light.Displacement;
         for (int frame = 0; frame < 12; frame++)
         {
+            enemies.Earthquake.KeepShaking();
             RoomShakeFrameResult continuous = enemies.HandleRoomShaking(timeIsFrozen: false);
-            // Frames left 3, 2, 1, 0, then the wrapped 65535, 65534...: the far side shows while the frames left, counted
-            // in pairs, are odd.
+            // Frames left 3, 2, 1, 0, then 65535, 65534... as the countdown would wrap: the far side shows while the frames
+            // left, counted in pairs, are odd.
             int framesLeft = (3 - frame) & ushort.MaxValue;
             bool farSide = framesLeft / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
             AssertEqual(farSide ? -lightDefinition.Foreground : lightDefinition.Foreground, continuous.Foreground,

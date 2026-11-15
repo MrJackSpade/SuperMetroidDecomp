@@ -67,7 +67,7 @@ internal static class FxDefinitionMigrationVerification
 
         // RoomFxRomData's effect motion, waves and tides.
         AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
-        AssertEqual(0x40, WaterWaveDefinitions.HorizontalSubscrollVelocity, "water drift");
+        AssertEqual(0x40, WaterWaveDefinitions.SurfaceDriftSpeed.InTwoHundredFiftySixthsOfPixel, "water drift");
         AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
         AssertEqual(-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");
         AssertEqual(1, LiquidEffects.HeatHorizontalWaveDisplacement(2), "horizontal heat-haze sample 2");
@@ -75,11 +75,12 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(4, LavaAcidWaveDefinitions.VerticalWavePhaseDuration, "vertical heat-haze step");
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
         AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta.RawValue, "small tide rising phase step");
-        AssertEqual(0x0600, AtmosphereDriftDefinitions.RainVerticalVelocity, "rain fall");
-        AssertEqual(-6 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.StrongLeft), "strong left rain wind: six pixels left, in 1/256 pixel");
-        AssertEqual(4 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.GentleRight), "gentle right rain wind: four pixels right, in 1/256 pixel");
-        AssertEqual(0x0040, AtmosphereDriftDefinitions.SporesVerticalVelocity, "spore rise");
-        AssertEqual(0x0050, AtmosphereDriftDefinitions.FogHorizontalVelocity, "fog drift");
+        AssertEqual(0x0600, AtmosphereDriftDefinitions.RainFallSpeed.InTwoHundredFiftySixthsOfPixel, "rain fall");
+        AssertEqual(-6 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.StrongLeft).InTwoHundredFiftySixthsOfPixel, "strong left rain wind: six pixels left, in 1/256 pixel");
+        AssertEqual(4 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.GentleRight).InTwoHundredFiftySixthsOfPixel, "gentle right rain wind: four pixels right, in 1/256 pixel");
+        AssertEqual(0x0040, AtmosphereDriftDefinitions.SporesRiseSpeed.InTwoHundredFiftySixthsOfPixel, "spore rise");
+        AssertEqual(0x0040, AtmosphereDriftDefinitions.FogRiseSpeed.InTwoHundredFiftySixthsOfPixel, "fog rise");
+        AssertEqual(0x0050, AtmosphereDriftDefinitions.FogDriftSpeed.InTwoHundredFiftySixthsOfPixel, "fog drift");
 
         // The sky's bands (#1687): the cartridge's 23 entries, the bottom three still ones as one band.
         AssertEqual(21, ScrollingSkyBandDefinitions.Bands.Length, "sky bands");

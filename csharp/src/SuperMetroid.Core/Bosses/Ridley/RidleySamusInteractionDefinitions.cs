@@ -3,11 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Movement policies selected by Samus's morphed, spin-jumping or damage-boosting movement.</summary>
-/// <remarks>
-/// Each movement's flags: one controls grab eligibility,
-/// the other controls morphed release timing. Those are the only consumed fields in the two
-/// managed callers. No other flags or adjacent-table reads are exposed by their contract.
-/// </remarks>
+/// <remarks>Each movement decides two things only: whether Ridley may grab Samus, and how long she stays out of reach after he releases her.</remarks>
 internal static class RidleySamusInteractionDefinitions
 {
     /// <summary>Separates Samus's movement owners by Ridley's grab eligibility and release delay.</summary>

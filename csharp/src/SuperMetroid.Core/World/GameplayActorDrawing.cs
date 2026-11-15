@@ -385,8 +385,8 @@ internal sealed class GameplayActorDrawing
             // changes the camera between AI and drawing (especially during a grab). The
             // placement is Draygon's own published body position (#1354), not the background's scroll.
             draygon.BodyOrigin = new Position16<RoomPixels>(
-                CoordinateAxis.Wrap(draygon.Body.Position.X.Whole + DraygonBackgroundData.HorizontalOrigin - draygon.BodyGraphicsDisplacement.X),
-                CoordinateAxis.Wrap(draygon.Body.Position.Y.Whole + DraygonBackgroundData.VerticalOrigin - draygon.BodyGraphicsDisplacement.Y));
+                CoordinateAxis.Wrap(draygon.Body.Position.X.Whole + DraygonBackgroundData.HorizontalOrigin + draygon.BodyPictureShift.X),
+                CoordinateAxis.Wrap(draygon.Body.Position.Y.Whole + DraygonBackgroundData.VerticalOrigin + draygon.BodyPictureShift.Y));
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)

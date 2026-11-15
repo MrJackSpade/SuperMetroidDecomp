@@ -28,7 +28,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
     internal RidleyBodyAnimation Animation { get; }
 
-    /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>
+    /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, the wall sweep, the pogo attack and grabbing Samus.</summary>
     internal NorfairRidleyCombat Combat { get; }
 
     /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
@@ -88,7 +88,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyInteractions.UpdateNorfairRidleyHealthBand(slot, state);
     }
 
-    /// <summary>Dispatches the current Norfair intro, flight, swoop, pogo, grab, or death state.</summary>
+    /// <summary>Runs the current Norfair reveal, flight, swoop, wall sweep, pogo, grab or death phase.</summary>
     internal void RunNorfairRidleyPhase(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -173,9 +173,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.NorfairSwoopAimDown:
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
-                    state.FacingDirection != RidleyFacing.Left ? 32 : -32,
+                    SwoopTurn(state, RotationAngle.FromSteps(0, 32)),
                     SwoopTarget(state, RotationAngle.FromSteps(2)),
-                    1152,
+                    SignedEightEight.FromParts(4, 128),
                     RidleyPhase.NorfairSwoopAimSideways,
                     20);
                 return;
@@ -183,22 +183,22 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.NorfairSwoopAimSideways:
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
-                        state.FacingDirection != RidleyFacing.Left ? 320 : -320,
+                        SwoopTurn(state, RotationAngle.FromSteps(1, 64)),
                         SwoopTarget(state, RotationAngle.QuarterTurn),
-                        1280,
+                        SignedEightEight.FromPixels(5),
                         RidleyPhase.NorfairSwoopAimUp,
                         16))
                 {
-                    state.TailWhipRequest = 1;
+                    state.TailWhipRequested = true;
                 }
                 return;
 
             case RidleyPhase.NorfairSwoopAimUp:
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
-                    state.FacingDirection != RidleyFacing.Left ? 512 : -512,
+                    SwoopTurn(state, RotationAngle.FromSteps(2)),
                     SwoopTarget(state, CeresRidleyBehavior.SwoopClimbTarget),
-                    768,
+                    SignedEightEight.FromPixels(3),
                     RidleyPhase.NorfairSwoopClimb,
                     32);
                 return;
@@ -206,9 +206,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.NorfairSwoopClimb:
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
-                        state.FacingDirection != RidleyFacing.Left ? 1024 : -1024,
+                        SwoopTurn(state, RotationAngle.FromSteps(4)),
                         SwoopTarget(state, CeresRidleyBehavior.SwoopClimbTarget),
-                        768,
+                        SignedEightEight.FromPixels(3),
                         RidleyPhase.NorfairSwoopRecover,
                         32))
                 {
@@ -217,7 +217,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.NorfairSwoopRecover:
-                CeresRidleyFlight.UpdateRidleySwoopVelocity(state, 0, RotationAngle.HalfTurn, 448);
+                CeresRidleyFlight.UpdateRidleySwoopVelocity(state, RidleySwoopTurn.None, RotationAngle.HalfTurn, SignedEightEight.FromParts(1, 192));
                 if (state.SwoopPhaseTimer != 0)
                 {
                     state.SwoopPhaseTimer--;
@@ -228,47 +228,43 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     : RidleyPhase.NorfairSelectAttack;
                 return;
 
-            case RidleyPhase.NorfairPogoSetup:
+            case RidleyPhase.NorfairWallSweepSetup:
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
-                state.Phase = RidleyPhase.NorfairPogoDescending;
-                state.PhaseTimer = RidleyRandomDefinitions.PogoDescentTimer.Of(_room.Random.Read()) + 32;
-                Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
+                state.Phase = RidleyPhase.NorfairSweepToWallBehind;
+                state.PhaseTimer = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
+                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
-            case RidleyPhase.NorfairPogoDescending:
-                Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
+            case RidleyPhase.NorfairSweepToWallBehind:
+                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
-            case RidleyPhase.NorfairPogoAscending:
-                Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Up);
+            case RidleyPhase.NorfairSweepToWallAhead:
+                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallAhead);
                 return;
 
-            case RidleyPhase.NorfairFireballSetup:
-                NorfairRidleyCombat.BeginNorfairRidleyGroundAttack(state);
+            case RidleyPhase.NorfairPogoMoveToSide:
+                Combat.TickNorfairRidleyPogoMoveToSide(slot, state, samus);
                 return;
 
-            case RidleyPhase.NorfairFireballMoveToSide:
-                Combat.TickNorfairRidleyGroundAttackMoveToSide(slot, state, samus);
+            case RidleyPhase.NorfairPogoMoveToHeight:
+                Combat.TickNorfairRidleyPogoMoveToHeight(slot, state, samus);
                 return;
 
-            case RidleyPhase.NorfairFireballMoveToHeight:
-                Combat.TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
+            case RidleyPhase.NorfairPogoFall:
+                Combat.TickNorfairRidleyPogoFall(slot, state, samus, level);
                 return;
 
-            case RidleyPhase.NorfairFireballAttack:
-                Combat.TickNorfairRidleyGroundAttack(slot, state, samus, level);
-                return;
-
-            case RidleyPhase.NorfairFireballRecover:
-                NorfairRidleyCombat.TickNorfairRidleyGroundAttackRecovery(state, samus);
+            case RidleyPhase.NorfairPogoRise:
+                NorfairRidleyCombat.TickNorfairRidleyPogoRise(state, samus);
                 return;
 
             case RidleyPhase.NorfairGrabApproach:
                 Combat.TickNorfairRidleyGrabApproach(slot, state, samus);
                 return;
 
-            case RidleyPhase.NorfairReturnToArena:
+            case RidleyPhase.NorfairPowerBombDodge:
                 Combat.TickNorfairRidleyPowerBombDodge(slot, state);
                 return;
 
@@ -312,23 +308,19 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 }
                 return;
 
-            case RidleyPhase.NorfairReleaseSamus:
+            case RidleyPhase.NorfairMoveToDeathSpot:
                 NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot(slot, state);
                 return;
 
-            case RidleyPhase.NorfairDeathStart:
-                NorfairRidleyCombat.BeginNorfairRidleyDeathRoar(slot, state);
-                return;
-
-            case RidleyPhase.NorfairDeathExplosions:
+            case RidleyPhase.NorfairDeathRoar:
                 Death.TickNorfairRidleyDeathRoar(slot, state);
                 return;
 
-            case RidleyPhase.NorfairDeathFall:
+            case RidleyPhase.NorfairDeathExplosions:
                 Death.TickNorfairRidleyDeathExplosions(slot, state, samus);
                 return;
 
-            case RidleyPhase.NorfairDeathImpact:
+            case RidleyPhase.NorfairDeathBreakup:
                 Death.BeginNorfairRidleyBreakup(slot, state);
                 return;
 
@@ -372,7 +364,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Chooses an attack table by Samus movement, Ridley health, and arena position.</summary>
+    /// <summary>Chooses an attack situation by Samus's movement, Ridley's health and Samus's height in the arena.</summary>
     internal void SelectNorfairRidleyAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -392,7 +384,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
         else if (slot.Health < 14400)
         {
-            situation = RidleyAttackSituation.BelowHalfHealth;
+            situation = RidleyAttackSituation.Ordinary;
         }
         else if (samus is not null && samus.Position.Y.Whole >= 352)
         {
@@ -404,7 +396,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
         else
         {
-            situation = slot.Health < 9000 ? RidleyAttackSituation.AboveHalfHealth : RidleyAttackSituation.BelowHalfHealth;
+            situation = RidleyAttackSituation.Ordinary;
         }
 
         int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
@@ -484,4 +476,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     private static RotationAngle SwoopTarget(RidleyEnemyState state, RotationAngle rightward) =>
         state.FacingDirection != RidleyFacing.Left ? rightward : RotationAngle.Zero - rightward;
+
+    /// <summary>
+    /// A Norfair swoop's turn of <paramref name="perUpdate"/> each update: counterclockwise, toward the right, for a Ridley
+    /// facing right or forward, and clockwise for one facing left.
+    /// </summary>
+    private static RidleySwoopTurn SwoopTurn(RidleyEnemyState state, RotationAngle perUpdate) =>
+        new(perUpdate, state.FacingDirection != RidleyFacing.Left ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
 }

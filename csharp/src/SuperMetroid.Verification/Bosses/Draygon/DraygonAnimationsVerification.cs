@@ -39,7 +39,24 @@ internal static class DraygonAnimationsVerification
         var drawn = new HashSet<ushort>();
         Dictionary<DraygonSegment, NativeEnemyList<DraygonSegment>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry, drawn));
-        NativeEnemyAnimationOracle.CompareAnimations(lists, DraygonAnimations.StartingAt);
+        // An animation started through a counter preamble (#1938) starts at its counted segment, which the shared
+        // comparison takes for a body no animation starts in; it is compared below from the preamble's count.
+        HashSet<DraygonSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
+        NativeEnemyAnimationOracle.CompareAnimations(lists,
+            DraygonAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value));
+        foreach (DraygonNativeListAddressesEntry preamble in CounterPreambles)
+        {
+            int address = (BodyBankNumber << 16) | preamble.Entry;
+            AssertEqual(NativeEnemyListDefinitions.WordKind.SetCounter, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address)),
+                $"Draygon {preamble.Program}'s preamble loads the counter");
+            AssertEqual(Entry(preamble.Program), (ushort)(preamble.Entry + 4), $"Draygon {preamble.Program}'s preamble runs on into it");
+            int plays = cartridge.ReadCartridgeWord(address + 2);
+            (List<AnimationPhase<DraygonSegment>> phases, AnimationEnd end) =
+                NativeEnemyAnimationOracle.Linearize(lists, preamble.Program, plays);
+            Animation<DraygonSegment> typed = DraygonAnimations.StartingWith(preamble.Program);
+            AssertTrue(typed.Phases.SequenceEqual(phases), $"Draygon {preamble.Program}'s phases follow its preamble and native list");
+            AssertEqual(end, typed.End, $"Draygon {preamble.Program}'s end follows its native list");
+        }
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
         AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
         for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)

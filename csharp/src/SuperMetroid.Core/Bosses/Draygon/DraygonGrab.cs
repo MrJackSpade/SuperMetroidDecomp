@@ -58,8 +58,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        // Despite older labels calling the intangible property “tangible”, this bit tells the common enemy
-        // collision pass to ignore Samus. Draygon's claw-window test below replaces the
+        // Draygon ignores Samus's ordinary body contact while he chases the gooped Samus. Draygon's claw-window test below replaces the
         // ordinary body collision while he is deliberately chasing the gooped player.
         RoomEnemySlot body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -85,7 +84,7 @@ internal sealed class DraygonGrab
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
-            state.Phase = DraygonPhase.GrabbedSamus;
+            state.Phase = DraygonPhase.RepelGrapple;
             return;
         }
 
@@ -239,7 +238,7 @@ internal sealed class DraygonGrab
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
-    /// <summary>Runs release, collision-bit cleanup, and tail flail.</summary>
+    /// <summary>Releases Samus, restores ordinary contact, and starts the tail flail.</summary>
     internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -311,7 +310,7 @@ internal sealed class DraygonGrab
         samus.Grapple.Phase is GrapplePhase.ConnectedSwinging or
             GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab;
 
-    /// <summary>Sets the hurt-flash timer and handler bit after a grapple shock.</summary>
+    /// <summary>Starts the hurt flash and marks Draygon hurt after a grapple shock.</summary>
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;

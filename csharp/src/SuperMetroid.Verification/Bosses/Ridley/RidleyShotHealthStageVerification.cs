@@ -47,7 +47,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.AnimationClock.HoldFor(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
-        state.HealthStage = 0;
+        state.HealthBand = NorfairRidleyHealthBandDefinitions.Unhurt;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
@@ -61,7 +61,7 @@ internal static class RidleyShotHealthStageVerification
             onlyEnemy: ridley);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");
-        AssertEqual(0, state.HealthStage, "the shot leaves the health stage for his AI to update");
+        AssertTrue(ReferenceEquals(NorfairRidleyHealthBandDefinitions.Unhurt, state.HealthBand), "the shot leaves the health band for his AI to update");
         Console.WriteLine("  Ridley shot health stage: a hit crossing 9000 leaves the stage to the AI's palette handler.");
     }
 

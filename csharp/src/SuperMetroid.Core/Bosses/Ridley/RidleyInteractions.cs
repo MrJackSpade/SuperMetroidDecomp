@@ -10,24 +10,15 @@ internal static class RidleyInteractions
     internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
-    /// <summary>Selects three damage-color health bands at 9000, 5400, and 1800 health.</summary>
+    /// <summary>
+    /// Puts Norfair Ridley in the health band his health has reached and shows its health shade. Norfair and Ceres show
+    /// the same installed health shades, so editing them changes both encounters.
+    /// </summary>
     internal static void UpdateNorfairRidleyHealthBand(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.HealthStage = slot.Health switch
-        {
-            < 1800 => 3,
-            < 5400 => 2,
-            < 9000 => 1,
-            _ => 0,
-        };
-        if (state.HealthStage == 0)
-            return;
-
-        // Norfair and Ceres select the same authored health bands. Keep
-        // Norfair's health thresholds here, but use the installed colours so
-        // editing that one asset updates both encounters consistently.
-        int band = state.HealthStage - 1;
-        state.Colours.ShowHealth(band);
+        state.HealthBand = NorfairRidleyHealthBand.Of(slot.Health);
+        if (state.HealthBand.HealthShade is { } shade)
+            state.Colours.ShowHealth(shade);
     }
 
     /// <summary>

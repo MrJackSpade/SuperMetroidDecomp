@@ -16,8 +16,9 @@ internal static class EncounterFrameDefinitions
     private static readonly EnemyFrameId[] RidleySupplements =
     [
         .. RidleySupplementalVisualDefinitions.TailTipFrames.InTurnOrder,
-        .. RidleySupplementalVisualDefinitions.SegmentFrames.Select(entry => entry.Value),
-        .. RidleySupplementalVisualDefinitions.WingFrames.Select(entry => entry.Value),
+        .. RidleySupplementalVisualDefinitions.LinkFrames,
+        .. RidleySupplementalVisualDefinitions.WingBeatFacingLeft,
+        .. RidleySupplementalVisualDefinitions.WingBeatFacingRight,
     ];
 
     /// <summary>

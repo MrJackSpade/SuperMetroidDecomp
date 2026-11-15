@@ -30,7 +30,7 @@ internal static class DraygonNativeWords
         [DraygonPhase.GoopLeftTail] = 0x8d30,
         [DraygonPhase.GoopLeftRecovery] = 0x8db2,
         [DraygonPhase.TryGrabSamus] = 0x8e19,
-        [DraygonPhase.GrabbedSamus] = 0x8f10,
+        [DraygonPhase.RepelGrapple] = 0x8f10,
         [DraygonPhase.CarrySamus] = 0x8f1e,
         [DraygonPhase.FlailWithSamus] = 0x8fd6,
         [DraygonPhase.TailWhipWithSamus] = 0x90d4,
@@ -39,7 +39,7 @@ internal static class DraygonNativeWords
         [DraygonPhase.ReleaseSamus] = 0x9128,
         [DraygonPhase.FlyStraightUp] = 0x9154,
         [DraygonPhase.Dying] = 0x9185,
-        [DraygonPhase.DyingSink] = 0x9294,
+        [DraygonPhase.DyingWaitForEvirs] = 0x9294,
         [DraygonPhase.DyingFinish] = 0x92ab,
     });
 
@@ -95,7 +95,7 @@ internal static class DraygonNativeWords
     internal static SharedValue MeaningOfSharedValue(DraygonPhase phase) =>
         phase is DraygonPhase.None or DraygonPhase.IntroInitialDelay or DraygonPhase.IntroDance
             ? SharedValue.IntroFrames
-            : phase is DraygonPhase.Dying or DraygonPhase.DyingSink or DraygonPhase.DyingFinish
+            : phase is DraygonPhase.Dying or DraygonPhase.DyingWaitForEvirs or DraygonPhase.DyingFinish
                 ? SharedValue.BurialWait
                 : SharedValue.SwoopEntry;
 }

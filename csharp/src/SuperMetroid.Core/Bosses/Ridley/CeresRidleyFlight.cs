@@ -5,6 +5,8 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
@@ -72,7 +74,7 @@ internal sealed class CeresRidleyFlight
             BabyAction = CeresBabyAction.CarriedInArms,
             BabyCurrentPose = null,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
-            WingFrame = 5,
+            WingBeatStep = 5,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
             TailAction = RidleyTailAction.None,
@@ -81,7 +83,7 @@ internal sealed class CeresRidleyFlight
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
             ClockwiseWhipTarget = null,
             CounterClockwiseWhipTarget = null,
-            TailWhipRequest = 0,
+            TailWhipRequested = false,
             TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
@@ -142,11 +144,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(slot, state, target: new(192, 100), divisor: 16);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
-            // The hover-box overlap test returns zero on rectangle overlap. The hover wait therefore waits
-            // only while Ridley is still outside the hover box, with 124 as the authentic
-            // timeout. An earlier version inverted this branch and selected attacks
-            // while he was still above the arena, making every fireball route hit its
-            // intentional 48-frame bailout before the mouth animation could begin.
+            // The hover waits only while Ridley is still outside the hover box, for at most 124 updates.
             state.HoverCounter++;
             if (state.HoverCounter < 124)
                 return;
@@ -244,13 +242,13 @@ internal sealed class CeresRidleyFlight
     /// <summary>Runs the swoop arc and publishes the one-frame tail-fling request at its bottom.</summary>
     internal static void TickCeresRidleySwoopPhase(
         RidleyEnemyState state,
-        int angleDelta,
+        RidleySwoopTurn turn,
         RotationAngle targetAngle,
-        int targetMagnitude,
+        SignedEightEight targetSpeed,
         RidleyPhase nextPhase,
         int nextTimer)
     {
-        UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
+        UpdateRidleySwoopVelocity(state, turn, targetAngle, targetSpeed);
         if (--state.PhaseTimer < 0)
         {
             state.Phase = nextPhase;
@@ -259,34 +257,37 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Turns Ridley's swoop heading by <paramref name="angleDelta"/> 256ths of a step toward <paramref name="targetAngle"/>,
-    /// choosing the side by whether their wrapped difference is negative, and derives his velocity from it.
+    /// Moves Ridley's swoop speed toward <paramref name="targetSpeed"/>, turns his heading by <paramref name="turn"/>
+    /// toward <paramref name="targetAngle"/>, stopping at it by whether their wrapped difference is negative, and derives
+    /// his velocity from the two.
     /// </summary>
     internal static void UpdateRidleySwoopVelocity(
         RidleyEnemyState state,
-        int angleDelta,
+        RidleySwoopTurn turn,
         RotationAngle targetAngle,
-        int targetMagnitude)
+        SignedEightEight targetSpeed)
     {
-        int magnitude = state.SwoopSpeedMagnitude;
-        if (magnitude < targetMagnitude)
-            magnitude = Math.Min(targetMagnitude, magnitude + 32);
-        else if (magnitude > targetMagnitude)
-            magnitude = Math.Max(targetMagnitude, magnitude - 32);
-        state.SwoopSpeedMagnitude = magnitude;
+        SignedEightEight speed = state.SwoopSpeed;
+        if (speed < targetSpeed)
+            speed = SignedEightEight.Min(targetSpeed, speed + SwoopSpeedStep);
+        else if (speed > targetSpeed)
+            speed = SignedEightEight.Max(targetSpeed, speed - SwoopSpeedStep);
+        state.SwoopSpeed = speed;
 
-        RotationAngle angle = state.SwoopAngleAccumulator.TurnedByFractionsOfStep(angleDelta);
+        RotationAngle angle = turn.Turn(state.SwoopAngleAccumulator);
         // The comparison checks whether the difference is negative, not signed less-than. The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
-        if (angleDelta < 0 ? negativeDifference : !negativeDifference)
+        if (turn.Direction == RotationDirection.Clockwise ? negativeDifference : !negativeDifference)
             angle = targetAngle;
         state.SwoopAngleAccumulator = angle;
         TrigonometryAngle phase = angle.ToTrigonometryAngle();
-        SignedEightEight speed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(magnitude);
         state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(speed, phase));
         state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
+
+    /// <summary>How far the swoop speed moves toward its target each update: an eighth of a pixel an update.</summary>
+    private static readonly SignedEightEight SwoopSpeedStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
@@ -529,9 +530,8 @@ internal sealed class CeresRidleyFlight
         }
         else
         {
-            // The wing animation reads the speed's quarter pixels within a cycle of sixteen as its step and caps
-            // that step at seven.
-            int wingStep = Math.Min(7, largestAxisVelocity.WholeQuarterPixels % 16);
+            // The wing beat quickens with each quarter pixel of speed up to seven quarters (#1935).
+            int wingStep = Math.Min(CeresRidleyWingDefinitions.AnimationTimerSteps.Length - 1, largestAxisVelocity.WholeQuarterPixels);
             int delta = CeresRidleyWingDefinitions.AnimationTimerSteps[wingStep];
             if (!state.Velocity.Y.IsNegative)
                 delta >>= 1;
@@ -543,7 +543,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.WingAnimationTimer = 32;
-        state.WingFrame = (state.WingFrame + 1) % 10;
+        state.WingBeatStep = (state.WingBeatStep + 1) % RidleySupplementalVisualDefinitions.WingBeatSteps;
     }
 
     /// <summary>

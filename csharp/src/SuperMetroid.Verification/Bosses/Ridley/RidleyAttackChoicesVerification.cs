@@ -13,26 +13,32 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Norfair Ridley's situation-dependent attack table and same-frame selection behavior.</summary>
 internal static class RidleyAttackChoicesVerification
 {
-    /// <summary>Compares all 48 native choices and verifies RNG consumption, branch priority, and chosen-action setup.</summary>
+    /// <summary>
+    /// Compares the 40 native choices of the five reachable rows and verifies RNG consumption, branch priority, and
+    /// chosen-action setup. The cartridge's second row, a reversed distribution its selector tests for below 9000 health
+    /// only after it has already taken the first row below 14400, is never read, so no situation holds it (#1934).
+    /// </summary>
     internal static void VerifyRidleyAttackChoices(CartridgeImportAddressSpace rom)
     {
-        RidleyPhase Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
+        RidleyAttackSituation? SituationOf(int row) => row switch
         {
-            0 => RidleyAttackSituation.BelowHalfHealth,
-            1 => RidleyAttackSituation.AboveHalfHealth,
+            0 => RidleyAttackSituation.Ordinary,
+            1 => null,
             2 => RidleyAttackSituation.DamageBoosting,
             3 => RidleyAttackSituation.PogoZone,
             4 => RidleyAttackSituation.SpinJumping,
             _ => RidleyAttackSituation.ZeroHealth,
-        }, choice);
+        };
         var native = new RidleyPhase[6, 8];
         for (int row = 0; row < 6; row++)
         for (int choice = 0; choice < 8; choice++)
         {
+            if (SituationOf(row) is not { } situation)
+                continue;
             int address = 0xa6b38c + row * 16 + choice * 2;
             native[row, choice] = RidleyNativeWords.Phases.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 "Ridley action");
-            AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
+            AssertEqual(native[row, choice], RidleyAttackChoices.Resolve(situation, choice), "Every reachable native Ridley action pointer");
         }
 
         var actual = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -82,7 +88,7 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");
         }
-        Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
+        Console.WriteLine("Ridley choices: the 40 reachable native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
 }

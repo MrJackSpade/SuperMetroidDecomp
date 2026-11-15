@@ -11,15 +11,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// one initializer serves both encounters and only one Ridley can exist at a time.
 /// </summary>
 /// <remarks>
-/// The Lower Norfair combat values carry the meanings their consumers establish.
-/// Ceres's private Baby actor and rotating getaway share Ridley's encounter values, and the Ceres self-destruct
-/// presentation's phase timer deliberately keeps the phase values 0, 2, 4, 6, 8, 10 and 12.
+/// The Lower Norfair combat values carry the meanings their consumers establish. Ceres's private Baby actor and rotating
+/// getaway share Ridley's encounter values.
 /// </remarks>
 public sealed class RidleyEnemyState
 {
     /// <summary>Gets the live phase, shared by reveal logic and encounter-specific attack or escape phases.</summary>
     public RidleyPhase Phase { get; internal set; }
-    /// <summary>Gets the encounter mode: zero during reveal, positive during combat, and dying during Lower Norfair death.</summary>
+    /// <summary>Gets the encounter mode: not fighting during the reveal, fighting or dodging a power bomb in combat, and dying during Lower Norfair's death.</summary>
     public RidleyFightMode FightMode { get; internal set; }
     /// <summary>
     /// Gets the number of Ceres shots Ridley has taken, used for health-colour progression and the hundred-hit fake-retreat
@@ -60,8 +59,8 @@ public sealed class RidleyEnemyState
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's signed 1/256-pixel velocity, each axis held unchanged.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer passes zero.</summary>
-    public int WingFrame { get; internal set; }
+    /// <summary>Gets the step of his wing beat the wings show, advancing when the wing timer passes zero and wrapping at the beat's end.</summary>
+    public int WingBeatStep { get; internal set; }
     /// <summary>Gets the wing animation's countdown, reloaded to 32 once it runs below zero.</summary>
     public int WingAnimationTimer { get; internal set; }
     /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing countdown; nonnegative vertical motion halves it.</summary>
@@ -85,10 +84,10 @@ public sealed class RidleyEnemyState
     /// </summary>
     public RidleyTailAngle? CounterClockwiseWhipTarget { get; internal set; }
     /// <summary>
-    /// Gets the pending one-shot whip request, zero or one; its value minus one is how many whole turns further along
-    /// its swing the next aimed whip's target lies, before neutral tail control consumes it.
+    /// Gets whether a one-shot tail whip is requested, which neutral tail control consumes (#1940): a requested whip aims a
+    /// whole turn further along its swing than an unrequested random one.
     /// </summary>
-    public int TailWhipRequest { get; internal set; }
+    public bool TailWhipRequested { get; internal set; }
     /// <summary>Gets the distance (fifteen sixteenths or one and a half pixels) tail segments extend each update toward their targets.</summary>
     public SignedEightEight TailExtensionSpeed { get; internal set; }
     /// <summary>Gets the angular stagger threshold (eight through 23) used to propagate a wave or whip from one segment to the next.</summary>
@@ -113,15 +112,14 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
-    /// Gets the 1/256-pixel swoop speed magnitude (zero through 1280, in 1/256 pixels per update), converged 32 at a time toward
-    /// each phase's target before resolving axis velocities.
+    /// Gets the swoop's speed along its heading, at most five pixels an update, moved an eighth of a pixel each update
+    /// toward each phase's target speed before it resolves into axis velocities.
     /// </summary>
-    public int SwoopSpeedMagnitude { get; internal set; }
+    public SignedEightEight SwoopSpeed { get; internal set; }
 
-    /// <summary>Gets Lower Norfair's health-table stage from zero through three, changing below 9000, 5400, and 1800 health.</summary>
-    [IntegerQuantity("count of health thresholds passed, zero through three, indexing the health tables")]
-    public int HealthStage { get; internal set; }
-    /// <summary>Gets the Lower Norfair grabbed-Samus state controlling claw attachment and release: one while Ridley carries Samus, otherwise zero.</summary>
+    /// <summary>Gets Lower Norfair Ridley's health band, updated from his health after each of his updates; he starts unhurt.</summary>
+    public NorfairRidleyHealthBand HealthBand { get; internal set; } = NorfairRidleyHealthBandDefinitions.Unhurt;
+    /// <summary>Gets the Lower Norfair grabbed-Samus state controlling claw attachment and release: carrying Samus while Ridley holds her, otherwise released.</summary>
     public RidleyGrabState GrabState { get; internal set; }
     /// <summary>Gets the Lower Norfair countdown keeping the body intangible after a grab release.</summary>
     public int IntangibilityTimer { get; internal set; }
@@ -129,9 +127,9 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the Lower Norfair pogo bounce counter, reset after its two-bounce threshold.</summary>
     public int PogoBounceCount { get; internal set; }
-    /// <summary>Gets the positive velocity increment selected by health stage for downward pogo motion.</summary>
+    /// <summary>Gets the positive velocity increment the health band's pogo launch gives downward pogo motion.</summary>
     public SignedEightEight PogoDownwardAcceleration { get; internal set; }
-    /// <summary>Gets the positive velocity increment selected by health stage for upward pogo motion.</summary>
+    /// <summary>Gets the positive velocity increment the health band's pogo launch gives upward pogo motion.</summary>
     public SignedEightEight PogoUpwardAcceleration { get; internal set; }
     /// <summary>Gets Samus's signed whole-pixel displacement from the claw anchor; carry updates decay each axis toward zero.</summary>
     public Offset16<RoomPixels> GrabOffset { get; internal set; }
@@ -187,10 +185,10 @@ public sealed class RidleyEnemyState
     public FloorZoom FloorZoom { get; internal set; }
     /// <summary>Gets the floor point the Ceres getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>
     public Position16<FloorPixels> FloorCenter { get; internal set; }
-    /// <summary>Gets the four-phase Ceres Baby graphics animation index (zero through three) during the getaway.</summary>
-    public int GetawayBabyFrame { get; internal set; }
-    /// <summary>Gets the two-phase Ridley wing graphics animation index (zero or one) during the getaway.</summary>
-    public int GetawayWingFrame { get; internal set; }
+    /// <summary>Gets the step of the Baby capsule's cycle the getaway floor shows.</summary>
+    public int GetawayCapsuleStep { get; internal set; }
+    /// <summary>Gets the step of the wings' two-beat cycle the getaway floor shows.</summary>
+    public int GetawayWingBeat { get; internal set; }
 
     /// <summary>Which step of the Ceres self-destruct warning runs next; the getaway's end starts it.</summary>
     internal CeresSelfDestructPhase CeresSelfDestructPhase { get; set; }

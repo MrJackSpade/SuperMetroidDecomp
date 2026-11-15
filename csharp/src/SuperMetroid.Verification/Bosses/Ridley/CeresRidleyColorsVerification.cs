@@ -207,10 +207,10 @@ internal static class CeresRidleyColorsVerification
                     < 9000 => 1,
                     _ => 0,
                 };
-                AssertEqual(stage, nativeState.HealthStage,
-                    $"native Norfair Ridley health {health} stage");
-                AssertEqual(stage, stockState.HealthStage,
-                    $"stock Norfair Ridley health {health} stage");
+                AssertEqual(stage, RidleyNativeWords.HealthBands.Word(nativeState.HealthBand),
+                    $"native Norfair Ridley health {health} band");
+                AssertEqual(stage, RidleyNativeWords.HealthBands.Word(stockState.HealthBand),
+                    $"stock Norfair Ridley health {health} band");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Norfair Ridley health {health} CGRAM {color}");

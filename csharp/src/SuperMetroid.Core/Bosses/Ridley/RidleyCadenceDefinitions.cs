@@ -14,7 +14,7 @@ internal static class RidleyCadenceDefinitions
 
     /// <summary>
     /// The phase of a Norfair Ridley breakup fragment's own update count on which it is hidden: set on odd updates, so it
-    /// flickers. The fragment keeps only this phase of its count, which then alternates on its own.
+    /// flickers (#1940).
     /// </summary>
     internal static readonly UpdateCounterField BreakupFragmentHidden = new(0, 1);
 

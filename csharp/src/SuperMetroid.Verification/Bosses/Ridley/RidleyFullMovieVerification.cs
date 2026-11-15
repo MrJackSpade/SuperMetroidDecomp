@@ -54,7 +54,7 @@ internal static class RidleyFullMovieVerification
             state.PhaseTimer = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
             state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             body.AnimationClock.HoldFor(9); body.AnimationClock.Repeats = WrappingCountdown.Start(11);
-            runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
+            runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep(body, state, samus, RidleyWallSweepTarget.WallBehind);
             AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.AnimationClock.Hold.RawValue, "native fireball restarts instruction timer only when admitted");
@@ -149,11 +149,11 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(211, 346));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x400));
-        state.FacingDirection = RidleyFacing.Right; state.Phase = RidleyPhase.NorfairFireballAttack;
+        state.FacingDirection = RidleyFacing.Right; state.Phase = RidleyPhase.NorfairPogoFall;
         state.GrabState = RidleyGrabState.Released; state.ClawHeight = RidleyClawHeight.Standing;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttack(body, state, samus, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, samus, runtime.Room.LevelData);
         AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "native grab immediately enters carry movement");
         AssertEqual(31, state.PhaseTimer, "native setup falls through first carry countdown");
         AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
@@ -171,7 +171,7 @@ internal static class RidleyFullMovieVerification
         // have their own reversal; this entry must negate after its lunge acceleration.
         body.Position = new(new(172, 0x6300), new(345, 0x0a00));
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x3cd));
-        state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
+        state.FacingDirection = RidleyFacing.Right; state.HealthBand = NorfairRidleyHealthBandDefinitions.NearlyDead; state.HitRoomBoundary = false;
         state.GrabState = RidleyGrabState.Released; state.ClawHeight = RidleyClawHeight.Standing;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -187,7 +187,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach(body, state, samus);
-        AssertEqual(RidleyPhase.NorfairReleaseSamus, state.Phase, "zero-health grab enters death movement");
+        AssertEqual(RidleyPhase.NorfairMoveToDeathSpot, state.Phase, "zero-health grab enters death movement");
         AssertEqual((ushort)0x1c6, state.Velocity.X.RawValue, "death entry immediately accelerates X toward death spot");
         AssertEqual((ushort)0xfbde, state.Velocity.Y.RawValue, "death entry immediately accelerates Y toward death spot");
         AssertEqual(0x29, state.PhaseTimer, "death entry retains existing general countdown");
@@ -454,9 +454,9 @@ internal static class RidleyFullMovieVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var state = runtime.Enemies.RidleyEncounter.Ridley;
         var body = runtime.Enemies.SlotTable.Slots[0];
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairFireballAttack;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairPogoFall;
         state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
-        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttack(body, state, null, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, null, runtime.Room.LevelData);
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");

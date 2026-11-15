@@ -22,29 +22,35 @@ internal static class RidleyCollision
             CoordinateAxis.Difference(relativeY, 288) >= 0;
     }
 
-    /// <summary>Each body frame's components in authored order: one for forward Ridley, four for each side-facing pose.</summary>
+    /// <summary>Each body frame's components in authored order: Ridley facing forward, or a side-facing pose's legs, hand, torso and head.</summary>
     private static readonly Dictionary<BodyFrame, ImmutableArray<RidleyCollisionComponent>> FrameComponents =
-        Enum.GetValues<BodyFrame>().ToDictionary(frame => frame, frame => Enumerable.Range(0, frame == BodyFrame.Forward ? 1 : 4)
-            .Select(component => ComponentAt(frame, component)).ToImmutableArray());
+        Enum.GetValues<BodyFrame>().ToDictionary(frame => frame, ComponentsOf);
 
-    /// <summary>Selects a component's offset and hitbox list from Ridley's pose, reflecting offsets but keeping the authored right-facing rectangles.</summary>
-    private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
+    /// <summary>
+    /// The components of <paramref name="frame"/>: the forward body alone, or the side-facing legs, hand, torso and head
+    /// (#1937). A right-facing pose mirrors the left-facing origins but keeps its own authored rectangles.
+    /// </summary>
+    private static ImmutableArray<RidleyCollisionComponent> ComponentsOf(BodyFrame frame)
     {
-        if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), Forward);
+        if (frame == BodyFrame.Forward)
+            return [new(new(0, ForwardYOffset), Forward)];
         bool right = RightFacing.Contains(frame);
-        EnemyHitboxRectangle[] hitboxes = component switch
-        {
-            0 => Legs.TryGetValue(frame, out EnemyHitboxRectangle[]? legs)
-                ? legs
-                : throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
-            1 => right ? RightHand : LeftHand,
-            2 => right ? RightTorso : LeftTorso,
-            _ => Heads.TryGetValue(frame, out EnemyHitboxRectangle[]? head)
-                ? head
-                : throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
-        };
-        Offset16<RoomPixels> origin = LeftBase[component];
-        return new(right ? origin.MirroredX() : origin, hitboxes);
+        EnemyHitboxRectangle[] legs = Legs.TryGetValue(frame, out EnemyHitboxRectangle[]? shownLegs)
+            ? shownLegs
+            : throw new InvalidOperationException($"Undefined BodyFrame {frame}.");
+        EnemyHitboxRectangle[] head = Heads.TryGetValue(frame, out EnemyHitboxRectangle[]? shownHead)
+            ? shownHead
+            : throw new InvalidOperationException($"Undefined BodyFrame {frame}.");
+        return
+        [
+            Side(LeftLegsOrigin, legs),
+            Side(LeftHandOrigin, right ? RightHand : LeftHand),
+            Side(LeftTorsoOrigin, right ? RightTorso : LeftTorso),
+            Side(LeftHeadOrigin, head),
+        ];
+
+        RidleyCollisionComponent Side(Offset16<RoomPixels> leftOrigin, EnemyHitboxRectangle[] hitboxes) =>
+            new(right ? leftOrigin.MirroredX() : leftOrigin, hitboxes);
     }
 
     /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>

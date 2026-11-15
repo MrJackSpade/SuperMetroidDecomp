@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// One of Draygon's wall cannons (#1554). A whole cannon arms its missile wake and shows its shield on its first
 /// update, then rests. From its second update on, a Missile or Super Missile that struck its block wakes it on the
-/// next update, before its timing runs: the hit is counted at once (a Super Missile counts as enough to destroy it),
-/// and a hit short of the third flashes the shield and returns to rest, while the destroying hit stops the cannon's
-/// firing, writes its destroyed terrain and starts its smoke. A cannon set up destroyed does that on its first update.
+/// next update, before its timing runs: the hit is counted at once, and a hit short of the third flashes the shield and
+/// returns to rest, while the destroying hit (the third, or any Super Missile) stops the cannon's firing, writes its
+/// destroyed terrain and starts its smoke. A cannon set up destroyed does that on its first update.
 /// Other projectiles' strikes stay unread until a missile's replaces them.
 /// </summary>
 internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
@@ -39,8 +39,8 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     internal DraygonCannonPhase Phase { get; private set; }
 
     /// <summary>
-    /// The hits counted so far: 0 to 2 while whole, the Super Missile's seed once one struck, or the destroying count for
-    /// a cannon set up destroyed.
+    /// The hits the cannon has survived, 0 to 2; a cannon set up destroyed holds the destroying count. The hit that
+    /// destroys a cannon, a third missile or any Super Missile, is not added.
     /// </summary>
     internal int Hits { get; private set; }
 
@@ -65,12 +65,10 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         Ensure.NotNull(place);
         if (WakeArmed && PendingHit is { } hit && hit.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            // A Super Missile seeds the count far enough that the hit it wakes destroys the cannon.
-            if (hit.Family == SamusProjectileFamily.SuperMissile)
-                Hits = DraygonCannonDefinitions.SuperMissileHitCounterSeed;
+            // The struck cannon takes the hit on the update it wakes, before its timing runs.
             PendingHit = null;
-            Phase = DraygonCannonPhase.Struck;
-            _updatesBeforeNextStep = 1;
+            CountHit(place, context, destroysAtOnce: hit.Family == SamusProjectileFamily.SuperMissile);
+            return;
         }
         if (--_updatesBeforeNextStep != 0)
             return;
@@ -87,15 +85,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
                 // The cannon rests on its shield until a missile wakes it.
                 _updatesBeforeNextStep = 1;
                 return;
-            case DraygonCannonPhase.Struck when Hits + 1 < DraygonCannonDefinitions.HitsToDestroy:
-                Hits++;
-                _frame = 0;
-                Show(place, context, _look.HitFlash[0], DraygonCannonPhase.Flashing);
-                return;
-            case DraygonCannonPhase.Struck:
-                WakeArmed = false;
-                Destroy(place, context);
-                return;
             case DraygonCannonPhase.Flashing:
                 _frame++;
                 if (_frame < _look.HitFlash.Count)
@@ -110,6 +99,23 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DraygonCannonPhase)} {Phase}.");
         }
+    }
+
+    /// <summary>
+    /// Counts a missile hit: short of the destroying count the shield flashes; the third hit, or one that
+    /// <paramref name="destroysAtOnce"/>, destroys the cannon.
+    /// </summary>
+    private void CountHit(RoomObjectPlace place, RoomObjectStepContext context, bool destroysAtOnce)
+    {
+        if (!destroysAtOnce && Hits + 1 < DraygonCannonDefinitions.HitsToDestroy)
+        {
+            Hits++;
+            _frame = 0;
+            Show(place, context, _look.HitFlash[0], DraygonCannonPhase.Flashing);
+            return;
+        }
+        WakeArmed = false;
+        Destroy(place, context);
     }
 
     /// <summary>Destroys the cannon: Draygon stops its firing, its terrain is destroyed, and its smoke starts.</summary>

@@ -5,9 +5,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// verification's catalog relates each member to its source (#1413).
 /// </summary>
 /// <remarks>
-/// Lower Norfair Ridley begins at <see cref="NorfairEnterArena"/> after the shared reveal sequence. The Ceres fake
-/// retreat phases from <see cref="CeresFakeRetreatMoveToPosition"/> on are shared with the Baby retrieval route,
-/// and the real fight selects them only while Ridley has grabbed Samus.
+/// Both encounters begin at <see cref="WaitForDoorTransition"/> and share the reveal through
+/// <see cref="WaitBeforeLiftoff"/>, whose roar's liftoff starts <see cref="CeresLiftoffAccelerating"/> in Ceres and
+/// <see cref="NorfairEnterArena"/> in Lower Norfair. Ceres Ridley's fake retreat, from
+/// <see cref="CeresFakeRetreatMoveToPosition"/> to <see cref="CeresRetrieveBaby"/>, follows his hundredth hit: he rises,
+/// drops the Baby and swoops to catch it.
 /// </remarks>
 public enum RidleyPhase
 {
@@ -68,11 +70,11 @@ public enum RidleyPhase
     NorfairEnterArena,
     /// <summary>Selects Lower Norfair Ridley's next action from combat state.</summary>
     NorfairSelectAttack,
-    /// <summary>The missed-lunge setup entry, preparing the hover recovery.</summary>
+    /// <summary>Starts the hover Ridley recovers from a missed lunge in, with its 128-update limit.</summary>
     NorfairHoverSetup,
-    /// <summary>The missed-lunge move-to-position entry, advancing hover recovery.</summary>
+    /// <summary>Hovers toward the point behind Ridley until he reaches it or the hover's time runs out.</summary>
     NorfairHover,
-    /// <summary>Initializes the Lower Norfair swoop phase countdown and motion.</summary>
+    /// <summary>Starts the swoop: its countdown and heading, then moves Ridley to the swoop's start.</summary>
     NorfairSwoopSetup,
     /// <summary>Moves Lower Norfair Ridley to its swoop start.</summary>
     NorfairSwoopMoveToStart,
@@ -84,25 +86,23 @@ public enum RidleyPhase
     NorfairSwoopAimUp,
     /// <summary>Accelerates the upward-aiming Lower Norfair swoop ascent.</summary>
     NorfairSwoopClimb,
-    /// <summary>Decelerates the swoop and chooses attack selection or grab approach.</summary>
+    /// <summary>Decelerates the swoop, then lunges at a grabbable Samus or chooses the next attack.</summary>
     NorfairSwoopRecover,
-    /// <summary>The hover-action entry used by the pogo setup step.</summary>
-    NorfairPogoSetup,
-    /// <summary>The hover move-to-wall-behind entry used by the descending pogo phase.</summary>
-    NorfairPogoDescending,
-    /// <summary>The hover move-to-wall-in-front entry used by the ascending pogo phase.</summary>
-    NorfairPogoAscending,
-    /// <summary>The pogo fly-to-position entry, initializing the ground-attack sequence.</summary>
-    NorfairFireballSetup,
-    /// <summary>The ground-attack side-position phase.</summary>
-    NorfairFireballMoveToSide,
-    /// <summary>The ground-attack height-position phase.</summary>
-    NorfairFireballMoveToHeight,
-    /// <summary>The pogo descending entry used by the ground-attack step.</summary>
-    NorfairFireballAttack,
-    /// <summary>The ground-attack recovery phase before choosing the next action.</summary>
-    NorfairFireballRecover,
-    /// <summary>The lunge action used to approach and grab Samus.</summary>
+    /// <summary>Starts the wall sweep against a spin-jumping Samus: its tail spacing and random time limit.</summary>
+    NorfairWallSweepSetup,
+    /// <summary>Sweeps toward the wall behind Ridley at Samus's height, whipping his tail, while she spin jumps.</summary>
+    NorfairSweepToWallBehind,
+    /// <summary>Sweeps toward the wall ahead of Ridley at Samus's height, whipping his tail, while she spin jumps.</summary>
+    NorfairSweepToWallAhead,
+    /// <summary>Moves Ridley to the side of the arena he pogos from.</summary>
+    NorfairPogoMoveToSide,
+    /// <summary>Settles Ridley at the pogo height, then points his tail down and launches the first bounce.</summary>
+    NorfairPogoMoveToHeight,
+    /// <summary>Falls onto his tail, grabbing a grabbable Samus his claws reach, and bounces when the tail strikes the ground.</summary>
+    NorfairPogoFall,
+    /// <summary>Rises from a bounce until it peaks, or chooses the next attack once Samus leaves the pogo zone or time runs out.</summary>
+    NorfairPogoRise,
+    /// <summary>Lunges at Samus to grab her.</summary>
     NorfairGrabApproach,
     /// <summary>Initializes the Lower Norfair carry state after grabbing Samus.</summary>
     NorfairCarrySetup,
@@ -112,28 +112,26 @@ public enum RidleyPhase
     NorfairCarryRise,
     /// <summary>Recovers after releasing Samus and restores ordinary tail spacing.</summary>
     NorfairCarryRelease,
-    /// <summary>Recover from a lunge while a bomb is armed.</summary>
-    NorfairReturnToArena,
+    /// <summary>Flies clear of an armed power bomb after a missed lunge, then resumes the fight or the carry.</summary>
+    NorfairPowerBombDodge,
 
-    /// <summary>Steers the fake Ceres retreat to its start; the shared entry can also be selected during a Lower Norfair grab.</summary>
+    /// <summary>Steers Ceres Ridley to the start of his fake retreat after his hundredth hit.</summary>
     CeresFakeRetreatMoveToPosition,
-    /// <summary>Raises Ceres Ridley until the Baby starts falling; shared with the grab route.</summary>
+    /// <summary>Raises Ceres Ridley until he lets the Baby fall.</summary>
     CeresFakeRetreatRising,
     /// <summary>Starts the Baby's fall and waits before the Ceres retrieval animation.</summary>
     CeresWaitBeforeRetrievingBaby,
     /// <summary>Steers Ridley's hand toward the falling Baby and reacquires it.</summary>
     CeresRetrieveBaby,
 
-    /// <summary>Moves zero-health Ridley to the death spot while retaining any grabbed Samus.</summary>
-    NorfairReleaseSamus,
-    /// <summary>Selects the death-roar animation and starts its thirty-two-frame phase.</summary>
-    NorfairDeathStart,
-    /// <summary>Continues death-spot convergence during the roar, then stops motion and starts acid drainage.</summary>
+    /// <summary>Moves zero-health Ridley to the death spot while retaining any grabbed Samus, then starts his death roar.</summary>
+    NorfairMoveToDeathSpot,
+    /// <summary>Roars while still converging on the death spot, then stops and starts draining the acid.</summary>
+    NorfairDeathRoar,
+    /// <summary>Emits small explosions while the acid drains; expiry releases Samus and allocates the breakup actors.</summary>
     NorfairDeathExplosions,
-    /// <summary>Emits small explosions while acid drains; expiry releases Samus and allocates breakup actors.</summary>
-    NorfairDeathFall,
     /// <summary>Hides the intact body and disables shared wing/tail animation after breakup allocation.</summary>
-    NorfairDeathImpact,
+    NorfairDeathBreakup,
     /// <summary>Counts the deliberate thirty-two-frame wait before the terminal death delay.</summary>
     NorfairDeathWait,
     /// <summary>Completes the terminal wait, publishes boss persistence, scatters drops, requests music, and deletes the body.</summary>

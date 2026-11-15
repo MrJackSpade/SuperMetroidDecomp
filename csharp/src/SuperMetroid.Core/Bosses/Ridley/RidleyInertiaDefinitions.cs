@@ -12,7 +12,7 @@ public static class RidleyInertiaDefinitions
     /// <summary>The fastest positive speed Norfair Ridley's acceleration allows, five pixels per frame.</summary>
     public static SignedEightEight MaximumVelocity { get; } = SignedEightEight.FromPixels(5);
 
-    /// <summary>The fastest negative speed, five pixels per frame, compared with the N flag.</summary>
+    /// <summary>The fastest negative speed Norfair Ridley's acceleration allows, five pixels per frame.</summary>
     public static SignedEightEight MinimumVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>Base acceleration added when reversing direction.</summary>

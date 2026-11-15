@@ -61,7 +61,7 @@ internal static class RidleyAcidVerification
         for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual((ushort)440, fx.NamedBaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
-        state.Phase = RidleyPhase.NorfairDeathExplosions;
+        state.Phase = RidleyPhase.NorfairDeathRoar;
         state.PhaseTimer = 0;
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");

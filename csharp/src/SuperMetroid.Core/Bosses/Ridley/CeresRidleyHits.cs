@@ -148,10 +148,8 @@ internal sealed class CeresRidleyHits
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
-        // Samus contact gates ordinary contact only on the contact-damage mode and
-        // Samus's invincibility timer. It does not inspect the knockback-active
-        // state. An extra guard previously made a stale/ongoing aerial knockback
-        // suppress every later Ridley overlap even after invincibility had expired.
+        // Samus contact gates ordinary contact only on the contact-damage mode and Samus's invincibility timer, never on
+        // whether her knockback is still running.
         if (_ridleyEncounter.Ridley is null)
             return false;
 

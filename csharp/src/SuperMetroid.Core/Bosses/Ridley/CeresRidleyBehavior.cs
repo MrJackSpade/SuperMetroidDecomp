@@ -182,9 +182,9 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.CeresSwoopDescendingAimingDown:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
-                    angleDelta: -32,
+                    turn: new RidleySwoopTurn(RotationAngle.FromSteps(0, 32), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.Zero - RotationAngle.FromSteps(4),
-                    targetMagnitude: 768,
+                    targetSpeed: SignedEightEight.FromPixels(3),
                     nextPhase: RidleyPhase.CeresSwoopDescendingAimingLeft,
                     nextTimer: 36);
                 break;
@@ -192,9 +192,9 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.CeresSwoopDescendingAimingLeft:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
-                    angleDelta: -512,
+                    turn: new RidleySwoopTurn(RotationAngle.FromSteps(2), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.ThreeQuarterTurn,
-                    targetMagnitude: 768,
+                    targetSpeed: SignedEightEight.FromPixels(3),
                     nextPhase: RidleyPhase.CeresSwoopAscendingAimingUp,
                     nextTimer: 28);
                 if (state.Phase == RidleyPhase.CeresSwoopAscendingAimingUp)
@@ -203,23 +203,24 @@ internal sealed class CeresRidleyBehavior
                     // of the swoop. Neutral tail AI consumes and clears it later this same
                     // enemy-main pass; treating it as a persistent animation mode makes the
                     // tail lag an entire attack behind Ridley.
-                    state.TailWhipRequest = 1;
+                    state.TailWhipRequested = true;
                 }
                 break;
 
             case RidleyPhase.CeresSwoopAscendingAimingUp:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
-                    angleDelta: -512,
+                    turn: new RidleySwoopTurn(RotationAngle.FromSteps(2), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.Zero - SwoopClimbTarget,
-                    targetMagnitude: 768,
+                    targetSpeed: SignedEightEight.FromPixels(3),
                     nextPhase: RidleyPhase.CeresSwoopAscendingAimingUpFaster,
                     nextTimer: 1);
                 break;
 
             case RidleyPhase.CeresSwoopAscendingAimingUpFaster:
                 CeresRidleyFlight.UpdateRidleySwoopVelocity(
-                    state, angleDelta: -768, targetAngle: RotationAngle.Zero - SwoopClimbTarget, targetMagnitude: 768);
+                    state, turn: new RidleySwoopTurn(RotationAngle.FromSteps(3), RotationDirection.Clockwise), targetAngle: RotationAngle.Zero - SwoopClimbTarget,
+                    targetSpeed: SignedEightEight.FromPixels(3));
                 if (--state.PhaseTimer < 0)
                 {
                     state.Phase = RidleyPhase.CeresHovering;
@@ -291,25 +292,23 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.NorfairSwoopAimUp:
             case RidleyPhase.NorfairSwoopClimb:
             case RidleyPhase.NorfairSwoopRecover:
-            case RidleyPhase.NorfairPogoSetup:
-            case RidleyPhase.NorfairPogoDescending:
-            case RidleyPhase.NorfairPogoAscending:
-            case RidleyPhase.NorfairFireballSetup:
-            case RidleyPhase.NorfairFireballMoveToSide:
-            case RidleyPhase.NorfairFireballMoveToHeight:
-            case RidleyPhase.NorfairFireballAttack:
-            case RidleyPhase.NorfairFireballRecover:
+            case RidleyPhase.NorfairWallSweepSetup:
+            case RidleyPhase.NorfairSweepToWallBehind:
+            case RidleyPhase.NorfairSweepToWallAhead:
+            case RidleyPhase.NorfairPogoMoveToSide:
+            case RidleyPhase.NorfairPogoMoveToHeight:
+            case RidleyPhase.NorfairPogoFall:
+            case RidleyPhase.NorfairPogoRise:
             case RidleyPhase.NorfairGrabApproach:
             case RidleyPhase.NorfairCarrySetup:
             case RidleyPhase.NorfairCarryMoveToAnchor:
             case RidleyPhase.NorfairCarryRise:
             case RidleyPhase.NorfairCarryRelease:
-            case RidleyPhase.NorfairReturnToArena:
-            case RidleyPhase.NorfairReleaseSamus:
-            case RidleyPhase.NorfairDeathStart:
+            case RidleyPhase.NorfairPowerBombDodge:
+            case RidleyPhase.NorfairMoveToDeathSpot:
+            case RidleyPhase.NorfairDeathRoar:
             case RidleyPhase.NorfairDeathExplosions:
-            case RidleyPhase.NorfairDeathFall:
-            case RidleyPhase.NorfairDeathImpact:
+            case RidleyPhase.NorfairDeathBreakup:
             case RidleyPhase.NorfairDeathWait:
             case RidleyPhase.NorfairDeathFinish:
             case RidleyPhase.NorfairDeathComplete:

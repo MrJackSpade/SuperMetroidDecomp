@@ -29,22 +29,17 @@ internal static class DraygonCollisionDefinitions
         new(-62, -33, 15, -5, DraygonReactions.Touch, EnemyReaction.DudShot),
     ];
 
-    /// <summary>The empty list of the background frames in which the body cannot be hit or touched.</summary>
-    internal static readonly EnemyCollisionHitbox[] EmptyHitboxes = [];
-
-    /// <summary>Ordinary sprite art has no collision components.</summary>
+    /// <summary>A frame that cannot be hit or touched has no collision components.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> NoComponents = [];
     /// <summary>The left-facing body's one zero-offset component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
     /// <summary>The right-facing body's one zero-offset component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
-    /// <summary>The one zero-offset component of a background frame in which the body cannot be hit or touched.</summary>
-    internal static readonly ImmutableArray<EnemyCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
 
     /// <summary>
-    /// Each Draygon frame's collision components. Every body-layer frame has one zero-offset component: the first eight and
-    /// final frame of each facing use that facing's body hitboxes and the frames between use the empty list. Ordinary sprite
-    /// frames have no collision components.
+    /// Each Draygon frame's collision components (#1937). The first eight body-layer frames and the final one of each facing
+    /// have that facing's one zero-offset body component; the body-layer frames between and every ordinary sprite frame
+    /// cannot be hit or touched and have none.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {
@@ -62,14 +57,14 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonBodyFacingLeftFireGoopSecond] = FirstBodyComponents,
         [EnemyFrameId.DraygonBodyFacingLeftFireGoopThird] = FirstBodyComponents,
         [EnemyFrameId.DraygonBodyFacingLeftFireGoopFourth] = FirstBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleFirst] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleSecond] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleThird] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftDyingLoopFifth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleFourth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftDyingLoopThird] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleFifth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingLeftIdleSixth] = EmptyBodyComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleFirst] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleSecond] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleThird] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftDyingLoopFifth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleFourth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftDyingLoopThird] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleFifth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingLeftIdleSixth] = NoComponents,
         [EnemyFrameId.DraygonBodyFacingLeftReset] = FirstBodyComponents,
         [EnemyFrameId.DraygonArmsFacingLeftNearSwoopApexFirst] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingLeftNearSwoopApexSecond] = NoComponents,
@@ -103,14 +98,14 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonBodyFacingRightFireGoopSecond] = SecondBodyComponents,
         [EnemyFrameId.DraygonBodyFacingRightFireGoopThird] = SecondBodyComponents,
         [EnemyFrameId.DraygonBodyFacingRightFireGoopFourth] = SecondBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleFirst] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleSecond] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleThird] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightDyingLoopFifth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleFourth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightDyingLoopThird] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleFifth] = EmptyBodyComponents,
-        [EnemyFrameId.DraygonEyeFacingRightIdleSixth] = EmptyBodyComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleFirst] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleSecond] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleThird] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightDyingLoopFifth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleFourth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightDyingLoopThird] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleFifth] = NoComponents,
+        [EnemyFrameId.DraygonEyeFacingRightIdleSixth] = NoComponents,
         [EnemyFrameId.DraygonBodyFacingRightReset] = SecondBodyComponents,
         [EnemyFrameId.DraygonArmsFacingRightNearSwoopApexFirst] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingRightNearSwoopApexSecond] = NoComponents,

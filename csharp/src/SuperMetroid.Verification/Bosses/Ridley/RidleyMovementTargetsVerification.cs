@@ -32,21 +32,22 @@ internal static class RidleyMovementTargetsVerification
             }
             return native;
         }
-        var descending = Facings(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.DescendingPogoX);
-        var ascending = Facings(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.AscendingPogoX);
-        var ground = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.GroundAttackX);
+        var behind = Facings(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.WallBehindX);
+        var ahead = Facings(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.WallAheadX);
+        var pogoSide = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.PogoSideX);
+        NorfairRidleyHealthBand[] bands = RidleyNativeWords.HealthBandsInStageOrder;
         var carry = Facings(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
         var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
         // The cartridge stores each divisor as its index into a table counting the divisors down from the largest.
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords,
-            stage => RidleyInertiaDefinitions.LargestDivisor - RidleyMovementTargets.HoverDivisor(stage), 4);
+            stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].HoverDivisor, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords,
-            stage => RidleyInertiaDefinitions.LargestDivisor - RidleyMovementTargets.GrabDivisor(stage), 4);
+            stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].GrabDivisor, 4);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttackMoveToSide;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToSide;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         var slot = enemies.SlotTable.Slots[0];
         var state = new RidleyEnemyState();
@@ -71,7 +72,7 @@ internal static class RidleyMovementTargetsVerification
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.HealthStage = (ushort)raw;
+            state.HealthBand = bands[raw % 4];
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             slot.Position = slot.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
@@ -85,30 +86,30 @@ internal static class RidleyMovementTargetsVerification
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual(31, state.PhaseTimer, "Carry setup timer");
             AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "Carry setup phase");
-            AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
+            AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[raw % 4], readDivisor(state), "Every health band reads its native hover divisor");
         }
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })
-        for (ushort health = 0; health < 4; health++)
+        for (int health = 0; health < 4; health++)
         {
             slot.Position = slot.Position.WithWhole(new(x, 352));
             state.FacingDirection = facing;
-            state.HealthStage = health;
-            foreach (bool down in new[] { false, true })
+            state.HealthBand = bands[health];
+            foreach (RidleyWallSweepTarget wall in Enum.GetValues<RidleyWallSweepTarget>())
             {
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-                pogo(slot, state, null, down ? VerticalDirection.Down : VerticalDirection.Up);
-                ushort target = (down ? descending : ascending)[(int)facing];
-                AssertEqual(Expected(x, target, RidleyInertiaDefinitions.LargestDivisor - hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
+                sweep(slot, state, null, wall);
+                ushort target = (wall == RidleyWallSweepTarget.WallBehind ? behind : ahead)[RidleyNativeWords.Facings.Word(facing)];
+                AssertEqual(Expected(x, target, RidleyInertiaDefinitions.LargestDivisor - hover[health]), state.Velocity.X.RawValue, "Wall sweep target and health divisor reach motion");
             }
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             moveSide(slot, state, null);
-            AssertEqual(Expected(x, ground[(int)facing], 16), state.Velocity.X.RawValue, "Ground side target reaches motion");
+            AssertEqual(Expected(x, pogoSide[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Pogo side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Phase = RidleyPhase.NorfairCarryRelease;
             state.PhaseTimer = 1;
             run(slot, state, null, 0, null);
-            AssertEqual(Expected(x, release[(int)facing], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");
+            AssertEqual(Expected(x, release[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
@@ -116,7 +117,7 @@ internal static class RidleyMovementTargetsVerification
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
-            state.HealthStage = (ushort)health;
+            state.HealthBand = bands[health % 4];
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[health % 3];
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             // Start ahead of the lunge stopping boundary for each facing.
@@ -125,11 +126,11 @@ internal static class RidleyMovementTargetsVerification
             state.HitRoomBoundary = false;
             approach(slot, state, samus);
             ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);
-            int divisor = RidleyInertiaDefinitions.LargestDivisor - grab[Math.Min(health, 3)];
+            int divisor = RidleyInertiaDefinitions.LargestDivisor - grab[health % 4];
             AssertEqual(Expected(startX, targetX, divisor), state.Velocity.X.RawValue, "Actual grab health divisor drives X acceleration");
             AssertEqual(Expected(128, 252, divisor), state.Velocity.Y.RawValue, "Actual grab health divisor drives Y acceleration");
         }
-        Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
+        Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health-band cases, 144 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
 

@@ -276,7 +276,7 @@ internal static class NativeEnemyAnimationOracle
     /// The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules, the first
     /// list's run playing <paramref name="firstPlays"/> times.
     /// </summary>
-    private static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
+    internal static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays = 1)
         where TSegment : struct, Enum
     {

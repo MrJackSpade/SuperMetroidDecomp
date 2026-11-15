@@ -17,6 +17,25 @@ internal static class RidleyNativeWords
     });
 
     /// <summary>
+    /// The health-stage word ($7E:7824) each <see cref="NorfairRidleyHealthBand"/> is stored as (#1934): the number of
+    /// health thresholds passed, which indexes the cartridge's divisor tables and, two further on, its pogo tables.
+    /// </summary>
+    internal static readonly NativeWordIdentities<NorfairRidleyHealthBand> HealthBands = new(new Dictionary<NorfairRidleyHealthBand, ushort>
+    {
+        [NorfairRidleyHealthBandDefinitions.Unhurt] = 0,
+        [NorfairRidleyHealthBandDefinitions.Wounded] = 1,
+        [NorfairRidleyHealthBandDefinitions.BadlyWounded] = 2,
+        [NorfairRidleyHealthBandDefinitions.NearlyDead] = 3,
+    });
+
+    /// <summary>The bands in the order of their native health-stage words.</summary>
+    internal static NorfairRidleyHealthBand[] HealthBandsInStageOrder =>
+    [
+        NorfairRidleyHealthBandDefinitions.Unhurt, NorfairRidleyHealthBandDefinitions.Wounded,
+        NorfairRidleyHealthBandDefinitions.BadlyWounded, NorfairRidleyHealthBandDefinitions.NearlyDead,
+    ];
+
+    /// <summary>
     /// The encounter-mode word ($7E:7802) holding each <see cref="RidleyFightMode"/> (#1452). The cartridge tests it with
     /// BEQ, BMI and CMP #2; dying is its only negative value.
     /// </summary>
@@ -43,7 +62,10 @@ internal static class RidleyNativeWords
         [RidleyTailAction.Stab] = 6,
     });
 
-    /// <summary>The bank-$A6 routine word naming each <see cref="RidleyPhase"/>.</summary>
+    /// <summary>
+    /// The bank-$A6 routine word naming each <see cref="RidleyPhase"/>. The cartridge's pogo fly-to-position entry ($B68B)
+    /// and death-roar entry ($C53E) are only ever jumped to, never stored, so no phase names them (#1939).
+    /// </summary>
     internal static readonly NativeWordIdentities<RidleyPhase> Phases = new(new Dictionary<RidleyPhase, ushort>
     {
         [RidleyPhase.ClearVelocity] = 0xa354,
@@ -83,29 +105,27 @@ internal static class RidleyNativeWords
         [RidleyPhase.NorfairSwoopAimUp] = 0xb516,
         [RidleyPhase.NorfairSwoopClimb] = 0xb554,
         [RidleyPhase.NorfairSwoopRecover] = 0xb594,
-        [RidleyPhase.NorfairPogoSetup] = 0xb5c4,
-        [RidleyPhase.NorfairPogoDescending] = 0xb5e5,
-        [RidleyPhase.NorfairPogoAscending] = 0xb613,
-        [RidleyPhase.NorfairFireballSetup] = 0xb68b,
-        [RidleyPhase.NorfairFireballMoveToSide] = 0xb6a7,
-        [RidleyPhase.NorfairFireballMoveToHeight] = 0xb6dd,
-        [RidleyPhase.NorfairFireballAttack] = 0xb70e,
-        [RidleyPhase.NorfairFireballRecover] = 0xb7b9,
+        [RidleyPhase.NorfairWallSweepSetup] = 0xb5c4,
+        [RidleyPhase.NorfairSweepToWallBehind] = 0xb5e5,
+        [RidleyPhase.NorfairSweepToWallAhead] = 0xb613,
+        [RidleyPhase.NorfairPogoMoveToSide] = 0xb6a7,
+        [RidleyPhase.NorfairPogoMoveToHeight] = 0xb6dd,
+        [RidleyPhase.NorfairPogoFall] = 0xb70e,
+        [RidleyPhase.NorfairPogoRise] = 0xb7b9,
         [RidleyPhase.NorfairGrabApproach] = 0xbab7,
         [RidleyPhase.NorfairCarrySetup] = 0xbb8f,
         [RidleyPhase.NorfairCarryMoveToAnchor] = 0xbbc4,
         [RidleyPhase.NorfairCarryRise] = 0xbbf1,
         [RidleyPhase.NorfairCarryRelease] = 0xbc2e,
-        [RidleyPhase.NorfairReturnToArena] = 0xbd4e,
+        [RidleyPhase.NorfairPowerBombDodge] = 0xbd4e,
         [RidleyPhase.CeresFakeRetreatMoveToPosition] = 0xbd9a,
         [RidleyPhase.CeresFakeRetreatRising] = 0xbdbc,
         [RidleyPhase.CeresWaitBeforeRetrievingBaby] = 0xbdf2,
         [RidleyPhase.CeresRetrieveBaby] = 0xbe03,
-        [RidleyPhase.NorfairReleaseSamus] = 0xc538,
-        [RidleyPhase.NorfairDeathStart] = 0xc53e,
-        [RidleyPhase.NorfairDeathExplosions] = 0xc551,
-        [RidleyPhase.NorfairDeathFall] = 0xc588,
-        [RidleyPhase.NorfairDeathImpact] = 0xc5a8,
+        [RidleyPhase.NorfairMoveToDeathSpot] = 0xc538,
+        [RidleyPhase.NorfairDeathRoar] = 0xc551,
+        [RidleyPhase.NorfairDeathExplosions] = 0xc588,
+        [RidleyPhase.NorfairDeathBreakup] = 0xc5a8,
         [RidleyPhase.NorfairDeathWait] = 0xc5c8,
         [RidleyPhase.NorfairDeathFinish] = 0xc5da,
         [RidleyPhase.NorfairDeathComplete] = 0xc600,

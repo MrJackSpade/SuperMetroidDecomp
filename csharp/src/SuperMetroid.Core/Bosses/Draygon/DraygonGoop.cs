@@ -167,7 +167,7 @@ internal sealed class DraygonGoop
             state.Phase = DraygonPhase.SwoopRightSetup;
             state.Body.Position = state.Body.Position.WithWholeX(DraygonBehavior.DraygonOffscreenLeftX);
         }
-        state.Body.Position = state.Body.Position.WithWholeY(DraygonBehavior.DraygonOffscreenLeftX);
+        state.Body.Position = state.Body.Position.WithWholeY(DraygonBehavior.DraygonOffscreenAboveY);
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>

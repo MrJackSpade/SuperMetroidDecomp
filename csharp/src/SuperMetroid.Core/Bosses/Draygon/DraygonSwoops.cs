@@ -27,7 +27,7 @@ internal sealed class DraygonSwoops
         _movement = movement;
     }
 
-    /// <summary>Runs swoop-right setup and table construction.</summary>
+    /// <summary>Starts a swoop to the right: plans its path of heights and aims it at Samus.</summary>
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -71,9 +71,7 @@ internal sealed class DraygonSwoops
         int frameCount = heights.Count;
         state.SwoopPath = new DraygonSwoopPath(heights.ToImmutable(), state.Body.Position.Y.Whole);
 
-        // The unsigned division divides the absolute whole-pixel distance promoted to
-        // 1/65536 pixels, by the number of path entries. Split the quotient into the same swoop-speed
-        // whole and subpixel parts the descent adds to the position.
+        // The swoop covers the whole-pixel distance to Samus in as many updates as the path has entries.
         int distance = CoordinateAxis.Distance(
             state.LeftSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
@@ -91,7 +89,7 @@ internal sealed class DraygonSwoops
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int entry = state.SwoopEntry;
-        if (entry == DraygonBehavior.DraygonSwoopApexArmsEntry)
+        if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
             _parts.StartDraygonAnimation(state.Arms, side.ArmsNearApex);
 
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
@@ -134,7 +132,7 @@ internal sealed class DraygonSwoops
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int entry = state.SwoopEntry;
-        if (entry == DraygonBehavior.DraygonSwoopApexArmsEntry)
+        if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
             _parts.StartDraygonAnimation(state.Arms, side.ArmsIdle);
 
         DraygonSwoopPath path = PathOf(state);
@@ -190,7 +188,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Runs the mirrored velocity calculation.</summary>
+    /// <summary>Aims the leftward climb at the left-side reset point, the wrapped distance back from Draygon's X.</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -199,15 +197,7 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         RoomEnemySlot body = state.Body;
         int frameCount = PathOf(state).EntryCount;
-
-        // The reset coordinate is negative in the retail room. The left ascent explicitly
-        // negates it and adds the body's positive arena X, yielding the wrapped distance
-        // from the current point back to X=-80.
-        int resetX = state.LeftSideReset.X;
-        int distance = CoordinateAxis.AsSigned(resetX) < 0
-            ? CoordinateAxis.Wrap(
-                CoordinateAxis.Wrap(-resetX) + body.Position.X.Whole)
-            : CoordinateAxis.Wrap(body.Position.X.Whole - resetX);
+        int distance = CoordinateAxis.Wrap(body.Position.X.Whole - state.LeftSideReset.X);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonBehavior.LeftSwoop.Ascending;
     }
@@ -217,10 +207,7 @@ internal sealed class DraygonSwoops
     internal static DraygonSwoopPath PathOf(DraygonEnemyState state) =>
         state.SwoopPath ?? throw new InvalidOperationException("Draygon flies a swoop he has not planned.");
 
-    /// <summary>
-    /// Sets the swoop's 1/65536-pixel horizontal velocity: the whole-pixel distance promoted to 1/65536 pixels and divided by the path's
-    /// frame count, the quotient split into the swoop speed's whole and subpixel parts.
-    /// </summary>
+    /// <summary>Sets the swoop's horizontal speed: the speed that covers <paramref name="distance"/> in one update per path entry.</summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole pixels the swoop covers.</param>
     /// <param name="frameCount">The path's entries.</param>

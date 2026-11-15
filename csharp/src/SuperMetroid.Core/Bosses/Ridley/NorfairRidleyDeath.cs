@@ -51,7 +51,7 @@ internal sealed class NorfairRidleyDeath
     {
         state.GrabState = RidleyGrabState.Released;
         samus?.Control.Unlock();
-        state.TailWhipRequest = 1;
+        state.TailWhipRequested = true;
         state.TailAction = RidleyTailAction.Neutral;
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
@@ -88,7 +88,7 @@ internal sealed class NorfairRidleyDeath
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
-        state.Phase = RidleyPhase.NorfairDeathFall;
+        state.Phase = RidleyPhase.NorfairDeathExplosions;
         state.PhaseTimer = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
@@ -109,7 +109,7 @@ internal sealed class NorfairRidleyDeath
 
         if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
-        state.Phase = RidleyPhase.NorfairDeathImpact;
+        state.Phase = RidleyPhase.NorfairDeathBreakup;
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         SpawnNorfairRidleyBreakupActors(state);
     }
@@ -139,8 +139,8 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Finishes the death. Boss persistence is published before the slot is deleted, exactly
-    /// when the retail item drop and delayed music-track-three request occur.
+    /// Finishes the death. Ridley's defeat is recorded before his body is deleted, on the update his drops scatter and
+    /// the elevator music is requested.
     /// </summary>
     internal void TickNorfairRidleyDeathFinish(
         RoomEnemySlot body,
@@ -268,7 +268,6 @@ internal sealed class NorfairRidleyDeath
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
-        fragment.FrameCounter = RidleyCadenceDefinitions.BreakupFragmentHidden.Of(fragment.FrameCounter);
 
         RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");

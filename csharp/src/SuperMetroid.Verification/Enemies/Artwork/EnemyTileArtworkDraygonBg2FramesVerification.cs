@@ -116,17 +116,25 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         CartridgeImportAddressSpace rom)
     {
         var nativeLists = new Dictionary<ushort, IReadOnlyList<EnemyCollisionHitbox>>();
+        int emptyComponents = 0;
         foreach (EnemyFrameName frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             EnemyCollisionComponent[] components =
                 [.. DraygonCollision.ComponentsAt(frame.Pointer)];
-            AssertEqual(rom.ReadCartridgeByte(root), components.Length,
-                $"Draygon {frame.Name} compiled collision component count");
-            for (int index = 0; index < components.Length; index++)
+            // A native component naming an empty hitbox list can never be hit or touched; the port omits it (#1937).
+            int compiled = 0;
+            for (int index = 0; index < rom.ReadCartridgeByte(root); index++)
             {
                 int record = root + 2 + index * 8;
-                EnemyCollisionComponent component = components[index];
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, listPointer))) == 0)
+                {
+                    emptyComponents++;
+                    continue;
+                }
+                AssertTrue(compiled < components.Length, $"Draygon {frame.Name} compiles each native component with hitboxes");
+                EnemyCollisionComponent component = components[compiled++];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)component.Offset.X),
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
@@ -138,9 +146,11 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 else
                     nativeLists.Add(pointer, component.Hitboxes);
             }
+            AssertEqual(compiled, components.Length, $"Draygon {frame.Name} compiled collision component count");
         }
-        AssertEqual(3, nativeLists.Count,
-            "Draygon BG2 frames have three distinct native hitbox lists");
+        AssertEqual(2, nativeLists.Count,
+            "Draygon BG2 frames have two distinct native hitbox lists with hitboxes");
+        AssertTrue(emptyComponents > 0, "Draygon BG2 frames between the body frames name the empty native list");
         foreach ((ushort pointer, IReadOnlyList<EnemyCollisionHitbox> hitboxes) in nativeLists)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
@@ -188,7 +198,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         AssertThrows<InvalidDataException>(
             () => DraygonCollision.ComponentsAt(0x8000),
             "uncatalogued Draygon BG2 collision frame fails loudly");
-        Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
+        Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, two hitbox lists with hitboxes, the omitted empty components, and the guarded live callback walker match the cartridge.");
     }
 
     /// <summary>Whether <paramref name="shown"/> holds every tilemap word <paramref name="native"/> writes, a nonzero word.</summary>

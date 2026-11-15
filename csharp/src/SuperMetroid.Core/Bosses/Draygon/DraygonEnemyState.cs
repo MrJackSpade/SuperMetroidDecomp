@@ -87,14 +87,14 @@ public sealed class DraygonEnemyState
     internal List<DraygonBurialEvir> BurialEvirs { get; } = [];
 
     /// <summary>
-    /// Signed pixel offset written by the tail-whip step and added to the body's
-    /// layer scroll, displacing the body graphics without moving the enemies themselves.
+    /// How far the tail whip shifts the body's picture against the body, in room pixels, without moving the body or its
+    /// parts (#1940).
     /// </summary>
-    public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
+    public Offset16<RoomPixels> BodyPictureShift { get; internal set; }
 
     /// <summary>
     /// Where Draygon's body lies in the room (#1354, #1617): the room pixel his body's parts' area's top-left corner lies on,
-    /// derived after enemies draw from the body position and <see cref="BodyGraphicsDisplacement"/>, which moves the body's
+    /// derived after enemies draw from the body position and <see cref="BodyPictureShift"/>, which moves the body's
     /// pictures against the body.
     /// </summary>
     public Position16<RoomPixels> BodyOrigin { get; internal set; }

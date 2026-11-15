@@ -42,8 +42,6 @@ internal static void VerifyCeresDestructionCinematic()
     delayedExplosion.Step();
     AssertEqual<CinematicSpritePose?>(null, delayedExplosion.Pose,
         "Ceres staggered explosion remains invisible before instruction delay");
-    AssertEqual(0, delayedExplosion.LoopCountdown.RemainingFrames,
-        "instruction delay does not overwrite cinematic loop countdown");
     delayedExplosion.Step();
     AssertEqual<CinematicSpritePose?>(AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>(CinematicSpriteAnimations.Segments.Beats(CinematicSpriteSegment.CeresSmallExplosion)[0], "first explosion beat").Shown,
         delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");

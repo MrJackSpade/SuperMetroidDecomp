@@ -335,8 +335,6 @@ internal sealed class IntroCinematicObjectSystem
         if (--EyeFrameHold != 0)
             return;
 
-        // The eye animations play no counted phase; the play still takes a repeat counter.
-        WrappingCountdown repeats = default;
         AnimationPlace place = EyePlayback.Place;
         AnimationShown<IntroEyeSegment, IntroEyeFrame> shown = IntroEyeAnimations.Segments.PlayToNextFrame(
             EyePlayback.Animation, ref place,

@@ -68,12 +68,6 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
 
-    /// <summary>
-    /// The count the animation's counted phases repeat by: a counted phase loads it as it starts and each of its plays
-    /// counts it down. Only those phases change it; it starts at zero.
-    /// </summary>
-    internal WrappingCountdown LoopCountdown { get; private set; } = WrappingCountdown.Start(0);
-
     /// <summary>Starts the animation of <paramref name="segment"/> on the sprite's next update, discarding the old frame countdown.</summary>
     public void Start(CinematicSpriteSegment segment)
     {
@@ -87,10 +81,6 @@ internal sealed class IntroDiscoverySprite
     /// call. Cinematic object setups write this hold directly when several actors
     /// share one animation but must begin on staggered frames.
     /// </summary>
-    /// <remarks>
-    /// This is deliberately not <see cref="LoopCountdown"/>, which only the animation's counted phases use; conflating the
-    /// two makes a delayed actor show its first frame immediately while merely changing an unrelated loop count.
-    /// </remarks>
     public void DelayFirstStep(int frames)
     {
         if (frames < 1)
@@ -117,11 +107,9 @@ internal sealed class IntroDiscoverySprite
 
         Animation<CinematicSpriteSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        WrappingCountdown repeats = LoopCountdown;
         AnimationShown<CinematicSpriteSegment, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<CinematicSpriteSegment>(animation, place);
-        LoopCountdown = repeats;
         switch (shown)
         {
             case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Frame frame:

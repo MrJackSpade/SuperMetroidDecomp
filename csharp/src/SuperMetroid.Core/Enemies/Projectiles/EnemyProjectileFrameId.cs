@@ -1109,134 +1109,134 @@ public enum EnemyProjectileFrameId
     MotherBrainTopTubeTopMiddleLeft,
     /// <summary><c>mother_brain_top_tube_top_middle_right</c>, an installed animation frame.</summary>
     MotherBrainTopTubeTopMiddleRight,
-    /// <summary><c>mother_brain_glass_first_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupFirst,
-    /// <summary><c>mother_brain_glass_first_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupSecond,
-    /// <summary><c>mother_brain_glass_first_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupThird,
-    /// <summary><c>mother_brain_glass_first_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupFourth,
-    /// <summary><c>mother_brain_glass_first_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupFifth,
-    /// <summary><c>mother_brain_glass_first_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupSixth,
-    /// <summary><c>mother_brain_glass_first_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_first_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFirstShardGroupEighth,
-    /// <summary><c>mother_brain_glass_second_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupFirst,
-    /// <summary><c>mother_brain_glass_second_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupSecond,
-    /// <summary><c>mother_brain_glass_second_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupThird,
-    /// <summary><c>mother_brain_glass_second_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupFourth,
-    /// <summary><c>mother_brain_glass_second_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupFifth,
-    /// <summary><c>mother_brain_glass_second_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupSixth,
-    /// <summary><c>mother_brain_glass_second_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_second_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSecondShardGroupEighth,
-    /// <summary><c>mother_brain_glass_third_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupFirst,
-    /// <summary><c>mother_brain_glass_third_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupSecond,
-    /// <summary><c>mother_brain_glass_third_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupThird,
-    /// <summary><c>mother_brain_glass_third_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupFourth,
-    /// <summary><c>mother_brain_glass_third_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupFifth,
-    /// <summary><c>mother_brain_glass_third_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupSixth,
-    /// <summary><c>mother_brain_glass_third_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_third_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassThirdShardGroupEighth,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupFirst,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupSecond,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupThird,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupFourth,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupFifth,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupSixth,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_fourth_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFourthShardGroupEighth,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupFirst,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupSecond,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupThird,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupFourth,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupFifth,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupSixth,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_fifth_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassFifthShardGroupEighth,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupFirst,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupSecond,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupThird,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupFourth,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupFifth,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupSixth,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_sixth_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSixthShardGroupEighth,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupFirst,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupSecond,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupThird,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupFourth,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupFifth,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupSixth,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_seventh_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassSeventhShardGroupEighth,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_first</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupFirst,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_second</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupSecond,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_third</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupThird,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_fourth</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupFourth,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_fifth</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupFifth,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_sixth</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupSixth,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_seventh</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupSeventh,
-    /// <summary><c>mother_brain_glass_eighth_shard_group_eighth</c>, an installed animation frame.</summary>
-    MotherBrainGlassEighthShardGroupEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_up_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_up_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpThird,
+    /// <summary><c>mother_brain_glass_shard_flying_up_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_up_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightThird,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_up_right_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpRightEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_right_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_right_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_right_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightThird,
+    /// <summary><c>mother_brain_glass_shard_flying_right_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_right_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_right_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_right_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_right_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingRightEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightThird,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_down_right_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownRightEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_down_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_down_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownThird,
+    /// <summary><c>mother_brain_glass_shard_flying_down_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_down_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftThird,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_down_left_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingDownLeftEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_left_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_left_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_left_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftThird,
+    /// <summary><c>mother_brain_glass_shard_flying_left_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_left_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_left_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_left_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_left_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingLeftEighth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_first</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftFirst,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_second</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftSecond,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_third</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftThird,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_fourth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftFourth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_fifth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftFifth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_sixth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftSixth,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_seventh</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftSeventh,
+    /// <summary><c>mother_brain_glass_shard_flying_up_left_eighth</c>, an installed animation frame.</summary>
+    MotherBrainGlassShardFlyingUpLeftEighth,
     /// <summary><c>mother_brain_glass_sparkle_first</c>, an installed animation frame.</summary>
     MotherBrainGlassSparkleFirst,
     /// <summary><c>mother_brain_glass_sparkle_second</c>, an installed animation frame.</summary>

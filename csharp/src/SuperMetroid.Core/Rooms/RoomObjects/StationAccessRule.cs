@@ -17,5 +17,5 @@ internal sealed record StationAccessRule(
     int LeftOffset,
     StationAccessBehavior RightBehavior,
     StationAccessBehavior LeftBehavior,
-    StationAnimationList Animation,
-    StationAnimationList? AcquiredAnimation);
+    StationAnimation Animation,
+    StationAnimation? AcquiredAnimation);

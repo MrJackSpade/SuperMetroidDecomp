@@ -708,7 +708,8 @@ missing, repeated or unknown frame and a missing, repeated or foreign cell. Coll
 
 Ordinary shot-block PLM appearances are installed as
 `game/room-object-shot-blocks/shot-blocks.json`. Each of its 19 frames is one
-compiled animation or restoration draw. The native instruction
+compiled breakup or restoration draw, named by its shape and what it shows, such as
+`single-rock`, `square-dust`, `horizontal-gone` or `vertical-restore`. The native instruction
 timers, sounds, draw geometry and complete physical level words remain compiled
 and immutable. An edited word changes both the immediate PLM redraw and later
 camera streaming, without changing shot-block collision or respawn timing.
@@ -726,7 +727,7 @@ restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
 `game/room-object-grapple-blocks/grapple-blocks.json`. Keep all five
-frames: they are the compiled Grapple and breakup frames. The full
+frames: `intact`, `rock`, `pieces`, `dust` and `blank`, the compiled Grapple and breakup frames. The full
 native level words, including Grapple/air collision, and both instruction
 timelines remain fixed. Edited art appears in immediate redraws and later camera
 streaming without changing collision or respawn timing. The chosen visual block
@@ -736,7 +737,7 @@ their own resources or remain ROM-backed.
 Station PLM appearances are installed as
 `game/room-object-stations/stations.json`. In the installed file, edit only the cells' `block` and `mirroring`,
 then restart. Every frame has a semantic `id`, such as
-`map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
+`map-dim`, `energy-bright`, `save-lit`, or `resource-right-extended`; keep all 20
 IDs and every cell. The values select visual blocks from the
 active room's common room elements and tileset, whose pictures can be
 repainted in the block sheet.
@@ -747,8 +748,8 @@ Other room-object
 families still need separate presentation resources.
 
 Blue-door cap appearances are installed as
-`game/room-object-blue-doors/blue-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 16 IDs: four animation frames for
-each of `left`, `right`, `up`, and `down`. Each frame contains four visual
+`game/room-object-blue-doors/blue-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 16 IDs: the cap `closed`, `ajar`, `half-open` and
+`nearly-open` for each of `left`, `right`, `up`, and `down`, such as `left-half-open`. Each frame contains four visual
 blocks from the active room's combined CRE/area definitions. The full
 physical level words, door collision, animation cadence, and sound stay
 cartridge-defined. Edited cap tiles appear in immediate redraws and later
@@ -757,8 +758,8 @@ artwork is not covered by this blue-cap resource.
 
 Yellow, green, and red door-cap appearances are installed as
 `game/room-object-colored-doors/colored-doors.json`. In the installed file, edit only the cells'
-`block` and `mirroring`, and restart. Keep all 48 IDs: four frames for each
-color and orientation. Each frame contains four visual blocks from the active
+`block` and `mirroring`, and restart. Keep all 48 IDs: the cap `closed`, `ajar`, `half-open` and
+`nearly-open` for each color and orientation, such as `green-up-ajar`. Each frame contains four visual blocks from the active
 room's combined CRE/area definitions. The full physical level words, shot
 filters, hit counters, opening cadence, sounds, and door-bit persistence stay
 cartridge-defined. Edited cap tiles appear immediately and during later camera
@@ -766,8 +767,8 @@ streaming. Invalid content fails loudly. Grey-door art uses the separate resourc
 eye-door art uses the separate resource below.
 
 Grey-door caps and the four shared door-clear frames are installed as
-`game/room-object-grey-doors/grey-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 20 IDs: four frames for each grey
-orientation and `clear-left`, `clear-right`, `clear-up`, `clear-down`. The
+`game/room-object-grey-doors/grey-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 20 IDs: the cap `closed`, `ajar`, `half-open` and `nearly-open` for each grey
+orientation, such as `grey-left-closed`, and `clear-left`, `clear-right`, `clear-up`, `clear-down`. The
 clear frames are also used by blue and colored doors. Bomb Torizo's special
 grey-door program selects the ordinary right-facing grey cap. Physical level
 words, collision, condition gates, timing, sound, and door-bit persistence
@@ -775,9 +776,9 @@ remain cartridge-defined. Invalid content fails loudly.
 
 Eye-door components are installed as `game/room-object-eye-doors/eye-doors.json`.
 In the installed file, edit only the cells'
-`block` and `mirroring`, and restart. Keep all 23 IDs: five animated eye
-frames per orientation, three middle and three bottom frames per orientation,
-and `left-eye-clear`. Each entry carries one, two or four visual blocks, as
+`block` and `mirroring`, and restart. Keep all 23 IDs: the eye `eye-closed`, `eye-half-open`,
+`eye-open`, `eye-flinching` and `eye-open-solid`, the middle and the bottom `resting`, `swelling` and `swollen`
+(such as `right-middle-swelling`), per orientation, and `left-eye-clear`. Each entry carries one, two or four visual blocks, as
 listed in the stock file; replacements use the active room's CRE/area tile
 definitions. These edits do not change eye-door collision, attacks, missile
 hit counts, opening timing, sounds, or door-bit persistence. Malformed content
@@ -817,7 +818,8 @@ other PLM instruction-program ROM dependencies remain to be migrated.
 Downward-gate PLM block appearances are installed as
 `game/room-object-downward-gates/downward-gates.json`. In the installed file, edit only the cells'
 `block` and `mirroring`, then restart. Keep all 14 semantic IDs and each
-run/word count: six `column-frame-*` entries and left/right trigger entries
+run/word count: the column's `column-open`, `column-quarter-lowered`, `column-half-lowered`,
+`column-three-quarters-lowered`, `column-fully-lowered` and `column-closed` entries and left/right trigger entries
 for blue, green, red, and yellow gates. These words select visual blocks from
 the active room's combined CRE/area definitions. The compiled draw geometry,
 physical level words, collision, shot filters, and animation timing do not

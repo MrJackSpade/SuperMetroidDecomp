@@ -35,14 +35,13 @@ public static class RoomObjectEyeDoorVisualFiles
         {
             foreach (bool left in new[] { true, false })
             {
-                TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(EyeDoorDraws.Component.Clear, 0, left)), out var clear);
+                TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, left)), out var clear);
                 yield return clear;
-                foreach (EyeDoorDraws.Component part in new[] { EyeDoorDraws.Component.Eye, EyeDoorDraws.Component.Middle, EyeDoorDraws.Component.Bottom })
-                    for (int frame = 0; frame < EyeDoorObjectDrawDefinitions.FrameCounts[part]; frame++)
-                    {
-                        TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(part, frame, left)), out var value);
-                        yield return value;
-                    }
+                foreach (EyeDoorLook look in EyeDoorLookNames.TableOrder)
+                {
+                    TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(look, left)), out var value);
+                    yield return value;
+                }
             }
         }
     }
@@ -59,19 +58,11 @@ public static class RoomObjectEyeDoorVisualFiles
         return true;
     }
 
-    /// <summary>Gets a stable side, component, and frame identifier for an editable draw.</summary>
+    /// <summary>Gets a stable side and look identifier for an editable draw (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
         if (!EyeDoorDraws.TryDescribe(request, out var draw) || request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear)
             throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
-        string component = draw.Part switch
-        {
-            EyeDoorDraws.Component.Clear => "clear",
-            EyeDoorDraws.Component.Eye => "eye",
-            EyeDoorDraws.Component.Middle => "middle",
-            EyeDoorDraws.Component.Bottom => "bottom",
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorDraws.Component)} {draw.Part}."),
-        };
-        return draw.Part == EyeDoorDraws.Component.Clear ? "left-eye-clear" : $"{(draw.Left ? "left" : "right")}-{component}-frame-{draw.Frame}";
+        return draw.Look == EyeDoorLook.Clear ? "left-eye-clear" : $"{(draw.Left ? "left" : "right")}-{EyeDoorLookNames.VisualName(draw.Look)}";
     }
 }

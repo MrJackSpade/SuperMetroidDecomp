@@ -29,15 +29,15 @@ public static class RoomObjectGrappleBlockVisualFiles
     internal static string VisualId(GrappleBlockDraw frame) => frame switch
     {
         GrappleBlockDraw.Intact => "intact",
-        GrappleBlockDraw.Break0 => "break-0",
-        GrappleBlockDraw.Break1 => "break-1",
-        GrappleBlockDraw.Break2 => "break-2",
+        GrappleBlockDraw.Rock => "rock",
+        GrappleBlockDraw.Pieces => "pieces",
+        GrappleBlockDraw.Dust => "dust",
         GrappleBlockDraw.Blank => "blank",
         _ => throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}."),
     };
 
-    /// <summary>Enumerates the initial Grapple block, three breakup frames, and blank air in authored order.</summary>
-    internal static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawList> All
+    /// <summary>Enumerates the intact Grapple block, its rock, pieces and dust, and blank air in authored order.</summary>
+    internal static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
     {
         get
         {
@@ -51,5 +51,5 @@ public static class RoomObjectGrappleBlockVisualFiles
 
     /// <summary>Every Grapple-block frame's one-block draw list, built from the collision the game writes.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> Frames =>
-        All.Select(draw => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(draw.Frame), RoomObjectRunDirection.Horizontal, [draw.Collision]));
+        All.Select(draw => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(draw.Draw), RoomObjectRunDirection.Horizontal, [draw.Collision]));
 }

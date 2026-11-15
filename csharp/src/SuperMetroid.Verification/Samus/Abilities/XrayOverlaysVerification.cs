@@ -47,7 +47,7 @@ internal static class XrayOverlaysVerification
         var map = new RevealedBlock?[XrayRevealArea.BlockCount];
         RevealedBlock Defined(int block) => new(RoomCellPicture.OfBlock(block), RevealedBlockArrangement.AsDefined);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
-        AssertEqual(new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, 0)), RevealedBlockArrangement.AsDefined), map[0],
+        AssertEqual(new RevealedBlock(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, CollectibleLook.Primary)), RevealedBlockArrangement.AsDefined), map[0],
             "descending item order leaves the lower item's reveal last, and Bombs is revealed as its own picture's first frame");
         system.SetCollectedItemBit(1);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);

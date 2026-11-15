@@ -41,10 +41,10 @@ public static class RoomObjectStationVisualFiles
         RoomObjectShapeRun own = RoomObjectShapeRun.Row(new(0, 0), 1);
         list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDraw.FrameOf<StationDraw>(request, "station") switch
         {
-            StationDraw.MapFrame0 or StationDraw.MapFrame1 or StationDraw.MapFrame2 => [own, RoomObjectShapeRun.Row(new(-1, 0), 1)],
-            StationDraw.EnergyFrame0 or StationDraw.EnergyFrame1 or StationDraw.EnergyFrame2 or StationDraw.MissileFrame0
-                or StationDraw.MissileFrame1 or StationDraw.MissileFrame2 => [own, RoomObjectShapeRun.Row(new(0, -1), 1)],
-            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate =>
+            StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright => [own, RoomObjectShapeRun.Row(new(-1, 0), 1)],
+            StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright or StationDraw.MissileDim
+                or StationDraw.MissileLit or StationDraw.MissileBright => [own, RoomObjectShapeRun.Row(new(0, -1), 1)],
+            StationDraw.SaveIdle or StationDraw.SaveLit or StationDraw.SaveDark =>
                 [.. Enumerable.Range(0, 6).Select(row => RoomObjectShapeRun.Row(new(0, -row), 2))],
             StationDraw.MapRightRetracted => [own, RoomObjectShapeRun.Row(new(-3, 0), 1)],
             StationDraw.MapLeftRetracted => [own, RoomObjectShapeRun.Row(new(3, 0), 1)],
@@ -56,25 +56,24 @@ public static class RoomObjectStationVisualFiles
     }
 
     /// <summary>
-    /// Published ordinal artwork IDs: three numbered frames per map/resource
-    /// station, and named save/access states. These are identity selections,
-    /// independent of the terrain. Only complete lists have IDs.
+    /// Published artwork IDs (#1994): each display's dim, lit and bright glow, and the save pod's and the access
+    /// arms' states. These are identity selections, independent of the terrain. Only complete lists have IDs.
     /// </summary>
     internal static string VisualId(RoomObjectDraw request) =>
         RoomObjectDraw.FrameOf<StationDraw>(request, "station draw list") switch
         {
-            StationDraw.MapFrame0 => "map-frame-0",
-            StationDraw.MapFrame1 => "map-frame-1",
-            StationDraw.MapFrame2 => "map-frame-2",
-            StationDraw.EnergyFrame0 => "energy-frame-0",
-            StationDraw.EnergyFrame1 => "energy-frame-1",
-            StationDraw.EnergyFrame2 => "energy-frame-2",
-            StationDraw.MissileFrame0 => "missile-frame-0",
-            StationDraw.MissileFrame1 => "missile-frame-1",
-            StationDraw.MissileFrame2 => "missile-frame-2",
+            StationDraw.MapDim => "map-dim",
+            StationDraw.MapLit => "map-lit",
+            StationDraw.MapBright => "map-bright",
+            StationDraw.EnergyDim => "energy-dim",
+            StationDraw.EnergyLit => "energy-lit",
+            StationDraw.EnergyBright => "energy-bright",
+            StationDraw.MissileDim => "missile-dim",
+            StationDraw.MissileLit => "missile-lit",
+            StationDraw.MissileBright => "missile-bright",
             StationDraw.SaveIdle => "save-idle",
-            StationDraw.SaveActive => "save-active-a",
-            StationDraw.SaveAlternate => "save-active-b",
+            StationDraw.SaveLit => "save-lit",
+            StationDraw.SaveDark => "save-dark",
             StationDraw.MapRightRetracted => "map-right-retracted",
             StationDraw.MapRightExtended => "map-right-extended",
             StationDraw.MapLeftRetracted => "map-left-retracted",

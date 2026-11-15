@@ -27,7 +27,7 @@ internal static class LookupColoredCapVerification
             new LookupColoredCapFamily(0xa827,"green-left"),new LookupColoredCapFamily(0xa857,"green-right"),new LookupColoredCapFamily(0xa887,"green-up"),new LookupColoredCapFamily(0xa8b7,"green-down"),
             new LookupColoredCapFamily(0xa8e7,"red-left"),new LookupColoredCapFamily(0xa917,"red-right"),new LookupColoredCapFamily(0xa947,"red-up"),new LookupColoredCapFamily(0xa977,"red-down")];
         ushort[] pointers = families.SelectMany(family => Enumerable.Range(0,4).Select(frame => (ushort)(family.First+12*frame))).ToArray();
-        string[] ids = families.SelectMany(family => Enumerable.Range(0,4).Select(frame => $"{family.Name}-frame-{frame}")).ToArray();
+        string[] ids = families.SelectMany(family => new[] { "closed", "ajar", "half-open", "nearly-open" }.Select(look => $"{family.Name}-{look}")).ToArray();
         var exported = RoomObjectColoredDoorVisualFiles.All.ToArray();
         AssertEqual(48, exported.Length, "Colored cap export count");
         InstalledRoomObjectColoredDoorVisuals? pictures = field == 2 ? InstalledRoomObjectColoredDoorVisuals.Stock() : null;
@@ -46,7 +46,7 @@ internal static class LookupColoredCapVerification
                     AssertThrows<InvalidDataException>(() => RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap missing ID");
                 }
             }
-            foreach (string id in new[] { "YELLOW-LEFT-FRAME-0", "green-left-frame-4", "", "unknown" })
+            foreach (string id in new[] { "YELLOW-LEFT-CLOSED", "green-left-frame-0", "", "unknown" })
                 AssertTrue(!RoomObjectColoredDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Colored cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)

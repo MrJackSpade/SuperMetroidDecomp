@@ -14,10 +14,10 @@ internal static class LookupStationStockVerification
     internal static void VerifyStationStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectStationVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9f25,"map-frame-0"),new LookupEscapeGateStockFrame(0x9f6d,"energy-frame-0"),new LookupEscapeGateStockFrame(0x9f91,"missile-frame-0"),
-            new LookupEscapeGateStockFrame(0x9f31,"map-frame-1"),new LookupEscapeGateStockFrame(0x9f79,"energy-frame-1"),new LookupEscapeGateStockFrame(0x9f9d,"missile-frame-1"),
-            new LookupEscapeGateStockFrame(0x9f3d,"map-frame-2"),new LookupEscapeGateStockFrame(0x9f85,"energy-frame-2"),new LookupEscapeGateStockFrame(0x9fa9,"missile-frame-2"),
-            new LookupEscapeGateStockFrame(0x9a3f,"save-idle"),new LookupEscapeGateStockFrame(0x9a9f,"save-active-a"),new LookupEscapeGateStockFrame(0x9a6f,"save-active-b"),
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9f25,"map-dim"),new LookupEscapeGateStockFrame(0x9f6d,"energy-dim"),new LookupEscapeGateStockFrame(0x9f91,"missile-dim"),
+            new LookupEscapeGateStockFrame(0x9f31,"map-lit"),new LookupEscapeGateStockFrame(0x9f79,"energy-lit"),new LookupEscapeGateStockFrame(0x9f9d,"missile-lit"),
+            new LookupEscapeGateStockFrame(0x9f3d,"map-bright"),new LookupEscapeGateStockFrame(0x9f85,"energy-bright"),new LookupEscapeGateStockFrame(0x9fa9,"missile-bright"),
+            new LookupEscapeGateStockFrame(0x9a3f,"save-idle"),new LookupEscapeGateStockFrame(0x9a9f,"save-lit"),new LookupEscapeGateStockFrame(0x9a6f,"save-dark"),
             new LookupEscapeGateStockFrame(0x9f49,"map-right-retracted"),new LookupEscapeGateStockFrame(0x9f55,"map-right-extended"),new LookupEscapeGateStockFrame(0x9f5b,"map-left-retracted"),new LookupEscapeGateStockFrame(0x9f67,"map-left-extended"),
             new LookupEscapeGateStockFrame(0x9fb5,"resource-right-retracted"),new LookupEscapeGateStockFrame(0x9fbb,"resource-right-extended"),new LookupEscapeGateStockFrame(0x9fc1,"resource-left-retracted"),new LookupEscapeGateStockFrame(0x9fc7,"resource-left-extended")];
         foreach (InstalledRoomObjectStationVisuals pictures in new[] { InstalledRoomObjectStationVisuals.Stock(), installed })

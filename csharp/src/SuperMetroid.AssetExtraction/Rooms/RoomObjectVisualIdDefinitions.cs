@@ -140,13 +140,13 @@ internal static class RoomObjectVisualIdDefinitions
         [ElevatorPlatformDraw.Third] = "third-frame",
     };
 
-    /// <summary>The station draws in their published enumeration order: frames by station, then save and access states.</summary>
+    /// <summary>The station draws in their published enumeration order: each glow by station, then save and access states.</summary>
     internal static readonly StationDraw[] StationPublishedOrder =
     [
-        StationDraw.MapFrame0, StationDraw.EnergyFrame0, StationDraw.MissileFrame0,
-        StationDraw.MapFrame1, StationDraw.EnergyFrame1, StationDraw.MissileFrame1,
-        StationDraw.MapFrame2, StationDraw.EnergyFrame2, StationDraw.MissileFrame2,
-        StationDraw.SaveIdle, StationDraw.SaveActive, StationDraw.SaveAlternate,
+        StationDraw.MapDim, StationDraw.EnergyDim, StationDraw.MissileDim,
+        StationDraw.MapLit, StationDraw.EnergyLit, StationDraw.MissileLit,
+        StationDraw.MapBright, StationDraw.EnergyBright, StationDraw.MissileBright,
+        StationDraw.SaveIdle, StationDraw.SaveLit, StationDraw.SaveDark,
         StationDraw.MapRightRetracted, StationDraw.MapRightExtended,
         StationDraw.MapLeftRetracted, StationDraw.MapLeftExtended,
         StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended,

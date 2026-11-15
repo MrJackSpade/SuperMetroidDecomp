@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVer
 using static SuperMetroid.Verification.Rooms.RoomObjects.StationAccessObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.StationVisualsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
@@ -51,32 +52,30 @@ internal static class StationAnimationProgramDefinitionsVerification
         var words = StationAnimationDefinitions.NativeWords().ToArray();
         AssertEqual(30, words.Length, "Station original enumeration word count");
         // The identities' values are arbitrary (#1414): the domain check translates each through the native-word table.
-        AssertTrue(lists.SequenceEqual(Enum.GetValues<StationAnimationList>().Select(StationNativeWords.AnimationLists.Word)),
-            "Station list domain is exactly the seven native entries");
-        foreach (ushort raw in new ushort[] { 0, 0xad62, 0xafe9, 0xffff })
-            AssertTrue(!StationNativeWords.AnimationLists.TryDecode(raw, out _),
-                "Undefined station list word names no station animation");
-        AssertThrows<InvalidOperationException>(
-            () => StationAnimations.Resolve(default, 0),
-            "Undefined station list is rejected at the typed boundary");
+        AssertTrue(lists.SequenceEqual(StationNativeWords.Lists), "Station lists are exactly the seven native entries");
+        int[] imageCounts = [3, 3, 3, 3, 1, 2];
+        AssertTrue(imageCounts.SequenceEqual(Enum.GetValues<StationAnimation>().Select(animation => StationAnimationDefinitions.Segments.Beats(animation).Count)),
+            "Each station animation shows its native lists' images (#1994)");
         int ordinal = 0;
-        for (int listIndex = 0; listIndex < lists.Length; listIndex++)
+        foreach (StationAnimation animation in Enum.GetValues<StationAnimation>())
         {
-            var list = StationNativeWords.AnimationLists.Decode(lists[listIndex], "station animation list");
-            int count = listIndex < 4 ? 3 : 1;
-            foreach (int bad in new[] { int.MinValue,-1,count,int.MaxValue })
-                AssertThrows<InvalidDataException>(() => StationAnimations.Resolve(list, bad), "Station exact frame bounds");
-            for (int frame = 0; frame < count; frame++, ordinal += 2)
+            IReadOnlyList<AnimationBeat<StationDraw, NoAnimationCue>> beats = StationAnimationDefinitions.Segments.Beats(animation);
+            for (int beat = 0; beat < beats.Count; beat++, ordinal += 2)
             {
-                ushort address = (ushort)(lists[listIndex] + frame * 4 + (draw ? 2 : 0));
+                var image = AssertIs<AnimationBeat<StationDraw, NoAnimationCue>.Frame>(beats[beat], $"station {animation} image {beat}");
+                ushort address = (ushort)(StationNativeWords.Record(animation, beat) + (draw ? 2 : 0));
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
-                var actual = StationAnimations.Resolve(list, frame);
-                AssertEqual(expected, draw ? RoomObjectDrawAddressCodec.Of(actual.Draw) : actual.Duration, "Station original animation field");
+                AssertEqual(expected, draw ? RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image.Shown)) : (ushort)image.Duration,
+                    "Station original animation field");
                 var enumerated = words[ordinal + (draw ? 1 : 0)];
                 AssertEqual(address, enumerated.Address, "Station original field enumeration address/order");
                 AssertEqual(expected, enumerated.Value, "Station original enumerated field");
             }
         }
+        AssertEqual(AnimationEnd.Stops, StationAnimationDefinitions.Animations[StationAnimation.SaveFlash].End,
+            "the save's flash is over after its loops");
+        AssertEqual(SaveStationAnimationDefinitions.SaveAnimationLoops, StationAnimationDefinitions.Animations[StationAnimation.SaveFlash].Phases[0].Plays,
+            "the save's flash plays its authored loops");
     }
 
     /// <summary>Runs the focused station animation definition check.</summary>

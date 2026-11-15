@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>The five Crocomire arena block-draw lists.</summary>
+/// <summary>The five Crocomire arena block draws.</summary>
 internal enum CrocomireArenaDraw
 {
     /// <summary>Ten cleared bridge blocks.</summary>

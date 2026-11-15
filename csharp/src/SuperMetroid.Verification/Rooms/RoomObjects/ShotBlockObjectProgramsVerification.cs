@@ -82,7 +82,7 @@ internal static class ShotBlockObjectProgramsVerification
         var knownDraws = nativeDraws.ToHashSet();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            AssertEqual(knownDraws.Contains((ushort)pointer), NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.Draw>(pointer),
+            AssertEqual(knownDraws.Contains((ushort)pointer), IsShotBlockDrawAt(pointer),
                 "shot-block full draw-pointer domain");
         }
         int wordCount = 0;
@@ -118,14 +118,21 @@ internal static class ShotBlockObjectProgramsVerification
         foreach (RoomObjectDrawLists.DrawList list in
                  RoomObjectShotBlockVisualFiles.All)
         {
-            AssertTrue(list.Draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw>, "shot-block calculated draw exists");
-            var calculated = RoomObjectDraw.FrameOf<ShotBlockObjectDraws.Draw>(list.Draw, "shot-block");
+            RoomBlockShape blocks = ShotBlockObjectDraws.TryDescribe(list.Draw, out RoomBlockShape? described)
+                ? described
+                : throw new InvalidOperationException($"shot-block calculated draw {list.Draw} has no block shape.");
+            RoomObjectShotBlockDrawDefinitions.Shape layout = list.Draw switch
+            {
+                RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => breakup.Layout,
+                RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => restoration.Layout,
+                _ => throw new InvalidOperationException($"{list.Draw} is not a shot-block draw."),
+            };
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
             int runIndex = 0;
             foreach (RoomObjectDrawLists.Run run in list.Runs.Span)
             {
                 AssertEqual(run.Direction == RoomObjectRunDirection.Vertical,
-                    calculated.Layout == RoomObjectShotBlockDrawDefinitions.Shape.Vertical, "shot-block arrangement's direction");
+                    layout == RoomObjectShotBlockDrawDefinitions.Shape.Vertical, "shot-block arrangement's direction");
                 int blockIndex = 0;
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
@@ -134,7 +141,7 @@ internal static class ShotBlockObjectProgramsVerification
                 // What each cell shows is the installed picture, which the shot-block picture check compares with the cartridge.
                 foreach (RoomCollisionType collision in run.Collisions.Span)
                 {
-                    AssertEqual(collision, calculated.Blocks.CollisionAt(run.CellAt(blockIndex++)), "shot-block block shape and exported collision agree");
+                    AssertEqual(collision, blocks.CollisionAt(run.CellAt(blockIndex++)), "shot-block block shape and exported collision agree");
                     AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                         collision,
                         $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} collision decoded from the level word at ${cursor:X4}");
@@ -154,13 +161,13 @@ internal static class ShotBlockObjectProgramsVerification
             // The block shape covers exactly the cells the cartridge writes (#1862).
             int written = 0;
             foreach (RoomObjectDrawLists.Run writtenRun in list.Runs.Span) written += writtenRun.Count;
-            AssertEqual(written, calculated.Blocks.Cells.Count, "shot-block block shape covers every written cell");
+            AssertEqual(written, blocks.Cells.Count, "shot-block block shape covers every written cell");
 
             drawListCount++;
         }
 
         AssertEqual(19, drawListCount, "all shot-block animation and restoration lists are compiled");
-        AssertTrue(!NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.Draw>(0xa344),
+        AssertTrue(!IsShotBlockDrawAt(0xa344),
             "uncatalogued draw pointers do not alias a nearby list");
 
         // Compare the real PLM handler frame by frame with and without precisely the
@@ -322,7 +329,13 @@ internal static class ShotBlockObjectProgramsVerification
 
     /// <summary>The artwork identity of the shot-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
     private static string ShotId(ushort pointer) =>
-        RoomObjectShotBlockVisualFiles.VisualId(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pointer));
+        RoomObjectShotBlockVisualFiles.VisualId(NativeObjectDraws.At<ShotBlockObjectDraws.BreakupDraw>(pointer) is var breakup && breakup != NativeObjectDraws.Unowned
+            ? breakup
+            : NativeObjectDraws.At<ShotBlockObjectDraws.RestorationDraw>(pointer));
+
+    /// <summary>Whether a shot block's breakup or restoration draw is stored at <paramref name="pointer"/>.</summary>
+    private static bool IsShotBlockDrawAt(int pointer) =>
+        NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.BreakupDraw>(pointer) || NativeObjectDraws.IsDrawAt<ShotBlockObjectDraws.RestorationDraw>(pointer);
 
     /// <summary>Checks the stock first break frame's physical word and immediate tile, and catalog rejection of missing draws.</summary>
     private static void VerifyShotBlockVisualSeparation(
@@ -330,7 +343,7 @@ internal static class ShotBlockObjectProgramsVerification
     {
         InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
         AssertEqual(RoomBlockAppearance.Of(0x053),
-            stock.Image(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0)).At(Offset16<RoomBlocks>.Zero),
+            stock.Image(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "stock visual catalog retains the native first break frame");
 
         const int width = 8;
@@ -367,7 +380,7 @@ internal static class ShotBlockObjectProgramsVerification
             installation.RoomObjectShotBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x053),
             installation.LoadRoomObjectShotBlockVisuals().Image(
-                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0)).At(Offset16<RoomBlocks>.Zero),
+                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "installed stock shot-block frame matches native visual block");
 
         string stockPath = Path.Combine(installation.RoomObjectShotBlockVisualDirectory,

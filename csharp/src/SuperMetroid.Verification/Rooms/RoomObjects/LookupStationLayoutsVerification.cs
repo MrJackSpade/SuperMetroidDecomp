@@ -29,7 +29,7 @@ internal static class LookupStationLayoutsVerification
     private static void VerifyStationLayoutDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9f25,0x9f6d,0x9f91,0x9f31,0x9f79,0x9f9d,0x9f3d,0x9f85,0x9fa9,0x9a3f,0x9a9f,0x9a6f,0x9f49,0x9f55,0x9f5b,0x9f67,0x9fb5,0x9fbb,0x9fc1,0x9fc7];
-        string[] ids = ["map-frame-0","energy-frame-0","missile-frame-0","map-frame-1","energy-frame-1","missile-frame-1","map-frame-2","energy-frame-2","missile-frame-2","save-idle","save-active-a","save-active-b","map-right-retracted","map-right-extended","map-left-retracted","map-left-extended","resource-right-retracted","resource-right-extended","resource-left-retracted","resource-left-extended"];
+        string[] ids = ["map-dim","energy-dim","missile-dim","map-lit","energy-lit","missile-lit","map-bright","energy-bright","missile-bright","save-idle","save-lit","save-dark","map-right-retracted","map-right-extended","map-left-retracted","map-left-extended","resource-right-retracted","resource-right-extended","resource-left-retracted","resource-left-extended"];
         var exported = RoomObjectStationVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Station layout export count");
         InstalledRoomObjectStationVisuals? pictures = field == 2 ? InstalledRoomObjectStationVisuals.Stock() : null;

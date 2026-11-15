@@ -23,7 +23,7 @@ internal static class LookupBlueCapVerification
     private static void VerifyBlueCapField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];
-        string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];
+        string[] ids = ["left-closed","left-ajar","left-half-open","left-nearly-open","right-closed","right-ajar","right-half-open","right-nearly-open","up-closed","up-ajar","up-half-open","up-nearly-open","down-closed","down-ajar","down-half-open","down-nearly-open","left-closed","right-closed","up-closed","down-closed"];
         var exported = BlueDoorObjectDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
         InstalledRoomObjectBlueDoorVisuals? pictures = field == 2 ? InstalledRoomObjectBlueDoorVisuals.Stock() : null;
@@ -45,7 +45,7 @@ internal static class LookupBlueCapVerification
                     AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap missing ID");
                 }
             }
-            foreach (string id in new[] { "LEFT-FRAME-0", "left-frame-4", "", "unknown" })
+            foreach (string id in new[] { "LEFT-CLOSED", "left-frame-0", "", "unknown" })
                 AssertTrue(!RoomObjectBlueDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Blue cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)

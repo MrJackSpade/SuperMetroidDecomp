@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -115,8 +115,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), openWall);
         else if (EscapeAnimalWalls.TryDescribe(draw, out RoomBlockShape? animalWall))
             DrawShape(level, draw, origin, Installed(RevealAndWallVisuals, "reveal and wall").Image(draw), animalWall);
-        else if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var shotBlock })
-            DrawShape(level, draw, origin, Installed(ShotBlockVisuals, "shot-block").Image(draw), shotBlock.Blocks);
+        else if (ShotBlockObjectDraws.TryDescribe(draw, out RoomBlockShape? shotBlock))
+            DrawShape(level, draw, origin, Installed(ShotBlockVisuals, "shot-block").Image(draw), shotBlock);
         else if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
             DrawShape(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), SpeedBoosterBlockObjectDrawDefinitions.BombRevealShape);
         else if (KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? kraidRoom))

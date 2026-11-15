@@ -781,7 +781,7 @@ internal static class RoomBlockPicturesVerification
         var tiles = new BackgroundTile[BlockTiles];
         for (int tile = 0; tile < BlockTiles; tile++)
         {
-            int character = picture.Frame * BlockTiles + tile;
+            int character = (picture.Look == CollectibleLook.Primary ? 0 : 1) * BlockTiles + tile;
             tiles[tile] = new BackgroundTile(character, palettes[character], highPriority: false);
         }
         return BackgroundTileWordBytes.Words(tiles);

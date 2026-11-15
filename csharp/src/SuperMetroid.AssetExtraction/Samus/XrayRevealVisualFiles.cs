@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
@@ -114,7 +115,7 @@ public static class XrayRevealVisualFiles
         for (int draw = 0; draw < CollectibleBlockPairs.InTurn.Count; draw++)
         {
             CollectibleBlockPairs.Pair pair = CollectibleBlockPairs.InTurn[draw];
-            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, 0, pair),
+            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, CollectibleLook.Primary, pair),
                 out RoomTerrainBlock written) ? written.Appearance
                 : throw new InvalidOperationException($"Block pair {pair}'s first frame writes no block pair's terrain.");
             if (ItemDrawAppearance(bus, draw) != firstFrame)

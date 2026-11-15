@@ -40,8 +40,8 @@ internal static class RoomObjectCollectibleDrawDefinitions
     /// <summary>The solid burst frame drawn when a Chozo orb opens.</summary>
     internal static RoomObjectFrameDraw<D> OrbBurst { get; } = RoomObjectDraw.Of(D.ChozoOrbBurst);
 
-    /// <summary>A shot block's frames as a concealed item's reveal shows them; its hiding shows them in reverse.</summary>
-    internal static readonly D[] ShotRevealFrames = [D.ShotBlockIntact, D.ShotBlockCracking, D.ShotBlockDust];
+    /// <summary>A concealed item's shot block whole, as its reveal begins and its hiding ends (<see cref="CollectibleSequenceAnimations"/>).</summary>
+    internal static RoomObjectFrameDraw<D> ShotBlockIntact { get; } = RoomObjectDraw.Of(D.ShotBlockIntact);
 
     /// <summary>The tank kinds in the order of their draws.</summary>
     internal static readonly InWorldCollectibleKind[] TankKinds =
@@ -50,23 +50,23 @@ internal static class RoomObjectCollectibleDrawDefinitions
         InWorldCollectibleKind.SuperMissileTank, InWorldCollectibleKind.PowerBombTank,
     ];
 
-    /// <summary>Each tank kind's two frames, in the order its animation shows them.</summary>
-    internal static readonly IReadOnlyDictionary<InWorldCollectibleKind, D[]> TankFrames = new Dictionary<InWorldCollectibleKind, D[]>
+    /// <summary>Each tank kind's draw in each of its two looks (#1994).</summary>
+    internal static readonly IReadOnlyDictionary<InWorldCollectibleKind, CollectibleLookDraws> TankLooks = new Dictionary<InWorldCollectibleKind, CollectibleLookDraws>
     {
-        [InWorldCollectibleKind.EnergyTank] = [D.EnergyTankBright, D.EnergyTankDim],
-        [InWorldCollectibleKind.MissileTank] = [D.MissileTankDim, D.MissileTankBright],
-        [InWorldCollectibleKind.SuperMissileTank] = [D.SuperMissileTankDim, D.SuperMissileTankBright],
-        [InWorldCollectibleKind.PowerBombTank] = [D.PowerBombTankBright, D.PowerBombTankDim],
+        [InWorldCollectibleKind.EnergyTank] = new(Primary: D.EnergyTankBright, Alternate: D.EnergyTankDim),
+        [InWorldCollectibleKind.MissileTank] = new(Primary: D.MissileTankDim, Alternate: D.MissileTankBright),
+        [InWorldCollectibleKind.SuperMissileTank] = new(Primary: D.SuperMissileTankDim, Alternate: D.SuperMissileTankBright),
+        [InWorldCollectibleKind.PowerBombTank] = new(Primary: D.PowerBombTankBright, Alternate: D.PowerBombTankDim),
     };
 
-    /// <summary>Each block pair's two frames under an item's own picture, in the order the picture's animation shows them.</summary>
-    internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, D[]> BlockPairFrames =
-        new Dictionary<CollectibleBlockPairs.Pair, D[]>
+    /// <summary>Each block pair's draw under an item's own picture in each of the picture's two looks (#1994).</summary>
+    internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks =
+        new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
         {
-            [CollectibleBlockPairs.Pair.First] = [D.FirstBlockPairFirstFrame, D.FirstBlockPairSecondFrame],
-            [CollectibleBlockPairs.Pair.Second] = [D.SecondBlockPairFirstFrame, D.SecondBlockPairSecondFrame],
-            [CollectibleBlockPairs.Pair.Third] = [D.ThirdBlockPairFirstFrame, D.ThirdBlockPairSecondFrame],
-            [CollectibleBlockPairs.Pair.Fourth] = [D.FourthBlockPairFirstFrame, D.FourthBlockPairSecondFrame],
+            [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairFirstFrame, Alternate: D.FirstBlockPairSecondFrame),
+            [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairFirstFrame, Alternate: D.SecondBlockPairSecondFrame),
+            [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairFirstFrame, Alternate: D.ThirdBlockPairSecondFrame),
+            [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairFirstFrame, Alternate: D.FourthBlockPairSecondFrame),
         };
 
     /// <summary>

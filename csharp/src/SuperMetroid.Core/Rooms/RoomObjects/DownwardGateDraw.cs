@@ -1,34 +1,34 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The downward gate's draw lists (#1296).</summary>
+/// <summary>The downward gate's draws (#1296, #1994): its column open, lowering and closed, and its coloured triggers.</summary>
 internal enum DownwardGateDraw
 {
-    /// <summary>Downwards gate open draw.</summary>
+    /// <summary>The gate open: its top block alone.</summary>
     Open,
     /// <summary>The gate a quarter down.</summary>
-    Lowered1,
+    QuarterLowered,
     /// <summary>The gate halfway down.</summary>
-    Lowered2,
+    HalfLowered,
     /// <summary>The gate three quarters down.</summary>
-    Lowered3,
+    ThreeQuartersLowered,
     /// <summary>The gate all the way down.</summary>
-    Lowered4,
-    /// <summary>Downwards gate closed draw.</summary>
+    FullyLowered,
+    /// <summary>The gate closed.</summary>
     Closed,
-    /// <summary>Gate shotblock downwards blue left draw.</summary>
+    /// <summary>The blue trigger on the gate's left.</summary>
     TriggerBlueLeft,
-    /// <summary>Gate shotblock downwards blue right draw.</summary>
+    /// <summary>The blue trigger on the gate's right.</summary>
     TriggerBlueRight,
-    /// <summary>Gate shotblock downwards red left draw.</summary>
+    /// <summary>The red trigger on the gate's left.</summary>
     TriggerRedLeft,
-    /// <summary>Gate shotblock downwards red right draw.</summary>
+    /// <summary>The red trigger on the gate's right.</summary>
     TriggerRedRight,
-    /// <summary>Gate shotblock downwards green left draw.</summary>
+    /// <summary>The green trigger on the gate's left.</summary>
     TriggerGreenLeft,
-    /// <summary>Gate shotblock downwards green right draw.</summary>
+    /// <summary>The green trigger on the gate's right.</summary>
     TriggerGreenRight,
-    /// <summary>Gate shotblock downwards yellow left draw.</summary>
+    /// <summary>The yellow trigger on the gate's left.</summary>
     TriggerYellowLeft,
-    /// <summary>Gate shotblock downwards yellow right draw.</summary>
+    /// <summary>The yellow trigger on the gate's right.</summary>
     TriggerYellowRight,
 }

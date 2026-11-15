@@ -89,7 +89,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {step.Before}.");
         }
-        context.Draw(place, EyeDoorDraws.DrawList(Orientation, EyeDoorComponent.Eye, step.Image));
+        context.Draw(place, EyeDoorDraws.Of(Orientation, EyeDoorComponent.Eye, step.Image));
         return step.Updates;
     }
 

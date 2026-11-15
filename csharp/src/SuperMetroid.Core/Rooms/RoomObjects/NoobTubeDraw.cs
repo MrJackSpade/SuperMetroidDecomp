@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The seven n00b-tube draw lists.</summary>
+/// <summary>The seven n00b-tube draws.</summary>
 internal enum NoobTubeDraw
 {
     /// <summary>Intact projectile-trigger block.</summary>

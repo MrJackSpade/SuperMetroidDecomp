@@ -27,9 +27,9 @@ internal static class LookupDownwardGateDrawsVerification
     {
         ushort[] pointers = [0xa517,0xa525,0xa533,0xa541,0xa54f,0xa55d,
             0xa5d7,0xa5e3,0xa5eb,0xa5f7,0xa5ff,0xa60b,0xa613,0xa61f];
-        string[] ids = ["column-frame-0","column-frame-1","column-frame-2","column-frame-3",
-            "column-frame-4","column-frame-5","blue-left-trigger","blue-right-trigger",
-            "green-left-trigger","green-right-trigger","red-left-trigger","red-right-trigger",
+        string[] ids = ["column-open","column-quarter-lowered","column-half-lowered","column-three-quarters-lowered",
+            "column-fully-lowered","column-closed","blue-left-trigger","blue-right-trigger",
+            "red-left-trigger","red-right-trigger","green-left-trigger","green-right-trigger",
             "yellow-left-trigger","yellow-right-trigger"];
         var exported = RoomObjectDownwardGateVisualFiles.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
@@ -49,7 +49,7 @@ internal static class LookupDownwardGateDrawsVerification
                     AssertThrows<InvalidDataException>(() => RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
             }
-            foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
+            foreach (string invalid in new[] { "column-frame-0", "column-lowered", "Blue-left-trigger", "", "unknown" })
                 AssertTrue(!RoomObjectDownwardGateVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Gate ID domain");
         }
         int cells = 0;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefinitions;
 
@@ -65,31 +66,19 @@ internal static class CollectibleObjectDraws
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
 
-    /// <summary>A shot-block reveal shows three consecutive draws; hiding consumes them in reverse.</summary>
-    internal static RoomObjectFrameDraw<CollectibleDraw> ShotRevealFrame(int animationIndex)
-    {
-        if ((uint)animationIndex >= 3)
-            throw new InvalidDataException(
-                $"Shot-block reveal index {animationIndex} is outside three authored frames.");
-        return RoomObjectDraw.Of(ShotRevealFrames[animationIndex]);
-    }
-
     /// <summary>
-    /// The visible frame <paramref name="animationIndex"/> of a tank kind, or of the block pair an item that shows its own
-    /// picture took (<see cref="CollectibleBlockPairs"/>): two draws each.
+    /// The draw of <paramref name="look"/> of a tank kind, or of the block pair an item that shows its own picture took
+    /// (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
     internal static RoomObjectFrameDraw<CollectibleDraw> VisibleFrame(InWorldCollectibleKind kind,
-        int animationIndex, CollectibleBlockPairs.Pair? blockPair)
+        CollectibleLook look, CollectibleBlockPairs.Pair? blockPair)
     {
-        if ((uint)animationIndex >= 2)
-            throw new InvalidDataException(
-                $"Collectible animation index {animationIndex} is outside two authored frames.");
-        if (TankFrames.TryGetValue(kind, out CollectibleDraw[]? tank))
-            return RoomObjectDraw.Of(tank[animationIndex]);
+        if (TankLooks.TryGetValue(kind, out CollectibleLookDraws tank))
+            return RoomObjectDraw.Of(tank.Of(look));
         if (blockPair is not { } pair)
             throw new InvalidDataException($"Collectible {kind} shows its own picture but took no block pair.");
-        return BlockPairFrames.TryGetValue(pair, out CollectibleDraw[]? frames)
-            ? RoomObjectDraw.Of(frames[animationIndex])
+        return BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
+            ? RoomObjectDraw.Of(looks.Of(look))
             : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
     }
 }

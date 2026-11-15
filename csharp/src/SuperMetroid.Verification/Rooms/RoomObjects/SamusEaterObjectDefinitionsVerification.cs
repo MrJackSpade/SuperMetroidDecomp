@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -44,8 +48,55 @@ internal static class SamusEaterObjectDefinitionsVerification
                 "Samus Eater deactivates its trigger");
         }
 
+        Suite(nameof(VerifySamusEaterChewTimeline), () => VerifySamusEaterChewTimeline());
         Console.WriteLine(
             "Samus Eater PLMs: both header/program identities, the typed programs, and real aligned spawns match cartridge.");
+    }
+
+    /// <summary>
+    /// Plays each caught plant through to its departure (#1994): from its first update it shows its chew's images, each for
+    /// its updates, its plant's number of chews, holding Samus throughout; then it releases her and shows its fangs out for
+    /// its release time and its idle image for one update, and leaves the room on the next update.
+    /// </summary>
+    internal static void VerifySamusEaterChewTimeline()
+    {
+        InstalledRoomObjectSamusEaterVisuals pictures = InstalledRoomObjectSamusEaterVisuals.Stock();
+        foreach ((SamusEaterObjectDefinition definition, _) in Plants)
+        {
+            const int size = 8;
+            var plantBlock = new Position16<RoomBlocks>(3, 3);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(size, size),
+                new RoomLevelPlanes(new RoomTerrainBlock[size * size], new RoomBlockBehavior[size * size], new RoomBlockAppearance[size * size]),
+                RoomLevelData.NothingBeyondGrid());
+            level.SetTerrain(plantBlock, RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock));
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+            samus.Position = samus.Position.WithWhole(new(56, definition.Ceiling ? (ushort)16 : (ushort)0));
+            samus.Kinematics.Radius = new(8, 16);
+            RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
+                new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar),
+                new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags() },
+                RoomObjectFixtures.Unbound());
+            roomObjects.SamusEater.TrySpawnSamusEater(level, level.GetCollisionBlock(plantBlock), definition, samus.RoomView);
+
+            var expected = new List<(SamusEaterDraw Image, bool Holding)>();
+            for (int chew = 0; chew < definition.Chews; chew++)
+                foreach (SamusEaterChewFrame frame in definition.Chew)
+                    expected.AddRange(Enumerable.Repeat((frame.Image, true), frame.Updates));
+            expected.AddRange(Enumerable.Repeat((definition.Released, false), SamusEaterObjectDefinitions.ReleaseDuration));
+            expected.Add((definition.Idle, false));
+
+            for (int update = 0; update < expected.Count; update++)
+            {
+                roomObjects.Step(level);
+                string at = $"{(definition.Ceiling ? "ceiling" : "floor")} plant update {update + 1}";
+                AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is SamusEaterObject { } eater && eater.Holding == expected[update].Holding,
+                    $"{at} holds Samus while it chews");
+                AssertEqual(pictures.Image(RoomObjectDraw.Of(expected[update].Image)).At(Offset16<RoomBlocks>.Zero),
+                    level.GetCollisionBlock(plantBlock).Terrain.Appearance, $"{at} shows {expected[update].Image}");
+            }
+            roomObjects.Step(level);
+            AssertEqual(0, roomObjects.PopulationPlaces.Count, $"{(definition.Ceiling ? "ceiling" : "floor")} plant leaves after its idle image");
+        }
     }
 
     /// <summary>Checks both plant headers' native initial instruction pointers.</summary>

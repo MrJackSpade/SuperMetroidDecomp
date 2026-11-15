@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The eye door's room-object draws; the animation's facing and component pick each draw list.</summary>
+/// <summary>The eye door's room-object draws; the animation's facing and component pick each draw.</summary>
 internal enum EyeDoorObjectFrame
 {
     /// <summary>The closed eye.</summary>
@@ -11,8 +11,8 @@ internal enum EyeDoorObjectFrame
     OpenEye,
     /// <summary>The eye's first flinch pose.</summary>
     FlinchingEye,
-    /// <summary>The eye's second flinch pose, screwed shut.</summary>
-    ScrewedShutEye,
+    /// <summary>The open eye drawn solid between its flinches, which no shot can hit.</summary>
+    OpenSolidEye,
     /// <summary>The cleared opening the eye leaves.</summary>
     OpeningClear,
     /// <summary>The blue cap the opening flashes to.</summary>

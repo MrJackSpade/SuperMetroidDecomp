@@ -40,10 +40,10 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(63, PermanentCollectibleObjectDefinitions.Items.Count, "three presentations of twenty-one items");
 
         // The station animations are named by access rule instead of the header's list word plus an offset.
-        AssertEqual(StationAnimationList.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");
-        AssertEqual((StationAnimationList?)StationAnimationList.MapAcquired, StationAccessRuleDefinitions.Map.AcquiredAnimation, "map station acquired animation");
+        AssertEqual(StationAnimation.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");
+        AssertEqual((StationAnimation?)StationAnimation.MapAcquired, StationAccessRuleDefinitions.Map.AcquiredAnimation, "map station acquired animation");
         AssertTrue(StationAccessRuleDefinitions.Energy.AcquiredAnimation is null, "energy station has one animation");
-        AssertEqual(0xad66, StationNativeWords.AnimationLists.Word(StationAnimationList.MapIdle), "map idle list word");
+        AssertEqual(0xad66, StationNativeWords.Record(StationAnimation.MapIdle, 0), "map idle list word");
 
         // The deleted RomData catalogs' values.
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");

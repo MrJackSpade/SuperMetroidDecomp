@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The twenty draw lists selected by station animations.</summary>
+/// <summary>The twenty draws the stations' animations and access arms show (#1994), each named for what it shows.</summary>
 internal enum StationDraw
 {
-    /// <summary>First map-station frame draw list.</summary>
-    MapFrame0,
-    /// <summary>Second map-station frame draw list.</summary>
-    MapFrame1,
-    /// <summary>Third map-station frame draw list.</summary>
-    MapFrame2,
+    /// <summary>The map station's display at its dimmest.</summary>
+    MapDim,
+    /// <summary>The map station's display lit.</summary>
+    MapLit,
+    /// <summary>The map station's display at its brightest.</summary>
+    MapBright,
     /// <summary>Retracted right-side map access draw.</summary>
     MapRightRetracted,
     /// <summary>Extended right-side map access draw.</summary>
@@ -17,18 +17,18 @@ internal enum StationDraw
     MapLeftRetracted,
     /// <summary>Extended left-side map access draw.</summary>
     MapLeftExtended,
-    /// <summary>First energy-station frame draw list.</summary>
-    EnergyFrame0,
-    /// <summary>Second energy-station frame draw list.</summary>
-    EnergyFrame1,
-    /// <summary>Third energy-station frame draw list.</summary>
-    EnergyFrame2,
-    /// <summary>First missile-station frame draw list.</summary>
-    MissileFrame0,
-    /// <summary>Second missile-station frame draw list.</summary>
-    MissileFrame1,
-    /// <summary>Third missile-station frame draw list.</summary>
-    MissileFrame2,
+    /// <summary>The energy station's glow at its dimmest.</summary>
+    EnergyDim,
+    /// <summary>The energy station's glow lit.</summary>
+    EnergyLit,
+    /// <summary>The energy station's glow at its brightest.</summary>
+    EnergyBright,
+    /// <summary>The missile station's glow at its dimmest.</summary>
+    MissileDim,
+    /// <summary>The missile station's glow lit.</summary>
+    MissileLit,
+    /// <summary>The missile station's glow at its brightest.</summary>
+    MissileBright,
     /// <summary>Retracted right-side resource access draw.</summary>
     ResourceRightRetracted,
     /// <summary>Extended right-side resource access draw.</summary>
@@ -37,10 +37,10 @@ internal enum StationDraw
     ResourceLeftRetracted,
     /// <summary>Extended left-side resource access draw.</summary>
     ResourceLeftExtended,
-    /// <summary>Save-pod idle draw list.</summary>
+    /// <summary>The idle save pod, its floor a trigger and its lights off.</summary>
     SaveIdle,
-    /// <summary>First active save-pod draw list.</summary>
-    SaveActive,
-    /// <summary>Second active save-pod draw list.</summary>
-    SaveAlternate,
+    /// <summary>The saving pod with its lights on, its floor solid.</summary>
+    SaveLit,
+    /// <summary>The saving pod with its lights off, its floor solid.</summary>
+    SaveDark,
 }

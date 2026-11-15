@@ -184,8 +184,10 @@ internal static class RoomBlockSheetComposer
             // palette selectors give them, whatever the room loaded or showed before it.
             BgArtworkIdentity graphics = RoomBgArtwork.Collectible(collectible.Kind);
             bytes[graphics] = collectible.Tiles;
-            for (int frame = 0; frame < CollectiblePicture.Frames; frame++)
+            foreach (CollectibleLook look in Enum.GetValues<CollectibleLook>())
             {
+                // The collectible's graphics hold its looks one after the other, four characters each.
+                int frame = look == CollectibleLook.Primary ? 0 : 1;
                 var tiles = new BackgroundTile[RoomMetatileFormat.TilesPerBlock];
                 var shown = new BgArtworkShown[RoomMetatileFormat.TilesPerBlock];
                 for (int tile = 0; tile < tiles.Length; tile++)
@@ -194,7 +196,7 @@ internal static class RoomBlockSheetComposer
                     tiles[tile] = new BackgroundTile(character, collectible.PaletteOffsets.Span[character], highPriority: false);
                     shown[tile] = new BgArtworkShown(graphics, character * BgCharacterSet.Tiles.CharacterBytes() / sizeof(ushort));
                 }
-                pictures.Add(RoomBlockPictureNames.OfCollectible(new CollectiblePicture(collectible.Kind, frame)), new Picture(tiles, shown));
+                pictures.Add(RoomBlockPictureNames.OfCollectible(new CollectiblePicture(collectible.Kind, look)), new Picture(tiles, shown));
             }
         }
         // A library background's image shows its room's load; each 16x16 cell whose characters an input reaches draws the

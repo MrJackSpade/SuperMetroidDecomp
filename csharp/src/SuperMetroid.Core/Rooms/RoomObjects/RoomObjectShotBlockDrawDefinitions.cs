@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The shot blocks' arrangements and breakup length (#1557, #1862). What each frame draws is its block shape
-/// (<see cref="ShotBlockObjectDraws.Draw.Blocks"/>); what a cell shows is the frame's installed picture.
+/// The shot blocks' arrangements (#1557, #1862). What each draw writes is its block shape
+/// (<see cref="ShotBlockObjectDraws.BreakupDraw.Blocks"/>, <see cref="ShotBlockObjectDraws.RestorationDraw.Blocks"/>);
+/// what a cell shows is the draw's installed picture, at each <see cref="BlockBreakupStage"/> of the breakup.
 /// </summary>
 internal static class RoomObjectShotBlockDrawDefinitions
 {
@@ -18,7 +19,4 @@ internal static class RoomObjectShotBlockDrawDefinitions
         /// <summary>Four blocks arranged in two rows.</summary>
         Square,
     }
-
-    /// <summary>Breakup frames per shape.</summary>
-    internal const int BreakupFrameCount = 4;
 }

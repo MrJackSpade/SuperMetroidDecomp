@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The installed pictures of the sixteen blue-door frames, four of which a closed cap shows under a second identity
-/// (#1557). The caps' terrain, animation timing and door handoff stay the game's.
+/// The installed pictures of the sixteen blue-door frames, whose closed caps each facing's closed cap drawn solid also
+/// shows (#1557, #1994). The caps' terrain, animation timing and door handoff stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectBlueDoorVisuals
 {
@@ -15,7 +15,7 @@ public sealed class InstalledRoomObjectBlueDoorVisuals
     /// <summary>Every blue-door frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The picture <paramref name="draw"/> shows; a closed cap shows its facing's first opening frame.</summary>
+    /// <summary>The picture <paramref name="draw"/> shows; the closed cap drawn solid shows its facing's closed cap.</summary>
     /// <exception cref="InvalidDataException">The draw is not a blue-door frame, or the installation lacks it.</exception>
     internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
         BlueDoorCaps.TryDescribe(draw, out _)

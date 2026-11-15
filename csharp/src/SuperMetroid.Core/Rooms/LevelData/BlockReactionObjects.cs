@@ -373,7 +373,7 @@ internal sealed class BlockReactionObjects
     /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
     internal void RecordImageShown(Position16<RoomBlocks> block, RoomObjectDraw? draw)
     {
-        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.BreaksOpen: true })
+        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true })
             _brokenOpenBlocks.Add(block);
         else
             _brokenOpenBlocks.Remove(block);

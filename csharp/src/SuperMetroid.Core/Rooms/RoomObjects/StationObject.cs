@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -8,34 +9,33 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// its appearance, its access arm's phase and countdown, and its save handshake as domain values, and advances them on
 /// each update: an access Samus triggered starts the arm (or asks to save), the arm extends, holds, activates the
 /// station, holds and retracts by its authored timing (<see cref="StationAccessTimingDefinitions"/>), the accepted save
-/// alternates its two images for its authored loops (<see cref="SaveStationAnimationDefinitions"/>), and the station's
-/// own animation shows its images (<see cref="StationAnimationDefinitions.Frames"/>), the save station's only
-/// once.
+/// flashes its pod's lights for its authored loops, and the station's own animation shows its images
+/// (<see cref="StationAnimationDefinitions"/>, #1994), the save station's only once.
 /// </summary>
 /// <param name="kind">Which station it is.</param>
 /// <param name="area">The area whose map or save it serves.</param>
-/// <param name="animationList">The animation it shows first.</param>
-/// <param name="completedAnimationList">The animation it shows once used.</param>
-/// <param name="animationFrameCount">The images in its ordinary animation's loop.</param>
+/// <param name="animation">The animation it shows first.</param>
+/// <param name="completedAnimation">The animation it shows once used.</param>
 internal sealed class StationObject(
     StationKind kind,
     AreaId area,
-    StationAnimationList animationList,
-    StationAnimationList completedAnimationList,
-    int animationFrameCount) : RoomObjectBehaviour
+    StationAnimation animation,
+    StationAnimation completedAnimation) : RoomObjectBehaviour
 {
     /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
     public StationKind Kind { get; } = kind;
     /// <summary>Area whose map-acquired or save-station state is affected.</summary>
     public AreaId Area { get; } = area;
     /// <summary>Animation the station currently shows.</summary>
-    public StationAnimationList AnimationList { get; set; } = animationList;
+    internal StationAnimation ShownAnimation { get; private set; } = animation;
     /// <summary>Animation selected after the station has completed its first activation.</summary>
-    public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
-    /// <summary>Number of images in the current ordinary animation loop.</summary>
-    public int AnimationFrameCount { get; } = animationFrameCount;
-    /// <summary>Next image of the station's animation.</summary>
-    public int AnimationFrame { get; set; }
+    internal StationAnimation CompletedAnimation { get; } = completedAnimation;
+    /// <summary>Where the station's animation stands.</summary>
+    private AnimationPlace _animationPlace = AnimationPlace.StartOfAnimation;
+    /// <summary>Where the accepted save's flash stands.</summary>
+    private AnimationPlace _flashPlace = AnimationPlace.StartOfAnimation;
+    /// <summary>The save flash's loops left, which its counted phase counts down.</summary>
+    private WrappingCountdown _flashLoops;
     /// <summary>Updates remaining before the station's next image.</summary>
     public int AnimationTimer { get; set; } = 1;
     /// <summary>Keeps the save station's image still after its one initial draw.</summary>
@@ -52,8 +52,6 @@ internal sealed class StationObject(
     public StationAccessBehavior? AccessBehavior { get; set; }
     /// <summary>Tracks the save's confirmation and animation separately from arm motion.</summary>
     public SaveStationPhase SavePhase { get; set; }
-    /// <summary>Remaining two-image save animation loops before the completion message.</summary>
-    public int SaveAnimationLoopsRemaining { get; set; }
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -116,17 +114,15 @@ internal sealed class StationObject(
         if (--AnimationTimer != 0)
             return;
 
-        StationAnimationDefinitions.Frame frame = StationAnimations.Resolve(AnimationList, AnimationFrame);
-        // A frame's hold is any positive count of updates (#1627).
-        if (frame.Duration <= 0)
-        {
-            throw new InvalidDataException(
-                $"{Kind} station animation {AnimationList} frame {AnimationFrame} does not begin with a timed draw.");
-        }
-        context.Draw(place, frame.Draw);
+        WrappingCountdown uncounted = default;
+        AnimationShown<StationAnimation, StationDraw> shown = StationAnimationDefinitions.Segments.PlayToNextFrame(
+            StationAnimationDefinitions.Animations[ShownAnimation], ref _animationPlace, ref uncounted, static _ => { });
+        // A looping animation of images always shows its next image, held for any positive count of updates (#1627).
+        if (shown is not AnimationShown<StationAnimation, StationDraw>.Frame { Duration: > 0 } frame)
+            throw new InvalidDataException($"{Kind} station animation {ShownAnimation} showed {shown} instead of a timed image.");
+        context.Draw(place, RoomObjectDraw.Of(frame.Shown));
         AnimationTimer = frame.Duration;
         InitialDrawCompleted = true;
-        AnimationFrame = (AnimationFrame + 1) % AnimationFrameCount;
     }
 
     /// <summary>
@@ -136,9 +132,10 @@ internal sealed class StationObject(
     internal void StartSaveAnimation(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         SavePhase = SaveStationPhase.Animating;
-        AnimationFrame = 0;
-        SaveAnimationLoopsRemaining = SaveStationAnimationDefinitions.SaveAnimationLoops;
-        DrawSaveImage(drawing, level, block);
+        _flashPlace = AnimationPlace.StartOfAnimation;
+        _flashLoops = default;
+        if (!DrawSaveImage(drawing, level, block))
+            throw new InvalidOperationException("The save station's flash ended before it showed an image.");
     }
 
     /// <summary>Advances the arm's countdown and, when it runs out, the arm's next phase.</summary>
@@ -188,7 +185,7 @@ internal sealed class StationObject(
         }
     }
 
-    /// <summary>Runs the accepted save's two-image loop until the saved-game message can be published.</summary>
+    /// <summary>Runs the accepted save's flash until the saved-game message can be published.</summary>
     private bool StepSaveAnimation(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations)
     {
         if (SavePhase is SaveStationPhase.Idle or SaveStationPhase.AwaitingConfirmation)
@@ -201,9 +198,9 @@ internal sealed class StationObject(
         if (--AnimationTimer != 0)
             return true;
 
-        // The loop is counted as its second image ends. After the last of its loops the save publishes the saved-game
-        // message instead of returning to the first image.
-        if (AnimationFrame == 0 && SaveAnimationLoopsRemaining == 0)
+        // After the last of its loops the flash is over, and the save publishes the saved-game message instead of
+        // lighting the pod again.
+        if (!DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.Block))
         {
             SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
             stations.Publish(new StationActivationEvent(
@@ -214,22 +211,25 @@ internal sealed class StationObject(
                 place.Block));
             return true;
         }
-        DrawSaveImage(context.RoomObjects.Drawing, context.Level, place.Block);
         return true;
     }
 
-    /// <summary>Draws the next of the save's two four-update images.</summary>
-    private void DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
+    /// <summary>Draws the save flash's next image and holds it for its updates; false once the flash is over.</summary>
+    /// <exception cref="InvalidOperationException">The flash showed neither an image nor its end.</exception>
+    private bool DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
-        StationAnimationList list = AnimationFrame == 0
-            ? StationAnimationList.SaveFirstFrame
-            : StationAnimationList.SaveSecondFrame;
-        StationAnimationDefinitions.Frame frame = StationAnimations.Resolve(list, 0);
-        Ensure.NotNull(drawing).Draw(level, block, frame.Draw);
-        AnimationTimer = frame.Duration;
-        AnimationFrame ^= 1;
-        if (AnimationFrame == 0)
-            SaveAnimationLoopsRemaining--;
+        Animation<StationAnimation> flash = StationAnimationDefinitions.Animations[StationAnimation.SaveFlash];
+        switch (StationAnimationDefinitions.Segments.PlayToNextFrame(flash, ref _flashPlace, ref _flashLoops, static _ => { }))
+        {
+            case AnimationShown<StationAnimation, StationDraw>.Frame frame:
+                Ensure.NotNull(drawing).Draw(level, block, RoomObjectDraw.Of(frame.Shown));
+                AnimationTimer = frame.Duration;
+                return true;
+            case AnimationShown<StationAnimation, StationDraw>.Ended:
+                return false;
+            case var shown:
+                throw new InvalidOperationException($"The save station's flash showed {shown}.");
+        }
     }
 
     /// <summary>Applies the map or refill and publishes the station's message.</summary>
@@ -248,15 +248,15 @@ internal sealed class StationObject(
         {
             case StationKind.Map:
                 stations.RequireSystem("Map station").SetAreaMapAcquired(Area);
-                AnimationList = CompletedAnimationList;
+                ShownAnimation = CompletedAnimation;
                 break;
             case StationKind.Energy:
                 samus.Health = samus.MaxHealth;
-                AnimationList = CompletedAnimationList;
+                ShownAnimation = CompletedAnimation;
                 break;
             case StationKind.Missile:
                 samus.Missiles = samus.MaxMissiles;
-                AnimationList = CompletedAnimationList;
+                ShownAnimation = CompletedAnimation;
                 break;
             case StationKind.Save:
                 break;
@@ -264,7 +264,7 @@ internal sealed class StationObject(
                 throw new InvalidOperationException($"Undefined {nameof(StationKind)} {Kind}.");
         }
 
-        AnimationFrame = 0;
+        _animationPlace = AnimationPlace.StartOfAnimation;
         AnimationTimer = 1;
         stations.Publish(new StationActivationEvent(
             Kind,

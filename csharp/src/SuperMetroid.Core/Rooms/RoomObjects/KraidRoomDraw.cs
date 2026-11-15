@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The ten reachable Kraid ceiling and spike draw lists.</summary>
+/// <summary>The ten reachable Kraid ceiling and spike draws.</summary>
 internal enum KraidRoomDraw
 {
     /// <summary>First crumble frame, also used by the elevatube.</summary>

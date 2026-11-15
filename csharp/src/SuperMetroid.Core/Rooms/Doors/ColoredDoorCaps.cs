@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The yellow, green and red door caps: each colour's four frames per facing and the block shape each draws from
-/// <see cref="ColoredDoorObjectDrawDefinitions"/> (#1862).
+/// The yellow, green and red door caps: each colour's cap closed and sliding aside per facing, and the block shape each
+/// draws from <see cref="ColoredDoorObjectDrawDefinitions"/> (#1862, #1994).
 /// </summary>
 internal static class ColoredDoorCaps
 {
@@ -12,8 +12,11 @@ internal static class ColoredDoorCaps
     private static readonly Dictionary<Draw, RoomBlockShape> Shapes = ColoredDoorObjectDrawDefinitions.Collisions
         .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
 
-    /// <summary>Color, direction, and animation phase of one cap draw.</summary>
-    internal readonly record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame)
+    /// <summary>One coloured cap draw: its colour, its facing and what it shows.</summary>
+    /// <param name="Color">The cap's colour.</param>
+    /// <param name="Orientation">The cap's facing.</param>
+    /// <param name="Look">The cap closed or sliding aside.</param>
+    internal readonly record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, DoorCapLook Look)
     {
         /// <summary>Whether this cap's four blocks stand in a column: a left or right cap's.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
@@ -22,15 +25,7 @@ internal static class ColoredDoorCaps
         internal RoomBlockShape Blocks => Shapes[this];
     }
 
-    /// <summary>Describes a coloured door cap's draw: its colour, orientation and one of its four frames.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
-    {
-        if (request is RoomObjectFrameDraw<Draw> { Frame: { Frame: >= 0 and < 4 } cap })
-        {
-            draw = cap;
-            return true;
-        }
-        draw = default;
-        return false;
-    }
+    /// <summary>Describes a coloured door cap's draw: its colour, orientation and the cap closed or sliding aside.</summary>
+    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
+        RoomObjectDraw.TryFrame(request, static (Draw cap) => DoorCaps.IsOpeningLook(cap.Look), out draw);
 }

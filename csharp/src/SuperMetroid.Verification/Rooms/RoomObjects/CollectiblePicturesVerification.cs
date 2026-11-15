@@ -76,7 +76,7 @@ internal static class CollectiblePicturesVerification
             AssertEqual(RoomBlockAppearance.Of(FirstPairFirstFrameBlock + item % CollectibleBlockPairs.InTurn.Count * 2),
                 level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
                 $"{Kinds[item]} writes its block pair's first-frame block into the terrain");
-            AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Kinds[item], 0)),
+            AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Kinds[item], CollectibleLook.Primary)),
                 level.ForegroundPlane.Cells.Cells[blockIndex].Picture,
                 $"{Kinds[item]} shows its own picture's first frame");
         }

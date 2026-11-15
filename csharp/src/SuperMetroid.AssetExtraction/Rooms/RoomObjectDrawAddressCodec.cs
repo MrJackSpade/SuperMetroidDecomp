@@ -71,17 +71,18 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<SporeSpawnCeilingDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.SporeSpawnCeiling[frame],
         RoomObjectFrameDraw<StationDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.Station[frame],
         RoomObjectFrameDraw<TourianAccessDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.TourianAccess[frame],
-        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var shot } => ShotBlock(shot),
+        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => ShotBlockBreakup(breakup),
+        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => ShotBlockRestoration(restoration),
         RoomObjectFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(RoomObjectDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
         RoomObjectFrameDraw<CollectibleDraw> { Frame: var item } => RoomObjectDrawSourceDefinitions.Collectible[item],
         RoomObjectFrameDraw<BlueDoorCaps.Draw> { Frame: var blue } => Offset(RoomObjectDrawSourceDefinitions.BlueDoorLeftAlias,
             FacingIndex(blue.Orientation) * BlueFacingStride + BlueCapIndex(blue) * CapStride),
-        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: null } clear } =>
+        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { IsCleared: true } clear } =>
             Offset(RoomObjectDrawSourceDefinitions.DoorClearLeft, FacingIndex(clear.Orientation) * CapStride),
-        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: int greyFrame } grey } => Offset(RoomObjectDrawSourceDefinitions.GreyDoorLeft,
-            FacingIndex(grey.Orientation) * CapFacingStride + greyFrame * CapStride),
+        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: var grey } => Offset(RoomObjectDrawSourceDefinitions.GreyDoorLeft,
+            FacingIndex(grey.Orientation) * CapFacingStride + DoorCapLookNames.TableIndex(grey.Look) * CapStride),
         RoomObjectFrameDraw<ColoredDoorCaps.Draw> { Frame: var colored } => Offset(RoomObjectDrawSourceDefinitions.ColoredDoorYellowLeft,
-            ColorIndex(colored.Color) * ColorStride + FacingIndex(colored.Orientation) * CapFacingStride + colored.Frame * CapStride),
+            ColorIndex(colored.Color) * ColorStride + FacingIndex(colored.Orientation) * CapFacingStride + DoorCapLookNames.TableIndex(colored.Look) * CapStride),
         RoomObjectFrameDraw<EyeDoorDraws.Draw> { Frame: var eye } => EyeDoor(eye),
         RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> => RoomObjectDrawSourceDefinitions.CrateriaPassageClearPair,
         RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> => RoomObjectDrawSourceDefinitions.OldTourianShaftWallOpen,
@@ -90,22 +91,18 @@ internal static class RoomObjectDrawAddressCodec
         _ => throw new InvalidDataException($"{draw} has no cartridge address."),
     };
 
-    /// <summary>A shot-block breakup frame at its shape's stride, or the shape's restoration.</summary>
-    private static SnesAddress ShotBlock(ShotBlockObjectDraws.Draw shot) =>
-        shot.Restore ? ShotBlockRestoration(shot) : ShotBlockBreakup(shot);
-
     /// <summary>A shot-block breakup frame, at its shape's stride from the shape's first frame.</summary>
-    private static SnesAddress ShotBlockBreakup(ShotBlockObjectDraws.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockBreakup(ShotBlockObjectDraws.BreakupDraw shot) => shot.Layout switch
     {
-        RoomObjectShotBlockDrawDefinitions.Shape.Single => Offset(RoomObjectDrawSourceDefinitions.SingleBreakupFirst, shot.Frame * OneBlockStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => Offset(RoomObjectDrawSourceDefinitions.HorizontalBreakupFirst, shot.Frame * PairStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => Offset(RoomObjectDrawSourceDefinitions.VerticalBreakupFirst, shot.Frame * PairStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Square => Offset(RoomObjectDrawSourceDefinitions.SquareBreakupFirst, shot.Frame * SquareStride),
+        RoomObjectShotBlockDrawDefinitions.Shape.Single => Offset(RoomObjectDrawSourceDefinitions.SingleBreakupFirst, BreakupIndex(shot.Stage) * OneBlockStride),
+        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => Offset(RoomObjectDrawSourceDefinitions.HorizontalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
+        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => Offset(RoomObjectDrawSourceDefinitions.VerticalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
+        RoomObjectShotBlockDrawDefinitions.Shape.Square => Offset(RoomObjectDrawSourceDefinitions.SquareBreakupFirst, BreakupIndex(shot.Stage) * SquareStride),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 
     /// <summary>A shot-block shape's restoration draw.</summary>
-    private static SnesAddress ShotBlockRestoration(ShotBlockObjectDraws.Draw shot) => shot.Layout switch
+    private static SnesAddress ShotBlockRestoration(ShotBlockObjectDraws.RestorationDraw shot) => shot.Layout switch
     {
         RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => RoomObjectDrawSourceDefinitions.ShotBlockRestoreHorizontal,
         RoomObjectShotBlockDrawDefinitions.Shape.Vertical => RoomObjectDrawSourceDefinitions.ShotBlockRestoreVertical,
@@ -121,9 +118,9 @@ internal static class RoomObjectDrawAddressCodec
         return eye.Part switch
         {
             EyeDoorDraws.Component.Clear => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
-            EyeDoorDraws.Component.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + eye.Frame * EyeStride),
-            EyeDoorDraws.Component.Middle => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + eye.Frame * OneBlockStride),
-            EyeDoorDraws.Component.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + eye.Frame * OneBlockStride),
+            EyeDoorDraws.Component.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * EyeStride),
+            EyeDoorDraws.Component.Middle => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
+            EyeDoorDraws.Component.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
             _ => throw new InvalidDataException($"Eye-door draw {eye} has no cartridge address."),
         };
     }
@@ -132,18 +129,29 @@ internal static class RoomObjectDrawAddressCodec
     private static int GrappleIndex(GrappleBlockDraw grapple) => grapple switch
     {
         GrappleBlockDraw.Intact => 0,
-        GrappleBlockDraw.Break0 => 1,
-        GrappleBlockDraw.Break1 => 2,
-        GrappleBlockDraw.Break2 => 3,
+        GrappleBlockDraw.Rock => 1,
+        GrappleBlockDraw.Pieces => 2,
+        GrappleBlockDraw.Dust => 3,
         GrappleBlockDraw.Blank => 4,
         _ => throw new InvalidDataException($"Undefined {nameof(GrappleBlockDraw)} {grapple}."),
     };
 
+    /// <summary>The position of a breakup stage among a shape's four breakup records: rock, pieces, dust, gone.</summary>
+    private static int BreakupIndex(BlockBreakupStage stage) => stage switch
+    {
+        BlockBreakupStage.Rock => 0,
+        BlockBreakupStage.Pieces => 1,
+        BlockBreakupStage.Dust => 2,
+        BlockBreakupStage.Gone => 3,
+        _ => throw new InvalidDataException($"Undefined {nameof(BlockBreakupStage)} {stage}."),
+    };
+
     /// <summary>
-    /// The position of a blue cap among its facing's five records in the cartridge: the physical alias first, then the
-    /// four opening frames in order (#1627).
+    /// The position of a blue cap among its facing's five records in the cartridge: the closed cap drawn solid first, then
+    /// the cap closed and sliding aside in order (#1627, #1994).
     /// </summary>
-    private static int BlueCapIndex(BlueDoorCaps.Draw blue) => blue.Frame is int frame ? 1 + frame : 0;
+    private static int BlueCapIndex(BlueDoorCaps.Draw blue) =>
+        blue.Look == DoorCapLook.ClosedSolid ? 0 : 1 + DoorCapLookNames.TableIndex(blue.Look);
 
     /// <summary>The position of a cap facing in the cartridge's cap tables: left, right, up, down.</summary>
     private static int FacingIndex(ColoredDoorOrientation orientation) => orientation switch

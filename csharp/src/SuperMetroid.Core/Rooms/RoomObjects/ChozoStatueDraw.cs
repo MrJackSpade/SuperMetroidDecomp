@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The draw lists owned by the Chozo statue room objects.</summary>
+/// <summary>The draws owned by the Chozo statue room objects.</summary>
 internal enum ChozoStatueDraw
 {
     /// <summary>Wrecked Ship statue's clear-slope-access draw.</summary>

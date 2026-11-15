@@ -141,7 +141,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
     private int initialFrameWaits;
     /// <summary>
-    /// Cinematic updates elapsed, incremented after phase dispatch and before actor handling. Only its phase
+    /// Cinematic updates elapsed, incremented after the cinematic phase runs and before the actors step. Only its phase
     /// within a four-update cycle is read, which a wider counter preserves exactly.
     /// </summary>
     private int cinematicFrameCounter;

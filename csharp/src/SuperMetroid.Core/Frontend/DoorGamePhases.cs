@@ -20,7 +20,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (session.GameState == SuperMetroidGameState.HitDoorBlock &&
             !StepHitDoorBlock(controllerInput))
             return;
-        // The door's next state follows in the same dispatch and publishes the one after it.
+        // The door's next state follows in the same update and publishes the one after it.
         // The update's per-line effect pass runs before this phase. A rising
         // liquid's rumble or ambient sound it requests is queued as it runs, ahead of the cancels.
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope);
@@ -80,8 +80,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Runs this dispatch's hit-door step. Returns true when the step finishes,
-    /// so the room-loading state runs in the same dispatch.
+    /// Runs this update's hit-door step. Returns true when the step finishes,
+    /// so the room-loading state runs in the same update.
     /// </summary>
     private bool StepHitDoorBlock(ControllerButton controllerInput)
     {

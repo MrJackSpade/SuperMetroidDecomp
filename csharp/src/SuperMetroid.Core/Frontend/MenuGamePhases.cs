@@ -121,11 +121,11 @@ internal sealed class MenuGamePhases(FrontendSession session)
             {
                 SuperMetroidSaveSlot selectedSlot = session.saves.ReadSlot(session.SelectedSaveSlot)
                     ?? throw new InvalidDataException(
-                        "The selected save became invalid before startup dispatch.");
+                        "The selected save became invalid before the game started.");
                 if (selectedSlot.StartupRoute ==
                     SaveLoadingGameState.OpeningCinematic)
                 {
-                    // Loading dispatches the opening-cinematic startup route written by the Spacetime Beam
+                    // Loading sends the opening-cinematic startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.
@@ -189,7 +189,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(gameOver);
         if (gameOver.CeresArrivalRequested)
         {
-            // Starting a game publishes the Ceres state and reloads the slot in the same dispatch;
+            // Starting a game publishes the Ceres state and reloads the slot in the same update;
             // the Ceres loader runs on the next update. Gameplay owners are
             // rebuilt from the save file, so only the live random number survives.
             session.Close<GameOverMenuState>();
@@ -275,7 +275,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Loading dispatches the saved escape-ending mode to the initial destruction cinematic.
+    /// Loading sends the saved escape-ending mode to the initial destruction cinematic.
     /// Restore the saved inventory, but do not initialize any Ceres room or actors.
     /// The existing cinematic handoff later loads the Zebes arrival.
     /// </summary>

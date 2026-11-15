@@ -440,7 +440,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Dispatches Copy and Clear selection, confirmation, and completed-page input.</summary>
+    /// <summary>Runs Copy and Clear selection, confirmation, and completed-page input.</summary>
     private void StepDataManagement(ControllerButton pressed)
     {
         switch (Phase)

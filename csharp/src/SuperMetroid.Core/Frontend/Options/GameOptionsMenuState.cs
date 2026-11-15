@@ -200,7 +200,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
             case GameOptionsPhase.FadeOutToIntro:
                 // Reaching black selects the start-game step, which
-                // dispatches the loading game state on the following update.
+                // runs the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)
                     Phase = GameOptionsPhase.StartGame;

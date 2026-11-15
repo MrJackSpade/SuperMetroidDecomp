@@ -243,10 +243,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
-        // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
+        // Only the stable map update moves the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
-        // Stable pause dispatch advances the highlight cycle afterwards. The
+        // The stable pause update advances the highlight cycle afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && mapHighlight.Step())
             audio?.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
@@ -318,7 +318,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (TransitionBrightness > 0)
                     return;
 
-                // The fade-out returns at black before the separate load dispatch.
+                // The fade-out returns at black before the separate load update.
                 Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
@@ -345,7 +345,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
-                // Load dispatches set delay/counter to one; the fade-in spends a
+                // Load updates set delay/counter to one; the fade-in spends a
                 // counter-only update between brightness writes.
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
@@ -850,7 +850,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve transfer's step.</summary>
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
-    /// <summary>Runs the tank subdispatcher before its D-pad response.</summary>
+    /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
     {
         if (SelectedControl == PauseEquipmentControls.ReserveMode)

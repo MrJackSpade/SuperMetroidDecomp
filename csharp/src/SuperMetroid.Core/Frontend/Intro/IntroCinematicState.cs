@@ -251,7 +251,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // beam's pictures.
 
         // The loads above are invisible: the intro stays black until its fade.
-        // The setup dispatch itself runs as the next dispatch's cinematic phase.
+        // The setup update itself runs as the next update's cinematic phase.
         Phase = IntroCinematicPhase.Initial;
     }
 
@@ -344,7 +344,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
-                // The fade-out installs page one's setup, which runs in the next dispatch.
+                // The fade-out installs page one's setup, which runs in the next update.
                 if (fade.AdvanceSlowFadeOut(ref brightness))
                     Phase = IntroCinematicPhase.SetupPageOne;
                 break;
@@ -519,7 +519,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             }
         }
 
-        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the intro shows her.
+        // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
         if (CurrentFlashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             // The intro demo's input phase refreshes the live radius before projectiles and movement.
@@ -528,7 +528,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             // Samus's update for her current state runs the demo input,
             // after the cinematic phase, so a demo loaded by the scene setup plays its first
-            // entry in the same dispatch, ahead of the Samus pose input that consumes it.
+            // entry in the same update, ahead of the Samus pose input that consumes it.
             if (CurrentFlashbackDemoInput is not null)
                 StepMotherBrainDemo();
 
@@ -544,7 +544,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 frameCounter,
                 crossfadeCounter.RemainingFrames);
             // Deleting Mother Brain after the page-two crossfade hides Samus from
-            // the next dispatch on.
+            // the next update on.
             if (!CurrentFlashbackMotherBrain.IsVisible)
                 flashbackSamusDisplay = IntroSamusDisplay.Hidden;
             if (CurrentFlashbackMotherBrain.TakeMissileHit(flashbackProjectiles.EnemyImpacts, flashbackBombProjectiles))
@@ -574,7 +574,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
 
         // The cinematic sprites update after the cinematic phase, so the
-        // actors a scene setup spawns take their first step in that same dispatch.
+        // actors a scene setup spawns take their first step in that same update.
         CurrentBabyDiscovery?.Step(frameCounter, crossfadeCounter.RemainingFrames);
         CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
 
@@ -882,12 +882,12 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageFiveCrossfade() =>
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFiveText);
 
-    /// <summary>Seeds the final narration page's timer, preserving the English/Japanese dispatch difference.</summary>
+    /// <summary>Seeds the final narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
     private void SetupPageSix()
     {
         // Page five's setup seeds the intro crossfade counter, which turns the page and deletes the Japanese text's
         // next-page arrow. English falls straight through into page six; Japanese text selects page six as the next
-        // dispatch's cinematic phase.
+        // update's cinematic phase.
         introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Objects.AcceptPageTurn();
         if (subtitles.Enabled)
@@ -926,7 +926,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
-        // movement recorded in its own dispatch.
+        // movement recorded in its own update.
         SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }

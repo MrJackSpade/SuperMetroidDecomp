@@ -90,7 +90,7 @@ internal sealed class IntroCeresFlightState
         objects = new ScreenSprites();
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
-        // The display setup itself runs as the next dispatch's cinematic phase.
+        // The display setup itself runs as the next update's cinematic phase.
         Phase = IntroCeresFlightPhase.Initial;
     }
 
@@ -112,13 +112,13 @@ internal sealed class IntroCeresFlightState
         Backdrop = artwork.Backdrop;
     }
 
-    /// <summary>Current cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
+    /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
-    /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one dispatch.</summary>
+    /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
         switch (Phase)
@@ -374,7 +374,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
-    /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
+    /// <summary>Lowers brightness every other update until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
         // The fade step seeds both fade delays with one. The fade-out therefore removes one brightness level every

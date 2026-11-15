@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Frontend;
 /// them to step a <see cref="ScreenBrightness"/>.
 /// </summary>
 /// <remarks>
-/// Each call is one dispatch. A nonnegative decremented counter consumes the call
+/// Each call is one update. A nonnegative decremented counter consumes the call
 /// without changing brightness; otherwise the counter reloads from the delay and brightness
-/// moves one step. A delay of one therefore changes brightness on every second dispatch.
+/// moves one step. A delay of one therefore changes brightness on every second update.
 /// The brightness stays with its screen owner; this type owns only the timing values.
 /// </remarks>
 public sealed class ScreenFade
 {
     /// <summary>
-    /// Dispatches skipped between brightness steps. The slow cinematic fades count it down themselves, from at most
+    /// Updates skipped between brightness steps. The slow cinematic fades count it down themselves, from at most
     /// <see cref="LongestSlowDelay"/>.
     /// </summary>
     public WrappingCountdown Delay { get; private set; }
@@ -27,14 +27,14 @@ public sealed class ScreenFade
     public const int LongestSlowDelay = 127;
 
     /// <summary>
-    /// Dispatches remaining before the next brightness step: a wrapping countdown; whether it reads as negative after the decrement
-    /// decides whether the dispatch steps brightness.
+    /// Updates remaining before the next brightness step: a wrapping countdown; whether it reads as negative after the decrement
+    /// decides whether the update steps brightness.
     /// </summary>
     public WrappingCountdown Counter { get; private set; }
 
     /// <summary>Stores both fade counters, as menu setup does before a fade.</summary>
-    /// <param name="delay">The dispatches each brightness step waits, 0 through 65535.</param>
-    /// <param name="counter">The dispatches before the first brightness step, 0 through 65535.</param>
+    /// <param name="delay">The updates each brightness step waits, 0 through 65535.</param>
+    /// <param name="counter">The updates before the first brightness step, 0 through 65535.</param>
     public void SetTiming(int delay, int counter)
     {
         Delay = WrappingCountdown.Start(delay);
@@ -42,7 +42,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// One dispatch of fading in, one level brighter up to fully lit; a blanked screen comes back at level
+    /// One update of fading in, one level brighter up to fully lit; a blanked screen comes back at level
     /// one. Completion is reaching <see cref="ScreenBrightness.FullyLit"/>.
     /// </summary>
     public void FadeIn(ref ScreenBrightness brightness)
@@ -54,7 +54,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// One dispatch of fading out. The step down from level one blanks the screen, which is the fade's
+    /// One update of fading out. The step down from level one blanks the screen, which is the fade's
     /// completion (<see cref="ScreenBrightness.IsBlanked"/>); an unblanked level zero stays where it is.
     /// </summary>
     public void FadeOut(ref ScreenBrightness brightness)
@@ -68,7 +68,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// One cinematic dispatch of fading in slowly. Returns
+    /// One cinematic update of fading in slowly. Returns
     /// true when this call reached full brightness.
     /// </summary>
     /// <remarks>
@@ -92,7 +92,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// One cinematic dispatch of fading out slowly. Returns
+    /// One cinematic update of fading out slowly. Returns
     /// true once brightness is zero (the screen is blanked on that call).
     /// </summary>
     public bool AdvanceSlowFadeOut(ref ScreenBrightness brightness)
@@ -118,7 +118,7 @@ public sealed class ScreenFade
     private bool ConsumeSlowDelay()
     {
         if (!Delay.IsNegative && Delay.IsAtLeast(LongestSlowDelay + 1))
-            throw new InvalidOperationException($"A slow fade counts a delay of at most {LongestSlowDelay} dispatches, not {Delay}.");
+            throw new InvalidOperationException($"A slow fade counts a delay of at most {LongestSlowDelay} updates, not {Delay}.");
         CountdownStep step = Delay.Decrement();
         Delay = step.Remaining;
         return !step.IsZeroOrNegative;
@@ -134,7 +134,7 @@ public sealed class ScreenFade
         Counter = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Counts the delay down, wrapping below zero; returns true when this dispatch only counts down.</summary>
+    /// <summary>Counts the delay down, wrapping below zero; returns true when this update only counts down.</summary>
     private bool ConsumeCounter()
     {
         CountdownStep step = Counter.Decrement();

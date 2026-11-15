@@ -90,13 +90,13 @@ internal sealed class IntroBabyDiscoveryState
     private bool samusUpdateStopped;
 
     /// <summary>
-    /// Samus, her demo input and the cinematic sprite objects for one dispatch. All run after
-    /// the cinematic phase, so the setup dispatch already plays the demo's first
+    /// Samus, her demo input and the cinematic sprite objects for one update. All run after
+    /// the cinematic phase, so the setup update already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
     public void Step(int frameCounter, int introCrossfadeTimer)
     {
-        // The cinematic step runs Samus's handlers, ahead of the sprite pass, only while the intro shows her.
+        // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusUpdateStopped)
         {
             // The demo's pose input runs the demo input object inside Samus's
@@ -105,12 +105,12 @@ internal sealed class IntroBabyDiscoveryState
                 CheckDemoPhase(introCrossfadeTimer);
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
-            // before this dispatch's movement records new distances.
+            // before this update's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end cue read above already stopped Samus's update, so this
-            // dispatch skips Samus's movement and animation.
+            // update skips Samus's movement and animation.
             if (!samusUpdateStopped)
             {
                 // The intro-demo input phase publishes the current pose's collision radius

@@ -96,20 +96,20 @@ internal sealed class DownwardGateBehavior
         ResumeDownwardGate(projectile);
     }
 
-    /// <summary>Moves the gate one block at a time with signed 1/256-pixel motion.</summary>
+    /// <summary>
+    /// Moves the gate at its speed, a whole pixel an update, and shows its next place each time it has moved a block.
+    /// </summary>
     internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
-        int speedMagnitude = Math.Abs(projectile.Velocity.Y.InTwoHundredFiftySixthsOfPixel);
-        int travelled = gate.TravelSinceBlock + speedMagnitude;
-        if (travelled >= DownwardGateDefinitions.OneBlockDistance)
+        int moved = gate.PixelsSinceBlock + projectile.Velocity.Y.MagnitudeWholePixels;
+        if (moved >= DownwardGateDefinitions.PixelsPerRoomBlock)
         {
-            // Steps the animation past its rest, which wakes the next visual frame
-            // on this same enemy-projectile pass.
+            // The gate's next place shows on this same enemy-projectile pass.
             ResumeDownwardGate(projectile);
-            travelled = 0;
+            moved = 0;
         }
-        gate.TravelSinceBlock = travelled;
+        gate.PixelsSinceBlock = moved;
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
@@ -119,10 +119,10 @@ internal sealed class DownwardGateBehavior
     /// </summary>
     private static void ResumeDownwardGate(EnemyProjectile projectile)
     {
-        DownwardGateProjectileSegment sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
+        DownwardGateProjectileSegment resting = projectile.Animation is DownwardGateProjectileAnimation gate
             ? gate.PlayingSegment
-            : throw new InvalidOperationException($"A downward gate resumed without its typed program; it runs {projectile.Animation}.");
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));
+            : throw new InvalidOperationException($"A downward gate resumed without its animation; it runs {projectile.Animation}.");
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[resting]));
     }
 
     /// <summary>Carries out one cue of the gate's animations.</summary>

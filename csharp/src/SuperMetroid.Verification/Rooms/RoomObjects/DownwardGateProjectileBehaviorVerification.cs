@@ -39,10 +39,10 @@ internal static class DownwardGateProjectileBehaviorVerification
                 DownwardGateProjectileNativeListAddresses.Entry(current), 3, current.ToString());
             if (deleted)
                 break;
-            current = gate.Animation is DownwardGateProjectileAnimation sleeping
-                ? sleeping.PlayingSegment
-                : throw new InvalidOperationException("The gate lost its typed program.");
-            gate.StateOf<DownwardGateState>().TravelSinceBlock = DownwardGateDefinitions.OneBlockDistance - 1;
+            current = gate.Animation is DownwardGateProjectileAnimation resting
+                ? resting.PlayingSegment
+                : throw new InvalidOperationException("The gate lost its animation.");
+            gate.StateOf<DownwardGateState>().PixelsSinceBlock = DownwardGateDefinitions.PixelsPerRoomBlock - 1;
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.Resumption[current];

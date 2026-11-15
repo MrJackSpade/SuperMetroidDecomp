@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Harness;
 internal static class RetailPresentationFixtureVerification
 {
     /// <summary>A new message box state; what it shows is laid out from <see cref="RetailMessageFixture"/>.</summary>
-    internal static GameplayMessageBoxState CreateGameplayMessageFixture() => new(new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence());
+    internal static GameplayMessageBoxState CreateGameplayMessageFixture() => new(new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence(), new SuperMetroid.Core.Compatibility.MessageBoxPauses());
 
     /// <summary>The installed title, panel and notice artwork the message box images are composed from.</summary>
     internal static GameplayMessageArtwork RetailMessageFixture() => RetailImportPresentationFixture().Messages;

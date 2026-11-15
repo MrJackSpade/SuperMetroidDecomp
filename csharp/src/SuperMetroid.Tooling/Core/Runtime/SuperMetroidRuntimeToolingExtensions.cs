@@ -45,6 +45,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                     {
                         UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                         SaveChoiceInput = new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence(),
+                        MessageBoxPauses = new SuperMetroid.Core.Compatibility.MessageBoxPauses(),
                         // A tooling runtime is its session's first game, whose camera starts with no fractions, as power-on leaves them.
                         CameraFractions = new SuperMetroid.Core.Compatibility.CameraFractionsKeptAcrossGames(),
                     },

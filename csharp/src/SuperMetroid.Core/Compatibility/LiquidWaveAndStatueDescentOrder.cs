@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// and every decision later drawn from the random sequence, depend on that order.
 /// </summary>
 /// <remarks>
-/// Consulted at the start of every update that draws a random number without a message box (gameplay, a message box's
-/// restoring update, the door transition's waits and fades, and the update before the pause screen opens), before the
+/// Consulted at the start of every update that draws a random number without a message box (gameplay, one update of a
+/// message box's pause after closing, the door transition's waits and fades, and the update before the pause screen opens), before the
 /// draw. Stopped by the door transition after the draw of the update that reads the door; resumed when the destination
 /// room has loaded. Evidence: the original main loop advances the room's liquid wave and statue descent
 /// (<c>$88:84B9</c>) and then draws its random number (<c>$82:894F</c>) on every pass; the routine that reads the door's

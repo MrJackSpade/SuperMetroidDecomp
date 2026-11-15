@@ -27,7 +27,7 @@ internal static class GameplayMessageNoticesVerification
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
             installed.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             comparedWords += installed.Tilemap(stockMessages).Length;
 

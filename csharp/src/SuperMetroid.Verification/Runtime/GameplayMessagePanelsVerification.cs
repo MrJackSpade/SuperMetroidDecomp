@@ -27,7 +27,7 @@ internal static class GameplayMessagePanelsVerification
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
             installed.Begin(id, 0,
                 SuperMetroid.Core.Input.ControllerBindings.Default with { Shoot = ControllerButton.B, Dash = ControllerButton.Y });
             BackgroundTile[] words = installed.Tilemap(stockMessages);

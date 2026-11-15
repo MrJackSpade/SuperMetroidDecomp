@@ -513,13 +513,13 @@ internal static class CollectiblesVerification
     {
         var bus = new TestAddressSpace();
         GameplayMessageArtwork messages = CreatePermanentMessageFixture();
-        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
 
         message.Begin(GameplayMessageId.EnergyTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
         // dispatch that opened the box.
-        AssertEqual(GameplayMessageBoxPhase.Preparing, message.Phase,
-            "item message prepares the PPU, tilemap and HDMA before opening");
+        AssertEqual(GameplayMessageBoxPhase.PausedBeforeOpening, message.Phase,
+            "item message pauses gameplay before opening");
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
         {
             message.Step(0);
@@ -568,7 +568,7 @@ internal static class CollectiblesVerification
                 $"item message closing radius frame {closingFrame}");
         }
         // $85:80AA-$80B4: tilemap clear, Restore_PPU's two waits, two music/sound frames.
-        AssertEqual(GameplayMessageBoxPhase.Restoring, message.Phase, "item message restores the PPU");
+        AssertEqual(GameplayMessageBoxPhase.PausedAfterClosing, message.Phase, "item message pauses gameplay after closing");
         MessageBoxFrameAudio[] restoringAudio =
         [
             MessageBoxFrameAudio.MusicAndSounds,
@@ -604,7 +604,7 @@ internal static class CollectiblesVerification
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name.
-        message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+        message = new GameplayMessageBoxState(new SaveChoiceInputCadence(), new MessageBoxPauses());
         message.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);

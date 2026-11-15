@@ -72,7 +72,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             stockState.StepBabyDiscoveryCrossfade();
         AssertEqual(IntroCinematicPhase.BabyDiscovery, stockState.Phase,
             "discovery actor visual probe reached the lit gameplay palette");
-        (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
+        (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, crossfadeFinishing: false);
         _ = stockState.RenderArtwork();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread nineteen native spritemaps");

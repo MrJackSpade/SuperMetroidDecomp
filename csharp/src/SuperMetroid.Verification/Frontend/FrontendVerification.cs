@@ -399,10 +399,10 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // removes four on an odd frame, oscillating around eight rather than around zero.
     for (int hit = 0; hit < 4; hit++)
         motherBrain.RecordMissileHit();
-    motherBrain.RunBehavior(cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    motherBrain.RunBehavior(cinematicFrameCounter: 2, crossfadeFinishing: false);
     AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunBehavior(cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunBehavior(cinematicFrameCounter: 3, crossfadeFinishing: false);
     AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
     AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
@@ -411,7 +411,8 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 }
 
 /// <summary>
-/// Checks the opening's crossfade and its fixed-point fade rounding over 32 steps (#1512, #1597): the level each scene
+/// Checks the opening's crossfade and its fixed-point fade rounding over 32 steps (#1512, #1597), each taken on every fourth
+/// update, and the update it finishes on (#1980): the level each scene
 /// shows as the narration crossfades into the flashback and back, the shades of those levels the scene pictures name, and
 /// the colour the flashback's level shows for a colour of channel four, where the rounding boundary is easy to see.
 /// </summary>
@@ -420,7 +421,7 @@ internal static void VerifyIntroCrossfade()
     var target = new RgbColor(33, 33, 33);
     var crossfade = new IntroCrossfade();
     AssertTrue(crossfade.SceneShading.IsStandard, "every scene starts at full, so the scene pictures name no fade shade");
-    AssertThrows<InvalidOperationException>(crossfade.Step, "the opening cannot step a crossfade it has not started");
+    AssertThrows<InvalidOperationException>(() => crossfade.Advance(), "the opening cannot run a crossfade it has not started");
 
     // The Mother Brain setup starts the flashback black while the narration shows at full.
     crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -432,26 +433,34 @@ internal static void VerifyIntroCrossfade()
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
     // so the first seven steps remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        crossfade.Step();
+        StepOnce(crossfade);
     AssertEqual(RgbColor.Black, Shown(crossfade), "8.8 cinematic fade preserves early rounding");
-    crossfade.Step();
+    StepOnce(crossfade);
     AssertEqual(new RgbColor(8, 8, 8), Shown(crossfade), "eighth fade step reaches component one");
     AssertTrue(crossfade.SceneShading.Shades.SequenceEqual(
             [IntroShades.Faded(IntroCrossfadeScene.Narration, IntroCrossfade.Levels - 8), IntroShades.Faded(IntroCrossfadeScene.Flashback, 8)]),
         "the scene pictures name the shade of each moving scene's current level");
     AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Laboratory), "a scene the crossfade does not move shows at full");
 
-    for (int step = 8; step < IntroCrossfade.Levels; step++)
-        crossfade.Step();
+    for (int step = 8; step < IntroCrossfade.Levels - 1; step++)
+        StepOnce(crossfade);
+    // The last step's four updates: the crossfade finishes on the third, which retires the actors it times, and ends on
+    // the fourth as its last step shows (#1980).
+    for (int update = 0; update < 2; update++)
+        AssertTrue(crossfade.Advance() is { Finishing: false, Ended: false }, "the last step's first updates neither finish nor end the crossfade");
+    AssertTrue(crossfade.Advance() is { Finishing: true, Ended: false, From: IntroCrossfadeScene.Narration, To: IntroCrossfadeScene.Flashback },
+        "the crossfade finishes on the update before its last");
+    AssertEqual(IntroCrossfade.Levels - 1, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "the finishing update shows the crossfade's last step still to come");
+    AssertTrue(crossfade.Advance() is { Finishing: false, Ended: true }, "the crossfade ends on its last update");
     AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "32 steps reach the flashback's installed colours");
     AssertTrue(crossfade.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroCrossfadeScene.Narration, 0)]),
         "32 steps leave only the narration's black shade");
-    AssertThrows<InvalidOperationException>(crossfade.Step, "a crossfade takes no step past its last");
+    AssertThrows<InvalidOperationException>(() => crossfade.Advance(), "a crossfade runs no update past its last");
 
     // The page-two setup crossfades back: the narration starts black and the flashback at full.
     crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
     for (int step = 0; step < IntroCrossfade.Levels; step++)
-        crossfade.Step();
+        StepOnce(crossfade);
     AssertEqual(0, crossfade.LevelOf(IntroCrossfadeScene.Flashback), "32 steps fade the flashback to black");
     AssertEqual(IntroCrossfade.Levels, crossfade.LevelOf(IntroCrossfadeScene.Narration), "32 steps restore the narration");
     AssertThrows<ArgumentException>(() => _ = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Laboratory),
@@ -459,6 +468,13 @@ internal static void VerifyIntroCrossfade()
 
     RgbColor Shown(IntroCrossfade shown) =>
         new ColourLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels).Apply(target);
+
+    // A crossfade takes a step every fourth update, counted down to its last.
+    static void StepOnce(IntroCrossfade running)
+    {
+        for (int update = 0; update < IntroCinematicDefinitions.Crossfade.StepFrames; update++)
+            _ = running.Advance();
+    }
 }
 
 /// <summary>Checks the Mother Brain flashback's typed demo program: held and new input edges, record timing and its end routine.</summary>

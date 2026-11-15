@@ -16,11 +16,9 @@ internal static class CinematicSpriteNativeListAddresses
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShaking, 0xcb43),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggRemnantsSettling, 0xcb79),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggHatched, 0xcb97),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDelivered, 0xcb9f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDeliveredLoop, 0xcba3),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDelivered, 0xcba3),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidDelivered, 0xcbb9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExamined, 0xcbcd),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExaminedLoop, 0xcbd1),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExamined, 0xcbd1),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidExamined, 0xcbe7),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroTextCaret, 0xcbfb),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroTextCaretBlink, 0xcc03),
@@ -35,10 +33,8 @@ internal static class CinematicSpriteNativeListAddresses
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesTitle, 0xccbb),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesJapaneseTitle, 0xccd5),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresSmallExplosion, 0xccdb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosion, 0xccf5),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosionLoop, 0xccf9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosion, 0xcd1b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosionLoop, 0xcd1f),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosion, 0xccf9),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosion, 0xcd1f),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellUpperLeft, 0xcd39),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellUpperRight, 0xcd41),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellLeft, 0xcd49),
@@ -60,9 +56,7 @@ internal static class CinematicSpriteNativeListAddresses
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresStationBlast, 0xce1b),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresExplosionSpawner, 0xce35),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeAsteroid, 0xce4b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.Delete, 0xce53),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanet, 0xeb0f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanetLoop, 0xeb13),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanet, 0xeb13),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionGlow, 0xeb3d),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionStars, 0xeb51),
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionLava, 0xeb59),
@@ -124,6 +118,19 @@ internal static class CinematicSpriteNativeListAddresses
         new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoLowerCircleLoop, 0xee93),
     ];
 
+    /// <summary>
+    /// The native counter loads that start the counted animations (#1978): each loads the count its segment's first phase
+    /// plays and runs on into that segment's list, which the typed animation counts itself.
+    /// </summary>
+    internal static readonly CinematicSpriteNativeListAddressesEntry[] CounterPreambles =
+    [
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDelivered, 0xcb9f),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExamined, 0xcbcd),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosion, 0xccf5),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosion, 0xcd1b),
+        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanet, 0xeb0f),
+    ];
+
     /// <summary>The cinematic sprite lists' bank.</summary>
     internal const byte Bank = 0x8b;
 
@@ -135,6 +142,13 @@ internal static class CinematicSpriteNativeListAddresses
 
     /// <summary>The native list <paramref name="program"/> replaces.</summary>
     internal static ushort Entry(CinematicSpriteSegment program) => Entries.Single(item => item.Program == program).Entry;
+
+    /// <summary>
+    /// Where the native animation that starts at <paramref name="program"/> begins, the address an actor's definition
+    /// names: its counter load where one precedes its list, else its list.
+    /// </summary>
+    internal static ushort Start(CinematicSpriteSegment program) =>
+        CounterPreambles.SingleOrDefault(item => item.Program == program) is { Entry: not 0 } preamble ? preamble.Entry : Entry(program);
 
     /// <summary>Each owner instruction the lists use and the cue it becomes.</summary>
     internal static readonly Dictionary<ushort, CinematicSpriteCueKind> OwnerInstructions = new()

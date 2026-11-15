@@ -6,6 +6,9 @@ public static class TitleSpriteDefinitions
     /// <summary>The title sheet's frame for <paramref name="sprite"/>.</summary>
     public static string FrameName(TitleSprite sprite) => $"Title.{sprite}";
 
-    /// <summary>The title sheet's frame for glyph <paramref name="glyph"/> of the card <paramref name="card"/> shows (#1513).</summary>
-    public static string GlyphFrameName(TitleSequencePhase card, int glyph) => $"Title.{card}.Glyph{glyph}";
+    /// <summary>
+    /// The title sheet's frame for the letter <paramref name="typed"/> types: the last of its card's letters it shows
+    /// (#1513, #1979).
+    /// </summary>
+    public static string LetterFrameName(TitleCardTyping typed) => $"Title.{typed.Card}.Letter{typed.Letters}";
 }

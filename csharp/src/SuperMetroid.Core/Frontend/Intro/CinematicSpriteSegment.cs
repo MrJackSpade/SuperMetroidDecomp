@@ -19,16 +19,12 @@ internal enum CinematicSpriteSegment
     MetroidEggRemnantsSettling,
     /// <summary>The hatched egg.</summary>
     MetroidEggHatched,
-    /// <summary>The Baby Metroid being delivered.</summary>
+    /// <summary>The Baby Metroid being delivered: its pulse, played ten times before the fourth page starts.</summary>
     BabyMetroidBeingDelivered,
-    /// <summary>The delivered Baby Metroid's counted loop before the fourth page.</summary>
-    BabyMetroidBeingDeliveredLoop,
     /// <summary>The delivered Baby Metroid.</summary>
     BabyMetroidDelivered,
-    /// <summary>The Baby Metroid being examined.</summary>
+    /// <summary>The Baby Metroid being examined: its pulse, played ten times before the fifth page starts.</summary>
     BabyMetroidBeingExamined,
-    /// <summary>The examined Baby Metroid's counted loop before the fifth page.</summary>
-    BabyMetroidBeingExaminedLoop,
     /// <summary>The examined Baby Metroid.</summary>
     BabyMetroidExamined,
     /// <summary>The intro text caret.</summary>
@@ -57,14 +53,10 @@ internal enum CinematicSpriteSegment
     ZebesJapaneseTitle,
     /// <summary>Ceres's first delayed small explosion.</summary>
     CeresSmallExplosion,
-    /// <summary>Ceres's repeating small explosion.</summary>
+    /// <summary>Ceres's repeating small explosion: a small explosion and a pause, played six times.</summary>
     CeresRepeatingSmallExplosion,
-    /// <summary>The repeating part of CeresRepeatingSmallExplosion.</summary>
-    CeresRepeatingSmallExplosionLoop,
-    /// <summary>Ceres's final large explosion.</summary>
+    /// <summary>Ceres's final large explosion: a large blast and a pause, played seven times.</summary>
     CeresLargeExplosion,
-    /// <summary>The repeating part of CeresLargeExplosion.</summary>
-    CeresLargeExplosionLoop,
     /// <summary>The piece at the upper left of the hatched egg's shell.</summary>
     MetroidEggShellUpperLeft,
     /// <summary>The piece at the upper right of the hatched egg's shell.</summary>
@@ -107,12 +99,8 @@ internal enum CinematicSpriteSegment
     CeresExplosionSpawner,
     /// <summary>The Ceres flight's large asteroid.</summary>
     CeresLargeAsteroid,
-    /// <summary>Deletes the actor.</summary>
-    Delete,
-    /// <summary>The exploding planet.</summary>
+    /// <summary>The exploding planet: its rumble, played five times, then its breaking apart.</summary>
     ZebesExplosionPlanet,
-    /// <summary>The repeating part of ZebesExplosionPlanet.</summary>
-    ZebesExplosionPlanetLoop,
     /// <summary>The explosion's purple glow.</summary>
     ZebesExplosionGlow,
     /// <summary>The explosion's stars.</summary>

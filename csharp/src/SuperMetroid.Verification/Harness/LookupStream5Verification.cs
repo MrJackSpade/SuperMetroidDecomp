@@ -1427,10 +1427,10 @@ internal static class LookupStream5Verification
             var layout = CeresDestructionActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresDestructionActorRole, CeresDestructionActorPlacement>(role => layout[role], layout.ContentIdentity);
         }, value => value.Role, value => new LookupStream5Field(value.Role.ToString(), value.X, value.Y));
-        // #1627: the layouts hold signed screen pixels. A placement left of the screen stands at its wrapped screen position,
+        // #1627, #1974: the layouts hold signed screen pixels. A placement left of the screen stands at a negative screen X,
         // the signed range's ends are accepted and a coordinate past either end is rejected.
         CeresFlightActorPlacement left = flight[0] with { X = -32 };
-        AssertEqual(65504, (int)left.Position.X, "a placement 32 pixels left of the screen stands at its wrapped screen position");
+        AssertEqual(-32, (int)left.Place.X, "a placement 32 pixels left of the screen stands at a negative screen X");
         _ = ReadFlight([flight[0] with { X = -32768, Y = 32767 }, .. flight[1..]]);
         AssertThrows<InvalidDataException>(() => ReadFlight([flight[0] with { X = 32768 }, .. flight[1..]]), "a coordinate past the signed range's top is rejected");
         AssertThrows<InvalidDataException>(() => ReadFlight([flight[0] with { Y = -32769 }, .. flight[1..]]), "a coordinate past the signed range's bottom is rejected");

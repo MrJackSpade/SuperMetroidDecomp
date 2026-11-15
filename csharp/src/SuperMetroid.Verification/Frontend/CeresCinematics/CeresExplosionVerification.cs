@@ -20,7 +20,8 @@ internal static class CeresExplosionVerification
         ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledPowerBombGlowColors stockColors = colors ?? PowerBombGlowColorFile.Read(
             new MemoryStream(PowerBombGlowColorExtractor.Extract(bus)));
-        var scene = new CeresDestructionCinematicState(glowColors: stockColors, artwork: artwork.BoundCatalog,
+        var audio = AudioQueues.Standalone();
+        var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
         var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
         var phases = new HashSet<PowerBombExplosionPhase>();
@@ -32,7 +33,7 @@ internal static class CeresExplosionVerification
             // only when C345 transfers the station map and switches flight handler.
             reference.StepFrame();
             var previous = scene.Phase;
-            scene.Step();
+            { scene.Step(); audio.AdvanceFrame(default); }
             if (previous == CeresDestructionPhase.ApproachExplosion &&
                 scene.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
             {

@@ -80,9 +80,13 @@ internal static class CinematicScreenPublicationVerification
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.FlightCharacters);
         AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
 
-        var destruction = InstalledFixtures.CreateDestruction();
+        var destructionAudio = AudioQueues.Standalone();
+        var destruction = InstalledFixtures.CreateDestruction(destructionAudio);
         for (int frame = 0; frame < 600; frame++)
+        {
             destruction.Step();
+            destructionAudio.AdvanceFrame(default);
+        }
         FramePaint shown = destruction.CaptureRenderSnapshot().Paint;
         byte[] shownVram = destruction.ShownVram();
         var restoredDestruction = RoundTrip(destruction);

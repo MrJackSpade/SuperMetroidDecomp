@@ -47,10 +47,10 @@ internal sealed class IntroEggParticle
         // The piece flies sideways at its own speed and vertically at its fall's speed for the updates it has flown.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
         AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentFallSpeed(framesFallen, fallPastCurve));
-        if (CoordinateAxis.Difference(sprite.WholePosition.Y, IntroEggMotionDefinitions.FragmentFloorY) >= 0)
+        if (sprite.ScreenPlace.Y >= IntroEggMotionDefinitions.FragmentFloorY)
         {
-            // The landed piece starts the one-step delete animation, which plays later in this same update.
-            sprite.Start(CinematicSpriteSegment.Delete);
+            // The landed piece is gone from this update on.
+            sprite.Delete();
         }
         else
         {

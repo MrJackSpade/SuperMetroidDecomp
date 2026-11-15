@@ -610,7 +610,7 @@ internal static class MapPresentationVerification
     {
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
-        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus)[TitleSprite.YearReveal1],
+        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleSequencePhase.YearText, 1)],
             "the year's first letter is the year card's first listed spritemap");
     }
 

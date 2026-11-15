@@ -186,21 +186,21 @@ internal static class TitleSequenceRomDataVerification
                 break;
             }
             WriteRomWord(rom, pointer, checked((ushort)step.Duration));
-            WriteRomWord(rom, pointer + sizeof(ushort), step.Sprite is { } sprite
-                ? ConstructedSpritemap(sprite) : FrontendSourceDefinitions.TitleBlankSpritemap);
+            WriteRomWord(rom, pointer + sizeof(ushort), step.Typed is { } typed
+                ? ConstructedSpritemap(typed) : FrontendSourceDefinitions.TitleBlankSpritemap);
             pointer += TitleSourceDefinitions.TimedEntryByteCount;
         }
     }
 
     /// <summary>
-    /// A distinct synthetic spritemap for one card composition in the constructed ROM: consecutive empty words
-    /// after the copyright spritemap, so every composition decodes as blank artwork.
+    /// A distinct synthetic spritemap for one card typing step in the constructed ROM: consecutive empty words after the
+    /// copyright spritemap, so every step decodes as blank artwork.
     /// </summary>
-    private static ushort ConstructedSpritemap(TitleSprite sprite)
+    private static ushort ConstructedSpritemap(TitleCardTyping typed)
     {
-        int ordinal = TitleGraphicsFormat.Sprites.ToList().IndexOf(sprite);
+        int ordinal = TitleGraphicsFormat.Typings.ToList().IndexOf(typed);
         if (ordinal < 0)
-            throw new ArgumentOutOfRangeException(nameof(sprite), sprite, "Undefined title composition.");
+            throw new ArgumentOutOfRangeException(nameof(typed), typed, "Undefined title card typing.");
         return checked((ushort)(FrontendSourceDefinitions.TitleCopyrightSpritemap + sizeof(ushort) * (1 + ordinal)));
     }
 }

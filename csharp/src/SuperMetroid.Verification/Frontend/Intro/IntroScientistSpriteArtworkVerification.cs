@@ -63,7 +63,7 @@ internal static class IntroScientistSpriteArtworkVerification
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroScientistSprites);
         var examination = IntroScientistCutsceneState.CreateExamination();
-        examination.Step(0, introCrossfadeTimer: 0x007f);
+        examination.Step(new IntroCrossfadeTick(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, 0));
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
         examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.Sprites.Scientist));

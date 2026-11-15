@@ -52,7 +52,8 @@ internal static class CinematicSnapshotTestsVerification
         AssertTrue(flight.Finished && coloredRearView, "flight fixture completes and exercises nonzero fixed color");
         AssertTrue(flightPhases.Contains(IntroCeresFlightPhase.SpaceColonyTitle), "flight caption captured");
         Console.WriteLine($"  Ceres flight snapshots: {flightSamples} samples across {flightPhases.Count} phases match, including fixed-color rear view.");
-        var destruction = CreateRetailDestructionFixture();
+        var destructionAudio = AudioQueues.Standalone();
+        var destruction = CreateRetailDestructionFixture(destructionAudio);
         var phases = new HashSet<CeresDestructionPhase>();
         int samples = 0;
         bool mode1 = false, mode7 = false, explosionWindow = false, explosionCoversTop = false;
@@ -75,11 +76,11 @@ internal static class CinematicSnapshotTestsVerification
                         window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.Radii.Y <= 0;
                 }
                 AssertTrue(ScenePixels.Same(destruction.CaptureRenderSnapshot(), snapshot), $"Ceres destruction snapshot tick {tick} shows the live scene's pixels");
-                destruction.Step();
+                { destruction.Step(); destructionAudio.AdvanceFrame(default); }
                 Survives(held, snapshot, tick);
                 samples++;
             }
-            else destruction.Step();
+            else { destruction.Step(); destructionAudio.AdvanceFrame(default); }
         }
         AssertTrue(destruction.Finished, "destruction snapshot fixture completes");
         AssertTrue(mode1 && mode7, "destruction captures both PPU modes");

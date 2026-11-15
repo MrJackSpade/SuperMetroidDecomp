@@ -15,9 +15,9 @@ public static class IntroCinematicDefinitions
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
     public static class Crossfade
     {
-        /// <summary>The crossfade counter's starting value.</summary>
-        public const int InitialCounter = 127;
-        /// <summary>Updates per crossfade step.</summary>
+        /// <summary>The updates a crossfade counts down from before its last: it runs one update more than this.</summary>
+        public const int Updates = 127;
+        /// <summary>Updates per crossfade step: a step shows on every fourth update counted down to the last.</summary>
         public const int StepFrames = 4;
     }
 
@@ -38,8 +38,6 @@ public static class IntroCinematicDefinitions
         public const MusicTrack IntroductionSong = MusicTrack.Introduction;
         /// <summary>The queue delay the second line's and the pages' songs are requested with.</summary>
         public const int SceneTrackDelay = 14;
-        /// <summary>The countdown before the discovery scene's music begins.</summary>
-        public const int DiscoveryInitialTimer = 14;
     }
 
     /// <summary>Screen-fade cadences of the opening's scene changes.</summary>

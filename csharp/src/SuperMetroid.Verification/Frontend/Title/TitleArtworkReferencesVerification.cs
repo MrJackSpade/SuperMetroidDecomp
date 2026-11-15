@@ -19,7 +19,9 @@ internal static class TitleArtworkReferencesVerification
         var frames = TitleGraphicsFormat.Sprites
             .Select(sprite => new TitleSpriteFrame { Sprite = sprite, Parts = [] }).ToArray();
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, frames.Length,
-            "compiled title selectors require exactly 31 distinct artwork frames");
+            "compiled title selectors require the logo's and the copyright's artwork frames");
+        TitleCardFrame[] cards = [.. TitleGraphicsFormat.Typings
+            .Select(typed => new TitleCardFrame { Card = typed.Card, Letters = typed.Letters, Parts = [] })];
         var document = new TitleFloorMapDocument
         {
             Version = TitleGraphicsFormat.Version,
@@ -29,6 +31,7 @@ internal static class TitleArtworkReferencesVerification
             // sprite selectors (#1583).
             Tiles = [.. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.TitleGraphics.FloorMap.ToArray().Select(tile => (int)tile)],
             Sprites = frames,
+            Cards = cards,
         };
         byte[] mode7 = Png(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight, 256);
         byte[] objects = Png(TitleGraphicsFormat.ObjectWidth, TitleGraphicsFormat.ObjectHeight, 16);
@@ -37,6 +40,8 @@ internal static class TitleArtworkReferencesVerification
         using (var stream = new MemoryStream()) TitleGraphicsCharacters.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
             TitleSpriteDrawing.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
+        foreach (TitleCardFrame card in cards)
+            TitleSpriteDrawing.DrawCard(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), card.Typed, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.
@@ -61,7 +66,16 @@ internal static class TitleArtworkReferencesVerification
         duplicate[0] = frames[1];
         AssertThrows<InvalidDataException>(() => Load(document with { Sprites = duplicate }),
             "duplicate title identities are rejected");
-        Console.WriteLine("PASS title artwork: all 31 required selectors checked at load/write; frame ordering remains valid. No ROM or gameplay probes.");
+        // A card frame repeating another typing step leaves that step missing at an unchanged count (#1979).
+        var repeatedCard = (TitleCardFrame[])cards.Clone();
+        repeatedCard[0] = cards[1];
+        AssertThrows<InvalidDataException>(() => Load(document with { Cards = repeatedCard }),
+            "a repeated card typing step is rejected");
+        AssertThrows<InvalidDataException>(() => Load(document with { Cards = cards[..^1] }),
+            "a missing card typing step is rejected");
+        AssertThrows<InvalidDataException>(() => Load(document with { Cards = [.. cards[..^1], cards[^1] with { Letters = cards[^1].Letters + 1 }] }),
+            "a typing step past its card's text is rejected");
+        Console.WriteLine($"PASS title artwork: the {frames.Length} whole compositions and {cards.Length} card typing steps are checked at load/write; frame ordering remains valid. No ROM or gameplay probes.");
         return;
 
         TitleGraphicsCharacters Load(TitleFloorMapDocument value)

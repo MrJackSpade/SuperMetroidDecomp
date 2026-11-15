@@ -146,8 +146,8 @@ internal static class CeresColourEffectsVerification
         ushort Subtitle(int word) => cartridge.ReadCartridgeWord(SubtitleList + word * sizeof(ushort));
         AssertEqual(CinematicSpritemapSources.Of(SubtitlePose), Subtitle(1), "the subtitle's list shows the subtitle's pose");
         AssertEqual(DeleteInstruction, Subtitle(2), "the subtitle's list deletes the subtitle after its hold");
-        Position16<ScreenPixels> placed = InstalledFixtures.IntroArtwork.BoundCatalog.CeresDestruction
-            .RevealActors[ZebesRevealActorRole.JapaneseSubtitle].Position;
+        Position16<ScreenPixels> placed = Position16<ScreenPixels>.Zero + InstalledFixtures.IntroArtwork.BoundCatalog.CeresDestruction
+            .RevealActors[ZebesRevealActorRole.JapaneseSubtitle].Place;
         AssertEqual(Position16<ScreenPixels>.Wrapped(Byte(cartridge, SubtitleInit + 1) | Byte(cartridge, SubtitleInit + 2) << 8,
                 Byte(cartridge, SubtitleInit + 7) | Byte(cartridge, SubtitleInit + 8) << 8), placed,
             "the installed subtitle placement is its initializer's");
@@ -191,7 +191,8 @@ internal static class CeresColourEffectsVerification
     private static void CaptionRun(IImportCartridgeSource cartridge, CaptionTiming timing, bool japaneseText)
     {
         string text = japaneseText ? "Japanese" : "English";
-        CeresDestructionCinematicState scene = new(audio: null, InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.IntroArtwork.BoundCatalog,
+        var audio = AudioQueues.Standalone();
+        CeresDestructionCinematicState scene = new(audio, InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.IntroArtwork.BoundCatalog,
             spriteSheets: InstalledFixtures.SpriteSheets, japaneseText: japaneseText);
         SpriteSheetFrame subtitleFrame = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.ZebesRevealSprites)
             .Frame(CinematicSpriteSheet.FrameName(CinematicSpriteFamily.CeresDestruction, SubtitlePose));
@@ -203,6 +204,7 @@ internal static class CeresColourEffectsVerification
         {
             AssertTrue(update < 6_000, "the Ceres destruction reaches its end");
             scene.Step();
+            audio.AdvanceFrame(default);
             ImageSpriteDraw[] shown = [.. scene.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
                 .Where(draw => draw.Shading is { } shading && shading.Shades.Contains(drawn))];
             ImageSpriteDraw[] subtitles = [.. shown.Where(draw => ReferenceEquals(draw.Image, subtitleFrame))];
@@ -336,7 +338,8 @@ internal static class CeresColourEffectsVerification
     /// </summary>
     private static void VerifyDestructionLights(IImportCartridgeSource cartridge)
     {
-        CeresDestructionCinematicState scene = InstalledFixtures.CreateDestruction();
+        var audio = AudioQueues.Standalone();
+        CeresDestructionCinematicState scene = InstalledFixtures.CreateDestruction(audio);
         NativeColourEffectRun? lights = null;
         bool revealed = false;
         for (int update = 0; !revealed; update++)
@@ -344,6 +347,7 @@ internal static class CeresColourEffectsVerification
             AssertTrue(update < 6_000, "the Ceres destruction reaches the Zebes reveal");
             bool setUp = scene.FloorShot is not null;
             scene.Step();
+            audio.AdvanceFrame(default);
             revealed = scene.ZebesRevealed;
             if (!setUp && scene.FloorShot is not null)
                 lights = new NativeColourEffectRun(cartridge, DestructionLightsDefinition);

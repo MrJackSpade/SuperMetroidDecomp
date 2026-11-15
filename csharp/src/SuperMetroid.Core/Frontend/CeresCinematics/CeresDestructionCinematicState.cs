@@ -47,7 +47,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
-    private readonly AudioQueues? audio;
+    private readonly AudioQueues audio;
     /// <summary>
     /// What the turning floor shows (#1467), or null while it shows nothing: before the station is set up, and once the
     /// final explosion with Samus still aboard has cleared the whole floor (#1513).
@@ -82,8 +82,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// the blasts overlap them.
     /// </summary>
     private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
-    /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
-    private readonly SamusPowerBombExplosionState stationExplosion = new();
+    /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
+    private readonly CeresStationBlast stationExplosion = new();
     /// <summary>
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
@@ -136,8 +136,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
     private int revealBlockWidth = 1;
-    /// <summary>Fallback music wait when no shared audio queue is present.</summary>
-    private int musicQueueTimer = 14;
     /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
     private int initialFrameWaits;
     /// <summary>
@@ -158,7 +156,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
-    /// <param name="audio">The shared music and sound queue.</param>
+    /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
     /// <param name="outcome">
@@ -168,7 +166,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
-        AudioQueues? audio = null,
+        AudioQueues audio,
         InstalledPowerBombGlowColors? glowColors = null,
         IntroCinematicArtwork? artwork = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
@@ -178,7 +176,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         this.japaneseText = japaneseText;
         BindSpriteSheets(spriteSheets);
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
-        this.audio = audio;
+        this.audio = Ensure.NotNull(audio);
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion.PresentationColors = glowColors;
@@ -233,10 +231,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             initialFrameWaits++;
             SetupCeresDestruction();
             // Setup queues the cinematic music and the state's own track last.
-            audio?.QueueMusic(MusicRequest.Stop);
-            audio?.QueueMusic(
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-            audio?.ScheduleMusic(
+            audio.ScheduleMusic(
                 MusicRequest.SelectTrack(WithSamus
                     ? CeresDestructionSceneDefinitions.Music.CeresWithSamusTrack
                     : CeresDestructionSceneDefinitions.Music.CeresTrack),
@@ -324,7 +322,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     if (WithSamus)
                     {
-                        audio?.QueueMusic(MusicRequest.Stop);
+                        audio.QueueMusic(MusicRequest.Stop);
                         Phase = CeresDestructionPhase.Finished;
                     }
                     else
@@ -350,22 +348,22 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesA:
+            case CeresDestructionPhase.FlyingTowardZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
                     Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
                 else
-                    Phase = CeresDestructionPhase.FlyingTowardZebesB;
+                    Phase = CeresDestructionPhase.TurningTowardZebes;
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesB:
+            case CeresDestructionPhase.TurningTowardZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
                 if (Background.X.WholePixels < -128)
                 {
-                    Phase = CeresDestructionPhase.FlyingTowardZebesC;
+                    Phase = CeresDestructionPhase.ClosingInOnZebes;
                 }
                 else
                 {
@@ -375,7 +373,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesC:
+            case CeresDestructionPhase.ClosingInOnZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
@@ -449,7 +447,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             // Each actor starts at its role's installed placement (#1596).
             IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.InitialActor(role),
-                content.CeresDestruction.DestructionActors[role].Position);
+                content.CeresDestruction.DestructionActors[role].Place);
             actors.Add(actor);
             destructionActorRoles.Add(actor, role);
             if (role is CeresDestructionActorRole.SmallAsteroids or CeresDestructionActorRole.Vortex)
@@ -543,16 +541,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return revealBlockWidth == 1;
     }
 
-    /// <summary>Waits for queued music, using a fixed fallback when audio is absent.</summary>
-    private bool MusicQueueFinished() =>
-        audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
+    /// <summary>Whether the music queue has sent every request the scene queued.</summary>
+    private bool MusicQueueFinished() => !audio.HasQueuedMusic;
 
     /// <summary>Installs an authored sprite at <paramref name="start"/> with its colouring and animation.</summary>
     private static IntroDiscoverySprite CreateActor(
-        CeresDestructionActorDefinition definition, Position16<ScreenPixels> start)
+        CeresDestructionActorDefinition definition, Offset16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            start,
+            Position16<ScreenPixels>.Zero + start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
         {
@@ -569,7 +566,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "The Zebes reveal requires installed cinematic artwork.");
-        IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Position);
+        IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Place);
         revealActorRoles.Add(actor, role);
         return actor;
     }
@@ -633,19 +630,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void LoadFinalExplosionMaps() =>
         FloorShot = WithSamus ? null : CeresFloorShot.Explosion;
 
-    /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
+    /// <summary>Starts the station blast, queues its sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        // The final blast calls the ordinary enemy explosion with screen-space coordinates,
-        // before replacing the station picture. Keep its authored curves/colors/lifetime.
-        // The blast centres on the station's floor centre as the moved floor shows it on the screen.
+        // The final blast burns through the Power Bomb blast's stages before the station picture is replaced. It centres
+        // on the station's floor centre as the moved floor shows it on the screen.
         int blastX = CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels;
         int blastY = CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels;
-        stationExplosion.Spawn(Position16<RoomPixels>.Wrapped(blastX, blastY));
-        audio?.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
+        stationExplosion.Spawn(Offset16<ScreenPixels>.Of(blastX, blastY));
+        audio.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Wrapped(blastX, blastY),
+            Position16<ScreenPixels>.Zero + Offset16<ScreenPixels>.Of(blastX, blastY),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
             CeresExplosionDefinitions.StationBlastActor.Animation);
         actors.Add(cinematicExplosion);
@@ -659,7 +655,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Wrapped(
+            Position16<ScreenPixels>.Zero + Offset16<ScreenPixels>.Of(
                 CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels + placement.Offset.X,
                 CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels + placement.Offset.Y),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
@@ -705,7 +701,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + slideAcceleration;
                 slideSpeeds[actor] = slideSpeed;
                 actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(-slideSpeed.ToSixteenSixteenDelta()));
-                if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
+                if (actor.ScreenPlace.Y < -128)
                 {
                     // Each reveal object deletes itself before its screen Y,
                     // 0 through 255, can wrap below the screen. Only the lower-right stars
@@ -766,7 +762,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     Background.Y.WithWholePixels(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
-                Phase = CeresDestructionPhase.FlyingTowardZebesA;
+                Phase = CeresDestructionPhase.FlyingTowardZebes;
                 return;
 
             case CinematicSpriteCueKind.StartMotherBrainCrossFade:
@@ -900,9 +896,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Captures the active station blast's added colour as a render layer, over the whole screen.</summary>
-    private ColourAddWindowLayer? CaptureStationExplosion() =>
-        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
-            cameraPosition: Position16<RoomPixels>.Zero, firstLine: 0);
+    private ColourAddWindowLayer? CaptureStationExplosion() => stationExplosion.Capture();
 
     /// <summary>
     /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after

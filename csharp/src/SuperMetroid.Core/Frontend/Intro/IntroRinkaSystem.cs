@@ -165,8 +165,7 @@ internal sealed class IntroRinkaSystem
 
                 // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding step.
-                if (CoordinateAxis.AsSigned(sprite.WholePosition.X + 8) <
-                    CoordinateAxis.Difference(samus.Position.X.Whole, 5))
+                if (sprite.ScreenPlace.X + 8 < samus.Position.X.Whole - 5)
                 {
                     if (motherBrainExploding)
                         sprite.Delete();
@@ -181,7 +180,7 @@ internal sealed class IntroRinkaSystem
 
             case IntroRinkaFlight.MissesSamus:
                 Drift(sprite, rinka.Drift);
-                int y = CoordinateAxis.AsSigned(sprite.WholePosition.Y);
+                int y = sprite.ScreenPlace.Y;
                 if (y < 16 || y >= 208 || motherBrainExploding)
                     sprite.Delete();
                 return;

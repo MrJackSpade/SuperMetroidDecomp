@@ -147,10 +147,9 @@ internal static class FrontendSheetColouringsVerification
             TitleSequenceDefinitions.TextSequences.Nintendo, TitleSequenceDefinitions.TextSequences.Presents,
             TitleSequenceDefinitions.TextSequences.MetroidThree])
         {
-            // Each card's reveals are drawn as the glyphs typed so far, each glyph in the card's colouring.
-            int reveals = TitleCards.Steps(card.Phase).Where(step => step.Sprite is not null).Select(step => step.Sprite).Distinct().Count();
-            for (int glyph = 0; glyph < reveals; glyph++)
-                Add(sets, TitleSpriteDefinitions.GlyphFrameName(card.Phase, glyph), TitleSheetInks.SpriteSet(card.Colouring));
+            // Each card's text is drawn as the letters typed so far, each letter in the card's colouring (#1979).
+            foreach (TitleCardTyping typed in TitleCards.Typings(card.Phase))
+                Add(sets, TitleSpriteDefinitions.LetterFrameName(typed), TitleSheetInks.SpriteSet(card.Colouring));
         }
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.SuperMetroidLogo), TitleSheetInks.SpriteSet(TitleSpriteColouring.Logo));
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.NintendoCopyright), TitleSheetInks.SpriteSet(TitleSpriteColouring.Copyright));
@@ -267,8 +266,8 @@ internal static class FrontendSheetColouringsVerification
                 && shown.Shown != CinematicSpritePose.Blank)
                 Add(sets, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingReward, shown.Shown), EndingScreenInks.SpriteSet(landing));
         }
-        for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
-            AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Animation, EndingSpriteColouring.Logo);
+        foreach (EndingLogoActorDefinition actor in EndingLogoDefinitions.Actors)
+            AddProgram(sets, CinematicSpriteFamily.EndingLogo, actor.Animation, EndingSpriteColouring.Logo);
     }
 
     /// <summary>Records each reward actor's poses in the colouring its initialization gives it.</summary>

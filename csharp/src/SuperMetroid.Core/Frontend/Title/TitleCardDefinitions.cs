@@ -1,20 +1,13 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>
-/// The four title cards' typed steps: each card reveals its letters
-/// one frame at a time for eight updates, holds its final frame, then triggers its turning-floor scene and deletes itself.
-/// The extraction pipeline checks the authored animations beside these steps; <see cref="TitleCards"/> selects a card.
+/// The four title cards (#1979): each types its text one letter per eight updates, holds its whole text, then triggers
+/// its turning-floor scene and removes itself. <see cref="TitleCards"/> builds each card's steps.
 /// </summary>
 internal static class TitleCardDefinitions
 {
-    /// <summary>The opening's duration before the year's first letter, in title updates.</summary>
-    private const int OpeningFrames = 60;
-    /// <summary>Each reveal frame's duration before the final hold, in title updates.</summary>
-    private const int RevealFrames = 8;
-    /// <summary>The final hold of the year, Nintendo and Presents cards, in title updates.</summary>
-    private const int CardHoldFrames = 45;
-    /// <summary>The final hold of the Metroid 3 card, in title updates.</summary>
-    private const int MetroidThreeHoldFrames = 120;
+    /// <summary>Each letter's duration before the text's final hold, in title updates.</summary>
+    internal const int LetterFrames = 8;
 
     /// <summary>
     /// How far a card's text moves each time it types a letter (a space included): one letter's width leftward, so each new
@@ -22,61 +15,19 @@ internal static class TitleCardDefinitions
     /// </summary>
     internal static readonly Offset16<SpritePixels> TypedScroll = Offset16<SpritePixels>.Of(-8, 0);
 
-    /// <summary>The Year card's 60-update blank opening, its four letters and the scene-zero trigger.</summary>
-    internal static readonly TitleCardStep[] Year =
-    [
-        TitleCardStep.Show(OpeningFrames, null),
-        TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal1),
-        TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal2),
-        TitleCardStep.Show(RevealFrames, TitleSprite.YearReveal3),
-        TitleCardStep.Show(CardHoldFrames, TitleSprite.YearReveal4),
-        TitleCardStep.Run(TitleCardCue.StartLowerPan),
-        TitleCardStep.Run(TitleCardCue.RemoveCard),
-    ];
+    /// <summary>The year card: a 60-update blank opening, then 1994, held for 45 updates before the lower pan.</summary>
+    internal static readonly TitleCardDefinition Year =
+        new(TitleSequencePhase.YearText, "1994", OpeningFrames: 60, HoldFrames: 45, TitleCardCue.StartLowerPan);
 
-    /// <summary>The Nintendo card's eight reveals and the scene-one trigger.</summary>
-    internal static readonly TitleCardStep[] Nintendo =
-    [
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal1),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal2),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal3),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal4),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal5),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal6),
-        TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal7),
-        TitleCardStep.Show(CardHoldFrames, TitleSprite.NintendoReveal8),
-        TitleCardStep.Run(TitleCardCue.StartUpperPan),
-        TitleCardStep.Run(TitleCardCue.RemoveCard),
-    ];
+    /// <summary>The Nintendo card, held for 45 updates before the upper pan.</summary>
+    internal static readonly TitleCardDefinition Nintendo =
+        new(TitleSequencePhase.NintendoText, "NINTENDO", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartUpperPan);
 
-    /// <summary>The Presents card's eight reveals and the scene-two trigger.</summary>
-    internal static readonly TitleCardStep[] Presents =
-    [
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal1),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal2),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal3),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal4),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal5),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal6),
-        TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal7),
-        TitleCardStep.Show(CardHoldFrames, TitleSprite.PresentsReveal8),
-        TitleCardStep.Run(TitleCardCue.StartDownwardPan),
-        TitleCardStep.Run(TitleCardCue.RemoveCard),
-    ];
+    /// <summary>The Presents card, held for 45 updates before the downward pan.</summary>
+    internal static readonly TitleCardDefinition Presents =
+        new(TitleSequencePhase.PresentsText, "PRESENTS", OpeningFrames: 0, HoldFrames: 45, TitleCardCue.StartDownwardPan);
 
-    /// <summary>The Metroid 3 card's nine reveals, its 120-update final hold and the scene-three trigger.</summary>
-    internal static readonly TitleCardStep[] MetroidThree =
-    [
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal1),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal2),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal3),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal4),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal5),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal6),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal7),
-        TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal8),
-        TitleCardStep.Show(MetroidThreeHoldFrames, TitleSprite.MetroidThreeReveal9),
-        TitleCardStep.Run(TitleCardCue.StartFinalZoom),
-        TitleCardStep.Run(TitleCardCue.RemoveCard),
-    ];
+    /// <summary>The Metroid 3 card, the space before its numeral typed as a letter, held for 120 updates before the final zoom.</summary>
+    internal static readonly TitleCardDefinition MetroidThree =
+        new(TitleSequencePhase.MetroidThreeText, "METROID 3", OpeningFrames: 0, HoldFrames: 120, TitleCardCue.StartFinalZoom);
 }

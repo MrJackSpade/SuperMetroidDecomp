@@ -26,14 +26,14 @@ internal static class IntroLoopingSpritePlacementVerification
         AssertEqual(-112, DrawnX(400 + loop, loop), "an actor a whole loop further on is drawn where it was");
     }
 
-    /// <summary>The signed screen X the asteroid is drawn at from loop place <paramref name="x"/>.</summary>
-    private static int DrawnX(int x, int loop) => CoordinateAxis.AsSigned(Drawn(x, loop).X);
+    /// <summary>The screen X the asteroid is drawn at from loop place <paramref name="x"/>.</summary>
+    private static int DrawnX(int x, int loop) => Drawn(x, loop).X;
 
-    /// <summary>The signed screen Y the asteroid is drawn at from loop place <paramref name="x"/>.</summary>
-    private static int DrawnY(int x, int loop) => CoordinateAxis.AsSigned(Drawn(x, loop).Y);
+    /// <summary>The screen Y the asteroid is drawn at from loop place <paramref name="x"/>.</summary>
+    private static int DrawnY(int x, int loop) => Drawn(x, loop).Y;
 
-    /// <summary>The origin the asteroid at loop place <paramref name="x"/>, 30 pixels down, is drawn at.</summary>
-    private static Position16<SpritePixels> Drawn(int x, int loop)
+    /// <summary>The screen place the asteroid at loop place <paramref name="x"/>, 30 pixels down, is drawn at (#1974).</summary>
+    private static Offset16<ScreenPixels> Drawn(int x, int loop)
     {
         var actor = new IntroDiscoverySprite(new(x, 30), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), CinematicSpriteSegment.CeresSmallAsteroid)
         {
@@ -48,10 +48,10 @@ internal static class IntroLoopingSpritePlacementVerification
     /// <summary>A presentation that records the origin it is asked to draw at.</summary>
     private sealed class OriginRecorder : IIntroCinematicSpritePresentation
     {
-        /// <summary>The origin of the last draw.</summary>
-        internal Position16<SpritePixels>? Origin { get; private set; }
+        /// <summary>The screen place of the last draw.</summary>
+        internal Offset16<ScreenPixels>? Origin { get; private set; }
 
         /// <inheritdoc/>
-        public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn) => Origin = origin;
+        public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn) => Origin = place;
     }
 }

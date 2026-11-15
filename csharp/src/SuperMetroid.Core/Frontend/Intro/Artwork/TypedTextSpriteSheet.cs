@@ -18,9 +18,10 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     internal static string GlyphFrameName(CinematicSpriteFamily family, CinematicSpriteSegment text, int glyph) => $"{family}.{text}.Glyph{glyph}";
 
     /// <inheritdoc/>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn)
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn)
     {
         Ensure.NotNull(objects);
+        Position16<SpritePixels> origin = (Position16<ScreenPixels>.Zero + place).ToSpritePosition();
         if (Ensure.NotNull(texts).Find(pose) is not { } step)
         {
             new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, origin, drawn);

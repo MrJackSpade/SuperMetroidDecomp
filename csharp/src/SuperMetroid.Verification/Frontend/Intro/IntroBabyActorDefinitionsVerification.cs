@@ -53,7 +53,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 CinematicActorNativeMotions.ConfusedBaby[ConfusedBabyMotion.WaitingForHatch]];
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), routines[index],
                 $"intro baby actor {index} routine: the behaviour the actor starts with");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.
@@ -91,8 +91,8 @@ internal static class IntroBabyActorDefinitionsVerification
         int pageThreeFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            discovery.Step((ushort)frame, introCrossfadeTimer: 0x007f);
-            reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
+            discovery.Step((ushort)frame, crossfadeFinishing: false);
+            reference.Step((ushort)frame, crossfadeFinishing: false);
             AssertEqual(nativeDemo.Position, demo.Position,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.FrameHold.RawValue, demo.FrameHold.RawValue,
@@ -121,8 +121,8 @@ internal static class IntroBabyActorDefinitionsVerification
         }
         AssertTrue(pageThreeFrame >= 0,
             "intro egg hatches and requests page three within the native program");
-        discovery.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);
-        reference.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);
+        discovery.Step((ushort)(pageThreeFrame + 1), crossfadeFinishing: true);
+        reference.Step((ushort)(pageThreeFrame + 1), crossfadeFinishing: true);
         AssertEqual(nativeEgg.IsActive, egg.IsActive,
             "SR388 egg reverse-crossfade deletion matches ROM-backed actor");
         AssertTrue(!egg.IsActive,
@@ -139,23 +139,30 @@ internal static class IntroBabyActorDefinitionsVerification
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
         {
-            delivery.Step(frame, introCrossfadeTimer: 0x007f);
-            examination.Step(frame, introCrossfadeTimer: 0x007f);
+            delivery.Step(IntoLaboratory(frame));
+            examination.Step(IntoLaboratory(frame));
         }
         AssertTrue(delivery.PageFourRequested,
             "delivered-baby production actor reaches page-four instruction");
         AssertTrue(examination.PageFiveRequested,
             "examined-baby production actor reaches page-five instruction");
-        delivery.Step(0, introCrossfadeTimer: 0);
-        examination.Step(0, introCrossfadeTimer: 0);
+        delivery.Step(OutOfLaboratoryFinishing);
+        examination.Step(OutOfLaboratoryFinishing);
         AssertTrue(!deliveredBaby.IsActive && !examinedBaby.IsActive,
-            "scientist actors delete at zero crossfade");
+            "scientist actors delete as the crossfade out of the laboratory finishes");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "intro egg/baby playback never rereads compiled definitions, instructions or discovery collision bytes");
 
         Console.WriteLine(
             "  Intro baby actors: definition, 138 discovery, 142 scientist and 768 collision bytes match; full guarded scenes pass.");
     }
+
+    /// <summary>The crossfade into the laboratory with <paramref name="updatesLeft"/> updates left, as a scene's update sees it (#1980).</summary>
+    private static IntroCrossfadeTick IntoLaboratory(int updatesLeft) =>
+        new(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, updatesLeft);
+
+    /// <summary>The crossfade back out of the laboratory on the update it finishes (#1980).</summary>
+    private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 0);
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

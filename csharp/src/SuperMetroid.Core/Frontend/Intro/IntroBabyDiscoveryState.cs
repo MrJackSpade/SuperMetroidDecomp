@@ -98,7 +98,9 @@ internal sealed class IntroBabyDiscoveryState
     /// the cinematic phase, so the setup update already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
-    public void Step(int frameCounter, int introCrossfadeTimer)
+    /// <param name="frameCounter">The cinematic's frame counter, which Samus's demo movement reads.</param>
+    /// <param name="crossfadeFinishing">Whether the running crossfade reached its final update on this update (#1980).</param>
+    public void Step(int frameCounter, bool crossfadeFinishing)
     {
         // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusUpdateStopped)
@@ -106,7 +108,7 @@ internal sealed class IntroBabyDiscoveryState
             // The demo's pose input runs the demo input object inside Samus's
             // input phase, ahead of her pose input and movement.
             if (demo.IsPlaying)
-                CheckDemoPhase(introCrossfadeTimer);
+                CheckDemoPhase(crossfadeFinishing);
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
@@ -134,18 +136,17 @@ internal sealed class IntroBabyDiscoveryState
         // The egg tests Samus's post-movement X during the later cinematic-sprite pass.
         // It permanently redirects the animation once X is below 169.
         if (eggBehavior == MetroidEggBehavior.WaitsForSamus &&
-            CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
+            Samus.Position.X.Whole < 169)
         {
             egg.Start(CinematicSpriteSegment.MetroidEggHatching);
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg's wait replaces the egg with the shared delete animation only when page three's reverse
-        // crossfade reaches zero. The egg's animation starts the wait after starting page three.
-        if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd &&
-            introCrossfadeTimer == 0)
+        // The egg is gone from the update page three's crossfade reaches its final update. The egg's animation starts the wait
+        // after starting page three.
+        if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd && crossfadeFinishing)
         {
-            egg.Start(CinematicSpriteSegment.Delete);
+            egg.Delete();
             // Page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
@@ -153,7 +154,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // The baby slot follows the egg slot in the descending actor traversal, so
         // it observes the egg's freshly advanced animation position in this same frame.
-        StepConfusedBaby(introCrossfadeTimer);
+        StepConfusedBaby(crossfadeFinishing);
         confusedBaby.Step();
 
         foreach (IntroEggParticle particle in eggParticles)
@@ -181,7 +182,7 @@ internal sealed class IntroBabyDiscoveryState
     /// Moves the scripted input from running to stopping and looking once Samus passes her scripted place, and from
     /// looking to its ending once the crossfade finishes. Runs before the input's step, in the same step.
     /// </summary>
-    private void CheckDemoPhase(int introCrossfadeTimer)
+    private void CheckDemoPhase(bool crossfadeFinishing)
     {
         switch (DemoPhase)
         {
@@ -194,7 +195,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case IntroBabyDiscoveryDemoPhase.StoppedAndLooking:
-                if (introCrossfadeTimer == 0)
+                if (crossfadeFinishing)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
                     demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryEnd);
@@ -290,16 +291,14 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
-    private void StepConfusedBaby(int introCrossfadeTimer)
+    private void StepConfusedBaby(bool crossfadeFinishing)
     {
         switch (babyMotion)
         {
             case ConfusedBabyMotion.WaitingForHatch:
-                // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
-                // the egg's animation is then MetroidEggRemnantsSettling or a later one, so the baby starts moving on that
-                // exact handoff.
-                if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggRemnantsSettling or
-                    CinematicSpriteSegment.MetroidEggHatched or CinematicSpriteSegment.Delete)
+                // The confused baby starts rising on the update the egg first shows its burst shell, after this
+                // update's egg step.
+                if (egg.Pose is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
                 {
                     babyMotion = ConfusedBabyMotion.Rising;
                     BabyVelocity = BabyVelocity.WithY(default);
@@ -321,7 +320,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case ConfusedBabyMotion.Dancing:
-                StepDancingBaby(introCrossfadeTimer);
+                StepDancingBaby(crossfadeFinishing);
                 return;
 
             default:
@@ -373,9 +372,9 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Moves the baby around Samus, switches their draw order, and ends on crossfade completion.</summary>
-    private void StepDancingBaby(int introCrossfadeTimer)
+    private void StepDancingBaby(bool crossfadeFinishing)
     {
-        if (introCrossfadeTimer == 0)
+        if (crossfadeFinishing)
         {
             confusedBaby.Delete();
             // The dancing baby's drift.
@@ -424,14 +423,15 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>
     /// Adjusts a 1/256-pixel velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
-    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range.
+    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range. The baby and its
+    /// targets lie on the screen near Samus, so their places compare directly (#1974).
     /// </summary>
     private static SignedEightEight AccelerateToward(
         int position,
         int target,
         SignedEightEight current,
         SignedEightEight limit) =>
-        CoordinateAxis.Difference(target, position) >= 0
+        target >= position
             ? SignedEightEight.Min(limit, current + BabyAcceleration)
             : SignedEightEight.Max(-limit, current - BabyAcceleration);
 

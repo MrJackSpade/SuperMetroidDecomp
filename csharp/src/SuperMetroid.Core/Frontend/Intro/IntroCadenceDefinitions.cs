@@ -22,8 +22,8 @@ internal static class IntroCadenceDefinitions
     internal static readonly UpdateCounterField MotherBrainRoomShakesUp = new(0, 1);
 
     /// <summary>
-    /// The counts of the cinematic phase's countdown on which the delivery and examination scenes pan the laboratory
-    /// one pixel with the baby: every fourth count, on its first place.
+    /// The updates left of the crossfade into the laboratory on which the delivery and examination scenes pan the
+    /// laboratory one pixel with the baby: every fourth, down to its last.
     /// </summary>
     internal static readonly UpdateCadence LaboratoryStepEveryFourthUpdate = new(4, 0);
 }

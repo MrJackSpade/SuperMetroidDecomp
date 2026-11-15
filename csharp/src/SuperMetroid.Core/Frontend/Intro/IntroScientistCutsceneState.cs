@@ -47,22 +47,22 @@ internal sealed class IntroScientistCutsceneState
     /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
-    /// <summary>Advances the Baby script and pans on every fourth cinematic-phase tick until the alternate crossfade timer redirects it to deletion.</summary>
-    public void Step(
-        int cinematicTimer,
-        int introCrossfadeTimer)
+    /// <summary>
+    /// Advances the Baby script and pans the laboratory with it on every fourth update counted down by the crossfade into
+    /// the laboratory; the crossfade back out of the laboratory ends the Baby as it reaches its final update (#1980).
+    /// </summary>
+    /// <param name="crossfade">What the running crossfade did on this update, or null when none runs.</param>
+    public void Step(IntroCrossfadeTick? crossfade)
     {
         if (!baby.IsActive)
             return;
 
-        // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
-        // later page-four reverse crossfade. The forward scientist fade decrements the
-        // cinematic-phase counter while the intro crossfade counter remains 127.
-        if (introCrossfadeTimer == 0)
+        if (crossfade is { Finishing: true, From: IntroCrossfadeScene.Laboratory })
         {
-            baby.Start(CinematicSpriteSegment.Delete);
+            baby.Delete();
         }
-        else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicTimer))
+        else if (crossfade is { To: IntroCrossfadeScene.Laboratory } intoLaboratory
+            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {

@@ -38,9 +38,10 @@ internal static class CeresExplosionDefinitionsVerification
         AssertEqual(4, CeresExplosionDefinitions.FinalWave.Count, "the final wave spawns four blasts");
 
         var guard = NewCeresExplosionDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture();
+        var audio = AudioQueues.Standalone();
+        var state = CreateRetailDestructionFixture(audio);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
-            state.Step();
+            { state.Step(); audio.AdvanceFrame(default); }
         AssertTrue(state.Finished, "Ceres destruction completes through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ceres destruction never rereads compiled explosion definitions");
@@ -60,7 +61,7 @@ internal static class CeresExplosionDefinitionsVerification
                 ? CinematicActorNativeMotions.NoMotion : CinematicActorNativeMotions.CeresExplosion;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), motion,
                 $"{name} routine: the spawner holds still, a blast drifts with the fleeing gunship");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Animation),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(definition.Animation),
                 $"{name} instruction list");
         }
     }

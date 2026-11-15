@@ -128,33 +128,26 @@ internal static class EndingLogoVerification
     internal static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
 
+        AssertEqual(EndingLogoDefinitions.ActorCount, EndingLogoDefinitions.Actors.Count, "the logo's named actors are the native spawns");
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
-            CinematicActorDefinition actual = EndingLogoActors.Actor(index);
+            EndingLogoActorDefinition actual = EndingLogoDefinitions.Actors[index];
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
                 $"logo actor {index} routine: the S halves move into place, the circles hold still");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"logo actor {index} initial instruction list");
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
-            var origin = EndingLogoActors.Origin(index);
+            Position16<ScreenPixels> origin = actual.Origin;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), origin.X, "native actor X origin");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), origin.Y, "native actor Y origin");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoActors.Actor(invalid), "actor definition bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoActors.Origin(invalid), "actor origin bounds");
-        }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingLogoActors.Actor(4),
-            "logo actor definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, 0),
             "logo palette step boundary");

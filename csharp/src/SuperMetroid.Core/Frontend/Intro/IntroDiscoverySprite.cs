@@ -15,10 +15,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>
-    /// Countdown before the next sprite cue is read; setup may stagger the first frame. A hold leaves it at
-    /// zero, so it keeps counting past zero and the animation resumes when the countdown comes round to zero again.
+    /// Updates before the animation plays on to its next frame, one or more while it plays; setup may stagger the first
+    /// frame (#1974).
     /// </summary>
-    private WrappingCountdown frameHold = WrappingCountdown.Start(1);
+    private int frameHold = 1;
+
+    /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
+    private bool held;
 
     /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its animation.</summary>
     public IntroDiscoverySprite(
@@ -44,6 +47,12 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
+    /// <summary>
+    /// Where the actor's whole pixels lie on the screen (#1974): a place left of or above the screen has a negative
+    /// coordinate.
+    /// </summary>
+    internal Offset16<ScreenPixels> ScreenPlace => Position.Whole - Position16<ScreenPixels>.Zero;
+
     /// <summary>The drawn shade of the colouring the current pose's recolourable parts draw in (#1512).</summary>
     public PictureShade Colouring { get; private set; }
 
@@ -57,13 +66,6 @@ internal sealed class IntroDiscoverySprite
     internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
 
     /// <summary>
-    /// The segment the actor's animation rests in: resting after the last frame of a segment that runs on into the next, it
-    /// already stands in the next (<see cref="CinematicSpriteAnimations.RunsOnInto"/>).
-    /// </summary>
-    internal CinematicSpriteSegment CurrentAnimation => AnimationResidence.ResidentSegment(
-        CinematicSpriteAnimations.Segments, CinematicSpriteAnimations.StartingAt, CinematicSpriteAnimations.RunsOnInto, Playback);
-
-    /// <summary>
     /// The count the animation's counted phases repeat by: a counted phase loads it as it starts and each of its plays
     /// counts it down. Only those phases change it; it starts at zero.
     /// </summary>
@@ -73,7 +75,8 @@ internal sealed class IntroDiscoverySprite
     public void Start(CinematicSpriteSegment segment)
     {
         Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-        frameHold = WrappingCountdown.Start(1);
+        frameHold = 1;
+        held = false;
     }
 
     /// <summary>
@@ -87,9 +90,9 @@ internal sealed class IntroDiscoverySprite
     /// </remarks>
     public void DelayFirstStep(int frames)
     {
-        if (frames == 0)
-            throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold must be nonzero.");
-        frameHold = WrappingCountdown.Start(frames);
+        if (frames < 1)
+            throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold lasts at least one update.");
+        frameHold = frames;
     }
 
     /// <summary>Retires the actor and clears its visible frame.</summary>
@@ -106,12 +109,7 @@ internal sealed class IntroDiscoverySprite
     /// </summary>
     public void Step(Action<CinematicSpriteCueKind>? ownerCue = null)
     {
-        if (!IsActive)
-            return;
-
-        CountdownStep hold = frameHold.Decrement();
-        frameHold = hold.Remaining;
-        if (!hold.IsZero)
+        if (!IsActive || held || --frameHold > 0)
             return;
 
         Animation<CinematicSpriteSegment> animation = Playback.Animation;
@@ -124,10 +122,12 @@ internal sealed class IntroDiscoverySprite
         switch (shown)
         {
             case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Frame frame:
-                frameHold = WrappingCountdown.Start(frame.Duration);
+                frameHold = frame.Duration;
                 Pose = frame.Shown;
                 return;
             case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Held:
+                // A held animation rests on its last frame for good: playing it on again would only hold again.
+                held = true;
                 return;
             case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Ended:
                 Delete();
@@ -141,7 +141,7 @@ internal sealed class IntroDiscoverySprite
     private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
     {
         (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {CurrentAnimation} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
+            $"Cinematic sprite animation in {Playback.Animation.Phases[Playback.Place.Phase].Segment} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
     /// <summary>
@@ -171,6 +171,6 @@ internal sealed class IntroDiscoverySprite
         }
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, (Position16<ScreenPixels>.Zero + placed).ToSpritePosition(), Colouring);
+            .Draw(pose, objects, placed, Colouring);
     }
 }

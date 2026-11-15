@@ -2050,7 +2050,7 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2170,7 +2170,7 @@ internal static class LookupStream3Verification
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2282,7 +2282,7 @@ BranchesToSharedBody:true),
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), characterArtwork: stock.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

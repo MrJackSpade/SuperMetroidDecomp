@@ -70,8 +70,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     private int textCardStep;
     /// <summary>Frames left before the next title sequence entry is read.</summary>
     private int sequenceEntryTimer;
-    /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
+    /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
     internal TitleSprite? ActiveSprite { get; set; }
+    /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
+    internal TitleCardTyping? ActiveCard { get; set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
@@ -467,13 +469,12 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);
         objects.BeginFrame();
+        // Every part of the composition draws in the active colouring's shading, whatever colouring the part was stored
+        // with; the parts' pictures draw as the title sheet holds them.
         if (ActiveSprite is { } sprite)
-        {
-            // Every part of the composition draws in the active colouring's shading, whatever colouring the part
-            // was stored with; the parts' pictures draw as the title sheet holds them.
-            TitleSpriteDrawing.DrawSprite(sheet, sprite, objects,
-                ActiveOrigin.ToSpritePosition(), ActiveShading);
-        }
+            TitleSpriteDrawing.DrawSprite(sheet, sprite, objects, ActiveOrigin.ToSpritePosition(), ActiveShading);
+        if (ActiveCard is { } typed)
+            TitleSpriteDrawing.DrawCard(sheet, typed, objects, ActiveOrigin.ToSpritePosition(), ActiveShading);
 
         // The skip's fade-out draws what its running step draws, which never includes the copyright: the copyright first
         // shows in the copyright's hold, which refuses the skip (#1719).
@@ -500,7 +501,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             if (step.Cue is not { } cue)
             {
                 sequenceEntryTimer = step.Duration;
-                ActiveSprite = step.Sprite;
+                ActiveCard = step.Typed;
                 return;
             }
 
@@ -533,7 +534,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     return;
 
                 case TitleCardCue.RemoveCard:
-                    ActiveSprite = null;
+                    ActiveCard = null;
                     return;
 
                 default:
@@ -550,6 +551,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         textCardStep = 0;
         sequenceEntryTimer = 1;
         ActiveSprite = null;
+        ActiveCard = null;
         ActiveOrigin = definition.Origin;
         ActiveObjectColouring = definition.Colouring;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
@@ -567,6 +569,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The skip transition explicitly overwrites the two glyph colours the Nintendo copyright draws in after
         // restoring the sprite colours; the copyright shows them as a shade from now on (#1512).
         CopyrightRestored = true;
+        ActiveCard = null;
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
@@ -602,5 +605,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         Zoom = definition.Zoom;
         panPosition = panPosition.WithWhole(definition.Position);
         ActiveSprite = null;
+        ActiveCard = null;
     }
 }

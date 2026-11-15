@@ -24,7 +24,7 @@ internal static class CeresZebesActorMetadataVerification
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 2)), CinematicActorNativeMotions.ZebesRevealWait[role],
                 "native reveal routine, the role's wait, which the initializer leaves unchanged");
             AssertEqual(CinematicActorNativeMotions.ZebesRevealSlide.ContainsKey(role), actor.SlideAcceleration is not null, "the actors that slide away");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation), "native reveal program");
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation), "native reveal program");
             AssertEqual(SignedSixteenSixteen.Zero, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
             AssertEqual(role == ZebesRevealActorRole.StarsLowerRight, actor.CompletesScene,
@@ -71,7 +71,7 @@ internal static class CeresZebesActorMetadataVerification
         ushort subtitleDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9b6);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 2), CinematicActorNativeMotions.ZebesRevealWait[ZebesRevealActorRole.JapaneseSubtitle],
             "native subtitle routine: it does not move");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 4), CinematicSpriteNativeListAddresses.Entry(subtitle.Animation),
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8b0000 | subtitleDefinition) + 4), CinematicSpriteNativeListAddresses.Start(subtitle.Animation),
             "native subtitle program");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc9f3), CeresSheetInks.SpriteSet(subtitle.Colouring),
             "Japanese subtitle attributes");

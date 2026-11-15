@@ -20,8 +20,8 @@ internal static class CeresFlightActorMetadataVerification
         ushort frontDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe57);
         Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialVelocity.RawValue, "front stars initial speed");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), CeresFlightActorDefinitions.FrontStarsStart.X, "front stars X");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), CeresFlightActorDefinitions.FrontStarsStart.Y, "front stars Y");
+        AssertEqual((int)CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), (int)CeresFlightActorDefinitions.FrontStarsStart.X, "front stars X");
+        AssertEqual((int)CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), (int)CeresFlightActorDefinitions.FrontStarsStart.Y, "front stars Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), CeresSheetInks.SpriteSet(front.Colouring), "front stars attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration.RawValue,
@@ -92,7 +92,7 @@ internal static class CeresFlightActorMetadataVerification
             string name)
         {
             int address = ActorBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
                 $"{name} instruction list");
         }
 

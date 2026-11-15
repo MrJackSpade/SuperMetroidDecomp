@@ -25,6 +25,10 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose}";
 
     /// <inheritdoc/>
+    void IIntroCinematicSpritePresentation.Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn) =>
+        Draw(pose, objects, (Position16<ScreenPixels>.Zero + place).ToSpritePosition(), drawn);
+
+    /// <summary>Draws <paramref name="pose"/>'s frame at <paramref name="origin"/> in its drawn shade's shading (#1512).</summary>
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn) =>
         Draw(pose, objects, origin, Ensure.NotNull(shading)(drawn));
 

@@ -43,7 +43,7 @@ internal sealed class EndingRewardJump
     /// <summary>Set when the body passes above the screen and Samus starts to fall back, as the falling Samus.</summary>
     public bool Falling { get; private set; }
     /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
-    public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
+    public int BodyY => body.ScreenPlace.Y;
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
@@ -64,7 +64,7 @@ internal sealed class EndingRewardJump
             if (headFlying)
             {
                 Move(head);
-                if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.FallStartY) head.Delete();
+                if (head.ScreenPlace.Y < EndingRewardJumpDefinitions.FallStartY) head.Delete();
             }
             head.Step(HandleCue);
         }

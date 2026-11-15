@@ -24,20 +24,18 @@ internal sealed class IntroMotherBrainExplosionSystem
         if (actors.Count != 0)
             throw new InvalidOperationException("The intro Mother Brain explosions were already spawned.");
 
-        // Although their definitions are listed together, the retail game explicitly
-        // spawns three small actors first and five big actors second. Each explosion's place
-        // in its spawn order selects its own position and start delay.
-        for (int parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)
-            actors.Add(ExplosionActor.CreateSmall(parameter));
-        for (int parameter = 0; parameter < IntroMotherBrainDefinitions.BigExplosionCount; parameter++)
-            actors.Add(ExplosionActor.CreateBig(parameter));
+        // The three small explosions spawn first and the five big ones second, each at its own placement.
+        foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.SmallExplosions)
+            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.SmallExplosionActor.Animation));
+        foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.BigExplosions)
+            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
     }
 
-    /// <summary>Advances every allocated object through the exact cinematic animation format.</summary>
-    public void Step(int introCrossfadeTimer)
+    /// <summary>Advances every explosion; page two's crossfade reaching its final update (#1980) ends them.</summary>
+    public void Step(bool crossfadeFinishing)
     {
         foreach (ExplosionActor actor in actors)
-            actor.Step(introCrossfadeTimer);
+            actor.Step(crossfadeFinishing);
     }
 
     /// <summary>Adds each visible frame in actor order to the cinematic sprites.</summary>
@@ -80,39 +78,19 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>Cleared by the animation's delete after the later crossfade or animation completion.</summary>
         public bool IsActive => sprite.IsActive;
 
-        /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>
-        public static ExplosionActor CreateBig(int parameter)
-        {
-            IntroMotherBrainExplosionPlacement placement =
-                IntroMotherBrainExplosionPlacements.BigExplosion(parameter);
-            return new ExplosionActor(
-                IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                IntroMotherBrainDefinitions.BigExplosionActor.Animation,
-                placement.StartDelayFrames);
-        }
-
-        /// <summary>Starts a small explosion from its three-entry position and delay table.</summary>
-        public static ExplosionActor CreateSmall(int parameter)
-        {
-            IntroMotherBrainExplosionPlacement placement =
-                IntroMotherBrainExplosionPlacements.SmallExplosion(parameter);
-            return new ExplosionActor(
-                IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                IntroMotherBrainDefinitions.SmallExplosionActor.Animation,
-                placement.StartDelayFrames);
-        }
+        /// <summary>Starts an explosion running <paramref name="animation"/> at <paramref name="placement"/>.</summary>
+        public static ExplosionActor Create(IntroMotherBrainExplosionPlacement placement, CinematicSpriteSegment animation) =>
+            new(IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset, animation, placement.StartDelayFrames);
 
         /// <summary>Runs one cinematic update of the explosion.</summary>
-        public void Step(int introCrossfadeTimer)
+        public void Step(bool crossfadeFinishing)
         {
             if (!IsActive)
                 return;
 
-            // The explosions delete these actors only when the later page-two crossfade timer
-            // reaches zero. Starting the delete before the generic decrement makes deletion
-            // occur in this same update.
-            if (introCrossfadeTimer == 0)
-                sprite.Start(CinematicSpriteSegment.Delete);
+            // The explosions are gone from the update page two's crossfade reaches its final update.
+            if (crossfadeFinishing)
+                sprite.Delete();
             sprite.Step();
         }
     }

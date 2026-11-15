@@ -16,6 +16,9 @@ public sealed class TitleGraphicsCharacters
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
+    /// <summary>Compiled OAM compositions keyed by card typing step (#1979).</summary>
+    private readonly Dictionary<TitleCardTyping, SpriteComposition> cards;
+
     /// <summary>Owned Mode 7 floor map, floor characters and Baby Metroid characters.</summary>
     private readonly byte[] floorMap, floorCharacters, babyCharacters;
 
@@ -28,6 +31,7 @@ public sealed class TitleGraphicsCharacters
     {
         floorMap = map.Tiles.Select(tile => checked((byte)tile)).ToArray();
         sprites = CompileSprites(map.Sprites);
+        cards = CompileCards(map.Cards);
         this.floorCharacters = floorCharacters;
         this.babyCharacters = babyCharacters;
         // Built once here, so reading the page never changes the graphics' state.
@@ -50,6 +54,10 @@ public sealed class TitleGraphicsCharacters
     /// <summary>One title composition as a whole frame over the title OBJ page (#1392); its parts take their draw's palette.</summary>
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)
         ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
+
+    /// <summary>One card typing step, the whole of what it shows, as a frame over the title OBJ page (#1979).</summary>
+    internal SpriteFrame Frame(TitleCardTyping typed, string name) => cards.TryGetValue(typed, out SpriteComposition? composition)
+        ? composition.ToFrame(name, 0) : throw new InvalidDataException($"Title card typing {typed} is missing from installed artwork.");
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>
     /// <param name="floorTilesPng">Indexed 256-color PNG containing the title Mode 7 characters.</param>
@@ -136,6 +144,7 @@ public sealed class TitleGraphicsCharacters
             restored.Tiles.Any(tile => (uint)tile > byte.MaxValue))
             throw new InvalidDataException("Invalid title Mode 7 map document.");
         _ = CompileSprites(restored.Sprites);
+        _ = CompileCards(restored.Cards);
         json.Write(bytes);
     }
 
@@ -143,30 +152,13 @@ public sealed class TitleGraphicsCharacters
     private static Dictionary<TitleSprite, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
     {
         if (frames is null || frames.Length != TitleGraphicsFormat.SpriteFrameCount)
-            throw new InvalidDataException("Title composition requires all 31 title sprite frames.");
+            throw new InvalidDataException($"Title composition requires all {TitleGraphicsFormat.SpriteFrameCount} whole title sprite frames.");
         var result = new Dictionary<TitleSprite, SpriteComposition>();
         foreach (TitleSpriteFrame frame in frames)
         {
-            if (frame is null || !Enum.IsDefined(frame.Sprite) || frame.Parts is null ||
-                frame.Parts.Length > TitleGraphicsFormat.MaximumSpriteParts)
-                throw new InvalidDataException("Title composition has an undefined frame name or an invalid part count.");
-            var parts = new CompiledSpritePart[frame.Parts.Length];
-            for (int index = 0; index < parts.Length; index++)
-            {
-                SpriteVisualPart part = frame.Parts[index];
-                if (part is null || part.OffsetX is < -256 or > 255 || part.OffsetY is < -128 or > 127 ||
-                    part.Size is not (8 or 16) || part.Priority is < 0 or > 3 || part.Palette is not null ||
-                    part.TileColumn < 0 || part.TileColumn >= TitleGraphicsFormat.ObjectTileColumns ||
-                    part.TileRow < 0 || part.TileRow >= TitleGraphicsFormat.ObjectTileRows ||
-                    part.TileColumn % 16 > 16 - part.Size / 8 ||
-                    part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
-                    throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
-                int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
-                parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Priority,
-                    (part.FlipX ? PictureFlip.Horizontal : 0) |
-                    (part.FlipY ? PictureFlip.Vertical : 0)), InheritPalette: true);
-            }
-            if (!result.TryAdd(frame.Sprite, new SpriteComposition(parts)))
+            if (frame is null || !Enum.IsDefined(frame.Sprite))
+                throw new InvalidDataException("Title composition has an undefined frame name.");
+            if (!result.TryAdd(frame.Sprite, Compile(frame.Parts, frame.Sprite.ToString())))
                 throw new InvalidDataException($"Duplicate title frame {frame.Sprite}.");
         }
         // A correctly sized document can still repeat one composition in place of
@@ -178,5 +170,45 @@ public sealed class TitleGraphicsCharacters
                     $"Title composition is missing required frame {sprite}; " +
                     "keep the frame names when editing visual parts.");
         return result;
+    }
+
+    /// <summary>Validates every card typing step's frame (#1979) and compiles each editable part into OAM words.</summary>
+    private static Dictionary<TitleCardTyping, SpriteComposition> CompileCards(TitleCardFrame[]? frames)
+    {
+        if (frames is null || frames.Length != TitleGraphicsFormat.Typings.Count)
+            throw new InvalidDataException($"Title cards require all {TitleGraphicsFormat.Typings.Count} typing frames.");
+        var result = new Dictionary<TitleCardTyping, SpriteComposition>();
+        foreach (TitleCardFrame frame in frames)
+        {
+            if (frame is null || !TitleGraphicsFormat.Typings.Contains(frame.Typed))
+                throw new InvalidDataException("Title card frame names no card's typing step.");
+            if (!result.TryAdd(frame.Typed, Compile(frame.Parts, frame.Typed.ToString())))
+                throw new InvalidDataException($"Duplicate title card frame {frame.Typed}.");
+        }
+        return result;
+    }
+
+    /// <summary>Validates one frame's editable parts and compiles them into OAM words.</summary>
+    private static SpriteComposition Compile(SpriteVisualPart[]? editable, string frame)
+    {
+        if (editable is null || editable.Length > TitleGraphicsFormat.MaximumSpriteParts)
+            throw new InvalidDataException($"Title frame {frame} has an invalid part count.");
+        var parts = new CompiledSpritePart[editable.Length];
+        for (int index = 0; index < parts.Length; index++)
+        {
+            SpriteVisualPart part = editable[index];
+            if (part is null || part.OffsetX is < -256 or > 255 || part.OffsetY is < -128 or > 127 ||
+                part.Size is not (8 or 16) || part.Priority is < 0 or > 3 || part.Palette is not null ||
+                part.TileColumn < 0 || part.TileColumn >= TitleGraphicsFormat.ObjectTileColumns ||
+                part.TileRow < 0 || part.TileRow >= TitleGraphicsFormat.ObjectTileRows ||
+                part.TileColumn % 16 > 16 - part.Size / 8 ||
+                part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
+                throw new InvalidDataException($"Title frame {frame} part {index} is invalid.");
+            int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
+            parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Priority,
+                (part.FlipX ? PictureFlip.Horizontal : 0) |
+                (part.FlipY ? PictureFlip.Vertical : 0)), InheritPalette: true);
+        }
+        return new SpriteComposition(parts);
     }
 }

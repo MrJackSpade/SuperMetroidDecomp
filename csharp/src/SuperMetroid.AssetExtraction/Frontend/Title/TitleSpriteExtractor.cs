@@ -9,33 +9,46 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>
 /// Decodes the title compositions from the bank-$8C spritemaps the four native title text lists select. This codec is
-/// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/>.
+/// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/> and each card's typing step.
 /// </summary>
 [EncodingOwner("cartridge title sprite instruction words")]
 internal static class TitleSpriteExtractor
 {
-    /// <summary>Decodes every title composition's ordered OAM parts, keyed by its semantic name.</summary>
+    /// <summary>Decodes the logo's and the copyright's ordered OAM parts, keyed by their semantic names.</summary>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
-        IReadOnlyDictionary<TitleSprite, int> spritemaps = MapSprites(bus);
+        TitleSpritemaps spritemaps = MapSprites(bus);
         return TitleGraphicsFormat.Sprites.Select(sprite => new TitleSpriteFrame
         {
             Sprite = sprite,
-            Parts = ReadParts(bus, spritemaps[sprite]),
+            Parts = ReadParts(bus, spritemaps.Sprites[sprite]),
+        }).ToArray();
+    }
+
+    /// <summary>Decodes each card typing step's ordered OAM parts, keyed by its card and the letters it has typed (#1979).</summary>
+    public static TitleCardFrame[] ExtractCards(ISnesAddressSpace bus)
+    {
+        TitleSpritemaps spritemaps = MapSprites(bus);
+        return TitleGraphicsFormat.Typings.Select(typed => new TitleCardFrame
+        {
+            Card = typed.Card,
+            Letters = typed.Letters,
+            Parts = ReadParts(bus, spritemaps.Cards[typed]),
         }).ToArray();
     }
 
     /// <summary>
-    /// Maps each title composition to the bank-$8C spritemap that stores it. Each card's native list is walked beside
-    /// its typed steps: timed entry N shows the composition of typed step N, a blank typed frame must select no
-    /// spritemap, and the list must end with a command where the typed card does. The logo comes from the title's
+    /// Maps each title composition and each card typing step to the bank-$8C spritemap that stores it. Each card's native
+    /// list is walked beside its typed steps: timed entry N shows what typed step N shows, a blank typed frame must select
+    /// no spritemap, and the list must end with a command where the typed card does. The logo comes from the title's
     /// logo pointer and the copyright from its fixed spritemap.
     /// </summary>
     /// <exception cref="InvalidDataException">A native list disagrees with its typed card, or two compositions share a spritemap.</exception>
-    internal static IReadOnlyDictionary<TitleSprite, int> MapSprites(ISnesAddressSpace bus)
+    internal static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        var cards = new Dictionary<TitleCardTyping, int>();
         var spritemaps = new Dictionary<TitleSprite, int>
         {
             [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendSourceDefinitions.TitleLogoSpritemapOperand),
@@ -63,14 +76,14 @@ internal static class TitleSpriteExtractor
                 if (nativeCommand)
                     throw new InvalidDataException($"Title card {sequence.Phase} ends before its typed steps do.");
                 int spritemap = RomDataReader.ReadWordFixedBank(cartridge, entry + sizeof(ushort));
-                if (step.Sprite is not { } sprite)
+                if (step.Typed is not { } typed)
                 {
                     if (spritemap != FrontendSourceDefinitions.TitleBlankSpritemap)
                         throw new InvalidDataException($"Title card {sequence.Phase} shows art where its typed step is blank.");
                 }
-                else if (!spritemaps.TryAdd(sprite, spritemap))
+                else if (!cards.TryAdd(typed, spritemap))
                 {
-                    throw new InvalidDataException($"Title composition {sprite} appears twice in the title cards.");
+                    throw new InvalidDataException($"Title card typing {typed} appears twice in the title cards.");
                 }
                 entry += TitleSourceDefinitions.TimedEntryByteCount;
                 if (SnesAddressMath.OffsetInBank(entry) >= FrontendSourceDefinitions.TitleLogoSpritemapOperand.Offset)
@@ -78,11 +91,12 @@ internal static class TitleSpriteExtractor
             }
         }
 
-        if (spritemaps.Count != TitleGraphicsFormat.Sprites.Count ||
-            spritemaps.Values.Distinct().Count() != spritemaps.Count)
+        var mapped = new TitleSpritemaps(spritemaps, cards);
+        if (spritemaps.Count != TitleGraphicsFormat.Sprites.Count || cards.Count != TitleGraphicsFormat.Typings.Count ||
+            mapped.All.Distinct().Count() != mapped.All.Count())
             throw new InvalidDataException(
-                "Imported title spritemaps do not give every title composition its own spritemap.");
-        return spritemaps;
+                "Imported title spritemaps do not give every title composition and card typing its own spritemap.");
+        return mapped;
     }
 
     /// <summary>Decodes one bank-$8C title spritemap into bounded offsets, tile positions, and flip attributes.</summary>

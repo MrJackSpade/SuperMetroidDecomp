@@ -43,7 +43,7 @@ internal sealed class IntroEggSlimeDrop
             AddVelocity(axis: Axis.Horizontal, launch.Drift);
             AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
 
-            if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
+            if (sprite.ScreenPlace.Y >= 168)
             {
                 // Landing changes the animation and stops the drop, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.

@@ -1050,7 +1050,7 @@ internal static void VerifyPowerBombColorMathWindow()
     explosion.StepFrame();
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
-    AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
+    AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.RenderedOvalRadius,
         "first yellow frame selects the first yellow oval");
     AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(146, 109)), DisplayScreen.HudHeight),
         CaptureWindow().Window, "the first yellow oval is centred on the blast");

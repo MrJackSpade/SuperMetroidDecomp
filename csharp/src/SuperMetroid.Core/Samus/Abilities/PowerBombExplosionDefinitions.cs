@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Power Bomb/Crystal Flash blast radii, the runs of ovals their shapes walk, and phase boundaries.</summary>
+/// <summary>Power Bomb/Crystal Flash blast radii, the ovals its last stages show, and phase boundaries and durations.</summary>
 public static class PowerBombExplosionDefinitions
 {
     /// <summary>Initial radius: four pixels.</summary>
@@ -14,17 +14,26 @@ public static class PowerBombExplosionDefinitions
     /// <summary>The explosion's acceleration: its speed rises by three sixteenths of a pixel an update each update it grows.</summary>
     public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromFraction(48);
     /// <summary>
-    /// The horizontal radius, in pixels, of each yellow oval the pre-explosion's last frames walk, one per frame. Each
-    /// is the radius a blast starting at four pixels and forty-eight pixels a frame, slowing by half a pixel a frame,
-    /// reaches after three to six frames, held at 255.
+    /// The updates the yellow pre-explosion lasts (#1927): it shows one of <see cref="YellowOvalRadii"/> each update, and
+    /// the damaging explosion starts after the last.
     /// </summary>
-    public static IReadOnlyList<int> YellowShapeRadii { get; } = [146, 193, 239, 255];
+    public const int PreExplosionYellowUpdates = 4;
     /// <summary>
-    /// The horizontal radius, in pixels, of each white oval the explosion walks while it finishes expanding, one per
-    /// frame. Each is the radius a blast starting at four pixels and accelerating by three sixteenths of a pixel a
-    /// frame reaches after thirty-seven to fifty-three frames, held at 255.
+    /// The updates the white explosion lasts (#1927): it shows one of <see cref="WhiteOvalRadii"/> each update, and the
+    /// afterglow starts after the last.
     /// </summary>
-    public static IReadOnlyList<int> WhiteShapeRadii { get; } =
+    public const int ExplosionWhiteUpdates = 17;
+    /// <summary>
+    /// The horizontal radius, in pixels, of the oval the yellow pre-explosion shows on each of its updates. The ovals are
+    /// authored: they run close to the flash's own radius but are not it (the flash reaches 240 pixels and holds there).
+    /// </summary>
+    public static IReadOnlyList<int> YellowOvalRadii { get; } = [146, 193, 239, 255];
+    /// <summary>
+    /// The horizontal radius, in pixels, of the oval the white explosion shows on each of its updates. The ovals are
+    /// authored: they run close to the explosion's own radius but are not it (the explosion starts them at 135 pixels
+    /// and holds at 250).
+    /// </summary>
+    public static IReadOnlyList<int> WhiteOvalRadii { get; } =
         [128, 135, 142, 150, 157, 165, 173, 181, 189, 198, 206, 215, 224, 233, 243, 252, 255];
     /// <summary>The blast's oval is three quarters as tall as it is wide: the parts of its width its height takes.</summary>
     public const int OvalHeightParts = 3;
@@ -32,7 +41,7 @@ public static class PowerBombExplosionDefinitions
     public const int OvalWidthParts = 4;
     /// <summary>Radius at which white pre-explosion becomes yellow.</summary>
     public static readonly PowerBombRadius PreExplosionWhiteLimit = PowerBombRadius.FromWholePixels(146);
-    /// <summary>Radius at which yellow explosion switches to white shapes.</summary>
+    /// <summary>Radius at which the yellow explosion switches to the white explosion's ovals.</summary>
     public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
     /// <summary>Crystal Flash's shorter explosion radius limit: thirty-two pixels.</summary>
     public static readonly PowerBombRadius CrystalFlashRadiusLimit = PowerBombRadius.FromWholePixels(32);

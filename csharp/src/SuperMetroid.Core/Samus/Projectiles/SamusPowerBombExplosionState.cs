@@ -6,15 +6,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The power-bomb explosion's two cooperating per-line display effects, represented as one owner.
+/// The Power Bomb's blast: its stages, their radii and durations, and the oval of added colour each frame shows
+/// (<see cref="ShownOval"/>).
 /// </summary>
 /// <remarks>
-/// The game uses one effect to advance the explosion's stages and a second to configure
-/// the glowing window. The second effect has no independent lifetime: it waits until
-/// the first ends both. Keeping one owner therefore exposes the meaningful state without
-/// inventing a second animation. Every phase transition and every radius update below follows
+/// The game ran the blast's stages and its glowing window as two cooperating effects, the second with no lifetime of its
+/// own; one owner keeps the meaningful state. Every phase transition and every radius update below follows
 /// the game's explosion stages exactly: the radii and their speed are plain lengths
-/// (<see cref="PowerBombRadius"/>), and the shape stages' growth holds short of 256 pixels
+/// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of 256 pixels
 /// (<see cref="PowerBombGrowthHold"/>).
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
@@ -37,24 +36,50 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombRadius RadiusSpeed { get; private set; }
 
-    /// <summary>The next authored window shape a shape phase consumes, or null when no run of shapes is active.</summary>
-    public PowerBombShapeCursor? Shape { get; private set; }
+    /// <summary>
+    /// The updates the yellow pre-explosion or the white explosion has run so far (#1927): each shows the oval its
+    /// update selects, and the stage ends after its duration (<see cref="PowerBombExplosionDefinitions.PreExplosionYellowUpdates"/>,
+    /// <see cref="PowerBombExplosionDefinitions.ExplosionWhiteUpdates"/>).
+    /// </summary>
+    private int _ovalStageUpdates;
 
     /// <summary>
-    /// The window shape the current rendered frame consumed before the cursor advanced, or null when the frame used none.
+    /// The horizontal radius, in pixels, of the authored oval the current frame shows, or null when the frame shows the
+    /// blast's own radius instead (#1927). The afterglow keeps the white explosion's last oval.
     /// </summary>
-    public PowerBombShapeCursor? RenderedShape { get; private set; }
+    public int? RenderedOvalRadius { get; private set; }
+
+    /// <summary>
+    /// The oval the current frame shows (#1927): centred on the blast, the authored oval of the yellow pre-explosion or
+    /// white explosion and the afterglow that keeps the last of them, otherwise the blast's own radius as the frame
+    /// built it, and the glow's colour. A blast that spawned after the frame chose its oval shows nothing until the
+    /// next frame.
+    /// </summary>
+    public PowerBombBlastOval ShownOval => PowerBombBlastOval.Of(Position, ShownOvalRadius(), GlowColor);
+
+    /// <summary>The horizontal radius, in whole pixels, of <see cref="ShownOval"/>; zero shows nothing.</summary>
+    /// <exception cref="InvalidOperationException">The shown phase is undefined.</exception>
+    private int ShownOvalRadius() => RenderedPhase switch
+    {
+        PowerBombExplosionPhase.Inactive => 0,
+        PowerBombExplosionPhase.PreExplosionWhite => RenderedPreExplosionRadius.WholePixels,
+        PowerBombExplosionPhase.PreExplosionYellow or PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow =>
+            RenderedOvalRadius ?? RenderedExplosionRadius.WholePixels,
+        PowerBombExplosionPhase.PendingPreExplosionSetup or PowerBombExplosionPhase.ExplosionYellow or
+            PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow =>
+            RenderedExplosionRadius.WholePixels,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PowerBombExplosionPhase)} {RenderedPhase}."),
+    };
 
     /// <summary>Current semantic phase of the explosion's resting animation.</summary>
     public PowerBombExplosionPhase Phase { get; private set; }
 
     /// <summary>
-    /// Phase whose per-line window was produced during the current update.
+    /// Phase whose oval the current update chose.
     /// </summary>
     /// <remarks>
-    /// A frame behaviour can advance <see cref="Phase"/> after generating its final table.
-    /// Keeping the consumed phase separate prevents the host renderer from displaying the
-    /// next phase one frame early at the yellow/white transition boundaries.
+    /// An update can advance <see cref="Phase"/> after choosing its oval. Keeping the shown phase separate prevents the
+    /// display from showing the next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
     public PowerBombExplosionPhase RenderedPhase { get; internal set; }
 
@@ -109,10 +134,8 @@ public sealed class SamusPowerBombExplosionState
         // setup. Executing setup here would skip one update.
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
-        // Starting the explosion does not clear the previous shape. The next effect
-        // setup owns its replacement, even when the previous explosion has ended.
-        Shape = null;
-        RenderedShape = null;
+        _ovalStageUpdates = 0;
+        RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.PendingPreExplosionSetup;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
@@ -137,8 +160,8 @@ public sealed class SamusPowerBombExplosionState
         PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         RadiusSpeed = PowerBombRadius.Zero;
-        Shape = null;
-        RenderedShape = null;
+        _ovalStageUpdates = 0;
+        RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
@@ -157,8 +180,8 @@ public sealed class SamusPowerBombExplosionState
         if (!IsActive)
             return false;
 
-        // Every frame behaviour first builds this frame's window and only then
-        // mutates its radius/shape position or advances the resting animation. Record
+        // Every stage first chooses this frame's oval and only then
+        // changes its radius or its oval stage's updates, or advances the stage. Record
         // that input phase here so post-logic desktop composition sees the generated
         // frame rather than the state prepared for the following one.
         RenderedPhase = Phase;
@@ -218,8 +241,8 @@ public sealed class SamusPowerBombExplosionState
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
         RadiusSpeed = PowerBombRadius.Zero;
-        Shape = null;
-        RenderedShape = null;
+        _ovalStageUpdates = 0;
+        RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.Inactive;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
@@ -229,7 +252,7 @@ public sealed class SamusPowerBombExplosionState
         _crystalFlashAfterglowStepsRemaining = 0;
     }
 
-    /// <summary>Displays the current white flash radius, then slows expansion until the yellow shape list takes over.</summary>
+    /// <summary>Displays the current white flash radius, then slows expansion until the yellow pre-explosion takes over.</summary>
     private void StepPreExplosionWhite()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -248,23 +271,26 @@ public sealed class SamusPowerBombExplosionState
 
         // Advancing past the wait runs the yellow stage's setup, installs its radius step,
         // and waits again during this same effect pass.
-        Shape = new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0);
+        _ovalStageUpdates = 0;
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
     /// <summary>
-    /// Consumes the cursor's shape: returns the shape this frame's window is built from and moves the cursor to the
-    /// next shape of its run.
+    /// Runs one update of an oval stage: returns the authored oval radius this update shows and counts the update.
     /// </summary>
-    /// <param name="finishedShapes">Whether the consumed shape was its run's last.</param>
-    private PowerBombShapeCursor ConsumeShape(out bool finishedShapes)
+    /// <param name="radii">The stage's oval radius for each of its updates.</param>
+    /// <param name="duration">The updates the stage lasts.</param>
+    /// <param name="stageEnds">Whether this update was the stage's last.</param>
+    /// <exception cref="InvalidOperationException">The stage has already run its whole duration.</exception>
+    private int ShowNextOval(IReadOnlyList<int> radii, int duration, out bool stageEnds)
     {
-        PowerBombShapeCursor shape = Shape ?? throw new InvalidOperationException(
-            $"Power Bomb phase {Phase} consumes a window shape with no run of shapes active.");
-        PowerBombShapeCursor next = shape with { Index = shape.Index + 1 };
-        finishedShapes = next.Index == PowerBombShapeCursor.CountOf(shape.Stream);
-        Shape = next;
-        return shape;
+        if (_ovalStageUpdates >= duration)
+            throw new InvalidOperationException(
+                $"Power Bomb phase {Phase} ran past its {duration} updates.");
+        int radius = radii[_ovalStageUpdates];
+        _ovalStageUpdates++;
+        stageEnds = _ovalStageUpdates == duration;
+        return radius;
     }
 
     /// <summary>
@@ -285,7 +311,7 @@ public sealed class SamusPowerBombExplosionState
         return true;
     }
 
-    /// <summary>Consumes each yellow shape before advancing to the next and primes the damaging radius at the last shape.</summary>
+    /// <summary>Shows each yellow oval in turn and primes the damaging radius after the stage's last update.</summary>
     private void StepPreExplosionYellow()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -293,10 +319,10 @@ public sealed class SamusPowerBombExplosionState
             PowerBombGlowSequence.PreExplosion,
             PreExplosionGlowStep(PreExplosionRadius));
 
-        // The yellow pre-explosion builds this frame's two window tables before advancing to the next
-        // shape. Preserve that consumed shape for a host compositor running
-        // after the logic frame has completed.
-        RenderedShape = ConsumeShape(out bool finishedShapes);
+        // The yellow pre-explosion chooses this frame's oval before the stage counts the update, and the display shows
+        // the chosen one after the logic frame has completed.
+        RenderedOvalRadius = ShowNextOval(PowerBombExplosionDefinitions.YellowOvalRadii,
+            PowerBombExplosionDefinitions.PreExplosionYellowUpdates, out bool stageEnds);
 
         // The hold is tested on the growth before either value changes: a growth that would reach 256 pixels leaves
         // both the radius and its speed as they were for this frame.
@@ -306,17 +332,17 @@ public sealed class SamusPowerBombExplosionState
             RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
         }
 
-        if (!finishedShapes)
+        if (!stageEnds)
             return;
 
         // The yellow step initializes the actual damaging radius before the next frame's
-        // yellow explosion frame behaviour. PreExplosionRadius keeps its own value.
+        // yellow explosion update. PreExplosionRadius keeps its own value.
         ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
-    /// <summary>Expands the damaging yellow radius with acceleration, then selects white window shapes.</summary>
+    /// <summary>Expands the damaging yellow radius with acceleration, then starts the white explosion's ovals.</summary>
     private void StepExplosionYellow()
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -331,14 +357,13 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // The next step selects the first of seventeen expanding
-        // white shape tables, then installs the white explosion and rests.
-        Shape = new PowerBombShapeCursor(PowerBombShapeStream.White, 0);
-        RenderedShape = null;
+        // The white explosion starts its seventeen expanding ovals on the next update.
+        _ovalStageUpdates = 0;
+        RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Consumes seventeen white shapes and primes the 32-step afterglow that fades the glow.</summary>
+    /// <summary>Shows the seventeen white ovals and primes the 32-step afterglow that fades the glow.</summary>
     private void StepExplosionWhite()
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -346,7 +371,8 @@ public sealed class SamusPowerBombExplosionState
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        RenderedShape = ConsumeShape(out bool finishedShapes);
+        RenderedOvalRadius = ShowNextOval(PowerBombExplosionDefinitions.WhiteOvalRadii,
+            PowerBombExplosionDefinitions.ExplosionWhiteUpdates, out bool stageEnds);
 
         if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {
@@ -354,11 +380,11 @@ public sealed class SamusPowerBombExplosionState
             RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
         }
 
-        if (!finishedShapes)
+        if (!stageEnds)
             return;
 
-        // The white explosion primes 32 afterglow steps. The explosion then installs the afterglow
-        // frame behaviour; it fades the first step on the following frame.
+        // The white explosion primes 32 afterglow steps. The afterglow then fades the first step on the following
+        // frame.
         _afterglowStepsRemaining = 32;
         Phase = PowerBombExplosionPhase.Afterglow;
     }
@@ -379,8 +405,8 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius = PowerBombRadius.Zero;
             // Cleanup does not clear the shared radius growth speed. Retain it
             // until the next pre-explosion setup, as on the game.
-            Shape = null;
-            RenderedShape = null;
+            _ovalStageUpdates = 0;
+            RenderedOvalRadius = null;
             Phase = PowerBombExplosionPhase.Inactive;
             RenderedPhase = PowerBombExplosionPhase.Inactive;
             RenderedPreExplosionRadius = PowerBombRadius.Zero;
@@ -409,7 +435,7 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every active frame behaviour.
+        // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every update.
         _crystalFlashAfterglowStepsRemaining =
             PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
@@ -428,7 +454,7 @@ public sealed class SamusPowerBombExplosionState
             return false;
         }
 
-        // The awakened effect immediately ends both per-line effects and clears every
+        // The awakened effect immediately ends the blast and clears every
         // shared Power Bomb value. The lock is already released by Crystal Flash's start,
         // but assigning it again mirrors the cleanup and makes reset atomic.
         IsArmed = false;
@@ -436,8 +462,8 @@ public sealed class SamusPowerBombExplosionState
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
         RadiusSpeed = PowerBombRadius.Zero;
-        Shape = null;
-        RenderedShape = null;
+        _ovalStageUpdates = 0;
+        RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.Inactive;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
@@ -462,7 +488,7 @@ public sealed class SamusPowerBombExplosionState
 
     /// <summary>
     /// The pre-explosion colour a flash of <paramref name="radius"/> shows: its glow band, the sixteen colours repeating
-    /// from 128 pixels on. The repeat is load-bearing: the white flash ends at 146 pixels and its yellow shapes grow it
+    /// from 128 pixels on. The repeat is load-bearing: the white flash ends at 146 pixels and its yellow updates grow it
     /// toward 255, so its last colours are the sequence's first ones again.
     /// </summary>
     private static int PreExplosionGlowStep(PowerBombRadius radius) =>

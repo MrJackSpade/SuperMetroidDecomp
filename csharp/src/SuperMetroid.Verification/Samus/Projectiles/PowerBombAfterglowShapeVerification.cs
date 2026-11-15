@@ -23,12 +23,11 @@ internal static class PowerBombAfterglowShapeVerification
             explosion.StepFrame();
         AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Phase, "reported blast reaches the fade transition");
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
-        PowerBombShapeCursor finalShape = explosion.RenderedShape
-            ?? throw new InvalidOperationException("The final white frame consumed no shape.");
-        AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 16), finalShape, "native final white profile");
-        // The final white oval: centred on the blast at the bottom-left, the stream's last radius wide and three
+        int radius = explosion.RenderedOvalRadius
+            ?? throw new InvalidOperationException("The final white frame showed no authored oval.");
+        // The final white oval: centred on the blast at the bottom-left, the white explosion's last oval wide and three
         // quarters of it tall, below the HUD (#1468).
-        int radius = finalShape.HorizontalRadius();
+        AssertEqual(PowerBombExplosionDefinitions.WhiteOvalRadii[^1], radius, "native final white profile");
         AssertEqual(255, radius, "the final white oval reaches the widest radius");
         ScreenWindow finalOval = ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(32, 208), new Extent16<ScreenPixels>(checked((ushort)radius),
             checked((ushort)(radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts)))), DisplayScreen.HudHeight);

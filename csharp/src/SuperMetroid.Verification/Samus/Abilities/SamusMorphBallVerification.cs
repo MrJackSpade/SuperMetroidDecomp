@@ -952,8 +952,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "white threshold advances to yellow shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius >= PowerBombRadius.FromWholePixels(146),
         "white phase crosses its 146-pixel radius threshold");
-    AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), powerBombs.PowerBombExplosion.Shape,
-        "yellow pre-explosion starts at the first yellow shape");
+    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.RenderedOvalRadius,
+        "yellow pre-explosion shows its first oval on its next update");
 
     StepFrames(4, _ => powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0));
     AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
@@ -976,8 +976,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "yellow radius threshold advances to white shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius >= PowerBombRadius.FromWholePixels(134),
         "yellow explosion crosses its 134-pixel threshold");
-    AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 0), powerBombs.PowerBombExplosion.Shape,
-        "white explosion starts at the first white ellipse shape");
+    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.RenderedOvalRadius,
+        "white explosion shows its first oval on its next update");
 
     int whiteExplosionFrames = 0;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionWhite)

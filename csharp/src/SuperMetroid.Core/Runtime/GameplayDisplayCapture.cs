@@ -176,7 +176,7 @@ public static class GameplayDisplayCapture
     /// <summary>The power bomb's live window inputs drawn in the colour the accepted frame latched.</summary>
     internal static PowerBombRenderSnapshot PowerBomb(GameplayDisplayFrame frame)
     {
-        return frame.FrameEnd.PowerBomb with { GlowColor = frame.Latched.Tints.PowerBomb };
+        return frame.FrameEnd.PowerBomb with { Oval = frame.FrameEnd.PowerBomb.Oval with { Colour = frame.Latched.Tints.PowerBomb } };
     }
 
     /// <summary>The suit pickup's live light beam drawn in the colour the accepted frame latched, or null while inactive.</summary>

@@ -10,8 +10,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>
-/// Checks what the suit pickup leaves for the shinespark (<see cref="SuitPickupSparkCarryover"/>) and on the count Crystal
-/// Flash's drain and Draygon's escape share (<see cref="SharedEscapeAndDrainCount"/>).
+/// Checks what the suit pickup leaves for the shinespark (<see cref="SuitPickupSparkCarryover{TStage}"/>) and on the count Crystal
+/// Flash's drain and Draygon's escape share (<see cref="SharedEscapeAndDrainCount{TStage}"/>).
 /// </summary>
 internal static class SuitPickupCarryoverVerification
 {

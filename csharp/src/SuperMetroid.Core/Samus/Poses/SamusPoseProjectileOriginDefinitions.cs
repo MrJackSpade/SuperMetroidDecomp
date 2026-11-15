@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusPoseProjectileOriginDefinitions
 {
-    /// <summary>How far above Samus's centre each authored pose's projectiles start, in pixels; <see cref="SamusPoseProjectileOrigins.ReadYOffset"/> looks it up.</summary>
+    /// <summary>
+    /// How far above Samus's centre each authored pose's projectiles start, in pixels; <see cref="SamusPoseProjectileOrigins.ReadYOffset"/>
+    /// looks it up. The drained poses' origin is four pixels below the centre (#1928).
+    /// </summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, int> YOffsets = new Dictionary<SamusPoseId, int>
     {
         [SamusPoseId.SpinJumpRightPose] = 0,
@@ -238,9 +241,9 @@ internal static class SamusPoseProjectileOriginDefinitions
         [SamusPoseId.CompactAirborneFallingLeftPose] = 12,
         [SamusPoseId.GrappleSwingRightPose] = 16,
         [SamusPoseId.GrappleSwingLeftPose] = 16,
-        [SamusPoseId.DrainedCrouchingRightPose] = 252,
-        [SamusPoseId.DrainedCrouchingLeftPose] = 252,
-        [SamusPoseId.DrainedStandingRightPose] = 252,
-        [SamusPoseId.DrainedStandingLeftPose] = 252,
+        [SamusPoseId.DrainedCrouchingRightPose] = -4,
+        [SamusPoseId.DrainedCrouchingLeftPose] = -4,
+        [SamusPoseId.DrainedStandingRightPose] = -4,
+        [SamusPoseId.DrainedStandingLeftPose] = -4,
     };
 }

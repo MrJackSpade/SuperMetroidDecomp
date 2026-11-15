@@ -38,7 +38,7 @@ public sealed class SamusCrystalFlashState
     /// The updates until the next unit of ammunition drains, reloaded to ten between the three ammunition families, on the
     /// count Draygon's escape and the suit pickup's stage share, so it counts on from whatever they last left.
     /// </summary>
-    private readonly SharedEscapeAndDrainCount _ammoCountdown;
+    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> _ammoCountdown;
 
     /// <summary>The special suit colouring holding Samus's suit, which Crystal Flash takes.</summary>
     private readonly SamusSpecialColouring _colouring;
@@ -46,7 +46,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Creates a Crystal Flash owner whose ammunition countdown runs on Samus's shared escape and drain count.</summary>
     /// <param name="ammoCountdown">Samus's shared escape and drain count.</param>
     /// <param name="colouring">Samus's special suit colouring, which Crystal Flash takes.</param>
-    internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown, SamusSpecialColouring colouring)
+    internal SamusCrystalFlashState(SharedEscapeAndDrainCount<SamusSuitPickupStage> ammoCountdown, SamusSpecialColouring colouring)
     {
         _ammoCountdown = Ensure.NotNull(ammoCountdown);
         _colouring = Ensure.NotNull(colouring);
@@ -158,7 +158,7 @@ public sealed class SamusCrystalFlashState
             ? SamusPoseId.CrystalFlashLeftPose
             : SamusPoseId.CrystalFlashRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special)
             throw new InvalidDataException("The Crystal Flash poses no longer have the special movement type.");
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Successful activation publishes history directly, before
@@ -326,7 +326,7 @@ public sealed class SamusCrystalFlashState
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
         // Therefore cleanup naturally happens on the following movement phase, once standing movement is
         // observable here, and that frame performs no ordinary standing movement.
-        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Standing)
             return;
 
         BeamShadeRestoreRequested = true;

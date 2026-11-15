@@ -568,7 +568,13 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(native[pose], stock.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
             AssertEqual(native[pose], installed.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
-            AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
+            // The drained poses' origin is their signed correction, four below the centre; the original's unsigned read of
+            // it, which nothing fired from those poses reaches, is gone (#1928).
+            int expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+                or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
+                ? native[pose]
+                : unchecked((byte)native[pose]);
+            AssertEqual(expectedOrigin, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
         }
         foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
             AssertThrows<InvalidDataException>(() => stock.Gameplay.GraphicsYOffset(pose), "Installed graphics excludes adjacent instruction poses");

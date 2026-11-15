@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// One count shared by three of Samus's scripted sequences (#1552): Crystal Flash counts down the updates until it next
 /// drains a unit of ammunition on it, Draygon's grip counts the directional presses toward Samus's escape on it, and the
-/// suit pickup leaves its stage's place in the stage order on it at its setup and after every stage call. Crystal Flash
+/// suit pickup leaves its stage's place in the stage order (<see cref="SuitPickupStageOrder{TStage}"/>) on it at its setup
+/// and after every stage call. Crystal Flash
 /// starts its countdown at ten and a Draygon grab clears the count, but each then continues from whatever the count holds:
 /// a Crystal Flash whose drain the suit pickup suspended counts down from the stage the pickup left, not from its own
 /// countdown, and the escape test reads a count another sequence left, comparing it with the target by the sign of their
@@ -23,9 +24,18 @@ namespace SuperMetroid.Core.Compatibility;
 /// that sign boundary and holds her from one past it.
 /// </para>
 /// </remarks>
+/// <typeparam name="TStage">A suit pickup stage.</typeparam>
 [CompatibilityService("Crystal Flash's ammunition countdown, Draygon's escape presses and the suit pickup's stage are one count")]
-public sealed class SharedEscapeAndDrainCount
+public sealed class SharedEscapeAndDrainCount<TStage>
+    where TStage : notnull
 {
+    /// <summary>The order of the suit pickup's stages, whose place the pickup leaves on the count.</summary>
+    private readonly SuitPickupStageOrder<TStage> _stages;
+
+    /// <summary>Starts the count at zero, for a Samus whose suit pickup runs its stages in <paramref name="stages"/>' order.</summary>
+    /// <param name="stages">The suit pickup's stage order.</param>
+    public SharedEscapeAndDrainCount(SuitPickupStageOrder<TStage> stages) => _stages = Ensure.NotNull(stages);
+
     /// <summary>The count, 0 through 65535, a wrapped countdown kept exactly.</summary>
     private int Count { get; set; }
 
@@ -61,7 +71,7 @@ public sealed class SharedEscapeAndDrainCount
     /// <param name="target">The presses that free Samus, 0 through 65535.</param>
     public bool EscapePressesReach(int target) => !WrappingCounter.IsBehind(Count, target);
 
-    /// <summary>The suit pickup leaves its stage on the count.</summary>
-    /// <param name="stage">The stage's place in the stage order, from zero.</param>
-    public void LeaveSuitPickupStage(int stage) => Count = Ensure.BetweenInclusive(0, ushort.MaxValue, stage);
+    /// <summary>The suit pickup leaves its stage's place in the stage order on the count.</summary>
+    /// <param name="stage">The stage the pickup has reached.</param>
+    public void LeaveSuitPickupStage(TStage stage) => Count = _stages.Number(stage);
 }

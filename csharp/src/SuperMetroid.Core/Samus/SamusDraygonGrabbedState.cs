@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
@@ -43,17 +44,17 @@ public sealed class SamusDraygonGrabbedState
     internal void RelinquishMovement() => MovementTakenOver = true;
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
-    private readonly SharedEscapeAndDrainCount _escapePresses;
+    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> _escapePresses;
 
     /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
     /// <param name="escapePresses">Samus's shared escape and drain count.</param>
-    internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount escapePresses) => _escapePresses = Ensure.NotNull(escapePresses);
+    internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses) => _escapePresses = Ensure.NotNull(escapePresses);
 
     /// <summary>
     /// D-pad presses counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
-    /// pickup's stage share (<see cref="SharedEscapeAndDrainCount"/>), so it holds any value those leave, including a
+    /// pickup's stage share (<see cref="SharedEscapeAndDrainCount{TStage}"/>), so it holds any value those leave, including a
     /// wrapped countdown. A press continues from zero past 65535, and the release test is the shared count's own
-    /// (<see cref="SharedEscapeAndDrainCount.EscapePressesReach"/>).
+    /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>).
     /// </summary>
     public int EscapeButtonCounter => _escapePresses.EscapePresses;
 

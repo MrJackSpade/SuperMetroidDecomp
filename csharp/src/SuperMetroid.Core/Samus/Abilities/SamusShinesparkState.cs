@@ -30,7 +30,7 @@ public sealed class SamusShinesparkState
     /// vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes. A suit pickup
     /// during a suspended windup replaces it with the light beam's progress.
     /// </summary>
-    private readonly SuitPickupSparkCarryover _acceleration;
+    private readonly SuitPickupSparkCarryover<SamusSuitPickupStage> _acceleration;
 
     /// <summary>
     /// How far the crash's orbiting copies have turned, 0 through <see cref="CrashOrbitTravelCarryover.LargestTravel"/>:
@@ -46,7 +46,7 @@ public sealed class SamusShinesparkState
     /// <param name="acceleration">Samus's suit pickup carryover, which holds the spark's upward acceleration.</param>
     /// <param name="orbitTravel">Samus's crash orbit carryover, which holds how far the crash's orbit has turned.</param>
     /// <param name="colouring">Samus's special suit colouring, which the shine and the spark take.</param>
-    internal SamusShinesparkState(SuitPickupSparkCarryover acceleration, CrashOrbitTravelCarryover orbitTravel, SamusSpecialColouring colouring)
+    internal SamusShinesparkState(SuitPickupSparkCarryover<SamusSuitPickupStage> acceleration, CrashOrbitTravelCarryover orbitTravel, SamusSpecialColouring colouring)
     {
         _colouring = Ensure.NotNull(colouring);
         _acceleration = Ensure.NotNull(acceleration);

@@ -33,10 +33,10 @@ internal static class BackgroundTransferPresentationContractChecks
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
                     blends.Inks(0);
-                    blends.Inks(RoomFxPaletteBlend.Lava);
-                    blends.Inks((RoomFxPaletteBlend)200);
-                    blends.Inks((RoomFxPaletteBlend)255);
-                    blends.Inks(RoomFxPaletteBlend.Fog);
+                    blends.Inks(RoomEffectTint.Lava);
+                    blends.Inks((RoomEffectTint)200);
+                    blends.Inks((RoomEffectTint)255);
+                    blends.Inks(RoomEffectTint.Fog);
                     ending.Fragment(EndingObjectFragmentId.Blank);
                     ending.Fragment((EndingObjectFragmentId)4);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);

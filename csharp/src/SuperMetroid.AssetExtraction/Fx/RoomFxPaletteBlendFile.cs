@@ -25,7 +25,7 @@ public static class RoomFxPaletteBlendFile
 
         return new(RoomFxPaletteBlendDocumentRules.Ids.ToDictionary(id => id, Compile));
 
-        RgbColor[] Compile(RoomFxPaletteBlend id)
+        RgbColor[] Compile(RoomEffectTint id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDocumentRules.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)

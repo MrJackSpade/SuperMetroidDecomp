@@ -70,7 +70,7 @@ internal static class PaletteFxRoomShades
         foreach (SelectedRoom room in rooms)
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
-                objects.UnionWith(record.PaletteEffects);
+                objects.UnionWith(record.ColourEffects);
             if (room.Area == AreaId.Tourian)
                 objects.UnionWith(StatueGreyOuts);
         }

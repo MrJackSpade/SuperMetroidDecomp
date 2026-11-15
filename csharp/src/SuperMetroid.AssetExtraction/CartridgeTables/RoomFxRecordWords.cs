@@ -31,17 +31,17 @@ internal static class RoomFxRecordWords
         [RoomFxType.CeresHaze] = 0x2c,
     });
 
-    /// <summary>The colour-table byte offset naming each <see cref="RoomFxPaletteBlend"/>; zero clears the blend.</summary>
-    internal static readonly NativeWordIdentities<RoomFxPaletteBlend> PaletteBlends = new(new Dictionary<RoomFxPaletteBlend, ushort>
+    /// <summary>The colour-table byte offset naming each <see cref="RoomEffectTint"/>; zero clears the blend.</summary>
+    internal static readonly NativeWordIdentities<RoomEffectTint> PaletteBlends = new(new Dictionary<RoomEffectTint, ushort>
     {
-        [RoomFxPaletteBlend.None] = 0x00,
-        [RoomFxPaletteBlend.Lava] = 0x02,
-        [RoomFxPaletteBlend.LandingSiteRain] = 0x22,
-        [RoomFxPaletteBlend.IndigoMaridiaWater] = 0x42,
-        [RoomFxPaletteBlend.WaterAndAcid] = 0x48,
-        [RoomFxPaletteBlend.Fog] = 0x62,
-        [RoomFxPaletteBlend.TealMaridiaWater] = 0xe2,
-        [RoomFxPaletteBlend.GreenMaridiaWater] = 0xe8,
-        [RoomFxPaletteBlend.PurpleMaridiaWater] = 0xee,
+        [RoomEffectTint.None] = 0x00,
+        [RoomEffectTint.Lava] = 0x02,
+        [RoomEffectTint.LandingSiteRain] = 0x22,
+        [RoomEffectTint.IndigoMaridiaWater] = 0x42,
+        [RoomEffectTint.WaterAndAcid] = 0x48,
+        [RoomEffectTint.Fog] = 0x62,
+        [RoomEffectTint.TealMaridiaWater] = 0xe2,
+        [RoomEffectTint.GreenMaridiaWater] = 0xe8,
+        [RoomEffectTint.PurpleMaridiaWater] = 0xee,
     });
 }

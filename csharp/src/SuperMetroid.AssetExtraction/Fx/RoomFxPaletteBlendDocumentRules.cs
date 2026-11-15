@@ -10,18 +10,18 @@ namespace SuperMetroid.AssetExtraction.Fx;
 public static class RoomFxPaletteBlendDocumentRules
 {
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
-    public static IEnumerable<RoomFxPaletteBlend> Ids
+    public static IEnumerable<RoomEffectTint> Ids
     {
         get
         {
-            yield return RoomFxPaletteBlend.Lava;
-            yield return RoomFxPaletteBlend.LandingSiteRain;
-            yield return RoomFxPaletteBlend.IndigoMaridiaWater;
-            yield return RoomFxPaletteBlend.WaterAndAcid;
-            yield return RoomFxPaletteBlend.Fog;
-            yield return RoomFxPaletteBlend.TealMaridiaWater;
-            yield return RoomFxPaletteBlend.GreenMaridiaWater;
-            yield return RoomFxPaletteBlend.PurpleMaridiaWater;
+            yield return RoomEffectTint.Lava;
+            yield return RoomEffectTint.LandingSiteRain;
+            yield return RoomEffectTint.IndigoMaridiaWater;
+            yield return RoomEffectTint.WaterAndAcid;
+            yield return RoomEffectTint.Fog;
+            yield return RoomEffectTint.TealMaridiaWater;
+            yield return RoomEffectTint.GreenMaridiaWater;
+            yield return RoomEffectTint.PurpleMaridiaWater;
         }
     }
 
@@ -29,19 +29,19 @@ public static class RoomFxPaletteBlendDocumentRules
     /// The installed document's key for <paramref name="id"/>. Each key names the tint as the blend's identity does (#1740),
     /// never the cartridge's colour-table offset.
     /// </summary>
-    /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomFxPaletteBlend.None"/> clears the blend and has no resource key.</param>
+    /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomEffectTint.None"/> clears the blend and has no resource key.</param>
     /// <exception cref="InvalidDataException">The blend is not one of the eight catalogued blends.</exception>
-    public static string Key(RoomFxPaletteBlend id) => id switch
+    public static string Key(RoomEffectTint id) => id switch
     {
-        RoomFxPaletteBlend.Lava => "lava",
-        RoomFxPaletteBlend.LandingSiteRain => "landing-site-rain",
-        RoomFxPaletteBlend.IndigoMaridiaWater => "indigo-maridia-water",
-        RoomFxPaletteBlend.WaterAndAcid => "water-and-acid",
-        RoomFxPaletteBlend.Fog => "fog",
-        RoomFxPaletteBlend.TealMaridiaWater => "teal-maridia-water",
-        RoomFxPaletteBlend.GreenMaridiaWater => "green-maridia-water",
-        RoomFxPaletteBlend.PurpleMaridiaWater => "purple-maridia-water",
-        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
+        RoomEffectTint.Lava => "lava",
+        RoomEffectTint.LandingSiteRain => "landing-site-rain",
+        RoomEffectTint.IndigoMaridiaWater => "indigo-maridia-water",
+        RoomEffectTint.WaterAndAcid => "water-and-acid",
+        RoomEffectTint.Fog => "fog",
+        RoomEffectTint.TealMaridiaWater => "teal-maridia-water",
+        RoomEffectTint.GreenMaridiaWater => "green-maridia-water",
+        RoomEffectTint.PurpleMaridiaWater => "purple-maridia-water",
+        RoomEffectTint.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
         _ => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
     };
 }

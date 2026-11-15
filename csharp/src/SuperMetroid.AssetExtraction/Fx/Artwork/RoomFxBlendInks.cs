@@ -10,14 +10,14 @@ namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 public sealed class RoomFxBlendInks
 {
     /// <summary>Each authored selection's three installed inks.</summary>
-    private readonly Dictionary<RoomFxPaletteBlend, RgbColor[]> inks;
+    private readonly Dictionary<RoomEffectTint, RgbColor[]> inks;
 
     /// <summary>Keeps every authored selection's complete installed inks.</summary>
     /// <param name="inks">The three inks of each of the eight authored selections.</param>
     /// <exception cref="InvalidDataException">A selection is missing, or holds other than three inks.</exception>
-    internal RoomFxBlendInks(Dictionary<RoomFxPaletteBlend, RgbColor[]> inks)
+    internal RoomFxBlendInks(Dictionary<RoomEffectTint, RgbColor[]> inks)
     {
-        foreach (RoomFxPaletteBlend selection in RoomFxPaletteBlendDocumentRules.Ids)
+        foreach (RoomEffectTint selection in RoomFxPaletteBlendDocumentRules.Ids)
             if (!inks.TryGetValue(selection, out RgbColor[]? colours) || colours.Length != RoomFxPaletteBlendDefinitions.ColorCount)
                 throw new InvalidDataException($"Room-FX blend {selection} requires {RoomFxPaletteBlendDefinitions.ColorCount} installed colors.");
         if (inks.Count != RoomFxPaletteBlendDocumentRules.Ids.Count())
@@ -26,7 +26,7 @@ public sealed class RoomFxBlendInks
     }
 
     /// <summary>The inks <paramref name="selection"/> loads: its three installed colours, or the cleared black of no blend.</summary>
-    internal IReadOnlyList<RgbColor> Inks(RoomFxPaletteBlend selection) => selection == RoomFxPaletteBlend.None
+    internal IReadOnlyList<RgbColor> Inks(RoomEffectTint selection) => selection == RoomEffectTint.None
         ? [RgbColor.Black]
         : inks.TryGetValue(selection, out RgbColor[]? colours)
             ? colours

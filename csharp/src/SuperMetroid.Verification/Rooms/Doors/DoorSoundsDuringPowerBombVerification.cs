@@ -63,7 +63,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         AssertEqual(0, audio.SoundsQueuedSinceForVerification(library1).Count, "library one's cancel is dropped");
         AssertEqual(0, audio.SoundsQueuedSinceForVerification(library2).Count, "library two's $71 is dropped");
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification,
+        AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification,
             "$E29E finds the rings empty on its first check");
         Console.WriteLine("  Door sounds during a power bomb: the cancels are dropped and the wait ends at once.");
     }

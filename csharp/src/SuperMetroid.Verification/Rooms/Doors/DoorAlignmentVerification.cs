@@ -151,7 +151,7 @@ internal static class DoorAlignmentVerification
                 alignmentCalls++;
             transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             if (phaseBeforeStep == DoorTransitionPhase.DrawFirstDestinationFrame &&
-                transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
+                transition.Phase == DoorTransitionPhase.FadeInDestinationRoom)
             {
                 observedDestinationBuild = true;
                 AssertEqual(heldLeftRight, runtime.Controller1.Current,

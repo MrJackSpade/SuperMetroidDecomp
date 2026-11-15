@@ -75,7 +75,7 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertTrue(nativeVram.ImageEquals(compiledVram),
             "Ceres compiled FX retains VRAM output");
         // The blend's colours are the layer-3 pictures' shade of it (#1512); the room names the same blend.
-        AssertEqual(nativeFx.PaletteBlend, compiledFx.PaletteBlend, "Ceres compiled FX palette blend");
+        AssertEqual(nativeFx.Tint, compiledFx.Tint, "Ceres compiled effect tint");
 
         var nativePaletteSession = new ColourEffectSessionState();
         ColourEffectSystem nativePalette;

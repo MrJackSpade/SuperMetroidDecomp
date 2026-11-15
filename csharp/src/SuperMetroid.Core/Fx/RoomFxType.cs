@@ -8,7 +8,7 @@ public enum RoomFxType
 {
     /// <summary>The room shows no effect of its own.</summary>
     None = 0,
-    /// <summary>Animated damaging lava surface with the effect overlay's pictures, palette effects, and optional background distortion.</summary>
+    /// <summary>Animated damaging lava surface with the effect overlay's pictures, colour effects, and optional background distortion.</summary>
     Lava = 1,
     /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
     Acid,
@@ -22,7 +22,7 @@ public enum RoomFxType
     Fog,
     /// <summary>Scrolling exterior-sky background driven by the active room's sky picture.</summary>
     ScrollingSky,
-    /// <summary>Fireflea-room darkness and palette behavior, including enemy-driven light flashes.</summary>
+    /// <summary>Fireflea-room darkness and its shading, including enemy-driven light flashes.</summary>
     Fireflea,
     /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible effect overlay path.</summary>
     TourianEntranceStatue,
@@ -30,6 +30,6 @@ public enum RoomFxType
     CeresRidley,
     /// <summary>Ceres elevator-shaft effect used during the station's scripted descent and destruction flow.</summary>
     CeresElevator,
-    /// <summary>Ceres destruction haze whose palette and layer state progress with the escape sequence.</summary>
+    /// <summary>Ceres destruction haze whose colours and layer state progress with the escape sequence.</summary>
     CeresHaze,
 }

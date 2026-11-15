@@ -18,7 +18,7 @@ internal static class SpringBallBounceVerification
         var room = CreateRoom(new(16, 32), new RoomTerrainBlock[16 * 32], new RoomBlockBehavior[16 * 32]);
         foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Pose = SamusPoseId.SpringBallJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),
@@ -30,7 +30,7 @@ internal static class SpringBallBounceVerification
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
-            SamusMorphBallMovement.StepSpringBallInAir(room, samus, GameplayAction.Right, 0);
+            SamusMorphBallMovement.StepSpringBallInAir(room, samus, GameplayAction.Right, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
             if (bounceState != SamusBallBounceState.None)
             {

@@ -7,10 +7,16 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </summary>
 public sealed class SamusGrappleState
 {
-    /// <summary>Current host visual origins, rebound after state load; never changes physical hand offsets.</summary>
-    public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement { get; set; }
-    /// <summary>Current displayed orientation mapping, never a collision/body offset source.</summary>
-    public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames { get; set; }
+    /// <summary>Starts an inactive grapple whose flare, swing pictures and rope draw from <paramref name="artwork"/>.</summary>
+    internal SamusGrappleState(SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding artwork) => Artwork = Ensure.NotNull(artwork);
+
+    /// <summary>The installed artwork the flare's placement, the swing's pictures and the rope draw from.</summary>
+    internal SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding Artwork { get; }
+
+    /// <summary>The installed flare origins, or none before they are installed; never changes physical hand offsets.</summary>
+    public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement => Artwork.GrappleFlarePlacement;
+    /// <summary>The installed swing pictures, or none before they are installed; never a collision/body offset source.</summary>
+    public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames => Artwork.GrappleSwingFrames;
     /// <summary>Gets or sets the current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>
@@ -23,11 +29,10 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// The flare position, retained under the older
-    /// BeamStart name. <see cref="SamusGrappleBeamDrawing.DrawConnectedBeam"/> starts drawing
-    /// here; do not use this position to reconstruct the locked connection's body positioning.
+    /// Where the beam's flare shows and its rope is drawn from: <see cref="SamusGrappleBeamDrawing.DrawConnectedBeam"/>
+    /// starts drawing here. Do not use this position to reconstruct the locked connection's body positioning.
     /// </summary>
-    public Position16<RoomPixels> BeamStart { get; set; }
+    public Position16<RoomPixels> FlareOrigin { get; set; }
     /// <summary>
     /// Rope length in pixels. Connected motion clamps it below 64, while firing grows it by twelve per frame
     /// and cancels once it reaches 128, so it never leaves 0 through

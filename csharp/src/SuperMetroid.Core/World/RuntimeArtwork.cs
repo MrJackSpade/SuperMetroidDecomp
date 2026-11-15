@@ -57,7 +57,6 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             _hud.BindPresentation(value?.GameplayHud);
-            BindSamusArtwork();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowBeamColours;
             _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
@@ -65,16 +64,11 @@ internal sealed class RuntimeArtwork
         }
     }
 
-    /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
-    internal void BindSamusArtwork()
-    {
-        if (_player.Samus is null)
-            return;
-        // All Samus constructors call this rebind before her first draw.
-        _player.Samus.Presentation.BindArtwork(SamusBodyArt);
-        _player.Samus.Presentation.BindSheets(SpriteSheets);
-        _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
-    }
+    /// <summary>
+    /// The session's Samus artwork, which every Samus the runtime builds draws from, so a rebinding reaches the Samus
+    /// already playing (#2049).
+    /// </summary>
+    internal SamusArtworkBinding SamusArtwork { get; } = new();
 
     /// <summary>Rebinds authored visual frame choices to both projectile slot owners.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings
@@ -88,25 +82,15 @@ internal sealed class RuntimeArtwork
     /// <summary>Current Grapple flare offsets.</summary>
     public ChargeFlarePlacements? GrappleFlarePlacement
     {
-        get;
-        set { field = value; BindGrapplePresentation(); }
+        get => SamusArtwork.GrappleFlarePlacement;
+        set => SamusArtwork.GrappleFlarePlacement = value;
     }
 
     /// <summary>Current frame Samus's swing pose shows at each grapple angle.</summary>
     public InstalledGrappleSwingFrames? GrappleSwingFrames
     {
-        get;
-        set { field = value; BindGrapplePresentation(); }
-    }
-
-    /// <summary>Rebinds current Grapple flare and swing visuals to an active Samus actor.</summary>
-    internal void BindGrapplePresentation()
-    {
-        if (_player.Samus is not null)
-        {
-            _player.Samus.Grapple.FlarePlacement = GrappleFlarePlacement;
-            _player.Samus.Grapple.SwingFrames = GrappleSwingFrames;
-        }
+        get => SamusArtwork.GrappleSwingFrames;
+        set => SamusArtwork.GrappleSwingFrames = value;
     }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
@@ -117,7 +101,7 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
-            _player.Samus?.Presentation.BindSheets(value);
+            SamusArtwork.Sheets = value;
         }
     }
 
@@ -138,8 +122,8 @@ internal sealed class RuntimeArtwork
         set
         {
             field = value;
-            _player.Samus?.Presentation.BindArtwork(value);
-            if (_player.Samus is not null) _player.Samus.ArmCannon.Artwork = value?.ArmCannon;
+            SamusArtwork.Body = value;
+            SamusArtwork.ArmCannon = value?.ArmCannon;
         }
     }
 }

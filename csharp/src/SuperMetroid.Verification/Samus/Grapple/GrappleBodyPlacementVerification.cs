@@ -16,7 +16,7 @@ internal static class GrappleBodyPlacementVerification
     internal static void VerifyGrappleBodyPlacement(CartridgeImportAddressSpace rom)
     {
         var position = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PositionSamusFromPendulum);
-        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
         var stock = GrappleSwingFrameFile.Load(new MemoryStream(json));
         foreach (bool installed in new[] { false, true })
@@ -24,7 +24,7 @@ internal static class GrappleBodyPlacementVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var g = samus.Grapple;
-            g.SwingFrames = installed ? InstalledFixtures.Projectiles.Grapple.SwingFrames : stock;
+            samus.Artwork.GrappleSwingFrames = installed ? InstalledFixtures.Projectiles.Grapple.SwingFrames : stock;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
             g.RopeLength = (ushort)(raw & 127);
@@ -41,8 +41,8 @@ internal static class GrappleBodyPlacementVerification
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Swing art cannot move Grapple collision-body Y");
             AssertEqual(nativeFrame, samus.AnimationFrame, "Native swing visual frame");
             AssertEqual(15, samus.AnimationFrameTimer.RawValue, "Native swing animation timer");
-            AssertEqual(g.RopeStart.X, g.BeamStart.X, "Swing Flare follows physical Start X");
-            AssertEqual(g.RopeStart.Y, g.BeamStart.Y, "Swing Flare follows physical Start Y");
+            AssertEqual(g.RopeStart.X, g.FlareOrigin.X, "Swing Flare follows physical Start X");
+            AssertEqual(g.RopeStart.Y, g.FlareOrigin.Y, "Swing Flare follows physical Start Y");
         }
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");

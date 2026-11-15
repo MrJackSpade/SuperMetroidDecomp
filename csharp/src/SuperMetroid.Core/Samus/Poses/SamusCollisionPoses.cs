@@ -12,4 +12,11 @@ internal static class SamusCollisionPoses
         : pose == SamusPoseId.RanIntoWallRightPose ? SamusCollisionPose.RanIntoWallRight
         : SamusPoseMetadata.ArmsElevator(pose) ? SamusCollisionPose.StandingOther
         : SamusCollisionPose.Other;
+
+    /// <summary>
+    /// What room collision needs to know about a collision pose that may not have been sampled yet: an unsampled pose is
+    /// none of the poses a pose-gated reaction admits.
+    /// </summary>
+    internal static SamusCollisionPose ForRoomCollision(this SamusPoseId? pose) =>
+        pose is { } sampled ? sampled.ForRoomCollision() : SamusCollisionPose.Other;
 }

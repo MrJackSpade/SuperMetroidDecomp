@@ -111,7 +111,7 @@ internal static class SpikeDamageBoostVerification
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = SamusKnockbackDirection.None;
-        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = 4 });
+        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = 4 }, poseCollision: null);
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);

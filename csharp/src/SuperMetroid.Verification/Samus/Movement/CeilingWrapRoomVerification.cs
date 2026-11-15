@@ -64,7 +64,7 @@ internal static class CeilingWrapRoomVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.FrogSpeedway);
         var level = runtime.Room.LoadedLevelData;
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
             PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer };
         samus.Kinematics.Radius = new(5, 21);
         var roomObjects = runtime.RoomObjects;
@@ -78,7 +78,7 @@ internal static class CeilingWrapRoomVerification
         {
             GameplayAction held = GameplayAction.Shoot;
             GameplayAction pressed = frame == 0 ? held : GameplayAction.None;
-            bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
+            bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             roomObjects.Step(level);
             if (firstFull < 0 && roomObjects.Places.ActiveCount == 40) firstFull = frame;

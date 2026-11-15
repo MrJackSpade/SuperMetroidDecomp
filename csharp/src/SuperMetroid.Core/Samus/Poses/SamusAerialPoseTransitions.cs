@@ -44,7 +44,7 @@ internal static class SamusAerialPoseTransitions
         SamusPoseId targetPose,
         int frameCounter,
         GameplayAction controllerNewInput,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -109,7 +109,7 @@ internal static class SamusAerialPoseTransitions
         // Publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -121,7 +121,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">Optional live room-object owner for those collision reactions.</param>
+    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
     /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until Samus's next input phase.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
@@ -132,7 +132,7 @@ internal static class SamusAerialPoseTransitions
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -264,17 +264,13 @@ internal static class SamusAerialPoseTransitions
     /// wall test succeeds. The launch values are read from the game's dry-air tables.
     /// </summary>
     /// <param name="samus">The Samus this reads.</param>
-    /// <param name="level">
-    /// Live collision geometry supplied by gameplay. Null is reserved for isolated
-    /// launch-value/particle diagnostics that explicitly model unobstructed space.
-    /// </param>
-    /// <param name="frameCounter">The frame counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
-    /// <param name="roomObjects">Optional room-object owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
-    public static void ApplyWallJumpTrigger(SamusState samus, 
-
-        RoomLevelData? level = null,
-        int frameCounter = 0,
-        ISamusRoomObjects? roomObjects = null)
+    /// <param name="level">The room's collision geometry the larger wall-jump pose is tested against.</param>
+    /// <param name="frameCounter">The frame counter passed to the changed-pose collision resolver.</param>
+    /// <param name="roomObjects">The room's room objects, receiving changed-pose block reactions.</param>
+    public static void ApplyWallJumpTrigger(SamusState samus,
+        RoomLevelData level,
+        int frameCounter,
+        ISamusRoomObjects roomObjects)
     {
 
         // Only the spin-jumping mover reaches the wall-jump check. The cached movement type, not the
@@ -285,22 +281,19 @@ internal static class SamusAerialPoseTransitions
                 $"Wall-jump trigger requires cached spin movement, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         SamusPoseId targetPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
-        if (level is not null)
+        // The accepted wall contact still passes through the ordinary changed-pose
+        // collision check. Expanding a compact spin body beneath a ceiling can
+        // move the center away from it, reject the expansion, or select crouch.
+        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
+            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.RetainSource)
+            return;
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            // The accepted wall contact still passes through the ordinary changed-pose
-            // collision check. Expanding a compact spin body beneath a ceiling can
-            // move the center away from it, reject the expansion, or select crouch.
-            LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
-            if (collision == LargerPoseCollisionOutcome.RetainSource)
-                return;
-            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-            {
-                samus.ApplyPoseChangeCollisionCrouchFallback(samus.Pose);
-                return;
-            }
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
+            samus.ApplyPoseChangeCollisionCrouchFallback(samus.Pose);
+            return;
         }
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
         // immediately reloads the normal suit shade before the wall jump starts. The desktop
@@ -387,7 +380,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null,
+        ISamusRoomObjects roomObjects,
         GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
     {
 
@@ -892,7 +885,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // Runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
         }
     }
 
@@ -929,7 +922,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
     }
 
     /// <summary>
@@ -1000,7 +993,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);

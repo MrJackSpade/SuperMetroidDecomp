@@ -35,7 +35,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
         var shots = InstalledFixtures.CreateProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
@@ -60,7 +60,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertTrue(!shots.Shots[1].IsSpent, "the pair's second slot is not marked");
 
         var level = CreateEmptyRoom(new(16, 16));
-        shots.HandleShots(new SamusTerrain { Level = level }, samus, Position16<RoomPixels>.Zero, bombs);
+        shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs);
         head.AiStates = EnemyAiStates.None;
         head.FlashTimer = 0;
         head.InvincibilityTimer = 0;

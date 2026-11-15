@@ -31,7 +31,7 @@ internal static class GrappleFiringDefinitionsVerification
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
-        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose });
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
@@ -53,7 +53,7 @@ internal static class GrappleFiringDefinitionsVerification
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
             foreach (byte graphicsY in SignedByteClasses)
             {
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)).Gameplay);
+            samus.Artwork.Body = SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)).Gameplay;
             foreach (SamusPoseId pose in aimingPoses)
             foreach (ushort raw in positions)
             {
@@ -89,8 +89,8 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(anchorY, grapple.Anchor.Y, "Late draw retains endpoint Y");
                 short flareX = Word((running ? 0x9bc19a : 0x9bc14a) + offset);
                 short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + offset);
-                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + flareX)), grapple.BeamStart.X, "Flare X remains separate");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)graphicsY))), grapple.BeamStart.Y, "Flare Y remains separate");
+                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + flareX)), grapple.FlareOrigin.X, "Flare X remains separate");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)graphicsY))), grapple.FlareOrigin.Y, "Flare Y remains separate");
             }
             }
         }
@@ -101,14 +101,14 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(0).Gameplay);
+            samus.Artwork.Body = SamusGraphicsOffsetFixture(0).Gameplay;
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(empty, samus, GameplayAction.Shoot);
+                SamusGrappleMovement.StepFiring(empty, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -159,7 +159,7 @@ internal static class GrappleFiringDefinitionsVerification
         foreach (ushort coordinate in new ushort[] { 0, 512, ushort.MaxValue })
         {
             samus.Pose = sourcePose = movementPoses[movement];
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(127).Gameplay);
+            samus.Artwork.Body = SamusGraphicsOffsetFixture(127).Gameplay;
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.YSpeed = default;
             grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction;

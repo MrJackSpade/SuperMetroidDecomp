@@ -27,7 +27,7 @@ internal static class QuicksandVerification
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = suit == 0 ? 0 : SamusEquipmentFlags.GravitySuit };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { EquippedItems = suit == 0 ? 0 : SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
@@ -35,7 +35,7 @@ internal static class QuicksandVerification
             body.YSpeed = body.YSpeed.WithWhole(5);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
-            SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
@@ -43,25 +43,25 @@ internal static class QuicksandVerification
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
-            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true });
+            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement.RawValue, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
-            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true, PublishQuicksandGrounding = false });
+            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true, PublishQuicksandGrounding = false });
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(24, 24));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
             var sand = Room((byte)(0x83 + kind));
-            SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed.Whole, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YAcceleration.Fraction, "submerging horizontal collision gravity side effect");
         }
@@ -87,7 +87,7 @@ internal static class QuicksandVerification
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 EquippedItems = suit == 0
                     ? 0
@@ -99,7 +99,7 @@ internal static class QuicksandVerification
             body.YDirection = direction;
             body.YSpeed = body.YSpeed.WithWhole(5);
             SamusInsideBlockReactions.PrepareFrame(
-                level, samus, AreaId.Maridia);
+                level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             QuicksandSurfacePhysics physics =
                 QuicksandReactions.SurfacePhysics(suit != 0);
             AssertEqual(
@@ -130,7 +130,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionBodyAttack(null)),
-                new SamusTerrain { Level = level },
+                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
@@ -219,7 +219,7 @@ internal static class QuicksandVerification
     /// </summary>
     private static void VerifyQuicksandUpwardLimitComparesMiddleWords(RoomLevelData level)
     {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
         SamusKinematicsState body = samus.Kinematics;
         body.Position = body.Position.WithWhole(new(24, 24));
         body.Radius = body.Radius.WithY(8);
@@ -228,7 +228,7 @@ internal static class QuicksandVerification
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
         body.YSpeed = new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction);
-        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
+        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
         AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
     }
@@ -254,7 +254,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionBodyAttack(null)),
-                new SamusTerrain { Level = level },
+                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,
                 ref displacement,

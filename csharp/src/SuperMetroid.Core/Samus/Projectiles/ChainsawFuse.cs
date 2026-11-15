@@ -27,7 +27,7 @@ internal sealed class ChainsawFuse
         RoomLevelData level,
         SamusProjectile shot,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         // The shot runs the Power Bomb fuse over itself, from a zero fuse.
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.ChainsawPowerBombFuse, sharedProjectiles.PowerBombExplosion.IsArmed);

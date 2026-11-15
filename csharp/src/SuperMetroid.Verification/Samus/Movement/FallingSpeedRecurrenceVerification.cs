@@ -16,12 +16,12 @@ internal static class FallingSpeedRecurrenceVerification
         foreach (ushort extraFraction in new ushort[] { 0, 1 })
         foreach (SamusAccelerationMode previousMode in Enum.GetValues<SamusAccelerationMode>())
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingLeftNormalPose };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingLeftNormalPose };
             SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(samus);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(extraWhole, extraFraction);
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingLeftPose);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingLeftPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
             AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "fall entry does not clamp base speed");

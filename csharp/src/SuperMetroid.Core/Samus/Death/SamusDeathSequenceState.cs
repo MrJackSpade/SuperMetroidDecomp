@@ -133,10 +133,11 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
         SamusColours samusColours,
-        SamusDeathSteps? artwork = null)
+        SamusDeathSteps artwork)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(samusColours);
+        Ensure.NotNull(artwork);
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
@@ -166,7 +167,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                     ShowDeathShades(samus, samusColours, deathShade: 0);
                     coloursChanged = true;
                     ExplosionTimer =
-                        SamusDeathExplosionTiming.DurationForIndex(index: 0);
+                        SamusDeathExplosionTiming.StepDuration(step: 0);
                     ExplosionStep = 0;
                     WhiteoutShade = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -226,14 +227,14 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             Phase == SamusDeathSequencePhase.Complete);
     }
 
-    /// <summary>Publishes the one right/left explosion frame at the captured screen position.</summary>
-    public void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets? sheets = null)
+    /// <summary>Publishes the one right/left explosion frame at the captured screen position, from <paramref name="sheets"/>.</summary>
+    public void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sprites);
+        Ensure.NotNull(sheets);
         if (ExplosionFrame is not int frame)
             return;
-        SpriteSheet death = (sheets ?? throw new InvalidOperationException(
-            "Samus death explosion requires the installed sprite sheets.")).Get(SpriteSheetId.SamusDeath);
+        SpriteSheet death = sheets.Get(SpriteSheetId.SamusDeath);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
             death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
             ScreenPosition, SpriteMirror.None));
@@ -245,7 +246,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         SamusColours samusColours,
         ref bool coloursChanged,
         ref bool whiteoutChanged,
-        SamusDeathSteps? artwork)
+        SamusDeathSteps artwork)
     {
         ExplosionTimer--;
         if (ExplosionTimer > 0)
@@ -263,16 +264,15 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         ExplosionTimer =
-            SamusDeathExplosionTiming.DurationForIndex(ExplosionStep);
-        int deathShade = (artwork ?? throw new InvalidOperationException(
-            "Samus death requires its installed colours.")).ExplosionStep(ExplosionStep);
+            SamusDeathExplosionTiming.StepDuration(ExplosionStep);
+        int deathShade = artwork.ExplosionStep(ExplosionStep);
         ShowDeathShades(samus, samusColours, deathShade);
         coloursChanged = true;
         return true;
     }
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
-    private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps? artwork)
+    private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps artwork)
     {
         // The first explosion step shows no whiteout, so the first explosion frame stays over the room as it was
         // even though the suit explosion has begun.
@@ -282,8 +282,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // Everything but Samus's body whitens: the room, the HUD, every other sprite, and her beams and grapple flare,
         // which show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never
         // whiten; the sprites that shared their sets with her no longer keep her colours through the whiteout.
-        Whiteout = (artwork ?? throw new InvalidOperationException(
-            "Samus death whiteout requires its installed colours.")).WhiteoutColour(WhiteoutShade);
+        Whiteout = artwork.WhiteoutColour(WhiteoutShade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(WhiteoutShade));
 
         if (WhiteoutShade < SamusDeathSequenceDefinitions.BrightestExplosionWhiteoutShade)

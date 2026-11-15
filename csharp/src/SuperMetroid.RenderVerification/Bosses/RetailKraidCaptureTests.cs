@@ -204,7 +204,7 @@ internal static class RetailKraidCaptureTests
         shot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
         shot.FrameHold = WrappingCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
-        shots.Pool.ProjectileCounter = 1;
+        shots.Pool.ShotCount.Restore(1);
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
         if (runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");

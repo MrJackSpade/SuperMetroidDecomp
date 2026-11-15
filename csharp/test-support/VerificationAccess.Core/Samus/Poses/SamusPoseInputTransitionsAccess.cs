@@ -2,11 +2,11 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Verification access to <see cref="SamusPoseTransitionTable"/> members production does not use.</summary>
-internal static class SamusPoseTransitionTableAccess
+/// <summary>Verification access to <see cref="SamusPoseInputTransitions"/> members production does not use.</summary>
+internal static class SamusPoseInputTransitionsAccess
 {
     /// <summary>Finds the first pose transition for held and newly pressed gameplay actions.</summary>
-    extension(SamusPoseTransitionTable)
+    extension(SamusPoseInputTransitions)
     {
         /// <summary>
         /// Finds the first matching transition for held and newly pressed gameplay actions.
@@ -18,6 +18,6 @@ internal static class SamusPoseTransitionTableAccess
             SamusPoseId currentPose,
             GameplayAction heldActions,
             GameplayAction newlyPressedActions) =>
-            SamusPoseTransitionTable.Lookup(currentPose, heldActions, newlyPressedActions).Transition;
+            SamusPoseInputTransitions.Lookup(currentPose, heldActions, newlyPressedActions).Transition;
     }
 }

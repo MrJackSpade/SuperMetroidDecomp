@@ -26,7 +26,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose);
@@ -114,7 +114,7 @@ public static class SamusMorphBallMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose);
@@ -153,7 +153,7 @@ public static class SamusMorphBallMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         SamusMovementType movementType)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -220,7 +220,7 @@ public static class SamusMorphBallMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         if (samus.Pose is not (SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose) ||
@@ -302,7 +302,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsMorphTransitionPose(samus.Pose) ||
@@ -365,7 +365,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         out bool landed,
         out bool hitCeiling)
     {
@@ -415,7 +415,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         out bool hitCeiling)
     {
         SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(

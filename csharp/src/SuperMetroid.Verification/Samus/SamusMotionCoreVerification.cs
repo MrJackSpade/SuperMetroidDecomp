@@ -29,46 +29,46 @@ internal static void VerifySamusPoseTransitionMatching()
     // matching: Jump+Up outranks plain Up, which outranks Right because the matcher stops
     // at the first record whose complete required masks are present.
 
-    SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition jumpUp = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Jump,
-        newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
+        newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
     AssertEqual(0x55, SamusPoseNumbers.Number(jumpUp.ProspectivePose), "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
-    SamusPoseTransition up = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition up = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: (GameplayAction.Up | GameplayAction.ItemCancel),
-        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: (usho...."));
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: (usho...."));
     AssertEqual(0x03, SamusPoseNumbers.Number(up.ProspectivePose), "Samus transition permits extra held action");
 
-    SamusPoseTransition right = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition right = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: GameplayAction.Right,
-        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x010...."));
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: 0x010...."));
     AssertEqual(0x09, SamusPoseNumbers.Number(right.ProspectivePose), "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, heldActions: 0, newlyPressedActions: 0),
+        SamusPoseInputTransitions.Find(fixturePose, heldActions: 0, newlyPressedActions: 0),
         "Samus zero input bypasses transition table");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(
+        SamusPoseInputTransitions.Find(
             SamusPoseId.MovingRightGunExtendedPose,
             heldActions: (GameplayAction.Right | GameplayAction.Shoot),
             newlyPressedActions: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0),
+        SamusPoseInputTransitions.Find(fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0),
         "Samus transition terminator returns no match");
 
-    SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup zeroInput = SamusPoseInputTransitions.Lookup(
         fixturePose, heldActions: 0, newlyPressedActions: 0);
-    SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup samePose = SamusPoseInputTransitions.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
         heldActions: (GameplayAction.Right | GameplayAction.Shoot),
         newlyPressedActions: 0);
-    SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup terminator = SamusPoseInputTransitions.Lookup(
         fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
         "Samus zero input enters pose-definition fallback");
@@ -80,9 +80,9 @@ internal static void VerifySamusPoseTransitionMatching()
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
     const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
-    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, GameplayAction.Jump, 0).UsesPoseDefinitionFallback,
+    AssertTrue(!SamusPoseInputTransitions.Lookup(emptyListPose, GameplayAction.Jump, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
-    AssertTrue(SamusPoseTransitionTable.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
+    AssertTrue(SamusPoseInputTransitions.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
 
     Console.WriteLine(
@@ -168,7 +168,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
-    var dashAnimation = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var dashAnimation = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.MovingRightNormalPose };
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
@@ -423,7 +423,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.SuitShadeRestoreRequested, "normal-suit palette request is one-shot");
 
-    var boostedJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
+    var boostedJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
     boostedJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xe000);
     boostedJump.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
@@ -482,7 +482,7 @@ internal static void VerifySamusExtraDisplacement()
     const int height = 16;
     RoomLevelData level = CreateEmptyRoom(new(width, height));
 
-    var standing = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var standing = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -494,7 +494,7 @@ internal static void VerifySamusExtraDisplacement()
         level,
         standing,
         frameCounter: 0,
-        controllerInput: 0);
+        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement.RawValue,
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement.RawValue,
@@ -504,7 +504,7 @@ internal static void VerifySamusExtraDisplacement()
     AssertEqual(2, standing.Kinematics.ExtraDisplacement.Y.WholePixels,
         "movement does not consume persistent external Y producer word");
 
-    var negative = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var negative = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -516,11 +516,11 @@ internal static void VerifySamusExtraDisplacement()
         level,
         negative,
         frameCounter: 1,
-        controllerInput: 0);
+        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement.RawValue,
         "negative no-speed external Y has no downward bias");
 
-    var transition = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var transition = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.NeutralJumpTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -534,13 +534,13 @@ internal static void VerifySamusExtraDisplacement()
         level,
         transition,
         GameplayAction.Jump,
-        frameCounter: 0);
+        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xffff8000)), transition.Kinematics.Position.X - transitionXBefore,
         "jump transition applies signed external X with zero base speed");
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00014000), transition.Kinematics.Position.Y - transitionYBefore,
         "jump transition applies extra-only Y with positive bias");
 
-    var rising = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var rising = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.NeutralJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -555,13 +555,13 @@ internal static void VerifySamusExtraDisplacement()
         level,
         rising,
         GameplayAction.Jump,
-        frameCounter: 0);
+        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
 
-    var bouncingBall = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var bouncingBall = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -577,7 +577,7 @@ internal static void VerifySamusExtraDisplacement()
         level,
         bouncingBall,
         controllerInput: 0,
-        frameCounter: 0);
+        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement.RawValue,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
     AssertEqual(0, bouncingBall.Kinematics.YSpeed.Whole,

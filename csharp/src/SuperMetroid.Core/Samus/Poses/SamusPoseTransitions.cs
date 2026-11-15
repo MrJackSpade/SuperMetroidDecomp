@@ -17,7 +17,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
+        int frameCounter, ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -129,7 +129,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         bool wasSpinning,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -255,7 +255,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
         RoomLevelData level,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);

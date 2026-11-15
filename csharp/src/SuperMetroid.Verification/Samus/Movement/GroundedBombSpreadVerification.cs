@@ -23,7 +23,7 @@ internal static class GroundedBombSpreadVerification
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -32,12 +32,12 @@ internal static class GroundedBombSpreadVerification
             GameplayAction shootDown = (GameplayAction.Shoot | GameplayAction.Down);
             for (int tick = 0; tick < hold; tick++)
             {
-                bombs.StepFrame(new SamusTerrain { Level = level }, samus, shootDown, 0);
+                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
-            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
+            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
@@ -46,7 +46,7 @@ internal static class GroundedBombSpreadVerification
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)
             {
-                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level }, samus, GameplayAction.Shoot, 0);
+                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, 0);
                 for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
                     var slot = bombs.Bombs[slotIndex];

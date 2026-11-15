@@ -53,7 +53,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         spriteSheets = sheets;
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
-        CurrentFlashbackSamus?.Presentation.BindSheets(spriteSheets);
+        flashbackSamusArtwork.Sheets = sheets;
         CurrentCeresFlight?.BindSheets(sheets);
     }
 
@@ -80,8 +80,8 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
-    /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
-    private InstalledSamusBodyArtwork? samusBodyArtwork;
+    /// <summary>The installed Samus artwork the flashbacks' Samus draws from, rebound with the host's artwork.</summary>
+    private readonly SamusArtworkBinding flashbackSamusArtwork = new();
     /// <summary>
     /// The flashback Samus's colour state (#1512): her suit and beams in the opening's colours, which her hurt flash
     /// changes as gameplay's does. Her draws publish its shading.
@@ -90,9 +90,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
     public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
     {
-        samusBodyArtwork = value;
-        CurrentFlashbackSamus?.Presentation.BindArtwork(value);
-        CurrentBabyDiscovery?.Samus.Presentation.BindArtwork(value);
+        flashbackSamusArtwork.Body = value;
     }
     /// <summary>The installed narration content.</summary>
     public IntroNarrationPresentation? NarrationPresentation
@@ -241,7 +239,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         this.audio = Ensure.NotNull(audio);
         CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
-        this.samusBodyArtwork = samusBodyArtwork;
+        flashbackSamusArtwork.Body = samusBodyArtwork;
 
         // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
@@ -596,7 +594,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded with the initial artwork; the room's block data below is gameplay
         // collision data and must never be expanded as a visual block map.
-        CurrentFlashbackSamus = new SamusState(samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge)
+        CurrentFlashbackSamus = new SamusState(samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge,
+            flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
@@ -607,8 +606,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
-        CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
-        CurrentFlashbackSamus.Presentation.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();
@@ -874,8 +871,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The HUD and projectile step calls the shared cooldown owner before
         // its ordinary-projectile half. Standing facing left cannot place bombs, but running
         // the real owner is still required for missile admission timing.
-        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio.QueueSound(
@@ -913,12 +910,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // The intro demo's movement phase runs the knockback movement that owns Samus. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, frameCounter);
+            SamusKnockbackMovement.Step(level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-level, samus, frameCounter);
+                level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (CurrentFlashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
@@ -932,12 +929,12 @@ level, samus, frameCounter);
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? 0);
+                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? 0, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
             fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
-                demoInput, frameCounter);
+                demoInput, frameCounter, IntroCollisionRoomObjects.Instance);
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
@@ -949,7 +946,8 @@ level, samus, frameCounter);
                 level,
                 samus,
                 demoInput,
-                frameCounter);
+                frameCounter,
+                IntroCollisionRoomObjects.Instance);
         }
 
         // Intro-demo state is not an animation shortcut. The intro demo's movement phase advances the same
@@ -967,7 +965,7 @@ level, samus, frameCounter);
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), frameCounter);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), frameCounter, IntroCollisionRoomObjects.Instance);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -987,7 +985,7 @@ level, samus, frameCounter);
             samus.KnockbackTimer != 0 &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
-            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus));
+            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus), poseCollision: null);
             transitionAccepted = true;
         }
 

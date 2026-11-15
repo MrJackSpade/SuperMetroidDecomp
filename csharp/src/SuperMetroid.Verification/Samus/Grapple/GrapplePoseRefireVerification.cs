@@ -20,17 +20,17 @@ internal static class GrapplePoseRefireVerification
         foreach (bool left in new[] { false, true })
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) {
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) {
                 Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };
             PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame < changeFrame; frame++)
-                SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot);
+                SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot);
+            SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             if (changeFrame == 10)
             {
                 AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "expired direction change cancels in same call");
@@ -48,11 +48,11 @@ internal static class GrapplePoseRefireVerification
             AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");
             AssertEqual(samus.Position.X.Whole + grapple.OriginOffset.X, grapple.Anchor.X, "restart hand origin X");
             AssertEqual(samus.Position.Y.Whole + grapple.OriginOffset.Y, grapple.Anchor.Y, "restart hand origin Y");
-            SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot);
+            SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }
-        var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { PoseChangeAutoFireTimer = 7 };
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, state);
         stream.Position = 0;

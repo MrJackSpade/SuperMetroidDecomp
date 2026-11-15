@@ -159,7 +159,7 @@ public sealed class SamusBombProjectileSystem
     /// overlap pass that the main gameplay loop invokes before the movement phase: <see cref="RunHudProducer"/>,
     /// then <see cref="HandleBombs"/>.
     /// </summary>
-    public void StepFrame(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
+    internal void StepFrame(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -214,7 +214,7 @@ public sealed class SamusBombProjectileSystem
     /// every HUD producer and before the shots (<see cref="SamusProjectileSystem.HandleShots"/>).
     /// </summary>
     /// <returns>The bomb jump direction published, or none when <paramref name="overlap"/> defers it.</returns>
-    public SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate)
+    internal SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -599,7 +599,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBomb bomb,
         List<BombBlockReaction> blockReactions,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
         // A bomb that struck an enemy is cleared before its fuse runs.
@@ -775,7 +775,7 @@ public sealed class SamusBombProjectileSystem
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         SamusProjectileType projectileType)
     {
         int horizontalRadius = explosionRadius.WholePixels;
@@ -812,7 +812,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBomb bomb,
         List<BombBlockReaction> reactions,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
         int centerY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
@@ -847,7 +847,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
         List<BombBlockReaction> reactions,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         SamusProjectileType projectileType)
     {
         int x = bombedBlock.X;
@@ -869,7 +869,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -881,8 +881,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            if (roomObjects is null ||
-                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
+            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
@@ -899,11 +898,6 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            if (roomObjects is null)
-            {
-                throw new InvalidOperationException(
-                    $"Bombed blue-door cap at ({x},{y}) requires a room-object owner.");
-            }
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
                 block.At,
@@ -941,16 +935,6 @@ public sealed class SamusBombProjectileSystem
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");
             }
-            if (roomObjects is null)
-            {
-                // Gameplay always owns the room's room-object pool. Null is supported only for
-                // nonreactive synthetic fixtures, so reaching a producer without it is a
-                // caller-composition error rather than unsupported game behavior.
-                throw new InvalidOperationException(
-                    $"Bombed block reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                    $"at ({x},{y}) requires a room-object owner.");
-            }
-
             // Spawn is synchronous: accepted behaviour 0..7 applies the reaction's temporary solid-block
             // or air collision before the caller proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
@@ -968,11 +952,6 @@ public sealed class SamusBombProjectileSystem
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
-                if (roomObjects is null)
-                {
-                    throw new InvalidOperationException(
-                        $"Bombed downward gate trigger at ({x},{y}) requires a room-object owner.");
-                }
                 roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
                     block.At,
@@ -995,13 +974,6 @@ public sealed class SamusBombProjectileSystem
                     $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "reaction a bomb sets off.");
             }
-            if (roomObjects is null)
-            {
-                throw new InvalidOperationException(
-                    $"Bombed shootable type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                    $"at ({x},{y}) requires a room-object owner.");
-            }
-
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.At,
@@ -1013,13 +985,6 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType == RoomCollisionType.SpecialBlock)
         {
-            if (roomObjects is null)
-            {
-                throw new InvalidOperationException(
-                    $"Bombed special block behaviour ({block.Behavior}) at ({x},{y}) " +
-                    "requires a room-object owner.");
-            }
-
             roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 block.At,

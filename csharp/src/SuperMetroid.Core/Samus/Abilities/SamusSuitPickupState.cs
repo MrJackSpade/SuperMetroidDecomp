@@ -213,18 +213,18 @@ public sealed class SamusSuitPickupState
         samus.EscapeAndDrainCount.LeaveSuitPickupStage(Stage);
     }
 
-    /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>
+    /// <summary>Extends the narrow beam inward from both screen edges until half its rows are covered.</summary>
     private void StepLightBeamAppears()
     {
-        // The count grows from zero by eight to exactly 128, so the game's signed
-        // comparison with 128 is this ordinary one.
-        _lightBeamLines += 8;
+        // The count grows from zero in even steps to exactly the covered rows, so the game's signed
+        // comparison with them is this ordinary one.
+        _lightBeamLines += SuitPickupBeamDefinitions.AppearingLinesPerUpdate;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
             SuitPickupBeamDefinitions.NarrowBeamEdges.Left,
             SuitPickupBeamDefinitions.NarrowBeamEdges.Right,
             _lightBeamLines);
 
-        if (_lightBeamLines >= 128)
+        if (_lightBeamLines >= SuitPickupBeamDefinitions.CoveredLines)
         {
             Stage = SamusSuitPickupStage.UniformWidening;
             SetLightBeamEdges(SuitPickupBeamDefinitions.NarrowBeamEdges);
@@ -235,7 +235,7 @@ public sealed class SamusSuitPickupState
     private void StepUniformWidening()
     {
         // The widening speed stays a few pixels per update, so the edges stay inside the screen row: the left one
-        // stops below 97 long before it would pass zero.
+        // stops long before it would pass zero.
         int amount = _lightBeamSpeed.WholePixels;
         int left = _lightBeamLeft.X - amount;
         int right = _lightBeamRight.X + amount;
@@ -243,7 +243,7 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
 
-        if (left < 97)
+        if (left < SuitPickupBeamDefinitions.UniformWideningEndColumn)
         {
             Stage = SamusSuitPickupStage.CurvedWidening;
             SetLightBeamEdges(SuitPickupBeamDefinitions.CurvedWideningStart);
@@ -323,7 +323,7 @@ public sealed class SamusSuitPickupState
         _lightBeamSpeed = decelerated < SuitPickupBeamDefinitions.MinimumShrinkingSpeed
             ? SuitPickupBeamDefinitions.MinimumShrinkingSpeed
             : decelerated;
-        if (_lightBeamLines >= 128)
+        if (_lightBeamLines >= SuitPickupBeamDefinitions.CoveredLines)
         {
             Stage = SamusSuitPickupStage.LightBeamDissipates;
             SetLightBeamEdges(SuitPickupBeamDefinitions.DissipationStart);
@@ -338,7 +338,7 @@ public sealed class SamusSuitPickupState
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
-        if (left >= 112)
+        if (left >= SuitPickupBeamDefinitions.DissipatedColumn)
             Stage = SamusSuitPickupStage.Finish;
     }
 

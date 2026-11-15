@@ -121,7 +121,7 @@ internal static class SpecialAttackParticlesVerification
                 string name = $"{beam} attack over place {place} holding {holding}";
                 AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out SoundEffectId? sound), $"{name} starts");
                 AssertEqual(emptySound, sound, $"{name} makes the empty pool's sound");
-                AssertEqual(4, projectiles.Pool.ProjectileCounter, $"{name} counts four shots");
+                AssertEqual(4, projectiles.Pool.ShotCount.Count, $"{name} counts four shots");
                 for (int particle = 0; particle < 4; particle++)
                 {
                     AssertTrue(!ReferenceEquals(before[particle], projectiles.Shots[particle]) && !before[particle].IsOccupied,
@@ -272,7 +272,7 @@ internal static class SpecialAttackParticlesVerification
         foreach (SamusBeamFlags beam in new[] { SamusBeamFlags.Wave, SamusBeamFlags.Ice, SamusBeamFlags.Spazer, SamusBeamFlags.Plasma })
         {
             (SamusProjectileSystem projectiles, _, SamusState samus) = StartAttack(beam, CentredSamus);
-            AssertEqual(4, projectiles.Pool.ProjectileCounter, $"{beam} attack counts four shots");
+            AssertEqual(4, projectiles.Pool.ShotCount.Count, $"{beam} attack counts four shots");
             for (int place = 0; place < 4; place++)
             {
                 SamusProjectile particle = projectiles.Shots[place];
@@ -360,7 +360,7 @@ internal static class SpecialAttackParticlesVerification
             }
         }
         AssertTrue(projectiles.Shots.All(slot => !slot.IsActive), $"the Spazer attack ends within {update} updates");
-        AssertEqual(0, projectiles.Pool.ProjectileCounter, "every ended Spazer particle uncounts its shot");
+        AssertEqual(0, projectiles.Pool.ShotCount.Count, "every ended Spazer particle uncounts its shot");
         AssertEqual(1, convergenceSounds, "the Spazer convergence sounds once");
         AssertEqual(4, falls, "every Spazer particle falls");
         foreach (SpazerComboPhase phase in Enum.GetValues<SpazerComboPhase>())
@@ -384,7 +384,7 @@ internal static class SpecialAttackParticlesVerification
             for (int place = 0; place < 4; place++)
                 AssertEqual(place != spentPlace && place != (spentPlace ^ 2), projectiles.Shots[place].IsOccupied,
                     $"spent Spazer particle {spentPlace} ends itself and the shot two places from it, not place {place}");
-            AssertEqual(2, projectiles.Pool.ProjectileCounter, $"spent Spazer particle {spentPlace} uncounts two shots");
+            AssertEqual(2, projectiles.Pool.ShotCount.Count, $"spent Spazer particle {spentPlace} uncounts two shots");
         }
 
         (SamusProjectileSystem echoProjectiles, SamusBombProjectileSystem echoShared, SamusState echoSamus) =
@@ -402,7 +402,7 @@ internal static class SpecialAttackParticlesVerification
         AssertTrue(ReferenceEquals(echo, echoProjectiles.Shots[3]), "the ended echo is the last shot of its place");
         AssertTrue(echoProjectiles.Shots[0].IsOccupied && echoProjectiles.Shots[2].IsOccupied,
             "the other Spazer pair flies on");
-        AssertEqual(2, echoProjectiles.Pool.ProjectileCounter, "the spent particle and the echo uncount two shots");
+        AssertEqual(2, echoProjectiles.Pool.ShotCount.Count, "the spent particle and the echo uncount two shots");
     }
 
     /// <summary>
@@ -439,7 +439,7 @@ internal static class SpecialAttackParticlesVerification
         }
         AssertTrue(pulses > 0, "the last Wave particle pulses as it swings past Samus");
         AssertEqual(4, removals, "every Wave particle's lifetime ends");
-        AssertEqual(0, projectiles.Pool.ProjectileCounter, "every ended Wave particle uncounts its shot");
+        AssertEqual(0, projectiles.Pool.ShotCount.Count, "every ended Wave particle uncounts its shot");
     }
 
     /// <summary>The original's Spazer turn by place: plus one, clockwise, for an even place, minus one for an odd.</summary>
@@ -465,7 +465,7 @@ internal static class SpecialAttackParticlesVerification
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         var shared = new SamusBombProjectileSystem();
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState())
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(samusAt),

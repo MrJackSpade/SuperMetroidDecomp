@@ -110,7 +110,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         samus.PowerBombs = scene.PowerBombs;
         samus.MaxPowerBombs = scene.PowerBombs;
         _player.Samus = samus;
-        _artwork.BindSamusArtwork();
         ApplyAttractSamusSetup(scene.SamusSetup);
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,

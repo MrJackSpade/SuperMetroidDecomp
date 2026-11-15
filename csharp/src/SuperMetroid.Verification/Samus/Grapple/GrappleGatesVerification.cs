@@ -34,7 +34,7 @@ internal static class GrappleGatesVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => 0, SeedRandom = _ => { } }, installedBosses: InstalledFixtures.BossArtwork);
             // The gate draws from the sheets of the set its room loads; Green Hill Zone, the room this fixture models, loads
             // its set with its own population (an empty population would keep the session's standard sprites).
-            enemies.Load(new RoomEnemyLoadRequest(RoomEnemyPopulationDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
+            enemies.Load(new RoomEnemyLoadRequest(RoomEnemyPopulationDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) });
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single());
             enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
             enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
@@ -43,7 +43,7 @@ internal static class GrappleGatesVerification
             AssertTrue(oam.NextByteOffset > 0, "closed gate has visible OAM before grapple impact");
             byte[] expected = oam.LowTable[..oam.NextByteOffset].ToArray();
             int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = new(new((ushort)(hitIndex % level.Size.X * 16 + 8), 0), new((ushort)(hitIndex / level.Size.X * 16 + 8), 0)),
             };
@@ -55,7 +55,7 @@ internal static class GrappleGatesVerification
                 if (frame == 2)
                 {
                     SeedStationaryGrappleCollisionProbe(samus);
-                    var result = SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects);
+                    var result = SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGateObject(roomObjects, level);

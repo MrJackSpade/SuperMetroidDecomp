@@ -13,10 +13,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// State for stored Speed Booster shine and the shinespark that moves Samus (<see cref="SamusMovementOwner.Shinespark"/>).
 /// </summary>
 /// <remarks>
-/// This is the game's state machine, not a desktop “dash”
-/// controller. Timers wrap at 65536, movement retains split 1/65536-pixel values, and every
-/// shade is selected through the user's installed artwork. Block collision uses the shared step; solid
-/// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
+/// Its timers count whole updates and its movement keeps 1/65536-pixel fractions; the stored shine and the spark show
+/// Samus's full-body cycle shades. Block collision uses the shared step; solid enemies stop a sideways spark through it,
+/// and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
 {
@@ -180,7 +179,7 @@ public sealed class SamusShinesparkState
         if (!speedBoostCounter.IsAtFullStage)
             return false;
 
-        ShineTimer = 180;
+        ShineTimer = ShinesparkDefinitions.StoredShineFrames;
         _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
         ShadeStep = 0;
         Phase = ShinesparkPhase.Stored;
@@ -207,7 +206,7 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(samus, targetPose);
     }
 
-    /// <summary>Cancels beam charge and installs the 30-frame spark windup, shade and boost state.</summary>
+    /// <summary>Cancels beam charge and installs the spark windup, shade and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // The windup checks the charge counter before clearing it. A charge that has
@@ -241,8 +240,8 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         _acceleration.StartSpark(InitialVerticalAcceleration);
-        StartStopTimer = 30;
-        ShineTimer = 60;
+        StartStopTimer = ShinesparkDefinitions.WindupFrames;
+        ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
         ShadeStep = 0;
         Phase = ShinesparkPhase.Windup;
@@ -527,7 +526,7 @@ public sealed class SamusShinesparkState
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
-    public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
+    internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -630,7 +629,8 @@ false);
         if (colouring is not (SamusSpecialColouringKind.SpeedBoosterShine or SamusSpecialColouringKind.Shinesparking))
             return false;
 
-        if (colouring == SamusSpecialColouringKind.SpeedBoosterShine && ShineTimer == 170)
+        if (colouring == SamusSpecialColouringKind.SpeedBoosterShine &&
+            ShineTimer == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
             AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
         bool expired = --ShineTimer <= 0;
@@ -681,8 +681,11 @@ false);
         // prologue clears it before the crash's first frame runs next.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        FirstCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 32 : 224);
-        SecondCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 160 : 96);
+        ShinesparkDepartureAngles orbitStart = facingLeft
+            ? ShinesparkEchoDefinitions.CrashOrbitStartFacingLeft
+            : ShinesparkEchoDefinitions.CrashOrbitStartFacingRight;
+        FirstCrashEchoAngle = orbitStart.First;
+        SecondCrashEchoAngle = orbitStart.Second;
         _crashOrbitTurn = facingLeft ? CrashOrbitTurnSteps : -CrashOrbitTurnSteps;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -701,16 +704,16 @@ false);
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         switch (CrashOrbitStage)
         {
             case ShinesparkCrashOrbitStage.Expanding:
             {
-                // The crash tests the old radius against twelve, after calculating +4.
-                // The transition frame therefore publishes radius sixteen and the orbiting stage.
+                // The crash tests the old radius against the orbit's start, after expanding.
+                // The transition frame therefore publishes the orbiting radius and the orbiting stage.
                 int oldRadius = CrashRadius;
-                CrashRadius += 4;
-                if (oldRadius >= 12)
+                CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
+                if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
                 break;
             }
@@ -723,11 +726,11 @@ false);
                 break;
 
             case ShinesparkCrashOrbitStage.Contracting:
-                CrashRadius -= 4;
+                CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashEchoCircle;
-                    StartStopTimer = 30;
+                    StartStopTimer = ShinesparkDefinitions.CrashEchoHoldFrames;
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -741,17 +744,17 @@ false);
 
         // The copies stand the crash radius, 0 through 16, from Samus along their angles; placing them past the room's edge
         // continues from its other end, as every room position does.
-        FirstOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
-        SecondOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
+        FirstOrbitingCopy = samus.Position.Whole + OffsetAlong(FirstCrashEchoAngle, CrashRadius);
+        SecondOrbitingCopy = samus.Position.Whole + OffsetAlong(SecondCrashEchoAngle, CrashRadius);
 
         return new ShinesparkMovementResult(
 false);
     }
 
-    /// <summary>Runs the 30-frame center echo hold.</summary>
+    /// <summary>Runs the center echo hold.</summary>
     private ShinesparkMovementResult StepCrashEchoCircle()
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         if (--StartStopTimer <= 0)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
@@ -774,7 +777,7 @@ false);
                 SamusBeamCombinations.Of(samus.EquippedBeams), samus.Position.Whole))
             _orbitTravel.LeaveEchoHeight(samus.Position.Whole.Y);
 
-        ShineTimer = 1;
+        ShineTimer = ShinesparkDefinitions.FinishedShadeFrames;
         _acceleration.StopSpark();
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
@@ -800,9 +803,6 @@ false,             CrashSequenceFinished: true);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
-    /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from Samus again.</summary>
-    private const int EchoPlacementRadii = 256;
-
     /// <summary>Pixels an echo's radius grows by on each update.</summary>
     private const int EchoRadiusStep = 8;
 
@@ -811,8 +811,8 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>
     /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by eight, and the echo is
-    /// placed that far from Samus's current position along its angle, with the radius taken within the lookup's 256 pixels, so an echo still on the screen at 248 pixels returns
-    /// to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
+    /// placed that far from Samus's current position along its angle, at the radius <see cref="ShinesparkEchoReturn"/>
+    /// places it at, which brings an echo still on the screen back to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
     /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has
     /// left (<see cref="CrashOrbitTravelCarryover"/>).
     /// </summary>
@@ -831,7 +831,7 @@ false,             CrashSequenceFinished: true);
         // copies, not ordinary projectiles with independent velocity.
         shot.EchoRadius += EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
-            ProjectileSinLookup(shot.EchoAngle.ToAngle(), shot.EchoRadius % EchoPlacementRadii);
+            OffsetAlong(shot.EchoAngle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(shot.EchoRadius));
         bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < EchoScreenReach &&
             CoordinateAxis.Difference(point.Y, cameraPosition.Y) is >= 0 and < EchoScreenReach;
 
@@ -850,8 +850,11 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    /// <summary>Exact split multiplication used by the crash's sine and cosine.</summary>
-    internal static Offset16<RoomPixels> ProjectileSinLookup(
+    /// <summary>
+    /// The offset <paramref name="radius"/> pixels from Samus along <paramref name="angle"/> at which the crash places its
+    /// orbiting copies and echoes: each component the radius scaled by the angle's sine or cosine, truncated toward zero.
+    /// </summary>
+    internal static Offset16<RoomPixels> OffsetAlong(
         RotationAngle angle,
         int radius)
     {
@@ -862,7 +865,7 @@ false,             CrashSequenceFinished: true);
         return new(x, y);
     }
 
-    /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table.</summary>
+    /// <summary>The radius scaled by the angle's sine, truncated toward zero.</summary>
     private static int LookupSignedComponent(
         RotationAngle angle,
         int radius)
@@ -906,9 +909,9 @@ false,             CrashSequenceFinished: true);
 
         RoomLevelData level,
         SamusState samus,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
         if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= 15)
         {
@@ -925,9 +928,9 @@ false,             CrashSequenceFinished: true);
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
         samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
 
@@ -944,10 +947,10 @@ false,             CrashSequenceFinished: true);
         // upward magnitude at 15 whole pixels while preserving its fraction, then negates
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
-        // The cap test checks whether the whole pixels' difference from fifteen is negative; it wraps for a magnitude more
-        // than 32753 pixels upward or downward, as the game's comparison does.
+        // The spark's speed is capped at fourteen pixels, so the magnitude stays far inside the range where the game's
+        // wrapping comparison is this ordinary one.
         SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
-        if (CoordinateAxis.Difference(collisionMagnitude.WholePixels, 15) >= 0)
+        if (collisionMagnitude.WholePixels >= 15)
         {
             collisionMagnitude = SignedSixteenSixteen.FromParts(15, collisionMagnitude.Fraction);
             upwardDisplacement = -collisionMagnitude;

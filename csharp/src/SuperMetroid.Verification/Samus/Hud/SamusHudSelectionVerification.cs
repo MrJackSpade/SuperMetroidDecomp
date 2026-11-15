@@ -26,12 +26,12 @@ internal static class SamusHudSelectionVerification
         const GameplayAction select = GameplayAction.ItemSelect;
         const GameplayAction cancel = GameplayAction.ItemCancel;
 
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose,
         };
         // The selection's stability is the arm cannon's, which its update counts after the frame's selection.
-        samus.ArmCannon.Artwork = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
+        samus.Artwork.ArmCannon = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
         AssertTrue(!SelectionChanged(samus, select, select),
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,

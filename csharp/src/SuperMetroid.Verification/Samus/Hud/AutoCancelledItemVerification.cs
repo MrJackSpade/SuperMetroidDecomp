@@ -47,7 +47,7 @@ internal static class AutoCancelledItemVerification
 
             GrappleMovementResult ended = phase == GrapplePhase.CancelPending
                 ? SamusGrappleMovement.CompleteFiringCancellation(air, samus)
-                : SamusGrappleMovement.Step(new SamusTerrain { Level = air }, samus, 0, 0);
+                : SamusGrappleMovement.Step(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
             AssertEqual(GrapplePhase.Inactive, ended.Phase, $"the grapple's {ending} ends it");
             AssertEqual(autoCancelled ? HudItem.Beam : HudItem.Grapple, samus.SelectedHudItem,
@@ -69,7 +69,7 @@ internal static class AutoCancelledItemVerification
         foreach (bool autoCancelled in new[] { true, false })
         {
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-                SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+                SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

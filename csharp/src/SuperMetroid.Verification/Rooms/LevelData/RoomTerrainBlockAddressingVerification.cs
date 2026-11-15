@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -202,8 +203,8 @@ internal static class RoomTerrainBlockAddressingVerification
                 : EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(1, 0),
         };
         return vertical
-            ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects: null)
-            : ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects: null);
+            ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects: SamusRoomObjectFixtures.Uninstalled)
+            : ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     }
 
     /// <summary>The block a level-data place addresses: the place's remainder by the width is its column, its quotient its row.</summary>

@@ -31,7 +31,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
         {
@@ -85,7 +85,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         int trailInterval)
     {
         if (shot.IsSpent)
@@ -112,7 +112,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
         {
@@ -131,7 +131,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         SamusProjectileDirection direction = shot.Direction;
         Accelerate(shot, SamusProjectileAccelerations.For(direction).Beam);
@@ -159,7 +159,7 @@ internal sealed class ProjectileMotion
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
         {
@@ -223,7 +223,7 @@ internal sealed class ProjectileMotion
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         if (shot.IsSpent)
         {
@@ -368,7 +368,7 @@ internal sealed class ProjectileMotion
         link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         owner.SuperMissileLinkPlace = link.Place;
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
@@ -388,7 +388,7 @@ internal sealed class ProjectileMotion
         SamusProjectile owner,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkPlace is not { } linkPlace)
             return;
@@ -449,7 +449,7 @@ internal sealed class ProjectileMotion
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
         SamusProjectile shot,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
 
@@ -467,7 +467,7 @@ internal sealed class ProjectileMotion
     private static bool MoveMissileVertically(
         RoomLevelData level,
         SamusProjectile shot,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
 
@@ -483,7 +483,7 @@ internal sealed class ProjectileMotion
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectile shot,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         int blockX = RoomGridConversions.PixelToBlock(shot.Position.X.Whole);
         int blockY = RoomGridConversions.PixelToBlock(shot.Position.Y.Whole);
@@ -504,7 +504,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)

@@ -87,7 +87,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Radius = new(1, 1);
             projectile.CanDamageSamus = true;
             projectile.PersistsOnSamusContact = true;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0100)),
                 Health = ushort.MaxValue,

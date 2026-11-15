@@ -56,7 +56,7 @@ internal static class WrapShotEnemiesVerification
                 words[row * 64 + (left ? 0 : 63)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             }
             var level = CreateRoom(new(64, 128), words, new RoomBlockBehavior[words.Length]);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();
@@ -66,7 +66,7 @@ internal static class WrapShotEnemiesVerification
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus), "Tile alias does not redirect the projectile enemy hitbox");
             }

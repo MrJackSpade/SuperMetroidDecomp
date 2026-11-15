@@ -22,7 +22,7 @@ internal static class CompactWalkOffCollisionVerification
             // Native soft-unmorph comparison: the neighboring ordinary landing's
             // grounding probe leaves a compact body near the floor. Falling expands
             // that body, so F404 must shift its center and clamp its fractional word.
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),
@@ -32,7 +32,7 @@ internal static class CompactWalkOffCollisionVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0xf400);
             SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, target);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, target, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(FixedCoordinate.Of(0x00ed, 0xffff), samus.Kinematics.Position.Y, "compact walk-off uses native floor center/subpixel correction");
             AssertEqual(target, samus.Pose, "compact walk-off selects ordinary falling art");
             AssertEqual(16, samus.Kinematics.Radius.Y, "compact walk-off retains live crouch radius until alpha");

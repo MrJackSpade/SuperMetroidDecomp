@@ -36,8 +36,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        bool elevatorIsMoving = false,
-        ISamusRoomObjects? roomObjects = null,
+        bool elevatorIsMoving,
+        ISamusRoomObjects roomObjects,
         bool publishDoorSideEffects = true)
     {
 
@@ -76,7 +76,7 @@ public static class SamusGroundedMovement
         SamusState samus,
         int frameCounter,
         GameplayAction controllerInput,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -132,8 +132,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        GameplayAction controllerInput = GameplayAction.None,
-        ISamusRoomObjects? roomObjects = null)
+        GameplayAction controllerInput,
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -199,7 +199,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -279,7 +279,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -333,7 +333,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -383,7 +383,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -431,7 +431,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -459,7 +459,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,

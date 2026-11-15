@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
@@ -9,15 +10,18 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 public readonly record struct SamusTransitionShot
 {
-    /// <summary>
-    /// Hands over the shot of a pose aiming in <paramref name="aim"/>: one of the ten aims, or none for a pose that
-    /// fires nothing, which hands over a shot with no aim.
-    /// </summary>
-    public SamusTransitionShot(SamusProjectileDirection? aim) => Aim = aim;
+    /// <summary>Hands over the shot of a pose aiming in <paramref name="aim"/>.</summary>
+    public SamusTransitionShot(SamusProjectileDirection aim) => Aim = aim;
+
+    /// <summary>The direction the shot leaves in.</summary>
+    public SamusProjectileDirection Aim { get; }
 
     /// <summary>
-    /// The direction the shot leaves in, or null when the pose that handed it over names no aim. No retail transition
-    /// hands over a shot with no aim, and firing one fails.
+    /// Hands over the shot of the pose <paramref name="samus"/> is in. Only the normal-jump initializer and the moonwalk
+    /// transition hand a shot over, and every normal-jump and moonwalk pose aims one of the ten aims (#1506).
     /// </summary>
-    public SamusProjectileDirection? Aim { get; }
+    /// <exception cref="InvalidOperationException">Her pose aims nowhere.</exception>
+    internal static SamusTransitionShot FromPose(SamusState samus) =>
+        new(SamusPoseMetadata.ReadAimDirection(samus) ?? throw new InvalidOperationException(
+            $"Pose {samus.Pose} names no aim; no retail transition hands a shot over from one."));
 }

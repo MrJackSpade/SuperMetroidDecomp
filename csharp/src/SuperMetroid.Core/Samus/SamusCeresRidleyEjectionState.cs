@@ -56,9 +56,9 @@ public sealed class SamusCeresRidleyEjectionState
     }
 
     /// <summary>Runs one update of the shove.</summary>
-    public void Step(
-
+    internal void Step(
         RoomLevelData level,
+        ISamusRoomObjects roomObjects,
         SamusState samus,
         int cameraX,
         int frameCounter)
@@ -75,8 +75,8 @@ public sealed class SamusCeresRidleyEjectionState
 
             // Selects the ordinary hurt pose from the PREVIOUS pose direction and
             // refreshes the animation. The pose initializer does not publish the hurt pose's
-            // radius, so the `21 - radius` alignment uses the source pose's live radius; the
-            // ordinary pose epilogue publishes radius 21 on the following frame.
+            // radius, so the alignment from the source pose's live radius to the hurt pose's uses that live radius; the
+            // ordinary pose epilogue publishes the hurt pose's radius on the following frame.
             bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose
@@ -86,12 +86,12 @@ public sealed class SamusCeresRidleyEjectionState
             // not publish it early, and subsequent shove frames must not repeat it.
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWrappedWholeY(
-                samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y));
+                samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - samus.Kinematics.Radius.Y));
 
-            // The side is selected from screen X, not world X. Exact center belongs to the
-            // rightward branch because the game checks whether `(screenX - 128)` is negative.
-            int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - cameraX);
-            PushDirection = CoordinateAxis.Difference(screenX, 128) < 0
+            // The side is selected from Samus's place on the screen, not in the room. The exact centre belongs to the
+            // rightward shove.
+            int screenX = samus.Position.X.Whole - cameraX;
+            PushDirection = screenX < ScreenGeometry.ScreenWidthPixels / 2
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
@@ -110,7 +110,7 @@ public sealed class SamusCeresRidleyEjectionState
         UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -137,6 +137,6 @@ public sealed class SamusCeresRidleyEjectionState
         // wrapper, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

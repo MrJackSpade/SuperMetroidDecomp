@@ -137,12 +137,12 @@ public sealed class SamusCrystalFlashState
 
         // The remaining preconditions are literal comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
-        // does not matter. Each current ammo count—not its maximum—must supply ten shots.
+        // does not matter. Each current ammo count, not its maximum, must supply the flash's ammunition.
         if (samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0 ||
-            samus.Health >= 51 || samus.ReserveEnergy != 0 ||
-            samus.Missiles < 10 ||
-            samus.SuperMissiles < 10 ||
-            samus.PowerBombs < 10)
+            samus.Health >= CrystalFlashDefinitions.AdmittingEnergyBelow || samus.ReserveEnergy != 0 ||
+            samus.Missiles < CrystalFlashDefinitions.AmmunitionPerKind ||
+            samus.SuperMissiles < CrystalFlashDefinitions.AmmunitionPerKind ||
+            samus.PowerBombs < CrystalFlashDefinitions.AmmunitionPerKind)
         {
             return false;
         }
@@ -174,9 +174,9 @@ public sealed class SamusCrystalFlashState
         // instead of reproducing the documented adjacent timing that frees the stun.
         SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
-        RaiseTimer = 9;
+        RaiseTimer = CrystalFlashDefinitions.RaiseUpdates - 1;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
-        _ammoCountdown.StartAmmoCountdown(10);
+        _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPulseTimer = 1;
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
@@ -244,8 +244,8 @@ public sealed class SamusCrystalFlashState
         // The raise changes only the whole pixels. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
-        // The game initializes nine, then decrements and checks for a count below zero. Values 8..0 return; the tenth call runs
-        // past zero and starts the main bubble phase after completing its Y move.
+        // The count starts one below the raise's updates, then decrements and checks for a count below zero. The last
+        // raising call runs past zero and starts the main bubble phase after completing its Y move.
         if (--RaiseTimer >= 0)
             return;
 
@@ -289,7 +289,7 @@ public sealed class SamusCrystalFlashState
                     $"Crystal Flash ammunition kind {DrainingAmmo} is undefined.");
         }
 
-        SamusEnergyRestoration.Restore(samus, 50);
+        SamusEnergyRestoration.Restore(samus, CrystalFlashDefinitions.EnergyPerAmmunition);
         CountdownStep ammoTimer = _ammoCountdown.CountDownAmmo();
         bool timerExpired = ammoTimer.IsZeroOrNegative;
         if (!timerExpired)
@@ -297,7 +297,7 @@ public sealed class SamusCrystalFlashState
 
         if (DrainingAmmo != CrystalFlashAmmoKind.PowerBombs)
         {
-            _ammoCountdown.StartAmmoCountdown(10);
+            _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
             DrainingAmmo = DrainingAmmo == CrystalFlashAmmoKind.Missiles
                 ? CrystalFlashAmmoKind.SuperMissiles
                 : CrystalFlashAmmoKind.PowerBombs;

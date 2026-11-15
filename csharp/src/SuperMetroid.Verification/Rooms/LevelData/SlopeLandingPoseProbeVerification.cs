@@ -34,20 +34,20 @@ internal static class SlopeLandingPoseProbeVerification
 
         SamusState Falling(ushort y, ushort ySubposition)
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ySubposition);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             return samus;
         }
 
         SamusState clipped = Falling(0x16d, 0x2fff);
-        AssertTrue(!SamusPoseTransitions.TryApplyAerialLanding(clipped, level, wasSpinning: false, controllerInput: 0, frameCounter: 0),
+        AssertTrue(!SamusPoseTransitions.TryApplyAerialLanding(clipped, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
             "a zero-distance changed-pose probe still meets slope $54 and rejects the landing");
         AssertEqual(SamusPoseId.NeutralJumpRightPose, clipped.Pose, "the falling pose is retained");
         AssertEqual((ushort)0x16d, clipped.Position.Y.Whole, "the rejected landing leaves Y unchanged");
 
         SamusState deeper = Falling(0x16e, 0xb7ff);
-        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(deeper, level, wasSpinning: false, controllerInput: 0, frameCounter: 0),
+        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(deeper, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
             "one pixel deeper the landing fits");
         AssertEqual(SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
         AssertEqual((ushort)0x16d, deeper.Position.Y.Whole, "the landing moves Samus up clear of slope $55");

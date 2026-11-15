@@ -56,7 +56,7 @@ internal static class SamusRenderingFixtureVerification
             built = new SyntheticBody(bus.Version, BuildSyntheticBody(bus));
             syntheticBodies.AddOrUpdate(bus, built);
         }
-        samus.Presentation.BindBodyFixture(built.Artwork);
+        samus.BindBodyFixture(built.Artwork);
     }
 
     /// <summary>The body last built from each bus, with the bus's version it was built at.</summary>

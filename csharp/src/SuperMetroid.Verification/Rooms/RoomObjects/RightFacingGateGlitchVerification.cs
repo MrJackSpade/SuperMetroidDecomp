@@ -116,7 +116,7 @@ internal static class RightFacingGateGlitchVerification
             {
                 level.RestoreFrom(pristine);
                 AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
-                var samus = new SamusState(framesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+                var samus = new SamusState(framesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
                 {
                     Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                     PoseId = SamusPoseId.FacingRightNormalPose,
@@ -141,7 +141,7 @@ internal static class RightFacingGateGlitchVerification
                 for (int frame = 0; frame < 30; frame++)
                 {
                     GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                    bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                    bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                     if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");

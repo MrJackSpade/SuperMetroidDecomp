@@ -66,7 +66,7 @@ internal static class KraidSuperMissileDamageVerification
             {
                 AssertEqual(frame == 8 ? (ushort)700 : (ushort)400, body.Health,
                     "Each actual close-range Super Missile deals exactly 300 damage");
-                AssertEqual(2, runtime.Projectiles.Pool.ProjectileCounter,
+                AssertEqual(2, runtime.Projectiles.Pool.ShotCount.Count,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
                 AssertEqual(SamusShotBehaviors.SuperMissile,
                     runtime.Projectiles.Shots[0].Behavior, "Owner retains native pre-instruction");
@@ -77,7 +77,7 @@ internal static class KraidSuperMissileDamageVerification
             }
             if (frame is 9 or 33)
             {
-                AssertEqual(0, runtime.Projectiles.Pool.ProjectileCounter,
+                AssertEqual(0, runtime.Projectiles.Pool.ShotCount.Count,
                     "Marked link clears itself and its owner on the next projectile update");
                 AssertEqual(false, runtime.Projectiles.Shots.Any(shot => shot.IsActive),
                     "No stranded Super Missile or link survives the hit");
@@ -144,7 +144,7 @@ internal static class KraidSuperMissileDamageVerification
         void Prepare(ushort count)
         {
             projectiles.Reset();
-            projectiles.Pool.ProjectileCounter = count;
+            projectiles.Pool.ShotCount.Restore(count);
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             state.BodyState.Phase = KraidPhase.MainAttackWithMouthOpen;

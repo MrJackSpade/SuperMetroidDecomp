@@ -37,8 +37,7 @@ internal static class GrappleHurtFeedbackVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
-        samus.SelectedHudItem = HudItem.Grapple;
-        runtime.Artwork.BindGrapplePresentation();
+        samus.SelectedHudItem = HudItem.Grapple;
         SamusGrappleMovement.ConnectUnobstructedSwing(samus, new Position16<RoomPixels>(160, 64), 52,
             RotationAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory();
@@ -81,7 +80,7 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
-        var state = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 77, PreviousHealthForHurtCheck = 99 };
+        var state = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 77, PreviousHealthForHurtCheck = 99 };
         using var current = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(current, state);
         current.Position = 0;

@@ -113,7 +113,7 @@ internal sealed class BeamCombos
                     particle.SpazerPartner = particles.Single(other => !ReferenceEquals(other, particle) &&
                         PartOf(other).SpazerTurn == PartOf(particle).SpazerTurn);
             }
-            _pool.ProjectileCounter = parts.Count;
+            _pool.ShotCount.CountSpecialAttack(parts.Count);
             // The attack waits the cooldown of its first place's projectile: the combination's charged shot.
             shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
             OrbitTurnPerUpdate = kind == SamusComboKind.Spazer ? TrigonometryAngle.Zero

@@ -95,7 +95,7 @@ internal static class ReserveModeVerification
 
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
-                frameCounter: 0),
+                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
             "Reserve Mode non-CF route admits cartridge crouch storage");
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");
@@ -112,7 +112,7 @@ internal static class ReserveModeVerification
     private static SamusState CreateXrayReserveFixture(
         ushort reserveEnergy)
     {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

@@ -51,9 +51,7 @@ internal sealed class ProjectileAnimation
     internal void ClearProjectile(SamusProjectile shot)
     {
         Ensure.NotNull(shot).End();
-        _pool.ProjectileCounter = _pool.ProjectileCounter == 0
-            ? 0
-            : _pool.ProjectileCounter - 1;
+        _pool.ShotCount.CountDeletion();
     }
 
     /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and vertical clipping.</summary>

@@ -29,7 +29,7 @@ internal static class SamusStateAccess
             SamusPoseId targetPose,
             int frameCounter,
             GameplayAction controllerNewInput,
-            RoomObjectSystem? roomObjects = null)
+            ISamusRoomObjects? roomObjects = null)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))
             {
@@ -42,7 +42,7 @@ internal static class SamusStateAccess
                 targetPose,
                 frameCounter,
                 controllerNewInput,
-                roomObjects);
+                roomObjects ?? SamusRoomObjectFixtures.Uninstalled);
         }
 
         /// <summary>

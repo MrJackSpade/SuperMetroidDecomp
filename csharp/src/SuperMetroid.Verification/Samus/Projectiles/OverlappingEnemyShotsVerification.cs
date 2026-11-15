@@ -26,7 +26,7 @@ internal static class OverlappingEnemyShotsVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
         Action<RoomEnemySlot, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.SlotTable.Slots[index];
@@ -60,7 +60,7 @@ internal static class OverlappingEnemyShotsVerification
         AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
         AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.Type, "collision preserves the missile until projectile processing");
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
-        shots.HandleShots(new SamusTerrain { Level = level }, samus, Position16<RoomPixels>.Zero, bombs);
+        shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs);
         AssertTrue(shot.Type.IsNone, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {

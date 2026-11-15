@@ -691,7 +691,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // the gameplay comparison holds none of them.
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer.RawValue, NativeSnapshotMemory.ProjectileCooldown);
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
-                Check("ProjectileCounter", runtime.Projectiles.Pool.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
+                Check("ProjectileCounter", runtime.Projectiles.Pool.ShotCount.Count, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
                 Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);

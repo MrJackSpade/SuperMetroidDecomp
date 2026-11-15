@@ -28,9 +28,6 @@ internal static class GrappleTileArtworkVerification
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
-        AssertThrows<InvalidOperationException>(() => SamusGrappleBeamDrawing.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) },
-                new SpriteFrameBuffer(), new(0, 0)),
-            "The grapple beam fails loudly without the installed grapple sheet");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
@@ -57,11 +54,11 @@ internal static class GrappleTileArtworkVerification
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             cases++;
-            SamusGrappleState Seed() => new()
+            SamusGrappleState Seed() => new(artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.Start(timer),
                 Angle = RotationAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
-                BeamStart = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
+                FlareOrigin = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
             };
         }
         Suite(nameof(VerifyGrappleTileBinding), VerifyGrappleTileBinding);

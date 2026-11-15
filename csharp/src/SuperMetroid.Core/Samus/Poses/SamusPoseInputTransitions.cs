@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// transitions fails loudly. The returned lookup states which input transition won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>
-public static class SamusPoseTransitionTable
+public static class SamusPoseInputTransitions
 {
     /// <summary>Held Start and item selection, excluded from the pose-table input match.</summary>
     private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;

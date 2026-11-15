@@ -18,7 +18,7 @@ internal static class WallJumpExpansionVerification
             var entries = new RoomTerrainBlock[16 * 32];
             if (ceiling) entries[6 * 16 + (left ? 7 : 8)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             var room = CreateRoom(new(16, 32), entries, new RoomBlockBehavior[entries.Length]);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),
@@ -27,7 +27,7 @@ internal static class WallJumpExpansionVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             ushort beforeX = samus.Position.X.Whole;
-            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, room);
+            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, room, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose,
                 samus.Pose, "walljump expansion selects facing-preserving pose");
             AssertEqual(beforeX, samus.Position.X.Whole, "vertical expansion preserves X");

@@ -102,7 +102,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.NormalJumping)
@@ -169,8 +169,8 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        GameplayAction controllerNewInput = GameplayAction.None,
-        ISamusRoomObjects? roomObjects = null)
+        GameplayAction controllerNewInput,
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
@@ -283,7 +283,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.WallJumping ||
@@ -326,7 +326,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.DamageBoost ||
@@ -363,7 +363,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -433,7 +433,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Falling)
@@ -493,7 +493,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         ValidateCommon(level, samus);
         if (!samus.Grapple.ReleasedMovementActive)
@@ -560,7 +560,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         SamusMovementType movementType,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -597,7 +597,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null,
+        ISamusRoomObjects roomObjects,
         SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
         BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out bool hitCeiling, out bool downwardDisplacement, ceilingResponse);
@@ -708,7 +708,7 @@ public static class SamusAerialMovement
         SamusState samus,
         GameplayAction controllerInput,
         GameplayAction controllerNewInput,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         // Rejects before either enemy or terrain observation. Probing
         // first is not equivalent: block contact can mutate real X subposition.

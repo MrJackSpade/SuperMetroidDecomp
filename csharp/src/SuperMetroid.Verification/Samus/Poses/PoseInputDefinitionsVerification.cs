@@ -26,7 +26,7 @@ internal static class PoseInputDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(poseIndex)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + SamusPoseNumbers.Number(pose) * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitionsPosesConstants.TransitionListPointers + SamusPoseNumbers.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
@@ -89,7 +89,7 @@ internal static class PoseInputDefinitionsVerification
                     {
                         GameplayAction input = heldInputs[held * 2 + heldNoise];
                         if (heldNoise == 0 || held == 0)
-                            actual = SamusPoseTransitionTable.Lookup(pose, input, edges);
+                            actual = SamusPoseInputTransitions.Lookup(pose, input, edges);
                         AssertEqual(NativeLookup(native, nativeHeld, nativeNew, pose, input, edges), actual,
                             "Compiled input graph preserves native first-match, self-match and fallback result");
                     }
@@ -106,11 +106,11 @@ internal static class PoseInputDefinitionsVerification
             SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
             AssertTrue(!SamusPoseInputs.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
-                () => SamusPoseTransitionTable.Lookup(invalidPose, GameplayAction.AimUp, GameplayAction.AimUp),
+                () => SamusPoseInputTransitions.Lookup(invalidPose, GameplayAction.AimUp, GameplayAction.AimUp),
                 "Non-authored pose graph rejects adjacent code");
             AssertEqual(
                 new SamusPoseTransitionLookup(null, true),
-                SamusPoseTransitionTable.Lookup(invalidPose, 0, 0),
+                SamusPoseInputTransitions.Lookup(invalidPose, 0, 0),
                 "Raw zero input returns before the cartridge would inspect a pose graph");
         }
 
@@ -120,17 +120,17 @@ internal static class PoseInputDefinitionsVerification
         const GameplayAction leftRight = GameplayActions.HorizontalDirections;
         AssertEqual(
             SamusPoseId.TurningRightToLeftPose,
-            (SamusPoseTransitionTable.Lookup(
+            (SamusPoseInputTransitions.Lookup(
                 SamusPoseId.FacingRightNormalPose,
                 leftRight,
-                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingRightNormalPose, leftRigh....")).ProspectivePose,
+                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Lookup( forbidden, SamusPoseId.FacingRightNormalPose, leftRigh....")).ProspectivePose,
             "right-facing Left+Right uses the first native Left condition");
         AssertEqual(
             SamusPoseId.TurningLeftToRightPose,
-            (SamusPoseTransitionTable.Lookup(
+            (SamusPoseInputTransitions.Lookup(
                 SamusPoseId.FacingLeftNormalPose,
                 leftRight,
-                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingLeftNormalPose, leftRight....")).ProspectivePose,
+                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Lookup( forbidden, SamusPoseId.FacingLeftNormalPose, leftRight....")).ProspectivePose,
             "left-facing Left+Right uses the first native Right condition");
 
         int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
@@ -146,7 +146,7 @@ internal static class PoseInputDefinitionsVerification
         for (int i = 0; i < 65536; i++)
         {
             if (!SamusPoseNumbering.NamesPose(i % 253)) continue;
-            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber(i % 253), probeHeld[i], probeEdges[i]).Transition.HasValue) accepted++;
+            if (SamusPoseInputTransitions.Lookup(SamusPoseNumbering.FromNumber(i % 253), probeHeld[i], probeEdges[i]).Transition.HasValue) accepted++;
         }
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");

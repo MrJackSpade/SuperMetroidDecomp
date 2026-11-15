@@ -158,7 +158,7 @@ internal sealed class RidleyTail
         {
             RidleyTailSegment tip = state.TailSegments[6];
             SamusProjectile? missile = RidleyTailMissileTarget.Target(
-                projectiles.Pool.ProjectileCounter,
+                projectiles.Pool.ShotCount.Count,
                 projectiles.Shots,
                 projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
                     CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&

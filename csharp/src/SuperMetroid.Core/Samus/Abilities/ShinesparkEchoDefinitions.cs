@@ -16,6 +16,12 @@ public static class ShinesparkEchoDefinitions
         [SamusPoseId.ShinesparkDiagonalLeftPose] = Departure(32, 160),
     };
 
+    /// <summary>The angles the crash's two orbiting copies start at when Samus faces left.</summary>
+    internal static readonly ShinesparkDepartureAngles CrashOrbitStartFacingLeft = Departure(32, 160);
+
+    /// <summary>The angles the crash's two orbiting copies start at when Samus faces right.</summary>
+    internal static readonly ShinesparkDepartureAngles CrashOrbitStartFacingRight = Departure(224, 96);
+
     /// <summary>The departure angles at two steps of the turn.</summary>
     internal static ShinesparkDepartureAngles Departure(int first, int second) =>
         new ShinesparkDepartureAngles(RotationAngle.FromSteps(first), RotationAngle.FromSteps(second));

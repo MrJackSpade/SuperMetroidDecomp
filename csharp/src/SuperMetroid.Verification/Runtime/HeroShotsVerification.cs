@@ -36,7 +36,7 @@ internal static class HeroShotsVerification
             var blocks = new RoomTerrainBlock[64 * 16];
             for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = Solid;
             var room = CreateRoom(vertical ? new(16, 64) : new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             int deletedFrame = -1, impactFrame = -1;
@@ -65,9 +65,9 @@ internal static class HeroShotsVerification
                         cameraX = unchecked((ushort)(SixteenSixteenWords.WholeOf(next) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
-                shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
+                shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
-                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
+                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
                 // A shot fired this pass is a new projectile in the place.
                 shot = projectiles.Shots[0];
                 if (native is not null)

@@ -233,7 +233,7 @@ public sealed class SamusDrainedState
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWrappedWholeY(
-            samus.Position.Y.Whole - CoordinateAxis.Wrap(21 - sourceRadius));
+            samus.Position.Y.Whole - (21 - sourceRadius));
 
         // A left-facing pose chooses the left-facing record; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
@@ -281,9 +281,9 @@ public sealed class SamusDrainedState
     /// Runs one call of drained Samus's fall, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
-    public DrainedSamusMovementResult StepFalling(
-
+    internal DrainedSamusMovementResult StepFalling(
         RoomLevelData level,
+        ISamusRoomObjects roomObjects,
         SamusState samus,
         int frameCounter)
     {
@@ -293,7 +293,7 @@ public sealed class SamusDrainedState
         if (Phase != DrainedSamusPhase.Falling)
             throw new InvalidOperationException("Drained Samus is not falling.");
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, frameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before the landing erases it for on-floor art.

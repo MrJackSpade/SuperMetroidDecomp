@@ -61,7 +61,6 @@ internal sealed class GameplayActorDrawing
     {
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         if (_player.Samus is null || _room.Camera is null) return;
-        _artwork.BindGrapplePresentation();
         // The frame draws bomb/projectile explosions before reaching the enemy-layer
         // phase that draws Samus and her projectiles. Preserve that sprite ordering.
         if (!deathOwnsSamus)
@@ -176,7 +175,7 @@ internal sealed class GameplayActorDrawing
                     turningFloor: _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.Sheets);
+                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.InstalledSheets);
         }
         else
         {
@@ -275,7 +274,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
-                    _player.Samus.Presentation.Sheets);
+                    _player.Samus.Artwork.InstalledSheets);
 
                 // BeforeBody and AfterBody differ only in draw order: the first appends the
                 // cannon before the body, the second after it. Hidden suppresses
@@ -311,7 +310,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _artwork.SpriteSheets?.Get(SpriteSheetId.Grapple));
+                        _player.Samus.Artwork.InstalledSheets.Get(SpriteSheetId.Grapple));
                 }
                 else
                 {

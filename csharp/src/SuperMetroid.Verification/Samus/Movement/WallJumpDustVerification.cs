@@ -20,7 +20,7 @@ internal static class WallJumpDustVerification
         foreach (bool facingRight in new[] { false, true })
         for (int medium = 0; medium < 5; medium++)
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
             // Grapple contact faces the wall; its accepted wall jump reverses that pose.
             samus.Pose = grapple
                 ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
@@ -34,7 +34,7 @@ internal static class WallJumpDustVerification
             var earlier = new SamusParticle(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
             samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
-            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus);
+            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), 0, SamusRoomObjectFixtures.Uninstalled);
 
             bool suppressed = medium is 1 or 2;
             IReadOnlyList<SamusParticle> particles = samus.Presentation.Particles.All;

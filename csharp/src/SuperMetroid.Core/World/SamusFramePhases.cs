@@ -539,8 +539,8 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                         _player.ProspectiveSamusFallbackPose = null;
                 }
                 samus.CeresRidleyEjection.Step(
-
                     _room.LevelData,
+                    room.RoomObjects,
                     samus,
                     camera.PixelPosition.X,
                     _clock.Counter);
@@ -602,8 +602,8 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 if (samus.Drained.Phase == DrainedSamusPhase.Falling)
                 {
                     _player.LastDrainedSamusMovement = samus.Drained.StepFalling(
-
                         _room.LevelData,
+                        room.RoomObjects,
                         samus,
                         _clock.Counter);
                 }
@@ -1237,7 +1237,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
             ? default
-            : SamusPoseTransitionTable.Lookup(
+            : SamusPoseInputTransitions.Lookup(
                 samus.Pose,
                 _playerActions.Current,
                 _attractDemo.IsAttractDemo ? _playerActions.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_playerActions.NewlyPressed));
@@ -1260,7 +1260,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),
                 samus.Pose,
-                SamusPoseMetadata.ReadNoInputFallbackPose(samus),
+                SamusPoseMetadata.ReadNoInputFallback(samus),
                 frame.DeceleratingFallbackHasMomentum).ProspectivePose;
         }
     }
@@ -1339,7 +1339,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
                 samus,
                 _player.Colours,
-                _artwork.SamusBodyArt?.DeathSteps);
+                samus.Artwork.InstalledBody.DeathSteps);
         }
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))

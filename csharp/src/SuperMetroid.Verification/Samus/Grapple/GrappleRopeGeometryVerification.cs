@@ -29,10 +29,10 @@ internal static class GrappleRopeGeometryVerification
         foreach (int origin in new[] { 128, 4, 252 })
         foreach (int length in new[] { 120, 1, 7, 8, 16, 128, 136 })
         {
-            var grapple = new SamusGrappleState
+            var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Phase = GrapplePhase.Firing, RopeLength = length,
-                BeamStart = new((ushort)origin, 128),
+                FlareOrigin = new((ushort)origin, 128),
                 Anchor = new((ushort)(origin + direction * 100), 28),
                 PointAnimationTimer = WrappingCountdown.Start(5),
             };
@@ -78,9 +78,9 @@ internal static class GrappleRopeGeometryVerification
     /// </summary>
     private static void VerifyGrappleRopeAnimation()
     {
-        var grapple = new SamusGrappleState
+        var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
-            Phase = GrapplePhase.ConnectedLocked, BeamStart = new(128, 128), Anchor = new(128, 28),
+            Phase = GrapplePhase.ConnectedLocked, FlareOrigin = new(128, 128), Anchor = new(128, 28),
             PointAnimationTimer = WrappingCountdown.Start(5),
         };
         for (int draw = 1; draw <= 24; draw++)

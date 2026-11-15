@@ -62,7 +62,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Grapple.FlareStage = stage;
                 samus.Grapple.FlarePlace = 29;
                 samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
-                samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(coordinate); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(coordinate);
+                samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(coordinate); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(coordinate);
                 samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
                 samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
                 samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = 123;
@@ -71,7 +71,7 @@ internal static class GrappleFlarePresentationVerification
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+            var native = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -93,12 +93,12 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose };
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareStage = GrappleFlareStage.Shown;
             samus.Grapple.FlarePlace = frame;
             samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(timer);
-            samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
+            samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(256);
             Check(samus, Clone(samus), wholeState: timer == 0 && frame == 0);
         }
         Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(roomAssets, maps, grappleArtwork));
@@ -113,8 +113,8 @@ internal static class GrappleFlarePresentationVerification
             foreach (SamusState samus in new[] { native, actual })
             {
                 if (bound.Add(samus))
-                    samus.Presentation.BindBodyFixture(body);
-                samus.Grapple.FlarePlacement = flarePlacement;
+                    samus.BindBodyFixture(body);
+                samus.Artwork.GrappleFlarePlacement = flarePlacement;
             }
             int expectedFrame = native.Grapple.FlarePlace;
             ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
@@ -152,15 +152,15 @@ internal static class GrappleFlarePresentationVerification
         SamusState Clone(SamusState source) => RoundTrip(source, content);
 
         static SamusState NewSamus() => new(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
     }
 
     /// <summary>The grapple state a flare draw writes.</summary>
-    private readonly record struct FlareState(GrappleFlareStage Stage, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> BeamStart)
+    private readonly record struct FlareState(GrappleFlareStage Stage, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> FlareOrigin)
     {
         /// <summary>The flare state <paramref name="grapple"/> holds.</summary>
         internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareStage, grapple.FlarePlace,
-            grapple.FlareAnimationTimer.RawValue, grapple.RopeStart, grapple.BeamStart);
+            grapple.FlareAnimationTimer.RawValue, grapple.RopeStart, grapple.FlareOrigin);
     }
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
@@ -182,7 +182,7 @@ internal static class GrappleFlarePresentationVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
+        samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(samus.Position.X.Whole); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareStage = GrappleFlareStage.Shown; samus.Grapple.FlarePlace = 16; samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);

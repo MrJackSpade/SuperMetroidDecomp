@@ -51,7 +51,7 @@ internal static class CrampedAerialLandingVerification
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             foreground,
             new RoomBlockBehavior[foreground.Length]);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = SamusPoseId.SpinJumpRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0094, 0x0034)),
@@ -67,7 +67,7 @@ internal static class CrampedAerialLandingVerification
             level,
             wasSpinning: true,
             controllerInput: (GameplayAction.Right | GameplayAction.Jump),
-            frameCounter: 39440);
+            frameCounter: 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
 
         AssertTrue(!installedLanding,
             "cramped spin landing rejects the 42-pixel landing body");
@@ -100,7 +100,7 @@ internal static class CrampedAerialLandingVerification
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         samus.Position = samus.Position.WithWholeY(0x0034);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPoseTransitions.TryApplyAerialLanding(samus, level, true, 0, 39440);
+        SamusPoseTransitions.TryApplyAerialLanding(samus, level, true, 0, 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertTrue(samus.HorizontalSpeed.SuitShadeRestoreRequested,
             "rejected landing still performs pre-command suit palette restoration");
     }

@@ -514,17 +514,17 @@ internal static class SamusPoseTraits
     };
 
     /// <summary>
-    /// The pose a pose falls back to with no input: its authored fallback, or what an unauthored pose reads
+    /// What a pose falls back to with no input: its authored fallback, or what an unauthored pose reads
     /// (<see cref="SamusUnauthoredPoseDefinitions"/>).
     /// </summary>
-    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) =>
+    internal static SamusNoInputFallback ReadNoInputFallback(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
-            ? unauthored.NoInputPose
-            : ReadAuthoredNoInputPose(pose);
+            ? unauthored.NoInputFallback
+            : SamusNoInputFallback.Of(ReadAuthoredNoInputPose(pose));
 
-    /// <summary>The pose an authored pose falls back to with no input.</summary>
+    /// <summary>The pose an authored pose falls back to with no input, or null for a pose that keeps itself.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose is unauthored.</exception>
-    private static SamusPoseId ReadAuthoredNoInputPose(SamusPoseId pose) => pose switch
+    private static SamusPoseId? ReadAuthoredNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or
@@ -758,7 +758,7 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => null,
         SamusPoseId.TallStillRightPose or
         SamusPoseId.ForwardStandingPose or
         SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(

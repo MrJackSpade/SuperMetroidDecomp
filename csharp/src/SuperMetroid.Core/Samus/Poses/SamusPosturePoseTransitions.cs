@@ -14,7 +14,7 @@ internal static class SamusPosturePoseTransitions
     /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
     /// <param name="targetPose">Final normal standing-right or standing-left pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">Optional live room-object owner receiving those collision reactions.</param>
+    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
@@ -24,7 +24,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -87,7 +87,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -151,7 +151,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -275,7 +275,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -413,7 +413,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);

@@ -25,20 +25,20 @@ internal static class SamusUnauthoredPoseDefinitions
                 VerticalRadius: 138,
                 ProjectileYOffset: 194,
                 Movement: null,
-                NoInputPose: SamusPoseId.NeutralJumpTransitionRightPose),
+                NoInputFallback: SamusNoInputFallback.ToPose(SamusPoseId.NeutralJumpTransitionRightPose)),
             [SamusPoseId.ForwardStandingPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingLeft)),
                 VerticalRadius: 24,
                 ProjectileYOffset: 22,
                 Movement: SamusMovementType.Standing,
-                NoInputPose: SamusMovementDefinitions.Poses.RetainCurrentPoseFallback),
+                NoInputFallback: SamusNoInputFallback.KeepCurrentPose),
             [SamusPoseId.ForwardStillCrouchHeightPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingRight)),
                 VerticalRadius: 16,
                 ProjectileYOffset: 133,
                 Movement: null,
-                NoInputPose: SamusPoseId.LandingAimDiagonalDownLeftPose),
+                NoInputFallback: SamusNoInputFallback.ToPose(SamusPoseId.LandingAimDiagonalDownLeftPose)),
         });
 }

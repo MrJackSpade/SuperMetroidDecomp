@@ -35,8 +35,8 @@ internal static class ChargeFlareProductionVerification
         })
         foreach (bool hyper in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
-            samus.Presentation.BindBodyFixture(body);
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
+            samus.BindBodyFixture(body);
             SamusProjectileSystem native = Create(), compiled = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
@@ -61,8 +61,8 @@ internal static class ChargeFlareProductionVerification
         {
             var invalidSelector = Create();
             Array.Fill(invalidSelector.Charge.FlarePhases, outOfTableFrame);
-            var subject = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            subject.Presentation.BindBodyFixture(body);
+            var subject = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            subject.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");

@@ -17,7 +17,7 @@ internal sealed class SamusShotPool
     /// <summary>The place a shinespark crash's second echo takes: the last.</summary>
     internal const int SecondEchoPlace = SamusProjectileSystem.PlaceCount - 1;
 
-    /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace the shot count.</summary>
+    /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace <see cref="ShotCount"/>.</summary>
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
 
@@ -102,14 +102,6 @@ internal sealed class SamusShotPool
         }
     }
 
-    /// <summary>
-    /// How many shots Samus has out by the firing count, zero or more; kept separately from the free-place
-    /// search, so the two can disagree (a special attack sets it to four whatever its fifth place holds), and a deletion
-    /// at zero leaves it at zero.
-    /// </summary>
-    public int ProjectileCounter
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>How many shots Samus has out as firing counts them, which drifts from the places held.</summary>
+    public SamusShotCount ShotCount { get; } = new();
 }

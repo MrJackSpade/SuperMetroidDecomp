@@ -229,7 +229,7 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, bool> PostureAdmissions(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusPoseId>()
-            .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.BeyondTable)
+            .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.AnsweredBeyondTransitions)
             .OrderBy(SamusPoseNumbers.Number)
             .ToDictionary(pose => pose.ToString(), pose =>
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbers.Number(pose)) == 0);

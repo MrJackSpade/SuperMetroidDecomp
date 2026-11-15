@@ -93,4 +93,10 @@ internal static class MotherBrainCadenceDefinitions
     /// steps, each held for two updates, indexing its shake offsets.
     /// </summary>
     internal static readonly UpdateCounterField ShitroidShakeStep = new(1, 2);
+
+    /// <summary>
+    /// The updates Mother Brain's second phase waits after choosing an attack before it thinks again: its attack's cooldown
+    /// counts down from this, and the attack ends on the update it reaches zero.
+    /// </summary>
+    internal const int SecondPhaseAttackCooldown = 64;
 }

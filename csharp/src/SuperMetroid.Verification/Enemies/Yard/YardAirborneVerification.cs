@@ -70,11 +70,19 @@ internal static class YardAirborneVerification
         int yard = Enumerable.Range(0, enemies.YardStates.Count).First(place => enemies.YardStates[place] is not null);
         RoomEnemySlot actor = enemies.SlotTable.Slots[yard];
         YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
-        state.Movement = YardMovement.Airborne;
-        state.Behavior = YardBehavior.NormalCrawling;
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
+        // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's
+        // contact check does; the scrolling, which would record a new measure, does not run.
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with
+        {
+            Camera = new(unchecked((ushort)(actor.Position.X.Whole - 128)), unchecked((ushort)(actor.Position.Y.Whole - 112))),
+            TimeIsFrozen = false,
+            Samus = samus,
+        });
+        state.Movement = YardMovement.Airborne;
+        state.Behavior = YardBehavior.NormalCrawling;
         samus.Position = samus.Position.WithWhole(actor.Position.Whole);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData, actor),

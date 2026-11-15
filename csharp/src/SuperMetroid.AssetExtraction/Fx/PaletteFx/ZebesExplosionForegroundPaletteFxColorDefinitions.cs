@@ -24,5 +24,5 @@ public static class ZebesExplosionForegroundPaletteFxColorDefinitions
     public const int ColorsPerFrame = 15;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.WidePartOfZebesExplosionForeground, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.WidePartOfZebesExplosionForeground, ColorsPerFrame);
 }

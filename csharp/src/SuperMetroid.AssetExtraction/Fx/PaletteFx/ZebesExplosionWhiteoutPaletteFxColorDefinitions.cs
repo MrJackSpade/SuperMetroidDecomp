@@ -26,5 +26,5 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
     public const int ColorsPerFrame = 1;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.WhiteOutSpaceDuringZebesExplosion, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.WhiteOutSpaceDuringZebesExplosion, ColorsPerFrame);
 }

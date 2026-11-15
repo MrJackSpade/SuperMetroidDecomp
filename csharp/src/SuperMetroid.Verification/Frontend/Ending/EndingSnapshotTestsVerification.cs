@@ -297,7 +297,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                 {
                     gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
-                        .Where(shade => shade.Effect == ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion, new ColourEffectFrame(ColourEffectAnimation.GunshipEmergingFromZebesExplosion, 0)).Effect)));
+                        .Where(shade => shade.Effect == ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion, new ColourEffectFrame(ColourEffectId.GunshipEmergingFromZebesExplosion, 0)).Effect)));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? WhiteWash.Steps : Math.Max(0, WhiteWash.Steps - 1 - (elapsed - 193) / 8);
                     var flight = Live();

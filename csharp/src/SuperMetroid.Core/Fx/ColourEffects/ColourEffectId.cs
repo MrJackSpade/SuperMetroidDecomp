@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// The colour effects, named by what each shows. Each names how it starts
-/// and an initial animation (<see cref="ColourEffectSelection"/>); a running <see cref="RoomColourEffect"/> shows one. Its values
-/// are arbitrary.
+/// The colour effects, named by what each shows. Each is defined by how it starts, its colours, the condition it watches
+/// and the animation it plays (<see cref="ColourEffectAnimations"/>); a running <see cref="RoomColourEffect"/> shows one.
+/// Its values are arbitrary.
 /// </summary>
 public enum ColourEffectId
 {

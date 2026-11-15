@@ -112,10 +112,10 @@ internal static class PaletteFxObjectAccess
     }
 
     /// <summary>Definitions by address.</summary>
-    extension(ColourEffectSelection)
+    extension(ColourEffectAnimations)
     {
         /// <summary>The definition at <paramref name="pointer"/>.</summary>
-        internal static ColourEffectDefinition Get(ushort pointer) => ColourEffectSelection.Get(FromNative(pointer));
+        internal static ColourEffectDefinition DefinitionAt(ushort pointer) => ColourEffectAnimations.Definition(FromNative(pointer));
     }
 
     /// <summary>Native view of a Tourian statue release.</summary>

@@ -110,7 +110,7 @@ internal static class NativeSnapshotImport
             // plays, one of the heat shimmer's for an effect that chooses one; its native timer is its repeat counter.
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
                 paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
-                ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
+                PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
                 ? runtime.Enemies.BombTorizoBehavior.Access.TorizoState
@@ -121,17 +121,26 @@ internal static class NativeSnapshotImport
             var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
             {
                 Place = resumed.Place,
-                // The native colour index names the colours the object animates: of the colour groups its programs name,
-                // the one starting there.
-                Colours = SuperMetroid.Core.Fx.ColourEffects.PaletteFxColoursPositions.FromCartridge(effect,
-                    RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), id)),
-                // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native
-                // view, where the deleted adjacent-slot inspection (#1526) stands for the none the port's glow keeps.
-                Condition = SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(
-                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2)),
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
                 Repeats = WrappingCountdown.Start(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
+            // The effect's colours and condition are its definition's (#1982). The native colour index names the colours the
+            // object animates once its set-up has run, of the colour groups its programs name the one starting there; zero
+            // before.
+            if (SuperMetroid.Core.Fx.ColourEffects.PaletteFxColoursPositions.FromCartridge(effect,
+                    RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), id)) is { } recordedColours &&
+                recordedColours != imported.Colours)
+            {
+                throw new InvalidDataException($"The native snapshot's {effect} animates {recordedColours}, not its definition's {imported.Colours}.");
+            }
+            // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native
+            // view, where the deleted adjacent-slot inspection (#1526) stands for the none the port's glow keeps. A set-up
+            // object watches its definition's condition; one not yet set up watches none.
+            if (SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2))
+                    is { } recordedCondition && recordedCondition != imported.Condition)
+            {
+                throw new InvalidDataException($"The native snapshot's {effect} watches {recordedCondition}, not its definition's {imported.Condition}.");
+            }
             ColourEffectTurnOrder.Join(importedEffects, imported);
         }
         runtime.ColourEffectSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
@@ -418,7 +427,8 @@ internal static class NativeSnapshotImport
         // Native slot order is the reverse of the order the effects take their turns in.
         foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
-            if (effect.Colours is not { } colours || LastShownFrame(effect.Animation, effect.Place) is not { } frame)
+            ColourEffectColours colours = effect.Colours;
+            if (LastShownFrame(effect.Animation, effect.Place) is not { } frame)
                 continue;
             effect.Frame = frame;
             if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
@@ -433,29 +443,19 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// The animations an imported <paramref name="effect"/> can be playing: the one its start plays, or each suit's heat
-    /// shimmer for an effect that chooses one. A restart plays on in the same animation.
-    /// </summary>
-    private static IEnumerable<ColourEffectAnimation> ImportedAnimationCandidates(ColourEffectId effect)
-    {
-        ColourEffectDefinition definition = ColourEffectSelection.Get(effect);
-        return definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Start)]
-            : [definition.InitialAnimation];
-    }
-
-    /// <summary>
     /// The frame a colour effect showed last before <paramref name="place"/> in <paramref name="animation"/>: the nearest
     /// frame before the step it resumes at, among its animation's steps. The native instruction pointer rests after the
     /// record it last showed (a loop's or a jump's goto runs only when the object next advances), so the steps before the
     /// place are the ones the object played, a list that runs on into the next one's last record among them. A place with no
     /// frame before it has shown no frame yet: null.
     /// </summary>
-    private static ColourEffectFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<ColourEffectAnimation> animation, SuperMetroid.Core.Animation.AnimationPlace place)
+    private static ColourEffectFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<ColourEffectId> animation, SuperMetroid.Core.Animation.AnimationPlace place)
     {
-        AnimationPhase<ColourEffectAnimation> phase = animation.Phases[place.Phase];
+        AnimationPhase<ColourEffectId> phase = animation.Phases[place.Phase];
         IReadOnlyList<AnimationBeat<int, ColourEffectCue>> steps = ColourEffectAnimations.Steps.Beats(phase.Segment);
-        for (int step = Math.Min(phase.FirstBeat + place.Beat, steps.Count) - 1; step >= 0; step--)
+        // The animation's steps start at its phases' first beat: the heat shimmer's suits play their own runs of its steps.
+        int firstStep = animation.Phases.Min(played => played.FirstBeat);
+        for (int step = Math.Min(phase.FirstBeat + place.Beat, steps.Count) - 1; step >= firstStep; step--)
         {
             if (steps[step] is AnimationBeat<int, ColourEffectCue>.Frame shown)
                 return new ColourEffectFrame(phase.Segment, shown.Shown);

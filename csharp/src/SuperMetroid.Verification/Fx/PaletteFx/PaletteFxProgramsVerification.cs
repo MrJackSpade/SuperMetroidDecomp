@@ -19,14 +19,14 @@ internal static class PaletteFxProgramsVerification
     internal static void VerifyPaletteFxPrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertTrue(Enum.GetValues<ColourEffectAnimation>().All(animation => PaletteFxNativeListAddresses.Entries.Any(entry => entry.Animation == animation && entry.FirstStep == 0)),
-            "every typed colour effect animation starts at a native list");
+        AssertTrue(Enum.GetValues<ColourEffectId>().All(effect => PaletteFxNativeListAddresses.Entries.Any(entry => entry.Effect == effect && entry.FirstStep == 0)),
+            "every typed colour effect starts at a native list");
         Dictionary<ushort, PaletteFxNativeList> lists = PaletteFxNativeProgramOracle.Lists(cartridge);
         // Every animation plays the phases its native lists' control flow plays (#1600).
         PaletteFxNativeProgramOracle.VerifyAnimations(lists);
         // Each animation's frames are numbered from zero in the order it shows them, and each shows a record (#1598).
         HashSet<int> records = [];
-        foreach (ColourEffectAnimation animation in Enum.GetValues<ColourEffectAnimation>())
+        foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
             int next = 0;
             foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectAnimations.Steps.Beats(animation))
@@ -39,7 +39,7 @@ internal static class PaletteFxProgramsVerification
         }
         AssertEqual(PaletteFxRecordDefinitionsConstants.RecordCount, records.Count, "every colour record is shown by an animation");
         Console.WriteLine($"  Colour effect animations: {lists.Count} native lists ({lists.Values.Sum(list => list.BeatAddresses.Length)} beats, " +
-            $"{records.Count} colour records) and {Enum.GetValues<ColourEffectAnimation>().Length} animations match bank $8D.");
+            $"{records.Count} colour records) and {Enum.GetValues<ColourEffectId>().Length} effects match bank $8D.");
     }
 
     /// <summary>Runs the palette-FX program oracle.</summary>

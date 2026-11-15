@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx.ColourEffects;
-using A = SuperMetroid.Core.Fx.ColourEffects.ColourEffectAnimation;
+using A = SuperMetroid.Core.Fx.ColourEffects.ColourEffectId;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
@@ -50,9 +50,9 @@ internal static class ColourEffectRecordOrder
         new(A.GreyOutTourianStatuePhantoon, 0, 8),
         new(A.BombTorizoBelly, 0, 6),
         new(A.GoldenTorizoBelly, 0, 6),
-        new(A.SamusInHeatPowerSuit, 0, 16),
-        new(A.SamusInHeatVariaSuit, 0, 16),
-        new(A.SamusInHeatGravitySuit, 0, 16),
+        new(A.SamusInHeat, 0, 16),
+        new(A.SamusInHeat, 16, 16),
+        new(A.SamusInHeat, 32, 16),
         new(A.WreckedShipGreenLights, 0, 8),
         new(A.CrateriaLightning, 0, 1),
         new(A.CrateriaLightning, 1, 8),
@@ -80,9 +80,9 @@ internal static class ColourEffectRecordOrder
         new(A.ParlorEscapeSkyFlicker, 0, 11),
     ];
 
-    /// <summary>The animations whose frames show another animation's records, by the animation whose records they show.</summary>
-    internal static IReadOnlyDictionary<ColourEffectAnimation, ColourEffectAnimation> ShowsRecordsOf { get; } =
-        new Dictionary<ColourEffectAnimation, ColourEffectAnimation>
+    /// <summary>The effects whose frames show another effect's records, by the effect whose records they show.</summary>
+    internal static IReadOnlyDictionary<ColourEffectId, ColourEffectId> ShowsRecordsOf { get; } =
+        new Dictionary<ColourEffectId, ColourEffectId>
         {
             [A.CutsceneCeresNavigationLightsBackground] = A.CutsceneCeresNavigationLightsSprite,
             [A.GreyOutTourianStatueDraygon] = A.GreyOutTourianStatuePhantoon,

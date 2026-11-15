@@ -94,9 +94,9 @@ internal static class CinematicColourEffectTests
                 setUp = update;
             // A fade starts on the update its caption fade first shows a record of its own.
             ColourEffectFrame? shown = scene.ColourEffects.FrameOf(ColourEffectColours.PlanetZebesText);
-            if (shown is { } frame && frame.Animation != previous?.Animation)
+            if (shown is { } frame && frame.Effect != previous?.Effect)
             {
-                if (frame.Animation == ColourEffectAnimation.FadeInPlanetZebesText)
+                if (frame.Effect == ColourEffectId.FadeInPlanetZebesText)
                     fadeIn = update;
                 else
                     fadeOut = update;

@@ -30,9 +30,9 @@ internal static class PaletteFxRecords
         ? record
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The frame is not one its animation shows.");
 
-    /// <summary>The number of frames <paramref name="animation"/> shows.</summary>
-    internal static int FrameCount(ColourEffectAnimation animation) =>
-        ColourEffectAnimations.Steps.Beats(animation).Count(beat => beat is AnimationBeat<int, ColourEffectCue>.Frame);
+    /// <summary>The number of frames <paramref name="effect"/> shows.</summary>
+    internal static int FrameCount(ColourEffectId effect) =>
+        ColourEffectAnimations.Steps.Beats(effect).Count(beat => beat is AnimationBeat<int, ColourEffectCue>.Frame);
 
     /// <summary>
     /// Each run's frames in the runs' order, each run's in the order its animation shows them; every animation's frames are
@@ -42,7 +42,7 @@ internal static class PaletteFxRecords
     /// <exception cref="InvalidDataException">An animation numbers its frames out of order, or the runs miss or repeat a frame.</exception>
     private static ColourEffectFrame[] Number()
     {
-        foreach (ColourEffectAnimation animation in Enum.GetValues<ColourEffectAnimation>())
+        foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
             int next = 0;
             foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectAnimations.Steps.Beats(animation))
@@ -58,11 +58,11 @@ internal static class PaletteFxRecords
         foreach (ColourEffectRecordRun run in ColourEffectRecordOrder.Runs)
         {
             for (int frame = run.FirstFrame; frame < run.FirstFrame + run.FrameCount; frame++)
-                frames.Add(new ColourEffectFrame(run.Animation, frame));
+                frames.Add(new ColourEffectFrame(run.Effect, frame));
         }
         if (frames.Distinct().Count() != frames.Count)
             throw new InvalidDataException("The colour effects' record runs hold a frame twice.");
-        foreach (ColourEffectAnimation animation in Enum.GetValues<ColourEffectAnimation>())
+        foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
             if (ColourEffectRecordOrder.ShowsRecordsOf.ContainsKey(animation))
                 continue;
@@ -85,7 +85,7 @@ internal static class PaletteFxRecords
         var byFrame = new Dictionary<ColourEffectFrame, PaletteFxRecord>(Frames.Length);
         for (int record = 0; record < Frames.Length; record++)
             byFrame.Add(Frames[record], new PaletteFxRecord(record));
-        foreach ((ColourEffectAnimation animation, ColourEffectAnimation shown) in ColourEffectRecordOrder.ShowsRecordsOf)
+        foreach ((ColourEffectId animation, ColourEffectId shown) in ColourEffectRecordOrder.ShowsRecordsOf)
         {
             if (FrameCount(animation) != FrameCount(shown))
                 throw new InvalidDataException($"Colour effect animation {animation} shows {shown}'s records but not its number of frames.");

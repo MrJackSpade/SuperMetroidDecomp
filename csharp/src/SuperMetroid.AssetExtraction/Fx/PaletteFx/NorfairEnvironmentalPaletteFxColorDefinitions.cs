@@ -38,14 +38,6 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         ColourEffectId.NorfairPurpleForegroundHeatGlow,
         ColourEffectId.NorfairDarkForegroundHeatGlow,
     ];
-    /// <summary>The program each object runs, by owner: the heat-phase program, then the green, purple and dark foreground glows.</summary>
-    internal static readonly ColourEffectAnimation[] Programs =
-    [
-        ColourEffectAnimation.NorfairForegroundAndHeatPhase,
-        ColourEffectAnimation.NorfairGreenForegroundHeatGlow,
-        ColourEffectAnimation.NorfairPurpleForegroundHeatGlow,
-        ColourEffectAnimation.NorfairDarkForegroundHeatGlow,
-    ];
 
     /// <summary>The four real environmental programs in definition order.</summary>
     public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All { get; } = new NorfairEnvironmentalPalettePrograms();

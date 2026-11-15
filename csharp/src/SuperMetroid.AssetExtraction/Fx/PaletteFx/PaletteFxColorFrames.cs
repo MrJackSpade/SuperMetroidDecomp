@@ -12,24 +12,35 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
 {
     /// <summary>
-    /// The frames <paramref name="animation"/> shows (#1739): the consecutive records of its frames, in the order it shows
+    /// The frames <paramref name="effect"/> shows (#1739, #1982): the consecutive records of its frames, in the order it shows
     /// them.
     /// </summary>
-    /// <param name="animation">The animation whose frames are the family's frames.</param>
+    /// <param name="effect">The effect whose frames are the family's frames.</param>
     /// <param name="colorsPerFrame">The colours each frame writes.</param>
-    /// <exception cref="InvalidOperationException">The animation shows no record, or its records do not lie one after another.</exception>
-    public static PaletteFxColorFrames Of(ColourEffectAnimation animation, int colorsPerFrame)
+    /// <exception cref="InvalidOperationException">The effect shows no record, or its records do not lie one after another.</exception>
+    public static PaletteFxColorFrames Of(ColourEffectId effect, int colorsPerFrame) =>
+        Run(effect, 0, PaletteFxRecords.FrameCount(effect), colorsPerFrame);
+
+    /// <summary>
+    /// The <paramref name="count"/> frames <paramref name="effect"/> shows from its frame <paramref name="first"/>: the
+    /// consecutive records of those frames, in the order it shows them (one suit's heat pulse among the heat shimmer's).
+    /// </summary>
+    /// <param name="effect">The effect whose frames are the family's frames.</param>
+    /// <param name="first">The effect's frame that is the family's first.</param>
+    /// <param name="count">The family's frames.</param>
+    /// <param name="colorsPerFrame">The colours each frame writes.</param>
+    /// <exception cref="InvalidOperationException">The run shows no record, or its records do not lie one after another.</exception>
+    public static PaletteFxColorFrames Run(ColourEffectId effect, int first, int count, int colorsPerFrame)
     {
-        int count = PaletteFxRecords.FrameCount(animation);
         if (count == 0)
-            throw new InvalidOperationException($"Colour effect animation {animation} shows no record.");
-        int first = PaletteFxRecord.Of(new ColourEffectFrame(animation, 0)).Record;
+            throw new InvalidOperationException($"Colour effect {effect} shows no record from frame {first}.");
+        int firstRecord = PaletteFxRecord.Of(new ColourEffectFrame(effect, first)).Record;
         for (int frame = 1; frame < count; frame++)
         {
-            if (PaletteFxRecord.Of(new ColourEffectFrame(animation, frame)).Record != first + frame)
-                throw new InvalidOperationException($"Colour effect animation {animation} shows {new ColourEffectFrame(animation, frame)} out of its records' order.");
+            if (PaletteFxRecord.Of(new ColourEffectFrame(effect, first + frame)).Record != firstRecord + frame)
+                throw new InvalidOperationException($"Colour effect {effect} shows {new ColourEffectFrame(effect, first + frame)} out of its records' order.");
         }
-        return new(first, count, colorsPerFrame);
+        return new(firstRecord, count, colorsPerFrame);
     }
 
     /// <summary>The record shown as frame <paramref name="frame"/>.</summary>

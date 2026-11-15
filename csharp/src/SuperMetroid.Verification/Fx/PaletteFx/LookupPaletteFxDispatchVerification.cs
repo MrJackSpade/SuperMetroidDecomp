@@ -37,9 +37,9 @@ internal static class LookupPaletteFxDispatchVerification
         {
             ushort pointer = (ushort)value;
             if (original.Contains(pointer))
-                _ = ColourEffectSelection.Get(pointer);
+                _ = ColourEffectAnimations.DefinitionAt(pointer);
             else
-                AssertThrows<InvalidDataException>(() => ColourEffectSelection.Get(pointer),
+                AssertThrows<InvalidDataException>(() => ColourEffectAnimations.DefinitionAt(pointer),
                     "Unknown/interior palette-FX identity rejects");
         }
     }
@@ -49,7 +49,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(FxNativeWords.StartOf(FxNativeWords.PaletteFxSetups.Decode(ReadVerificationWord(rom, 0x8d0000 | pointer), "palette-FX setup")),
-                ColourEffectSelection.Get(pointer).Start, "Native palette-FX setup");
+                ColourEffectAnimations.DefinitionAt(pointer).Start, "Native palette-FX setup");
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>
@@ -57,7 +57,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
-                PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(pointer).InitialAnimation), "Native palette-FX initial program");
+                PaletteFxNativeListAddresses.Entry(PaletteFxObjectAccess.FromNative(pointer)), "Native palette-FX initial program");
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>

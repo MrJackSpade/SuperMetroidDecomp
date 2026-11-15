@@ -61,11 +61,11 @@ public sealed class HyperBeamColourEffectState
 
         ColourEffectDefinition definition = HyperBeamDefinition();
         if (definition.Start != SamusShadeDefinitions.HyperBeamFx.Start ||
-            definition.InitialAnimation != ColourEffectAnimation.HyperBeam)
+            definition.Colours != AnimationColours)
         {
             throw new InvalidDataException(
                 $"Compiled Hyper Beam colour effect definition is inconsistent: start " +
-                $"{definition.Start}, program {definition.InitialAnimation}.");
+                $"{definition.Start}, colours {definition.Colours}.");
         }
 
         // The effect decrements before testing. A timer of two therefore displays a frame
@@ -79,18 +79,14 @@ public sealed class HyperBeamColourEffectState
         AnimationPlace place = Place;
         // The Hyper Beam's cycle counts no repeats.
         WrappingCountdown noRepeats = WrappingCountdown.Start(0);
-        AnimationShown<ColourEffectAnimation, int> next = ColourEffectAnimations.Steps.PlayToNextFrame(
-            ColourEffectAnimations.Of(definition.InitialAnimation), ref place, ref noRepeats,
-            cue =>
-            {
-                if (cue != new ColourEffectCue.SetColours(AnimationColours))
-                    throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform.");
-            });
+        AnimationShown<ColourEffectId, int> next = ColourEffectAnimations.Steps.PlayToNextFrame(
+            definition.Animation, ref place, ref noRepeats,
+            cue => throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform."));
         Place = place;
-        if (next is not AnimationShown<ColourEffectAnimation, int>.Frame shown)
+        if (next is not AnimationShown<ColourEffectId, int>.Frame shown)
             throw new InvalidDataException($"The Hyper Beam's colour animation reached {next}; its cycle only shows frames.");
         // The cycle's frames are the beams' cycle colourings in order.
-        if (shown.Segment != ColourEffectAnimation.HyperBeam)
+        if (shown.Segment != ColourEffectId.HyperBeam)
             throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
         int frameIndex = shown.Shown;
 
@@ -102,6 +98,6 @@ public sealed class HyperBeamColourEffectState
 
     /// <summary>The colour effect definition the Hyper Beam spawns.</summary>
     private static ColourEffectDefinition HyperBeamDefinition() =>
-        ColourEffectSelection.Get(ColourEffectId.HyperBeam);
+        ColourEffectAnimations.Definition(ColourEffectId.HyperBeam);
 
 }

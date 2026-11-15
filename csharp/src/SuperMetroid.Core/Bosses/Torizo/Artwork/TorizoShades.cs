@@ -36,5 +36,5 @@ public static class TorizoShades
     /// <param name="first">The counter value of the fade's first moving step over the glow, one or more.</param>
     /// <param name="last">The counter value of the fade's last step.</param>
     public static PictureShade BellyFading(ColourEffectFrame glow, TorizoLook to, int first, int last) =>
-        new($"torizo-belly-{glow.Animation}-{glow.Frame}-to-{to.Key}-from-{Ensure.BetweenInclusive(1, last, first)}", last);
+        new($"torizo-belly-{glow.Effect}-{glow.Frame}-to-{to.Key}-from-{Ensure.BetweenInclusive(1, last, first)}", last);
 }

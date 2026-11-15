@@ -34,7 +34,7 @@ internal static class PaletteFxContractTests
         fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
         fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
-        var first = new ColourEffectFrame(ColourEffectAnimation.CutsceneGunshipEngineFlicker, 0);
+        var first = new ColourEffectFrame(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
         if (shown.Count != 1 || shown[0] != new ShownColourEffectFrame(ColourEffectColours.CutsceneGunshipEngine, first)
             || fx.FrameOf(ColourEffectColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");

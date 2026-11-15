@@ -85,7 +85,7 @@ internal static class CeresEnginePaletteBindingVerification
         static RgbColor EngineColour(CeresDestructionCinematicState owner, SpriteSheet floor)
         {
             PictureShade shade = owner.FloorShading.Shades.Single();
-            AssertEqual(ColourEffectShades.Of(ColourEffectColours.CutsceneGunshipEngine, new ColourEffectFrame(ColourEffectAnimation.CutsceneGunshipEngineFlicker, 0)).Effect, shade.Effect,
+            AssertEqual(ColourEffectShades.Of(ColourEffectColours.CutsceneGunshipEngine, new ColourEffectFrame(ColourEffectId.CutsceneGunshipEngineFlicker, 0)).Effect, shade.Effect,
                 "the floor's shading names the gunship engine flicker's record");
             return floor.Image.Shade(shade).Substitutions.Single().Shown;
         }

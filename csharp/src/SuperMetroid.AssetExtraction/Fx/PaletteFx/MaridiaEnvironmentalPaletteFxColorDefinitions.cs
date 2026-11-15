@@ -36,21 +36,21 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
             Owner = MaridiaEnvironmentalPaletteOwner.SandPits,
             FrameCount = SandRotationColors,
             ColorsPerFrame = SandRotationColors * SandPitBandCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaSandPits, SandRotationColors * SandPitBandCount),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount),
         },
         new()
         {
             Owner = MaridiaEnvironmentalPaletteOwner.SandFalls,
             FrameCount = SandRotationColors,
             ColorsPerFrame = SandRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaSandFalls, SandRotationColors),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandFalls, SandRotationColors),
         },
         new()
         {
             Owner = MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls,
             FrameCount = WaterfallRotationColors,
             ColorsPerFrame = WaterfallRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.MaridiaBackgroundWaterfalls, WaterfallRotationColors),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors),
         },
     ];
 

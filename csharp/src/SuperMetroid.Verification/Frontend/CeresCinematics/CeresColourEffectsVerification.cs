@@ -404,7 +404,7 @@ internal static class CeresColourEffectsVerification
         AssertEqual(definition, cartridge.ReadCartridgeWord(spawn + 1), $"{site} names {effect}'s definition");
         AssertEqual(LongCall, Byte(cartridge, spawn + 3), $"{site} calls the colour effects' spawn");
         AssertEqual(SpawnRoutine, Long(cartridge, spawn + 4), $"{site} spawns the definition it names");
-        AssertEqual(PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(effect).InitialAnimation),
+        AssertEqual(PaletteFxNativeListAddresses.Entry(effect),
             cartridge.ReadCartridgeWord(PaletteFxListWords.ListBank | (definition + sizeof(ushort))), $"{effect} runs its definition's list");
     }
 

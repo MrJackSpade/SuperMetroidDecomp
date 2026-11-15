@@ -23,7 +23,7 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
                 Owner = owner,
                 Object = Objects[index],
                 PublishesHeatPhase = heat,
-                ColorFrames = PaletteFxColorFrames.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
             };
         }
     }

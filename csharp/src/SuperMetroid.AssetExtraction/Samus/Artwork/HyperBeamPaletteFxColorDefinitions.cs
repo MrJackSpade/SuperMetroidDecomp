@@ -12,5 +12,5 @@ internal static class HyperBeamPaletteFxColorDefinitions
 {
 
     /// <summary>The ten records of the Hyper Beam program and the eight colours each writes.</summary>
-    internal static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectAnimation.HyperBeam, SamusColourSets.HyperBeamColours);
+    internal static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.HyperBeam, SamusColourSets.HyperBeamColours);
 }

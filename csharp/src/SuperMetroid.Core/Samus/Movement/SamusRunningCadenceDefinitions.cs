@@ -32,4 +32,14 @@ internal static class SamusRunningCadenceDefinitions
     /// three restart at one, stage four at two.
     /// </summary>
     internal static IReadOnlyList<int> CountdownAfterAdvance { get; } = [1, 1, 1, 1, 2];
+
+    /// <summary>The cadence of each authored boost stage; the index is the boost stage, zero through four.</summary>
+    internal static IReadOnlyList<SamusRunningCadence> BoostStageCadences { get; } =
+    [
+        SamusRunningCadence.BoostStage0,
+        SamusRunningCadence.BoostStage1,
+        SamusRunningCadence.BoostStage2,
+        SamusRunningCadence.BoostStage3,
+        SamusRunningCadence.BoostStage4,
+    ];
 }

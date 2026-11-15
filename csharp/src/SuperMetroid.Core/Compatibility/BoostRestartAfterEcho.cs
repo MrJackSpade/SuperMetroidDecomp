@@ -66,12 +66,13 @@ public sealed class BoostRestartAfterEcho
     /// countdown left goes down by one, and an empty one takes the boost down a stage with
     /// <see cref="CountdownAfterBorrow"/> runs to climb back.
     /// </summary>
-    /// <param name="stage">The boost stage, zero or more.</param>
+    /// <param name="stage">The boost stage, one of the authored stages.</param>
     /// <param name="countdown">The runs left before the next stage, zero through <see cref="CountdownAfterBorrow"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The stage is not an authored one, or the countdown is out of range.</exception>
     /// <exception cref="InvalidOperationException">A stage-zero boost with no runs left has no stage to go down from.</exception>
     public BoostRunCountdown CountDownOneRun(int stage, int countdown)
     {
-        Ensure.AtLeastZero(stage);
+        Ensure.BetweenInclusive(0, _authoredStages - 1, stage);
         Ensure.BetweenInclusive(0, CountdownAfterBorrow, countdown);
         if (countdown > 0)
             return new BoostRunCountdown(stage, countdown - 1);

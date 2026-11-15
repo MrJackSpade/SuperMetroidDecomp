@@ -13,15 +13,10 @@ internal static class SamusRunningCadences
 
     /// <summary>The cadence of authored boost stage <paramref name="stage"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The stage is not one of the authored stages.</exception>
-    internal static SamusRunningCadence SpeedBoostCadence(int stage) => stage switch
-    {
-        0 => SamusRunningCadence.BoostStage0,
-        1 => SamusRunningCadence.BoostStage1,
-        2 => SamusRunningCadence.BoostStage2,
-        3 => SamusRunningCadence.BoostStage3,
-        4 => SamusRunningCadence.BoostStage4,
-        _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, "The boost has five authored stages."),
-    };
+    internal static SamusRunningCadence SpeedBoostCadence(int stage) =>
+        (uint)stage < (uint)BoostStageCadences.Count
+            ? BoostStageCadences[stage]
+            : throw new ArgumentOutOfRangeException(nameof(stage), stage, "The boost has five authored stages.");
 
     /// <summary>The countdown, 0 through 2, the boost restarts with on <paramref name="cadence"/>.</summary>
     /// <exception cref="InvalidOperationException">The cadence is ordinary running's, which is no boost cadence.</exception>

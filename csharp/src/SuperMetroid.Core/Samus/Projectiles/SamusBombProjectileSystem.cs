@@ -934,7 +934,7 @@ public sealed class SamusBombProjectileSystem
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");
             }
-            // Spawn is synchronous: accepted behaviour 0..7 applies the reaction's temporary solid-block
+            // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,

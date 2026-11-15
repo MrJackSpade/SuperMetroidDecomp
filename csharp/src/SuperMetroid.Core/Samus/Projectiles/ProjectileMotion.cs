@@ -232,7 +232,7 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // The Super Missile trail begins with the producer's value four but reloads two after every
+        // The Super Missile trail first waits the four updates its firing sets, then two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same trail art.
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;

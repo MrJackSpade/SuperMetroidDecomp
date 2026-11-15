@@ -141,9 +141,9 @@ internal sealed class SamusPresentation
             step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 
-        // The animation keeps neutral-jump frame one alive in four-tick chunks while Samus is
+        // The animation keeps the neutral jump's second frame alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
-        // timer is exactly one; release/apex changes YDirection to two and lets it expire.
+        // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
             samus.AnimationFrame == 1 &&

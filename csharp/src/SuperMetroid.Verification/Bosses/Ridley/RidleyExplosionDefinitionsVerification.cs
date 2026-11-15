@@ -202,7 +202,7 @@ internal static class RidleyExplosionDefinitionsVerification
             for (int orientation = 0; orientation < orientationCount; orientation++)
             {
                 fragment.Clear();
-                fragment.SetSpawnParameter1(EnemyDefinitionId.RidleyExplosion, parameter);
+                fragment.SetSpawnParameter1(EnemyDefinitionId.RidleyBreakupPiece, parameter);
                 state.FacingDirection = facingIndex == 0 ? RidleyFacing.Left : RidleyFacing.Turning;
                 state.TailSegments[5].Angle = RidleyTailAngle.StraightDown;
                 state.TailSegments[6].Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);

@@ -15,8 +15,8 @@ internal static class RipperNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<RipperSegment>[] Entries =
     [
-        new NativeProgramEntry<RipperSegment>(RipperSegment.GRipperMovingLeft, 0xe19b),
-        new NativeProgramEntry<RipperSegment>(RipperSegment.GRipperMovingRight, 0xe1af),
+        new NativeProgramEntry<RipperSegment>(RipperSegment.GrappleRipperMovingLeft, 0xe19b),
+        new NativeProgramEntry<RipperSegment>(RipperSegment.GrappleRipperMovingRight, 0xe1af),
         new NativeProgramEntry<RipperSegment>(RipperSegment.RipperMovingRight, 0xe477),
         new NativeProgramEntry<RipperSegment>(RipperSegment.RipperMovingLeft, 0xe48b),
     ];

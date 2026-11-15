@@ -136,7 +136,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Limbs.RunKraidFootMain(slot, frame.Camera.Y);
     }
 
-    /// <summary>Runs KraidNail's main AI.</summary>
+    /// <summary>Runs a fingernail's main AI, for either of Kraid's two.</summary>
     internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Projectiles.RunKraidNailMain(slot, frame.Level);

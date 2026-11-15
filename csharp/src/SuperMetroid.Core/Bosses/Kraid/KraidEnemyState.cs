@@ -45,8 +45,8 @@ public sealed class KraidEnemyState
         KraidPart.LintMiddle => MiddleLintState,
         KraidPart.LintBottom => BottomLintState,
         KraidPart.Foot => FootState,
-        KraidPart.Nail => FirstNailState,
-        KraidPart.NailBad => SecondNailState,
+        KraidPart.FirstNail => FirstNailState,
+        KraidPart.SecondNail => SecondNailState,
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidPart)} {part}."),
     };
 

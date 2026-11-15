@@ -43,7 +43,7 @@ internal static class RidleyBreakupProgramsVerification
         enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
+        var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(RidleyBreakupFrame.TailTipPointingDownDownLeft, RidleyNativeProgramOracle.BreakupFrameOf(fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Playback),
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
@@ -90,7 +90,7 @@ internal static class RidleyBreakupProgramsVerification
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
-        AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.DropDefinitionId, "fragment drop retains native header");
+        AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, explosion.DropDefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathProjectileSegment.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");

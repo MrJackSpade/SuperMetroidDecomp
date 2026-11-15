@@ -38,7 +38,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.KihunterRed),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FastRipper), [
-            new(EnemyDefinitionId.RipperII),
+            new(EnemyDefinitionId.JetRipper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WaveBeam), [
         ]),
@@ -63,7 +63,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Ridley), [
             new(EnemyDefinitionId.Ridley),
-            new(EnemyDefinitionId.RidleyExplosion),
+            new(EnemyDefinitionId.RidleyBreakupPiece),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocPowerBombs), [
         ]),
@@ -83,7 +83,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocFarming), [
             new(EnemyDefinitionId.Gamet),
-            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.SuspensorPlatform),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WorstRoomInTheGame), [
@@ -95,14 +95,14 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Fune),
             new(EnemyDefinitionId.Kamer),
             new(EnemyDefinitionId.Kago),
-            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.GrappleRipper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleBeam), [
             new(EnemyDefinitionId.Multiviola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedPirateShaft), [
             new(EnemyDefinitionId.PirateRedWalking),
-            new(EnemyDefinitionId.MZoomer),
+            new(EnemyDefinitionId.ArmoredZoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrocomireSpeedway), [
             new(EnemyDefinitionId.PirateRedWalking),
@@ -163,7 +163,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocJump), [
             new(EnemyDefinitionId.Mella),
-            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.SuspensorPlatform),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FrogSave), [
@@ -192,7 +192,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountain), [
             new(EnemyDefinitionId.Waver),
-            new(EnemyDefinitionId.RipperII),
+            new(EnemyDefinitionId.JetRipper),
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Sova),
         ]),
@@ -201,7 +201,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamTutorial), [
             new(EnemyDefinitionId.Boyon),
-            new(EnemyDefinitionId.RipperII),
+            new(EnemyDefinitionId.JetRipper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocMissile), [
             new(EnemyDefinitionId.Metaree),

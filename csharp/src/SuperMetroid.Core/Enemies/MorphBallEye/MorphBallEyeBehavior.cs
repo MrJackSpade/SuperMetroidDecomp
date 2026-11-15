@@ -36,7 +36,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Eye];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
@@ -98,7 +98,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Whether <paramref name="place"/> holds a beam mount placed in this room, which recorded its followed place.</summary>
     private bool IsPlacedBeamMount(RoomEnemySlot place) =>
-        place.DefinitionId == EnemyDefinitionId.Eye
+        place.DefinitionId == EnemyDefinitionId.MorphBallEye
         && place.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount
         && _followedPlaces.IsPlaced(place);
 
@@ -317,7 +317,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot body = MorphBallEyeBeam.Body
             ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
-        if (body.DefinitionId != EnemyDefinitionId.Eye ||
+        if (body.DefinitionId != EnemyDefinitionId.MorphBallEye ||
             body.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount)
         {
             throw new InvalidDataException(

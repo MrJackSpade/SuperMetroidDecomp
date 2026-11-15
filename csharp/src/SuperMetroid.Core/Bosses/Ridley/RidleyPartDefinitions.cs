@@ -10,6 +10,6 @@ internal static class RidleyPartDefinitions
     {
         [EnemyDefinitionId.Ridley] = RidleyPart.Ridley,
         [EnemyDefinitionId.RidleyCeres] = RidleyPart.Ceres,
-        [EnemyDefinitionId.RidleyExplosion] = RidleyPart.Explosion,
+        [EnemyDefinitionId.RidleyBreakupPiece] = RidleyPart.BreakupPiece,
     };
 }

@@ -41,7 +41,7 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>Dragon Power Bomb callback at $A2:E7D4.</summary>
         public static readonly SnesAddress DragonPowerBomb = new(Bank, 0xe7d4);
         /// <summary>Shared G/Ripper 2 shot callback at $A2:E3A9.</summary>
-        public static readonly SnesAddress GRipperRipper2Shot = new(Bank, 0xe3a9);
+        public static readonly SnesAddress GrappleRipperRipper2Shot = new(Bank, 0xe3a9);
         /// <summary>Mama Turtle touch callback at $A2:9281.</summary>
         public static readonly SnesAddress MamaTurtleTouch = new(Bank, 0x9281);
         /// <summary>Baby Turtle touch callback at $A2:929F.</summary>
@@ -186,7 +186,7 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress KraidArmShot = new(Bank, 0x94b6);
         /// <summary>EnemyTouch_KraidNail at $A7:BCCF: normal touch followed by enemy death.</summary>
         public static readonly SnesAddress KraidNailTouch = new(Bank, 0xbccf);
-        /// <summary>EnemyTouch_KraidNailBad at $A7:BCDE: normal touch followed by enemy death.</summary>
+        /// <summary>EnemyTouch_KraidSecondNail at $A7:BCDE: normal touch followed by enemy death.</summary>
         public static readonly SnesAddress KraidBadNailTouch = new(Bank, 0xbcde);
     }
 
@@ -221,7 +221,7 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>Work robot touch callback at $A8:D174.</summary>
         public static readonly SnesAddress WorkRobotTouch = new(Bank, 0xd174);
         /// <summary>Work robot no-power shot callback at $A8:D18D.</summary>
-        public static readonly SnesAddress WorkRobotNoPowerShot = new(Bank, 0xd18d);
+        public static readonly SnesAddress WorkUnpoweredWorkRobotShot = new(Bank, 0xd18d);
         /// <summary>Work robot powered shot callback at $A8:D192.</summary>
         public static readonly SnesAddress WorkRobotShot = new(Bank, 0xd192);
         /// <summary>Bull shot callback at $A8:DB14.</summary>

@@ -21,11 +21,11 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
             case CrawlersPart.Viola:
                 CrawlersBehavior.InitializeViolaAi(Slot);
                 break;
-            case CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer:
+            case CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.ArmoredZoomer:
                 CrawlersBehavior.InitializeSharedCrawlerAi(Slot);
                 break;
-            case CrawlersPart.HZoomer:
-                CrawlersBehavior.InitializeHZoomer(Slot);
+            case CrawlersPart.OrangeZoomer:
+                CrawlersBehavior.InitializeOrangeZoomer(Slot);
                 break;
             default:
                 throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");
@@ -37,11 +37,11 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
     {
         switch (CrawlersPartDefinitions.Parts[Slot.DefinitionId])
         {
-            case CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer:
+            case CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.ArmoredZoomer:
                 species.RunCrawlerMainAi(Slot, frame);
                 break;
-            case CrawlersPart.HZoomer:
-                species.RunHZoomerMainAi(Slot, frame);
+            case CrawlersPart.OrangeZoomer:
+                species.RunOrangeZoomerMainAi(Slot, frame);
                 break;
             default:
                 throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");

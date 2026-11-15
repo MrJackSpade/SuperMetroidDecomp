@@ -375,7 +375,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KraidLintPostGrowth,
     ];
 
-    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidNail</c>, <c>KraidNailBad</c>.</summary>
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidNail</c>, <c>KraidSecondNail</c>.</summary>
     private static readonly EnemyFrameId[] KraidNailFrames =
     [
         EnemyFrameId.KraidNailLoopFirst,
@@ -1236,29 +1236,29 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ViolaNormalEighth,
     ];
 
-    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Zeela</c>, <c>Sova</c>, <c>Zoomer</c>, <c>MZoomer</c>, <c>HZoomer</c>.</summary>
+    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Zeela</c>, <c>Sova</c>, <c>Zoomer</c>, <c>ArmoredZoomer</c>, <c>OrangeZoomer</c>.</summary>
     private static readonly EnemyFrameId[] ZeelaFrames =
     [
-        EnemyFrameId.HZoomerUpsideRightLoopFirst,
-        EnemyFrameId.HZoomerUpsideRightLoopSecond,
-        EnemyFrameId.HZoomerUpsideRightLoopThird,
-        EnemyFrameId.HZoomerUpsideRightLoopFourth,
-        EnemyFrameId.HZoomerUpsideRightLoopFifth,
-        EnemyFrameId.HZoomerUpsideLeftLoopFirst,
-        EnemyFrameId.HZoomerUpsideLeftLoopSecond,
-        EnemyFrameId.HZoomerUpsideLeftLoopThird,
-        EnemyFrameId.HZoomerUpsideLeftLoopFourth,
-        EnemyFrameId.HZoomerUpsideLeftLoopFifth,
-        EnemyFrameId.HZoomerUpsideDownLoopFirst,
-        EnemyFrameId.HZoomerUpsideDownLoopSecond,
-        EnemyFrameId.HZoomerUpsideDownLoopThird,
-        EnemyFrameId.HZoomerUpsideDownLoopFourth,
-        EnemyFrameId.HZoomerUpsideDownLoopFifth,
-        EnemyFrameId.HZoomerUpsideUpLoopFirst,
-        EnemyFrameId.HZoomerUpsideUpLoopSecond,
-        EnemyFrameId.HZoomerUpsideUpLoopThird,
-        EnemyFrameId.HZoomerUpsideUpLoopFourth,
-        EnemyFrameId.HZoomerUpsideUpLoopFifth,
+        EnemyFrameId.OrangeZoomerUpsideRightLoopFirst,
+        EnemyFrameId.OrangeZoomerUpsideRightLoopSecond,
+        EnemyFrameId.OrangeZoomerUpsideRightLoopThird,
+        EnemyFrameId.OrangeZoomerUpsideRightLoopFourth,
+        EnemyFrameId.OrangeZoomerUpsideRightLoopFifth,
+        EnemyFrameId.OrangeZoomerUpsideLeftLoopFirst,
+        EnemyFrameId.OrangeZoomerUpsideLeftLoopSecond,
+        EnemyFrameId.OrangeZoomerUpsideLeftLoopThird,
+        EnemyFrameId.OrangeZoomerUpsideLeftLoopFourth,
+        EnemyFrameId.OrangeZoomerUpsideLeftLoopFifth,
+        EnemyFrameId.OrangeZoomerUpsideDownLoopFirst,
+        EnemyFrameId.OrangeZoomerUpsideDownLoopSecond,
+        EnemyFrameId.OrangeZoomerUpsideDownLoopThird,
+        EnemyFrameId.OrangeZoomerUpsideDownLoopFourth,
+        EnemyFrameId.OrangeZoomerUpsideDownLoopFifth,
+        EnemyFrameId.OrangeZoomerUpsideUpLoopFirst,
+        EnemyFrameId.OrangeZoomerUpsideUpLoopSecond,
+        EnemyFrameId.OrangeZoomerUpsideUpLoopThird,
+        EnemyFrameId.OrangeZoomerUpsideUpLoopFourth,
+        EnemyFrameId.OrangeZoomerUpsideUpLoopFifth,
     ];
 
     /// <summary>The frames <c>Enemies/Crawlers/MultiviolaBehavior.cs</c> shows.</summary>
@@ -1959,15 +1959,15 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RioSwoopingPartTwoFirst,
     ];
 
-    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>GRipper</c>, <c>RipperII</c>.</summary>
-    private static readonly EnemyFrameId[] GRipperFrames =
+    /// <summary>The frames <c>Enemies/Ripper/RipperBehavior.cs</c> shows for <c>GrappleRipper</c>, <c>JetRipper</c>.</summary>
+    private static readonly EnemyFrameId[] GrappleRipperFrames =
     [
-        EnemyFrameId.GRipperMovingLeftFirst,
-        EnemyFrameId.GRipperMovingLeftSecond,
-        EnemyFrameId.GRipperMovingLeftThird,
-        EnemyFrameId.GRipperMovingRightFirst,
-        EnemyFrameId.GRipperMovingRightSecond,
-        EnemyFrameId.GRipperMovingRightThird,
+        EnemyFrameId.GrappleRipperMovingLeftFirst,
+        EnemyFrameId.GrappleRipperMovingLeftSecond,
+        EnemyFrameId.GrappleRipperMovingLeftThird,
+        EnemyFrameId.GrappleRipperMovingRightFirst,
+        EnemyFrameId.GrappleRipperMovingRightSecond,
+        EnemyFrameId.GrappleRipperMovingRightThird,
         EnemyFrameId.RipperSharedFrozenLeft,
         EnemyFrameId.RipperSharedFrozenRight,
     ];
@@ -2299,8 +2299,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.WorkRobotUnpoweredRight,
     ];
 
-    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>RobotNoPower</c>.</summary>
-    private static readonly EnemyFrameId[] RobotNoPowerFrames =
+    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>UnpoweredWorkRobot</c>.</summary>
+    private static readonly EnemyFrameId[] UnpoweredWorkRobotFrames =
     [
         EnemyFrameId.WorkRobotUnpoweredNeutral,
         EnemyFrameId.WorkRobotUnpoweredLeft,
@@ -2479,7 +2479,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.CeresElevatorDoor] = CeresElevatorDoorFrames,
             [EnemyDefinitionId.CeresElevatorRoomWall] = CeresElevatorRoomWallFrames,
             [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWallFrames,
-            [EnemyDefinitionId.Steam] = CeresSteam,
+            [EnemyDefinitionId.CeresSteam] = CeresSteam,
             [EnemyDefinitionId.TourianStatue] = TourianEntranceStatue,
             [EnemyDefinitionId.Botwoon] = Botwoon,
             [EnemyDefinitionId.Crocomire] = CrocomireFrames,
@@ -2492,8 +2492,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.KraidLintBottom] = KraidLintBottomFrames,
             [EnemyDefinitionId.KraidLintMiddle] = KraidLintBottomFrames,
             [EnemyDefinitionId.KraidLintTop] = KraidLintBottomFrames,
-            [EnemyDefinitionId.KraidNail] = KraidNailFrames,
-            [EnemyDefinitionId.KraidNailBad] = KraidNailFrames,
+            [EnemyDefinitionId.KraidFirstNail] = KraidNailFrames,
+            [EnemyDefinitionId.KraidSecondNail] = KraidNailFrames,
             [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
             [EnemyDefinitionId.MotherBrainBody] = MotherBrainBodyFrames,
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
@@ -2507,7 +2507,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PhantoonTentacles] = Phantoon,
             [EnemyDefinitionId.Ridley] = RidleyFrames,
             [EnemyDefinitionId.RidleyCeres] = RidleyCeresFrames,
-            [EnemyDefinitionId.RidleyExplosion] = RidleyExplosionFrames,
+            [EnemyDefinitionId.RidleyBreakupPiece] = RidleyExplosionFrames,
             [EnemyDefinitionId.SporeSpawn] = SporeSpawn,
             [EnemyDefinitionId.BombTorizo] = BombTorizoFrames,
             [EnemyDefinitionId.GoldenTorizo] = GoldenTorizoFrames,
@@ -2535,8 +2535,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Zeela] = ZeelaFrames,
             [EnemyDefinitionId.Sova] = ZeelaFrames,
             [EnemyDefinitionId.Zoomer] = ZeelaFrames,
-            [EnemyDefinitionId.MZoomer] = ZeelaFrames,
-            [EnemyDefinitionId.HZoomer] = ZeelaFrames,
+            [EnemyDefinitionId.ArmoredZoomer] = ZeelaFrames,
+            [EnemyDefinitionId.OrangeZoomer] = ZeelaFrames,
             [EnemyDefinitionId.Multiviola] = Multiviola,
             [EnemyDefinitionId.Dragon] = Dragon,
             [EnemyDefinitionId.Elevator] = Elevator,
@@ -2546,7 +2546,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Fireflea] = Fireflea,
             [EnemyDefinitionId.Mella] = Flies,
             [EnemyDefinitionId.Mellow] = Flies,
-            [EnemyDefinitionId.Menu] = Flies,
+            [EnemyDefinitionId.MaridiaFly] = Flies,
             [EnemyDefinitionId.Fune] = FuneFrames,
             [EnemyDefinitionId.Namihe] = NamiheFrames,
             [EnemyDefinitionId.ShipBottomEntrance] = ShipBottomEntranceFrames,
@@ -2574,7 +2574,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Metaree] = Metaree,
             [EnemyDefinitionId.Metroid] = Metroid,
             [EnemyDefinitionId.Mochtroid] = Mochtroid,
-            [EnemyDefinitionId.Eye] = MorphBallEye,
+            [EnemyDefinitionId.MorphBallEye] = MorphBallEye,
             [EnemyDefinitionId.NoobTubeCrack] = NoobTube,
             [EnemyDefinitionId.Puromi] = NuclearWaffle,
             [EnemyDefinitionId.Owtch] = Owtch,
@@ -2590,9 +2590,9 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Holtz] = LowerNorfairRio,
             [EnemyDefinitionId.Geruta] = NorfairRio,
             [EnemyDefinitionId.Rio] = Rio,
-            [EnemyDefinitionId.GRipper] = GRipperFrames,
+            [EnemyDefinitionId.GrappleRipper] = GrappleRipperFrames,
             [EnemyDefinitionId.Ripper] = RipperFrames,
-            [EnemyDefinitionId.RipperII] = GRipperFrames,
+            [EnemyDefinitionId.JetRipper] = GrappleRipperFrames,
             [EnemyDefinitionId.Sbug] = Sbug,
             [EnemyDefinitionId.Shaktool] = Shaktool,
             [EnemyDefinitionId.Kamer] = KamerFrames,
@@ -2615,8 +2615,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PirateSilverWall] = WallSpacePirate,
             [EnemyDefinitionId.Spark] = Spark,
             [EnemyDefinitionId.Waver] = Waver,
-            [EnemyDefinitionId.Robot] = RobotFrames,
-            [EnemyDefinitionId.RobotNoPower] = RobotNoPowerFrames,
+            [EnemyDefinitionId.WorkRobot] = RobotFrames,
+            [EnemyDefinitionId.UnpoweredWorkRobot] = UnpoweredWorkRobotFrames,
             [EnemyDefinitionId.Coven] = WreckedShipGhost,
             [EnemyDefinitionId.YappingMaw] = YappingMaw,
             [EnemyDefinitionId.Yard] = YardEnemy,

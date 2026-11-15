@@ -19,29 +19,29 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Shares room collision behavior across ordinary Ripper, GRipper, and Ripper II AI.</summary>
+    /// <summary>Shares room collision behavior across ordinary Ripper, grapple Ripper, and jet Ripper AI.</summary>
     internal RipperBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
     }
 
-    /// <summary>Initializes the GRipper.</summary>
-    internal static void InitializeGRipper(RoomEnemySlot slot)
+    /// <summary>Initializes the grapple Ripper.</summary>
+    internal static void InitializeGrappleRipper(RoomEnemySlot slot)
     {
         var state = CreateRipperState(slot);
 
         // The population entry names the patrol speed and the starting direction.
-        GRipperSpawnSettings settings = slot.SpawnSettings<GRipperSpawnSettings>();
+        GrappleRipperSpawnSettings settings = slot.SpawnSettings<GrappleRipperSpawnSettings>();
         state.Speeds = new EnemyLinearSpeed(settings.Speed);
         LoadRipperVelocity(state, settings.Direction switch
         {
-            GRipperStartDirection.Left => false,
-            GRipperStartDirection.Right => true,
-            _ => throw new InvalidOperationException($"GRipper start direction {settings.Direction} is not a direction."),
+            GrappleRipperStartDirection.Left => false,
+            GrappleRipperStartDirection.Right => true,
+            _ => throw new InvalidOperationException($"GrappleRipper start direction {settings.Direction} is not a direction."),
         });
         SetRipperAnimation(
             slot,
-            state.XVelocity.WholePixels < 0 ? RipperSegment.GRipperMovingLeft : RipperSegment.GRipperMovingRight);
+            state.XVelocity.WholePixels < 0 ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is and becomes
@@ -50,8 +50,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumXPosition = settings.MaximumX;
     }
 
-    /// <summary>Runs the GRipper's main AI.</summary>
-    private void RunGRipperMain(
+    /// <summary>Runs the grapple Ripper's main AI.</summary>
+    private void RunGrappleRipperMain(
         RoomEnemySlot slot,
         RipperEnemyState state,
         RoomLevelData level)
@@ -73,25 +73,25 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReverseRipperVariant(
                 slot,
-                positiveSegment: RipperSegment.GRipperMovingRight,
-                negativeSegment: RipperSegment.GRipperMovingLeft);
+                positiveSegment: RipperSegment.GrappleRipperMovingRight,
+                negativeSegment: RipperSegment.GrappleRipperMovingLeft);
         }
     }
 
-    /// <summary>Initializes the Ripper II.</summary>
-    internal static void InitializeRipperII(RoomEnemySlot slot)
+    /// <summary>Initializes the jet Ripper.</summary>
+    internal static void InitializeJetRipper(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = new EnemyLinearSpeed(slot.SpawnSettings<RipperSpawnSettings>().Speed);
 
-        // The Ripper II shows the G-Ripper's animations, facing the way it flies (#1842).
+        // The jet Ripper shows the grapple Ripper's animations, facing the way it flies (#1842).
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         LoadRipperVelocity(state, movingPositive);
-        SetRipperAnimation(slot, movingPositive ? RipperSegment.GRipperMovingRight : RipperSegment.GRipperMovingLeft);
+        SetRipperAnimation(slot, movingPositive ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
     }
 
-    /// <summary>Runs the Ripper II's main AI.</summary>
-    private void RunRipperIIMain(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData level)
+    /// <summary>Runs the jet Ripper's main AI.</summary>
+    private void RunJetRipperMain(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen displacement = state.XVelocity;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
@@ -99,8 +99,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ReverseRipperVariant(
             slot,
-            positiveSegment: RipperSegment.GRipperMovingRight,
-            negativeSegment: RipperSegment.GRipperMovingLeft);
+            positiveSegment: RipperSegment.GrappleRipperMovingRight,
+            negativeSegment: RipperSegment.GrappleRipperMovingLeft);
     }
 
     /// <summary>Initializes the Ripper.</summary>
@@ -146,7 +146,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// impact, and freeze timers; this family-specific tail only pins the direction-specific
     /// frozen frame when the projectile that hit it actually froze it.
     /// </summary>
-    private static void ResolveGRipperRipperIIShotAfterCommon(RoomEnemySlot slot)
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemySlot slot)
     {
         if (slot.FrozenTimer == 0)
             return;
@@ -163,7 +163,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding loop.</summary>
+    /// <summary>Flips a grapple Ripper or jet Ripper speed pair and restarts the corresponding loop.</summary>
     internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
         RipperSegment positiveSegment,
@@ -197,19 +197,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
     internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGRipperRipperIIShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Runs GRipper's main AI.</summary>
-    internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    /// <summary>Runs grapple Ripper's main AI.</summary>
+    internal void RunGrappleRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunGRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
+        RunGrappleRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
-    /// <summary>Runs RipperII's main AI.</summary>
-    internal void RunRipperIIMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    /// <summary>Runs jet Ripper's main AI.</summary>
+    internal void RunJetRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRipperIIMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
+        RunJetRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
     /// <summary>Runs Ripper's main AI.</summary>
@@ -218,9 +218,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RunRipperMain(slot, frame.Level);
     }
 
-    /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
+    /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>
     internal static EnemyShotReaction RipperShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGRipperRipperIIShotAfterCommon(c.Enemy),
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
     };
 }

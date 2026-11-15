@@ -27,7 +27,7 @@ internal static class CrawlerBehaviorVerification
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola),
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser),
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.OrangeZoomer, EnemyDefinitionId.OrangeZoomer),
         ];
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
@@ -41,8 +41,8 @@ internal static class CrawlerBehaviorVerification
                 slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
                 slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
-            if (family == CrawlerAnimationFamily.HZoomer)
-                CrawlersBehavior.InitializeHZoomer(slot);
+            if (family == CrawlerAnimationFamily.OrangeZoomer)
+                CrawlersBehavior.InitializeOrangeZoomer(slot);
             else
                 CrawlersBehavior.InitializeCrawler(slot, family);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
@@ -55,10 +55,10 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
-            CrawlerAction expected = family == CrawlerAnimationFamily.HZoomer
-                ? sideWall ? CrawlerAction.HZoomerCrawlingVertically : CrawlerAction.HZoomerCrawlingHorizontally
+            CrawlerAction expected = family == CrawlerAnimationFamily.OrangeZoomer
+                ? sideWall ? CrawlerAction.OrangeZoomerCrawlingVertically : CrawlerAction.OrangeZoomerCrawlingHorizontally
                 : sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
-            AssertEqual<CrawlerAction?>(family == CrawlerAnimationFamily.HZoomer ? CrawlerAction.HZoomerSettling : CrawlerAction.Settling,
+            AssertEqual<CrawlerAction?>(family == CrawlerAnimationFamily.OrangeZoomer ? CrawlerAction.OrangeZoomerSettling : CrawlerAction.Settling,
                 state.Action, $"{context} settles first");
             AssertEqual(expected, CrawlersBehavior.CrawlActionOn(state), $"{context} settles into its surface's crawl");
             if (artwork is not null)

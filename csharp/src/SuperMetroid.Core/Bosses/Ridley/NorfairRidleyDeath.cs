@@ -203,7 +203,7 @@ internal sealed class NorfairRidleyDeath
             // body part. Initialization replaces position and animation from the still-live
             // shared Ridley joints below.
             RoomEnemyPlacement population = new(
-                EnemyDefinitionId.RidleyExplosion,
+                EnemyDefinitionId.RidleyBreakupPiece,
                 Position: Position16<RoomPixels>.Zero,
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,

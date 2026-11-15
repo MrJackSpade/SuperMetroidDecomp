@@ -56,7 +56,7 @@ internal sealed class RidleyNativeInstructionPointers
     {
         if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
             return Body(RequireRidley(enemies));
-        if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
+        if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
         {
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
             return RidleyNativeProgramOracle.BreakupPointer(actor.RequireSpeciesState<RidleyExplosionFragmentState>().Playback);

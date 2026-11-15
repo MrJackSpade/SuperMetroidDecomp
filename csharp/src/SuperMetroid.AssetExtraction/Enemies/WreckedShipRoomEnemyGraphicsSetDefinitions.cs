@@ -30,7 +30,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Spark),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BasementWhenAreaBossDead), [
-            new(EnemyDefinitionId.Robot),
+            new(EnemyDefinitionId.WorkRobot),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Spark),
         ]),
@@ -48,7 +48,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyWhenAreaBossDead), [
             new(EnemyDefinitionId.Chozo),
-            new(EnemyDefinitionId.Robot),
+            new(EnemyDefinitionId.WorkRobot),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLineDefault), [
         ]),
@@ -66,7 +66,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuitWhenAreaBossDead), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BasementDefault), [
-            new(EnemyDefinitionId.RobotNoPower),
+            new(EnemyDefinitionId.UnpoweredWorkRobot),
             new(EnemyDefinitionId.Sbug),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEntranceDefault), [
@@ -75,7 +75,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.AssemblyLineWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
             new(EnemyDefinitionId.Puyo),
-            new(EnemyDefinitionId.Robot),
+            new(EnemyDefinitionId.WorkRobot),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSaveWhenAreaBossDead), [
         ]),
@@ -91,7 +91,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
-            new(EnemyDefinitionId.RobotNoPower),
+            new(EnemyDefinitionId.UnpoweredWorkRobot),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSaveDefault), [
             new(EnemyDefinitionId.Coven),
@@ -104,7 +104,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.KzanTop),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuperWhenAreaBossDead), [
-            new(EnemyDefinitionId.Robot),
+            new(EnemyDefinitionId.WorkRobot),
             new(EnemyDefinitionId.Bull),
             new(EnemyDefinitionId.Spark),
         ]),

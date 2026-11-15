@@ -57,7 +57,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElev), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileDefault), [
-            new(EnemyDefinitionId.Eye),
+            new(EnemyDefinitionId.MorphBallEye),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaMap), [
             new(EnemyDefinitionId.BombTorizo),
@@ -82,7 +82,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.WestOcean), [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Zeb),
-            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.Tripper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorDefault), [
@@ -97,7 +97,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.YappingMaw),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PreBowling), [
-            new(EnemyDefinitionId.HZoomer),
+            new(EnemyDefinitionId.OrangeZoomer),
             new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesAwake), [
@@ -136,7 +136,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LowerMushrooms), [
             new(EnemyDefinitionId.Kago),
-            new(EnemyDefinitionId.MZoomer),
+            new(EnemyDefinitionId.ArmoredZoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet), [
             new(EnemyDefinitionId.ShipTop),

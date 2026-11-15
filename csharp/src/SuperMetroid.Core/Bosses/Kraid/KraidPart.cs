@@ -17,8 +17,8 @@ internal enum KraidPart
     LintMiddle,
     /// <summary>The <see cref="EnemyDefinitionId.KraidLintTop"/> occupant.</summary>
     LintTop,
-    /// <summary>The <see cref="EnemyDefinitionId.KraidNail"/> occupant.</summary>
-    Nail,
-    /// <summary>The <see cref="EnemyDefinitionId.KraidNailBad"/> occupant.</summary>
-    NailBad,
+    /// <summary>The <see cref="EnemyDefinitionId.KraidFirstNail"/> occupant.</summary>
+    FirstNail,
+    /// <summary>The <see cref="EnemyDefinitionId.KraidSecondNail"/> occupant.</summary>
+    SecondNail,
 }

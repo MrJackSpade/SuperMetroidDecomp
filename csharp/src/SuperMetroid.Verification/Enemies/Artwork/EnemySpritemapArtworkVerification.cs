@@ -12,7 +12,7 @@ using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDe
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Crawlers.OrangeZoomerArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
@@ -155,11 +155,11 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitionsConstants.PreChootFrameCount,
             "Hoppers add twenty-four distinct floor/ceiling compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreChootFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreHZoomerFrameCount,
+            EnemySpritemapDefinitionsConstants.PreOrangeZoomerFrameCount,
             "Choot adds four idle, jumping, and falling compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreHZoomerFrameCount + 20,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreOrangeZoomerFrameCount + 20,
             EnemySpritemapDefinitionsConstants.PreSbugFrameCount,
-            "HZoomer adds five frames in each of four surface orientations");
+            "OrangeZoomer adds five frames in each of four surface orientations");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreSbugFrameCount + 24,
             EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount,
             "Sbug adds three distinct frames in each of eight facing directions");
@@ -351,7 +351,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledBeetomInstructionFrames), () => VerifyInstalledBeetomInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHopperInstructionFrames), () => VerifyInstalledHopperInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(stock));
-        Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(stock));
+        Suite(nameof(VerifyInstalledOrangeZoomerInstructionFrames), () => VerifyInstalledOrangeZoomerInstructionFrames(stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock.Enemies));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
                 MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeSegment>())),
@@ -497,7 +497,7 @@ internal static class EnemySpritemapArtworkVerification
         // Ridley's scene adds his tail and wings to his body, so his frames are checked through his scene's own route.
         static EnemyDefinitionId? FrameOwner(EnemyFrameId? frame) => frame is not { } shown ? null
             : EnemyDefinitionFrameDefinitions.Frames.Where(entry => entry.Value.Contains(shown)
-                    && entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
+                    && entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyBreakupPiece))
                 .Select(entry => (EnemyDefinitionId?)entry.Key).Order().FirstOrDefault();
 
         static OamBuffer DrawEnemy(ImportEnemyArtwork art,
@@ -530,8 +530,8 @@ internal static class EnemySpritemapArtworkVerification
                     ? KiHunterVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.MiniKraid
                     ? EnemySpritemapDefinitions.FakeKraidBank
-                    : definition is EnemyDefinitionId.KraidNail or
-                        EnemyDefinitionId.KraidNailBad
+                    : definition is EnemyDefinitionId.KraidFirstNail or
+                        EnemyDefinitionId.KraidSecondNail
                         ? EnemySpritemapDefinitions.KraidNailBank
                     : definition is EnemyDefinitionId.Zeb or
                     EnemyDefinitionId.Zebbo or
@@ -565,13 +565,13 @@ internal static class EnemySpritemapArtworkVerification
                     : definition == EnemyDefinitionId.Choot
                         ? EnemySpritemapDefinitions.ChootBank
                     : definition is EnemyDefinitionId.Mellow or
-                        EnemyDefinitionId.Mella or EnemyDefinitionId.Menu
+                        EnemyDefinitionId.Mella or EnemyDefinitionId.MaridiaFly
                         ? FlyVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.Kago
                         ? KagoVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.FaceBlock
                         ? BlueBrinstarFaceBlockVisualDefinitions.Bank
-                    : definition == EnemyDefinitionId.Eye
+                    : definition == EnemyDefinitionId.MorphBallEye
                         ? MorphBallEyeVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.Metroid
                         ? MetroidVisualDefinitions.Bank
@@ -580,8 +580,8 @@ internal static class EnemySpritemapArtworkVerification
                     : definition is EnemyDefinitionId.Evir or
                         EnemyDefinitionId.EvirProjectile
                         ? EvirVisualDefinitions.Bank
-                    : definition is EnemyDefinitionId.Robot or
-                        EnemyDefinitionId.RobotNoPower
+                    : definition is EnemyDefinitionId.WorkRobot or
+                        EnemyDefinitionId.UnpoweredWorkRobot
                         ? WorkRobotVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.Yard
                         ? YardVisualDefinitions.Bank
@@ -602,13 +602,13 @@ internal static class EnemySpritemapArtworkVerification
                         EnemyDefinitionId.ShutterShootable or
                         EnemyDefinitionId.ShutterDestroyable
                         ? ShutterVisualDefinitions.Bank
-                    : definition is EnemyDefinitionId.HZoomer or
+                    : definition is EnemyDefinitionId.OrangeZoomer or
                         EnemyDefinitionId.Sciser or
                         EnemyDefinitionId.Zeela or
                         EnemyDefinitionId.Sova or
                         EnemyDefinitionId.Zoomer or
-                        EnemyDefinitionId.MZoomer
-                        ? EnemySpritemapDefinitions.HZoomerBank
+                        EnemyDefinitionId.ArmoredZoomer
+                        ? EnemySpritemapDefinitions.OrangeZoomerBank
                     : definition is EnemyDefinitionId.Sbug
                         ? EnemySpritemapDefinitions.SbugBank
                         : definition is EnemyDefinitionId.Elevator or

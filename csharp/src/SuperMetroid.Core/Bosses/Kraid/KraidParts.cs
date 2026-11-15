@@ -55,10 +55,10 @@ internal sealed class KraidParts
     internal RoomEnemySlot Foot => Joined(KraidPart.Foot);
 
     /// <summary>His first fingernail.</summary>
-    internal RoomEnemySlot FirstNail => Joined(KraidPart.Nail);
+    internal RoomEnemySlot FirstNail => Joined(KraidPart.FirstNail);
 
     /// <summary>His second fingernail, which runs last.</summary>
-    internal RoomEnemySlot SecondNail => Joined(KraidPart.NailBad);
+    internal RoomEnemySlot SecondNail => Joined(KraidPart.SecondNail);
 
     /// <summary>Which of Kraid's parts <paramref name="slot"/> is.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="slot"/> has not initialized as one of his parts.</exception>

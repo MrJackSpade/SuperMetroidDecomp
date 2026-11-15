@@ -75,7 +75,7 @@ internal static class EnemySpawnSelectors
 
     /// <summary>The crawl speed an orange Zoomer's speed selector gives; its initializer has no use for the selector that keeps a velocity.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> keeps the velocity or lies past the authored records.</exception>
-    public static SignedEightEight? HZoomerCrawlSpeed(int selector) => CrawlSpeed(selector) ??
+    public static SignedEightEight? OrangeZoomerCrawlSpeed(int selector) => CrawlSpeed(selector) ??
         throw new InvalidDataException("Population words give an orange Zoomer the selector that keeps its velocity, which its initializer has no speed for.");
 
     /// <summary>

@@ -100,8 +100,8 @@ internal sealed record PartFrameConfiguration(
                 ["KraidLintTop"] = ["LintInitial", "LintPostGrowth"],
                 ["KraidLintMiddle"] = ["LintInitial", "LintPostGrowth"],
                 ["KraidLintBottom"] = ["LintInitial", "LintPostGrowth"],
-                ["KraidNail"] = ["NailLoop"],
-                ["KraidNailBad"] = ["NailLoop"],
+                ["KraidFirstNail"] = ["NailLoop"],
+                ["KraidSecondNail"] = ["NailLoop"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Mother Brain's body poses (every MotherBrainBodyFrame, #1747) are her body's: its slot draws their sprite limbs;
@@ -138,8 +138,8 @@ internal sealed record PartFrameConfiguration(
                 ["Zeela"] = CrawlerFamily("Shared"),
                 ["Sova"] = CrawlerFamily("Shared"),
                 ["Zoomer"] = CrawlerFamily("Shared"),
-                ["MZoomer"] = CrawlerFamily("Shared"),
-                ["HZoomer"] = CrawlerFamily("HZoomer"),
+                ["ArmoredZoomer"] = CrawlerFamily("Shared"),
+                ["OrangeZoomer"] = CrawlerFamily("OrangeZoomer"),
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A Brinstar pipe bug runs the weak or the strong programs its room's kind selects; Gamet and Geega their own.
@@ -270,21 +270,21 @@ internal sealed record PartFrameConfiguration(
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // The GRipper and the Ripper run their own pair of moving programs and the Ripper II plays the GRipper's (#1842);
-        // only the GRipper's and Ripper II's reactions pin their shared frozen frames.
+        // The grapple Ripper and the Ripper run their own pair of moving programs and the jet Ripper plays the grapple Ripper's (#1842);
+        // only the grapple Ripper's and jet Ripper's reactions pin their shared frozen frames.
         new("RipperBehavior", null, null, "RipperAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["GRipper"] = ["GRipperMovingLeft", "GRipperMovingRight"],
+                ["GrappleRipper"] = ["GrappleRipperMovingLeft", "GrappleRipperMovingRight"],
                 ["Ripper"] = ["RipperMovingLeft", "RipperMovingRight"],
-                ["RipperII"] = ["GRipperMovingLeft", "GRipperMovingRight"],
+                ["JetRipper"] = ["GrappleRipperMovingLeft", "GrappleRipperMovingRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
         {
             CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["RipperSharedFrozenLeft"] = ["GRipper", "RipperII"],
-                ["RipperSharedFrozenRight"] = ["GRipper", "RipperII"],
+                ["RipperSharedFrozenLeft"] = ["GrappleRipper", "JetRipper"],
+                ["RipperSharedFrozenRight"] = ["GrappleRipper", "JetRipper"],
             },
         },
         // A Ki-Hunter's body flies, swoops, hops, lands and spits; its wings follow it, or fly off detached.
@@ -304,7 +304,7 @@ internal sealed record PartFrameConfiguration(
         new("WorkRobotBehavior", null, null, "WorkRobotAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Robot"] =
+                ["WorkRobot"] =
                 [
                     "NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight", "Initial", "FacingLeftWalkingForwards",
                     "FacingLeftHitWallMovingForwards", "FacingLeftShotSamusAhead", "FacingLeftShotSamusBehind", "FacingLeftShotLaserDownLeft",
@@ -312,7 +312,7 @@ internal sealed record PartFrameConfiguration(
                     "FacingRightHitWallMovingForwards", "FacingRightShotSamusAhead", "FacingRightShotSamusBehind", "FacingRightShotLaserDownRight",
                     "FacingRightShotLaserRight", "FacingRightShotLaserUpRight", "ApproachingFallLeft",
                 ],
-                ["RobotNoPower"] = ["NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight"],
+                ["UnpoweredWorkRobot"] = ["NoPowerNeutral", "NoPowerLeaningLeft", "NoPowerLeaningRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Each Torizo starts dormant and wakes after its sleep; its AI, shot reactions and falls start the rest. Bomb
@@ -349,7 +349,7 @@ internal sealed record PartFrameConfiguration(
             {
                 ["Ridley"] = [.. RidleyBodyFrames, "BodyFrame=Forward"],
                 ["RidleyCeres"] = RidleyBodyFrames,
-                ["RidleyExplosion"] = [],
+                ["RidleyBreakupPiece"] = [],
             },
             null, null, []),
     ];

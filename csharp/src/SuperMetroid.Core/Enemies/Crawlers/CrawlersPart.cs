@@ -15,8 +15,8 @@ internal enum CrawlersPart
     Sova,
     /// <summary>The <see cref="EnemyDefinitionId.Zoomer"/> occupant.</summary>
     Zoomer,
-    /// <summary>The <see cref="EnemyDefinitionId.MZoomer"/> occupant.</summary>
-    MZoomer,
-    /// <summary>The <see cref="EnemyDefinitionId.HZoomer"/> occupant.</summary>
-    HZoomer,
+    /// <summary>The <see cref="EnemyDefinitionId.ArmoredZoomer"/> occupant.</summary>
+    ArmoredZoomer,
+    /// <summary>The <see cref="EnemyDefinitionId.OrangeZoomer"/> occupant.</summary>
+    OrangeZoomer,
 }

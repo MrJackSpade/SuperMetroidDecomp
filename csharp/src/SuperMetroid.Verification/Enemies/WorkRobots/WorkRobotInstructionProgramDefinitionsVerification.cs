@@ -53,7 +53,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
 
         robot = enemies.SlotTable.Slots[0];
-        robot.Bind(EnemyDefinitionId.Robot, robot.Definition);
+        robot.Bind(EnemyDefinitionId.WorkRobot, robot.Definition);
         robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState() { Powered = true, Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation) };

@@ -150,7 +150,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.ShipBottomEntrance:
             case EnemyDefinitionId.Mellow:
             case EnemyDefinitionId.Mella:
-            case EnemyDefinitionId.Menu:
+            case EnemyDefinitionId.MaridiaFly:
             case EnemyDefinitionId.Multiviola:
             case EnemyDefinitionId.LavaRocks:
             case EnemyDefinitionId.Rinka:
@@ -160,8 +160,8 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Holtz:
             case EnemyDefinitionId.Oum:
             case EnemyDefinitionId.Choot:
-            case EnemyDefinitionId.GRipper:
-            case EnemyDefinitionId.RipperII:
+            case EnemyDefinitionId.GrappleRipper:
+            case EnemyDefinitionId.JetRipper:
             case EnemyDefinitionId.Ripper:
             case EnemyDefinitionId.Dragon:
             case EnemyDefinitionId.ShutterGrowing:
@@ -188,11 +188,11 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Viola:
             case EnemyDefinitionId.Skree:
             case EnemyDefinitionId.Yard:
-            case EnemyDefinitionId.HZoomer:
+            case EnemyDefinitionId.OrangeZoomer:
             case EnemyDefinitionId.Zeela:
             case EnemyDefinitionId.Sova:
             case EnemyDefinitionId.Zoomer:
-            case EnemyDefinitionId.MZoomer:
+            case EnemyDefinitionId.ArmoredZoomer:
             case EnemyDefinitionId.Metroid:
             case EnemyDefinitionId.Crocomire:
             case EnemyDefinitionId.CrocomireTongue:
@@ -210,8 +210,8 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.MiniKraid:
             case EnemyDefinitionId.RidleyCeres:
             case EnemyDefinitionId.Ridley:
-            case EnemyDefinitionId.RidleyExplosion:
-            case EnemyDefinitionId.Steam:
+            case EnemyDefinitionId.RidleyBreakupPiece:
+            case EnemyDefinitionId.CeresSteam:
             case EnemyDefinitionId.CeresDoor:
             case EnemyDefinitionId.CeresRidleyRoomDoor:
             case EnemyDefinitionId.CeresElevatorDoor:
@@ -224,8 +224,8 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.KraidLintMiddle:
             case EnemyDefinitionId.KraidLintBottom:
             case EnemyDefinitionId.KraidFoot:
-            case EnemyDefinitionId.KraidNail:
-            case EnemyDefinitionId.KraidNailBad:
+            case EnemyDefinitionId.KraidFirstNail:
+            case EnemyDefinitionId.KraidSecondNail:
             case EnemyDefinitionId.PhantoonBody:
             case EnemyDefinitionId.PhantoonEye:
             case EnemyDefinitionId.PhantoonTentacles:
@@ -234,7 +234,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Dachora:
             case EnemyDefinitionId.Evir:
             case EnemyDefinitionId.EvirProjectile:
-            case EnemyDefinitionId.Eye:
+            case EnemyDefinitionId.MorphBallEye:
             case EnemyDefinitionId.Fune:
             case EnemyDefinitionId.Namihe:
             case EnemyDefinitionId.Coven:
@@ -243,8 +243,8 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Magdollite:
             case EnemyDefinitionId.Beetom:
             case EnemyDefinitionId.Powamp:
-            case EnemyDefinitionId.Robot:
-            case EnemyDefinitionId.RobotNoPower:
+            case EnemyDefinitionId.WorkRobot:
+            case EnemyDefinitionId.UnpoweredWorkRobot:
             case EnemyDefinitionId.Bull:
             case EnemyDefinitionId.Alcoon:
             case EnemyDefinitionId.Atomic:

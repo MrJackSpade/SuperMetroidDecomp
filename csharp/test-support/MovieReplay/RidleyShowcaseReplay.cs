@@ -537,7 +537,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
                 Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
                 // A breakup fragment's count only flickers it; the cartridge keeps only that phase of it (#1940).
-                if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
+                if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
                     CheckValue(owner + " flicker phase", actor.FrameCounter & 1, W(address + 44) & 1);
                 else
                     Check(owner + " FrameCounter", actor.FrameCounter, address + 44);

@@ -78,7 +78,7 @@ internal sealed class ProjectileAnimation
         if (sheet.ShowsNothing(frame))
             return;
         SpriteSheetFrame image = sheet.Frame(frame);
-        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY),
+        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY) - Position16<ScreenPixels>.Zero,
             SpriteMirror.None));
     }
 
@@ -134,7 +134,7 @@ internal sealed class ProjectileAnimation
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, ChargeFlarePictures.SourceInstance(component)), image,
-            Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
+            Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

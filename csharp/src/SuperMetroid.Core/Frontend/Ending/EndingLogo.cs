@@ -93,7 +93,7 @@ internal sealed class EndingLogo
     /// <param name="Landing">Where the half comes to rest.</param>
     /// <param name="Direction">The half's horizontal direction: minus one moves it left and down, one right and up.</param>
     /// <param name="Landed">Called as the half lands, or null for none.</param>
-    private sealed record MovingHalf(IntroDiscoverySprite Actor, Position16<ScreenPixels> Landing, int Direction, Action? Landed)
+    private sealed record MovingHalf(IntroDiscoverySprite Actor, Offset16<ScreenPixels> Landing, int Direction, Action? Landed)
     {
         /// <summary>The half's speed on each axis, in pixels per update.</summary>
         private int speed = EndingLogoDefinitions.InitialSpeed;
@@ -106,12 +106,12 @@ internal sealed class EndingLogo
         {
             if (settled)
                 return;
-            Position16<ScreenPixels> moved = Actor.WholePosition + new Offset16<ScreenPixels>(Direction * speed, -Direction * speed);
-            Actor.WholePosition = moved;
+            Offset16<ScreenPixels> moved = Actor.ScreenPlace + new Offset16<ScreenPixels>(Direction * speed, -Direction * speed);
+            Actor.ScreenPlace = moved;
             // The half lands once it reaches or passes its landing point's X in its own direction.
             if ((moved.X - Landing.X) * Direction >= 0)
             {
-                Actor.WholePosition = Landing;
+                Actor.ScreenPlace = Landing;
                 settled = true;
                 Landed?.Invoke();
             }

@@ -88,7 +88,7 @@ internal static class GrappleEndpointGeometryVerification
             // The endpoint just above the view is published in every pose; the display clips it (#1541).
             AssertEqual(1, endpoints.Length, $"Actual gameplay actor publishes the endpoint in pose {(int)SamusPoseNumbers.Number(pose):X2}");
             // It is centred on the anchor in every pose, the swinging ones included (#1588).
-            AssertEqual(new Position16<ScreenPixels>(100, CoordinateAxis.Wrap(-1)), endpoints[0].Origin,
+            AssertEqual(new Offset16<ScreenPixels>(100, -1), endpoints[0].Origin,
                 $"Actual gameplay actor centres the endpoint on the anchor in pose {(int)SamusPoseNumbers.Number(pose):X2}");
         }
     }

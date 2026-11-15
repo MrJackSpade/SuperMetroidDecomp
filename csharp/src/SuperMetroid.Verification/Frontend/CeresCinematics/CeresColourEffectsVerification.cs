@@ -239,7 +239,7 @@ internal static class CeresColourEffectsVerification
             foreach (ImageSpriteDraw subtitle in subtitles)
             {
                 subtitleDraws++;
-                AssertEqual(timing.SubtitlePlacement, subtitle.Origin, $"{text} destruction update {update} draws the subtitle at its placement");
+                AssertEqual(timing.SubtitlePlacement - Position16<ScreenPixels>.Zero, subtitle.Origin, $"{text} destruction update {update} draws the subtitle at its placement");
                 AssertEqual(faded, subtitle.Shading, $"{text} destruction update {update} draws the subtitle with the fade's record over its drawn colours");
             }
             // The caption deletes itself once its last hold ends; the fade out's last record stays on its colours.

@@ -28,9 +28,9 @@ internal static class EndingCloudMotion
         if (side)
         {
             int direction = wrapper.Role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing ? -1 : 1;
-            sprite.WholePosition += new Offset16<ScreenPixels>(direction, direction * 2);
+            sprite.ScreenPlace += new Offset16<ScreenPixels>(direction, direction * 2);
         }
         else
-            sprite.WholePosition += new Offset16<ScreenPixels>(0, top ? 1 : -1);
+            sprite.ScreenPlace += new Offset16<ScreenPixels>(0, top ? 1 : -1);
     }
 }

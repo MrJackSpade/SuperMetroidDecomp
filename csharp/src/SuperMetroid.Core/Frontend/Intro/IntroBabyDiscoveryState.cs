@@ -16,8 +16,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroBabyDiscoveryState
 {
 
-    /// <summary>Receives egg-hatch and baby-cry sound requests when audio is available.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Receives the egg-hatch and baby-cry sound requests.</summary>
+    private readonly AudioQueues audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
     internal readonly DemoInputState demo = new();
     /// <summary>What the scripted input watches for before its next step.</summary>
@@ -41,16 +41,16 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random number generator, which the demo's Samus animation draws from.</param>
-    /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
+    /// <param name="audio">The audio owner the scene's sounds publish to.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with.</param>
     /// <param name="shellFallPastCurve">The installed steps the egg's shell fragments fall by past their gravity curve.</param>
     public IntroBabyDiscoveryState(SharedRandom random, SamusState existingSamus, ShellFragmentFallPastCurve shellFallPastCurve,
-        AudioQueues? audio = null)
+        AudioQueues audio)
     {
         this.random = Ensure.NotNull(random);
         this.shellFallPastCurve = Ensure.NotNull(shellFallPastCurve);
 
-        this.audio = audio;
+        this.audio = Ensure.NotNull(audio);
 
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
         confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
@@ -232,7 +232,7 @@ internal sealed class IntroBabyDiscoveryState
                 // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
                 foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
                     eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
-                audio?.QueueSound(
+                audio.QueueSound(
                     IntroCinematicDefinitions.Objects.EggHatch,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
                 return;
@@ -342,13 +342,13 @@ internal sealed class IntroBabyDiscoveryState
     {
         // Equality is intentional: the hatched baby tests for equality, and the actor's subpixel integration
         // reaches this row once. Four init parameters select four distinct arcs.
-        if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
+        if (confusedBaby.ScreenPlace.Y == IntroEggMotionDefinitions.SlimeShedRow && slimeDrops.Count == 0)
         {
             foreach (IntroEggSlimeLaunch launch in IntroEggMotionDefinitions.SlimeLaunches)
-                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, launch));
+                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.ScreenPlace, launch));
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
-            audio?.QueueSound(
+            audio.QueueSound(
                 IntroCinematicDefinitions.Objects.BabyCry1,
                 priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
@@ -356,7 +356,7 @@ internal sealed class IntroBabyDiscoveryState
         // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
         int targetY = Samus.Position.Y.Whole - 32;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
-            confusedBaby.WholePosition.Y,
+            confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));
@@ -387,13 +387,13 @@ internal sealed class IntroBabyDiscoveryState
             BabyDanceFrames++;
             // The dancing baby cries when its count of frames danced reaches 64 and 128.
             if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
-                audio?.QueueSound(
+                audio.QueueSound(
                     IntroCinematicDefinitions.Objects.BabyCry1,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(
-            confusedBaby.WholePosition.X,
+            confusedBaby.ScreenPlace.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
             limit: HorizontalSpeedLimit));
@@ -405,7 +405,7 @@ internal sealed class IntroBabyDiscoveryState
 
         int targetY = Samus.Position.Y.Whole - 8;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
-            confusedBaby.WholePosition.Y,
+            confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));

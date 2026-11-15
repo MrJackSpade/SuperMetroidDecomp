@@ -50,7 +50,7 @@ internal static class IntroNarrationPresentationVerification
             // extraction copied its text from the cartridge.
             var installedText = PagesText();
             var installed = new IntroCinematicObjectSystem(
-                installedText, new IntroJapaneseSubtitles(enabled: false),
+                installedText, new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
                 narrationPresentation: presentation);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
@@ -65,7 +65,7 @@ internal static class IntroNarrationPresentationVerification
         }
 
         var saved = new IntroCinematicObjectSystem(
-            PagesText(), new IntroJapaneseSubtitles(enabled: false),
+            PagesText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
             narrationPresentation: presentation);
         saved.StartEnglishPageSix();
         saved.Step(0);

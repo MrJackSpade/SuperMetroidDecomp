@@ -16,7 +16,7 @@ internal static class IntroMotherBrainDefinitions
         new(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
 
     /// <summary>Mother Brain starts at the cinematic origin (56,111).</summary>
-    public static Position16<ScreenPixels> MotherBrainOrigin => new(56, 111);
+    public static Offset16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 
     /// <summary>The small explosion right of Mother Brain's origin, the first to burst.</summary>
     internal static IntroMotherBrainExplosionPlacement SmallRight { get; } = new(new(16, 0), 1);

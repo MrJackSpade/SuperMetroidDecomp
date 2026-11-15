@@ -8,8 +8,8 @@ public abstract record SpriteDraw
 {
     /// <summary>Keeps what every kind of draw has.</summary>
     /// <param name="source">The actor or display element shown.</param>
-    /// <param name="origin">The frame origin in screen pixels; each coordinate lies from -32768 through 32767.</param>
-    private protected SpriteDraw(SpriteSource source, Position16<ScreenPixels> origin)
+    /// <param name="origin">Where on the screen the frame's origin lies; left of or above the screen is negative.</param>
+    private protected SpriteDraw(SpriteSource source, Offset16<ScreenPixels> origin)
     {
         Source = source;
         Origin = origin;
@@ -17,6 +17,9 @@ public abstract record SpriteDraw
 
     /// <summary>The actor or display element shown.</summary>
     public SpriteSource Source { get; }
-    /// <summary>The frame origin in screen pixels; each coordinate lies from -32768 through 32767.</summary>
-    public Position16<ScreenPixels> Origin { get; }
+    /// <summary>
+    /// Where on the screen the frame's origin lies, in pixels from the screen's top-left corner (#2000): left of or above
+    /// the screen is negative.
+    /// </summary>
+    public Offset16<ScreenPixels> Origin { get; }
 }

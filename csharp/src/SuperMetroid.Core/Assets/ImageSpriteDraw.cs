@@ -10,9 +10,9 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>Places a sheet frame.</summary>
     /// <param name="source">The actor or display element shown.</param>
     /// <param name="image">The sheet frame shown.</param>
-    /// <param name="origin">The screen point the frame's origin lands on; each coordinate lies from -32768 through 32767.</param>
+    /// <param name="origin">Where on the screen the frame's origin lands; left of or above the screen is negative.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
-    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror)
+    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Offset16<ScreenPixels> origin, SpriteMirror mirror)
         : base(source, origin)
     {
         Image = Ensure.NotNull(image);
@@ -54,14 +54,13 @@ public sealed record ImageSpriteDraw : SpriteDraw
     {
         get
         {
-            int originX = CoordinateAxis.AsSigned(Origin.X), originY = CoordinateAxis.AsSigned(Origin.Y);
-            int x = (Mirror & SpriteMirror.Horizontal) != SpriteMirror.None ? originX + Image.Origin.X - Image.Size.X : originX - Image.Origin.X;
-            int y = (Mirror & SpriteMirror.Vertical) != SpriteMirror.None ? originY + Image.Origin.Y - Image.Size.Y : originY - Image.Origin.Y;
+            int x = (Mirror & SpriteMirror.Horizontal) != SpriteMirror.None ? Origin.X + Image.Origin.X - Image.Size.X : Origin.X - Image.Origin.X;
+            int y = (Mirror & SpriteMirror.Vertical) != SpriteMirror.None ? Origin.Y + Image.Origin.Y - Image.Size.Y : Origin.Y - Image.Origin.Y;
             return new(x, y);
         }
     }
 
-    /// <summary>Names the draw by its source, image and signed origin.</summary>
+    /// <summary>Names the draw by its source, image and screen origin.</summary>
     public override string ToString() =>
-        $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({CoordinateAxis.AsSigned(Origin.X)}, {CoordinateAxis.AsSigned(Origin.Y)})";
+        $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({Origin.X}, {Origin.Y})";
 }

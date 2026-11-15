@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal sealed class IntroCinematicObjectSystem
 {
-    /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Queues the alternating non-space typewriter sounds.</summary>
+    private readonly AudioQueues audio;
     /// <summary>The narration text the typewriter types into and its glows recolour (#1467).</summary>
     private readonly IntroNarrationText text;
     /// <summary>The persistent portrait eye's animation and where it stands in it, played on when its frame expires (#1600).</summary>
@@ -53,16 +53,16 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Tracks subtitle page transitions and the Japanese input wait.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
 
-    /// <summary>Binds caret, narration, narration text, subtitle, and optional audio owners.</summary>
+    /// <summary>Binds caret, narration, narration text, subtitle, and audio owners.</summary>
     public IntroCinematicObjectSystem(
         IntroNarrationText text,
         IntroJapaneseSubtitles subtitles,
-        AudioQueues? audio = null,
+        AudioQueues audio,
         IntroNarrationPresentation? narrationPresentation = null)
     {
         this.subtitles = Ensure.NotNull(subtitles);
         this.text = Ensure.NotNull(text);
-        this.audio = audio;
+        this.audio = Ensure.NotNull(audio);
         this.narrationPresentation = narrationPresentation;
     }
 
@@ -269,7 +269,7 @@ internal sealed class IntroCinematicObjectSystem
             typewriterSoundToggle = !typewriterSoundToggle;
             if (!character.IsSpace && typewriterSoundToggle)
             {
-                audio?.QueueSound(
+                audio.QueueSound(
                     IntroCinematicDefinitions.Objects.Typewriter,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
             }

@@ -791,7 +791,7 @@ internal sealed class SuperMetroidRuntime
             // enemy's main behaviour reads the room's terrain and the camera as they stand now, before the main scrolling.
             Room.LoadedScope.Enemies.Collision.ResolveOrdinaryPowerBombHits(
                 powerBomb.Position,
-                powerBomb.ExplosionRadius.WholePixels,
+                powerBomb.Blast.ExplosionRadius.WholePixels,
                 Room.LoadedLevelData,
                 Room.LoadedCamera.PixelPosition,
                 samus);

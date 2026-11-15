@@ -45,7 +45,7 @@ internal static class CinematicScreenPublicationVerification
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             positions.Add(position);
-            raw.AddImage(star, position, PictureShading.Standard);
+            raw.AddImage(star, position - Position16<SpritePixels>.Zero, PictureShading.Standard);
             oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();
@@ -53,7 +53,7 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(oam.LastFinalizedSpriteCount, raw.Draws.Length, "each raw small object is one entry, as each direct OAM store is");
         for (int index = 0; index < raw.Draws.Length; index++)
         {
-            AssertEqual(new Position16<ScreenPixels>(positions[index].X, positions[index].Y), raw.Draws[index].Origin,
+            AssertEqual(new Offset16<ScreenPixels>(positions[index].X, positions[index].Y), raw.Draws[index].Origin,
                 $"raw object {index} is published where it is placed");
             if (positions[index].Y < FrontendFrame.Height)
                 AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"raw object {index} on the screen stands for the record its store writes");

@@ -549,7 +549,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresDestructionActorDefinition definition, Offset16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Zero + start,
+            start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
         {
@@ -607,7 +607,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             {
                 CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
                 if (definition.WrapX)
-                    AddWrappedX(actor, definition.HorizontalDelta);
+                    actor.TravelLoop(definition.HorizontalDelta);
             }
             else
                 MoveExplosion(actor);
@@ -641,7 +641,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         audio.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Zero + Offset16<ScreenPixels>.Of(blastX, blastY),
+            Offset16<ScreenPixels>.Of(blastX, blastY),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
             CeresExplosionDefinitions.StationBlastActor.Animation);
         actors.Add(cinematicExplosion);
@@ -655,7 +655,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Zero + Offset16<ScreenPixels>.Of(
+            Offset16<ScreenPixels>.Of(
                 CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels + placement.Offset.X,
                 CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels + placement.Offset.Y),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
@@ -673,7 +673,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         actor.Position = new(
             IntroCinematicMotion.AddFraction(actor.Position.X, CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
-            actor.Position.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.GunshipYVelocity));
+            actor.Position.Y + CeresDestructionSceneDefinitions.Motion.GunshipYVelocity);
     }
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
@@ -700,7 +700,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // it crosses -128, so the speed stays far inside its range.
                 SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + slideAcceleration;
                 slideSpeeds[actor] = slideSpeed;
-                actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(-slideSpeed.ToSixteenSixteenDelta()));
+                actor.Position = actor.Position.WithY(actor.Position.Y - slideSpeed.ToSixteenSixteenDelta());
                 if (actor.ScreenPlace.Y < -128)
                 {
                     // Each reveal object deletes itself before its screen Y,
@@ -804,15 +804,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             default:
                 throw new InvalidOperationException($"The Zebes title's animations publish no {cue} cue.");
         }
-    }
-
-    /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, SignedSixteenSixteen horizontalDelta)
-    {
-        // The wrapping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
-        // whose fraction is the rest of a pixel, carries the actor right instead.
-        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole(x.Whole % CeresDestructionSceneDefinitions.WorldWidth));
     }
 
 

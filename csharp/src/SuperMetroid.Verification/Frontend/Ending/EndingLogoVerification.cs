@@ -143,9 +143,9 @@ internal static class EndingLogoVerification
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
-            Position16<ScreenPixels> origin = actual.Origin;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), origin.X, "native actor X origin");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), origin.Y, "native actor Y origin");
+            Offset16<ScreenPixels> origin = actual.Origin;
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), (int)origin.X, "native actor X origin");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), (int)origin.Y, "native actor Y origin");
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(

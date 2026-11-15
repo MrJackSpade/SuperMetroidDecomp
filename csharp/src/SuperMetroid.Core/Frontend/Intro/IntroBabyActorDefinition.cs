@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal readonly record struct IntroBabyActorDefinition(
     CinematicSpriteSegment Animation,
-    Position16<ScreenPixels> Position,
+    Offset16<ScreenPixels> Position,
     IntroSpriteColouring Colouring);

@@ -132,7 +132,7 @@ internal static class PauseMenuVerification
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)
             .Frame(SuperMetroid.Core.Frontend.Map.MapSpriteNames.Name(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorFrame0));
-        AssertEqual(new Position16<ScreenPixels>(116, 64),
+        AssertEqual(new Offset16<ScreenPixels>(116, 64),
             ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, markerFrame)).Origin, "pause map marker shows its initial frame at its origin");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
@@ -147,7 +147,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Right);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.MorphBall, pause.SelectedControl, "pause Right selects the first collected suit and miscellaneous control, Morph Ball");
         pause.Render();
-        AssertEqual(new Position16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
@@ -171,7 +171,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Bombs, pause.SelectedControl, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Position16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the equipment selector at the Bombs' origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),

@@ -32,7 +32,7 @@ internal sealed class IntroMotherBrainSpriteState
     private bool crossfadingToPageTwo;
 
     /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
-    public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
+    public static Offset16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
     /// <summary>The drawn shade of the colouring Mother Brain draws in (#1512), which her hurt flash whitens.</summary>
     public static PictureShade Colouring => IntroShades.Drawn(IntroSpriteColouring.MotherBrain);

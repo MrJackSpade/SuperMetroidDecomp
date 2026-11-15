@@ -117,7 +117,7 @@ internal static class EnemyFormatDrawEntriesVerification
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer, "A drawn frame consumes the same shake tick");
-        AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
+        AssertEqual(new Offset16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
         Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display.");
 
         static void AssertImage(SpriteDraw draw, SpriteSource source, SpriteSheetFrame frame, Position16<ScreenPixels> origin, PictureShading shading, string subject)
@@ -125,7 +125,7 @@ internal static class EnemyFormatDrawEntriesVerification
             var image = draw as ImageSpriteDraw ?? throw new InvalidOperationException($"{subject} is a {draw.GetType().Name}, not a sheet frame.");
             AssertEqual(source, image.Source, $"{subject} names its slot");
             AssertTrue(ReferenceEquals(frame, image.Image), $"{subject} shows its sheet's frame");
-            AssertEqual(origin, image.Origin, $"{subject} is placed at its screen origin");
+            AssertEqual(origin - Position16<ScreenPixels>.Zero, image.Origin, $"{subject} is placed at its screen origin");
             AssertEqual(shading, image.Shading, $"{subject} shows its frame under the shading it is drawn in");
         }
     }

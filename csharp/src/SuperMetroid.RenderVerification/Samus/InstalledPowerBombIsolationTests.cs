@@ -75,7 +75,7 @@ internal static class InstalledPowerBombIsolationTests
     /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb with the supplied presentation catalog.</summary>
     internal static SamusPowerBombExplosionState Create(InstalledPowerBombGlowColors colors, bool crystalFlash)
     {
-        var state = new SamusPowerBombExplosionState { PresentationColors = colors };
+        var state = new SamusPowerBombExplosionState { Blast = { PresentationColors = colors } };
         if (crystalFlash) state.BeginCrystalFlash(new(128, 112));
         else { state.Arm(); state.Spawn(new(128, 112)); }
         return state;
@@ -85,11 +85,18 @@ internal static class InstalledPowerBombIsolationTests
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
-        // Include private phase timers and every future serialized field. Only the
-        // colour the explosion adds and the installed colours it is bound to may differ.
-        foreach (FieldInfo field in MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        // Include private phase timers and every future serialized field, the explosion's own and its blast's (#2000). Only
+        // the colour the blast adds and the installed colours it is bound to may differ.
+        RequireSameFields(typeof(SamusPowerBombExplosionState), first, second, "<Blast>k__BackingField", context);
+        RequireSameFields(typeof(PowerBombBlastTimeline), first.Blast, second.Blast, null, context);
+    }
+
+    /// <summary>Compares every serialized field of <paramref name="type"/> except the colours and the named nested owner.</summary>
+    private static void RequireSameFields(Type type, object first, object second, string? nestedField, string context)
+    {
+        foreach (FieldInfo field in MetadataShape.Fields(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
-            if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name is
+            if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name == nestedField || field.Name is
                 "<GlowColor>k__BackingField" or "<PresentationColors>k__BackingField") continue;
             Require(Equals(field.GetValue(first), field.GetValue(second)),
                 $"{context}: {field.Name} differs: first={field.GetValue(first)}, second={field.GetValue(second)}");
@@ -98,7 +105,7 @@ internal static class InstalledPowerBombIsolationTests
 
     /// <summary>Captures the three live glow colour outputs without including simulation state.</summary>
     internal static ExplosionColors Colors(SamusPowerBombExplosionState state) =>
-        new ExplosionColors(state.GlowColor.FadeLevels.Red, state.GlowColor.FadeLevels.Green, state.GlowColor.FadeLevels.Blue);
+        new ExplosionColors(state.Blast.GlowColor.FadeLevels.Red, state.Blast.GlowColor.FadeLevels.Green, state.Blast.GlowColor.FadeLevels.Blue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>
     internal static void Require(bool condition, string context)
@@ -140,7 +147,7 @@ internal static class InstalledPowerBombIsolationTests
             {
                 var current = Restore(state, colors, out string currentWarning);
                 Require(currentWarning.Length == 0, "A current graph unexpectedly needed a migration.");
-                Require(ReferenceEquals(current.PresentationColors, colors), "A debugger graph did not name its bound colours.");
+                Require(ReferenceEquals(current.Blast.PresentationColors, colors), "A debugger graph did not name its bound colours.");
                 RequireSameMechanics(state, current, "Current graph restore");
                 Require(Colors(state) == Colors(current), "Current graph restore changed display colors.");
                 CompareRemainder(state, current, colors, "Current graph resume");
@@ -174,7 +181,7 @@ internal static class InstalledPowerBombIsolationTests
         InstalledPowerBombGlowColors colors, out string warning)
     {
         using var data = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph([state.PresentationColors
+        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph([state.Blast.PresentationColors
             ?? throw new InvalidOperationException("A captured explosion is bound to its colours.")]));
         data.Position = 0;
         using var errors = new StringWriter();

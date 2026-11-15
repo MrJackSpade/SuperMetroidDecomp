@@ -184,7 +184,7 @@ internal sealed class DraygonShots
             // A projectile pass no enemy pass has preceded has seen no explosion, which is the radius-zero case.
             if (frameContext.PowerBombExplosion is not { } powerBomb)
                 return;
-            int horizontalRadius = powerBomb.ExplosionRadius.WholePixels;
+            int horizontalRadius = powerBomb.Blast.ExplosionRadius.WholePixels;
             if (horizontalRadius == 0)
                 return;
             // The vertical radius is three quarters of the horizontal: half of it, rounded up, plus the whole, halved down.

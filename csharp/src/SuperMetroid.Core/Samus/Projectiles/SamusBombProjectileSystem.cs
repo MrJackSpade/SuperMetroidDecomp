@@ -130,7 +130,7 @@ public sealed class SamusBombProjectileSystem
         // Each update advances the blast with the liquid wave and statue descent, before gameplay reaches Samus's
         // frame. A power bomb spawned later in her input phase consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
-        bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
+        bool crystalFlashWindowWasActive = PowerBombExplosion.Blast.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
             PowerBombExplosionPhase.CrystalFlashAfterglow;
         bool powerBombCleanup = PowerBombExplosion.StepFrame();
@@ -322,7 +322,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
-                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
         }
     }
 
@@ -677,7 +677,7 @@ public sealed class SamusBombProjectileSystem
                 CollectPowerBombBoundaryReactions(
                     level,
                     PowerBombExplosion.Position,
-                    PowerBombExplosion.ExplosionRadius,
+                    PowerBombExplosion.Blast.ExplosionRadius,
                     blockReactions,
                     roomObjects,
                     bomb.Type);

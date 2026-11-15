@@ -74,7 +74,7 @@ public static class SamusGrappleBeamDrawing
         SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
-            Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
+            Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
         return true;
     }
 
@@ -184,14 +184,14 @@ public static class SamusGrappleBeamDrawing
             SpriteSheetFrame image = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.RopeFrame(
                 orientation, RopePicture(grapple.RopeAnimationPhase, segment), mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope, segment), image,
-                centre.Whole, SpriteMirror.None));
+                centre.Whole - Position16<ScreenPixels>.Zero, SpriteMirror.None));
             centre = centre.Advance(step);
         }
 
         // The endpoint is placed by its centre at the anchor.
         SpriteSheetFrame endpoint = installed.Frame(SuperMetroid.Core.Samus.Artwork.GrappleSheets.EndpointFrame(grapple.PointAnimationFrame));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), endpoint,
-            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - cameraPosition.X), CoordinateAxis.Wrap(grapple.Anchor.Y - cameraPosition.Y)),
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - cameraPosition.X), CoordinateAxis.Wrap(grapple.Anchor.Y - cameraPosition.Y)) - Position16<ScreenPixels>.Zero,
             SpriteMirror.None));
     }
 

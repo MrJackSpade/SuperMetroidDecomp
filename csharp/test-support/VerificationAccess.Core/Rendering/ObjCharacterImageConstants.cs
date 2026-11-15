@@ -86,7 +86,7 @@ internal static class ObjCharacterImageConstants
                 records.Frames.Add(shape, frame);
             }
             draws.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), frame,
-                new Position16<ScreenPixels>(unchecked((ushort)left), unchecked((ushort)top)), SpriteMirror.None));
+                Offset16<ScreenPixels>.Wrapped(left, top), SpriteMirror.None));
             part += cells;
         }
         return draws.ToImmutable();

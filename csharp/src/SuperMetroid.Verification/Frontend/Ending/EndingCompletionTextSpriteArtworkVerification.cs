@@ -41,7 +41,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(stock.CompletionTextSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
+                    Offset16<ScreenPixels>.Wrapped(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,

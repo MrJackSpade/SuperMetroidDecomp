@@ -51,7 +51,7 @@ internal sealed class ChainsawFuse
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             level,
             sharedProjectiles.PowerBombExplosion.Position,
-            sharedProjectiles.PowerBombExplosion.ExplosionRadius,
+            sharedProjectiles.PowerBombExplosion.Blast.ExplosionRadius,
             reactions,
             roomObjects,
             shot.Type);

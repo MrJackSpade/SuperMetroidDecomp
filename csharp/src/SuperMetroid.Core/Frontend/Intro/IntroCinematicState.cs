@@ -1082,7 +1082,7 @@ level, samus, frameCounter);
             // actors afterward. Retaining that drawing order preserves overlap wins.
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
-                IntroMotherBrainSpriteState.Position.ToSpritePosition(),
+                IntroMotherBrainSpriteState.Position,
                 FlashbackMotherBrain.Shading(crossfade.ActorShading(IntroMotherBrainSpriteState.Colouring)));
         }
         objectSprites.FinishFrame();
@@ -1150,7 +1150,7 @@ level, samus, frameCounter);
             // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
-                caretPose, objectSprites, (Position16<ScreenPixels>.Zero + Objects.Caret).ToSpritePosition(),
+                caretPose, objectSprites, Objects.Caret,
                 IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
         }
         // The Japanese text's next-page arrow is drawn after the caret, whose object comes first (#1655).

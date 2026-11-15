@@ -236,7 +236,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             "Samus death explosion requires the installed sprite sheets.")).Get(SpriteSheetId.SamusDeath);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
             death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
-            ScreenPosition, SpriteMirror.None));
+            ScreenPosition - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 
     /// <summary>Advances the explosion timer, death shade and terminal whiteout, returning whether to draw this frame.</summary>

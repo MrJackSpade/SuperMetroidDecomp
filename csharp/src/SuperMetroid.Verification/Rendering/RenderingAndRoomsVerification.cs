@@ -1022,7 +1022,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))) };
+    var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))) } };
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 
@@ -1030,14 +1030,14 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(ScreenWindow.Closed, CaptureWindow().Window, "power-bomb spawn frame has no premature oval");
 
     explosion.StepFrame();
-    AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
+    AssertEqual(PowerBombExplosionPhase.Inactive, explosion.Blast.RenderedPhase,
         "first HDMA pass initializes the list without generating a window");
     // The first frame draws radius 4, then advances the live state to radius 52. The oval is that drawn radius wide
     // and three quarters of it tall (#1468): using the already-updated radius would be far wider.
     explosion.StepFrame();
-    AssertEqual(PowerBombRadius.FromWholePixels(4), explosion.RenderedPreExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), explosion.Blast.RenderedPreExplosionRadius,
         "power-bomb renderer retains pre-update radius");
-    AssertEqual(PowerBombRadius.FromWholePixels(52), explosion.PreExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(52), explosion.Blast.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     ColourAddWindowLayer scaled = CaptureWindow();
     AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), DisplayScreen.HudHeight),
@@ -1045,12 +1045,12 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(new RgbColor(8, 16, 24), scaled.Colour, "the first flash adds the installed fixed colour");
 
     // The walked yellow ovals are centred on the blast, not on a screen midpoint.
-    while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    while (explosion.Blast.Phase == PowerBombExplosionPhase.PreExplosionWhite)
         explosion.StepFrame();
     explosion.StepFrame();
-    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
+    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.Blast.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
-    AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.RenderedOvalRadius,
+    AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.Blast.RenderedOvalRadius,
         "first yellow frame selects the first yellow oval");
     AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(146, 109)), DisplayScreen.HudHeight),
         CaptureWindow().Window, "the first yellow oval is centred on the blast");

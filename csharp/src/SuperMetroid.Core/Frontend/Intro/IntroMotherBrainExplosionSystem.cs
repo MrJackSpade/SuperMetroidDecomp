@@ -49,7 +49,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
                 continue;
 
-            installedArt.Draw(pose, objects, actor.Position.ToSpritePosition(), IntroShades.Drawn(IntroSpriteColouring.Explosions));
+            installedArt.Draw(pose, objects, actor.Position, IntroShades.Drawn(IntroSpriteColouring.Explosions));
         }
     }
 
@@ -61,7 +61,7 @@ internal sealed class IntroMotherBrainExplosionSystem
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
-            Position16<ScreenPixels> position,
+            Offset16<ScreenPixels> position,
             CinematicSpriteSegment segment,
             int startDelay)
         {
@@ -70,7 +70,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
 
         /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
-        public Position16<ScreenPixels> Position => sprite.WholePosition;
+        public Offset16<ScreenPixels> Position => sprite.ScreenPlace;
 
         /// <summary>The pose the explosion's animation shows; null before its first frame and after deletion.</summary>
         public CinematicSpritePose? Pose => sprite.Pose;

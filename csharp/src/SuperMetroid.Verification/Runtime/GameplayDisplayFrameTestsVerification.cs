@@ -173,15 +173,15 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        int latchedRed = explosion.GlowColor.FadeLevels.Red;
+        int latchedRed = explosion.Blast.GlowColor.FadeLevels.Red;
         int steps = 0;
-        while (explosion.GlowColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
-        AssertTrue(explosion.GlowColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
+        while (explosion.Blast.GlowColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
+        AssertTrue(explosion.Blast.GlowColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.ShownOval.Radii, pending.FrameEnd.PowerBomb.Oval.Radii, "power-bomb oval is read live");
         AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).Oval.Colour.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(explosion.GlowColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).Oval.Colour.FadeLevels.Red,
+        AssertEqual(explosion.Blast.GlowColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).Oval.Colour.FadeLevels.Red,
             "the accepted NMI publishes power-bomb COLDATA");
         explosion.Reset();
         runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -68,8 +68,8 @@ internal static class PowerBombGlowColorsVerification
         // The runtime no longer has a cartridge color fallback, so both timing owners
         // must receive the installed catalog; the guarded one also rejects any stray
         // gameplay request for those native color bytes.
-        var native = new SamusPowerBombExplosionState { PresentationColors = catalog };
-        var installed = new SamusPowerBombExplosionState { PresentationColors = catalog };
+        var native = new SamusPowerBombExplosionState { Blast = { PresentationColors = catalog } };
+        var installed = new SamusPowerBombExplosionState { Blast = { PresentationColors = catalog } };
         var guarded = NewForbiddenPowerBombColorBus(rom);
         if (crystalFlash)
         {
@@ -91,13 +91,13 @@ internal static class PowerBombGlowColorsVerification
             bool installedComplete = installed.StepFrame();
             string label = $"{(crystalFlash ? "Crystal Flash" : "Power Bomb")} frame {frames}";
             AssertEqual(nativeComplete, installedComplete, $"{label} completion");
-            AssertEqual(native.Phase, installed.Phase, $"{label} next phase");
-            AssertEqual(native.RenderedPhase, installed.RenderedPhase, $"{label} rendered phase");
-            AssertEqual(native.PreExplosionRadius, installed.PreExplosionRadius, $"{label} pre-radius");
-            AssertEqual(native.ExplosionRadius, installed.ExplosionRadius, $"{label} radius");
-            AssertEqual(native.GlowColor.FadeLevels.Red, installed.GlowColor.FadeLevels.Red, $"{label} fixed red");
-            AssertEqual(native.GlowColor.FadeLevels.Green, installed.GlowColor.FadeLevels.Green, $"{label} fixed green");
-            AssertEqual(native.GlowColor.FadeLevels.Blue, installed.GlowColor.FadeLevels.Blue, $"{label} fixed blue");
+            AssertEqual(native.Blast.Phase, installed.Blast.Phase, $"{label} next phase");
+            AssertEqual(native.Blast.RenderedPhase, installed.Blast.RenderedPhase, $"{label} rendered phase");
+            AssertEqual(native.Blast.PreExplosionRadius, installed.Blast.PreExplosionRadius, $"{label} pre-radius");
+            AssertEqual(native.Blast.ExplosionRadius, installed.Blast.ExplosionRadius, $"{label} radius");
+            AssertEqual(native.Blast.GlowColor.FadeLevels.Red, installed.Blast.GlowColor.FadeLevels.Red, $"{label} fixed red");
+            AssertEqual(native.Blast.GlowColor.FadeLevels.Green, installed.Blast.GlowColor.FadeLevels.Green, $"{label} fixed green");
+            AssertEqual(native.Blast.GlowColor.FadeLevels.Blue, installed.Blast.GlowColor.FadeLevels.Blue, $"{label} fixed blue");
             frames++;
             AssertTrue(frames < 1000, $"{label} completes in bounded time");
         } while (native.IsActive);

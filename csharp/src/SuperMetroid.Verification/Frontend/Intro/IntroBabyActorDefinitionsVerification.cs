@@ -71,12 +71,12 @@ internal static class IntroBabyActorDefinitionsVerification
         RoomTerrainBlock[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
-            shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
+            shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, audio: AudioQueues.Standalone());
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())),
-            shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve);
+            shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, audio: AudioQueues.Standalone());
         for (int block = 0; block < nativeCollision.Length; block++)
             AssertEqual(nativeCollision[block], discovery.Level.GetCollisionBlockByIndex(block).Terrain,
                 $"SR388 discovery physical block {block} matches the decoded original");
@@ -111,7 +111,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.Pose, baby.Pose,
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
-            AssertEqual(nativeBaby.WholePosition.Y, baby.WholePosition.Y,
+            AssertEqual(nativeBaby.ScreenPlace.Y, baby.ScreenPlace.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");
             if (discovery.PageThreeRequested)
             {

@@ -910,9 +910,9 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(0, powerBombs.Bombs[0].BombTimer.RawValue,
         "the fuse has run out once the explosion starts");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
-        powerBombs.PowerBombExplosion.Phase,
+        powerBombs.PowerBombExplosion.Blast.Phase,
         "fuse expiry allocates HDMA list without executing setup");
-    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.Blast.PreExplosionRadius,
         "pre-explosion radius is not initialized during allocation");
     AssertTrue(powerBombs.PowerBombExplosion.IsActive,
         "normal explosion becomes active at its spawn");
@@ -926,61 +926,61 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
-    AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.Blast.PreExplosionRadius,
         "first HDMA pass initializes the 4.00-pixel radius without expanding it");
-    AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.RenderedPhase,
+    AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.Blast.RenderedPhase,
         "setup pass has not generated an explosion window");
 
     // The following HDMA pass runs the new pre-instruction. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
     // corners in bank-$94 top/left/bottom/right order.
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
-    AssertEqual(PowerBombRadius.FromWholePixels(52), powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(52), powerBombs.PowerBombExplosion.Blast.PreExplosionRadius,
         "first white pre-explosion frame applies $3000 speed");
-    AssertEqual(PowerBombRadius.FromPixels(47, 128), powerBombs.PowerBombExplosion.RadiusSpeed,
+    AssertEqual(PowerBombRadius.FromPixels(47, 128), powerBombs.PowerBombExplosion.Blast.RadiusSpeed,
         "white pre-explosion subtracts $0080 acceleration");
 
     int whiteFlashFrames = 1;
-    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.PreExplosionWhite)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
         whiteFlashFrames++;
         AssertTrue(whiteFlashFrames < 32, "white pre-explosion phase terminates");
     }
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow,
-        powerBombs.PowerBombExplosion.Phase,
+        powerBombs.PowerBombExplosion.Blast.Phase,
         "white threshold advances to yellow shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius >= PowerBombRadius.FromWholePixels(146),
+    AssertTrue(powerBombs.PowerBombExplosion.Blast.PreExplosionRadius >= PowerBombRadius.FromWholePixels(146),
         "white phase crosses its 146-pixel radius threshold");
-    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.RenderedOvalRadius,
+    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.Blast.RenderedOvalRadius,
         "yellow pre-explosion shows its first oval on its next update");
 
     StepFrames(4, _ => powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0));
     AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
-        powerBombs.PowerBombExplosion.Phase,
+        powerBombs.PowerBombExplosion.Blast.Phase,
         "four 192-byte yellow shapes advance to damaging explosion");
-    AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.ExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), powerBombs.PowerBombExplosion.Blast.ExplosionRadius,
         "damaging yellow explosion restarts at 4.00 pixels");
-    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.RadiusSpeed,
+    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.Blast.RadiusSpeed,
         "damaging yellow explosion restarts with zero speed");
 
     int yellowExplosionFrames = 0;
-    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionYellow)
+    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.ExplosionYellow)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
         yellowExplosionFrames++;
         AssertTrue(yellowExplosionFrames < 128, "yellow explosion reaches $8600 threshold");
     }
     AssertEqual(PowerBombExplosionPhase.ExplosionWhite,
-        powerBombs.PowerBombExplosion.Phase,
+        powerBombs.PowerBombExplosion.Blast.Phase,
         "yellow radius threshold advances to white shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius >= PowerBombRadius.FromWholePixels(134),
+    AssertTrue(powerBombs.PowerBombExplosion.Blast.ExplosionRadius >= PowerBombRadius.FromWholePixels(134),
         "yellow explosion crosses its 134-pixel threshold");
-    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.RenderedOvalRadius,
+    AssertEqual<int?>(null, powerBombs.PowerBombExplosion.Blast.RenderedOvalRadius,
         "white explosion shows its first oval on its next update");
 
     int whiteExplosionFrames = 0;
-    while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionWhite)
+    while (powerBombs.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.ExplosionWhite)
     {
         powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
         whiteExplosionFrames++;
@@ -989,7 +989,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(17, whiteExplosionFrames,
         "$9246-$9F06 white phase contains seventeen 192-byte shapes");
     AssertEqual(PowerBombExplosionPhase.Afterglow,
-        powerBombs.PowerBombExplosion.Phase,
+        powerBombs.PowerBombExplosion.Blast.Phase,
         "white shapes advance to stage-five afterglow");
 
     // Moving one pixel guarantees cleanup cannot begin Crystal Flash. The 32-step byte
@@ -1011,7 +1011,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "power-bomb cleanup decrements shared bomb counter");
     AssertTrue(!powerBombs.PowerBombExplosion.IsArmed,
         "failed Crystal Flash cleanup releases power-bomb flag");
-    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.ExplosionRadius,
+    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.Blast.ExplosionRadius,
         "cleanup clears damaging radius");
 
     // Put the explosion center on a type-$5 horizontal extension whose signed BTS $FF

@@ -65,7 +65,7 @@ internal static class FramePaintTestsVerification
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.
-        static IEnumerable<(SpriteSource Source, Position16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>
+        static IEnumerable<(SpriteSource Source, Offset16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>
             draws.Select(draw => (draw.Source, draw.Origin));
     }
 }

@@ -86,8 +86,8 @@ internal static class IntroEggMotionDefinitionsVerification
                 object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), IntroEggMotionDefinitions.SlimeLaunches[actorIndex]);
                 IntroDiscoverySprite sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
-                uint x = SixteenSixteenWords.Compose(sprite.WholePosition.X, fraction);
-                uint y = SixteenSixteenWords.Compose(sprite.WholePosition.Y, fraction);
+                uint x = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.X), fraction);
+                uint y = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.Y), fraction);
                 bool motion = true;
                 int motionFrame = 0;
                 int frames = 0;
@@ -103,9 +103,9 @@ internal static class IntroEggMotionDefinitionsVerification
                     }
                     if (actor is IntroEggParticle particle) particle.Step();
                     else ((IntroEggSlimeDrop)actor).Step();
-                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(x), sprite.WholePosition.X, "Egg actor whole X each frame");
+                    AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(x)), sprite.ScreenPlace.X, "Egg actor whole X each frame");
                     AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
-                    AssertEqual((ushort)SixteenSixteenWords.WholeOf(y), sprite.WholePosition.Y, "Egg actor whole Y each frame");
+                    AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(y)), sprite.ScreenPlace.Y, "Egg actor whole Y each frame");
                     AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
                     checkedFrames++;
                 }

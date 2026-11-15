@@ -16,14 +16,14 @@ internal static class PowerBombAfterglowShapeVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var colors = PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorExtractor.Extract(rom)));
         // Near the bottom-left, the last oval still leaves visible corners outside it.
-        var explosion = new SamusPowerBombExplosionState { PresentationColors = colors };
+        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = colors } };
         explosion.Arm();
         explosion.Spawn(new(32, 208));
-        for (int frame = 0; frame < 200 && explosion.Phase != PowerBombExplosionPhase.Afterglow; frame++)
+        for (int frame = 0; frame < 200 && explosion.Blast.Phase != PowerBombExplosionPhase.Afterglow; frame++)
             explosion.StepFrame();
-        AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Phase, "reported blast reaches the fade transition");
-        AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
-        int radius = explosion.RenderedOvalRadius
+        AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Blast.Phase, "reported blast reaches the fade transition");
+        AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.Blast.RenderedPhase, "transition retains the final expanding oval");
+        int radius = explosion.Blast.RenderedOvalRadius
             ?? throw new InvalidOperationException("The final white frame showed no authored oval.");
         // The final white oval: centred on the blast at the bottom-left, the white explosion's last oval wide and three
         // quarters of it tall, below the HUD (#1468).

@@ -108,6 +108,6 @@ public sealed class SamusParticles
         SpriteSheetFrame picture = (sheets ?? throw new InvalidOperationException(
             "Samus's particles require the installed sprite sheets.")).Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, index), picture,
-            Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None);
+            Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)) - Position16<ScreenPixels>.Zero, SpriteMirror.None);
     }
 }

@@ -99,7 +99,7 @@ internal sealed class EnemyPresentation
         if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
-        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
+        sprites.Add(new ImageSpriteDraw(source, image, origin - Position16<ScreenPixels>.Zero, SpriteMirror.None)
         {
             Shading = shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), draw.RotRows, image),
@@ -130,7 +130,7 @@ internal sealed class EnemyPresentation
         if (sheet.ShowsNothing(picture))
             return;
         SpriteSheetFrame image = sheet.Frame(picture);
-        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
+        sprites.Add(new ImageSpriteDraw(source, image, origin - Position16<ScreenPixels>.Zero, SpriteMirror.None)
         {
             Shading = graphics.Shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),

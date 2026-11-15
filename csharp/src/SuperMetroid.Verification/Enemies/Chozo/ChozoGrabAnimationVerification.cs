@@ -46,7 +46,7 @@ internal static class ChozoGrabAnimationVerification
             "fixture uses the retail statue hand block");
         var expectedExplosion = new SamusPowerBombExplosionState
         {
-            PresentationColors = runtime.BombProjectiles.PowerBombExplosion.PresentationColors,
+            Blast = { PresentationColors = runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors },
         };
         if (powerBomb)
         {
@@ -79,15 +79,15 @@ internal static class ChozoGrabAnimationVerification
             {
                 if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
-                AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
-                AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
-                AssertEqual(expectedExplosion.ExplosionRadius, actual.ExplosionRadius, $"carried Power Bomb radius at frame {frames}");
-                AssertEqual(expectedExplosion.RenderedPhase, actual.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
-                AssertEqual(expectedExplosion.RenderedPreExplosionRadius, actual.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
-                AssertEqual(expectedExplosion.RenderedExplosionRadius, actual.RenderedExplosionRadius, "carried blast rendered radius");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Red, actual.GlowColor.FadeLevels.Red, "carried blast red");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Green, actual.GlowColor.FadeLevels.Green, "carried blast green");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Blue, actual.GlowColor.FadeLevels.Blue, "carried blast blue");
+                AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.ExplosionRadius, actual.Blast.ExplosionRadius, $"carried Power Bomb radius at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.RenderedPhase, actual.Blast.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.RenderedPreExplosionRadius, actual.Blast.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
+                AssertEqual(expectedExplosion.Blast.RenderedExplosionRadius, actual.Blast.RenderedExplosionRadius, "carried blast rendered radius");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Red, actual.Blast.GlowColor.FadeLevels.Red, "carried blast red");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Green, actual.Blast.GlowColor.FadeLevels.Green, "carried blast green");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Blue, actual.Blast.GlowColor.FadeLevels.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
             if (samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked)
@@ -116,15 +116,15 @@ internal static class ChozoGrabAnimationVerification
             {
                 if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
-                AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
-                AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
-                AssertEqual(expectedExplosion.ExplosionRadius, actual.ExplosionRadius, $"carried Power Bomb radius at frame {frames}");
-                AssertEqual(expectedExplosion.RenderedPhase, actual.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
-                AssertEqual(expectedExplosion.RenderedPreExplosionRadius, actual.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
-                AssertEqual(expectedExplosion.RenderedExplosionRadius, actual.RenderedExplosionRadius, "carried blast rendered radius");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Red, actual.GlowColor.FadeLevels.Red, "carried blast red");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Green, actual.GlowColor.FadeLevels.Green, "carried blast green");
-                AssertEqual(expectedExplosion.GlowColor.FadeLevels.Blue, actual.GlowColor.FadeLevels.Blue, "carried blast blue");
+                AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.ExplosionRadius, actual.Blast.ExplosionRadius, $"carried Power Bomb radius at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.RenderedPhase, actual.Blast.RenderedPhase, $"carried Power Bomb rendered phase at frame {frames}");
+                AssertEqual(expectedExplosion.Blast.RenderedPreExplosionRadius, actual.Blast.RenderedPreExplosionRadius, "carried blast rendered pre-radius");
+                AssertEqual(expectedExplosion.Blast.RenderedExplosionRadius, actual.Blast.RenderedExplosionRadius, "carried blast rendered radius");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Red, actual.Blast.GlowColor.FadeLevels.Red, "carried blast red");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Green, actual.Blast.GlowColor.FadeLevels.Green, "carried blast green");
+                AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Blue, actual.Blast.GlowColor.FadeLevels.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
             animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 3;

@@ -38,7 +38,7 @@ internal static class IntroNextPageArrowVerification
     private const int UpdatesBeforeSecondSubtitle = 2 * LoopFrameUpdates + 3;
 
     /// <summary>Where the arrow shows: the screen's middle, below the page's text ($8B:AE07).</summary>
-    private static readonly Position16<ScreenPixels> ArrowPosition = new(128, 216);
+    private static readonly Offset16<ScreenPixels> ArrowPosition = new(128, 216);
 
     /// <summary>Runs pages one and two with Japanese and English text and checks the arrow at their input waits.</summary>
     internal static void VerifyIntroNextPageArrow(ISnesAddressSpace rom)
@@ -111,8 +111,8 @@ internal static class IntroNextPageArrowVerification
     private static NarrationPair Pair(IntroNarrationPresentation narration)
     {
         var subtitles = new IntroJapaneseSubtitles(enabled: true);
-        return new(new IntroCinematicObjectSystem(new IntroNarrationText(), subtitles, narrationPresentation: narration),
-            new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration),
+        return new(new IntroCinematicObjectSystem(new IntroNarrationText(), subtitles, AudioQueues.Standalone(), narrationPresentation: narration),
+            new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration),
             subtitles);
     }
 
@@ -132,7 +132,7 @@ internal static class IntroNextPageArrowVerification
     {
         IntroDiscoverySprite arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"Japanese {page} spawned no next-page arrow as its text ended.");
-        AssertEqual(ArrowPosition, arrow.WholePosition, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
+        AssertEqual(ArrowPosition, arrow.ScreenPlace, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
         AssertTrue(arrow.Pose is null, $"Japanese {page}'s next-page arrow first updates on the update after its spawn");
     }
 

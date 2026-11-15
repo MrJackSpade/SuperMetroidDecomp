@@ -9,20 +9,21 @@ internal static class SamusPowerBombExplosionStateAccess
     extension(SamusPowerBombExplosionState explosion)
     {
         /// <summary>
-        /// Sets <see cref="SamusPowerBombExplosionState.IsActive"/>; clearing it also returns the phase to
+        /// Sets <see cref="SamusPowerBombExplosionState.IsActive"/> through its blast's
+        /// <see cref="PowerBombBlastTimeline.IsRunning"/>; clearing it also returns the phase to
         /// <see cref="PowerBombExplosionPhase.Inactive"/>, as a finished explosion leaves it.
         /// </summary>
         internal void ForceActive(bool active)
         {
-            SetPrivate(explosion, nameof(SamusPowerBombExplosionState.IsActive), active);
-            if (!active && explosion.Phase != PowerBombExplosionPhase.Inactive)
-                SetPrivate(explosion, nameof(SamusPowerBombExplosionState.Phase), PowerBombExplosionPhase.Inactive);
+            SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.IsRunning), active);
+            if (!active && explosion.Blast.Phase != PowerBombExplosionPhase.Inactive)
+                SetPrivate(explosion.Blast, nameof(PowerBombBlastTimeline.Phase), PowerBombExplosionPhase.Inactive);
         }
     }
 
     /// <summary>Writes a property through its private setter.</summary>
-    private static void SetPrivate(SamusPowerBombExplosionState explosion, string property, object value) =>
-        (typeof(SamusPowerBombExplosionState).GetProperty(property, BindingFlags.Instance | BindingFlags.Public)?.SetMethod
-            ?? throw new MissingMemberException(nameof(SamusPowerBombExplosionState), property))
-        .Invoke(explosion, [value]);
+    private static void SetPrivate(PowerBombBlastTimeline blast, string property, object value) =>
+        (typeof(PowerBombBlastTimeline).GetProperty(property, BindingFlags.Instance | BindingFlags.Public)?.SetMethod
+            ?? throw new MissingMemberException(nameof(PowerBombBlastTimeline), property))
+        .Invoke(blast, [value]);
 }

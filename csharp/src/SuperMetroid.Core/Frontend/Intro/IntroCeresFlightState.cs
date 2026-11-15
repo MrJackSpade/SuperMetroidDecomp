@@ -298,7 +298,7 @@ internal sealed class IntroCeresFlightState
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
-            Position16<ScreenPixels>.Zero + start,
+            start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
         {
@@ -393,26 +393,17 @@ internal sealed class IntroCeresFlightState
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
             if (definition.WrapX)
-                AddWrappedX(actor, definition.HorizontalDelta);
+                actor.TravelLoop(definition.HorizontalDelta);
             else
                 AddSignedX(actor, definition.HorizontalDelta);
             actor.Step();
         }
     }
 
-    /// <summary>Adds a fractional X delta and wraps the actor within the 512-pixel span.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, SignedSixteenSixteen horizontalDelta)
-    {
-        // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
-        // whose fraction is the rest of a pixel, carries the actor right instead.
-        FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole(x.Whole % CeresDestructionSceneDefinitions.WorldWidth));
-    }
-
-    /// <summary>Applies signed horizontal motion without the front-star wrap.</summary>
+    /// <summary>Applies signed horizontal motion to an actor that travels no loop.</summary>
     private static void AddSignedX(IntroDiscoverySprite actor, SignedSixteenSixteen delta)
     {
-        actor.Position = actor.Position.WithX(actor.Position.X.MovedBy(delta));
+        actor.Position = actor.Position.WithX(actor.Position.X + delta);
     }
 
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>

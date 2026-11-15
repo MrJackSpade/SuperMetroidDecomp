@@ -37,7 +37,7 @@ internal static class PowerBombRadiusVerification
     /// </summary>
     internal static void VerifyPowerBombExplosionFollowsTheOriginal()
     {
-        var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombGlowColors };
+        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = RetailPresentationFixture().PowerBombGlowColors } };
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         var original = new OriginalExplosion();
@@ -59,10 +59,10 @@ internal static class PowerBombRadiusVerification
         do
         {
             AssertTrue(!explosion.StepFrame(), "Crystal Flash's bubble does not clean up while it grows");
-            original.StepCrystalFlash(explosion.Phase);
+            original.StepCrystalFlash(explosion.Blast.Phase);
             Compare(explosion, original, $"Crystal Flash update {++updates}");
         }
-        while (explosion.Phase == PowerBombExplosionPhase.CrystalFlashExplosion);
+        while (explosion.Blast.Phase == PowerBombExplosionPhase.CrystalFlashExplosion);
         Console.WriteLine("  Power Bomb radius: every update of a Power Bomb and a Crystal Flash grows as the original's words do.");
     }
 
@@ -101,10 +101,10 @@ internal static class PowerBombRadiusVerification
     /// <summary>Compares the production explosion's phase, radii and speed with the original's words.</summary>
     private static void Compare(SamusPowerBombExplosionState explosion, OriginalExplosion original, string context)
     {
-        AssertEqual(original.Phase, explosion.Phase, $"{context}: phase");
-        AssertEqual(Length(original.FlashRadius), explosion.PreExplosionRadius, $"{context}: flash radius");
-        AssertEqual(Length(original.BlastRadius), explosion.ExplosionRadius, $"{context}: blast radius");
-        AssertEqual(Length(original.Speed), explosion.RadiusSpeed, $"{context}: radius speed");
+        AssertEqual(original.Phase, explosion.Blast.Phase, $"{context}: phase");
+        AssertEqual(Length(original.FlashRadius), explosion.Blast.PreExplosionRadius, $"{context}: flash radius");
+        AssertEqual(Length(original.BlastRadius), explosion.Blast.ExplosionRadius, $"{context}: blast radius");
+        AssertEqual(Length(original.Speed), explosion.Blast.RadiusSpeed, $"{context}: radius speed");
     }
 
     /// <summary>The length a radius or speed word stands for: its high byte whole pixels and its low byte 256ths.</summary>

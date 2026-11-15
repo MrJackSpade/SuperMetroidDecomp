@@ -180,7 +180,7 @@ internal static class ContactCrumbleProgramsVerification
             {
                 native.RoomObjects.Step(native.Level);
                 compiled.RoomObjects.Step(compiled.Level);
-                AssertEqual(native.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
+                AssertEqual(native.RoomObjects.Places.ActiveCount, compiled.RoomObjects.Places.ActiveCount,
                     $"contact-crumble BTS {bts} active count, frame {frame}");
                 AssertEqual(native.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"contact-crumble BTS {bts} sound count, frame {frame}");
@@ -197,7 +197,7 @@ internal static class ContactCrumbleProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"contact-crumble BTS {bts} never rereads compiled control bytes");
-            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.Places.ActiveCount,
                 $"contact-crumble BTS {bts} completes its native timeline");
         }
 

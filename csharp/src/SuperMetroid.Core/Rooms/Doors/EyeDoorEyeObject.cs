@@ -47,7 +47,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     };
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!React(place, context))
@@ -55,7 +55,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <inheritdoc/>
-    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || place.ProjectileHit is not { Family: var family })
             return false;
@@ -74,7 +74,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <inheritdoc/>
-    private protected override int Show(EyeDoorStep step, RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override int Show(EyeDoorStep step, RoomObjectPlace place, RoomObjectStepContext context)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
         switch (step.Before)
@@ -98,7 +98,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         switch (Phase)
         {
@@ -143,7 +143,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     /// The eye's first look at its door: one opened for good moves up onto its blue cap and turns into it; otherwise the
     /// eye stays closed.
     /// </summary>
-    private void Look(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
@@ -156,7 +156,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <summary>Samus came near: the eye takes missiles from now on and opens.</summary>
-    private void Open(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Open(RoomObjectPlace place, RoomObjectStepContext context)
     {
         TakesShots = true;
         Phase = EyeDoorEyePhase.Opening;
@@ -164,7 +164,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <summary>The open eye blinks while Samus stands right in front of it, and otherwise watches and shoots.</summary>
-    private void Watch(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Watch(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.InFrontReach))
         {
@@ -180,7 +180,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     /// A missile hit: it sounds and smokes, then counts; short of the threshold the eye flinches, and at it the eye is
     /// destroyed.
     /// </summary>
-    private void Hit(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Hit(RoomObjectPlace place, RoomObjectStepContext context)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
         context.QueueSound(EyeDoorSequenceDefinitions.HitSound, EyeDoorSequenceDefinitions.HitSoundPriority);
@@ -206,6 +206,6 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     }
 
     /// <summary>Whether Samus stands within <paramref name="reach"/> of the eye.</summary>
-    private static bool IsSamusNear(RoomObjectSlot place, RoomObjectStepContext context, Extent16<RoomBlocks> reach) =>
+    private static bool IsSamusNear(RoomObjectPlace place, RoomObjectStepContext context, Extent16<RoomBlocks> reach) =>
         context.RoomObjects.EyeDoors.IsSamusNear(place, reach);
 }

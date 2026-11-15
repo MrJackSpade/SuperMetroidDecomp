@@ -54,7 +54,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!React(place, context))
@@ -62,7 +62,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;
         switch (Waits)
@@ -95,7 +95,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         switch (Phase)
         {
@@ -130,7 +130,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// Looks at the cap's door: one opened for good turns into its blue cap; otherwise the cap locks and shows its closed
     /// image.
     /// </summary>
-    private void Look(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
@@ -144,7 +144,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <summary>Counts the opening shot, which records the door opened for good, and opens the cap.</summary>
-    private void Open(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Open(RoomObjectPlace place, RoomObjectStepContext context)
     {
         HitCounter++;
         if (HitCounter >= GreyDoorDefinitions.HitThreshold)

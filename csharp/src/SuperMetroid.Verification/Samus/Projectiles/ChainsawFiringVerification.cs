@@ -104,7 +104,7 @@ internal static class ChainsawFiringVerification
         var doorObjects = RoomObjectFixtures.Unbound();
         var doorProjectiles = CreateProjectileFixture();
         doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, RoomObjects = doorObjects }, doorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture());
-        AssertEqual(1, doorObjects.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
+        AssertEqual(1, doorObjects.Places.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
@@ -228,7 +228,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
-        AssertEqual(1, breakingObjects.SlotTable.ActiveCount,
+        AssertEqual(1, breakingObjects.Places.ActiveCount,
             "Power Bomb terrain reaction remains owned after Chainsaw callback");
         breakingObjects.Step(breakingLevel);
         AssertEqual(RoomCollisionType.Air,

@@ -134,9 +134,9 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             }
             AssertEqual(ColoredDoorPhase.Opening, roomObjects.ColoredDoors.Single().Phase,
                 $"resident colored door {header} reaches opening threshold");
-            for (int frame = 0; frame < 128 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 128 && roomObjects.Places.ActiveCount != 0; frame++)
                 roomObjects.Step(level);
-            AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, roomObjects.Places.ActiveCount,
                 $"resident colored door {header} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
                 $"resident colored door {header} persists the opened state");
@@ -150,10 +150,10 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
             // deletes on the next pass.
             reopened.Step(reopenedLevel);
-            AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
+            AssertTrue(reopened.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
                 $"opened colored door {header} converts to a blue cap");
             reopened.Step(reopenedLevel);
-            AssertEqual(0, reopened.SlotTable.ActiveCount,
+            AssertEqual(0, reopened.Places.ActiveCount,
                 $"opened colored door {header} deletes after its blue frame");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door {header} converts without program/draw ROM reads");

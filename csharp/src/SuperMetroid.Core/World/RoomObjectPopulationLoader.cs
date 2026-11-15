@@ -12,28 +12,28 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>Loads a room-object population: installs the room bindings, allocates slots and runs each family setup in record order.</summary>
+/// <summary>Loads a room-object population: installs the room bindings, gives each placement a place and runs each family setup in placement order.</summary>
 [RoomLifetime]
 internal sealed class RoomObjectPopulationLoader
 {
     /// <summary>Handles the Bomb Torizo hand's boss-state setup.</summary>
     private readonly BombTorizoHandObjects _bombTorizoHand;
-    /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
+    /// <summary>Sets up permanent items and their dynamic graphics.</summary>
     private readonly CollectibleObjects _collectibleObjects;
-    /// <summary>Sets up eye-door objects after allocating their room-object slots.</summary>
+    /// <summary>Sets up eye-door objects once they have taken their room-object places.</summary>
     private readonly EyeDoorObjects _eyeDoors;
     /// <summary>Sets up downward gates and their collision changes.</summary>
     private readonly GateObjects _gates;
     /// <summary>Initializes the Mother Brain glass room object.</summary>
     private readonly MotherBrainGlassObjects _motherBrainGlass;
-    /// <summary>Descending slot array shared by population and runtime spawns.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>The room's places, which population and runtime spawns take in update order.</summary>
+    private readonly RoomObjectPlaceList _places;
     /// <summary>Sets up Maridia's glass tube.</summary>
     private readonly NoobTubeObjects _noobTube;
     /// <summary>Initializes the Speed Booster escape object when its definition appears.</summary>
     private readonly SpeedBoosterEscapeObjects _speedBoosterEscape;
 
-    /// <summary>Connects setup-family services and the shared slot table for one room-object system.</summary>
+    /// <summary>Connects setup-family services and the room's places for one room-object system.</summary>
     internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies)
     {
         _bombTorizoHand = dependencies.BombTorizoHand;
@@ -41,15 +41,15 @@ internal sealed class RoomObjectPopulationLoader
         _eyeDoors = dependencies.EyeDoors;
         _gates = dependencies.Gates;
         _motherBrainGlass = dependencies.MotherBrainGlass;
-        _slotTable = dependencies.SlotTable;
+        _places = dependencies.Places;
         _speedBoosterEscape = dependencies.SpeedBoosterEscape;
         _noobTube = dependencies.NoobTube;
     }
     /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
     /// order. Each record is allocated before its setup runs, as the game's room-object spawn
-    /// does. A setup may immediately delete its slot;
-    /// the next record can consequently reuse that same highest slot. Retail
+    /// does. A setup may immediately delete its place;
+    /// the next record can consequently reuse that same highest place. Retail
     /// loads require decoded records; no population or definition is read from game data.
     /// </summary>
     public int LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
@@ -91,16 +91,16 @@ internal sealed class RoomObjectPopulationLoader
                     error);
             }
 
-            RoomObjectSlot? slot = AllocateRoomPopulationSlot(placed, block);
-            if (slot is null)
-                continue; // No room object spawns while all forty slots are live.
+            RoomObjectPlace? place = AllocateRoomPopulationPlace(placed, block);
+            if (place is null)
+                continue; // No room object spawns while all forty places are held.
 
-            if (!TryRunRoomPopulationSetup(room, services.Bosses, placed, slot, placement))
+            if (!TryRunRoomPopulationSetup(room, services.Bosses, placed, place, placement))
             {
                 // Do not leave the preallocated but unsupported actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
-                slot.Delete();
+                place.Delete();
                 throw new NotSupportedException(
                     $"Room-object population {population.Name} placement {placementIndex} " +
                     $"uses unsupported room-object kind " +
@@ -115,16 +115,16 @@ internal sealed class RoomObjectPopulationLoader
     }
 
     /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's identity before setup runs.</summary>
-    private RoomObjectSlot? AllocateRoomPopulationSlot(
+    private RoomObjectPlace? AllocateRoomPopulationPlace(
         PlacedRoomObject placed,
         Position16<RoomBlocks> block)
     {
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return null;
 
-        slot.Block = block;
-        slot.Argument = placed.Argument;
-        return slot;
+        place.Block = block;
+        place.Argument = placed.Argument;
+        return place;
     }
 
     /// <summary>Hands room-population definitions to their family setup; returns false for an unsupported definition so loading can fail with record context.</summary>
@@ -132,7 +132,7 @@ internal sealed class RoomObjectPopulationLoader
         RoomObjectRoom room,
         IAreaBossFlagReader bosses,
         PlacedRoomObject placed,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         RoomObjectPlacement placement)
     {
         RoomLevelData level = room.Level;
@@ -144,13 +144,13 @@ internal sealed class RoomObjectPopulationLoader
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
-            DoorObjects.SetupColoredDoorSlot(level, slot, color, coloredOrientation);
+            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation);
             return true;
         }
 
         if (GreyDoorObjects.TryIdentifyGreyDoor(objectKind, out ColoredDoorOrientation greyOrientation))
         {
-            GreyDoorObjects.SetupGreyDoorSlot(level, slot,
+            GreyDoorObjects.SetupGreyDoor(level, place,
                 new GreyDoorVariant(greyOrientation, BombTorizo: objectKind == RoomObjectKind.BombTorizoGreyDoor));
             return true;
         }
@@ -161,7 +161,7 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectKind.DownwardsScrollExtension or
             RoomObjectKind.UpwardsScrollExtension)
         {
-            ScrollObjects.SetupScrollSlot(level, slot, objectKind, placement.ScrollChange, placement.CompiledScrollChange);
+            ScrollObjects.SetupScroll(level, place, objectKind, placement.ScrollChange, placement.CompiledScrollChange);
             return true;
         }
 
@@ -170,31 +170,31 @@ internal sealed class RoomObjectPopulationLoader
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            _collectibleObjects.SetupCollectibleSlot(room, slot, kind, presentation);
+            _collectibleObjects.SetupCollectible(room, place, kind, presentation);
             return true;
         }
 
         if (objectKind == RoomObjectKind.MotherBrainGlass)
         {
-            _motherBrainGlass.SetupMotherBrainGlassSlot(level, placed, slot);
+            _motherBrainGlass.SetupMotherBrainGlassSlot(level, placed, place);
             return true;
         }
 
         if (objectKind == RoomObjectKind.BombTorizoHand)
         {
-            _bombTorizoHand.SetupBombTorizoHandSlot(slot, bosses);
+            _bombTorizoHand.SetupBombTorizoHandSlot(place, bosses);
             return true;
         }
 
         if (objectKind == RoomObjectKind.MetroidRoomClearance)
         {
-            TourianObjects.SetupMetroidsClearedSlot(slot);
+            TourianObjects.SetupMetroidsClearedSlot(place);
             return true;
         }
 
         if (objectKind == RoomObjectKind.SpeedBoosterEscape)
         {
-            _speedBoosterEscape.SetupSpeedBoosterEscapeSlot(slot);
+            _speedBoosterEscape.SetupSpeedBoosterEscape(place);
             return true;
         }
 
@@ -202,49 +202,49 @@ internal sealed class RoomObjectPopulationLoader
         {
             // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
             // place instead of being mistaken for an unknown definition.
-            slot.Become(new WreckedShipAtticObject());
+            place.Become(new WreckedShipAtticObject());
             return true;
         }
 
         if (objectKind == RoomObjectKind.NoobTube)
         {
-            _noobTube.SetupNoobTubeSlot(level, slot);
+            _noobTube.SetupNoobTubeSlot(level, place);
             return true;
         }
 
         if (objectKind == RoomObjectKind.MotherBrainEscapeRoomGate)
         {
-            DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
-            slot.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
+            DoorObjects.SetupDoorTransitionDeactivatedSlot(level, place);
+            place.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
             return true;
         }
 
         if (objectKind == RoomObjectKind.DownwardGate)
         {
-            _gates.SetupDownwardGateSlot(level, slot);
+            _gates.SetupDownwardGate(level, place);
             return true;
         }
 
         if (objectKind == RoomObjectKind.DownwardGateShotBlock)
         {
-            GateObjects.SetupDownwardGateShotBlock(level, slot);
+            GateObjects.SetupDownwardGateShotBlock(level, place);
             return true;
         }
 
         if (EyeDoorObjects.IsEyeDoorKind(objectKind))
         {
-            _eyeDoors.SetupEyeDoorSlot(level, slot, objectKind);
+            _eyeDoors.SetupEyeDoor(level, place, objectKind);
             return true;
         }
 
         if (DraygonCannonObjects.SetupOf(objectKind) is { } cannonSetup)
         {
-            DraygonCannonObjects.SetupDraygonCannonSlot(level, slot, cannonSetup, placement.Cannon
+            DraygonCannonObjects.SetupDraygonCannonSlot(level, place, cannonSetup, placement.Cannon
                 ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} names no Draygon wall cannon."));
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, area, slot, objectKind))
+        if (StationObjects.TrySetupStationOrElevator(level, system, area, place, objectKind))
             return true;
 
         return false;

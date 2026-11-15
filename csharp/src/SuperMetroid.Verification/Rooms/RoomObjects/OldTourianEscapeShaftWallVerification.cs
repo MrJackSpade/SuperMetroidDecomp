@@ -32,7 +32,7 @@ internal static class OldTourianEscapeShaftWallVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Climb);
-        AssertTrue(runtime.RoomObjects.PopulationSlots.Any(slot => slot.Behaviour is OldTourianWallObject),
+        AssertTrue(runtime.RoomObjects.PopulationPlaces.Any(place => place.Behaviour is OldTourianWallObject),
             "the escape state's setup spawns the fake-wall PLM");
 
         int Explosions() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>

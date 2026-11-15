@@ -78,17 +78,17 @@ internal sealed class GreyDoorObjects
     /// Sets up the grey cap <paramref name="variant"/> the room's population placed: takes its unlock condition from the
     /// room argument, installs its shootable collision and places the cap, which takes its first look on its first update.
     /// </summary>
-    internal static void SetupGreyDoorSlot(
+    internal static void SetupGreyDoor(
         RoomLevelData level,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         GreyDoorVariant variant)
     {
-        Ensure.NotNull(slot);
-        GreyDoorArgument argument = slot.Argument as GreyDoorArgument ?? throw new InvalidDataException(
-            $"Grey door {variant} at block {slot.Block} was placed without its condition and door bit.");
-        slot.Argument = argument.Door;
-        ApplyGreyDoorSetup(level, slot.Block);
-        slot.Become(new GreyDoorObject(variant, argument.Condition));
+        Ensure.NotNull(place);
+        GreyDoorArgument argument = place.Argument as GreyDoorArgument ?? throw new InvalidDataException(
+            $"Grey door {variant} at block {place.Block} was placed without its condition and door bit.");
+        place.Argument = argument.Door;
+        ApplyGreyDoorSetup(level, place.Block);
+        place.Become(new GreyDoorObject(variant, argument.Condition));
     }
 
     /// <summary>

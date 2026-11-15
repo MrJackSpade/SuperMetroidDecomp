@@ -89,7 +89,7 @@ public sealed class TourianStatueSequence
         /// <summary>Ends the animation, deleting the object.</summary>
         internal void Stop() => Playback = null;
     }
-    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches slot traversal and busy-bit ownership.</summary>
+    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches the room-object update order and busy-bit ownership.</summary>
     internal readonly List<StatueBlockAnimation> objects = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
@@ -153,8 +153,8 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Spawns the four statue objects in order. Allocation
-    /// and the room objects' steps both descend through slots, so insertion order also
+    /// Spawns the four statue objects in order. Spawns take places
+    /// and the room objects' steps run in the same update order, so spawn order also
     /// preserves execution order and which statue can acquire the shared busy bit.
     /// </summary>
     internal void SpawnAnimatedObjects()

@@ -17,14 +17,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
-    internal ChozoStatueObjects(SharedGameState? system, AreaId area, RoomObjectSlotTable slotTable)
+    internal ChozoStatueObjects(SharedGameState? system, AreaId area, RoomObjectPlaceList places)
     {
         _system = system;
         _area = area;
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>The room's enemy room-object requests for hand activation, bound when the room loads.</summary>
     private IEnemyObjectRequests? _chozoHands;
@@ -60,7 +60,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
                 .HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
             : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
-        if (_slotTable.Spawn() is not { } check)
+        if (_places.Spawn() is not { } check)
             return;
 
         if (eligible)
@@ -93,11 +93,11 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             _ => throw new ArgumentOutOfRangeException(nameof(request), request.RoomObject, "Not a Chozo statue's room object."),
         };
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(roomObject);
+        place.Block = block;
+        place.Become(roomObject);
         switch (request.RoomObject)
         {
             case ChozoStatueRoomObject.WreckedShipHand:

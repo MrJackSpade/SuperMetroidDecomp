@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 internal sealed class WreckedShipTreadmillObjects
 {
     /// <summary>The room's room objects, which the treadmill and the elevatube join.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
     /// <summary>What the treadmill's row shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
     /// <summary>Attaches treadmill and elevatube spawning to the room's room-object pool and installed pictures.</summary>
-    internal WreckedShipTreadmillObjects(RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
+    internal WreckedShipTreadmillObjects(RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
-        _slotTable = slotTable;
+        _places = places;
         _drawing = Ensure.NotNull(drawing);
     }
     /// <summary>
@@ -39,11 +39,11 @@ internal sealed class WreckedShipTreadmillObjects
             new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = origin;
-        slot.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
+        place.Block = origin;
+        place.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
 
         // The setup writes the idle row's installed picture as air and deliberately leaves the blocks' behaviour alone.
         var idle = new RoomTerrainBlock(_drawing.SetupBlock(RoomObjectSetupBlock.TreadmillIdle), WreckedShipTreadmillBlockDefinitions.IdleCollision);
@@ -62,11 +62,11 @@ internal sealed class WreckedShipTreadmillObjects
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(MaridiaElevatubeDefinitions.RoomObjectBlock);
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new MaridiaElevatubeObject());
+        place.Block = block;
+        place.Become(new MaridiaElevatubeObject());
         return true;
     }
 

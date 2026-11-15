@@ -88,13 +88,13 @@ internal static class ChozoStatueObjectDefinitionsVerification
             AssertTrue(
                 roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level, new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, statueObject)),
                 $"Chozo statue's {statueObject} spawns");
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(0, slot.ProcessingPosition, "the statue's room object takes the first free place in the update order");
-            AssertEqual(block, slot.Block, "the statue's room object sits at its requested block");
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertEqual(0, place.UpdatePosition, "the statue's room object takes the first free place in the update order");
+            AssertEqual(block, place.Block, "the statue's room object sits at its requested block");
             AssertTrue(statueObject == ChozoStatueRoomObject.LowerNorfairHand
-                    ? slot.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
-                    : slot.Behaviour is TerrainChangeObject { Change: var started } && started == changes[statueObject]
-                        && (slot.Behaviour is ChozoSlopeAccessObject) == (statueObject is ChozoStatueRoomObject.SlopeAccessOpening or ChozoStatueRoomObject.SlopeAccessClosing),
+                    ? place.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
+                    : place.Behaviour is TerrainChangeObject { Change: var started } && started == changes[statueObject]
+                        && (place.Behaviour is ChozoSlopeAccessObject) == (statueObject is ChozoStatueRoomObject.SlopeAccessOpening or ChozoStatueRoomObject.SlopeAccessClosing),
                 $"Chozo statue's {statueObject} starts as its typed object");
 
             RoomCollisionBlock left = level.GetCollisionBlock(block);
@@ -176,8 +176,8 @@ internal static class ChozoStatueObjectDefinitionsVerification
                 SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
             "a Power Bomb breaks the trigger block");
         AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(trigger), "the trigger block is not broken open as its breakup starts");
-        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.Block == trigger).ProcessingPosition
-            < roomObjects.PopulationSlots.Single(slot => slot.Behaviour is LowerNorfairChozoHandObject).ProcessingPosition;
+        bool breakupRunsFirst = roomObjects.PopulationPlaces.Single(place => place.Block == trigger).UpdatePosition
+            < roomObjects.PopulationPlaces.Single(place => place.Behaviour is LowerNorfairChozoHandObject).UpdatePosition;
         BlockReactionChange breakup = BlockReactionChangeDefinitions.PermanentPowerBombBlock;
         int lastStageUpdate = breakup.FirstFrameDelay + breakup.Frames.SkipLast(1).Sum(frame => frame.Updates);
         int firingUpdate = breakupRunsFirst ? lastStageUpdate : lastStageUpdate + 1;
@@ -206,7 +206,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
 
     /// <summary>The live Lower Norfair hand, or null once it has left the room.</summary>
     private static LowerNorfairChozoHandObject? LowerNorfairHand(RoomObjectSystem roomObjects) =>
-        roomObjects.PopulationSlots.Select(slot => slot.Behaviour).OfType<LowerNorfairChozoHandObject>().SingleOrDefault();
+        roomObjects.PopulationPlaces.Select(place => place.Behaviour).OfType<LowerNorfairChozoHandObject>().SingleOrDefault();
 
     /// <summary>The comparison's name for the clear-slope access's ending.</summary>
     private const string SpikesBecomeSlopes = "spikes become slopes";

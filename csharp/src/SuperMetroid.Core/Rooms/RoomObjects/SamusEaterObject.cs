@@ -38,7 +38,7 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
     private int _updatesBeforeNextStep = 1;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (Holding)
@@ -81,7 +81,7 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
     }
 
     /// <summary>Bites as chew image <paramref name="frame"/> asks, then shows it.</summary>
-    private void ShowChew(RoomObjectSlot place, RoomObjectStepContext context, int frame)
+    private void ShowChew(RoomObjectPlace place, RoomObjectStepContext context, int frame)
     {
         _frame = frame;
         SamusEaterChewFrame chew = Plant.Chew[frame];
@@ -103,7 +103,7 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
     }
 
     /// <summary>Draws <paramref name="image"/> and holds it for <paramref name="updates"/> in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectSlot place, RoomObjectStepContext context, SamusEaterDraw image, int updates, SamusEaterPhase phase)
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, SamusEaterDraw image, int updates, SamusEaterPhase phase)
     {
         context.Draw(place, RoomObjectDraw.Of(image));
         _updatesBeforeNextStep = updates;

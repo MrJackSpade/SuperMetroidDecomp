@@ -33,10 +33,10 @@ internal static class SamusEaterObjectDefinitionsVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
             roomObjects.SamusEater.TrySpawnSamusEater(level, block, definition, samus.RoomView);
 
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(0, slot.ProcessingPosition, "Samus Eater takes the first free slot in processing order");
-            AssertEqual(new Position16<RoomBlocks>(1, 1), slot.Block, "Samus Eater trigger block");
-            AssertTrue(slot.Behaviour is SamusEaterObject { Phase: SamusEaterPhase.Biting, Holding: false } eater && eater.Plant == definition,
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertEqual(0, place.UpdatePosition, "Samus Eater takes the first free slot in processing order");
+            AssertEqual(new Position16<RoomBlocks>(1, 1), place.Block, "Samus Eater trigger block");
+            AssertTrue(place.Behaviour is SamusEaterObject { Phase: SamusEaterPhase.Biting, Holding: false } eater && eater.Plant == definition,
                 "Samus Eater starts its typed bite");
             AssertEqual(
                 RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),

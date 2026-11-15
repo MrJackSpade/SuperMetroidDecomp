@@ -973,8 +973,8 @@ internal sealed class RoomLoader
             // The door transition performs this handoff after destination room objects, door/room setup,
             // and FX construction but before enemy initialization. The C# room constructor
             // groups those owners differently, yet this point preserves the observable
-            // room-object-pool order: every room-authored actor exists before the closer requests
-            // the next highest free slot, and no enemy-authored room object has run yet.
+            // room-object update order: every room-authored actor exists before the closer takes
+            // the next free place, and no enemy-authored room object has run yet.
             roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
         }
 

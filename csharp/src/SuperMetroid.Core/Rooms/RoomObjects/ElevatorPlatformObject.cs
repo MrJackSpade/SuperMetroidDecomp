@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class ElevatorPlatformObject : SequencedRoomObject<TerrainChangeFrame>
 {
     /// <inheritdoc/>
-    private protected override int Show(TerrainChangeFrame step, RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override int Show(TerrainChangeFrame step, RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (step.MoveBefore != Offset16<RoomBlocks>.Zero || step.SoundBefore is not null)
             throw new InvalidOperationException("An elevator platform's loop only draws its layouts.");
@@ -16,6 +16,6 @@ internal sealed class ElevatorPlatformObject : SequencedRoomObject<TerrainChange
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context) =>
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context) =>
         Play(ElevatorPlatformObjectDefinitions.Cycle, place, context);
 }

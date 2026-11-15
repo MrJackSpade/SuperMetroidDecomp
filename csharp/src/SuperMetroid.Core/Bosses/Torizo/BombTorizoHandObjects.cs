@@ -18,7 +18,7 @@ internal sealed class BombTorizoHandObjects
     private BombTorizoHandObject? _hand;
 
     /// <summary>The place the hand holds in the room's update order, which it frees as it leaves.</summary>
-    private RoomObjectSlot? _handPlace;
+    private RoomObjectPlace? _handPlace;
 
     /// <summary>Connects the statue hand to Samus and to the room objects' audio requests.</summary>
     internal BombTorizoHandObjects(IRoomSamusAccess? samus, RoomObjectSoundQueue sounds)
@@ -42,24 +42,24 @@ internal sealed class BombTorizoHandObjects
     /// </summary>
     public bool HandRemains => _handPlace is { Active: true } place && ReferenceEquals(place.Behaviour, _hand);
 
-    /// <summary>Sets up the hand the room's population placed at <paramref name="slot"/>; a defeated Torizo's room has none.</summary>
+    /// <summary>Sets up the hand the room's population placed at <paramref name="place"/>; a defeated Torizo's room has none.</summary>
     internal void SetupBombTorizoHandSlot(
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         IAreaBossFlagReader bosses)
     {
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         Ensure.NotNull(bosses);
         if (bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             // The setup removes the hand at once, so the next population entry may take its place.
-            slot.Delete();
+            place.Delete();
             return;
         }
 
         var hand = new BombTorizoHandObject(this);
-        slot.Become(hand);
+        place.Become(hand);
         _hand = hand;
-        _handPlace = slot;
+        _handPlace = place;
     }
 
     /// <summary>Discards the previous room-object pass's fragment requests before the next pass.</summary>
@@ -73,11 +73,11 @@ internal sealed class BombTorizoHandObjects
         (_samus?.Current ?? throw new InvalidOperationException(
             "A live Bomb Torizo hand has no active Samus inventory owner.")).CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
-    internal void SpawnFragment(RoomObjectSlot slot, int fragment) =>
+    internal void SpawnFragment(RoomObjectPlace place, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
             // The fragment spawn carries both block coordinates, each below 256.
-            slot.Block));
+            place.Block));
 
     /// <summary>
     /// Queues the Torizo's awakening with the shared eight-frame delay, now.

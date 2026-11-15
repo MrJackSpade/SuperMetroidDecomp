@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 internal sealed class ProjectileTriggerObjects
 {
-    /// <summary>The room-object slots searched from highest index to lowest on a projectile hit.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>The room-object places, searched from the last in update order back to the first on a projectile hit.</summary>
+    private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds the active room's room-object population for generic projectile collision reactions.</summary>
-    internal ProjectileTriggerObjects(RoomObjectSlotTable slotTable)
+    internal ProjectileTriggerObjects(RoomObjectPlaceList places)
     {
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>
     /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="block"/>: the
-    /// highest-numbered active slot at that block receives the hit's family, whatever room object it holds. The grapple
+    /// highest-numbered active place at that block receives the hit's family, whatever room object it holds. The grapple
     /// beam's touch (<see cref="SamusProjectileType.None"/>) arrives as a beam.
     /// </summary>
     public bool TryNotifyResidentProjectileHit(
@@ -28,17 +28,17 @@ internal sealed class ProjectileTriggerObjects
     {
         // The search runs in processing order and accepts the first matching block regardless of its definition. Preserve
         // that generality: reaction room objects and future modelled actors must not be omitted from a family step.
-        foreach (RoomObjectSlot slot in _slotTable.InProcessingOrder)
+        foreach (RoomObjectPlace place in _places.InUpdateOrder)
         {
-            if (!slot.Active || slot.Block != block)
+            if (!place.Active || place.Block != block)
                 continue;
 
             // An object a shot strikes directly keeps the strike itself; every other place records the hit on its block,
             // which the doors take on their next update.
-            if (slot.Behaviour is IShootableRoomObject shootable)
+            if (place.Behaviour is IShootableRoomObject shootable)
                 shootable.Strike(new ResidentObjectProjectileHit(projectileType.Family));
             else
-                slot.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
+                place.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
             return true;
         }
 

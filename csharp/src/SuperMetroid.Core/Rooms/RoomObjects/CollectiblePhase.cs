@@ -3,7 +3,7 @@
 /// <summary>Phase of one permanent-item room object.</summary>
 public enum CollectiblePhase
 {
-    /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate slot deletion.</summary>
+    /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate removal from the room.</summary>
     CollectedEmpty,
     /// <summary>The exposed item alternates its two visible frames and accepts a touch trigger for acquisition.</summary>
     Visible,
@@ -25,7 +25,7 @@ public enum CollectiblePhase
     CollectedShotBlockEmpty,
     /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved block.</summary>
     CollectedShotBlockRespawn,
-    /// <summary>Inventory and persistence have been granted; the slot and drawn block remain while the synchronous pickup message runs.</summary>
+    /// <summary>Inventory and persistence have been granted; the room object and its drawn block remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,
     /// <summary>The pickup message has returned and the suspended item sequence is ready for its empty draw or shot-block continuation.</summary>
     ResumeAfterMessage,

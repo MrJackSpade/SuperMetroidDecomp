@@ -17,7 +17,7 @@ internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCa
     internal DoorCapPaint Paint { get; } = paint;
 
     /// <inheritdoc/>
-    private protected sealed override int Show(DoorCapStep step, RoomObjectSlot place, RoomObjectStepContext context)
+    private protected sealed override int Show(DoorCapStep step, RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (step.SoundBefore is { } sound)
             context.QueueSound(sound, DoorCapSequenceDefinitions.SoundPriority);

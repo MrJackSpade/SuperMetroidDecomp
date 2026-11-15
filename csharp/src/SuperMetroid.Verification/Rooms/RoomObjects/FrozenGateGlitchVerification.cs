@@ -75,8 +75,8 @@ internal static class FrozenGateGlitchVerification
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomObjectSystem roomObjects = runtime.RoomObjects;
-        RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         AssertEqual(level.BlockAt(FrozenGateBlockIndex), gate.Block,
             "Caterpillar retail downward gate block");
 
@@ -94,8 +94,8 @@ internal static class FrozenGateGlitchVerification
         {
             roomObjects.Step(level);
         }
-        gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        gate = roomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, WakeArmed: true },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
@@ -130,8 +130,8 @@ internal static class FrozenGateGlitchVerification
             $"{expected.Distance}-pixel case preserves native final X");
 
         roomObjects.Step(level);
-        gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        gate = roomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.RestingClosed };
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");

@@ -35,12 +35,12 @@ internal static class DraygonCannonObjectsVerification
         AssertEqual(4, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
             "Draygon cannon population record count");
 
-        RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
-        AssertEqual(4, slots.Length, "Draygon cannon native slot count");
-        AssertEqual(0, slots[0].ProcessingPosition, "pre-destroyed cannon is processed first");
-        AssertEqual(1, slots[1].ProcessingPosition, "lower-left cannon is processed second");
-        AssertEqual(2, slots[2].ProcessingPosition, "upper-right cannon is processed third");
-        AssertEqual(3, slots[3].ProcessingPosition, "lower-right cannon is processed fourth");
+        RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
+        AssertEqual(4, places.Length, "Draygon cannon native slot count");
+        AssertEqual(0, places[0].UpdatePosition, "pre-destroyed cannon is processed first");
+        AssertEqual(1, places[1].UpdatePosition, "lower-left cannon is processed second");
+        AssertEqual(2, places[2].UpdatePosition, "upper-right cannon is processed third");
+        AssertEqual(3, places[3].UpdatePosition, "lower-right cannon is processed fourth");
 
         int preDestroyedBlock = 11 * roomWidth + 2;
         int rightBlock = 18 * roomWidth + 2;

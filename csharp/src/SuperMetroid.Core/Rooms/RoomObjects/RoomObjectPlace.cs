@@ -9,18 +9,18 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// and advances it (<see cref="Behaviour"/>, #1554). A place that holds no object holds nothing: the object's record
 /// leaves the room with it (#1622).
 /// </summary>
-internal sealed class RoomObjectSlot
+internal sealed class RoomObjectPlace
 {
     /// <summary>The room's places, which say whether this one holds an object.</summary>
-    private readonly RoomObjectPlaces _places;
+    private readonly RoomObjectPlaces _occupancy;
 
     /// <summary>This place, numbered in update order.</summary>
     private readonly int _place;
 
     /// <summary>Creates the free place <paramref name="place"/> of the room's <paramref name="places"/>.</summary>
-    internal RoomObjectSlot(RoomObjectPlaces places, int place)
+    internal RoomObjectPlace(RoomObjectPlaces places, int place)
     {
-        _places = Ensure.NotNull(places);
+        _occupancy = Ensure.NotNull(places);
         _place = place;
     }
 
@@ -30,10 +30,10 @@ internal sealed class RoomObjectSlot
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>
-    /// Whether this place holds a room object and takes part in the room update. Only <see cref="RoomObjectSlotTable.Spawn"/>
+    /// Whether this place holds a room object and takes part in the room update. Only <see cref="RoomObjectPlaceList.Spawn"/>
     /// takes a place; <see cref="Delete"/> frees it.
     /// </summary>
-    public bool Active => _places.IsHeld(_place);
+    public bool Active => _occupancy.IsHeld(_place);
     /// <summary>
     /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the
     /// terrain beyond the room. It is always the block's own position (its column inside the room's width); a step to a
@@ -41,12 +41,12 @@ internal sealed class RoomObjectSlot
     /// </summary>
     public Position16<RoomBlocks> Block { get; set; }
     /// <summary>
-    /// The terrain the slot restores at its block, or null when its object saved none. Grapple setup saves the earlier
+    /// The terrain the place restores at its block, or null when its object saved none. Grapple setup saves the earlier
     /// block; collision-bomb setup saves the dimension parent instead. Only an object whose setup saved a block restores
     /// one (<see cref="RoomObjectStepContext.DrawRestoredBlock"/>).
     /// </summary>
     public RoomTerrainBlock? RestoreTerrain { get; set; }
-    /// <summary>What the slot's room object was placed with, or the state its setup or opening left there; null for none.</summary>
+    /// <summary>What the place's room object was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
     /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
     public ResidentObjectProjectileHit? ProjectileHit { get; set; }
@@ -75,7 +75,7 @@ internal sealed class RoomObjectSlot
     }
 
     /// <summary>
-    /// Readies this place, which <see cref="RoomObjectSlotTable.Spawn"/> has just taken, for a new room object's setup.
+    /// Readies this place, which <see cref="RoomObjectPlaceList.Spawn"/> has just taken, for a new room object's setup.
     /// Only the spawn calls it, which analyzer SME6303 enforces.
     /// </summary>
     /// <exception cref="InvalidOperationException">The place was not taken.</exception>
@@ -93,7 +93,7 @@ internal sealed class RoomObjectSlot
     internal void Delete()
     {
         if (Active)
-            _places.Free(_place);
+            _occupancy.Free(_place);
         ClearContents();
     }
 

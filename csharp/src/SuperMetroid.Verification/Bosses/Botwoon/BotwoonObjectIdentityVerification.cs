@@ -11,7 +11,7 @@ using SuperMetroid.Verification.Harness;
 internal static class BotwoonObjectIdentityVerification
 {
     /// <summary>
-    /// Alternates Clear and Crumble Botwoon wall PLMs through the 40-slot pool, checking that each is known by what it does
+    /// Alternates Clear and Crumble Botwoon wall PLMs through the 40-place pool, checking that each is known by what it does
     /// (its terrain change, the crumble its own object) and carries no header identity, its placement and timers, then
     /// full-pool and reset behavior.
     /// </summary>
@@ -26,19 +26,19 @@ internal static class BotwoonObjectIdentityVerification
         {
             BotwoonWallMutation mutation = (i & 1) == 0 ? BotwoonWallMutation.Clear : BotwoonWallMutation.Crumble;
             AssertTrue(roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, mutation), "Botwoon slot allocation succeeds until full");
-            var slot = roomObjects.PopulationSlots.Single(slot => slot.ProcessingPosition == i);
-            AssertEqual(new Position16<RoomBlocks>(15, 4), slot.Block, "hardcoded Botwoon placement");
+            var place = roomObjects.PopulationPlaces.Single(place => place.UpdatePosition == i);
+            AssertEqual(new Position16<RoomBlocks>(15, 4), place.Block, "hardcoded Botwoon placement");
             TerrainChange expectedChange = (i & 1) == 0 ? BotwoonWallMutationDefinitions.Clear : BotwoonWallMutationDefinitions.Crumble;
-            AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
+            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expectedChange,
                 "header-specific Botwoon change");
             AssertEqual((i & 1) == 0 ? 1 : 64, expectedChange.FirstFrameDelay, "header-specific Botwoon delay");
-            AssertEqual((i & 1) != 0, slot.Behaviour is BotwoonWallCrumbleObject, "only the crumble opens the scrolls");
+            AssertEqual((i & 1) != 0, place.Behaviour is BotwoonWallCrumbleObject, "only the crumble opens the scrolls");
         }
-        var before = roomObjects.PopulationSlots.ToArray();
+        var before = roomObjects.PopulationPlaces.ToArray();
         AssertTrue(!roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(assets.LevelData, BotwoonWallMutation.Clear), "full native PLM pool declines spawn");
-        AssertTrue(before.SequenceEqual(roomObjects.PopulationSlots), "failed spawn preserves every owner and timer");
+        AssertTrue(before.SequenceEqual(roomObjects.PopulationPlaces), "failed spawn preserves every owner and timer");
         roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(0, roomObjects.PopulationSlots.Count, "room reset retires both Botwoon walls");
+        AssertEqual(0, roomObjects.PopulationPlaces.Count, "room reset retires both Botwoon walls");
         Console.WriteLine("Botwoon hardcoded PLMs: no header identity, slot order, placement, programs, timers and full-pool/reset behavior pass.");
     }
 

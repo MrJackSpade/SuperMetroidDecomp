@@ -441,7 +441,7 @@ internal static class EnemyTerrainBlockAddressingVerification
         bool collided = mover.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(8));
 
         AssertTrue(!collided, "the enemy breaks the spike block rather than meeting it");
-        AssertTrue(roomObjects.PopulationSlots.Single() is { Block: var block } && block == broken,
+        AssertTrue(roomObjects.PopulationPlaces.Single() is { Block: var block } && block == broken,
             "the break is spawned at the block one column into the next row");
         AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(broken).CollisionType, "the broken block becomes air");
         Console.WriteLine("Enemy spike break past a row's end: the break is spawned at the block the mover's lookup reached on the next row.");

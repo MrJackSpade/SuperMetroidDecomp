@@ -8,32 +8,32 @@ internal sealed class SamusEaterObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Descending room-object slot allocation table.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>The room's places, where the plant's room object takes the first free one in update order.</summary>
+    private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Binds the active room and its room-object slot population.</summary>
-    internal SamusEaterObjects(IRoomSamusAccess? samus, RoomObjectSlotTable slotTable)
+    /// <summary>Binds the active room and its room-object places.</summary>
+    internal SamusEaterObjects(IRoomSamusAccess? samus, RoomObjectPlaceList places)
     {
         _samus = samus;
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>Runs the feet/head alignment gate and allocates <paramref name="definition"/>'s plant room object.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
         RoomCollisionBlock block, SamusEaterObjectDefinition definition, IRoomSamus samus)
     {
         Ensure.NotNull(definition);
-        // Rejected setups clear their just-allocated slot without changing
+        // Rejected setups free their just-taken place without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
             : samus.Position.Y.Whole + samus.Radius.Y - 1;
         int fromAlignedFace = definition.Ceiling ? RoomGridConversions.OffsetWithinBlock(edge) : RoomGridConversions.OffsetFromBlockEnd(edge);
         if (fromAlignedFace != 0) return;
-        // Descending allocation simply returns when all slots are occupied.
-        if (_slotTable.Spawn() is not { } slot)
+        // The spawn simply returns when every place is held.
+        if (_places.Spawn() is not { } place)
             return;
 
-        slot.Block = block.At;
-        slot.Become(new SamusEaterObject(this, definition,
+        place.Block = block.At;
+        place.Become(new SamusEaterObject(this, definition,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
         level.SetTerrain(block.At, block.Terrain.Deactivated());
     }

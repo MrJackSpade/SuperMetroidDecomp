@@ -130,9 +130,9 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                 roomObjects.Step(level);
                 AssertEqual(GreyDoorPhase.Opening, roomObjects.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} enters opening list");
-                for (int frame = 0; frame < 128 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+                for (int frame = 0; frame < 128 && roomObjects.Places.ActiveCount != 0; frame++)
                     roomObjects.Step(level);
-                AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+                AssertEqual(0, roomObjects.Places.ActiveCount,
                     $"resident grey door {header} completes and deletes");
                 AssertTrue(system.HasOpenedDoorBit(0),
                     $"resident grey door {header} persists opened bit");
@@ -145,10 +145,10 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     $"opened grey door {header} reloads");
                 // The closed blue list shows the blue cap for one frame and deletes on the next pass.
                 reopened.Step(reopenedLevel);
-                AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
+                AssertTrue(reopened.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
                     $"opened grey door {header} converts to blue cap");
                 reopened.Step(reopenedLevel);
-                AssertEqual(0, reopened.SlotTable.ActiveCount,
+                AssertEqual(0, reopened.Places.ActiveCount,
                     $"opened grey door {header} deletes after its blue frame");
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"opened grey door {header} avoids program/draw ROM reads");
@@ -207,9 +207,9 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Opening, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo grey door selects its opening list");
-        for (int frame = 0; frame < 128 && room.RoomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 128 && room.RoomObjects.Places.ActiveCount != 0; frame++)
             room.RoomObjects.Step(room.Level);
-        AssertEqual(0, room.RoomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, room.RoomObjects.Places.ActiveCount,
             "Bomb Torizo grey door completes its opening and deletes");
         AssertTrue(room.System.HasOpenedDoorBit(0x1b),
             "Bomb Torizo grey door persists its sanitized room argument");
@@ -223,10 +223,10 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             "opened Bomb Torizo grey door reloads");
         // The closed blue list shows the blue cap for one frame and deletes on the next pass.
         reopened.Step(reopenedLevel);
-        AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
+        AssertTrue(reopened.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
             "opened Bomb Torizo grey door converts to a blue cap");
         reopened.Step(reopenedLevel);
-        AssertEqual(0, reopened.SlotTable.ActiveCount,
+        AssertEqual(0, reopened.Places.ActiveCount,
             "opened Bomb Torizo grey door deletes after its blue frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Bomb Torizo reload avoids both compiled program and draw sources");

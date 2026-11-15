@@ -16,15 +16,15 @@ namespace SuperMetroid.Core.Bosses;
 internal sealed class BossRoomMutationObjects
 {
     /// <summary>Gives every family spawner the room's room-object slots.</summary>
-    internal BossRoomMutationObjects(RoomObjectSlotTable slotTable)
+    internal BossRoomMutationObjects(RoomObjectPlaceList places)
     {
-        BotwoonWall = new BotwoonWallObjects(slotTable);
-        SporeSpawnCeiling = new SporeSpawnCeilingObjects(slotTable);
-        KraidRoom = new KraidRoomObjects(slotTable);
-        CrocomireArena = new CrocomireArenaObjects(slotTable);
-        ShitroidWall = new ShitroidWallObjects(slotTable);
-        MotherBrainRoom = new MotherBrainRoomObjects(slotTable);
-        PhantoonDoor = new PhantoonDoorObjects(slotTable);
+        BotwoonWall = new BotwoonWallObjects(places);
+        SporeSpawnCeiling = new SporeSpawnCeilingObjects(places);
+        KraidRoom = new KraidRoomObjects(places);
+        CrocomireArena = new CrocomireArenaObjects(places);
+        ShitroidWall = new ShitroidWallObjects(places);
+        MotherBrainRoom = new MotherBrainRoomObjects(places);
+        PhantoonDoor = new PhantoonDoorObjects(places);
     }
 
     /// <summary>Spawns Botwoon's wall clear or crumble.</summary>

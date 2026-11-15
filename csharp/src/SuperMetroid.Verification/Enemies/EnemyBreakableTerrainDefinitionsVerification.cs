@@ -45,11 +45,11 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
-            AssertEqual(index == 15 ? 1 : 0, roomObjects.PopulationSlots.Count,
+            AssertEqual(index == 15 ? 1 : 0, roomObjects.PopulationPlaces.Count,
                 $"production enemy spike PLM count ${behavior:X2}");
             // The break is the room object that makes the block's break, known by what it does rather than an identity.
             if (index == 15)
-                AssertTrue(roomObjects.PopulationSlots.Single() is
+                AssertTrue(roomObjects.PopulationPlaces.Single() is
                     {
                         Block: { X: 0, Y: 0 },
                         Behaviour: TerrainChangeObject { Change: var change },

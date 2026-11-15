@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 internal sealed class QuicksandObjects
 {
-    /// <summary>Shared forty-slot room-object pool; occupied slots can prevent a quicksand reaction from spawning.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>The room's forty room-object places; a full room keeps a quicksand reaction from spawning.</summary>
+    private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Binds quicksand reactions to the room's shared room-object slots.</summary>
-    internal QuicksandObjects(RoomObjectSlotTable slotTable)
+    /// <summary>Binds quicksand reactions to the room's room-object places.</summary>
+    internal QuicksandObjects(RoomObjectPlaceList places)
     {
-        _slotTable = slotTable;
+        _places = places;
     }
 
-    /// <summary>True when all forty room-object slots are occupied.</summary>
-    public bool IsAllocationFull => _slotTable.IsFull;
+    /// <summary>True when every room-object place is held.</summary>
+    public bool IsAllocationFull => _places.IsFull;
 
     /// <summary>
     /// Allocates one transient sand-reaction room object at the sand <paramref name="block"/> and leaves its setup effects
@@ -53,11 +53,11 @@ internal sealed class QuicksandObjects
     /// <summary>Places a sand reaction object at <paramref name="block"/>; it leaves on its first update.</summary>
     private bool TrySpawn(Position16<RoomBlocks> block)
     {
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
+        place.Block = block;
+        place.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
         return true;
     }
 }

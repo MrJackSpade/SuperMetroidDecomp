@@ -6,8 +6,8 @@ using static SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChangeDefinitions;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Spawns Phantoon's door changes in the room's shared room-object places.</summary>
-/// <param name="slotTable">The room's room-object places, which the door changes contend for with every other room object.</param>
-internal sealed class PhantoonDoorObjects(RoomObjectSlotTable slotTable)
+/// <param name="places">The room's room-object places, which the door changes contend for with every other room object.</param>
+internal sealed class PhantoonDoorObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns <paramref name="change"/> at the door's top block: it takes a room-object place, its setup holds the door's
@@ -24,11 +24,11 @@ internal sealed class PhantoonDoorObjects(RoomObjectSlotTable slotTable)
         TerrainChange terrainChange = Ensure.Listed(Changes, change);
 
         Position16<RoomBlocks> block = level.GridBlock(Block);
-        if (slotTable.Spawn() is not { } slot)
+        if (places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new TerrainChangeObject(terrainChange));
+        place.Block = block;
+        place.Become(new TerrainChangeObject(terrainChange));
         // The deactivating setup holds the door's top block solid, keeping its picture, until the change draws.
         level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.Deactivated());
         return true;

@@ -219,11 +219,11 @@ internal static class CoreAccess
             get
             {
                 bool lockedOut = roomObjects.Stations.SaveStationLockedOut;
-                return roomObjects.SlotTable.InProcessingOrder
-                    .Select((slot, position) => new IndexedObjectSlot(slot, position))
-                    .Where(entry => entry.Slot.Active)
-                    .SelectMany(entry => entry.Slot.Behaviour is StationObject station
-                        ? [new StationObjectSnapshot(entry.Index, entry.Slot.Block, entry.Slot.NativeRoomArgument,
+                return roomObjects.Places.InUpdateOrder
+                    .Select((place, position) => new IndexedObjectPlace(place, position))
+                    .Where(entry => entry.Place.Active)
+                    .SelectMany(entry => entry.Place.Behaviour is StationObject station
+                        ? [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationObjectSnapshot>())
                     .ToArray();
@@ -326,9 +326,9 @@ internal static class CoreAccess
         /// </summary>
         internal bool ScrollObjectTriggered(Position16<RoomBlocks> block)
         {
-            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.InProcessingOrder
-                .Where(slot => slot.Active && slot.Block == block)
-                .Select(slot => slot.Behaviour)
+            ScrollTriggerObject[] owners = [.. roomObjects.Places.InUpdateOrder
+                .Where(place => place.Active && place.Block == block)
+                .Select(place => place.Behaviour)
                 .OfType<ScrollTriggerObject>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
@@ -354,10 +354,10 @@ internal static class CoreAccess
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
     extension(RoomObjectSystem self)
     {
-        /// <summary>The room block of every active PLM, by slot ordinal.</summary>
+        /// <summary>The room block of every active PLM, by place ordinal.</summary>
         internal IReadOnlyList<Position16<RoomBlocks>> ActiveObjectBlocks =>
         [
-            .. Group4ActiveObjectSlots(self).Select(slot => slot.Block),
+            .. Group4ActiveObjectPlaces(self).Select(place => place.Block),
         ];
 
         /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectibleObjects.Collectibles"/>.</summary>
@@ -375,10 +375,10 @@ internal static class CoreAccess
 
 
     /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>
-    private static IEnumerable<RoomObjectSlot> Group4ActiveObjectSlots(RoomObjectSystem roomObjects) =>
-        roomObjects.SlotTable.FromLastPlace.Where(slot => slot.Active);
+    private static IEnumerable<RoomObjectPlace> Group4ActiveObjectPlaces(RoomObjectSystem roomObjects) =>
+        roomObjects.Places.FromLastPlace.Where(place => place.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectibleObject> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
-        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Behaviour).OfType<CollectibleObject>();
+        Group4ActiveObjectPlaces(roomObjects).Select(place => place.Behaviour).OfType<CollectibleObject>();
 }

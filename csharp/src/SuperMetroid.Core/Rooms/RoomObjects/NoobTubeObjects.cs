@@ -32,17 +32,17 @@ internal sealed class NoobTubeObjects
     /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping what it shows
     /// (#1580).
     /// </summary>
-    internal void SetupNoobTubeSlot(RoomLevelData level, RoomObjectSlot slot)
+    internal void SetupNoobTubeSlot(RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(level);
-        Ensure.NotNull(slot);
-        slot.Become(new NoobTubeObject(this));
-        RoomTerrainBlock origin = level.GetCollisionBlock(slot.Block).Terrain;
+        Ensure.NotNull(place);
+        place.Become(new NoobTubeObject(this));
+        RoomTerrainBlock origin = level.GetCollisionBlock(place.Block).Terrain;
         level.SetTerrain(
-            slot.Block,
+            place.Block,
             origin.WithCollision(NoobTubeObjectDefinitions.OriginCollision));
         level.SetBehavior(
-            slot.Block,
+            place.Block,
             RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
@@ -56,15 +56,15 @@ internal sealed class NoobTubeObjects
     internal void UnlockSamus() => RequireNoobTubeSamus().Control.Unlock();
 
     /// <summary>Spawns the crack projectile at the tube.</summary>
-    internal void SpawnCrack(RoomObjectSlot slot) => SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, piece: null);
+    internal void SpawnCrack(RoomObjectPlace place) => SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.Crack, piece: null);
 
     /// <summary>Spawns the ten glass shards and then the six released-air bubbles, each naming its place in the burst.</summary>
-    internal void SpawnShardsAndBubbles(RoomObjectSlot slot)
+    internal void SpawnShardsAndBubbles(RoomObjectPlace place)
     {
         for (int shard = 0; shard < NoobTubeObjectDefinitions.ShardCount; shard++)
-            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, shard);
+            SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.Shard, shard);
         for (int bubble = 0; bubble < NoobTubeObjectDefinitions.BubbleCount; bubble++)
-            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, bubble);
+            SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.ReleasedAirBubble, bubble);
     }
 
     /// <summary>Starts the break earthquake.</summary>
@@ -94,8 +94,8 @@ internal sealed class NoobTubeObjects
             "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
-    private void SpawnNoobTubeProjectile(RoomObjectSlot slot, NoobTubeProjectileDefinition definition, int? piece) =>
+    private void SpawnNoobTubeProjectile(RoomObjectPlace place, NoobTubeProjectileDefinition definition, int? piece) =>
         (_enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
-            new NoobTubeProjectileRequest(definition, piece, slot.Block));
+            new NoobTubeProjectileRequest(definition, piece, place.Block));
 }

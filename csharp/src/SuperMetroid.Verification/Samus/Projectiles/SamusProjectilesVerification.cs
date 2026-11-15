@@ -950,7 +950,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(solidShotExploded,
         "type-C shootable block retains solid shot collision");
-    AssertTrue(solidShotObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(solidShotObjects.Places.ActiveCount > 0,
         "ordinary beam collision allocates bank-$84 shot-block PLM");
     int synthesizedSolidShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -991,7 +991,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "Wave remains alive after publishing type-four shot-block reaction");
     AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
         "Wave crosses the complete shootable-air column");
-    AssertTrue(waveShotObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(waveShotObjects.Places.ActiveCount > 0,
         "Wave scan allocates bank-$84 shot-block PLM");
     int synthesizedAirShotBlocks = 0;
     for (int y = 0; y < height; y++)
@@ -1429,7 +1429,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     contactDoorProjectiles.StepFrame(new SamusTerrain { Level = contactDoor, RoomObjects = contactDoorObjects }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), contactDoorBombs);
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
-    AssertEqual(1, contactDoorObjects.SlotTable.ActiveCount,
+    AssertEqual(1, contactDoorObjects.Places.ActiveCount,
         "contact-distance shot allocates the blue-door opening PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
@@ -1455,7 +1455,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertTrue(blueDoorExploded,
         "power beam collides through negative vertical door extension");
-    AssertEqual(1, blueDoorObjects.SlotTable.ActiveCount,
+    AssertEqual(1, blueDoorObjects.Places.ActiveCount,
         "BTS $41 collision allocates one right-facing blue-door PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
@@ -1638,7 +1638,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
-    AssertTrue(integratedSuperObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(integratedSuperObjects.Places.ActiveCount > 0,
         "live Super Missile publishes weapon-gated block PLM");
     int integratedSuperMutations = 0;
     for (int y = 0; y < height; y++)
@@ -1685,7 +1685,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.Type.Family,
         "the owner explodes on the column-seven wall");
-    AssertTrue(skippedObjects.SlotTable.ActiveCount > 0,
+    AssertTrue(skippedObjects.Places.ActiveCount > 0,
         "the link still strikes the column-six Super Missile block before it is cleared");
     AssertTrue(!skippedLink.IsActive, "the link is cleared after its collision");
 

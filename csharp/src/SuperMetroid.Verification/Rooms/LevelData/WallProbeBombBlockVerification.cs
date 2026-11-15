@@ -70,10 +70,10 @@ internal static class WallProbeBombBlockVerification
 
         SamusBlockCollision.ProbeWallHorizontal(level, state, samus, SignedSixteenSixteen.FromParts(8, 0),
             roomObjects);
-        AssertTrue(roomObjects.SlotTable.ActiveCount > 0, "the probe's broken bomb block starts its block reaction");
-        for (int update = 0; update < 600 && roomObjects.SlotTable.ActiveCount != 0; update++)
+        AssertTrue(roomObjects.Places.ActiveCount > 0, "the probe's broken bomb block starts its block reaction");
+        for (int update = 0; update < 600 && roomObjects.Places.ActiveCount != 0; update++)
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount, "the bomb block's reaction runs to its end");
+        AssertEqual(0, roomObjects.Places.ActiveCount, "the bomb block's reaction runs to its end");
         AssertEqual(RoomCollisionType.BombableBlock, level.GetCollisionBlock(new(4, 3)).CollisionType,
             "the probe's broken bomb block grows back");
     }

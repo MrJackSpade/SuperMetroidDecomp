@@ -20,7 +20,7 @@ public sealed class WreckedShipTreadmillBlockAnimationsState
     /// <summary>The selected direction's object definition, which names its frame art.</summary>
     private WreckedShipTreadmillLoop? _compiledMechanics;
 
-    /// <summary>Whether one of the two door-spawned objects occupies its slot.</summary>
+    /// <summary>Whether one of the two door-spawned objects holds its room-object place.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>Index of the next entry in the four-frame animation.</summary>

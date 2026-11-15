@@ -18,7 +18,7 @@ internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillDirection d
     internal bool AreaBossDefeated { get; } = areaBossDefeated;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (AreaBossDefeated)

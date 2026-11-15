@@ -56,7 +56,7 @@ internal sealed class StationObject(
     public int SaveAnimationLoopsRemaining { get; set; }
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         StationObjects stations = context.RoomObjects.Stations;
@@ -142,7 +142,7 @@ internal sealed class StationObject(
     }
 
     /// <summary>Advances the arm's countdown and, when it runs out, the arm's next phase.</summary>
-    private void StepAccess(RoomObjectSlot place, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
+    private void StepAccess(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
     {
         if (--OperationTimer != 0)
             return;
@@ -189,7 +189,7 @@ internal sealed class StationObject(
     }
 
     /// <summary>Runs the accepted save's two-image loop until the saved-game message can be published.</summary>
-    private bool StepSaveAnimation(RoomObjectSlot place, RoomObjectStepContext context, StationObjects stations)
+    private bool StepSaveAnimation(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations)
     {
         if (SavePhase is SaveStationPhase.Idle or SaveStationPhase.AwaitingConfirmation)
             return false;
@@ -233,7 +233,7 @@ internal sealed class StationObject(
     }
 
     /// <summary>Applies the map or refill and publishes the station's message.</summary>
-    private void Activate(RoomObjectSlot place, StationObjects stations, IRoomSamus samus)
+    private void Activate(RoomObjectPlace place, StationObjects stations, IRoomSamus samus)
     {
         GameplayMessageId message = Kind switch
         {
@@ -275,7 +275,7 @@ internal sealed class StationObject(
     }
 
     /// <summary>The load station a save station saves at, which its activation events carry.</summary>
-    private static LoadStation SavedStation(RoomObjectSlot place) => (place.Argument as SaveStationArgument
+    private static LoadStation SavedStation(RoomObjectPlace place) => (place.Argument as SaveStationArgument
         ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station.")).Station;
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>

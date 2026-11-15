@@ -80,15 +80,15 @@ internal static class GModeGateGlitchVerification
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomObjectSystem roomObjects = runtime.RoomObjects;
-        RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         for (int warm = 0; warm < 2; warm++)
             roomObjects.Step(level);
-        gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.Behaviour is DownwardGateObject);
+        gate = roomObjects.PopulationPlaces.Single(place =>
+            place.Behaviour is DownwardGateObject);
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
             "the gate is closed before the shot");
-        while (roomObjects.SlotTable.ActiveCount < 40)
+        while (roomObjects.Places.ActiveCount < 40)
         {
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level,
@@ -135,8 +135,8 @@ internal static class GModeGateGlitchVerification
                 roomObjects.Step(level);
             }
 
-            RoomObjectSlotSnapshot currentGate = roomObjects.PopulationSlots.Single(slot =>
-                slot.Behaviour is DownwardGateObject);
+            RoomObjectPlaceSnapshot currentGate = roomObjects.PopulationPlaces.Single(place =>
+                place.Behaviour is DownwardGateObject);
             if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
                 openedFrame = frame;
         }
@@ -194,7 +194,7 @@ internal static class GModeGateGlitchVerification
         while (!roomObjects.Quicksand.IsAllocationFull)
         {
             contact++;
-            int before = roomObjects.SlotTable.ActiveCount;
+            int before = roomObjects.Places.ActiveCount;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0).WithFractionY(0);
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(4);
             samus.HorizontalSpeed.HasRunningMomentum = true;
@@ -203,7 +203,7 @@ internal static class GModeGateGlitchVerification
                 samus,
                 AreaId.Maridia,
                 roomObjects: roomObjects);
-            AssertTrue(roomObjects.SlotTable.ActiveCount > before && roomObjects.SlotTable.ActiveCount <= before + 3,
+            AssertTrue(roomObjects.Places.ActiveCount > before && roomObjects.Places.ActiveCount <= before + 3,
                 $"G-Mode sand contact {contact} consumes its bottom/center/top suspended PLM slots");
             AssertTrue(samus.Kinematics.ExtraDisplacement.Y.RawValue != 0,
                 $"G-Mode sand contact {contact} runs setup while a slot remains");
@@ -219,7 +219,7 @@ internal static class GModeGateGlitchVerification
             samus,
             AreaId.Maridia,
             roomObjects: roomObjects);
-        AssertEqual(40, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(40, roomObjects.Places.ActiveCount,
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
             "overloaded G-Mode sand runs no setup and contributes no sinking displacement");
@@ -233,7 +233,7 @@ internal static class GModeGateGlitchVerification
         AssertTrue(!samus.Xray.AreObjectsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
         roomObjects.Step(level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "first restored PLM pass executes all forty transient sand delete lists");
     }
 
@@ -264,7 +264,7 @@ internal static class GModeGateGlitchVerification
         AssertEqual(RoomCollisionType.SolidBlock,
             freeLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
             "blue-door setup changes only the cap origin to type-eight solid before its suspended list");
-        AssertEqual(1, freeObjects.SlotTable.ActiveCount,
+        AssertEqual(1, freeObjects.Places.ActiveCount,
             "suspended blue-door opening actor remains allocated");
 
         RoomLevelData fullLevel = DoorRoom();
@@ -457,7 +457,7 @@ internal static class GModeGateGlitchVerification
                 block,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject)?.PendingHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.PendingHit,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
@@ -465,7 +465,7 @@ internal static class GModeGateGlitchVerification
             "suspended glass tube leaves Samus ignoring the water's surface");
 
         StepNoobTube(roomObjects, level);
-        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 

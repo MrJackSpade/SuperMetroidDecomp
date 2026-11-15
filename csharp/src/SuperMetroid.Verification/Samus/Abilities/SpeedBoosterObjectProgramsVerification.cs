@@ -124,9 +124,9 @@ internal static class SpeedBoosterObjectProgramsVerification
             BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertTrue(!contact.Collided,
                 $"boosted contact with BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} admits the real PLM");
-            for (int frame = 0; frame < 100 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 100 && roomObjects.Places.ActiveCount != 0; frame++)
                 roomObjects.Step(level);
-            AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, roomObjects.Places.ActiveCount,
                 $"BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} compiled list reaches native deletion");
             AssertEqual(respawns ? RoomCollisionType.SpecialBlock :
                     RoomCollisionType.Air,
@@ -149,7 +149,7 @@ internal static class SpeedBoosterObjectProgramsVerification
             bombLevel.GetCollisionBlockByIndex(bombBlock).Terrain,
             "bombed speed block draws the native physical reveal word");
         bombObjects.Step(bombLevel);
-        AssertEqual(0, bombObjects.SlotTable.ActiveCount,
+        AssertEqual(0, bombObjects.Places.ActiveCount,
             "bombed speed-block reveal deletes after its single frame");
         AssertEqual(0, bombGuard.ForbiddenReadAttempts,
             "bombed Speed Booster reveal reads no compiled source bytes");

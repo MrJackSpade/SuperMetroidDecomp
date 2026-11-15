@@ -52,7 +52,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!React(place, context))
@@ -60,7 +60,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || place.ProjectileHit is not { Family: var family })
             return false;
@@ -77,7 +77,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         switch (Phase)
         {
@@ -115,7 +115,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     /// Looks at the cap's door: one opened for good turns into its blue cap; otherwise the cap starts taking shots and
     /// shows its closed image.
     /// </summary>
-    private void Look(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
         if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
@@ -129,7 +129,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <summary>Counts a hit: short of the colour's count the cap flashes; at it, the door opens for good.</summary>
-    private void CountHit(RoomObjectSlot place, RoomObjectStepContext context)
+    private void CountHit(RoomObjectPlace place, RoomObjectStepContext context)
     {
         HitCounter++;
         if (HitCounter < ColoredDoorDefinitions.HitThresholds[Color])

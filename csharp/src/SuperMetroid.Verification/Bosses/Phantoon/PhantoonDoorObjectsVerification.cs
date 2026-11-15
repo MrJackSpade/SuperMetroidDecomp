@@ -181,7 +181,7 @@ internal static class PhantoonDoorObjectsVerification
         string at = $"Phantoon {change}";
 
         AssertTrue(roomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(level, change), $"{at} spawns");
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount, $"{at} takes one room-object place");
+        AssertEqual(1, roomObjects.Places.ActiveCount, $"{at} takes one room-object place");
         ushort priorTopWord = cartridge.ReadCartridgeWord(ProgramBank | (priorList + 2));
         AssertEqual(RoomLevelWordCodec.Decode((ushort)(priorTopWord & DeactivationMask)), level.GetCollisionBlock(top).Terrain,
             $"{at} holds the door's top block solid, as the deactivating setup leaves its word");
@@ -192,10 +192,10 @@ internal static class PhantoonDoorObjectsVerification
 
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> drawn = NativeTerrain(rom, drawList, out _);
         roomObjects.Step(level);
-        AssertEqual(1, roomObjects.SlotTable.ActiveCount, $"{at} holds its place through its first update");
+        AssertEqual(1, roomObjects.Places.ActiveCount, $"{at} holds its place through its first update");
         AssertTerrain(level, before, drawn, $"{at} first update");
         roomObjects.Step(level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount, $"{at} leaves the room on its second update");
+        AssertEqual(0, roomObjects.Places.ActiveCount, $"{at} leaves the room on its second update");
         AssertTerrain(level, before, drawn, $"{at} after it leaves");
         int index = 0;
         foreach (Offset16<RoomBlocks> cell in before.Keys)

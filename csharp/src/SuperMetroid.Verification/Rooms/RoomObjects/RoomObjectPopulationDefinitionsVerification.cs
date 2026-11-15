@@ -42,27 +42,27 @@ internal static class RoomObjectPopulationDefinitionsVerification
         int forbiddenHeaderReadAttempts = 0;
         var guarded = NewRoomObjectPopulationReadGuard(rom, populatedPointer,
             sourceLength, headerRead: () => forbiddenHeaderReadAttempts++);
-        (int compiledCount, RoomObjectSlotSnapshot[] compiledSlots) = Load(guarded,
+        (int compiledCount, RoomObjectPlaceSnapshot[] compiledPlaces) = Load(guarded,
             populatedPointer, useCompiled: true);
-        (int nativeCount, RoomObjectSlotSnapshot[] nativeSlots) = Load(rom,
+        (int nativeCount, RoomObjectPlaceSnapshot[] nativePlaces) = Load(rom,
             populatedPointer, useCompiled: false);
         AssertEqual(nativeCount, compiledCount,
             "compiled retail PLM load preserves sequential spawn count");
         // Typed room objects are separate objects per load; compare what kind each place holds.
-        AssertTrue(nativeSlots.Select(slot => slot with { Behaviour = null })
-                .SequenceEqual(compiledSlots.Select(slot => slot with { Behaviour = null })) &&
-            nativeSlots.Select(slot => slot.Behaviour?.GetType()).SequenceEqual(compiledSlots.Select(slot => slot.Behaviour?.GetType())),
+        AssertTrue(nativePlaces.Select(place => place with { Behaviour = null })
+                .SequenceEqual(compiledPlaces.Select(place => place with { Behaviour = null })) &&
+            nativePlaces.Select(place => place.Behaviour?.GetType()).SequenceEqual(compiledPlaces.Select(place => place.Behaviour?.GetType())),
             "compiled retail PLM load preserves native slots and setup results");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "compiled retail PLM loader never reads bank-$8F population bytes");
         AssertEqual(0, forbiddenHeaderReadAttempts,
             "compiled retail PLM loader never reads bank-$84 header metadata");
 
-        (int emptyCount, RoomObjectSlotSnapshot[] emptySlots) = Load(
+        (int emptyCount, RoomObjectPlaceSnapshot[] emptyPlaces) = Load(
             NewRoomObjectPopulationReadGuard(rom, 0x8058, 2),
             0x8058, useCompiled: true);
         AssertEqual(0, emptyCount, "compiled empty PLM population terminates");
-        AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
+        AssertEqual(0, emptyPlaces.Length, "compiled empty PLM population leaves no slots");
     }
 
     /// <summary>Loads one PLM population into a fresh room and returns its spawn count and resulting slots.</summary>
@@ -75,7 +75,7 @@ internal static class RoomObjectPopulationDefinitionsVerification
             new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height]);
         var roomObjects = RoomObjectFixtures.Unbound();
         int count = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), (useCompiled ? RoomObjectPopulationDefinitions.Get(pointer) : RoomObjectPopulationImporter.Read(bus, pointer)), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
-        return new RoomObjectPopulationDefinitionsLoadResult(count, roomObjects.PopulationSlots.ToArray());
+        return new RoomObjectPopulationDefinitionsLoadResult(count, roomObjects.PopulationPlaces.ToArray());
     }
 
     /// <summary>Rejects reads of the compiled bank-$8F population and, when observed, bank-$84 header metadata.</summary>

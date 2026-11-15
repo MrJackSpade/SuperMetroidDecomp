@@ -1052,9 +1052,9 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomCollisionType.SolidBlock,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).CollisionType,
         "later left-arm reaction observes the synchronously mutated parent");
-    AssertTrue(reactionObjects.PopulationSlots.Any(slot => slot.Block == reactionLevel.BlockAt(reactionParentIndex)),
+    AssertTrue(reactionObjects.PopulationPlaces.Any(place => place.Block == reactionLevel.BlockAt(reactionParentIndex)),
         "extension redirect installs its reaction PLM on the parent block");
-    AssertEqual(1, reactionObjects.SlotTable.ActiveCount,
+    AssertEqual(1, reactionObjects.Places.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.SolidBlock),
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
@@ -1082,10 +1082,10 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock),
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "bomb reaction restores synthesized type-F parent after native hold");
-    AssertEqual(1, reactionObjects.SlotTable.ActiveCount,
+    AssertEqual(1, reactionObjects.Places.ActiveCount,
         "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
     reactionObjects.Step(reactionLevel);
-    AssertEqual(0, reactionObjects.SlotTable.ActiveCount,
+    AssertEqual(0, reactionObjects.Places.ActiveCount,
         "bomb reaction PLM deletes on the handler pass after restoration");
 
     // Exercise the public bomb pipeline as well as the setup methods below. A BTS-eight
@@ -1115,9 +1115,9 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomCollisionType.ShootableBlock,
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).CollisionType,
         "bomb dispatcher visits center shootable-solid parent");
-    AssertTrue(integratedRevealObjects.PopulationSlots.Any(slot => slot.Block == integratedRevealLevel.BlockAt(integratedRevealIndex)),
+    AssertTrue(integratedRevealObjects.PopulationPlaces.Any(place => place.Block == integratedRevealLevel.BlockAt(integratedRevealIndex)),
         "bomb dispatcher installs its reveal PLM on the center parent");
-    AssertEqual(1, integratedRevealObjects.SlotTable.ActiveCount,
+    AssertEqual(1, integratedRevealObjects.Places.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
     AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).Terrain,
@@ -1152,7 +1152,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     {
         bombDoorBombs.StepFrame(new SamusTerrain { Level = bombDoorLevel, RoomObjects = bombDoorObjects }, bombDoorSamus, 0, 0);
     }
-    AssertEqual(1, bombDoorObjects.SlotTable.ActiveCount,
+    AssertEqual(1, bombDoorObjects.Places.ActiveCount,
         "normal bomb allocates one blue-door opening PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
@@ -1205,7 +1205,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning shot block restores CE6B's synthesized parent");
     shotObjects.Step(shotLevel);
-    AssertEqual(0, shotObjects.SlotTable.ActiveCount,
+    AssertEqual(0, shotObjects.Places.ActiveCount,
         "respawning shot block deletes one handler pass after restoration");
 
     // `$84:D084` is the respawning power-bomb block. Its CF2E setup accepts family `$0300`,
@@ -1238,7 +1238,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning power-bomb block restores synthesized $C057 parent");
     powerBombShotObjects.Step(powerBombShotLevel);
-    AssertEqual(0, powerBombShotObjects.SlotTable.ActiveCount,
+    AssertEqual(0, powerBombShotObjects.Places.ActiveCount,
         "respawning power-bomb block deletes after restoration");
 
     // Issue #286 reached this same BTS-eight setup through the integrated expanding
@@ -1272,12 +1272,12 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "power-bomb fuse frame leaves gated block intact before radius scan");
     integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, RoomObjects = integratedPowerBombObjects }, integratedPowerBombSamus, 0, 0);
-    AssertTrue(integratedPowerBombObjects.PopulationSlots.Any(slot => slot.Block == integratedPowerBombLevel.BlockAt(shotIndex)),
+    AssertTrue(integratedPowerBombObjects.PopulationPlaces.Any(place => place.Block == integratedPowerBombLevel.BlockAt(shotIndex)),
         "expanding power bomb visits BTS-eight shootable block");
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "integrated CF2E setup installs temporary power-bomb block word");
-    AssertEqual(1, integratedPowerBombObjects.SlotTable.ActiveCount,
+    AssertEqual(1, integratedPowerBombObjects.Places.ActiveCount,
         "integrated power-bomb radius allocates the gated block PLM exactly once");
     integratedPowerBombObjects.Step(integratedPowerBombLevel);
     AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
@@ -1298,9 +1298,9 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             collisionProbeLevel,
             collisionProbeObjects,
             position: new(48, 48));
-    AssertTrue(collisionProbeObjects.PopulationSlots.Any(slot => slot.Block == collisionProbeLevel.BlockAt(shotIndex)),
+    AssertTrue(collisionProbeObjects.PopulationPlaces.Any(place => place.Block == collisionProbeLevel.BlockAt(shotIndex)),
         "expanding power bomb visits native BTS-ten collision-probe entry");
-    AssertEqual(4, collisionProbeObjects.SlotTable.ActiveCount,
+    AssertEqual(4, collisionProbeObjects.Places.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
@@ -1322,7 +1322,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "rejected missile leaves Super Missile block word untouched");
-    AssertEqual(0, superShotObjects.SlotTable.ActiveCount,
+    AssertEqual(0, superShotObjects.Places.ActiveCount,
         "rejected missile leaves no live PLM header");
     AssertTrue(superShotObjects.TrySpawnProjectileShotBlock(
             superShotLevel,
@@ -1343,7 +1343,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning Super Missile block restores synthesized $C09F parent");
     superShotObjects.Step(superShotLevel);
-    AssertEqual(0, superShotObjects.SlotTable.ActiveCount,
+    AssertEqual(0, superShotObjects.Places.ActiveCount,
         "respawning Super Missile block deletes after restoration");
 
     // BTS nine and B select the two permanent lists. Run both beyond their final timer so
@@ -1371,7 +1371,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
             permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
             $"permanent {familyName} block ends on retail blank word");
-        AssertEqual(0, permanentWeaponObjects.SlotTable.ActiveCount,
+        AssertEqual(0, permanentWeaponObjects.Places.ActiveCount,
             $"permanent {familyName} block deletes without restoration");
     }
 
@@ -1409,13 +1409,13 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             projectileType: SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
             solidBlock: true),
         "BTS-ten allocates the native B974 collision-probe PLM");
-    AssertEqual(3, noOpShotObjects.SlotTable.ActiveCount,
+    AssertEqual(3, noOpShotObjects.Places.ActiveCount,
         "the three solid/no-op reactions occupy native slots");
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         noOpShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "all no-op shot reactions preserve terrain");
     noOpShotObjects.Step(noOpShotLevel);
-    AssertEqual(0, noOpShotObjects.SlotTable.ActiveCount,
+    AssertEqual(0, noOpShotObjects.Places.ActiveCount,
         "no-op shot PLMs delete on their first handler pass");
 
     // Normal bombs striking BTS 8 and A do not break their weapon-gated blocks. CF2E/CF67
@@ -1451,10 +1451,10 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomTerrainBlock.Of(0x222, BlockMirroring.None, RoomCollisionType.ShootableBlock),
         revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).Terrain,
         "area-dependent shootable no-op leaves terrain unchanged");
-    AssertEqual(2, revealObjects.SlotTable.ActiveCount,
+    AssertEqual(2, revealObjects.Places.ActiveCount,
         "area no-op deletes while both one-frame reveal PLMs remain timed");
     revealObjects.Step(revealLevel);
-    AssertEqual(0, revealObjects.SlotTable.ActiveCount,
+    AssertEqual(0, revealObjects.Places.ActiveCount,
         "weapon-required reveal PLMs delete after their one-frame draw");
 
     // `$94:9DA4` chooses a two-by-two crumble reveal for BTS three. The draw record is two
@@ -1497,7 +1497,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         !specialObjects.TrySpawnBombedSpecialBlock(
             specialLevel, specialLevel.BlockAt(crumbleIndex), 3, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
         "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
-    AssertEqual(2, specialObjects.SlotTable.ActiveCount,
+    AssertEqual(2, specialObjects.Places.ActiveCount,
         "rejected Power Bomb special reveal leaves no active PLM slot");
     specialObjects.Step(specialLevel);
     AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock),
@@ -1516,7 +1516,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         specialLevel.GetCollisionBlockByIndex(speedIndex).Terrain,
         "Brinstar area table reveals speed-booster block");
     specialObjects.Step(specialLevel);
-    AssertEqual(0, specialObjects.SlotTable.ActiveCount,
+    AssertEqual(0, specialObjects.Places.ActiveCount,
         "special reveal PLMs delete after their one-frame draw");
 
     // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91

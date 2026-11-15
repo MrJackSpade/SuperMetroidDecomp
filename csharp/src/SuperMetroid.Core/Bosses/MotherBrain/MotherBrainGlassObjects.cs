@@ -29,7 +29,7 @@ internal sealed class MotherBrainGlassObjects
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
     /// <summary>The slot of the live glass room object, or null after deletion.</summary>
-    private RoomObjectSlot? _motherBrainGlassSlot;
+    private RoomObjectPlace? _motherBrainGlassPlace;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
 
@@ -37,11 +37,11 @@ internal sealed class MotherBrainGlassObjects
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
         _motherBrainGlassProjectileRequests;
 
-    /// <summary>Runs the glass setup against the slot room population gave it.</summary>
+    /// <summary>Runs the glass setup against the place room population gave it.</summary>
     internal void SetupMotherBrainGlassSlot(
         RoomLevelData level,
         PlacedRoomObject placed,
-        RoomObjectSlot slot)
+        RoomObjectPlace place)
     {
         if (placed.PlacementIndex != 0 ||
             placed.Block != new Position16<RoomBlocks>(9, 5))
@@ -51,12 +51,12 @@ internal sealed class MotherBrainGlassObjects
                 $"block=({placed.Block.X},{placed.Block.Y}), argument={placed.Argument}.");
         }
 
-        slot.Become(new MotherBrainGlassObject(this));
-        RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
-        level.SetTerrain(slot.Block, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
-        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        place.Become(new MotherBrainGlassObject(this));
+        RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
+        level.SetTerrain(place.Block, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
+        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
-        _motherBrainGlassSlot = slot;
+        _motherBrainGlassPlace = place;
         MotherBrainGlassWasLoaded = true;
     }
 
@@ -89,11 +89,11 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>
     /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
     /// </summary>
-    internal void SpawnShards(RoomObjectSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
+    internal void SpawnShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
         // The fragment spawn carries both block coordinates, each below 256.
-        Position16<RoomBlocks> glassBlock = slot.Block;
+        Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
                 RoomEnemyProjectileKind.MotherBrainGlassShard, shard, glassBlock));
@@ -110,7 +110,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>
     internal bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)
     {
-        if (_motherBrainGlassSlot is { Active: true, Behaviour: MotherBrainGlassObject live })
+        if (_motherBrainGlassPlace is { Active: true, Behaviour: MotherBrainGlassObject live })
         {
             glass = live;
             return true;
@@ -120,10 +120,10 @@ internal sealed class MotherBrainGlassObjects
     }
 
     /// <summary>Forgets the glass as it leaves the room, before its place is freed.</summary>
-    internal void OnObjectDeleted(RoomObjectSlot slot)
+    internal void OnObjectDeleted(RoomObjectPlace place)
     {
-        Ensure.NotNull(slot);
-        if (ReferenceEquals(slot, _motherBrainGlassSlot))
-            _motherBrainGlassSlot = null;
+        Ensure.NotNull(place);
+        if (ReferenceEquals(place, _motherBrainGlassPlace))
+            _motherBrainGlassPlace = null;
     }
 }

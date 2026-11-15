@@ -34,7 +34,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : RoomObjectBehaviou
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         Wake(context);
@@ -117,7 +117,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : RoomObjectBehaviou
     }
 
     /// <summary>Draws <paramref name="frame"/> and holds it for its updates in <paramref name="phase"/>.</summary>
-    private void Show(RoomObjectSlot place, RoomObjectStepContext context, TerrainChangeFrame frame, NoobTubePhase phase)
+    private void Show(RoomObjectPlace place, RoomObjectStepContext context, TerrainChangeFrame frame, NoobTubePhase phase)
     {
         context.Draw(place, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;

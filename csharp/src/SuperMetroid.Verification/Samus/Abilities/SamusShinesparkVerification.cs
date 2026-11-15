@@ -299,7 +299,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(RoomTerrainBlock.Of(0x58, BlockMirroring.None, RoomCollisionType.Air),
         empty.GetCollisionBlockByIndex(sparkBombBlockIndex).Terrain,
         "bomb-block setup replaces the block with the air bomb-block parent, like CE83");
-    AssertEqual(1, shineBombObjects.SlotTable.ActiveCount,
+    AssertEqual(1, shineBombObjects.Places.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
     AssertEqual(RoomTerrainBlock.Of(0x56, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
         empty.GetCollisionBlockByIndex(sparkExtensionBlockIndex).Terrain,

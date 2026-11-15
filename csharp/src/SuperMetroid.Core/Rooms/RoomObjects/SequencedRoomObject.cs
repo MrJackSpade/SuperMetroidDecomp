@@ -26,7 +26,7 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     internal bool Resting { get; private set; }
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (Resting)
@@ -40,16 +40,16 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     /// <summary>Decides what follows the sequence that just ended, on the update its last step's updates ran out.</summary>
     /// <param name="place">The object's place.</param>
     /// <param name="context">The update.</param>
-    private protected abstract void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context);
+    private protected abstract void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context);
 
     /// <summary>Shows <paramref name="step"/> at the object's place, with whatever comes with it; returns the updates it stays.</summary>
     /// <param name="step">The step.</param>
     /// <param name="place">The object's place.</param>
     /// <param name="context">The update.</param>
-    private protected abstract int Show(TStep step, RoomObjectSlot place, RoomObjectStepContext context);
+    private protected abstract int Show(TStep step, RoomObjectPlace place, RoomObjectStepContext context);
 
     /// <summary>Plays <paramref name="sequence"/> from its first step, which shows on this update.</summary>
-    private protected void Play(IReadOnlyList<TStep> sequence, RoomObjectSlot place, RoomObjectStepContext context)
+    private protected void Play(IReadOnlyList<TStep> sequence, RoomObjectPlace place, RoomObjectStepContext context)
     {
         Start(sequence);
         Step(place, context);
@@ -85,7 +85,7 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     }
 
     /// <summary>Shows the sequence's next step, or ends the sequence after its last step.</summary>
-    private void Step(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Step(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (_stepsShown == _sequence.Count)
         {

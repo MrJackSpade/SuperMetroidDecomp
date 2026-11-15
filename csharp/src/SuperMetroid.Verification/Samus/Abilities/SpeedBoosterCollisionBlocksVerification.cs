@@ -53,7 +53,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         AssertEqual(RoomCollisionType.SpecialBlock,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "inactive contact does not mutate Speed Booster terrain");
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "rejected setup synchronously releases its temporary PLM slot");
     }
 
@@ -74,8 +74,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
         AssertEqual(RoomBlockAppearance.Of(0x0b6),
             level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "accepted setup installs cartridge visual parent $0B6");
-        RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-        AssertTrue(slot.Behaviour is BlockReactionObject { Change: var respawning } && respawning == SpeedBoosterBlockObjectDefinitions.RespawningCrumble,
+        RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+        AssertTrue(place.Behaviour is BlockReactionObject { Change: var respawning } && respawning == SpeedBoosterBlockObjectDefinitions.RespawningCrumble,
             "BTS $0E starts the respawning program");
 
         StepSpeedBoosterObject(roomObjects, level);
@@ -84,9 +84,9 @@ internal static class SpeedBoosterCollisionBlocksVerification
                 request.Priority.Requests == 1),
             "first handler pass queues crumble sound six with cartridge maximum one");
 
-        for (int frame = 0; frame < 80 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 80 && roomObjects.Places.ActiveCount != 0; frame++)
             StepSpeedBoosterObject(roomObjects, level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "respawning speed-block list reaches its delete instruction");
         AssertEqual(RoomCollisionType.SpecialBlock,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
@@ -123,13 +123,13 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
-        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is BlockReactionObject { Change: var permanent }
+        AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is BlockReactionObject { Change: var permanent }
                 && permanent == SpeedBoosterBlockObjectDefinitions.PermanentCrumble,
             "BTS $0F starts the permanent program");
 
-        for (int frame = 0; frame < 12 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 12 && roomObjects.Places.ActiveCount != 0; frame++)
             StepSpeedBoosterObject(roomObjects, level);
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             "permanent speed-block list deletes after its four crumble frames");
         AssertEqual(RoomCollisionType.Air,
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
@@ -156,8 +156,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
-            RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertTrue(slot.Behaviour is BlockReactionObject { Change: var started } && started == expected,
+            RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
+            AssertTrue(place.Behaviour is BlockReactionObject { Change: var started } && started == expected,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,

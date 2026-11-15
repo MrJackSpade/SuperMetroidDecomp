@@ -65,10 +65,10 @@ internal static class RightFacingGateGlitchVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.PinkBrinstarHoppers);
 
         RoomLevelData original = runtime.Room.LoadedLevelData;
-        var residentGate = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.Behaviour is DownwardGateObject);
-        var shotBlock = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HoldsDownwardGateShotBlock);
+        var residentGate = runtime.RoomObjects.PopulationPlaces.Single(
+            place => place.Behaviour is DownwardGateObject);
+        var shotBlock = runtime.RoomObjects.PopulationPlaces.Single(
+            place => place.HoldsDownwardGateShotBlock);
         AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
         AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
         AssertEqual(new Position16<RoomBlocks>(17, 4), residentGate.Block, "Authored Pink Brinstar gate block");
@@ -133,8 +133,8 @@ internal static class RightFacingGateGlitchVerification
                 roomObjects.Gates.TakeDownwardGateProjectileRequests();
                 // The gate's own slot, found once per position: snapshotting every slot to find it each frame allocated
                 // over half a gigabyte across the matrix (#1680). Each frame still requires the slot to hold the gate.
-                RoomObjectSlot gateSlot = roomObjects.SlotTable.InProcessingOrder.Single(
-                    slot => slot.Active && slot.Behaviour is DownwardGateObject);
+                RoomObjectPlace gatePlace = roomObjects.Places.InUpdateOrder.Single(
+                    place => place.Active && place.Behaviour is DownwardGateObject);
 
                 var shots = CreateProjectileFixture();
                 var bombs = CreateBombFixture();
@@ -143,9 +143,9 @@ internal static class RightFacingGateGlitchVerification
                     ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                     bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
-                    if (!gateSlot.Active || gateSlot.Behaviour is not DownwardGateObject)
+                    if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
-                    if (gateSlot.Behaviour is DownwardGateObject { Triggered: true })
+                    if (gatePlace.Behaviour is DownwardGateObject { Triggered: true })
                     {
                         SamusProjectile shot = shots.Slots[0];
                         columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
@@ -225,10 +225,10 @@ internal static class RightFacingGateGlitchVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.EastTunnel);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
-        var gate = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.Behaviour is DownwardGateObject);
-        var shotBlock = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HoldsDownwardGateShotBlock);
+        var gate = runtime.RoomObjects.PopulationPlaces.Single(
+            place => place.Behaviour is DownwardGateObject);
+        var shotBlock = runtime.RoomObjects.PopulationPlaces.Single(
+            place => place.HoldsDownwardGateShotBlock);
         AssertEqual(64, level.Size.X, "East Tunnel room width");
         AssertEqual(32, level.Size.Y, "East Tunnel room height");
         AssertEqual(new Position16<RoomBlocks>(22, 5), gate.Block, "Authored East Tunnel gate block");
@@ -274,8 +274,8 @@ internal static class RightFacingGateGlitchVerification
             if (frame == shootFrame)
                 input |= ControllerButton.X;
             runtime.StepFrame(input);
-            gate = runtime.RoomObjects.PopulationSlots.Single(
-                slot => slot.Behaviour is DownwardGateObject);
+            gate = runtime.RoomObjects.PopulationPlaces.Single(
+                place => place.Behaviour is DownwardGateObject);
             if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
 

@@ -41,7 +41,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// Turns the door at <paramref name="place"/> into its closed blue cap facing <paramref name="orientation"/>, which
     /// makes its block shootable and draws its closed image on this same update.
     /// </summary>
-    internal static void TakeOver(RoomObjectSlot place, RoomObjectStepContext context, ColoredDoorOrientation orientation)
+    internal static void TakeOver(RoomObjectPlace place, RoomObjectStepContext context, ColoredDoorOrientation orientation)
     {
         Ensure.NotNull(place);
         var cap = new BlueDoorCapObject(orientation);
@@ -50,7 +50,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     }
 
     /// <inheritdoc/>
-    private protected override void SequenceEnded(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
         switch (Phase)
         {
@@ -67,7 +67,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     }
 
     /// <summary>Makes the cap's block shootable again and shows its closed image.</summary>
-    private void Close(RoomObjectSlot place, RoomObjectStepContext context)
+    private void Close(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Phase = BlueDoorCapPhase.Closed;
         context.Level.SetBehavior(place.Block,

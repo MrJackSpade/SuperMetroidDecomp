@@ -14,15 +14,15 @@ internal sealed class DoorObjects
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds door room-object logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorObjects(SharedGameState? system, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    internal DoorObjects(SharedGameState? system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
     {
         _system = system;
-        _slotTable = slotTable;
+        _places = places;
         _sounds = sounds;
     }
     /// <summary>
@@ -49,7 +49,7 @@ internal sealed class DoorObjects
         Ensure.NotNull(system);
 
         Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
-        foreach (RoomObjectSlot resident in _slotTable.InProcessingOrder)
+        foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
             if (!resident.Active || resident.Block != block)
                 continue;
@@ -71,23 +71,23 @@ internal sealed class DoorObjects
         if (DoorClosingObjects.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(fallback.BlueCapFacing is { } facing
+        place.Block = block;
+        place.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
-        SetupDoorTransitionDeactivatedSlot(level, slot);
+        SetupDoorTransitionDeactivatedSlot(level, place);
         return true;
     }
 
     /// <summary>
     /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
-    /// Despite its historical name, the setup does not delete or deactivate the room-object slot.
+    /// Despite its historical name, the setup does not delete or deactivate the room-object place.
     /// </summary>
-    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectSlot slot) =>
-        level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
+    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectPlace place) =>
+        level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
 
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, Position16<RoomBlocks> block)
@@ -104,14 +104,14 @@ internal sealed class DoorObjects
     /// Sets up a coloured cap: installs its shootable collision and places the cap, which takes its first look on its
     /// first update.
     /// </summary>
-    internal static void SetupColoredDoorSlot(
+    internal static void SetupColoredDoor(
         RoomLevelData level,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         ColoredDoorColor color,
         ColoredDoorOrientation orientation)
     {
-        ApplyColoredDoorSetup(level, slot.Block);
-        slot.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
+        ApplyColoredDoorSetup(level, place.Block);
+        place.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
     }
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
@@ -124,14 +124,14 @@ internal sealed class DoorObjects
     /// <summary>
     /// Whether this cap's door has been opened for good before; a cap whose opening never persists never has.
     /// </summary>
-    internal bool IsDoorOpened(RoomObjectSlot slot) =>
-        slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
+    internal bool IsDoorOpened(RoomObjectPlace place) =>
+        place.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
 
     /// <summary>
     /// Records the door of the cap at <paramref name="place"/> opened for good, when its opening persists, and marks the
     /// cap spent: it then keeps only its own door.
     /// </summary>
-    internal void RecordDoorOpened(RoomObjectSlot place)
+    internal void RecordDoorOpened(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
         if (place.Argument is DoorBitArgument { Persists: true } cap)
@@ -188,14 +188,14 @@ internal sealed class DoorObjects
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = position;
-        slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
+        place.Block = position;
+        place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
         // check reads: once that door has been opened for good, the spawned blue door never closes.
-        slot.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
+        place.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
             DoorOpeningPersistence.Persistent);
 
         // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision

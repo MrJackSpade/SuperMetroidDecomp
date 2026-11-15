@@ -49,7 +49,7 @@ internal sealed class CollectibleObject(
     public bool WasCollectedBeforeReveal { get; set; }
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         // Collision runs before the room-object update. The item trigger its setup wrote, for touch and shot, therefore
@@ -217,7 +217,7 @@ internal sealed class CollectibleObject(
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
     /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
     /// </summary>
-    internal void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectSlot place)
+    internal void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(drawing);
         Ensure.NotNull(place);
@@ -242,7 +242,7 @@ internal sealed class CollectibleObject(
     /// A revealed item: collected when touched; otherwise it shows its next visible image, and after its last pair its shot
     /// block starts to conceal it again.
     /// </summary>
-    private void StepRevealed(RoomObjectSlot place, RoomObjectStepContext context)
+    private void StepRevealed(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (Triggered)
         {
@@ -263,7 +263,7 @@ internal sealed class CollectibleObject(
 
     /// <summary>Plays the orb's shell animation on to its next image, draws it and holds it for its updates.</summary>
     /// <exception cref="InvalidOperationException">The animation showed no image, which a looping animation of images never does.</exception>
-    private void ShowNextOrbImage(RoomObjectSlot place, RoomObjectStepContext context)
+    private void ShowNextOrbImage(RoomObjectPlace place, RoomObjectStepContext context)
     {
         AnimationPlace orbPlace = OrbPlace;
         WrappingCountdown repeats = default;
@@ -280,7 +280,7 @@ internal sealed class CollectibleObject(
     /// Draws the item's visible image: the terrain its kind and block pair write, and over it, for an item that shows its
     /// own picture, its kind's picture of that image (#1538).
     /// </summary>
-    private void DrawVisible(RoomObjectStepContext context, RoomObjectSlot place)
+    private void DrawVisible(RoomObjectStepContext context, RoomObjectPlace place)
     {
         context.Draw(place, CollectibleObjectDraws.VisibleFrame(Kind, AnimationIndex, BlockPair));
         if (BlockPair is not null)

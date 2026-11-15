@@ -25,7 +25,7 @@ internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) 
     internal bool IsEscaped => RisesPassed == SpeedBoosterEscapeStageDefinitions.Stages.Length;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         switch (Phase)

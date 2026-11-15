@@ -12,22 +12,22 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
     /// <summary>The room's room objects, which the escape passage and the rescue wall's reaction join.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
     /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
     /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared slot table and the installed pictures.</summary>
-    internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
+    internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _events = events;
-        _slotTable = slotTable;
+        _places = places;
         _drawing = Ensure.NotNull(drawing);
     }
     /// <summary>Makes the three-block rescue wall standing down from <paramref name="origin"/> shootable, preserving artwork.</summary>
     public void SetupCrittersEscapeBlock(RoomLevelData level, Position16<RoomBlocks> origin)
     {
         // The wall's setup runs only once its spawn has taken a place, which a full room never gives.
-        if (_slotTable.IsFull)
+        if (_places.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free room-object slot.");
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
@@ -50,16 +50,16 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         Ensure.NotNull(level);
         IGlobalEventFlags events = _events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
-        if (_slotTable.IsFull)
+        if (_places.IsFull)
             return false;
         if (!events.Has(StoryEvent.CrittersEscaped))
             return false;
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = level.GridBlock(
+        place.Block = level.GridBlock(
             new(CrateriaMainstreetEscapePassageObjectDefinitions.BlockX, CrateriaMainstreetEscapePassageObjectDefinitions.BlockY));
-        slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage));
+        place.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage));
         return true;
     }
 
@@ -70,11 +70,11 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         // The grapple beam's touch is rejected; every projectile, beams and bombs alike, is accepted.
         if (projectileType.IsNone)
             return false;
-        if (_slotTable.Spawn() is not { } slot)
+        if (_places.Spawn() is not { } place)
             return false;
 
-        slot.Block = position;
-        slot.Become(new CritterWallBreakthroughObject());
+        place.Block = position;
+        place.Become(new CritterWallBreakthroughObject());
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         // The reaction shows the struck wall's installed picture over the wall's collision type; until its sequence runs, the
         // block is deactivated, staying solid only when it was. The wall breaks open for good, so it saves no block to

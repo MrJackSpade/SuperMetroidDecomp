@@ -155,11 +155,11 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
                 SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             $"{orientation} retail eye door accepts a Super Missile collision");
         roomObjects.Step(level);
-        for (int frame = 0; frame < 1024 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 1024 && roomObjects.Places.ActiveCount != 0; frame++)
             roomObjects.Step(level);
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} retail eye-door opening persists the door bit");
-        AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+        AssertEqual(0, roomObjects.Places.ActiveCount,
             $"{orientation} retail eye and passive components complete and delete");
         RoomCollisionBlock cap = level.GetCollisionBlockByIndex(eyeBlock - width);
         AssertEqual(RoomCollisionType.ShootableBlock, cap.CollisionType,
@@ -176,9 +176,9 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         var reopened = RoomObjectFixtures.Unbound();
         AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref reopened, new RoomObjectRoom(reopenedLevel, system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = requests.Add } }),
             $"{orientation} opened eye-door room reloads three components");
-        for (int frame = 0; frame < 16 && reopened.SlotTable.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 16 && reopened.Places.ActiveCount != 0; frame++)
             reopened.Step(reopenedLevel);
-        AssertEqual(0, reopened.SlotTable.ActiveCount,
+        AssertEqual(0, reopened.Places.ActiveCount,
             $"{orientation} opened eye-door reload converts to blue and removes passive parts");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} opened eye-door reload avoids instruction and draw ROM reads");

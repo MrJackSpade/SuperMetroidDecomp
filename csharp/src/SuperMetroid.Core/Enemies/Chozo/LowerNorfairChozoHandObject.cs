@@ -21,7 +21,7 @@ internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : R
     internal LowerNorfairChozoHandPhase Phase { get; private set; } = LowerNorfairChozoHandPhase.Starting;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         switch (Phase)

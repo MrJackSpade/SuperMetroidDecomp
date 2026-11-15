@@ -33,7 +33,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     internal void Touch() => Triggered = true;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (!Triggered)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Verification view of one occupied PLM slot.</summary>
-/// <param name="ProcessingPosition">
+/// <param name="UpdatePosition">
 /// The slot's place in the table's processing order, zero for the slot the room update reaches first; a spawn into an
 /// empty table takes position zero.
 /// </param>
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="ProjectileHit">The projectile hit the PLM recorded, if any.</param>
 /// <param name="Behaviour">The typed room object the place holds, if any (#1554); it runs no animation.</param>
 /// <param name="SpentCap">Whether the PLM is a door cap opened for good, whose word keeps only its spent mark.</param>
-internal readonly record struct RoomObjectSlotSnapshot(
-    int ProcessingPosition,
+internal readonly record struct RoomObjectPlaceSnapshot(
+    int UpdatePosition,
     Position16<RoomBlocks> Block,
     ushort? RoomArgument,
     ResidentObjectProjectileHit? ProjectileHit,

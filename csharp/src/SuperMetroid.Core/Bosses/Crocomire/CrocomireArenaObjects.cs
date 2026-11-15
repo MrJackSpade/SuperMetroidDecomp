@@ -5,8 +5,8 @@ using static SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaMutationDefinition
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Spawns Crocomire's bridge and invisible-wall room objects in the room's shared room-object slots.</summary>
-/// <param name="slotTable">The room's room-object slots, which the arena mutations contend for with every other room object.</param>
-internal sealed class CrocomireArenaObjects(RoomObjectSlotTable slotTable)
+/// <param name="places">The room's room-object slots, which the arena mutations contend for with every other room object.</param>
+internal sealed class CrocomireArenaObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its terrain change
@@ -21,11 +21,11 @@ internal sealed class CrocomireArenaObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
-        if (slotTable.Spawn() is not { } slot)
+        if (places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(new TerrainChangeObject(change));
+        place.Block = block;
+        place.Become(new TerrainChangeObject(change));
         return true;
     }
 }

@@ -19,17 +19,17 @@ internal sealed class StationObjects
     /// <summary>Applies the station and access-arm draw lists to the room's blocks.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
+    private readonly RoomObjectPlaceList _places;
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Connects station activation to room state, room-object drawing, resident slots and sound requests.</summary>
-    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    /// <summary>Connects station activation to room state, room-object drawing, the room-object places and sound requests.</summary>
+    internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
         _drawing = drawing;
-        _slotTable = slotTable;
+        _places = places;
         _sounds = sounds;
     }
     /// <summary>Messages and frontend actions produced in the current room-object update.</summary>
@@ -47,11 +47,11 @@ internal sealed class StationObjects
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
-            if (slot.Active && slot.Behaviour is StationObject { Kind: StationKind.Map } station &&
+            if (place.Active && place.Behaviour is StationObject { Kind: StationKind.Map } station &&
                 station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
                 station.OperationPhase = StationOperationPhase.Idle;
         }
@@ -125,9 +125,9 @@ internal sealed class StationObjects
     /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
     private StationObject FindSaveStation(StationActivationEvent activation)
     {
-        StationObject[] matches = _slotTable.FromLastPlace
-            .Where(slot => slot.Active && slot.Argument is SaveStationArgument saved && saved.Station == activation.Station)
-            .Select(slot => slot.Behaviour as StationObject)
+        StationObject[] matches = _places.FromLastPlace
+            .Where(place => place.Active && place.Argument is SaveStationArgument saved && saved.Station == activation.Station)
+            .Select(place => place.Behaviour as StationObject)
             .OfType<StationObject>()
             .Where(station => station.Kind == StationKind.Save && station.Area == activation.Area)
             .ToArray();
@@ -150,21 +150,21 @@ internal sealed class StationObjects
         RoomLevelData level,
         SharedGameState system,
         AreaId area,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         RoomObjectKind placed)
     {
-        Ensure.NotNull(slot);
+        Ensure.NotNull(place);
         if (placed == RoomObjectKind.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
             // platform then plays its loop.
-            slot.Become(new ElevatorPlatformObject());
-            level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
+            place.Become(new ElevatorPlatformObject());
+            level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
             return true;
         }
         if (!StationKindDefinitions.Kinds.TryGetValue(placed, out StationKind kind))
             return false;
-        SetupStation(level, system, area, slot, kind);
+        SetupStation(level, system, area, place, kind);
         return true;
     }
 
@@ -173,23 +173,23 @@ internal sealed class StationObjects
         RoomLevelData level,
         SharedGameState system,
         AreaId area,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         StationKind kind)
     {
-        RoomTerrainBlock original = level.GetCollisionBlock(slot.Block).Terrain;
+        RoomTerrainBlock original = level.GetCollisionBlock(place.Block).Terrain;
         switch (kind)
         {
             case StationKind.Save:
-                SetupSaveStation(level, area, slot, original);
+                SetupSaveStation(level, area, place, original);
                 return;
             case StationKind.Map:
-                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Map);
+                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Map);
                 return;
             case StationKind.Energy:
-                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Energy);
+                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Energy);
                 return;
             case StationKind.Missile:
-                SetupAccessStation(level, system, area, slot, original, StationAccessRuleDefinitions.Missile);
+                SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Missile);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
@@ -197,15 +197,15 @@ internal sealed class StationObjects
     }
 
     /// <summary>A save station: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectSlot slot, RoomTerrainBlock original)
+    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, RoomTerrainBlock original)
     {
         WriteStationBlock(
             level,
-            slot.Block,
+            place.Block,
             original,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
-        slot.Become(new StationObject(
+        place.Become(new StationObject(
             StationKind.Save,
             area,
             StationAnimationList.SaveIdle,
@@ -221,20 +221,20 @@ internal sealed class StationObjects
         RoomLevelData level,
         SharedGameState system,
         AreaId area,
-        RoomObjectSlot slot,
+        RoomObjectPlace place,
         RoomTerrainBlock original,
         StationAccessRule rule)
     {
-        WriteStationBlock(level, slot.Block, original, RoomCollisionType.SolidBlock, behavior: null);
-        WriteAccessBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
-        WriteAccessBlock(level, level.ObjectBlockStep(slot.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
+        WriteStationBlock(level, place.Block, original, RoomCollisionType.SolidBlock, behavior: null);
+        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
+        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
 
         StationAnimationList normalAnimationList = rule.Animation;
         StationAnimationList completedAnimationList = rule.AcquiredAnimation ?? normalAnimationList;
         StationAnimationList initialAnimationList = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
-        slot.Become(new StationObject(
+        place.Become(new StationObject(
             rule.Kind,
             area,
             initialAnimationList,
@@ -324,9 +324,9 @@ internal sealed class StationObjects
         };
         Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
-        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!slot.Active || slot.Block != stationBlock || slot.Behaviour is not StationObject station)
+            if (!place.Active || place.Block != stationBlock || place.Behaviour is not StationObject station)
                 continue;
 
             bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
@@ -348,7 +348,7 @@ internal sealed class StationObjects
                 // reaches its column. Accepts only the latter, narrower range.
                 StationAccessBehavior.SaveFloor => axis == Axis.Vertical && movingPositive &&
                     collisionPose == SamusCollisionPose.StandingNormal &&
-                    IsSaveStationTriggerCentered(slot.Block),
+                    IsSaveStationTriggerCentered(place.Block),
                 _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };
             if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&

@@ -101,7 +101,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        RoomObjectSlot[] initialObjects = [.. runtime.RoomObjects.SlotTable.InProcessingOrder];
+        RoomObjectPlace[] initialObjects = [.. runtime.RoomObjects.Places.InUpdateOrder];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
@@ -600,18 +600,18 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 // The movie's memory lists PLMs by slot ordinal, and the table processes the highest ordinal first.
-                var roomObjectSlots = runtime.RoomObjects.PopulationSlots.ToDictionary(slot => SuperMetroid.Core.Compatibility.RoomObjectPlaces.PlaceCount - 1 - slot.ProcessingPosition);
+                var roomObjectPlaces = runtime.RoomObjects.PopulationPlaces.ToDictionary(place => SuperMetroid.Core.Compatibility.RoomObjectPlaces.PlaceCount - 1 - place.UpdatePosition);
                 for (int slotIndex = 0; slotIndex < initialObjects.Length; slotIndex++)
                 {
                     int offset = slotIndex * 2;
-                    bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
+                    bool active = roomObjectPlaces.TryGetValue(slotIndex, out var place);
                     // The movie's room objects are grey doors, whose header is the one their variant is placed with (#1691).
-                    VerificationAssertions.AssertTrue(!active || slot.Behaviour is GreyDoorObject,
-                        $"Movie PLM {slot.Behaviour?.GetType().Name ?? "with no typed object"} needs a family-variable coverage mapping");
-                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(GreyDoorPlacedKinds.Of(((GreyDoorObject)slot.Behaviour!).Variant)) : (ushort)0,
+                    VerificationAssertions.AssertTrue(!active || place.Behaviour is GreyDoorObject,
+                        $"Movie PLM {place.Behaviour?.GetType().Name ?? "with no typed object"} needs a family-variable coverage mapping");
+                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(GreyDoorPlacedKinds.Of(((GreyDoorObject)place.Behaviour!).Variant)) : (ushort)0,
                         NativeSnapshotMemory.RoomObjectHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
-                    GreyDoorObjectSnapshot greyDoor = runtime.RoomObjects.GreyDoorSnapshots.Single(door => ReferenceEquals(door.Door, slot.Behaviour));
+                    GreyDoorObjectSnapshot greyDoor = runtime.RoomObjects.GreyDoorSnapshots.Single(door => ReferenceEquals(door.Door, place.Behaviour));
                     GreyDoorObject typedDoor = greyDoor.Door;
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.RoomObjectFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
@@ -637,24 +637,24 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                             NativeSnapshotMemory.RoomObjectLinkInstruction + offset);
                     // The movie's memory records the block as its row-major index in bytes; the port's place is its position.
                     RoomLevelData objectLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room level data.");
-                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(objectLevel.Size.RowMajorIndex(slot.Block) * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
+                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(objectLevel.Size.RowMajorIndex(place.Block) * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
                     Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Condition),
                         NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
                     // repeated flashes being steps of its sequence, so the counter is not compared otherwise.
-                    if (slot.ProjectileHit is { } pendingHit)
+                    if (place.ProjectileHit is { } pendingHit)
                     {
                         SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)
                             mismatches.Add($"PLM {slotIndex} projectile hit: native={recordedHit} port={pendingHit.Family}");
                     }
                     // A spent cap's word is compared by its spent mark; the open doors the cartridge leaves beside it are read by nothing.
-                    if (slot.SpentCap)
-                        CheckValue($"PLM {slotIndex} RoomArgument spent mark", slot.RoomArgument ?? throw new InvalidDataException("A spent cap's word is its spent mark."),
+                    if (place.SpentCap)
+                        CheckValue($"PLM {slotIndex} RoomArgument spent mark", place.RoomArgument ?? throw new InvalidDataException("A spent cap's word is its spent mark."),
                             W(NativeSnapshotMemory.RoomObjectRoomArgument + offset) & RoomObjectRoomArgumentWords.SpentMark);
                     else
-                        Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument ?? throw new InvalidDataException("A grey door's word is its typed argument's."),
+                        Check($"PLM {slotIndex} RoomArgument", place.RoomArgument ?? throw new InvalidDataException("A grey door's word is its typed argument's."),
                             NativeSnapshotMemory.RoomObjectRoomArgument + offset);
                     // The update the cap's next image draws, or its sequence ends: the updates its shown image has left.
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; a resting cap counts

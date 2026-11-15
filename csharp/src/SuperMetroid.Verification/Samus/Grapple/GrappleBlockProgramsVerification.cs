@@ -145,7 +145,7 @@ internal static class GrappleBlockProgramsVerification
             {
                 native.RoomObjects.Step(native.Level);
                 compiled.RoomObjects.Step(compiled.Level);
-                AssertEqual(native.RoomObjects.SlotTable.ActiveCount, compiled.RoomObjects.SlotTable.ActiveCount,
+                AssertEqual(native.RoomObjects.Places.ActiveCount, compiled.RoomObjects.Places.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.RoomObjects.Sounds.SoundRequests.Count, compiled.RoomObjects.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
@@ -159,7 +159,7 @@ internal static class GrappleBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"Grapple BTS {bts} never rereads compiled control bytes");
-            AssertEqual(0, compiled.RoomObjects.SlotTable.ActiveCount,
+            AssertEqual(0, compiled.RoomObjects.Places.ActiveCount,
                 $"Grapple BTS {bts} finishes its cartridge timeline");
         }
 

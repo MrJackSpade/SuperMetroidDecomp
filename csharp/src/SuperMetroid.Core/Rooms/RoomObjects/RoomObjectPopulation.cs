@@ -16,7 +16,7 @@ public sealed class RoomObjectPopulation
     /// <summary>Validated placements in allocation order; scroll changes are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered decoded population and validates scroll changes before any room-object slots are allocated.</summary>
+    /// <summary>Copies an ordered decoded population and validates scroll changes before any room object takes a place.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
     /// <param name="placements">
     /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects

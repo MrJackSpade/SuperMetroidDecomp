@@ -165,10 +165,10 @@ internal static class RoomObjectRoomArgumentWords
     /// typed argument's word, else the scroll program's place for a scroll trigger. A live object that holds none of these
     /// has no word here: the cartridge's is its placement's filler or its spawner's, which names no state the port keeps.
     /// </summary>
-    private static ushort? HeldWord(RoomObjectSlot slot) =>
-        HitWord(slot) is { } hits ? unchecked((ushort)hits)
-        : ArgumentWord(slot.Argument)
-            ?? ((slot.Behaviour as ScrollTriggerObject)?.Change is { } program ? (ushort?)RoomScrollProgramNative.Addresses[program] : null);
+    private static ushort? HeldWord(RoomObjectPlace place) =>
+        HitWord(place) is { } hits ? unchecked((ushort)hits)
+        : ArgumentWord(place.Argument)
+            ?? ((place.Behaviour as ScrollTriggerObject)?.Change is { } program ? (ushort?)RoomScrollProgramNative.Addresses[program] : null);
 
     /// <summary>The native word of a typed argument, or null for none.</summary>
     private static ushort? ArgumentWord(RoomObjectRoomArgument? argument) =>
@@ -211,7 +211,7 @@ internal static class RoomObjectRoomArgumentWords
     /// the cartridge leaves once a counted hit destroyed it. A smoking cannon was shot down unless it was set up
     /// destroyed, which alone holds the destroying count: the hit that destroys a cannon is not added to its count.
     /// </summary>
-    private static int? HitWord(RoomObjectSlot slot) => slot.Behaviour switch
+    private static int? HitWord(RoomObjectPlace place) => place.Behaviour switch
     {
         DraygonCannonObject cannon => cannon.Phase == DraygonCannonPhase.Smoking && cannon.Hits != DraygonCannonDefinitions.HitsToDestroy
             ? ushort.MaxValue
@@ -220,11 +220,11 @@ internal static class RoomObjectRoomArgumentWords
         _ => null,
     };
 
-    /// <summary>The native room-argument word of a live slot.</summary>
-    extension(RoomObjectSlot slot)
+    /// <summary>The native room-argument word of a live place.</summary>
+    extension(RoomObjectPlace place)
     {
         /// <summary>The word native work RAM holds for the slot's argument, or null where the port keeps nothing it stands for.</summary>
-        internal ushort? NativeRoomArgument => HeldWord(slot);
+        internal ushort? NativeRoomArgument => HeldWord(place);
     }
 
     /// <summary>The native room-argument word of a placement.</summary>

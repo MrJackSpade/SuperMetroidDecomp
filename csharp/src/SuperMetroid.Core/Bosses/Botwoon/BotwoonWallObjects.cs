@@ -5,11 +5,11 @@ using static SuperMetroid.Core.Bosses.Botwoon.BotwoonWallMutationDefinitions;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Spawns Botwoon's wall room object in the room's shared room-object slots.</summary>
-/// <param name="slotTable">The room's room-object slots, which the wall contends for with every other room object.</param>
-internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
+/// <param name="places">The room's room-object slots, which the wall contends for with every other room object.</param>
+internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>
-    /// Spawns the wall room object performing <paramref name="mutation"/> at the wall's top block, in the first free slot of the
+    /// Spawns the wall room object performing <paramref name="mutation"/> at the wall's top block, in the first free place of the
     /// room's processing order. The wall is known by what it does (its terrain change, or
     /// <see cref="BotwoonWallCrumbleObject"/>), never by a room-object identity.
     /// </summary>
@@ -33,11 +33,11 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
         // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
         // fall outside the room.
         Position16<RoomBlocks> block = level.GridBlock(Block);
-        if (slotTable.Spawn() is not { } slot)
+        if (places.Spawn() is not { } place)
             return false;
 
-        slot.Block = block;
-        slot.Become(wall);
+        place.Block = block;
+        place.Become(wall);
         return true;
     }
 }

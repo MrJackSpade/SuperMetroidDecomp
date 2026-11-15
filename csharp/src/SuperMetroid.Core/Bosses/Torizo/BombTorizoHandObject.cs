@@ -30,7 +30,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     private int _updatesBeforeNextStep = 1;
 
     /// <inheritdoc/>
-    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
         if (WakeArmed && _owner.SamusHasBombs())

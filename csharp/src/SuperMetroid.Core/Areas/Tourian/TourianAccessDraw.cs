@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The five Tourian access-floor draw lists.</summary>
+/// <summary>The five pictures the Tourian access floor's crumble draws.</summary>
 internal enum TourianAccessDraw
 {
     /// <summary>Clear one row after its crumble frames.</summary>

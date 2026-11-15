@@ -8,57 +8,45 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The two enemy projectiles spawned when a new game enters
-/// Ceres: the moving pad under Samus and the stationary elevator platform behind it.
+/// The Ceres elevator arrival a new game starts with: the moving pad that lowers Samus and the stationary platform behind
+/// it, which hides the landing recess until she lands and both leave.
 /// </summary>
-/// <remarks>
-/// These are not invented cutscene sprites. Construction consumes compiled copies of
-/// the authored definitions; frame stepping executes their
-/// animations and motions. Keeping this tiny
-/// pair separate avoids pretending that the larger general enemy-projectile engine has
-/// already been modelled.
-/// </remarks>
 [RoomLifetime]
 public sealed class CeresElevatorArrivalState
 {
-    /// <summary>First spawned projectile, which moves Samus before the platform checks landing.</summary>
+    /// <summary>The moving pad, which lowers Samus before the platform checks for her landing.</summary>
     internal readonly CeresElevatorProjectile pad;
-    /// <summary>Second spawned projectile, which waits behind the pad until touchdown.</summary>
+    /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
     internal readonly CeresElevatorProjectile platform;
 
-    /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
+    /// <summary>Starts the pad under Samus, waiting before it moves, and the platform at its fixed height below her.</summary>
     public CeresElevatorArrivalState(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // Spawning a projectile with graphics first copies the room's first-listed enemy's graphics and colour choice. The shared
-        // initializer then clears it, so both actors use room-loaded sprite pictures and the
-        // colours authored by their frames. Retaining the transient choice is
-        // what previously made the level-data concealer teal until touchdown.
+        // Both actors show the shared sheet's pictures in the colours their frames author, with the concealer cleared to
+        // black (CeresElevatorArrivalDefinitions.StartingGraphics).
         pad = LoadProjectile(
-            CeresElevatorArrivalDefinitions.MovingPad,
+            CeresElevatorArrivalSegment.Pad,
             MovingPadUnder(samus));
         pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
 
         platform = LoadProjectile(
-            CeresElevatorArrivalDefinitions.StationaryPlatform,
+            CeresElevatorArrivalSegment.Platform,
             samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
-    /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
+    /// <summary>True after both actors leave, once Samus has landed at Y=72.</summary>
     public bool IsComplete => !pad.Active && !platform.Active;
 
-    /// <summary>
-    /// Runs the two freshly spawned projectiles in the projectile pass's order.
-    /// </summary>
+    /// <summary>Runs the pad, then the platform.</summary>
     /// <returns>True on and after the frame that hands Samus control back after the elevator descent.</returns>
     public bool Step(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // Spawning takes the last free slot. The pad is spawned first into the last slot,
-        // the platform second into the one before it, and the projectile pass runs from the
-        // last slot down; therefore the pad must move Samus before the platform tests Y=72.
+        // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
+        // she lands.
         if (pad.Active)
         {
             if (pad.WaitTimer > 1)
@@ -114,13 +102,13 @@ public sealed class CeresElevatorArrivalState
     private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
         samus.Position.Whole + new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(CeresElevatorArrivalDefinitions.MovingPadYOffset));
 
-    /// <summary>Creates one arrival actor from its compiled definition and room position.</summary>
+    /// <summary>Creates one arrival actor playing the animation of <paramref name="segment"/> at its room position.</summary>
     private static CeresElevatorProjectile LoadProjectile(
-        CeresElevatorProjectileDefinition definition,
+        CeresElevatorArrivalSegment segment,
         Position16<RoomPixels> position)
     {
         return new CeresElevatorProjectile(
-            definition.Animation,
+            segment,
             position,
             CeresElevatorArrivalDefinitions.StartingGraphics);
     }
@@ -169,10 +157,10 @@ public sealed class CeresElevatorArrivalState
             projectile.Graphics);
     }
 
-    /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
+    /// <summary>One of the two arrival actors: its animation, place and the pad's wait.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's animation, position, and graphics.</summary>
+        /// <summary>Starts an actor's animation at its position, showing its graphics.</summary>
         public CeresElevatorProjectile(
             CeresElevatorArrivalSegment segment,
             Position16<RoomPixels> position,
@@ -185,7 +173,7 @@ public sealed class CeresElevatorArrivalState
 
         /// <summary>The spawned-object sheet the projectile draws from and the colours it shows.</summary>
         public SpriteGraphics Graphics { get; }
-        /// <summary>Whether the projectile still occupies its arrival slot.</summary>
+        /// <summary>Whether the actor is still in the room; it leaves when its animation ends.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the per-frame movement only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }

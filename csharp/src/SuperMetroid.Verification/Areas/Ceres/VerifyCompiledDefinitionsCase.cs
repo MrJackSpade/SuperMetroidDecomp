@@ -2,7 +2,7 @@ using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
-/// <summary>The definition and definition pointer of one verify compiled definitions case.</summary>
-/// <param name="Definition">The definition.</param>
-/// <param name="DefinitionPointer">The definition pointer.</param>
-internal readonly record struct VerifyCompiledDefinitionsCase(CeresElevatorProjectileDefinition Definition, ushort DefinitionPointer);
+/// <summary>One Ceres elevator arrival actor's animation and the native definition that names its list.</summary>
+/// <param name="Animation">The animation the actor starts with.</param>
+/// <param name="DefinitionPointer">The native definition.</param>
+internal readonly record struct VerifyCompiledDefinitionsCase(CeresElevatorArrivalSegment Animation, ushort DefinitionPointer);

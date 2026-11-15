@@ -6,20 +6,11 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Compiled mechanics for the two enemy projectiles used by the initial
-/// Ceres elevator arrival. Frame pictures remain presentation data.
+/// The Ceres elevator arrival's two actors, the moving pad that lowers Samus and the stationary platform that hides the
+/// landing recess: where they start, how long the pad waits and where Samus lands. Frame pictures remain presentation data.
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {
-
-    /// <summary>Moving pad spawned first, into the last enemy-projectile slot.</summary>
-    internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
-        Animation: CeresElevatorArrivalSegment.Pad);
-
-    /// <summary>Stationary level-data concealer spawned second, into the slot before it.</summary>
-    internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
-        Animation: CeresElevatorArrivalSegment.Platform);
-
     /// <summary>
     /// The graphics both arrival projectiles start with: the shared sheet, as their initializer clears them, with the
     /// level-data concealer's colour cleared to black. A new game clears that colour just before the arrival spawns, so

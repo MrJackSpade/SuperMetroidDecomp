@@ -9,10 +9,14 @@ internal static class BombTorizoAttacks
     /// <param name="site">Where the explosion bursts.</param>
     /// <param name="facingRight">Whether Torizo faces right.</param>
     /// <exception cref="InvalidDataException"><paramref name="site"/> is neither site.</exception>
-    internal static Offset16<RoomPixels> LowHealthExplosion(BombTorizoExplosionSite site, bool facingRight) => site switch
+    internal static Offset16<RoomPixels> LowHealthExplosion(BombTorizoExplosionSite site, bool facingRight)
     {
-        BombTorizoExplosionSite.Gut => ExplosionPlacements[facingRight ? 0 : 1],
-        BombTorizoExplosionSite.Face => ExplosionPlacements[facingRight ? 2 : 3],
-        _ => throw new InvalidDataException($"Bomb Torizo low-health explosion site {site} is neither the gut nor the face."),
-    };
+        Offset16<RoomPixels> placement = site switch
+        {
+            BombTorizoExplosionSite.Gut => GutExplosion,
+            BombTorizoExplosionSite.Face => FaceExplosion,
+            _ => throw new InvalidDataException($"Bomb Torizo low-health explosion site {site} is neither the gut nor the face."),
+        };
+        return facingRight ? placement : placement.MirroredX();
+    }
 }

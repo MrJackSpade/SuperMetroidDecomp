@@ -396,13 +396,6 @@ internal static class TorizoProjectileAnimations
         [P.EyeBeam] = new([new(P.EyeBeam, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The eight statue fragments' animations, indexed by fragment.</summary>
-    private static readonly TorizoProjectileSegment[] StatueFragments =
-    [
-        P.FirstStatueFragment, P.SecondStatueFragment, P.ThirdStatueFragment, P.FourthStatueFragment,
-        P.FifthStatueFragment, P.SixthStatueFragment, P.SeventhStatueFragment, P.EighthStatueFragment,
-    ];
-
     /// <summary>The animation each resting egg resumes into when its hatch timer wakes it; no other animation rests.</summary>
     private static readonly FrozenDictionary<P, P> ResumesAfterSleep = new Dictionary<P, P>
     {
@@ -424,11 +417,6 @@ internal static class TorizoProjectileAnimations
     /// </summary>
     internal static AnimationContinuation<TorizoProjectileSegment> ReplayPhase(AnimationPlayback<TorizoProjectileSegment> pastCue) =>
         new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
-
-    /// <summary>The animation of statue fragment <paramref name="index"/>, of the eight the breaking statue hand emits.</summary>
-    internal static TorizoProjectileSegment StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
-        ? StatueFragments[index]
-        : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits eight fragments.");
 
     /// <summary>The animation a resting egg resumes into when its hatch timer wakes it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>

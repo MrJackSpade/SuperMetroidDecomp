@@ -847,8 +847,7 @@ internal sealed class TorizoAttacks
     public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
     {
-        BombTorizoStatueFragmentDefinition definition =
-            BombTorizoStatueFragments.ForFragment(request.Fragment);
+        BombTorizoStatueFragmentDefinition definition = BombTorizoStatueFragmentDefinitions.Fragments[request.Fragment];
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

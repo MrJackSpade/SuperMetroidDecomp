@@ -264,7 +264,7 @@ internal static class BossRoomObjectProgramsVerification
             if (step.FragmentBefore is { } fragment)
             {
                 AssertEqual(RoomObjectInstruction.SpawnTorizoStatueBreaking, At(cursor), $"{at} drops a fragment");
-                AssertEqual(fragment * sizeof(ushort), (int)Word(cursor + 2), $"{at} fragment");
+                AssertEqual(BombTorizoStatueFragmentNativeOrder.IndexOf(fragment) * sizeof(ushort), (int)Word(cursor + 2), $"{at} fragment");
                 cursor += 4;
             }
             AssertShown(cursor, step.Image, step.Updates, at);

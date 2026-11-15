@@ -21,14 +21,13 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
         Suite(nameof(VerifyStatueFragmentYField), () => VerifyStatueFragmentYField(rom));
         Suite(nameof(VerifyStatueFragmentVelocityField), () => VerifyStatueFragmentVelocityField(rom));
         Suite(nameof(VerifyStatueFragmentAccelerationField), () => VerifyStatueFragmentAccelerationField(rom));
-        AssertEqual(8, BombTorizoStatueFragmentDefinitions.FragmentCount, "the hand's crumble drops eight fragments");
-        foreach (int fragment in new[] { -1, 8, 16, 256, int.MaxValue, int.MinValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragments.ForFragment(fragment), "statue rejects fragments outside the eight");
+        AssertEqual(8, BombTorizoStatueFragmentDefinitions.Fragments.Count, "the hand breaks into eight named pieces");
+        AssertTrue(BombTorizoStatueFragmentNativeOrder.Pieces.SequenceEqual(BombTorizoHandCrumbleDefinitions.Crumble.Select(step => step.FragmentBefore).OfType<BombTorizoStatueFragment>()),
+            "the crumble drops every piece once, in the cartridge's table order");
         var guarded = NewBombTorizoStatueFragmentReadGuard(rom);
-        for (int index = 0; index < BombTorizoStatueFragmentDefinitions.FragmentCount; index++)
+        foreach (BombTorizoStatueFragment index in Enum.GetValues<BombTorizoStatueFragment>())
         {
-            BombTorizoStatueFragmentDefinition expected =
-                BombTorizoStatueFragments.ForFragment(index);
+            BombTorizoStatueFragmentDefinition expected = BombTorizoStatueFragmentDefinitions.Fragments[index];
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             EnemyProjectile projectile =
                 enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
@@ -62,37 +61,37 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     /// <summary>Checks the instruction list of each fragment against the native table its two-byte offset selects.</summary>
     private static void VerifyStatueFragmentProgramField(ISnesAddressSpace rom)
     {
-        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
+        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7ab + parameter)),
-                TorizoNativeListAddresses.ProjectileEntry(BombTorizoStatueFragments.ForFragment(fragment).Animation), "statue native program field");
+                TorizoNativeListAddresses.ProjectileEntry(BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Animation), "statue native program field");
     }
     /// <summary>Checks signed horizontal offsets.</summary>
     private static void VerifyStatueFragmentXField(ISnesAddressSpace rom)
     {
-        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
+        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7cb + parameter))),
-                BombTorizoStatueFragments.ForFragment(fragment).Offset.X, "statue native signed X field");
+                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Offset.X, "statue native signed X field");
     }
     /// <summary>Checks the eight-row vertical offset table.</summary>
     private static void VerifyStatueFragmentYField(ISnesAddressSpace rom)
     {
-        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
+        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7eb + parameter))),
-                BombTorizoStatueFragments.ForFragment(fragment).Offset.Y, "statue native signed Y field");
+                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Offset.Y, "statue native signed Y field");
     }
     /// <summary>Checks the repeated native vertical launch speed entries.</summary>
     private static void VerifyStatueFragmentVelocityField(ISnesAddressSpace rom)
     {
-        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
+        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7fb + parameter)),
-                BombTorizoStatueFragments.ForFragment(fragment).InitialFallSpeed.RawValue, "statue native constant launch velocity field");
+                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].InitialFallSpeed.RawValue, "statue native constant launch velocity field");
     }
     /// <summary>Checks the repeated native vertical acceleration entries.</summary>
     private static void VerifyStatueFragmentAccelerationField(ISnesAddressSpace rom)
     {
-        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
+        for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentNativeOrder.Pieces.Count; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a80b + parameter)),
-                BombTorizoStatueFragments.ForFragment(fragment).Acceleration.RawValue, "statue native constant acceleration field");
+                BombTorizoStatueFragmentDefinitions.Fragments[BombTorizoStatueFragmentNativeOrder.Pieces[fragment]].Acceleration.RawValue, "statue native constant acceleration field");
     }
     /// <summary>Forbids production rereads of the five compiled statue-fragment physical tables.</summary>
     private static CartridgeReadGuard NewBombTorizoStatueFragmentReadGuard(ISnesAddressSpace source) =>
